@@ -35,11 +35,14 @@ namespace Nucleus.Gaming
             get { return canPlay; }
         }
 
-        public JSUserInputControl()
+      /*   public JSUserInputControl()
         {
             nameFont = new Font("Segoe UI", 24);
             detailsFont = new Font("Segoe UI", 18);
-        }
+        } */
+		
+		
+		
 
         public bool HasProperty(IDictionary<string, Object> expando, string key)
         {
@@ -90,8 +93,7 @@ namespace Nucleus.Gaming
                     string name = value["Name"].ToString();
 
                     control.Title = name;
-                    control.TitleFont = nameFont;
-                    control.DetailsFont = detailsFont;
+                    
 
                     string details = "";
                     object detailsObj;
@@ -133,5 +135,7 @@ namespace Nucleus.Gaming
             canProceed = true;
             CanPlayUpdated(true, true);
         }
+
+       
     }
 }

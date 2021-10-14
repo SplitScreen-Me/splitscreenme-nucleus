@@ -71,8 +71,8 @@ namespace Nucleus.Coop
                 cool.Title = opt.Name;
                 cool.Details = opt.Description;
                 cool.Width = list.Width;
-                cool.TitleFont = nameFont;
-                cool.DetailsFont = detailsFont;
+                cool.Font = new Font("Segoe UI", 11);
+                //cool.DetailsFont = detailsFont;
 
                 list.Controls.Add(cool);
 

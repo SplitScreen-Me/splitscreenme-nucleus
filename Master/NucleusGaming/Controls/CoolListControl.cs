@@ -19,7 +19,7 @@ namespace SplitTool.Controls
         protected int defaultHeight = 72;
         protected int expandedHeight = 156;
 
-        public Font TitleFont
+        /* public Font TitleFont
         {
             get { return titleLabel.Font; }
             set { titleLabel.Font = value; }
@@ -28,7 +28,7 @@ namespace SplitTool.Controls
         {
             get { return descLabel.Font; }
             set { descLabel.Font = value; }
-        }
+        } */
 
         public string Title
         {
@@ -46,7 +46,7 @@ namespace SplitTool.Controls
         public object Data { get; set; }
         public event Action<object> OnSelected;
 
-        public CoolListControl(bool enableHightlighting)
+       public CoolListControl(bool enableHightlighting)
         {
             EnableHighlighting = enableHightlighting;
 
