@@ -15,6 +15,7 @@ namespace SplitTool.Controls
         protected int defaultHeight = 72;
         protected int expandedHeight = 156;
 
+
         public string Title
         {
             get => titleLabel.Text;
@@ -31,7 +32,7 @@ namespace SplitTool.Controls
         public object Data { get; set; }
         public event Action<object> OnSelected;
 
-        public CoolListControl(bool enableHightlighting)
+       public CoolListControl(bool enableHightlighting)
         {
             EnableHighlighting = enableHightlighting;
 
