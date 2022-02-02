@@ -1,15 +1,14 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Nucleus Coop Tool (Mod)")]
+[assembly: AssemblyTitle("Nucleus Co-op")]
 [assembly: AssemblyDescription("Split-screen gaming on PC")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Lucas Assis, ZeroFox & Ilyaki")]
-[assembly: AssemblyProduct("NucleusCoop")]
+[assembly: AssemblyCompany("Lucas Assis, ZeroFox, Ilyaki & nene27")]
+[assembly: AssemblyProduct("Nucleus Co-op")]
 [assembly: AssemblyCopyright("Copyright ©  2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

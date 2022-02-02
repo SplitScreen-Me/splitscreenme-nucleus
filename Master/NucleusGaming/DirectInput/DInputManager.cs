@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Nucleus.Gaming.DirectInput
 {
@@ -44,7 +42,7 @@ namespace Nucleus.Gaming.DirectInput
         };
 
         private static DInputLibrary library;
-        public static DInputLibrary Library { get { return library; } }
+        public static DInputLibrary Library => library;
 
         static DInputManager()
         {

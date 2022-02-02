@@ -1,12 +1,9 @@
 ﻿using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Generic.Step;
 using SplitTool.Controls;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Nucleus.Gaming
@@ -22,26 +19,11 @@ namespace Nucleus.Gaming
         public CustomStep CustomStep;
         public ContentManager Content;
 
-        public override bool CanProceed
-        {
-            get { return canProceed; }
-        }
-        public override string Title
-        {
-            get { return CustomStep.Title; }
-        }
-        public override bool CanPlay
-        {
-            get { return canPlay; }
-        }
+        public override bool CanProceed => canProceed;
+        public override string Title => CustomStep.Title;
+        public override bool CanPlay => canPlay;
 
-        public JSUserInputControl()
-        {
-            nameFont = new Font("Segoe UI", 24);
-            detailsFont = new Font("Segoe UI", 18);
-        }
-
-        public bool HasProperty(IDictionary<string, Object> expando, string key)
+        public bool HasProperty(IDictionary<string, object> expando, string key)
         {
             return expando.ContainsKey(key);
         }
@@ -52,7 +34,7 @@ namespace Nucleus.Gaming
         {
             base.Initialize(game, profile);
 
-            this.Controls.Clear();
+            Controls.Clear();
 
             // grab the CustomStep and extract what we have to show from it
             GameOption option = CustomStep.Option;
@@ -63,11 +45,13 @@ namespace Nucleus.Gaming
             }
             else
             {
-                ControlListBox list = new ControlListBox();
-                list.Size = this.Size;
-                list.AutoScroll = true;
+                ControlListBox list = new ControlListBox
+                {
+                    Size = Size,
+                    AutoScroll = true
+                };
 
-                this.Controls.Add(list);
+                Controls.Add(list);
 
                 collection = option.List;
                 for (int i = 0; i < collection.Count; i++)
@@ -79,31 +63,30 @@ namespace Nucleus.Gaming
                         continue;
                     }
 
-                    CoolListControl control = new CoolListControl(true);
-                    control.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right;
-                    control.BackColor = Color.FromArgb(30, 30, 30);
-                    control.Size = new Size(list.Width, 120);
-                    control.Data = val;
+                    CoolListControl control = new CoolListControl(true)
+                    {
+                        Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right,
+                        BackColor = Color.FromArgb(30, 30, 30),
+                        Size = new Size(list.Width, 120),
+                        Data = val
+                    };
                     control.OnSelected += Control_OnSelected;
 
                     IDictionary<string, object> value = (IDictionary<string, object>)val;
                     string name = value["Name"].ToString();
 
                     control.Title = name;
-                    control.TitleFont = nameFont;
-                    control.DetailsFont = detailsFont;
+
 
                     string details = "";
-                    object detailsObj;
-                    if (value.TryGetValue("Details", out detailsObj))
+                    if (value.TryGetValue("Details", out object detailsObj))
                     {
                         details = detailsObj.ToString();
 
                         control.Details = details;
                     }
 
-                    object imageUrlObj;
-                    value.TryGetValue("ImageUrl", out imageUrlObj);
+                    value.TryGetValue("ImageUrl", out object imageUrlObj);
                     if (imageUrlObj != null)
                     {
                         string imageUrl = imageUrlObj.ToString();
@@ -111,9 +94,11 @@ namespace Nucleus.Gaming
                         {
                             Image img = Content.LoadImage(imageUrl);
 
-                            PictureBox box = new PictureBox();
-                            box.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-                            box.Size = new Size(140, 80);
+                            PictureBox box = new PictureBox
+                            {
+                                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                                Size = new Size(140, 80)
+                            };
                             box.Location = new Point(list.Width - box.Width - 10, 20);
                             box.SizeMode = PictureBoxSizeMode.Zoom;
                             box.Image = img;
@@ -133,5 +118,7 @@ namespace Nucleus.Gaming
             canProceed = true;
             CanPlayUpdated(true, true);
         }
+
+
     }
 }

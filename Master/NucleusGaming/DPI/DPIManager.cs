@@ -1,10 +1,11 @@
-﻿using Nucleus.Gaming.Windows;
+﻿using Nucleus.Gaming.DPI;
+using Nucleus.Gaming.Windows;
 using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
 namespace Nucleus.Gaming
 {
@@ -12,7 +13,7 @@ namespace Nucleus.Gaming
     {
         public static float Scale = 1f;
         private static List<IDynamicSized> components = new List<IDynamicSized>();
-
+        private static int i = 0;
         private static readonly IniFile ini = new Gaming.IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));
 
         public static Font Font;
@@ -24,13 +25,13 @@ namespace Nucleus.Gaming
         public static extern IntPtr GetDC(IntPtr hwnd);
 
         [DllImport("gdi32.dll")]
-        static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
+        private static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
 
         private static float GetDpi()
         {
             IntPtr desktopWnd = IntPtr.Zero;
             IntPtr dc = GetDC(desktopWnd);
-            var dpi = 100f;
+            float dpi = 100f;
             const int LOGPIXELSX = 88;
             try
             {
@@ -45,7 +46,7 @@ namespace Nucleus.Gaming
 
         public static void PreInitialize()
         {
-            if(ini.IniReadValue("Advanced","Scale") != "")
+            if (ini.IniReadValue("Advanced", "Scale") != "")
             {
                 Scale = float.Parse(ini.IniReadValue("Advanced", "Scale"));
             }
@@ -69,7 +70,7 @@ namespace Nucleus.Gaming
             //}
             if (ini.IniReadValue("Advanced", "Font") != "")
             {
-                fontSize = Int32.Parse(ini.IniReadValue("Advanced", "Font"));
+                fontSize = int.Parse(ini.IniReadValue("Advanced", "Font"));
             }
 
             Font = new Font("Segoe UI", fontSize, GraphicsUnit.Point);
@@ -117,12 +118,33 @@ namespace Nucleus.Gaming
                 });
             }
         }
+        
+        //public enum DeviceCap
+        //{
+        //    VERTRES = 10,
+        //    DESKTOPVERTRES = 117,
 
+        //    // http://pinvoke.net/default.aspx/gdi32/GetDeviceCaps.html
+        //}
+
+
+        private static float getScalingFactor()
+        {
+            //DeviceCapEnum enumerator = new DeviceCapEnum();
+            
+            Graphics g = Graphics.FromHwnd(IntPtr.Zero);
+            IntPtr desktop = g.GetHdc();
+            int LogicalScreenHeight = GetDeviceCaps(desktop, (int)DeviceCapEnum.DeviceCap.VERTRES);
+            int PhysicalScreenHeight = GetDeviceCaps(desktop,(int)DeviceCapEnum.DeviceCap.DESKTOPVERTRES);
+
+            float ScreenScalingFactor = (float)PhysicalScreenHeight / (float)LogicalScreenHeight;
+
+            return ScreenScalingFactor; // 1.25 = 125%
+        }
         public static void ForceUpdate()
         {
-            UpdateAll();
+            UpdateAll();          
         }
-
         private static void UpdateAll()
         {
             for (int i = 0; i < components.Count; i++)

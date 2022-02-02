@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -23,7 +22,7 @@ namespace Nucleus.Gaming.Interop
             ref int returnLength);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr OpenMutex(UInt32 desiredAccess, bool inheritHandle, string name);
+        public static extern IntPtr OpenMutex(uint desiredAccess, bool inheritHandle, string name);
 
         [DllImport("kernel32.dll")]
         public static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, int dwProcessId);
@@ -133,14 +132,14 @@ namespace Nucleus.Gaming.Interop
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct SYSTEM_HANDLE_INFORMATION
-        { 
+        {
             // Information Class 16
             public int ProcessID;
             public byte ObjectTypeNumber;
             public byte Flags; // 0x01 = PROTECT_FROM_CLOSE, 0x02 = INHERIT
             public ushort Handle;
             public int Object_Pointer;
-            public UInt32 GrantedAccess;
+            public uint GrantedAccess;
         }
 
         public const int MAX_PATH = 260;
@@ -151,16 +150,16 @@ namespace Nucleus.Gaming.Interop
 
     public class Win32Processes
     {
-        const int CNST_SYSTEM_HANDLE_INFORMATION = 16;
-        const uint STATUS_INFO_LENGTH_MISMATCH = 0xc0000004;
+        private const int CNST_SYSTEM_HANDLE_INFORMATION = 16;
+        private const uint STATUS_INFO_LENGTH_MISMATCH = 0xc0000004;
 
         public static string getObjectTypeName(Win32API.SYSTEM_HANDLE_INFORMATION shHandle, Process process)
         {
             IntPtr m_ipProcessHwnd = Win32API.OpenProcess(Win32API.ProcessAccessFlags.All, false, process.Id);
             IntPtr ipHandle = IntPtr.Zero;
-            var objBasic = new Win32API.OBJECT_BASIC_INFORMATION();
+            Win32API.OBJECT_BASIC_INFORMATION objBasic = new Win32API.OBJECT_BASIC_INFORMATION();
             IntPtr ipBasic = IntPtr.Zero;
-            var objObjectType = new Win32API.OBJECT_TYPE_INFORMATION();
+            Win32API.OBJECT_TYPE_INFORMATION objObjectType = new Win32API.OBJECT_TYPE_INFORMATION();
             IntPtr ipObjectType = IntPtr.Zero;
             IntPtr ipObjectName = IntPtr.Zero;
             string strObjectTypeName = "";
@@ -171,7 +170,9 @@ namespace Nucleus.Gaming.Interop
             if (!Win32API.DuplicateHandle(m_ipProcessHwnd, shHandle.Handle,
                                           Win32API.GetCurrentProcess(), out ipHandle,
                                           0, false, Win32API.DUPLICATE_SAME_ACCESS))
+            {
                 return null;
+            }
 
             ipBasic = Marshal.AllocHGlobal(Marshal.SizeOf(objBasic));
             Win32API.NtQueryObject(ipHandle, (int)Win32API.ObjectInformationClass.ObjectBasicInformation,
@@ -210,10 +211,10 @@ namespace Nucleus.Gaming.Interop
         {
             IntPtr m_ipProcessHwnd = Win32API.OpenProcess(Win32API.ProcessAccessFlags.All, false, process.Id);
             IntPtr ipHandle = IntPtr.Zero;
-            var objBasic = new Win32API.OBJECT_BASIC_INFORMATION();
+            Win32API.OBJECT_BASIC_INFORMATION objBasic = new Win32API.OBJECT_BASIC_INFORMATION();
             IntPtr ipBasic = IntPtr.Zero;
             IntPtr ipObjectType = IntPtr.Zero;
-            var objObjectName = new Win32API.OBJECT_NAME_INFORMATION();
+            Win32API.OBJECT_NAME_INFORMATION objObjectName = new Win32API.OBJECT_NAME_INFORMATION();
             IntPtr ipObjectName = IntPtr.Zero;
             string strObjectName = "";
             int nLength = 0;
@@ -222,7 +223,9 @@ namespace Nucleus.Gaming.Interop
 
             if (!Win32API.DuplicateHandle(m_ipProcessHwnd, shHandle.Handle, Win32API.GetCurrentProcess(),
                                           out ipHandle, 0, false, Win32API.DUPLICATE_SAME_ACCESS))
+            {
                 return null;
+            }
 
             ipBasic = Marshal.AllocHGlobal(Marshal.SizeOf(objBasic));
             Win32API.NtQueryObject(ipHandle, (int)Win32API.ObjectInformationClass.ObjectBasicInformation,
@@ -330,14 +333,20 @@ namespace Nucleus.Gaming.Interop
 
                 if (process != null)
                 {
-                    if (shHandle.ProcessID != process.Id) continue;
+                    if (shHandle.ProcessID != process.Id)
+                    {
+                        continue;
+                    }
                 }
 
                 string strObjectTypeName = "";
                 if (IN_strObjectTypeName != null)
                 {
                     strObjectTypeName = getObjectTypeName(shHandle, Process.GetProcessById(shHandle.ProcessID));
-                    if (strObjectTypeName != IN_strObjectTypeName) continue;
+                    if (strObjectTypeName != IN_strObjectTypeName)
+                    {
+                        continue;
+                    }
                 }
 
                 string strObjectName = "";
@@ -418,21 +427,30 @@ namespace Nucleus.Gaming.Interop
 
                 if (process != null)
                 {
-                    if (shHandle.ProcessID != process.Id) continue;
+                    if (shHandle.ProcessID != process.Id)
+                    {
+                        continue;
+                    }
                 }
 
                 string strObjectTypeName = "";
                 if (IN_strObjectTypeName != null)
                 {
                     strObjectTypeName = getObjectTypeName(shHandle, Process.GetProcessById(shHandle.ProcessID));
-                    if (strObjectTypeName != IN_strObjectTypeName) continue;
+                    if (strObjectTypeName != IN_strObjectTypeName)
+                    {
+                        continue;
+                    }
                 }
 
                 string strObjectName = "";
                 if (IN_strObjectName != null)
                 {
                     strObjectName = getObjectName(shHandle, Process.GetProcessById(shHandle.ProcessID));
-                    if (strObjectName != IN_strObjectName) continue;
+                    if (strObjectName != IN_strObjectName)
+                    {
+                        continue;
+                    }
                 }
 
                 string strObjectTypeName2 = getObjectTypeName(shHandle, Process.GetProcessById(shHandle.ProcessID));
@@ -448,16 +466,16 @@ namespace Nucleus.Gaming.Interop
         {
             return Environment.Is64BitProcess;
 
-            int size = Marshal.SizeOf(typeof(IntPtr)) ;
-            return size  == 8 ? true : false;
+            int size = Marshal.SizeOf(typeof(IntPtr));
+            return size == 8 ? true : false;
         }
     }
 
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            
+
         }
     }
 }

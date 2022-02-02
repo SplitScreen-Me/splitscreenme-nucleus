@@ -1,58 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using Nucleus.Gaming;
+﻿using Nucleus.Gaming;
 using Nucleus.Gaming.Controls;
-using System.Collections;
-using SplitTool.Controls;
-using System.Reflection;
 using Nucleus.Gaming.Coop;
+using SplitTool.Controls;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Reflection;
+using System.Windows.Forms;
 
 namespace Nucleus.Coop
 {
-    public class PlayerOptionsControl : UserInputControl
+    public class PlayerOptionsControl : UserInputControl, IDynamicSized
     {
         private ControlListBox list;
         private Font nameFont;
         private Font detailsFont;
+    
+        public override bool CanProceed => true;
 
-        public override bool CanProceed
-        {
-            get { return true; }
-        }
+        public override bool CanPlay => true;
 
-        public override bool CanPlay
-        {
-            get { return true; }
-        }
-
-        public override string Title
-        {
-            get { return "Player Options"; }
-        }
+        public override string Title => "Player Options";
 
         public PlayerOptionsControl()
         {
             nameFont = new Font("Segoe UI", 18);
             detailsFont = new Font("Segoe UI", 12);
         }
-
         public override void Initialize(UserGameInfo game, GameProfile profile)
         {
             base.Initialize(game, profile);
-
-            this.Controls.Clear();
-
+           
+            Controls.Clear();
+           
             int wid = 200;
 
-            list = new ControlListBox();
-            list.Size = this.Size;
-
+            list = new ControlListBox
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
+                Size = Size,
+                AutoScroll = true,
+            };
+            
             List<GameOption> options = game.Game.Options;
             Dictionary<string, object> vals = profile.Options;
             for (int j = 0; j < options.Count; j++)
@@ -61,18 +51,19 @@ namespace Nucleus.Coop
                 if (opt.Hidden)
                 { continue; }
 
-                object val;
-                if (!vals.TryGetValue(opt.Key, out val))
+                if (!vals.TryGetValue(opt.Key, out object val))
                 {
                     continue;
                 }
 
-                CoolListControl cool = new CoolListControl(false);
-                cool.Title = opt.Name;
-                cool.Details = opt.Description;
-                cool.Width = list.Width;
-                cool.TitleFont = nameFont;
-                cool.DetailsFont = detailsFont;
+                CoolListControl cool = new CoolListControl(false)
+                {
+                    Title = opt.Name,
+                    Details = opt.Description,
+                    Width = list.Width,
+                    Font = new Font("Segoe UI", 8)
+                };
+                //cool.DetailsFont = detailsFont;
 
                 list.Controls.Add(cool);
 
@@ -101,16 +92,21 @@ namespace Nucleus.Coop
                     for (int i = 0; i < values.Count; i++)
                     {
                         box.Items.Add(values[i]);
+                        
                     }
 
                     if (defaultValue != null)
                     {
                         box.SelectedIndex = box.Items.IndexOf(defaultValue);
                         if (box.SelectedIndex == -1)
+                        {
                             box.SelectedIndex = box.Items.IndexOf(value);
+                        }
                     }
                     else
+                    {
                         box.SelectedIndex = box.Items.IndexOf(value);
+                    }
 
                     box.Width = wid;
                     box.Height = 40;
@@ -194,9 +190,12 @@ namespace Nucleus.Coop
                 }
             }
 
-            this.Controls.Add(list);
+            Controls.Add(list);
             list.UpdateSizes();
+
             CanPlayUpdated(true, false);
+            DPIManager.Register(this);       
+            DPIManager.Update(this);
         }
 
         private void ChangeOption(object tag, object value)
@@ -227,5 +226,31 @@ namespace Nucleus.Coop
             SizeableCheckbox check = (SizeableCheckbox)sender;
             ChangeOption(check.Tag, check.Checked);
         }
+
+        public void UpdateSize(float scale)
+        {
+            if (IsDisposed)
+            {
+                DPIManager.Unregister(this);
+                return;
+            }
+            
+            if (scale > 1.0F)
+            {
+                float newFontSize = 7 * scale;
+
+                foreach (Control c in Controls)
+                {
+                    foreach (Control child in c.Controls)
+                    {
+                        SuspendLayout();
+                        child.Font = new Font("Franklin Gothic Medium", newFontSize, FontStyle.Regular, GraphicsUnit.Point, 0);
+                        ResumeLayout();
+                    }
+                }
+            }
+
+        }
+
     }
 }

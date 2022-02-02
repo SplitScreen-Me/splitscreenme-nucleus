@@ -1,12 +1,7 @@
-﻿using Microsoft.Win32.SafeHandles;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace AutoHotkey.Interop
 {
@@ -17,11 +12,13 @@ namespace AutoHotkey.Interop
             path = Regex.Replace(path, @"[/\\]", ".");
 
             if (!path.StartsWith("."))
+            {
                 path = "." + path;
-            
-            var names = assembly.GetManifestResourceNames();
+            }
 
-            foreach (var name in names)
+            string[] names = assembly.GetManifestResourceNames();
+
+            foreach (string name in names)
             {
                 if (name.EndsWith(path))
                 {
@@ -35,13 +32,15 @@ namespace AutoHotkey.Interop
         public static void ExtractEmbededResourceToFile(Assembly assembly, string embededResourcePath, string targetFileName)
         {
             //ensure directory exists
-            var dir = Path.GetDirectoryName(targetFileName);
+            string dir = Path.GetDirectoryName(targetFileName);
 
             if (!Directory.Exists(dir))
+            {
                 Directory.CreateDirectory(dir);
+            }
 
-            using (var readStream = assembly.GetManifestResourceStream(embededResourcePath))
-            using (var writeStream = File.Open(targetFileName, FileMode.Create))
+            using (Stream readStream = assembly.GetManifestResourceStream(embededResourcePath))
+            using (FileStream writeStream = File.Open(targetFileName, FileMode.Create))
             {
                 readStream.CopyTo(writeStream);
                 readStream.Flush();
@@ -62,9 +61,11 @@ namespace AutoHotkey.Interop
         public static void EnsureAutoHotkeyLoaded()
         {
             if (dllHandle.IsValueCreated)
+            {
                 return;
+            }
 
-            var handle = dllHandle.Value;
+            SafeLibraryHandle handle = dllHandle.Value;
         }
 
         private static Lazy<SafeLibraryHandle> dllHandle = new Lazy<SafeLibraryHandle>(
@@ -76,7 +77,7 @@ namespace AutoHotkey.Interop
             string path32 = @"x86\AutoHotkey.dll";
             string path64 = @"x64\AutoHotkey.dll";
 
-            var loadDllFromFileOrResource = new Func<string, SafeLibraryHandle>(relativePath =>
+            Func<string, SafeLibraryHandle> loadDllFromFileOrResource = new Func<string, SafeLibraryHandle>(relativePath =>
             {
                 if (File.Exists(relativePath))
                 {
@@ -84,12 +85,12 @@ namespace AutoHotkey.Interop
                 }
                 else
                 {
-                    var assembly = typeof(AutoHotkeyEngine).Assembly;
-                    var resource = Util.FindEmbededResourceName(assembly, relativePath);
+                    Assembly assembly = typeof(AutoHotkeyEngine).Assembly;
+                    string resource = Util.FindEmbededResourceName(assembly, relativePath);
 
                     if (resource != null)
                     {
-                        var target = Path.Combine(tempFolderPath, relativePath);
+                        string target = Path.Combine(tempFolderPath, relativePath);
                         Util.ExtractEmbededResourceToFile(assembly, resource, target);
                         return SafeLibraryHandle.LoadLibrary(target);
                     }

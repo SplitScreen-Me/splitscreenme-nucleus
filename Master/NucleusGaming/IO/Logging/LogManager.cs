@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -102,7 +100,7 @@ namespace Nucleus.Gaming
 
             if (ini.IniReadValue("Misc", "DebugLog") == "True")
             {
-                if(str.StartsWith("Found game info"))
+                if (str.StartsWith("Found game info"))
                 {
                     return;
                 }

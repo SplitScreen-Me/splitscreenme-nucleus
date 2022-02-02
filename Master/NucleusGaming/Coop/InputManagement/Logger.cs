@@ -1,18 +1,14 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-
-namespace Nucleus.Gaming.Coop.InputManagement.Logging
+﻿namespace Nucleus.Gaming.Coop.InputManagement.Logging
 {
-	static class Logger
-	{
-		public static void WriteLine(object message)
-		{
-			WriteLine(message.ToString());
-		}
+    internal static class Logger
+    {
+        public static void WriteLine(object message)
+        {
+            WriteLine(message.ToString());
+        }
 
-		public static void WriteLine(string message)
-		{
+        public static void WriteLine(string message)
+        {
 #if DEBUG
 			try
 			{
@@ -26,6 +22,6 @@ namespace Nucleus.Gaming.Coop.InputManagement.Logging
 
 			Debug.WriteLine(message);
 #endif
-		}
-	}
+        }
+    }
 }

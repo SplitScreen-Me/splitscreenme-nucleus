@@ -1,25 +1,25 @@
-﻿using Nucleus.Gaming.Windows.Interop;
+﻿using NAudio.CoreAudioApi;
+using Nucleus.Gaming;
+using Nucleus.Gaming.Coop.InputManagement;
+using Nucleus.Gaming.Windows.Interop;
+using SharpDX.DirectInput;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
-using Nucleus.Gaming;
-using System.Text.RegularExpressions;
-using SharpDX.DirectInput;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using Nucleus.Gaming.Coop.InputManagement;
-using System.Management;
-using NAudio.CoreAudioApi;
+using System.Text.RegularExpressions;
+using System.Windows.Forms;
+using System.Media;
 
 namespace Nucleus.Coop
 {
-    public partial class Settings : BaseForm
+    public partial class Settings : BaseForm, IDynamicSized
     {
-        private readonly IniFile ini = new Gaming.IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));
+        private readonly IniFile ini = new IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));
 
         private MainForm mainForm = null;
         private PositionsControl positionsControl;
@@ -33,23 +33,106 @@ namespace Nucleus.Coop
 
         //private List<string> audioDevices;
         private IDictionary<string, string> audioDevices;
-
+        private string epicLang;
+        private string epicLangText;
         private DirectInput dinput;
+       
+        public void button_Click(object sender, EventArgs e)
+        {
+            string ChoosenTheme = ini.IniReadValue("Theme", "Theme");
+            _ = new IniFile(Path.Combine(Directory.GetCurrentDirectory() + "\\gui\\theme\\" + ChoosenTheme, "theme.ini"));
+
+            SoundPlayer splayer = new SoundPlayer((Path.Combine(Application.StartupPath, @"gui\theme\" + ChoosenTheme + "\\button_click.wav")));
+            splayer.Play();
+        }
 
         public Settings(MainForm mf, PositionsControl pc)
         {
+            
+            string ChoosenTheme = ini.IniReadValue("Theme", "Theme");
+            IniFile theme = new IniFile(Path.Combine(Directory.GetCurrentDirectory() + "\\gui\\theme\\" + ChoosenTheme, "theme.ini"));
+            bool MouseClick = Convert.ToBoolean(theme.IniReadValue("Sounds", "MouseClick"));
+            string[] rgb_MouseOverColor = theme.IniReadValue("Colors", "MouseOverColor").Split(',');
+            string[] rgb_font = theme.IniReadValue("Colors", "FontColor").Split(',');
+            Color MouseOverBackColor = Color.FromArgb(Convert.ToInt32(rgb_MouseOverColor[0]), Convert.ToInt32(rgb_MouseOverColor[1]), Convert.ToInt32(rgb_MouseOverColor[2]));
+
+            Image AppButtons = Image.FromFile(Path.Combine(Application.StartupPath, @"gui\theme\" + ChoosenTheme + "\\button.png"));
+
             InitializeComponent();
 
-            DPIManager.AddForm(this);
-            DPIManager.ForceUpdate();
+            //form Fore Color
+            ForeColor = Color.FromArgb(Convert.ToInt32(rgb_font[0]), Convert.ToInt32(rgb_font[1]), Convert.ToInt32(rgb_font[2]));
+            //
+            BackgroundImage = Image.FromFile(Path.Combine(Application.StartupPath, @"gui\theme\" + ChoosenTheme + "\\other_backgrounds.jpg"));
+            tabPage1.BackgroundImage = Image.FromFile(Path.Combine(Application.StartupPath, @"gui\theme\" + ChoosenTheme + "\\other_backgrounds.jpg"));
+            tabPage3.BackgroundImage = Image.FromFile(Path.Combine(Application.StartupPath, @"gui\theme\" + ChoosenTheme + "\\other_backgrounds.jpg"));
+            tabPage4.BackgroundImage = Image.FromFile(Path.Combine(Application.StartupPath, @"gui\theme\" + ChoosenTheme + "\\other_backgrounds.jpg"));
+            tabPage5.BackgroundImage = Image.FromFile(Path.Combine(Application.StartupPath, @"gui\theme\" + ChoosenTheme + "\\other_backgrounds.jpg"));
+            setting_Label.BackgroundImage = AppButtons;
+            btn_credits.BackgroundImage = AppButtons;
+            settingsCloseBtn.BackgroundImage = AppButtons;
+            settingsSaveBtn.BackgroundImage = AppButtons;
+            //
+            //MouseOverColor
+            //
+            btn_credits.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
+            settingsCloseBtn.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
+            settingsSaveBtn.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
+            btn_Refresh.BackColor = MouseOverBackColor;
+            audioRefresh.BackColor = MouseOverBackColor;
 
-            Invalidate();
+            if (MouseClick)
+            {
+                foreach (Control button in this.Controls) { if (button is Button) { button.Click += new System.EventHandler(this.button_Click); } }
+            }
 
             controllerGuids = new TextBox[] { controllerOneGuid, controllerTwoGuid, controllerThreeGuid, controllerFourGuid, controllerFiveGuid, controllerSixGuid, controllerSevenGuid, controllerEightGuid, controllerNineGuid, controllerTenGuid, controllerElevenGuid, controllerTwelveGuid, controllerThirteenGuid, controllerFourteenGuid, controllerFifteenGuid, controllerSixteenGuid };
             controllerNicks = new TextBox[] { controllerOneNick, controllerTwoNick, controllerThreeNick, controllerFourNick, controllerFiveNick, controllerSixNick, controllerSevenNick, controllerEightNick, controllerNineNick, controllerTenNick, controllerElevenNick, controllerTwelveNick, controllerThirteenNick, controllerFourteenNick, controllerFifteenNick, controllerSixteenNick };
 
-            mainForm = mf as MainForm;
+            mainForm = mf;
             positionsControl = pc;
+
+            //epiclangs 
+            IDictionary<string, string> epiclangs = new Dictionary<string, string>();
+     
+            epiclangs.Add("Arabic", "ar");
+            epiclangs.Add("Brazilian", "pt-BR");
+            epiclangs.Add("Bulgarian", "bg");
+            epiclangs.Add("Chinese", "zh");
+            epiclangs.Add("Czech", "cs");
+            epiclangs.Add("Danish", "da");
+            epiclangs.Add("Dutch", "nl");
+            epiclangs.Add("English", "en");
+            epiclangs.Add("Finnish", "fi");
+            epiclangs.Add("French", "fr");
+            epiclangs.Add("German", "de");
+            epiclangs.Add("Greek", "el");
+            epiclangs.Add("Hungarian", "hu");
+            epiclangs.Add("Italian", "it");
+            epiclangs.Add("Japanese", "ja");
+            epiclangs.Add("Koreana", "ko");
+            epiclangs.Add("Norwegian", "no");
+            epiclangs.Add("Polish", "pl");
+            epiclangs.Add("Portuguese", "pt");
+            epiclangs.Add("Romanian", "ro");
+            epiclangs.Add("Russian", "ru");
+            epiclangs.Add("Spanish", "es");
+            epiclangs.Add("Swedish", "sv");
+            epiclangs.Add("Thai", "th");
+            epiclangs.Add("Turkish", "tr");
+            epiclangs.Add("Ukrainian", "uk");
+
+            foreach(KeyValuePair<string, string> lang in epiclangs)
+            {
+                if (lang.Key == ini.IniReadValue("Misc", "EpicLang"))
+                {
+                    epicLangText = lang.Key;
+                    epicLang = lang.Value;
+                }
+               
+            }
+
+            //Console.WriteLine(epicLang);
 
             RefreshCmbNetwork();
             if (ini.IniReadValue("Misc", "Network") != "")
@@ -70,7 +153,26 @@ namespace Nucleus.Coop
                 cmb_Lang.SelectedIndex = 0;
             }
 
-            //Hotkeys
+            if (ini.IniReadValue("Misc", "EpicLang") != "")
+            {
+                cmb_EpicLang.Text = epicLangText;
+            }
+            else
+            {
+                cmb_EpicLang.SelectedIndex = 0;
+            }
+
+            if (ini.IniReadValue("Dev", "OfflineMod") == "On")
+            {
+                offlineMod.SelectedIndex = 1;
+            }
+            else 
+            {
+                offlineMod.SelectedIndex = 0;
+            }
+                
+               
+
             if (ini.IniReadValue("Hotkeys", "Close").Contains('+'))
             {
                 string[] closeHk = ini.IniReadValue("Hotkeys", "Close").Split('+');
@@ -138,27 +240,27 @@ namespace Nucleus.Coop
             //Misc
             if (ini.IniReadValue("Misc", "UseNicksInGame") != "")
             {
-                useNicksCheck.Checked = Boolean.Parse(ini.IniReadValue("Misc", "UseNicksInGame"));
+                useNicksCheck.Checked = bool.Parse(ini.IniReadValue("Misc", "UseNicksInGame"));
             }
 
             if (ini.IniReadValue("Misc", "IgnoreInputLockReminder") != "")
             {
-	            ignoreInputLockReminderCheckbox.Checked = Boolean.Parse(ini.IniReadValue("Misc", "IgnoreInputLockReminder"));
+                ignoreInputLockReminderCheckbox.Checked = bool.Parse(ini.IniReadValue("Misc", "IgnoreInputLockReminder"));
             }
 
             if (ini.IniReadValue("Misc", "DebugLog") != "")
             {
-                debugLogCheck.Checked = Boolean.Parse(ini.IniReadValue("Misc", "DebugLog"));
+                debugLogCheck.Checked = bool.Parse(ini.IniReadValue("Misc", "DebugLog"));
             }
 
             if (ini.IniReadValue("Misc", "ShowStatus") != "")
             {
-                statusCheck.Checked = Boolean.Parse(ini.IniReadValue("Misc", "ShowStatus"));
+                statusCheck.Checked = bool.Parse(ini.IniReadValue("Misc", "ShowStatus"));
             }
 
             if (ini.IniReadValue("Misc", "KeepAccounts") != "")
             {
-                keepAccountsCheck.Checked = Boolean.Parse(ini.IniReadValue("Misc", "KeepAccounts"));
+                keepAccountsCheck.Checked = bool.Parse(ini.IniReadValue("Misc", "KeepAccounts"));
             }
 
             if (ini.IniReadValue("Misc", "NucleusAccountPassword") != "")
@@ -175,27 +277,124 @@ namespace Nucleus.Coop
             {
                 audioCustomSettingsRadio.Checked = true;
             }
+            Location = new Point(mf.Location.X + mf.Width / 2 - Width / 2, mf.Location.Y + mf.Height / 2 - Height / 2);
+            RefreshAudioList();
 
             //if (ini.IniReadValue("Misc", "VibrateOpen") != "")
             //{
             //    check_Vibrate.Checked = Boolean.Parse(ini.IniReadValue("Misc", "VibrateOpen"));
             //}
+            //CenterToScreen();
+            DPIManager.Register(this);
+            DPIManager.AddForm(this);
+            DPIManager.Update(this);
 
-            RefreshAudioList();
         }
-
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams handleparams = base.CreateParams;
+                handleparams.ExStyle = 0x02000000;
+                return handleparams;
+            }
+        }
         public Settings()
         {
-            InitializeComponent();
-            DPIManager.AddForm(this);
-            DPIManager.ForceUpdate();
+            DPIManager.Unregister(this);
+        }
+
+        public void UpdateSize(float scale)
+        {
+           if (IsDisposed)
+            {
+                DPIManager.Unregister(this);
+                return;
+            }
+
+            if (scale > 1.0F)
+            {
+
+                float newTabsSize = (Font.Size - 2.0f) * scale;
+                float newFontSize = Font.Size * scale;
+
+                tabControl2.Font = new Font("Franklin Gothic Medium", newTabsSize, FontStyle.Regular, GraphicsUnit.Point, 0);
+
+
+                foreach (Control c in tabPage3.Controls)
+                {
+                    if (c.GetType() == typeof(NumericUpDown) ^ c.GetType() == typeof(ComboBox) ^ c.GetType() == typeof(TextBox) ^ c.GetType() == typeof(GroupBox))
+                    {
+                        c.Font = new Font("Franklin Gothic Medium", newFontSize, FontStyle.Regular, GraphicsUnit.Point, 0);
+
+                    }
+                }
+
+                foreach (Control c in tabPage1.Controls)
+                {
+                    if (c.GetType() == typeof(NumericUpDown) ^ c.GetType() == typeof(ComboBox) ^ c.GetType() == typeof(TextBox) ^ c.GetType() == typeof(GroupBox))
+                    {
+                        c.Font = new Font("Franklin Gothic Medium", newFontSize, FontStyle.Regular, GraphicsUnit.Point, 0);
+
+                    }
+                    else if (c.GetType() == typeof(Panel))
+                    {
+                        c.Font = new Font("Franklin Gothic Medium", newFontSize, FontStyle.Regular, GraphicsUnit.Point, 0);
+                    }
+
+                    else if (c.GetType() == typeof(Label) ^ c.GetType() == typeof(RadioButton) ^ c.GetType() == typeof(Button))
+                    {
+                        c.Font = new Font("Franklin Gothic Medium", Font.Size, FontStyle.Regular, GraphicsUnit.Point, 0);
+                    }
+                }
+                foreach (Control c in audioCustomSettingsBox.Controls)
+                {
+                    if (c.GetType() == typeof(Label))
+                    {
+                        c.Font = new Font("Franklin Gothic Medium", Font.Size, FontStyle.Regular, GraphicsUnit.Point, 0);
+                    }
+                }
+
+                foreach (Control c in groupBox1.Controls)
+                {
+                    if (c.GetType() == typeof(Label))
+                    {
+                        c.Font = new Font("Franklin Gothic Medium", Font.Size, FontStyle.Regular, GraphicsUnit.Point, 0);
+                    }
+                }
+
+
+                foreach (Control c in tabPage4.Controls)
+                {
+                    if (c.GetType() == typeof(NumericUpDown) ^ c.GetType() == typeof(ComboBox) ^ c.GetType() == typeof(TextBox) ^ c.GetType() == typeof(GroupBox) ^ c.GetType() == typeof(Panel))
+                    {
+                        c.Font = new Font("Franklin Gothic Medium", newFontSize, FontStyle.Regular, GraphicsUnit.Point, 0);
+
+                    }
+
+                }
+                foreach (Control c in tabPage5.Controls)
+                {
+                    if (c.GetType() == typeof(NumericUpDown) ^ c.GetType() == typeof(ComboBox) ^ c.GetType() == typeof(TextBox) ^ c.GetType() == typeof(GroupBox))
+                    {
+                        c.Font = new Font("Franklin Gothic Medium", newFontSize, FontStyle.Regular, GraphicsUnit.Point, 0);
+
+                    }
+
+                    else if (c.GetType() == typeof(Button))
+                    {
+                        c.Font = new Font("Franklin Gothic Medium", Font.Size, FontStyle.Regular, GraphicsUnit.Point, 0);
+                    }
+
+                }
+            }
+
         }
 
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
-
-            DPIManager.ForceUpdate();
+            DPIManager.Register(this);
         }
 
         private void GetControllers()
@@ -230,9 +429,9 @@ namespace Nucleus.Coop
                 gamePad.Dispose();
             }
             dinput.Dispose();
-            
-            
-            foreach (var device in RawInputManager.GetDeviceList().Where(x => x.deviceInfo.dwType <= 1))
+
+
+            foreach ((Gaming.Coop.InputManagement.Structs.RID_DEVICE_INFO deviceInfo, IntPtr deviceHandle) device in RawInputManager.GetDeviceList().Where(x => x.deviceInfo.dwType <= 1))
             {
 
                 //string hid = device.deviceInfo.hid.ToString();
@@ -242,13 +441,13 @@ namespace Nucleus.Coop
 
                 //controllerGuids[gcDevicesCnt].Text = fhid;
                 string did = string.Empty;
-                if(device.deviceInfo.dwType == 0)
+                if (device.deviceInfo.dwType == 0)
                 {
                     did = "T" + device.deviceInfo.dwType + "PID" + device.deviceInfo.hid.dwProductId + "VID" + device.deviceInfo.hid.dwVendorId + "VN" + device.deviceInfo.hid.dwVersionNumber;
                     controllerGuids[gcDevicesCnt].Text = did;
                     gcDevicesCnt++;
                 }
-                
+
 
                 if (ini.IniReadValue("ControllerMapping", did) != "")
                 {
@@ -277,7 +476,7 @@ namespace Nucleus.Coop
                 User32Interop.RegisterHotKey(mainForm.Handle, TopMost_HotkeyID, GetMod(ini.IniReadValue("Hotkeys", "TopMost").Split('+')[0].ToString()), (int)Enum.Parse(typeof(Keys), ini.IniReadValue("Hotkeys", "TopMost").Split('+')[1].ToString()));
                 User32Interop.RegisterHotKey(mainForm.Handle, StopSession_HotkeyID, GetMod(ini.IniReadValue("Hotkeys", "Stop").Split('+')[0].ToString()), (int)Enum.Parse(typeof(Keys), ini.IniReadValue("Hotkeys", "Stop").Split('+')[1].ToString()));
 
-                for(int i =0; i < controllerGuids.Length; i++)
+                for (int i = 0; i < controllerGuids.Length; i++)
                 {
                     if (!string.IsNullOrEmpty(controllerGuids[i].Text)) //&& !string.IsNullOrEmpty(controllerNicks[i].Text))
                     {
@@ -289,7 +488,7 @@ namespace Nucleus.Coop
                     positionsControl.Refresh();
                 }
 
-                if(!string.IsNullOrEmpty(keyboardNick.Text))
+                if (!string.IsNullOrEmpty(keyboardNick.Text))
                 {
                     ini.IniWriteValue("ControllerMapping", "Keyboard", keyboardNick.Text);
                 }
@@ -299,6 +498,7 @@ namespace Nucleus.Coop
                 ini.IniWriteValue("Misc", "DebugLog", debugLogCheck.Checked.ToString());
                 ini.IniWriteValue("Misc", "Network", cmb_Network.SelectedItem.ToString());
                 ini.IniWriteValue("Misc", "SteamLang", cmb_Lang.SelectedItem.ToString());
+                ini.IniWriteValue("Misc", "EpicLang", cmb_EpicLang.SelectedItem.ToString());
                 ini.IniWriteValue("Misc", "ShowStatus", statusCheck.Checked.ToString());
                 ini.IniWriteValue("Misc", "KeepAccounts", keepAccountsCheck.Checked.ToString());
                 ini.IniWriteValue("Misc", "NucleusAccountPassword", nucUserPassTxt.Text);
@@ -308,7 +508,7 @@ namespace Nucleus.Coop
                 ini.IniWriteValue("CustomLayout", "VerticalLines", numVerDiv.Value.ToString());
                 ini.IniWriteValue("CustomLayout", "MaxPlayers", numMaxPlyrs.Value.ToString());
 
-                if(audioDefaultSettingsRadio.Checked)
+                if (audioDefaultSettingsRadio.Checked)
                 {
                     ini.IniWriteValue("Audio", "Custom", 0.ToString());
                 }
@@ -316,15 +516,15 @@ namespace Nucleus.Coop
                 {
                     ini.IniWriteValue("Audio", "Custom", 1.ToString());
                 }
-                
+
                 //ini.IniWriteValue("Misc", "VibrateOpen", check_Vibrate.Checked.ToString());
 
                 foreach (Control ctrl in audioCustomSettingsBox.Controls)
                 {
                     if (ctrl is ComboBox)
                     {
-                        var cmb = (ComboBox)ctrl;
-                        if(audioDevices?.Count > 0 && audioDevices.Keys.Contains(cmb.Text))
+                        ComboBox cmb = (ComboBox)ctrl;
+                        if (audioDevices?.Count > 0 && audioDevices.Keys.Contains(cmb.Text))
                         {
                             ini.IniWriteValue("Audio", cmb.Name, audioDevices[cmb.Text]);
                         }
@@ -333,7 +533,7 @@ namespace Nucleus.Coop
 
                 MessageBox.Show("Settings saved succesfully!", "Saved", MessageBoxButtons.OK, MessageBoxIcon.None);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, ex.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -342,7 +542,7 @@ namespace Nucleus.Coop
         private int GetMod(string modifier)
         {
             int mod = 0;
-            switch(modifier)
+            switch (modifier)
             {
                 case "Ctrl": // Ctrl
                     mod = 2;
@@ -359,7 +559,8 @@ namespace Nucleus.Coop
 
         private void SettingsCloseBtn_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Hide();
+               
         }
 
         private void SettingsCloseHKTxt_TextChanged(object sender, EventArgs e)
@@ -379,7 +580,7 @@ namespace Nucleus.Coop
             }
             catch (Exception ex)
             {
-                MessageBox.Show( "Error registering hotkeys " + ex.Message, ex.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error registering hotkeys " + ex.Message, ex.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
         }
@@ -416,70 +617,52 @@ namespace Nucleus.Coop
         }
 
         private void Btn_credits_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("NucleusCoop Mod - " + mainForm.version + 
-                "\n" +
-                "\nCredits" +
-                "\n---------------------------------------------------------------------" +
-                "\nOriginal NucleusCoop Project: Lucas Assis (lucasassislar)" +
-                "\nMod: ZeroFox" +
-                "\nProto Input hooks, multiple keyboards/mice: Ilyaki" +
-                "\nWebsite & handler API: r-mach" +
-                "\n" +
-                "\nAdditional credits to all original developers of third party utilities Nucleus uses:" +
-                "\nMr_Goldberg (Goldberg Emulator), syahmixp (SmartSteamEmu), EJocys (x360ce), 0dd14 Lab (Xinput Plus), r1ch (ForceBindIP), HaYDeN (Flawless Widescreen), briankendall (devreorder), VerGreeneyes (DirectXWrapper), wizark952 (dinput8 blocker), Nemirtinga (Epic Emulator)" +
-                "\n" +
-                "\nThis mod brings further enhancements to NucleusCoop, such as:" +
-                "\n- Huge increase to the amount of compabitle games" +
-                "\n- Much more customization (via game scripts)" +
-                "\n- Support for any number of players" +
-                "\n- Quality of life improvements" +
-                "\n- Bug fixes\n- And so much more!" +
-                "\n" +
-                "\nFull mod changelog in Mod-Readme.txt" +
-                "\n" +
-                "\nAll this wouldn't have been possible without Lucas. Thank you Lucas <3" +
-                "\n" +
-                "\nSpecial thanks to: Talos91, PoundlandBacon, Pizzo, Snailed It and the rest of the Splitscreen Dreams discord community.", "Credits",MessageBoxButtons.OK,MessageBoxIcon.Information);
+        {          
+                MessageBox.Show("Nucleus Co-op - " + mainForm.version +
+               "\n " +
+               "\nOriginal Nucleus Co-op Project: Lucas Assis(lucasassislar)" +
+               "\nNew Nucleus Co-op fork: ZeroFox" +
+               "\nMultiple keyboards / mice & hooks: Ilyaki" +
+               "\nWebsite & handler API: r - mach" +
+               "\nNew UI design & bug fixes: nene27(Mikou27)" +
+               "\nHandlers development & testing: Talos91, PoundlandBacon, Pizzo, dr.oldboi and many more." +
+               "\nThis new & improved Nucleus Co-op brings a ton of enhancements, such as:" +
+               "\n- Massive increase to the amount of compatible games, 400 + as of now." +
+               "\n- Beautiful new overhauled user interface with support for themes, game covers & screenshots." +
+               "\n- Many quality of life improvements & bug fixes." +
+               "\nAnd so much more!" +
+               "\nSpecial thanks to: Talos91, dr.oldboi, PoundlandBacon, Pizzo and the rest of the Splitscreen Dreams discord community.", "Credits", MessageBoxButtons.OK, MessageBoxIcon.Information);           
         }
 
         private void NumHorDiv_ValueChanged(object sender, EventArgs e)
-        {
-            tabPage4.Invalidate();
+        {    
+            layoutSizer.Invalidate();
             tabControl2.TabPages[1].Invalidate();
-            //if (numHorDiv.Value > 0 && numVerDiv.Value > 0)
-            //{
             numMaxPlyrs.Value = (numHorDiv.Value + 1) * (numVerDiv.Value + 1);
-            //}
-            //else
-            //{
-            //    numMaxPlyrs.Value = 1;
-            //}
         }
 
         private void NumVerDiv_ValueChanged(object sender, EventArgs e)
-        {
-            tabPage4.Invalidate();
+        {         
+            layoutSizer.Invalidate();
             tabControl2.TabPages[1].Invalidate();
-            //if (numHorDiv.Value > 0 && numVerDiv.Value > 0)
-            //{
             numMaxPlyrs.Value = (numHorDiv.Value + 1) * (numVerDiv.Value + 1);
-            //}
-            //else
-            //{
-            //    numMaxPlyrs.Value = 1;
-            //}
         }
 
-        private void tabPage4_Paint(object sender, PaintEventArgs e)
+        private void layoutSizer_Paint(object sender, PaintEventArgs e)
         {
             base.OnPaint(e);
 
             Graphics gs = e.Graphics;
 
-            Pen p = new Pen(new SolidBrush(Color.Black));
+            Pen p = new Pen(new SolidBrush(Color.White));
+            int LayoutHeight = layoutSizer.Size.Height - 20;
+            int LayoutWidth = layoutSizer.Size.Width - 20;
+            int LayoutPosX = layoutSizer.Location.X + 10;
+            int LayoutPosY = layoutSizer.Location.Y + 10;
 
-            Rectangle outline = new Rectangle(370, 45, 360, 240);
+
+            Rectangle outline = new Rectangle(10, 10, LayoutWidth, LayoutHeight);
+            // Rectangle outline = new Rectangle(370, 45, 360, 240);
             gs.DrawRectangle(p, outline);
 
             int[] hlines = new int[(int)numHorDiv.Value];
@@ -490,16 +673,16 @@ namespace Nucleus.Coop
                 int divisions = (int)numHorDiv.Value + 1;
 
                 //370-380
-                int y = (240 / divisions);
+                int y = (LayoutHeight / divisions);
                 if (i == 0)
                 {
-                    hlines[i] = y + 45;
+                    hlines[i] = y + 10;
                 }
                 else
                 {
                     hlines[i] = y + hlines[i - 1];
                 }
-                gs.DrawLine(p, 370, hlines[i], 370 + 360, hlines[i]);
+                gs.DrawLine(p, 10, hlines[i], 10 + LayoutWidth, hlines[i]);
             }
 
             for (int i = 0; i < (int)numVerDiv.Value; i++)
@@ -508,16 +691,16 @@ namespace Nucleus.Coop
                 int divisions = (int)numVerDiv.Value + 1;
 
                 //45-460
-                int x = (360 / divisions);
+                int x = (LayoutWidth / divisions);
                 if (i == 0)
                 {
-                    vlines[i] = x + 370;
+                    vlines[i] = x + 10;
                 }
                 else
                 {
                     vlines[i] = x + vlines[i - 1];
                 }
-                gs.DrawLine(p, vlines[i], 45, vlines[i], 45 + 240);
+                gs.DrawLine(p, vlines[i], 10, vlines[i], 10 + LayoutHeight);
             }
 
             p.Dispose();
@@ -535,7 +718,7 @@ namespace Nucleus.Coop
 
             cmb_Network.Items.Add("Automatic");
 
-            var ni = NetworkInterface.GetAllNetworkInterfaces();
+            NetworkInterface[] ni = NetworkInterface.GetAllNetworkInterfaces();
             foreach (NetworkInterface item in ni)
             {
                 if (item.OperationalStatus == OperationalStatus.Up)
@@ -553,7 +736,7 @@ namespace Nucleus.Coop
 
         private void cmb_Network_DropDownClosed(object sender, EventArgs e)
         {
-            if(cmb_Network.SelectedItem == null)
+            if (cmb_Network.SelectedItem == null)
             {
                 cmb_Network.SelectedIndex = 0;
             }
@@ -595,10 +778,10 @@ namespace Nucleus.Coop
 
         private void tabControl2_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if(tabControl2.SelectedTab.Text == "Audio")
+            if (tabControl2.SelectedTab.Text == "Audio")
             {
                 RefreshAudioList();
-                var enumerator = new MMDeviceEnumerator();
+                MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
                 MMDevice audioDefault = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
                 audioDefaultDevice.Text = "Default: " + audioDefault.FriendlyName;
             }
@@ -611,7 +794,9 @@ namespace Nucleus.Coop
             audioDevices = new Dictionary<string, string>();
             audioDevices.Clear();
             if (!audioDevices.ContainsKey("Default"))
+            {
                 audioDevices.Add("Default", "Default");
+            }
 
             //ManagementObjectSearcher objSearcher = new ManagementObjectSearcher("SELECT * FROM Win32_SoundDevice");
 
@@ -622,24 +807,24 @@ namespace Nucleus.Coop
             //    audioDevices.Add(obj["Caption"].ToString(), obj["DeviceID"].ToString());
             //}
 
-            var enumerator = new MMDeviceEnumerator();
-            foreach (var endpoint in enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active))
+            MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
+            foreach (MMDevice endpoint in enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active))
             {
                 if (!audioDevices.ContainsKey(endpoint.FriendlyName))
                 {
                     audioDevices.Add(endpoint.FriendlyName, endpoint.ID);
                 }
-            }          
+            }
 
             foreach (Control ctrl in audioCustomSettingsBox.Controls)
             {
                 if (ctrl is ComboBox)
                 {
-                    var cmb = (ComboBox)ctrl;
+                    ComboBox cmb = (ComboBox)ctrl;
                     string lastItem = cmb.Text;
                     cmb.Items.Clear();
                     cmb.Items.AddRange(audioDevices.Keys.ToArray());
-                    if(cmb.Items.Contains(lastItem))
+                    if (cmb.Items.Contains(lastItem))
                     {
                         cmb.SelectedItem = lastItem;
                     }
@@ -660,9 +845,20 @@ namespace Nucleus.Coop
             RefreshAudioList();
         }
 
-		private void ignoreInputLockReminderCheckbox_CheckedChanged(object sender, EventArgs e)
-		{
-
-		}
-	}
+        private void OfflineMod_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ini.IniWriteValue("Dev", "OfflineMod", offlineMod.SelectedItem.ToString());
+            if(offlineMod.SelectedIndex == 1)
+            {
+                mainForm.connected = false;
+                mainForm.btn_GameDesc.Enabled = false;
+                mainForm.txt_GameDescSizer.Visible = false;
+                mainForm.txt_GameDesc.Visible = false;
+            }
+            else 
+            {
+                mainForm.CheckNetCon();
+            }
+        }
+    }
 }

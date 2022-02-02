@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Nucleus.Gaming.Coop
 {
@@ -50,7 +47,7 @@ namespace Nucleus.Gaming.Coop
         /// The maximum number of players this game can handle
         /// </summary>
         int MaxPlayers { get; }
-        
+
         /// <summary>
         /// The maximum number of players this game can handle in 1 monitor
         /// </summary>
@@ -61,7 +58,7 @@ namespace Nucleus.Gaming.Coop
         /// </summary>
         bool SupportsKeyboard { get; }
 
-        
+
 
         /// <summary>
         /// Custom options that the user can modify

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Nucleus.Coop.Forms
+﻿namespace Nucleus.Coop.Forms
 {
     public class Handler
     {

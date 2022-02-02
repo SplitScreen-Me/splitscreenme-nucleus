@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace WindowScrape.Constants
+﻿namespace WindowScrape.Constants
 {
     public enum WindowLongFlags : int
     {

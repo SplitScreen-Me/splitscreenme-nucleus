@@ -1,10 +1,5 @@
 ﻿using Nucleus.Gaming.Coop;
-using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Nucleus.Gaming
 {
@@ -38,8 +33,8 @@ namespace Nucleus.Gaming
         public static Rectangle ScaleAndCenter(Size srcSize, Rectangle parent)
         {
             float width = srcSize.Width;
-            float height = srcSize.Height;
-
+            float height = srcSize.Height; 
+                                                                   
             float pwidth = parent.Width;
             float pheight = parent.Height;
 
@@ -54,7 +49,7 @@ namespace Nucleus.Gaming
             else
             {
                 width = pwidth;
-                height = pwidth * ( 1 / ratio);
+                height = pwidth * (1 / ratio);
             }
 
             return new Rectangle(

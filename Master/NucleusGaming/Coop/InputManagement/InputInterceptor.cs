@@ -1,18 +1,6 @@
-﻿using Nucleus.Gaming.Coop.InputManagement.Logging;
-using Nucleus.Gaming.Coop.InputManagement.Structs;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Nucleus.Gaming.Coop.InputManagement
+﻿namespace Nucleus.Gaming.Coop.InputManagement
 {
-	/*
+    /*
 	public class InputInterceptor
 	{
 		public static bool InterceptEnabled = false;

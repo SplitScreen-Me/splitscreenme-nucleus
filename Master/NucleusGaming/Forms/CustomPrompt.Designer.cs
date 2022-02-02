@@ -45,16 +45,19 @@
             // 
             // btn_Ok
             // 
+            this.btn_Ok.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.btn_Ok.Location = new System.Drawing.Point(167, 153);
             this.btn_Ok.Name = "btn_Ok";
             this.btn_Ok.Size = new System.Drawing.Size(75, 23);
             this.btn_Ok.TabIndex = 1;
             this.btn_Ok.Text = "OK";
-            this.btn_Ok.UseVisualStyleBackColor = true;
+            this.btn_Ok.UseVisualStyleBackColor = false;
             this.btn_Ok.Click += new System.EventHandler(this.btn_Ok_Click);
             // 
             // txt_UserInput
             // 
+            this.txt_UserInput.BackColor = System.Drawing.Color.Black;
+            this.txt_UserInput.ForeColor = System.Drawing.Color.White;
             this.txt_UserInput.Location = new System.Drawing.Point(15, 127);
             this.txt_UserInput.Name = "txt_UserInput";
             this.txt_UserInput.Size = new System.Drawing.Size(383, 20);
@@ -62,12 +65,13 @@
             // 
             // CustomPrompt
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(410, 188);
             this.Controls.Add(this.txt_UserInput);
             this.Controls.Add(this.btn_Ok);
             this.Controls.Add(this.lbl_Desc);
+            this.ForeColor = System.Drawing.Color.White;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;

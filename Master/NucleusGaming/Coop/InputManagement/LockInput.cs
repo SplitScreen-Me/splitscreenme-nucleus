@@ -1,82 +1,87 @@
-﻿using Nucleus.Gaming.Coop.InputManagement.Logging;
-using System;
-using System.Collections.Generic;
+﻿using Nucleus.Gaming.Coop.ProtoInput;
 using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Nucleus.Gaming.Coop.ProtoInput;
 
 namespace Nucleus.Gaming.Coop.InputManagement
 {
-	public static class LockInput
-	{
-		private static bool isLocking = false;
+    public static class LockInput
+    {
+        private static bool isLocking = false;
 
-		public static bool IsLocked { get; private set; }
+        public static bool IsLocked { get; private set; }
 
-		public static void Lock(bool suspendExplorer, bool freezeExternalInputWhenInputNotLocked, ProtoInputOptions protoOptions)
-		{
-			if (isLocking)
-				return;
-			else isLocking = true;
+        public static void Lock(bool suspendExplorer, bool freezeExternalInputWhenInputNotLocked, ProtoInputOptions protoOptions)
+        {
+            if (isLocking)
+            {
+                return;
+            }
+            else
+            {
+                isLocking = true;
+            }
 
 
-			//InputInterceptor.InterceptEnabled = true;
+            //InputInterceptor.InterceptEnabled = true;
 
 
-			//System.Windows.Forms.Cursor.Hide();
+            //System.Windows.Forms.Cursor.Hide();
 
-			System.Windows.Forms.Cursor.Position = new System.Drawing.Point(0, 0);
-			System.Windows.Forms.Cursor.Clip = new System.Drawing.Rectangle(0, 0, 1, 1);
+            System.Windows.Forms.Cursor.Position = new System.Drawing.Point(0, 0);
+            System.Windows.Forms.Cursor.Clip = new System.Drawing.Rectangle(0, 0, 1, 1);
 
-			//WinApi.SetForegroundWindow(WinApi.GetDesktopWindow());
+            //WinApi.SetForegroundWindow(WinApi.GetDesktopWindow());
 
-			ProtoInput.ProtoInput.protoInput.LockInput(true);
+            ProtoInput.ProtoInput.protoInput.LockInput(true);
 
-			if (suspendExplorer)
-			{
-				ProtoInput.ProtoInput.protoInput.SuspendExplorer();
-			}
+            if (suspendExplorer)
+            {
+                ProtoInput.ProtoInput.protoInput.SuspendExplorer();
+            }
 
-			Debug.WriteLine("Locked input, suspended explorer = " + suspendExplorer);
-			
-			isLocking = false;
-			IsLocked = true;
+            Debug.WriteLine("Locked input, suspended explorer = " + suspendExplorer);
 
-			if (freezeExternalInputWhenInputNotLocked)
-				ProtoInputLauncher.NotifyInputLockChange();
+            isLocking = false;
+            IsLocked = true;
 
-			
-			protoOptions?.OnInputLocked?.Invoke();
-		}
+            if (freezeExternalInputWhenInputNotLocked)
+            {
+                ProtoInputLauncher.NotifyInputLockChange();
+            }
 
-		public static void Unlock(bool freezeExternalInputWhenInputNotLocked, ProtoInputOptions protoOptions)
-		{
-			if (isLocking)
-				return;
-			else isLocking = true;
+            protoOptions?.OnInputLocked?.Invoke();
+        }
 
-			//System.Windows.Forms.Cursor.Show();
-			System.Windows.Forms.Cursor.Clip = new System.Drawing.Rectangle();
+        public static void Unlock(bool freezeExternalInputWhenInputNotLocked, ProtoInputOptions protoOptions)
+        {
+            if (isLocking)
+            {
+                return;
+            }
+            else
+            {
+                isLocking = true;
+            }
 
-			//InputInterceptor.InterceptEnabled = false;
+            //System.Windows.Forms.Cursor.Show();
+            System.Windows.Forms.Cursor.Clip = new System.Drawing.Rectangle();
 
-			ProtoInput.ProtoInput.protoInput.LockInput(false);
+            //InputInterceptor.InterceptEnabled = false;
 
-			ProtoInput.ProtoInput.protoInput.RestartExplorer();
-			
-			Debug.WriteLine("Unlocked input");
+            ProtoInput.ProtoInput.protoInput.LockInput(false);
 
-			isLocking = false;
-			IsLocked = false;
+            ProtoInput.ProtoInput.protoInput.RestartExplorer();
 
-			if (freezeExternalInputWhenInputNotLocked)
-				ProtoInputLauncher.NotifyInputLockChange();
+            Debug.WriteLine("Unlocked input");
 
-			protoOptions?.OnInputUnlocked?.Invoke();
-		}
-	}
+            isLocking = false;
+            IsLocked = false;
+
+            if (freezeExternalInputWhenInputNotLocked)
+            {
+                ProtoInputLauncher.NotifyInputLockChange();
+            }
+
+            protoOptions?.OnInputUnlocked?.Invoke();
+        }
+    }
 }

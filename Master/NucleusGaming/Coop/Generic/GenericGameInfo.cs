@@ -1,15 +1,16 @@
 ﻿using Jint;
+using Microsoft.Win32;
+using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Coop.Generic;
+using Nucleus.Gaming.Coop.ProtoInput;
+using Nucleus.Gaming.Generic.Step;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Win32;
-using Nucleus.Gaming.Generic.Step;
-using Nucleus.Gaming.Coop;
 using System.Windows.Forms;
-using Nucleus.Gaming.Coop.Generic;
-using Nucleus.Gaming.Coop.ProtoInput;
 
 namespace Nucleus.Gaming
 {
@@ -62,7 +63,7 @@ namespace Nucleus.Gaming
         public bool SendFakeFocusMsg;
 
 
-		public void AddOption(string name, string desc, string key, object value, object defaultValue)
+        public void AddOption(string name, string desc, string key, object value, object defaultValue)
         {
             Options.Add(new GameOption(name, desc, key, value, defaultValue));
         }
@@ -232,6 +233,7 @@ namespace Nucleus.Gaming
         public string WriteToProcessMemory;
         public bool UseNemirtingasEpicEmu;
         public bool EpicEmuArgs;
+        public bool AltEpicEmuArgs;
         public bool PromptAfterFirstInstance;
         public bool FakeFocusSendActivateIgnoreKB;
         public string[] CopyEnvFoldersToNucleusAccounts;
@@ -269,46 +271,43 @@ namespace Nucleus.Gaming
         // -- From USS
         //Effectively a switch for all of USS features
         public bool SupportsMultipleKeyboardsAndMice;
-		
-		//Hooks
-		public bool HookSetCursorPos = true;
-		public bool HookGetCursorPos = true;
-		public bool HookGetKeyState = true;
-		public bool HookGetAsyncKeyState = true;
-		public bool HookGetKeyboardState = true;
-		public bool HookFilterRawInput;
-		public bool HookFilterMouseMessages;
-		public bool HookUseLegacyInput;
-		public bool HookDontUpdateLegacyInMouseMsg;
-		public bool HookMouseVisibility = true;
-		public bool HookReRegisterRawInput = false;
-		public bool HookReRegisterRawInputMouse = true;
-		public bool HookReRegisterRawInputKeyboard = true;
-		public bool InjectHookXinput = false;
-		public bool InjectDinputToXinputTranslation = false;
 
-		//Not hooks
-		public bool SendNormalMouseInput = true;
-		public bool SendNormalKeyboardInput = true;
-		public bool SendScrollWheel = false;
-		public bool ForwardRawKeyboardInput = false;
-		public bool ForwardRawMouseInput = false;
-		public bool DrawFakeMouseCursor = true;
-		public bool DrawFakeMouseCursorForControllers = false;
-		public bool UpdateFakeMouseWithInternalInput = false;
-		public bool LockInputAtStart = false;
-		public bool PreventGameFocus = false;
-		public int LockInputToggleKey = 0x23;//End by default. Keys: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+        //Hooks
+        public bool HookSetCursorPos = true;
+        public bool HookGetCursorPos = true;
+        public bool HookGetKeyState = true;
+        public bool HookGetAsyncKeyState = true;
+        public bool HookGetKeyboardState = true;
+        public bool HookFilterRawInput;
+        public bool HookFilterMouseMessages;
+        public bool HookUseLegacyInput;
+        public bool HookDontUpdateLegacyInMouseMsg;
+        public bool HookMouseVisibility = true;
+        public bool HookReRegisterRawInput = false;
+        public bool HookReRegisterRawInputMouse = true;
+        public bool HookReRegisterRawInputKeyboard = true;
+        public bool InjectHookXinput = false;
+        public bool InjectDinputToXinputTranslation = false;
+
+        //Not hooks
+        public bool SendNormalMouseInput = true;
+        public bool SendNormalKeyboardInput = true;
+        public bool SendScrollWheel = false;
+        public bool ForwardRawKeyboardInput = false;
+        public bool ForwardRawMouseInput = false;
+        public bool DrawFakeMouseCursor = true;
+        public bool DrawFakeMouseCursorForControllers = false;
+        public bool UpdateFakeMouseWithInternalInput = false;
+        public bool LockInputAtStart = false;
+        public bool PreventGameFocus = false;
+        public int LockInputToggleKey = 0x23;//End by default. Keys: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
                                              // --
 
         // Proto Input
         public ProtoInputOptions ProtoInput = new ProtoInputOptions();
         public bool LockInputSuspendsExplorer = false;
 
-        public Type HandlerType
-        {
-            get { return typeof(GenericGameHandler); }
-        }
+        public Type HandlerType => typeof(GenericGameHandler);
 
         public GenericGameInfo(string fileName, string folderPath, Stream str)
         {
@@ -322,6 +321,7 @@ namespace Nucleus.Gaming
             {
                 while (!sr.EndOfStream)
                 {
+                    
                     string line = sr.ReadLine();
                     // if (line.StartsWith("Hub."))
                     // {
@@ -329,7 +329,7 @@ namespace Nucleus.Gaming
                     // }
                     // else
                     {
-                        js += "\r\n" + line + "\r\n";
+                        js += "\r\n" + line + "\r\n";                   
                     }
                 }
             }
@@ -347,18 +347,18 @@ namespace Nucleus.Gaming
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("There is an error in the game script {0}. The game this script is for will not appear in the list. If the issue has been fixed, please try re-adding the game.\n\nCommon errors include:\n- A syntax error (such as a \',\' \';\' or \']\' missing)\n- Another script has this GUID (must be unique!)\n- Code is not in the right place or format (for example: methods using Context must be within the Game.Play function)\n\n{1}: {2}", fileName, ex.InnerException, ex.Message), "Error in script", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format("There is an error in the game handler {0}. The game this handler is for will not appear in the list. If the issue has been fixed, please try re-adding the game.\n\nCommon errors include:\n- A syntax error (such as a \',\' \';\' or \']\' missing)\n- Another handler has this GUID (must be unique!)\n- Code is not in the right place or format (for example: methods using Context must be within the Game.Play function)\n\n{1}: {2}", fileName, ex.InnerException, ex.Message), "Error in handler", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             // Run this in another thread to not block UI
             System.Threading.Tasks.Task.Run(() =>
             {
-	            bool update = Hub.IsUpdateAvailable(true);
+                bool update = Hub.IsUpdateAvailable(true);
 
                 //if (update)
-	            //{
-		        //    MessageBox.Show("Update is available for " + GameName);
-	            //}
+                //{
+                //    MessageBox.Show("Update is available for " + GameName);
+                //}
             });
 
             engine.SetValue("Game", (object)null);
@@ -370,24 +370,26 @@ namespace Nucleus.Gaming
             GameOption option = Options.First(c => c.Key == optionKey);
             option.Hidden = true;
 
-            CustomStep step = new CustomStep();
-            step.Option = option;
-            step.Required = required;
-            step.Title = title;
+            CustomStep step = new CustomStep
+            {
+                Option = option,
+                Required = required,
+                Title = title
+            };
 
             CustomSteps.Add(step);
             return step;
         }
 
         public void SetPlayerList(List<PlayerInfo> players)
-		{
+        {
             engine.SetValue("PlayerList", players);
         }
 
         public void SetProtoInputValues()
         {
-	        engine.SetValue("ProtoInput", Coop.ProtoInput.ProtoInput.protoInput);
-			//engine.SetValue("ProtoInputValues", Coop.ProtoInput.ProtoInput.exposedValues);
+            engine.SetValue("ProtoInput", Coop.ProtoInput.ProtoInput.protoInput);
+            //engine.SetValue("ProtoInputValues", Coop.ProtoInput.ProtoInput.exposedValues);
         }
 
         public void PrePlay(GenericContext context, GenericGameHandler handler, PlayerInfo player)
@@ -397,7 +399,7 @@ namespace Nucleus.Gaming
             engine.SetValue("Player", player);
             engine.SetValue("Game", this);
             engine.SetValue("Hub", Hub);
-            
+
             Play?.Invoke();
         }
 
@@ -457,25 +459,92 @@ namespace Nucleus.Gaming
             return context;
         }
 
+        //public string GetEpicLanguage()
+        //{
+        //    IniFile ini = new IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));
+
+        //    string EpicLang = ini.IniReadValue("Misc", "EpicLang"); ;
+
+        //    if (EpicLang == "" )
+        //    {
+        //        EpicLang = "en";
+        //    }
+
+        //    return EpicLang;
+        //}
+        private string EpicLang;
+        public string GetEpicLanguage()
+        {
+            IniFile ini = new IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));
+
+            IDictionary<string, string> epiclangs = new Dictionary<string, string>();
+                epiclangs.Add("Arabic", "ar");
+                epiclangs.Add("Brazilian", "pt-BR");
+                epiclangs.Add("Bulgarian", "bg");
+                epiclangs.Add("Chinese", "zh");
+                epiclangs.Add("Czech", "cs");
+                epiclangs.Add("Danish", "da");
+                epiclangs.Add("Dutch", "nl");
+                epiclangs.Add("English", "en");
+                epiclangs.Add("Finnish", "fi");
+                epiclangs.Add("French", "fr");
+                epiclangs.Add("German", "de");
+                epiclangs.Add("Greek", "el");
+                epiclangs.Add("Hungarian", "hu");
+                epiclangs.Add("Italian", "it");
+                epiclangs.Add("Japanese", "ja");
+                epiclangs.Add("Koreana", "ko");
+                epiclangs.Add("Norwegian", "no");
+                epiclangs.Add("Polish", "pl");
+                epiclangs.Add("Portuguese", "pt");
+                epiclangs.Add("Romanian", "ro");
+                epiclangs.Add("Russian", "ru");
+                epiclangs.Add("Spanish", "es");
+                epiclangs.Add("Swedish", "sv");
+                epiclangs.Add("Thai", "th");
+                epiclangs.Add("Turkish", "tr");
+                epiclangs.Add("Ukrainian", "uk");
+
+           
+
+            foreach (KeyValuePair<string, string> lang in epiclangs)
+            {
+                if (lang.Key == ini.IniReadValue("Misc", "EpicLang"))
+                {
+                    EpicLang = lang.Value;
+                    Console.WriteLine(EpicLang);
+                }
+            }
+            return EpicLang;
+        }
         public string GetSteamLanguage()
         {
             string result;
             if (Environment.Is64BitOperatingSystem)
+            {
                 result = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Valve\Steam", "Language", "english");
+            }
             else
+            {
                 result = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\Valve\Steam", "Language", "english");
+            }
 
             return result;
         }
 
         public bool IsUpdateAvailable(bool fetch)
         {
-	        return Hub.IsUpdateAvailable(fetch);
+            return Hub.IsUpdateAvailable(fetch);
+        }
+
+        public string GetScreenshots()
+        {
+            return Hub.GetScreenshots();
         }
 
         public string GetHubId()
         {
-	        return Hub.Handler.Id;
+            return Hub.Handler.Id;
         }
     }
 }

@@ -1,18 +1,18 @@
-﻿using Nucleus;
+﻿using Microsoft.Win32;
+using Nucleus;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Windows;
 using System;
+using System.Collections;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
-using System.Runtime.InteropServices;
-using System.Collections;
-using System.Linq;
 using System.Windows.Forms;
-using System.Security.Principal;
-using Microsoft.Win32;
 
 namespace StartGame
 {
@@ -24,7 +24,7 @@ namespace StartGame
 
         public static string GetMainModuleFileName(this Process process, int buffer = 1024)
         {
-            var fileNameBuilder = new StringBuilder(buffer);
+            StringBuilder fileNameBuilder = new StringBuilder(buffer);
             uint bufferLength = (uint)fileNameBuilder.Capacity + 1;
             return QueryFullProcessImageName(process.Handle, 0, fileNameBuilder, ref bufferLength) ?
                 fileNameBuilder.ToString() :
@@ -32,7 +32,7 @@ namespace StartGame
         }
     }
 
-    class Program
+    internal class Program
     {
         private const int tries = 2;
         private static int tri = 0;
@@ -99,7 +99,7 @@ namespace StartGame
             );
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        static extern bool CreateProcess(
+        private static extern bool CreateProcess(
             string lpApplicationName,
             string lpCommandLine,
             //ref SECURITY_ATTRIBUTES lpProcessAttributes,
@@ -115,22 +115,22 @@ namespace StartGame
             out PROCESS_INFORMATION lpProcessInformation);
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        struct STARTUPINFO
+        private struct STARTUPINFO
         {
-            public Int32 cb;
+            public int cb;
             public string lpReserved;
             public string lpDesktop;
             public string lpTitle;
-            public Int32 dwX;
-            public Int32 dwY;
-            public Int32 dwXSize;
-            public Int32 dwYSize;
-            public Int32 dwXCountChars;
-            public Int32 dwYCountChars;
-            public Int32 dwFillAttribute;
-            public Int32 dwFlags;
-            public Int16 wShowWindow;
-            public Int16 cbReserved2;
+            public int dwX;
+            public int dwY;
+            public int dwXSize;
+            public int dwYSize;
+            public int dwXCountChars;
+            public int dwYCountChars;
+            public int dwFillAttribute;
+            public int dwFlags;
+            public short wShowWindow;
+            public short cbReserved2;
             public IntPtr lpReserved2;
             public IntPtr hStdInput;
             public IntPtr hStdOutput;
@@ -138,7 +138,7 @@ namespace StartGame
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        struct PROCESS_INFORMATION
+        private struct PROCESS_INFORMATION
         {
             public IntPtr hProcess;
             public IntPtr hThread;
@@ -147,10 +147,10 @@ namespace StartGame
         }
 
         [DllImport("kernel32.dll")]
-        static extern uint ResumeThread(IntPtr hThread);
+        private static extern uint ResumeThread(IntPtr hThread);
 
         [DllImport("kernel32.dll")]
-        static extern int SuspendThread(IntPtr hThread);
+        private static extern int SuspendThread(IntPtr hThread);
 
 
         public enum ProcessCreationFlags : uint
@@ -175,7 +175,7 @@ namespace StartGame
         }
 
         [DllImport("user32.dll")]
-        static extern uint WaitForInputIdle(IntPtr hProcess, uint dwMilliseconds);
+        private static extern uint WaitForInputIdle(IntPtr hProcess, uint dwMilliseconds);
 
         public enum MachineType : ushort
         {
@@ -211,12 +211,14 @@ namespace StartGame
             FileStream fs = new FileStream(dllPath, FileMode.Open, FileAccess.Read);
             BinaryReader br = new BinaryReader(fs);
             fs.Seek(0x3c, SeekOrigin.Begin);
-            Int32 peOffset = br.ReadInt32();
+            int peOffset = br.ReadInt32();
             fs.Seek(peOffset, SeekOrigin.Begin);
-            UInt32 peHead = br.ReadUInt32();
+            uint peHead = br.ReadUInt32();
 
             if (peHead != 0x00004550) // "PE\0\0", little-endian
+            {
                 throw new Exception("Can't find PE header");
+            }
 
             MachineType machineType = (MachineType)br.ReadUInt16();
             br.Close();
@@ -239,7 +241,7 @@ namespace StartGame
             }
         }
 
-        static void Log(string logMessage)
+        private static void Log(string logMessage)
         {
             if (ini.IniReadValue("Misc", "DebugLog") == "True")
             {
@@ -251,11 +253,9 @@ namespace StartGame
             }
         }
 
-        static void StartGame(string path, string args = "", string workingDir = null)
+        private static void StartGame(string path, string args = "", string workingDir = null)
         {
             System.IO.Stream str = new System.IO.MemoryStream();
-            //GenericGameInfo gen = new GenericGameInfo(null, null, str);
-            bool regMethod = false;
 
             if (!Path.IsPathRooted(path))
             {
@@ -268,7 +268,7 @@ namespace StartGame
                 //proc = Process.Start(startInfo);
                 //string currDir = Directory.GetCurrentDirectory();
 
-				// This works even if the current directory is set elsewhere.
+                // This works even if the current directory is set elsewhere.
                 string currDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
                 //bool is64 = EasyHook.RemoteHooking.IsX64Process((int)pi.dwProcessId);
@@ -284,7 +284,7 @@ namespace StartGame
                 if (useNucleusEnvironment && !(useStartupHooks && (isHook || renameMutex || setWindow || blockRaw || createSingle)))
                 {
                     Log("Setting up Nucleus environment");
-                    var sb = new StringBuilder();
+                    StringBuilder sb = new StringBuilder();
                     IDictionary envVars = Environment.GetEnvironmentVariables();
                     //var username = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).Replace(@"C:\Users\", "");
                     string username = WindowsIdentity.GetCurrent().Name.Split('\\')[1];
@@ -302,7 +302,7 @@ namespace StartGame
 
                     Directory.CreateDirectory(Path.GetDirectoryName(DocumentsRoot) + $@"\NucleusCoop\{playerNick}\Documents");
 
-                    if(useDocs)
+                    if (useDocs)
                     {
                         if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg")))
                         {
@@ -343,19 +343,19 @@ namespace StartGame
 
                 Thread.Sleep(1000);
 
-				if (useStartupHooks && (isHook || renameMutex || setWindow || blockRaw || createSingle))
+                if (useStartupHooks && (isHook || renameMutex || setWindow || blockRaw || createSingle))
                 {
                     Log("Starting game and injecting start up hooks via Nucleus.Inject");
 
                     bool? is64_n = Is64Bit(path);
 
-					if (!is64_n.HasValue)
-					{
-						Log(string.Format("ERROR - Machine type {0} not implemented", GetDllMachineType(path)));
-						return;
-					}
+                    if (!is64_n.HasValue)
+                    {
+                        Log(string.Format("ERROR - Machine type {0} not implemented", GetDllMachineType(path)));
+                        return;
+                    }
 
-					bool is64 = is64_n.Value;
+                    bool is64 = is64_n.Value;
 
                     //PROCESS_INFORMATION procInfo = new PROCESS_INFORMATION();
 
@@ -367,7 +367,7 @@ namespace StartGame
                         {
                             if (gameProc.GetMainModuleFileName().ToLower() == path.ToLower())
                             {
-                                
+
                                 Log("Process with this path is already running! Skipping creating a new process");
                                 pOutPID = (uint)gameProc.Id;
                                 alreadyExists = true;
@@ -375,7 +375,7 @@ namespace StartGame
                         }
                     }
 
-                    if(!alreadyExists)
+                    if (!alreadyExists)
                     {
                         try
                         {
@@ -395,8 +395,10 @@ namespace StartGame
                             //Thread.Sleep(1000);
 
                             string injectorPath = Path.Combine(currDir, $"Nucleus.IJ{(is64 ? "x64" : "x86")}.exe");
-                            ProcessStartInfo injstartInfo = new ProcessStartInfo();
-                            injstartInfo.FileName = injectorPath;
+                            ProcessStartInfo injstartInfo = new ProcessStartInfo
+                            {
+                                FileName = injectorPath
+                            };
                             object[] injargs = new object[]
                             {
                             0, // Tier 0 : start up hook
@@ -425,7 +427,7 @@ namespace StartGame
                             useDocs
                             };
 
-                            var sbArgs = new StringBuilder();
+                            StringBuilder sbArgs = new StringBuilder();
                             foreach (object arg in injargs)
                             {
                                 //Converting to base64 prevents characters like " or \ breaking the arguments
@@ -484,8 +486,6 @@ namespace StartGame
 
                     pOutPID = (uint)processInformation.dwProcessId;
                     proc = Process.GetProcessById((int)pOutPID);
-                    //pOutPID = proc.Id;
-                    regMethod = true;
                 }
 
                 Thread.Sleep(1000);
@@ -499,7 +499,7 @@ namespace StartGame
                 bool foundProc = false;
                 if (!isRunning || (isRunning && Process.GetProcessById((int)pOutPID).ProcessName.ToLower() != Path.GetFileNameWithoutExtension(path).ToLower()))
                 {
-                    if(isRunning)
+                    if (isRunning)
                     {
                         Log("Process ID " + pOutPID + " exists but does not match expected process name. Attempting to resolve.");
                     }
@@ -522,7 +522,7 @@ namespace StartGame
                                 pOutPID = (uint)gameProc.Id;
                             }
                         }
-                        if(!foundProc)
+                        if (!foundProc)
                         {
                             Log("Could not find process by its path");
                         }
@@ -535,7 +535,7 @@ namespace StartGame
                 else
                 {
                     Log("Process ID: " + pOutPID);
-                    if(Process.GetProcessById((int)pOutPID).GetMainModuleFileName().ToLower() == path.ToLower())
+                    if (Process.GetProcessById((int)pOutPID).GetMainModuleFileName().ToLower() == path.ToLower())
                     {
                         foundProc = true;
                         isRunning = true;
@@ -543,7 +543,7 @@ namespace StartGame
                 }
 
                 //Thread.Sleep(100);
-                
+
                 //if (proc != null && proc.Threads[0].ThreadState != System.Diagnostics.ThreadState.Running)
                 if (!isRunning && !foundProc)
                 {
@@ -572,8 +572,8 @@ namespace StartGame
                 {
                     //if (regMethod)
                     //{
-                        //Thread.Sleep(100);
-                        Log(string.Format("Game started, process ID: {0}", pOutPID));
+                    //Thread.Sleep(100);
+                    Log(string.Format("Game started, process ID: {0}", pOutPID));
                     //}
                     //else
                     //{
@@ -581,7 +581,7 @@ namespace StartGame
                     //    Log(string.Format("Game started, process ID: {0}", pOutPID));
                     //}
                 }
-                
+
             }
 
             catch (Exception ex)
@@ -589,7 +589,7 @@ namespace StartGame
                 tri++;
                 if (tri < tries)
                 {
-                    if(!ex.Message.Contains("debug-log"))
+                    if (!ex.Message.Contains("debug-log"))
                     {
                         Log(string.Format("ERROR - Failed to start process. EXCEPTION: {0} STACKTRACE: {1}", ex.Message, ex.StackTrace));
                         Console.WriteLine("Failed to start process. Retrying...");
@@ -621,7 +621,7 @@ namespace StartGame
                     proc.WaitForExit();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // handle exception
             }
@@ -633,7 +633,7 @@ namespace StartGame
             {
                 return;
             }
-            if(e.Data.Equals("injectfailed"))
+            if (e.Data.Equals("injectfailed"))
             {
                 injectFailed = true;
                 return;
@@ -645,7 +645,7 @@ namespace StartGame
             uint.TryParse(e.Data, out pOutPID);
         }
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             // We need this, else Windows will fake
             // all the data about monitors inside the application
@@ -707,8 +707,8 @@ namespace StartGame
                              && !skey.Contains("docpath")
                              && !skey.Contains("usedocs")
                              && !skey.Contains("output"))
-                             
-                                                          
+
+
                         {
                             i++;
                             if (string.IsNullOrEmpty(argument))
@@ -735,15 +735,15 @@ namespace StartGame
                     }
                     else if (key.Contains("hook"))
                     {
-                        isHook = Boolean.Parse(splited[1]);
+                        isHook = bool.Parse(splited[1]);
                     }
                     else if (key.Contains("delay"))
                     {
-                        isDelay = Boolean.Parse(splited[1]);
+                        isDelay = bool.Parse(splited[1]);
                     }
                     else if (key.Contains("renamemutex"))
                     {
-                        renameMutex = Boolean.Parse(splited[1]);
+                        renameMutex = bool.Parse(splited[1]);
                     }
                     else if (key.Contains("mutextorename"))
                     {
@@ -751,27 +751,27 @@ namespace StartGame
                     }
                     else if (key.Contains("partialmutex"))
                     {
-                        partialMutex = Boolean.Parse(splited[1]);
+                        partialMutex = bool.Parse(splited[1]);
                     }
                     else if (key.Contains("setwindow"))
                     {
-                        setWindow = Boolean.Parse(splited[1]);
+                        setWindow = bool.Parse(splited[1]);
                     }
                     else if (key.Contains("width"))
                     {
-                        width = Int32.Parse(splited[1]);
+                        width = int.Parse(splited[1]);
                     }
                     else if (key.Contains("height"))
                     {
-                        height = Int32.Parse(splited[1]);
+                        height = int.Parse(splited[1]);
                     }
                     else if (key.Contains("posx"))
                     {
-                        posx = Int32.Parse(splited[1]);
+                        posx = int.Parse(splited[1]);
                     }
                     else if (key.Contains("posy"))
                     {
-                        posy = Int32.Parse(splited[1]);
+                        posy = int.Parse(splited[1]);
                     }
                     else if (key.Contains("docpath"))
                     {
@@ -779,11 +779,11 @@ namespace StartGame
                     }
                     else if (key.Contains("usedocs"))
                     {
-                        useDocs = Boolean.Parse(splited[1]);
+                        useDocs = bool.Parse(splited[1]);
                     }
                     else if (key.Contains("isdebug"))
                     {
-                        isDebug = Boolean.Parse(splited[1]);
+                        isDebug = bool.Parse(splited[1]);
                     }
                     else if (key.Contains("nucleusfolderpath"))
                     {
@@ -791,11 +791,11 @@ namespace StartGame
                     }
                     else if (key.Contains("blockraw"))
                     {
-                        blockRaw = Boolean.Parse(splited[1]);
+                        blockRaw = bool.Parse(splited[1]);
                     }
                     else if (key.Contains("createsingle"))
                     {
-                        createSingle = Boolean.Parse(splited[1]);
+                        createSingle = bool.Parse(splited[1]);
                     }
                     else if (key.Contains("rawhid"))
                     {
@@ -803,7 +803,7 @@ namespace StartGame
                     }
                     else if (key.Contains("nucenv"))
                     {
-                        useNucleusEnvironment = Boolean.Parse(splited[1]);
+                        useNucleusEnvironment = bool.Parse(splited[1]);
                     }
                     else if (key.Contains("playernick"))
                     {
@@ -811,7 +811,7 @@ namespace StartGame
                     }
                     else if (key.Contains("starthks"))
                     {
-                        useStartupHooks = Boolean.Parse(splited[1]);
+                        useStartupHooks = bool.Parse(splited[1]);
                     }
                     else if (key.Contains("root"))
                     {
@@ -839,11 +839,11 @@ namespace StartGame
                     }
                     else if (key.Contains("hardlink"))
                     {
-                        hardLink = Boolean.Parse(splited[1]);
+                        hardLink = bool.Parse(splited[1]);
                     }
                     else if (key.Contains("symfolder"))
                     {
-                        symFolders = Boolean.Parse(splited[1]);
+                        symFolders = bool.Parse(splited[1]);
                     }
                     else if (key.Contains("numplayers"))
                     {

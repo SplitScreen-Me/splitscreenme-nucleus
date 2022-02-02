@@ -43,7 +43,7 @@ namespace Nucleus.Gaming.Windows
         /// <summary>
         /// Determines if the current application is 32 or 64-bit.
         /// </summary>
-        static public SoftwareArchitecture ProgramBits
+        public static SoftwareArchitecture ProgramBits
         {
             get
             {
@@ -70,7 +70,7 @@ namespace Nucleus.Gaming.Windows
             }
         }
 
-        static public SoftwareArchitecture OSBits
+        public static SoftwareArchitecture OSBits
         {
             get
             {
@@ -84,9 +84,14 @@ namespace Nucleus.Gaming.Windows
 
                     case 32:
                         if (Is32BitProcessOn64BitProcessor())
+                        {
                             osbits = SoftwareArchitecture.Bit64;
+                        }
                         else
+                        {
                             osbits = SoftwareArchitecture.Bit32;
+                        }
+
                         break;
 
                     default:
@@ -101,7 +106,7 @@ namespace Nucleus.Gaming.Windows
         /// <summary>
         /// Determines if the current processor is 32 or 64-bit.
         /// </summary>
-        static public ProcessorArchitecture ProcessorBits
+        public static ProcessorArchitecture ProcessorBits
         {
             get
             {
@@ -139,22 +144,26 @@ namespace Nucleus.Gaming.Windows
         #endregion BITS
 
         #region EDITION
-        static private string s_Edition;
+        private static string s_Edition;
         /// <summary>
         /// Gets the edition of the operating system running on this computer.
         /// </summary>
-        static public string Edition
+        public static string Edition
         {
             get
             {
                 if (s_Edition != null)
+                {
                     return s_Edition;  //***** RETURN *****//
+                }
 
-                string edition = String.Empty;
+                string edition = string.Empty;
 
                 OperatingSystem osVersion = Environment.OSVersion;
-                OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX();
-                osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX));
+                OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX
+                {
+                    dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX))
+                };
 
                 if (GetVersionEx(ref osVersionInfo))
                 {
@@ -199,9 +208,13 @@ namespace Nucleus.Gaming.Windows
                             else
                             {
                                 if (GetSystemMetrics(86) == 0) // 86 == SM_TABLETPC
+                                {
                                     edition = "Professional";
+                                }
                                 else
+                                {
                                     edition = "Tablet Edition";
+                                }
                             }
                         }
                         else if (productType == VER_NT_SERVER)
@@ -254,10 +267,9 @@ namespace Nucleus.Gaming.Windows
                     #region VERSION 6
                     else if (majorVersion == 6)
                     {
-                        int ed;
                         if (GetProductInfo(majorVersion, minorVersion,
                             osVersionInfo.wServicePackMajor, osVersionInfo.wServicePackMinor,
-                            out ed))
+                            out int ed))
                         {
                             switch (ed)
                             {
@@ -484,22 +496,26 @@ namespace Nucleus.Gaming.Windows
         #endregion EDITION
 
         #region NAME
-        static private string s_Name;
+        private static string s_Name;
         /// <summary>
         /// Gets the name of the operating system running on this computer.
         /// </summary>
-        static public string Name
+        public static string Name
         {
             get
             {
                 if (s_Name != null)
+                {
                     return s_Name;  //***** RETURN *****//
+                }
 
                 string name = "unknown";
 
                 OperatingSystem osVersion = Environment.OSVersion;
-                OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX();
-                osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX));
+                OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX
+                {
+                    dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX))
+                };
 
                 if (GetVersionEx(ref osVersionInfo))
                 {
@@ -545,15 +561,25 @@ namespace Nucleus.Gaming.Windows
                                     {
                                         case 0:
                                             if (csdVersion == "B" || csdVersion == "C")
+                                            {
                                                 name = "Windows 95 OSR2";
+                                            }
                                             else
+                                            {
                                                 name = "Windows 95";
+                                            }
+
                                             break;
                                         case 10:
                                             if (csdVersion == "A")
+                                            {
                                                 name = "Windows 98 Second Edition";
+                                            }
                                             else
+                                            {
                                                 name = "Windows 98";
+                                            }
+
                                             break;
                                         case 90:
                                             name = "Windows Me";
@@ -758,10 +784,10 @@ namespace Nucleus.Gaming.Windows
 
         #region 64 BIT OS DETECTION
         [DllImport("kernel32", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
-        public extern static IntPtr LoadLibrary(string libraryName);
+        public static extern IntPtr LoadLibrary(string libraryName);
 
         [DllImport("kernel32", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
-        public extern static IntPtr GetProcAddress(IntPtr hwnd, string procedureName);
+        public static extern IntPtr GetProcAddress(IntPtr hwnd, string procedureName);
         #endregion 64 BIT OS DETECTION
 
         #region PRODUCT
@@ -859,14 +885,15 @@ namespace Nucleus.Gaming.Windows
         /// <summary>
         /// Gets the service pack information of the operating system running on this computer.
         /// </summary>
-        static public string ServicePack
+        public static string ServicePack
         {
             get
             {
-                string servicePack = String.Empty;
-                OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX();
-
-                osVersionInfo.dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX));
+                string servicePack = string.Empty;
+                OSVERSIONINFOEX osVersionInfo = new OSVERSIONINFOEX
+                {
+                    dwOSVersionInfoSize = Marshal.SizeOf(typeof(OSVERSIONINFOEX))
+                };
 
                 if (GetVersionEx(ref osVersionInfo))
                 {
@@ -883,13 +910,7 @@ namespace Nucleus.Gaming.Windows
         /// <summary>
         /// Gets the build version number of the operating system running on this computer.
         /// </summary>
-        static public int BuildVersion
-        {
-            get
-            {
-                return int.Parse(RegistryRead(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "CurrentBuildNumber", "0"));
-            }
-        }
+        public static int BuildVersion => int.Parse(RegistryRead(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "CurrentBuildNumber", "0"));
         #endregion BUILD
 
         #region FULL
@@ -897,26 +918,14 @@ namespace Nucleus.Gaming.Windows
         /// <summary>
         /// Gets the full version string of the operating system running on this computer.
         /// </summary>
-        static public string VersionString
-        {
-            get
-            {
-                return Version.ToString();
-            }
-        }
+        public static string VersionString => Version.ToString();
         #endregion STRING
 
         #region VERSION
         /// <summary>
         /// Gets the full version of the operating system running on this computer.
         /// </summary>
-        static public Version Version
-        {
-            get
-            {
-                return new Version(MajorVersion, MinorVersion, BuildVersion, RevisionVersion);
-            }
-        }
+        public static Version Version => new Version(MajorVersion, MinorVersion, BuildVersion, RevisionVersion);
         #endregion VERSION
         #endregion FULL
 
@@ -924,16 +933,16 @@ namespace Nucleus.Gaming.Windows
         /// <summary>
         /// Gets the major version number of the operating system running on this computer.
         /// </summary>
-        static public int MajorVersion
+        public static int MajorVersion
         {
             get
             {
-                if(IsWindows10())
+                if (IsWindows10())
                 {
                     return 10;
                 }
                 string exactVersion = RegistryRead(@"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "CurrentVersion", "");
-                if(!string.IsNullOrEmpty(exactVersion))
+                if (!string.IsNullOrEmpty(exactVersion))
                 {
                     string[] splitVersion = exactVersion.Split('.');
                     return int.Parse(splitVersion[0]);
@@ -947,7 +956,7 @@ namespace Nucleus.Gaming.Windows
         /// <summary>
         /// Gets the minor version number of the operating system running on this computer.
         /// </summary>
-        static public int MinorVersion
+        public static int MinorVersion
         {
             get
             {
@@ -970,11 +979,11 @@ namespace Nucleus.Gaming.Windows
         /// <summary>
         /// Gets the revision version number of the operating system running on this computer.
         /// </summary>
-        static public int RevisionVersion
+        public static int RevisionVersion
         {
             get
             {
-                if(IsWindows10())
+                if (IsWindows10())
                 {
                     return 0;
                 }
@@ -995,7 +1004,7 @@ namespace Nucleus.Gaming.Windows
 
                 if (fnPtr != IntPtr.Zero)
                 {
-                    return (IsWow64ProcessDelegate)Marshal.GetDelegateForFunctionPointer((IntPtr)fnPtr, typeof(IsWow64ProcessDelegate));
+                    return (IsWow64ProcessDelegate)Marshal.GetDelegateForFunctionPointer(fnPtr, typeof(IsWow64ProcessDelegate));
                 }
             }
 
@@ -1011,8 +1020,7 @@ namespace Nucleus.Gaming.Windows
                 return false;
             }
 
-            bool isWow64;
-            bool retVal = fnDelegate.Invoke(Process.GetCurrentProcess().Handle, out isWow64);
+            bool retVal = fnDelegate.Invoke(Process.GetCurrentProcess().Handle, out bool isWow64);
 
             if (retVal == false)
             {
@@ -1054,11 +1062,26 @@ namespace Nucleus.Gaming.Windows
                 {
                     split_result[0] = split_result[0].ToUpper();        // Make the first entry uppercase...
 
-                    if (split_result[0] == "HKEY_CLASSES_ROOT") OurKey = Registry.ClassesRoot;
-                    else if (split_result[0] == "HKEY_CURRENT_USER") OurKey = Registry.CurrentUser;
-                    else if (split_result[0] == "HKEY_LOCAL_MACHINE") OurKey = Registry.LocalMachine;
-                    else if (split_result[0] == "HKEY_USERS") OurKey = Registry.Users;
-                    else if (split_result[0] == "HKEY_CURRENT_CONFIG") OurKey = Registry.CurrentConfig;
+                    if (split_result[0] == "HKEY_CLASSES_ROOT")
+                    {
+                        OurKey = Registry.ClassesRoot;
+                    }
+                    else if (split_result[0] == "HKEY_CURRENT_USER")
+                    {
+                        OurKey = Registry.CurrentUser;
+                    }
+                    else if (split_result[0] == "HKEY_LOCAL_MACHINE")
+                    {
+                        OurKey = Registry.LocalMachine;
+                    }
+                    else if (split_result[0] == "HKEY_USERS")
+                    {
+                        OurKey = Registry.Users;
+                    }
+                    else if (split_result[0] == "HKEY_CURRENT_CONFIG")
+                    {
+                        OurKey = Registry.CurrentConfig;
+                    }
 
                     if (OurKey != null)
                     {

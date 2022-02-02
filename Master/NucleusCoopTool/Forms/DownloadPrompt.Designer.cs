@@ -1,4 +1,8 @@
-﻿namespace Nucleus.Coop.Forms
+﻿using System.Drawing;
+using System.Windows.Forms;
+using System.IO;
+using Nucleus.Gaming;
+namespace Nucleus.Coop.Forms
 {
     partial class DownloadPrompt
     {
@@ -19,7 +23,9 @@
             }
             base.Dispose(disposing);
         }
-
+        
+		private readonly IniFile ini = new Gaming.IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));
+		
         #region Windows Form Designer generated code
 
         /// <summary>
@@ -40,6 +46,7 @@
             this.lbl_ProgPerc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.lbl_ProgPerc.BackColor = System.Drawing.Color.Transparent;
             this.lbl_ProgPerc.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lbl_ProgPerc.ForeColor = System.Drawing.SystemColors.Window;
             this.lbl_ProgPerc.Location = new System.Drawing.Point(225, 38);
@@ -54,11 +61,14 @@
             this.lbl_Handler.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.lbl_Handler.BackColor = System.Drawing.Color.Transparent;
+            this.lbl_Handler.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lbl_Handler.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.lbl_Handler.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.lbl_Handler.ForeColor = System.Drawing.SystemColors.Window;
-            this.lbl_Handler.Location = new System.Drawing.Point(25, 58);
+            this.lbl_Handler.Location = new System.Drawing.Point(29, 57);
             this.lbl_Handler.Name = "lbl_Handler";
-            this.lbl_Handler.Size = new System.Drawing.Size(293, 19);
+            this.lbl_Handler.Size = new System.Drawing.Size(289, 19);
             this.lbl_Handler.TabIndex = 2;
             // 
             // label1
@@ -67,6 +77,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.Transparent;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.label1.ForeColor = System.Drawing.SystemColors.Window;
             this.label1.Location = new System.Drawing.Point(25, 39);
@@ -88,9 +99,10 @@
             // 
             // DownloadPrompt
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
+            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(356, 148);
             this.Controls.Add(this.lbl_ProgPerc);
             this.Controls.Add(this.lbl_Handler);

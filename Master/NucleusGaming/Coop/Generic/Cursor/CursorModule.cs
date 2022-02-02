@@ -22,33 +22,30 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using Nucleus.Gaming.Windows.Interop;
 
 namespace Nucleus.Gaming.Coop.Generic.Cursor
 {
     /// <summary>
     /// Module for handling mouse/cursor related features
     /// </summary>
-    class CursorModule
-	{
-        NativeMethods.HookProc llMouseProc;
-        NativeMethods.WinEventProc winEventProc;
-        IntPtr llMouseHook = IntPtr.Zero;
-        IntPtr winEventHook = IntPtr.Zero;
-        IntPtr processHandle = IntPtr.Zero;
-
-        HashSet<IntPtr> _otherGames = new HashSet<IntPtr>();
-
-        int _minForce = int.MaxValue;
-        Process _process;
+    internal class CursorModule
+    {
+        private NativeMethods.HookProc llMouseProc;
+        private NativeMethods.WinEventProc winEventProc;
+        private IntPtr llMouseHook = IntPtr.Zero;
+        private IntPtr winEventHook = IntPtr.Zero;
+        private IntPtr processHandle = IntPtr.Zero;
+        private HashSet<IntPtr> _otherGames = new HashSet<IntPtr>();
+        private int _minForce = int.MaxValue;
+        private Process _process;
         private Rectangle _rectangle;
 
         // Barriers which constrain the cursor movement
-        CursorBarrierLower _leftBarrier = new CursorBarrierLower(false, 0, 0);
-        CursorBarrierUpper _rightBarrier = new CursorBarrierUpper(false, 0, 0);
-        CursorBarrierLower _topBarrier = new CursorBarrierLower(false, 0, 0);
-        CursorBarrierUpper _bottomBarrier = new CursorBarrierUpper(false, 0, 0);
-        
+        private CursorBarrierLower _leftBarrier = new CursorBarrierLower(false, 0, 0);
+        private CursorBarrierUpper _rightBarrier = new CursorBarrierUpper(false, 0, 0);
+        private CursorBarrierLower _topBarrier = new CursorBarrierLower(false, 0, 0);
+        private CursorBarrierUpper _bottomBarrier = new CursorBarrierUpper(false, 0, 0);
+
 
         public CursorModule()
         {
@@ -133,12 +130,12 @@ namespace Nucleus.Gaming.Coop.Generic.Cursor
             {
                 // lParam is a pointer to a MSLLHOOKSTRUCT, 
                 NativeMethods.MSLLHOOKSTRUCT msllHookStruct =
-                    (NativeMethods.MSLLHOOKSTRUCT) Marshal.PtrToStructure(lParam, typeof (NativeMethods.MSLLHOOKSTRUCT));
+                    (NativeMethods.MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(NativeMethods.MSLLHOOKSTRUCT));
                 int originalX = msllHookStruct.pt.x;
                 int originalY = msllHookStruct.pt.y;
                 int x = originalX;
                 int y = originalY;
-                
+
                 // check if the cursor has moved from one screen to another
                 // and if so add the required amount of stickiness to the cursor
                 // restraining it to the current screen if necessary
@@ -176,12 +173,14 @@ namespace Nucleus.Gaming.Coop.Generic.Cursor
 
             return NativeMethods.CallNextHookEx(llMouseHook, nCode, wParam, lParam);
         }
-        
+
         public void StartListeningForWindowChanges()
         {
             //setting the window hook
             if (winEventHook == IntPtr.Zero)
+            {
                 winEventHook = NativeMethods.SetWinEventHook(NativeMethods.EVENT_SYSTEM_FOREGROUND, NativeMethods.EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, winEventProc, 0, 0, NativeMethods.WINEVENT_OUTOFCONTEXT);
+            }
         }
 
         public void StopListeningForWindowChanges()

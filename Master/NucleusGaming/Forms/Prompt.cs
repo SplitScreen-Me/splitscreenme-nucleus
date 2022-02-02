@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 //using System.IO;
 
@@ -14,8 +7,8 @@ namespace Nucleus.Gaming.Forms
 {
     public partial class Prompt : Form
     {
-        bool hasOpenFileDialog = false;
-        string exeName;
+        private bool hasOpenFileDialog = false;
+        private string exeName;
 
         public Prompt(string message)
         {
@@ -71,7 +64,6 @@ namespace Nucleus.Gaming.Forms
 
             btn_Ok.PerformClick();
         }
-
         private void btn_Ok_Click(object sender, EventArgs e)
         {
 

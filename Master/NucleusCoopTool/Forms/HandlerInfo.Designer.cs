@@ -1,7 +1,14 @@
-﻿namespace Nucleus.Coop.Forms
+﻿using Nucleus.Gaming;
+using System;
+using System.Drawing;
+using System.IO;
+using System.Windows.Forms;
+
+namespace Nucleus.Coop.Forms
 {
     partial class HandlerInfo
     {
+		
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -19,7 +26,7 @@
             }
             base.Dispose(disposing);
         }
-
+        
         #region Windows Form Designer generated code
 
         /// <summary>
@@ -29,6 +36,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(HandlerInfo));
+            this.linkLabel_MoreInfo = new System.Windows.Forms.LinkLabel();
             this.txt_Updated = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.txt_Created = new System.Windows.Forms.TextBox();
@@ -51,16 +59,29 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.pic_GameCover = new System.Windows.Forms.PictureBox();
-            this.linkLabel_MoreInfo = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.pic_GameCover)).BeginInit();
             this.SuspendLayout();
             // 
+            // linkLabel_MoreInfo
+            // 
+            this.linkLabel_MoreInfo.ActiveLinkColor = System.Drawing.Color.LawnGreen;
+            this.linkLabel_MoreInfo.AutoSize = true;
+            this.linkLabel_MoreInfo.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.linkLabel_MoreInfo.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.linkLabel_MoreInfo.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
+            this.linkLabel_MoreInfo.Location = new System.Drawing.Point(504, 25);
+            this.linkLabel_MoreInfo.Name = "linkLabel_MoreInfo";
+            this.linkLabel_MoreInfo.Size = new System.Drawing.Size(58, 13);
+            this.linkLabel_MoreInfo.TabIndex = 52;
+            this.linkLabel_MoreInfo.TabStop = true;
+            this.linkLabel_MoreInfo.Text = "More Info";
+            this.linkLabel_MoreInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.linkLabel_MoreInfo.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel_MoreInfo_LinkClicked);
+            // 
             // txt_Updated
             // 
-            this.txt_Updated.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
             this.txt_Updated.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txt_Updated.Font = new System.Drawing.Font("Segoe UI", 11F);
-            this.txt_Updated.ForeColor = System.Drawing.SystemColors.Window;
             this.txt_Updated.Location = new System.Drawing.Point(380, 185);
             this.txt_Updated.Name = "txt_Updated";
             this.txt_Updated.ReadOnly = true;
@@ -72,7 +93,6 @@
             // 
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.ForeColor = System.Drawing.Color.White;
             this.label10.Location = new System.Drawing.Point(275, 186);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(99, 18);
@@ -82,7 +102,6 @@
             // 
             // txt_Created
             // 
-            this.txt_Created.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
             this.txt_Created.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txt_Created.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.txt_Created.ForeColor = System.Drawing.SystemColors.Window;
@@ -97,7 +116,6 @@
             // 
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.ForeColor = System.Drawing.Color.White;
             this.label9.Location = new System.Drawing.Point(19, 186);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(75, 18);
@@ -141,14 +159,13 @@
             this.txt_Comm.Location = new System.Drawing.Point(19, 371);
             this.txt_Comm.Name = "txt_Comm";
             this.txt_Comm.ReadOnly = true;
-            this.txt_Comm.Size = new System.Drawing.Size(533, 93);
+            this.txt_Comm.Size = new System.Drawing.Size(533, 145);
             this.txt_Comm.TabIndex = 44;
             this.txt_Comm.Text = "";
             this.txt_Comm.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.txt_Comm_LinkClicked);
             // 
             // txt_Verified
             // 
-            this.txt_Verified.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
             this.txt_Verified.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txt_Verified.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.txt_Verified.ForeColor = System.Drawing.SystemColors.Window;
@@ -158,10 +175,10 @@
             this.txt_Verified.Size = new System.Drawing.Size(60, 20);
             this.txt_Verified.TabIndex = 43;
             this.txt_Verified.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txt_Verified.Visible = false;
             // 
             // txt_Likes
             // 
-            this.txt_Likes.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
             this.txt_Likes.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txt_Likes.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.txt_Likes.ForeColor = System.Drawing.SystemColors.Window;
@@ -174,7 +191,6 @@
             // 
             // txt_Down
             // 
-            this.txt_Down.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
             this.txt_Down.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txt_Down.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.txt_Down.ForeColor = System.Drawing.SystemColors.Window;
@@ -187,7 +203,6 @@
             // 
             // txt_Version
             // 
-            this.txt_Version.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
             this.txt_Version.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txt_Version.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.txt_Version.ForeColor = System.Drawing.SystemColors.Window;
@@ -200,7 +215,6 @@
             // 
             // txt_GameName
             // 
-            this.txt_GameName.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
             this.txt_GameName.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txt_GameName.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txt_GameName.ForeColor = System.Drawing.SystemColors.Window;
@@ -212,35 +226,44 @@
             // 
             // btn_Close
             // 
-            this.btn_Close.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btn_Close.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_Close.BackColor = System.Drawing.Color.Transparent;
+            this.btn_Close.BackgroundImage = global::Nucleus.Coop.Properties.Resources.close_button_alpha;
+            this.btn_Close.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.btn_Close.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btn_Close.FlatAppearance.BorderSize = 0;
             this.btn_Close.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btn_Close.ForeColor = System.Drawing.Color.White;
-            this.btn_Close.Location = new System.Drawing.Point(433, 481);
+            this.btn_Close.Font = new System.Drawing.Font("Franklin Gothic Medium", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_Close.Location = new System.Drawing.Point(542, 3);
+            this.btn_Close.Margin = new System.Windows.Forms.Padding(2);
             this.btn_Close.Name = "btn_Close";
-            this.btn_Close.Size = new System.Drawing.Size(120, 35);
+            this.btn_Close.Size = new System.Drawing.Size(20, 20);
             this.btn_Close.TabIndex = 38;
-            this.btn_Close.Text = "Close";
-            this.btn_Close.UseVisualStyleBackColor = true;
+            this.btn_Close.UseVisualStyleBackColor = false;
             this.btn_Close.Click += new System.EventHandler(this.btn_Close_Click);
             // 
             // btn_Download
             // 
-            this.btn_Download.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btn_Download.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btn_Download.BackColor = System.Drawing.Color.Transparent;
+            this.btn_Download.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.btn_Download.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btn_Download.FlatAppearance.BorderSize = 0;
             this.btn_Download.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btn_Download.ForeColor = System.Drawing.Color.White;
-            this.btn_Download.Location = new System.Drawing.Point(19, 481);
+            this.btn_Download.Font = new System.Drawing.Font("Franklin Gothic Medium", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_Download.Location = new System.Drawing.Point(19, 989);
             this.btn_Download.Name = "btn_Download";
             this.btn_Download.Size = new System.Drawing.Size(120, 35);
             this.btn_Download.TabIndex = 37;
             this.btn_Download.Text = "Download";
-            this.btn_Download.UseVisualStyleBackColor = true;
+            this.btn_Download.UseVisualStyleBackColor = false;
+            this.btn_Download.Visible = false;
             this.btn_Download.Click += new System.EventHandler(this.btn_Download_Click);
             // 
             // label8
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.ForeColor = System.Drawing.Color.White;
             this.label8.Location = new System.Drawing.Point(15, 348);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(86, 18);
@@ -252,7 +275,6 @@
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.ForeColor = System.Drawing.Color.White;
             this.label7.Location = new System.Drawing.Point(15, 154);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(62, 18);
@@ -264,7 +286,6 @@
             // 
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.ForeColor = System.Drawing.Color.White;
             this.label6.Location = new System.Drawing.Point(313, 154);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(47, 18);
@@ -276,7 +297,6 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.ForeColor = System.Drawing.Color.White;
             this.label5.Location = new System.Drawing.Point(146, 154);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(87, 18);
@@ -288,7 +308,6 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.ForeColor = System.Drawing.Color.White;
             this.label3.Location = new System.Drawing.Point(429, 154);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(60, 18);
@@ -300,7 +319,6 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.ForeColor = System.Drawing.Color.White;
             this.label2.Location = new System.Drawing.Point(15, 220);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(195, 18);
@@ -312,7 +330,6 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 11F);
-            this.label1.ForeColor = System.Drawing.Color.White;
             this.label1.Location = new System.Drawing.Point(123, 39);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(88, 20);
@@ -322,31 +339,22 @@
             // 
             // pic_GameCover
             // 
+            this.pic_GameCover.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.pic_GameCover.Location = new System.Drawing.Point(19, 12);
             this.pic_GameCover.Name = "pic_GameCover";
             this.pic_GameCover.Size = new System.Drawing.Size(90, 128);
+            this.pic_GameCover.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pic_GameCover.TabIndex = 0;
             this.pic_GameCover.TabStop = false;
             // 
-            // linkLabel_MoreInfo
-            // 
-            this.linkLabel_MoreInfo.AutoSize = true;
-            this.linkLabel_MoreInfo.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.linkLabel_MoreInfo.LinkColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(255)))));
-            this.linkLabel_MoreInfo.Location = new System.Drawing.Point(495, 21);
-            this.linkLabel_MoreInfo.Name = "linkLabel_MoreInfo";
-            this.linkLabel_MoreInfo.Size = new System.Drawing.Size(58, 13);
-            this.linkLabel_MoreInfo.TabIndex = 52;
-            this.linkLabel_MoreInfo.TabStop = true;
-            this.linkLabel_MoreInfo.Text = "More Info";
-            this.linkLabel_MoreInfo.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.linkLabel_MoreInfo.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkLabel_MoreInfo_LinkClicked);
-            // 
             // HandlerInfo
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 21F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
+            this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(565, 528);
+            this.ControlBox = false;
+            this.Controls.Add(this.btn_Close);
             this.Controls.Add(this.linkLabel_MoreInfo);
             this.Controls.Add(this.txt_Updated);
             this.Controls.Add(this.label10);
@@ -360,7 +368,6 @@
             this.Controls.Add(this.txt_Down);
             this.Controls.Add(this.txt_Version);
             this.Controls.Add(this.txt_GameName);
-            this.Controls.Add(this.btn_Close);
             this.Controls.Add(this.btn_Download);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.label7);
@@ -370,13 +377,14 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pic_GameCover);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
+            this.DoubleBuffered = true;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "HandlerInfo";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Script Details";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Handler Details";
             ((System.ComponentModel.ISupportInitialize)(this.pic_GameCover)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
