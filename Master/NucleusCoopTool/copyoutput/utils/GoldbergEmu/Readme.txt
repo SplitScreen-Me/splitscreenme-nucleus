@@ -109,6 +109,13 @@ Build id:
 Add a steam_settings\build_id.txt with the build id if the game doesn't show the correct build id and you want the emu to give it the correct one.
 An example can be found in steam_settings.EXAMPLE
 
+SteamHTTP:
+Add a steam_settings\http folder. The folder should contain the domain name and path to the files that will be returned by steamHTTP like so:
+For example this url: https://en.wikipedia.org/wiki/Main_Page
+Would be: steam_settings\http\en.wikipedia.org\wiki\Main_Page
+The Main_Page file would contain the data returned by the steamHTTP api when it tries to access: https://en.wikipedia.org/wiki/Main_Page
+An example that was made for payday 2 can be found in steam_settings.EXAMPLE
+
 
 Support for CPY steam_api(64).dll cracks: See the build in the experimental folder.
 
@@ -133,6 +140,7 @@ For analog actions (joysticks, triggers): ACTION_NAME=ANALOG_NAME=input source m
 Actions can be bound to more than one button by separating the buttons with , like this: ACTION_NAME=A,B
 
 If you want to configure a game yourself, find the xbox360 or xbox one vdf file for the game and you should be able to figure things out.
+You can also use the scripts\controller_config_generator\parse_controller_vdf.py script in the emu source code repo.
 
 For example to get the vdf file for the game Crystar: https://steamdb.info/app/981750/config/
 If you look at: steamcontrollerconfigdetails, you will see something like: 1779660455/controller_type: controller_xbox360
@@ -173,6 +181,7 @@ LTRIGGER
 RTRIGGER
 LJOY
 RJOY
+DPAD
 
 
 

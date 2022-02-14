@@ -1,25 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Nucleus.Gaming.Coop.InputManagement.Enums
+﻿namespace Nucleus.Gaming.Coop.InputManagement.Enums
 {
-	public enum HeaderDwType : uint
-	{
-		/// <summary>
-		/// Raw input comes from some device that is not a keyboard or a mouse.
-		/// </summary>
-		RIM_TYPEHID = 2,
+    public enum HeaderDwType : uint
+    {
+        /// <summary>
+        /// Raw input comes from some device that is not a keyboard or a mouse.
+        /// </summary>
+        RIM_TYPEHID = 2,
 
-		/// <summary>
-		/// Raw input comes from the keyboard.
-		/// </summary>
-		RIM_TYPEKEYBOARD = 1,
+        /// <summary>
+        /// Raw input comes from the keyboard.
+        /// </summary>
+        RIM_TYPEKEYBOARD = 1,
 
-		/// <summary>
-		/// Raw input comes from the mouse. 
-		/// </summary>
-		RIM_TYPEMOUSE = 0
-	}
+        /// <summary>
+        /// Raw input comes from the mouse. 
+        /// </summary>
+        RIM_TYPEMOUSE = 0
+    }
 }

@@ -1,10 +1,7 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Nucleus.Gaming.Coop
 {
@@ -14,7 +11,7 @@ namespace Nucleus.Gaming.Coop
         private List<GameProfile> profiles;
         private string exePath;
         private string gameGuid = "";
-
+      
         [JsonIgnore]
         public GenericGameInfo Game
         {
@@ -37,20 +34,21 @@ namespace Nucleus.Gaming.Coop
 
         public string GameGuid
         {
-            get { return gameGuid; }
-            set { gameGuid = value; }
+            get => gameGuid;
+            set => gameGuid = value;
         }
+
 
         public List<GameProfile> Profiles
         {
-            get { return profiles; }
-            set { profiles = value; }
+            get => profiles;
+            set => profiles = value;
         }
 
         public string ExePath
         {
-            get { return exePath; }
-            set { exePath = value; }
+            get => exePath;
+            set => exePath = value;
         }
 
         public UserGameInfo()
@@ -71,9 +69,8 @@ namespace Nucleus.Gaming.Coop
         {
             this.game = game;
             gameGuid = game.GUID;
-
             this.exePath = exePath;
-            this.profiles = new List<GameProfile>();
+            profiles = new List<GameProfile>();
         }
     }
 }

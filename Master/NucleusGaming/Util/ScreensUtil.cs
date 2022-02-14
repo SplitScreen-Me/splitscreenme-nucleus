@@ -1,13 +1,7 @@
 ﻿using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Windows;
-using Nucleus.Interop.User32;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Nucleus.Gaming
 {
@@ -55,6 +49,14 @@ namespace Nucleus.Gaming
             }
 
             return rects;
+        }
+
+        
+        public static Display[] AllScreensParams()
+        {
+            Display[] all = User32Util.GetDisplays();
+           
+            return all;
         }
 
         public static Rectangle[] AllScreensRec()

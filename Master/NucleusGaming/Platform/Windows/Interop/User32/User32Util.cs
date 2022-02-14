@@ -3,10 +3,7 @@ using Nucleus.Interop.User32;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using static Nucleus.Gaming.Windows.Interop.User32Interop;
 
@@ -51,7 +48,7 @@ namespace Nucleus.Gaming.Windows
             public string DeviceKey;
         }
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        static extern bool EnumDisplayDevices(string lpDevice, uint iDevNum, ref DISPLAY_DEVICE lpDisplayDevice, uint dwFlags);
+        private static extern bool EnumDisplayDevices(string lpDevice, uint iDevNum, ref DISPLAY_DEVICE lpDisplayDevice, uint dwFlags);
 
 
         public enum DeviceCap
@@ -69,7 +66,7 @@ namespace Nucleus.Gaming.Windows
             int LogicalScreenHeight = Gdi32Interop.GetDeviceCaps(desktop, (int)DeviceCap.VERTRES);
             int PhysicalScreenHeight = Gdi32Interop.GetDeviceCaps(desktop, (int)DeviceCap.DESKTOPVERTRES);
 
-            float ScreenScalingFactor = (float)PhysicalScreenHeight / (float)LogicalScreenHeight;
+            float ScreenScalingFactor = PhysicalScreenHeight / (float)LogicalScreenHeight;
 
             return ScreenScalingFactor;
         }
@@ -89,9 +86,7 @@ namespace Nucleus.Gaming.Windows
 
             if (os.Major > 6 || os.Major == 6 && os.Minor >= 3)
             {
-                uint dpiX = 0;
-                uint dpiY = 0;
-                User32Interop.GetDpiForMonitor(display.Handle, User32Interop.DpiType.Effective /*MonitorDpiType.RawDPI*/, out dpiX, out dpiY);
+                User32Interop.GetDpiForMonitor(display.Handle, User32Interop.DpiType.Effective /*MonitorDpiType.RawDPI*/, out uint dpiX, out uint dpiY);
 
                 dpi = new Point((int)dpiX, (int)dpiY);
                 return true;
@@ -150,7 +145,7 @@ namespace Nucleus.Gaming.Windows
 
                     while (EnumDisplayDevices(null, deviceIndex, ref displayDevice, 0))
                     {
-                        if(info.DeviceName == displayDevice.DeviceName)
+                        if (info.DeviceName == displayDevice.DeviceName)
                         {
                             DISPLAY_DEVICE monDisplayDevice = new DISPLAY_DEVICE();
                             monDisplayDevice.cb = Marshal.SizeOf(monDisplayDevice);
@@ -158,17 +153,17 @@ namespace Nucleus.Gaming.Windows
                             EnumDisplayDevices(displayDevice.DeviceName, monitorNum, ref monDisplayDevice, EDD_GET_DEVICE_INTERFACE_NAME);
                             try
                             {
-	                            deviceID = monDisplayDevice.DeviceID;
-	                            deviceString = monDisplayDevice.DeviceString;
-	                            monitorID = deviceID.Substring(deviceID.IndexOf("DISPLAY#") + 8, 7);
-	                            Int32.TryParse(info.DeviceName.Substring(info.DeviceName.IndexOf("DISPLAY") + 7),
-		                            out displayIndex);
-	                            Int32.TryParse(
-		                            monDisplayDevice.DeviceName.Substring(
-			                            monDisplayDevice.DeviceName.IndexOf("Monitor") + 7), out monitorIndex);
+                                deviceID = monDisplayDevice.DeviceID;
+                                deviceString = monDisplayDevice.DeviceString;
+                                monitorID = deviceID.Substring(deviceID.IndexOf("DISPLAY#") + 8, 7);
+                                int.TryParse(info.DeviceName.Substring(info.DeviceName.IndexOf("DISPLAY") + 7),
+                                    out displayIndex);
+                                int.TryParse(
+                                    monDisplayDevice.DeviceName.Substring(
+                                        monDisplayDevice.DeviceName.IndexOf("Monitor") + 7), out monitorIndex);
 
-	                            monitorNum++;
-	                            break;
+                                monitorNum++;
+                                break;
                             }
                             catch (Exception)
                             {

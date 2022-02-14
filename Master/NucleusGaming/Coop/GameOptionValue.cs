@@ -1,24 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Nucleus.Gaming.Coop
+﻿namespace Nucleus.Gaming.Coop
 {
     public abstract class GameOptionValue
     {
         private string name;
         private int value;
 
-        public string Name
-        {
-            get { return name; }
-        }
+        public string Name => name;
 
-        public int Value
-        {
-            get { return value; }
-        }
+        public int Value => value;
 
         public GameOptionValue(string nam, int val)
         {

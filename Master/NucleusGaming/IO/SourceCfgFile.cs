@@ -1,9 +1,6 @@
-﻿using Nucleus.Gaming;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Nucleus.Gaming
 {
@@ -18,10 +15,7 @@ namespace Nucleus.Gaming
         protected string backupData;
         private Dictionary<string, List<CfgSaveInfo>> sections;
 
-        public string RawData
-        {
-            get { return rawData; }
-        }
+        public string RawData => rawData;
 
         public SourceCfgFile(string filePath)
         {
@@ -49,7 +43,7 @@ namespace Nucleus.Gaming
 
             int currentIndex = 0;
             int nextBlockEnd;
-            for (;;)
+            for (; ; )
             {
                 int nextQuotes = data.IndexOf('"', currentIndex);
                 if (nextQuotes == -1)
@@ -117,11 +111,11 @@ namespace Nucleus.Gaming
             {
                 using (StreamWriter writer = new StreamWriter(str))
                 {
-                    foreach (var pair in sections)
+                    foreach (KeyValuePair<string, List<CfgSaveInfo>> pair in sections)
                     {
                         writer.WriteLine($"\"{pair.Key}\"");
                         writer.WriteLine("{");
-                        var list = pair.Value;
+                        List<CfgSaveInfo> list = pair.Value;
 
                         for (int i = 0; i < list.Count; i++)
                         {
@@ -149,8 +143,7 @@ namespace Nucleus.Gaming
 
         public void ChangeProperty(string section, string propertyName, string value)
         {
-            List<CfgSaveInfo> infos;
-            if (!sections.TryGetValue(section, out infos))
+            if (!sections.TryGetValue(section, out List<CfgSaveInfo> infos))
             {
                 infos = new List<CfgSaveInfo>();
                 sections.Add(section, infos);

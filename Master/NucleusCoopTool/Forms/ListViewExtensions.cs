@@ -49,18 +49,18 @@ namespace Nucleus.Coop.Forms
         public const int HDM_SETITEM = HDM_FIRST + 12;
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, UInt32 msg, IntPtr wParam, IntPtr lParam);
+        public static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, UInt32 msg, IntPtr wParam, ref HDITEM lParam);
+        public static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, ref HDITEM lParam);
 
         public static void SetSortIcon(this ListView listViewControl, int columnIndex, SortOrder order)
         {
             IntPtr columnHeader = SendMessage(listViewControl.Handle, LVM_GETHEADER, IntPtr.Zero, IntPtr.Zero);
             for (int columnNumber = 0; columnNumber <= listViewControl.Columns.Count - 1; columnNumber++)
             {
-                var columnPtr = new IntPtr(columnNumber);
-                var item = new HDITEM
+                IntPtr columnPtr = new IntPtr(columnNumber);
+                HDITEM item = new HDITEM
                 {
                     mask = HDITEM.Mask.Format
                 };

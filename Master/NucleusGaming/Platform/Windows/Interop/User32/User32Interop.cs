@@ -1,10 +1,6 @@
 ﻿using Nucleus.Interop.User32;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Nucleus.Gaming.Windows.Interop
 {
@@ -59,8 +55,8 @@ namespace Nucleus.Gaming.Windows.Interop
 
             public void Init()
             {
-                this.Size = 40 + 2 * CCHDEVICENAME;
-                this.DeviceName = string.Empty;
+                Size = 40 + 2 * CCHDEVICENAME;
+                DeviceName = string.Empty;
             }
         }
 
@@ -131,7 +127,7 @@ namespace Nucleus.Gaming.Windows.Interop
         //public static extern bool GetDpiForMonitor(IntPtr hMonitor, MonitorDpiType dpiType, ref uint dpiX, ref uint dpiY);
 
         [DllImport("Shcore.dll")]
-        public static extern IntPtr GetDpiForMonitor([In]IntPtr hmonitor, [In]DpiType dpiType, [Out]out uint dpiX, [Out]out uint dpiY);
+        public static extern IntPtr GetDpiForMonitor([In] IntPtr hmonitor, [In] DpiType dpiType, [Out] out uint dpiX, [Out] out uint dpiY);
 
         public enum DpiType
         {
@@ -160,7 +156,7 @@ namespace Nucleus.Gaming.Windows.Interop
         public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vlc);
 
         [DllImport("user32.dll", EntryPoint = "SendMessage", SetLastError = true)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, Int32 Msg, IntPtr wParam, IntPtr lParam);
+        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll")]
         public static extern bool SetActiveWindow(IntPtr hWnd);

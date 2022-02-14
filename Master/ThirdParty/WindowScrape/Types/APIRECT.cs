@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace WindowScrape.Types
+﻿namespace WindowScrape.Types
 {
     internal struct RECT
     {

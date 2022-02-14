@@ -1,4 +1,7 @@
-﻿using System;
+﻿using ListViewSorter;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
@@ -6,16 +9,12 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Windows.Forms;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using ListViewSorter;
-using System.Diagnostics;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
+using Nucleus.Gaming;
+using System.Media;
 
 namespace Nucleus.Coop.Forms
 {
-    public partial class ScriptDownloader : BaseForm
+    public partial class ScriptDownloader : BaseForm, IDynamicSized
     {
         private const string api = "https://hub.splitscreen.me/api/v1/";
 
@@ -42,10 +41,26 @@ namespace Nucleus.Coop.Forms
         private int lastVer = 0;
 
         private SortOrder sortOrder = SortOrder.Ascending;
+		
+		public void button_Click(object sender, EventArgs e)
+        {   		    
+			string ChoosenTheme = ini.IniReadValue("Theme", "Theme");
+            SoundPlayer splayer = new SoundPlayer((Path.Combine(Application.StartupPath, @"gui\theme\"+ChoosenTheme+"\\button_click.wav")));
+            splayer.Play();
+        }
 
         public ScriptDownloader(MainForm mf)
         {
             InitializeComponent();
+
+            string ChoosenTheme = ini.IniReadValue("Theme", "Theme");
+            IniFile theme = new IniFile(Path.Combine(Directory.GetCurrentDirectory() + "\\gui\\theme\\" + ChoosenTheme, "theme.ini"));
+            bool MouseClick = Convert.ToBoolean(theme.IniReadValue("Sounds", "MouseClick"));
+            string[] rgb_MouseOverColor = theme.IniReadValue("Colors", "MouseOverColor").Split(',');
+            string[] rgb_font = theme.IniReadValue("Colors", "FontColor").Split(',');
+            Color MouseOverBackColor = Color.FromArgb(Convert.ToInt32(rgb_MouseOverColor[0]), Convert.ToInt32(rgb_MouseOverColor[1]), Convert.ToInt32(rgb_MouseOverColor[2]));
+
+            Image AppButtons = Image.FromFile(Path.Combine(Application.StartupPath, @"gui\Theme\" + ChoosenTheme + "\\button.png"));
 
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -59,75 +74,131 @@ namespace Nucleus.Coop.Forms
             cmb_NumResults.SelectedIndex = 1;
             entriesPerPage = Convert.ToInt32(cmb_NumResults.SelectedItem);
 
-            mainForm = mf;
+            ForeColor = Color.FromArgb(Convert.ToInt32(rgb_font[0]), Convert.ToInt32(rgb_font[1]), Convert.ToInt32(rgb_font[2]));
+            BackgroundImage = Image.FromFile(Path.Combine(Application.StartupPath, @"gui\Theme\" + ChoosenTheme + "\\other_backgrounds.jpg"));
+            //Controls Pictures
+            btn_Next.BackgroundImage = AppButtons;
+            btn_Prev.BackgroundImage = AppButtons;
+            btn_ViewAll.BackgroundImage = AppButtons;
+            btn_Info.BackgroundImage = AppButtons;
+            btn_Search.BackgroundImage = AppButtons;
+            btn_Close.BackgroundImage = AppButtons;
+            btn_Download.BackgroundImage = AppButtons;
+            btn_Extract.BackgroundImage = AppButtons;
+            //
+            //MouseOverColor
+            //
+            btn_Next.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
+            btn_Prev.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
+            btn_ViewAll.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
+            btn_Info.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
+            btn_Search.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
+            btn_Close.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
+            btn_Download.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
+            btn_Extract.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
 
-            //list_Games.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
-            //list_Games.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+            if (MouseClick)
+            {
+                foreach (Control button in this.Controls) { if (button is Button) { button.Click += new System.EventHandler(this.button_Click); } }
+            }
+
+            mainForm = mf;
+           
+            DPIManager.Register(this);
+            DPIManager.Update(this);
+
+        }
+        public void UpdateSize(float scale)
+        {
+            if (IsDisposed)
+            {
+                DPIManager.Unregister(this);
+                return;
+            }
+
+            if (scale > 1.0F)
+            {
+                float newFontSize = Font.Size * scale;
+                foreach (Control c in Controls)
+                {
+                    if (c.GetType() == typeof(NumericUpDown) ^ c.GetType() == typeof(ComboBox) ^ c.GetType() == typeof(TextBox) ^ c.GetType() == typeof(GroupBox) ^ c.GetType() == typeof(Panel) ^ c.GetType() == typeof(ListView))
+                    {
+                        c.Font = new Font("Franklin Gothic Medium", newFontSize, FontStyle.Regular, GraphicsUnit.Point, 0);
+                    }
+                }
+            }
         }
 
         public Handler GetHandler(string id)
         {
-	        ServicePointManager.Expect100Continue = true;
-	        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-	        ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-	        ServicePointManager.DefaultConnectionLimit = 9999;
 
-	        var resp = Get(api + "handler/" + id);
 
-	        if (resp == null || resp == "{}")
-	        {
-		        return null;
-	        }
+            try
+            {
+                ServicePointManager.Expect100Continue = true;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+                ServicePointManager.DefaultConnectionLimit = 9999;
+            }
+            catch(Exception)
+            { }
 
-	        JObject jObject = JsonConvert.DeserializeObject(resp) as JObject;
+            string resp = Get(api + "handler/" + id);
 
-	        if (jObject == null)
-	        {
-		        return null;
-	        }
+            if (resp == null || resp == "{}")
+            {
+                return null;
+            }
 
-	        JArray array = jObject["Handlers"] as JArray;
+            JObject jObject = JsonConvert.DeserializeObject(resp) as JObject;
 
-	        if (array == null || array.Count != 1)
-	        {
-		        return null;
-	        }
+            if (jObject == null)
+            {
+                return null;
+            }
 
-	        var handler = new Handler
-	        {
-		        Id = array[0]["_id"].ToString(),
-		        Owner = array[0]["owner"].ToString(),
-		        OwnerName = array[0]["ownerName"].ToString(),
-		        Description = array[0]["description"].ToString(),
-		        Title = array[0]["title"].ToString(),
-		        GameName = array[0]["gameName"].ToString(),
-		        GameDescription = array[0]["gameDescription"].ToString(),
-		        GameCover = array[0]["gameCover"].ToString(),
-		        GameId = array[0]["gameId"].ToString(),
-		        GameUrl = array[0]["gameUrl"].ToString(),
-		        CreatedAt = array[0]["createdAt"].ToString(),
-		        UpdatedAt = array[0]["updatedAt"].ToString(),
-		        Stars = array[0]["stars"].ToString(),
-		        DownloadCount = array[0]["downloadCount"].ToString(),
-		        Verified = array[0]["verified"].ToString(),
-		        Private = array[0]["private"].ToString(),
-		        CommentCount = array[0]["commentCount"].ToString(),
-		        CurrentVersion = array[0]["currentVersion"].ToString(),
-		        CurrentPackage = array[0]["currentPackage"].ToString()
-	        };
+            JArray array = jObject["Handlers"] as JArray;
 
-	        return handler;
+            if (array == null || array.Count != 1)
+            {
+                return null;
+            }
+
+            Handler handler = new Handler
+            {
+                Id = array[0]["_id"].ToString(),
+                Owner = array[0]["owner"].ToString(),
+                OwnerName = array[0]["ownerName"].ToString(),
+                Description = array[0]["description"].ToString(),
+                Title = array[0]["title"].ToString(),
+                GameName = array[0]["gameName"].ToString(),
+                GameDescription = array[0]["gameDescription"].ToString(),
+                GameCover = array[0]["gameCover"].ToString(),
+                GameId = array[0]["gameId"].ToString(),
+                GameUrl = array[0]["gameUrl"].ToString(),
+                CreatedAt = array[0]["createdAt"].ToString(),
+                UpdatedAt = array[0]["updatedAt"].ToString(),
+                Stars = array[0]["stars"].ToString(),
+                DownloadCount = array[0]["downloadCount"].ToString(),
+                Verified = array[0]["verified"].ToString(),
+                Private = array[0]["private"].ToString(),
+                CommentCount = array[0]["commentCount"].ToString(),
+                CurrentVersion = array[0]["currentVersion"].ToString(),
+                CurrentPackage = array[0]["currentPackage"].ToString()
+            };
+
+            return handler;
         }
 
         private void btn_Search_Click(object sender, EventArgs e)
         {
-            if(txt_Search.Text.Contains("\\") || txt_Search.Text.Contains("/"))
+            if (txt_Search.Text.Contains("\\") || txt_Search.Text.Contains("/"))
             {
                 MessageBox.Show("Search cannot contain the characters \"/\" or \"\\\".", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            if(txt_Search.Text.StartsWith("*") || txt_Search.Text == ".")
+            if (txt_Search.Text.StartsWith("*") || txt_Search.Text == ".")
             {
                 MessageBox.Show("Illegal search query, please try something else.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -149,13 +220,9 @@ namespace Nucleus.Coop.Forms
                 ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
                 ServicePointManager.DefaultConnectionLimit = 9999;
 
-                //ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
-                //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-                //ServicePointManager.ServerCertificateValidationCallback = (snder, cert, chain, error) => true;
-
                 string searchParam = Uri.EscapeDataString(txt_Search.Text);
                 string rawHandlers = null;
-                if(grabAll)
+                if (grabAll)
                 {
                     rawHandlers = Get(api + "allhandlers");
                     grabAll = false;
@@ -164,14 +231,14 @@ namespace Nucleus.Coop.Forms
                 {
                     rawHandlers = Get(api + "handlers/" + searchParam);
                 }
-                
+
                 txt_Search.Clear();
 
-                if(rawHandlers == null)
+                if (rawHandlers == null)
                 {
                     return;
                 }
-                else if(rawHandlers == "{}")
+                else if (rawHandlers == "{}")
                 {
                     MessageBox.Show("No results found.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     txt_Search.Focus();
@@ -182,7 +249,7 @@ namespace Nucleus.Coop.Forms
 
                 JArray array = jObject["Handlers"] as JArray;
 
-                switch(cmb_Sort.SelectedIndex)
+                switch (cmb_Sort.SelectedIndex)
                 {
                     case 0: // Alphabetical
                         handlers = new JArray(array.OrderBy(obj => (string)obj["gameName"]));
@@ -214,7 +281,7 @@ namespace Nucleus.Coop.Forms
                 entryIndex = 0;
                 FetchHandlers(entryIndex);
 
-                if(handlers.Count > entriesPerPage)
+                if (handlers.Count > entriesPerPage)
                 {
                     btn_Next.Enabled = true;
                 }
@@ -222,8 +289,8 @@ namespace Nucleus.Coop.Forms
         }
         private static Stream GenerateStreamFromString(string s)
         {
-            var stream = new MemoryStream();
-            var writer = new StreamWriter(stream);
+            MemoryStream stream = new MemoryStream();
+            StreamWriter writer = new StreamWriter(stream);
             writer.Write(s);
             writer.Flush();
             stream.Position = 0;
@@ -232,8 +299,10 @@ namespace Nucleus.Coop.Forms
 
         private void FetchHandlers(int startIndex)
         {
-            ImageList imageList = new ImageList();
-            imageList.ImageSize = new Size(35, 35);
+            ImageList imageList = new ImageList
+            {
+                ImageSize = new Size(35, 35)
+            };
 
             list_Games.Items.Clear();
             searchHandlers.Clear();
@@ -244,7 +313,7 @@ namespace Nucleus.Coop.Forms
             Cursor.Current = Cursors.WaitCursor;
 
             int entriesToView = entriesPerPage;
-            if((startIndex + entriesPerPage) > handlers.Count)
+            if ((startIndex + entriesPerPage) > handlers.Count)
             {
                 entriesToView = handlers.Count - startIndex;
             }
@@ -255,7 +324,7 @@ namespace Nucleus.Coop.Forms
                 verCount = 0;
                 foreach (JToken jtoken in handlers)
                 {
-                    if (Boolean.Parse(jtoken["verified"].ToString()))
+                    if (bool.Parse(jtoken["verified"].ToString()))
                     {
                         verCount++;
                     }
@@ -266,50 +335,50 @@ namespace Nucleus.Coop.Forms
                     entriesToView = verCount - startIndex;
                 }
 
-                if(startIndex == 0)
+                if (startIndex == 0)
                 {
                     lastVer = 0;
                 }
             }
-           
+
             for (int i = 0; i < entriesToView; i++)
             {
-                lbl_Status.Text = string.Format("Fetching {0}/{1} handlers", (i+1), entriesToView);
+                lbl_Status.Text = string.Format("Fetching {0}/{1} handlers", (i + 1), entriesToView);
                 Handler handler = new Handler();
 
                 int offset = startIndex;
-                if(chkBox_Verified.Checked)
+                if (chkBox_Verified.Checked)
                 {
                     offset = lastVer;
                 }
 
-                handler.Id = handlers[vo+i+offset]["_id"].ToString();
-                handler.Owner = handlers[vo+i+offset]["owner"].ToString();
-                handler.OwnerName = handlers[vo+i+offset]["ownerName"].ToString();
-                handler.Description = handlers[vo+i+offset]["description"].ToString();
-                handler.Title = handlers[vo+i+offset]["title"].ToString();
-                handler.GameName = handlers[vo+i+offset]["gameName"].ToString();
-                handler.GameDescription = handlers[vo+i+offset]["gameDescription"].ToString();
-                handler.GameCover = handlers[vo+i+offset]["gameCover"].ToString();
-                handler.GameId = handlers[vo+i+offset]["gameId"].ToString();
-                handler.GameUrl = handlers[vo+i+offset]["gameUrl"].ToString();
-                handler.CreatedAt = handlers[vo+i+offset]["createdAt"].ToString();
-                handler.UpdatedAt = handlers[vo+i+offset]["updatedAt"].ToString();
-                handler.Stars = handlers[vo+i+offset]["stars"].ToString();
-                handler.DownloadCount = handlers[vo+i+offset]["downloadCount"].ToString();
-                handler.Verified = handlers[vo+i+offset]["verified"].ToString();
-                handler.Private = handlers[vo+i+offset]["private"].ToString();
-                handler.CommentCount = handlers[vo+i+offset]["commentCount"].ToString();
-                handler.CurrentVersion = handlers[vo+i+offset]["currentVersion"].ToString();
-                handler.CurrentPackage = handlers[vo+i+offset]["currentPackage"].ToString();
+                handler.Id = handlers[vo + i + offset]["_id"].ToString();
+                handler.Owner = handlers[vo + i + offset]["owner"].ToString();
+                handler.OwnerName = handlers[vo + i + offset]["ownerName"].ToString();
+                handler.Description = handlers[vo + i + offset]["description"].ToString();
+                handler.Title = handlers[vo + i + offset]["title"].ToString();
+                handler.GameName = handlers[vo + i + offset]["gameName"].ToString();
+                handler.GameDescription = handlers[vo + i + offset]["gameDescription"].ToString();
+                handler.GameCover = handlers[vo + i + offset]["gameCover"].ToString();
+                handler.GameId = handlers[vo + i + offset]["gameId"].ToString();
+                handler.GameUrl = handlers[vo + i + offset]["gameUrl"].ToString();
+                handler.CreatedAt = handlers[vo + i + offset]["createdAt"].ToString();
+                handler.UpdatedAt = handlers[vo + i + offset]["updatedAt"].ToString();
+                handler.Stars = handlers[vo + i + offset]["stars"].ToString();
+                handler.DownloadCount = handlers[vo + i + offset]["downloadCount"].ToString();
+                handler.Verified = handlers[vo + i + offset]["verified"].ToString();
+                handler.Private = handlers[vo + i + offset]["private"].ToString();
+                handler.CommentCount = handlers[vo + i + offset]["commentCount"].ToString();
+                handler.CurrentVersion = handlers[vo + i + offset]["currentVersion"].ToString();
+                handler.CurrentPackage = handlers[vo + i + offset]["currentPackage"].ToString();
 
-                if (chkBox_Verified.Checked && !Boolean.Parse(handler.Verified))
+                if (chkBox_Verified.Checked && !bool.Parse(handler.Verified))
                 {
                     i--;
                     vo++;
                     continue;
                 }
-                else if(chkBox_Verified.Checked && Boolean.Parse(handler.Verified) && (i+1) == entriesToView)
+                else if (chkBox_Verified.Checked && bool.Parse(handler.Verified) && (i + 1) == entriesToView)
                 {
                     lastVer = vo + i + startIndex + 1;
                 }
@@ -348,7 +417,7 @@ namespace Nucleus.Coop.Forms
                 list_Games.Items.Add(" " + handler.GameName).SubItems.AddRange(handlerDisplayCols);
                 list_Games.Items[(list_Games.Items.Count - 1)].ImageIndex = (list_Games.Items.Count - 1);
 
-                if(list_Games.Items[(list_Games.Items.Count - 1)].SubItems[5].Text.Contains(" "))
+                if (list_Games.Items[(list_Games.Items.Count - 1)].SubItems[5].Text.Contains(" "))
                 {
                     list_Games.Items[(list_Games.Items.Count - 1)].SubItems[5].Text = list_Games.Items[(list_Games.Items.Count - 1)].SubItems[5].Text.Substring(0, list_Games.Items[(list_Games.Items.Count - 1)].SubItems[5].Text.IndexOf(' '));
                 }
@@ -358,7 +427,7 @@ namespace Nucleus.Coop.Forms
                     if (list_Games.Items[(list_Games.Items.Count - 1)].SubItems[6].Text.Contains(" "))
                     {
                         list_Games.Items[(list_Games.Items.Count - 1)].SubItems[6].Text = list_Games.Items[(list_Games.Items.Count - 1)].SubItems[6].Text.Substring(0, list_Games.Items[(list_Games.Items.Count - 1)].SubItems[6].Text.IndexOf(' '));
-                    }  
+                    }
                 }
                 else
                 {
@@ -393,19 +462,28 @@ namespace Nucleus.Coop.Forms
 
             list_Games.EndUpdate();
 
-            if(startIndex + entriesToView == handlers.Count || startIndex + entriesToView == verCount)
+            if (startIndex + entriesToView == handlers.Count || startIndex + entriesToView == verCount)
+            {
                 btn_Next.Enabled = false;
+            }
             else
+            {
                 btn_Next.Enabled = true;
+            }
+
             if (startIndex == 0)
+            {
                 btn_Prev.Enabled = false;
+            }
             else
+            {
                 btn_Prev.Enabled = true;
+            }
 
             Cursor.Current = Cursors.Default;
 
             int tot = handlers.Count;
-            if(chkBox_Verified.Checked)
+            if (chkBox_Verified.Checked)
             {
                 tot = verCount;
             }
@@ -436,9 +514,9 @@ namespace Nucleus.Coop.Forms
                     return reader.ReadToEnd();
                 }
             }
-            catch(Exception ex)
+            catch (Exception )//ex)
             {
-                MessageBox.Show(string.Format("{0}: {1}", ex.ToString(), ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //MessageBox.Show(string.Format("{0}: {1}", ex.ToString(), ex.Message), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
         }
@@ -486,7 +564,7 @@ namespace Nucleus.Coop.Forms
             {
                 // Set the column number that is to be sorted; default to descending.
                 lvwColumnSorter.SortColumn = e.Column;
-                if(e.Column == 0)
+                if (e.Column == 0)
                 {
                     lvwColumnSorter.Order = SortOrder.Ascending;
                 }
@@ -494,7 +572,7 @@ namespace Nucleus.Coop.Forms
                 {
                     lvwColumnSorter.Order = SortOrder.Descending;
                 }
-                
+
             }
 
             // Perform the sort with these new sort options.
@@ -505,7 +583,7 @@ namespace Nucleus.Coop.Forms
 
         private void btn_Info_Click(object sender, EventArgs e)
         {
-            if(list_Games.SelectedItems.Count == 1)
+            if (list_Games.SelectedItems.Count == 1)
             {
                 //int index = list_Games.Items.IndexOf(list_Games.SelectedItems[0]);
 
@@ -545,7 +623,7 @@ namespace Nucleus.Coop.Forms
                     }
                 }
 
-                if(handler == null)
+                if (handler == null)
                 {
                     MessageBox.Show("Error fetching handler", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -584,7 +662,7 @@ namespace Nucleus.Coop.Forms
             }
             else
             {
-                if(lastSearch == string.Empty)
+                if (lastSearch == string.Empty)
                 {
                     grabAll = true;
                 }
@@ -606,24 +684,27 @@ namespace Nucleus.Coop.Forms
         {
             entryIndex -= entriesPerPage;
             if (entryIndex < 0)
+            {
                 entryIndex = 0;
+            }
 
             //chkBox_Verified.Checked = false;
             FetchHandlers(entryIndex);
         }
-            
 
         private void btn_Next_Click(object sender, EventArgs e)
         {
             int tot = handlers.Count;
-            if(chkBox_Verified.Checked)
+            if (chkBox_Verified.Checked)
             {
                 tot = verCount;
             }
 
             entryIndex += entriesPerPage;
             if (entryIndex > tot)
+            {
                 entryIndex = tot - entriesPerPage;
+            }
 
             //chkBox_Verified.Checked = false;
             FetchHandlers(entryIndex);
@@ -631,7 +712,7 @@ namespace Nucleus.Coop.Forms
 
         private void cmb_NumResults_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if(cmb_NumResults.SelectedItem.ToString() == "All")
+            if (cmb_NumResults.SelectedItem.ToString() == "All")
             {
                 entriesPerPage = 9999;
             }
@@ -649,7 +730,7 @@ namespace Nucleus.Coop.Forms
 
         private void cmb_Sort_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if(list_Games.Items.Count > 0)
+            if (list_Games.Items.Count > 0)
             {
                 switch (cmb_Sort.SelectedIndex)
                 {
@@ -687,7 +768,7 @@ namespace Nucleus.Coop.Forms
 
         private void list_Games_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if(list_Games.SelectedItems.Count == 1)
+            if (list_Games.SelectedItems.Count == 1)
             {
                 btn_Download.Enabled = true;
                 btn_Info.Enabled = true;

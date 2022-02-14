@@ -1,32 +1,18 @@
 ﻿using Nucleus.Gaming;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Nucleus.Coop
+namespace Nucleus.Coop.Forms
 {
     public partial class GameList : BaseForm
     {
         private GenericGameInfo clicked;
 
-        public GenericGameInfo Selected
-        {
-            get { return clicked; }
-        }
+        public GenericGameInfo Selected => clicked;
 
-        protected override Size DefaultSize
-        {
-            get
-            {
-                return new Size(440, 710);
-            }
-        }
+        protected override Size DefaultSize => new Size(440, 710);
 
         public GameList(List<GenericGameInfo> games)
         {
@@ -35,8 +21,10 @@ namespace Nucleus.Coop
             GameManager manager = GameManager.Instance;
             foreach (GenericGameInfo game in games)
             {
-                GameControl con = new GameControl(game, null);
-                con.Width = listGames.Width;
+                GameControl con = new GameControl(game, null)
+                {
+                    Width = listGames.Width
+                };
                 con.Click += Con_Click;
 
                 listGames.Controls.Add(con);
@@ -51,8 +39,8 @@ namespace Nucleus.Coop
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.OK;
-            this.Close();
+            DialogResult = DialogResult.OK;
+            Close();
         }
     }
 }

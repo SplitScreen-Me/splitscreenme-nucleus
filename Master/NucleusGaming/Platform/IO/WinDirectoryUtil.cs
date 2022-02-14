@@ -1,8 +1,6 @@
 ﻿using Nucleus.Gaming.Platform.Windows.Interop;
 using System;
-using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
 
 namespace Nucleus.Gaming.Platform.Windows.IO
 {
@@ -73,7 +71,7 @@ namespace Nucleus.Gaming.Platform.Windows.IO
                     continue;
                 }
 
-                if(!string.IsNullOrEmpty(copyInstead[0]))
+                if (!string.IsNullOrEmpty(copyInstead[0]))
                 {
                     for (int j = 0; j < copyInstead.Length; j++)
                     {
@@ -95,20 +93,20 @@ namespace Nucleus.Gaming.Platform.Windows.IO
                     {
                         File.Copy(file.FullName, linkPath, true);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         CmdUtil.ExecuteCommand(Path.GetDirectoryName(linkPath), out int exitCode2, "copy \"" + file.FullName + "\" \"" + linkPath + "\"");
                     }
-                    
+
                     //CopyFile(file.FullName, linkPath);
-                    
+
                 }
                 else
                 {
                     //CmdUtil.MkLinkFile(file.FullName, linkPath, out exitCode);
-                    if(hardLink)
+                    if (hardLink)
                     {
-                        Kernel32Interop.CreateHardLink(linkPath, file.FullName, IntPtr.Zero);                   
+                        Kernel32Interop.CreateHardLink(linkPath, file.FullName, IntPtr.Zero);
                     }
                     else
                     {
@@ -136,7 +134,7 @@ namespace Nucleus.Gaming.Platform.Windows.IO
                 {
                     string exclusion = dirExclusions[j];
                     string fullPath;
-                    if(exclusion.StartsWith("direxskip"))
+                    if (exclusion.StartsWith("direxskip"))
                     {
                         fullPath = Path.Combine(root, exclusion.Substring(9).ToLower());
                     }

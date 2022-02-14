@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Nucleus.Gaming
 {
@@ -44,5 +41,5 @@ namespace Nucleus.Gaming
         AddOverlays = 0x000000020,
         /// <summary>Get the index of the overlay in the upper 8 bits of the iIcon</summary>
         OverlayIndex = 0x000000040,
-    }   
+    }
 }

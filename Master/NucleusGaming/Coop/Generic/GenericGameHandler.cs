@@ -1,82 +1,81 @@
-﻿using Nucleus.Gaming.Windows;
+﻿using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
+using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Coop.Generic;
+using Nucleus.Gaming.Coop.Generic.Cursor;
+using Nucleus.Gaming.Coop.InputManagement;
+using Nucleus.Gaming.Coop.InputManagement.Logging;
+using Nucleus.Gaming.Coop.ProtoInput;
+using Nucleus.Gaming.Tools.GameStarter;
+using Nucleus.Gaming.Windows;
 using Nucleus.Gaming.Windows.Interop;
 using Nucleus.Interop.User32;
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.DirectoryServices.AccountManagement;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.Threading;
-using System.Windows.Forms;
-using Nucleus.Gaming.Coop.Generic.Cursor;
-using WindowScrape.Constants;
-using WindowScrape.Types;
-using Nucleus.Gaming.Coop;
-using System.Reflection;
-using Nucleus.Gaming.Tools.GameStarter;
-//using EasyHook;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Linq;
-using Microsoft.Win32;
 using System.Management;
-using Nucleus.Gaming.Coop.InputManagement;
-using System.Threading.Tasks;
-using Nucleus.Gaming.Coop.BasicTypes;
-using Nucleus.Gaming.Coop.InputManagement.Logging;
-using System.Collections;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Xml;
-using System.Net;
+using System.Reflection;
+//using EasyHook;
+using System.Runtime.InteropServices;
 using System.Security.Principal;
-using System.DirectoryServices.AccountManagement;
-using System.Security;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
-using System.Runtime.ExceptionServices;
-using System.Collections.Concurrent;
-using Nucleus.Gaming.Coop.ProtoInput;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Xml;
+using WindowScrape.Constants;
+using WindowScrape.Types;
 
 namespace Nucleus.Gaming
 {
     public class GenericGameHandler : IGameHandler, ILogNode
     {
+        private string Nucleus_Window_title = "Nucleus Co-op";
+
         private const float HWndInterval = 10000;
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
         [DllImport("iphlpapi.dll", CharSet = CharSet.Auto)]
-        private static extern int GetBestInterface(UInt32 destAddr, out UInt32 bestIfIndex);
+        private static extern int GetBestInterface(uint destAddr, out uint bestIfIndex);
 
         [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        static extern bool CreateProcessWithLogonW(
-           String userName,
-           String domain,
-           String password,
+        private static extern bool CreateProcessWithLogonW(
+           string userName,
+           string domain,
+           string password,
            LogonFlags logonFlags,
-           String applicationName,
-           String commandLine,
+           string applicationName,
+           string commandLine,
            ProcessCreationFlags creationFlags,
-           UInt32 environment,
-           String currentDirectory,
+           uint environment,
+           string currentDirectory,
            ref STARTUPINFO startupInfo,
            out PROCESS_INFORMATION processInformation);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern bool WriteProcessMemory(
             IntPtr hProcess,
-            Int64 lpBaseAddress,
-            [In, Out] Byte[] lpBuffer,
-            UInt64 dwSize,
+            long lpBaseAddress,
+            [In, Out] byte[] lpBuffer,
+            ulong dwSize,
             out IntPtr lpNumberOfBytesWritten);
 
         [Flags]
-        enum LogonFlags
+        private enum LogonFlags
         {
             LOGON_WITH_PROFILE = 0x00000001,
             LOGON_NETCREDENTIALS_ONLY = 0x00000002
@@ -91,7 +90,7 @@ namespace Nucleus.Gaming
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-        struct DEVMODE
+        private struct DEVMODE
         {
             public const int DM_PELSWIDTH = 0x80000;
             public const int DM_PELSHEIGHT = 0x100000;
@@ -135,9 +134,9 @@ namespace Nucleus.Gaming
         }
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        static extern int ChangeDisplaySettings([In] ref DEVMODE lpDevMode, int dwFlags);
+        private static extern int ChangeDisplaySettings([In] ref DEVMODE lpDevMode, int dwFlags);
 
-        enum DISP_CHANGE : int
+        private enum DISP_CHANGE : int
         {
             Successful = 0,
             Restart = 1,
@@ -150,9 +149,9 @@ namespace Nucleus.Gaming
         }
 
         [DllImport("user32.dll")]
-        static extern DISP_CHANGE ChangeDisplaySettingsEx(string lpszDeviceName, ref DEVMODE lpDevMode, IntPtr hwnd, uint dwflags, IntPtr lParam);
+        private static extern DISP_CHANGE ChangeDisplaySettingsEx(string lpszDeviceName, ref DEVMODE lpDevMode, IntPtr hwnd, uint dwflags, IntPtr lParam);
         [DllImport("user32.dll")]
-        static extern DISP_CHANGE ChangeDisplaySettingsEx(string lpszDeviceName, IntPtr lpDevMode, IntPtr hwnd, uint dwflags, IntPtr lParam);
+        private static extern DISP_CHANGE ChangeDisplaySettingsEx(string lpszDeviceName, IntPtr lpDevMode, IntPtr hwnd, uint dwflags, IntPtr lParam);
 
         [Flags()]
         public enum ChangeDisplaySettingsFlags : uint
@@ -172,13 +171,13 @@ namespace Nucleus.Gaming
         }
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        static extern bool EnumDisplaySettings(string deviceName, int modeNum, ref DEVMODE devMode);
+        private static extern bool EnumDisplaySettings(string deviceName, int modeNum, ref DEVMODE devMode);
 
         private const int SW_MAXIMIZE = 3;
         private const int SW_MINIMIZE = 6;
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        static extern bool CreateProcess(
+        private static extern bool CreateProcess(
             string lpApplicationName,
             string lpCommandLine,
             //ref SECURITY_ATTRIBUTES lpProcessAttributes,
@@ -194,22 +193,22 @@ namespace Nucleus.Gaming
             out PROCESS_INFORMATION lpProcessInformation);
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-        struct STARTUPINFO
+        private struct STARTUPINFO
         {
-            public Int32 cb;
+            public int cb;
             public string lpReserved;
             public string lpDesktop;
             public string lpTitle;
-            public Int32 dwX;
-            public Int32 dwY;
-            public Int32 dwXSize;
-            public Int32 dwYSize;
-            public Int32 dwXCountChars;
-            public Int32 dwYCountChars;
-            public Int32 dwFillAttribute;
-            public Int32 dwFlags;
-            public Int16 wShowWindow;
-            public Int16 cbReserved2;
+            public int dwX;
+            public int dwY;
+            public int dwXSize;
+            public int dwYSize;
+            public int dwXCountChars;
+            public int dwYCountChars;
+            public int dwFillAttribute;
+            public int dwFlags;
+            public short wShowWindow;
+            public short cbReserved2;
             public IntPtr lpReserved2;
             public IntPtr hStdInput;
             public IntPtr hStdOutput;
@@ -217,7 +216,7 @@ namespace Nucleus.Gaming
         }
 
         [StructLayout(LayoutKind.Sequential)]
-        struct PROCESS_INFORMATION
+        private struct PROCESS_INFORMATION
         {
             public IntPtr hProcess;
             public IntPtr hThread;
@@ -257,18 +256,18 @@ namespace Nucleus.Gaming
         }
 
         [DllImport("user32.dll", SetLastError = true)]
-        static extern bool GetWindowRect(IntPtr hWnd, out RECT Rect);
+        private static extern bool GetWindowRect(IntPtr hWnd, out RECT Rect);
 
         [DllImport("userenv.dll", CharSet = CharSet.Unicode, ExactSpelling = false, SetLastError = true)]
         public static extern bool DeleteProfile(string sidString, string profilePath, string omputerName);
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool EnableWindow(IntPtr hWnd, bool bEnable);
+        private static extern bool EnableWindow(IntPtr hWnd, bool bEnable);
 
 
         private static GenericGameHandler instance;
-        public static GenericGameHandler Instance { get { return instance; } }
+        public static GenericGameHandler Instance => instance;
 
         private string NucleusEnvironmentRoot = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile); //Environment.GetEnvironmentVariable("userprofile"); //$@"C:\Users\{Environment.UserName}";
         private string DocumentsRoot = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -285,14 +284,13 @@ namespace Nucleus.Gaming
         private int prevWindowX = 0;
         private int prevWindowY = 0;
         private ProcessData prevProcessData;
-        
+
         private int prevProcId = 0;
 
         private int plyrIndex = 0;
         private int kbi = 1;
 
-        private long random_steam_id = 76561199023125438;
-
+        private long random_steam_id = 76561199023125438;                            
         private string nucleusFolderPath;
 
         private UserGameInfo userGame;
@@ -300,10 +298,6 @@ namespace Nucleus.Gaming
         private GenericGameInfo gen;
         private Dictionary<string, string> jsData;
         private GenericContext context;
-
-		//private RawInputProcessor rawInputProcessor;
-
-		//private List<Window> gameWindows;
 
         private double timer;
         private int exited;
@@ -342,8 +336,7 @@ namespace Nucleus.Gaming
 
         private string exePath;
         private string origExePath;
-        //public string UserProfileConfigPath;
-        //public string UserProfileSavePath;
+
         private string instanceExeFolder;
         public string garch;
 
@@ -357,7 +350,7 @@ namespace Nucleus.Gaming
         private string currentGateway;
         private int hostAddr = 169;
         private List<string> dnsAddresses = new List<string>();
-        string dnsServersStr;
+        private string dnsServersStr;
         private string iniNetworkInterface;
         private bool isPrevent;
         private string adminLocalGroup;
@@ -383,13 +376,12 @@ namespace Nucleus.Gaming
         private string startingArgs;
 
         private readonly IniFile ini = new Gaming.IniFile(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Settings.ini"));
-        bool isDebug;
-
-        UserScreen owner;
+        private bool isDebug;
+        private UserScreen owner;
 
         private List<Display> screensInUse = new List<Display>();
         private List<Display> screensChanged = new List<Display>();
-
+       
         public enum MachineType : ushort
         {
             IMAGE_FILE_MACHINE_UNKNOWN = 0x0,
@@ -424,12 +416,14 @@ namespace Nucleus.Gaming
             FileStream fs = new FileStream(dllPath, FileMode.Open, FileAccess.Read);
             BinaryReader br = new BinaryReader(fs);
             fs.Seek(0x3c, SeekOrigin.Begin);
-            Int32 peOffset = br.ReadInt32();
+            int peOffset = br.ReadInt32();
             fs.Seek(peOffset, SeekOrigin.Begin);
-            UInt32 peHead = br.ReadUInt32();
+            uint peHead = br.ReadUInt32();
 
             if (peHead != 0x00004550) // "PE\0\0", little-endian
+            {
                 throw new Exception("Can't find PE header");
+            }
 
             MachineType machineType = (MachineType)br.ReadUInt16();
             br.Close();
@@ -453,25 +447,9 @@ namespace Nucleus.Gaming
         }
 
         [DllImport("user32.dll")]
-        static extern bool SetWindowText(IntPtr hWnd, string text);
+        private static extern bool SetWindowText(IntPtr hWnd, string text);
 
-        //[DllImport("EasyHook32.dll", CharSet = CharSet.Ansi)]
-        //public static extern int RhCreateAndInject(
-        //    [MarshalAsAttribute(UnmanagedType.LPWStr)] string InEXEPath,
-        //    [MarshalAsAttribute(UnmanagedType.LPWStr)] string InCommandLine,
-        //    int InProcessCreationFlags,
-        //    int InInjectionOptions,
-        //    [MarshalAsAttribute(UnmanagedType.LPWStr)] string InLibraryPath_x86,
-        //    [MarshalAsAttribute(UnmanagedType.LPWStr)] string InLibraryPath_x64,
-        //    IntPtr InPassThruBuffer,
-        //    int InPassThruSize,
-        //    IntPtr OutProcessId //Pointer to a UINT (the PID of the new process)
-        //    );
-
-        public Thread FakeFocus
-        {
-            get { return fakeFocus; }
-        }
+        public Thread FakeFocus => fakeFocus;
 
         private enum FocusMessages
         {
@@ -480,17 +458,11 @@ namespace Nucleus.Gaming
             WM_NCACTIVATE = 0x0086,
             WM_SETFOCUS = 0x0007,
             WM_MOUSEACTIVATE = 0x0021,
-		}
-
-        public virtual bool HasEnded
-        {
-            get { return hasEnded; }
         }
 
-        public double TimerInterval
-        {
-            get { return timerInterval; }
-        }
+        public virtual bool HasEnded => hasEnded;
+
+        public double TimerInterval => timerInterval;
 
         private void ForceFinish()
         {
@@ -514,7 +486,7 @@ namespace Nucleus.Gaming
                             Log(string.Format("Killing process {0} (pid {1})", proc.ProcessName, proc.Id));
                             proc.Kill();
                         }
-                        
+
                     }
                     catch (Exception ex)
                     {
@@ -531,10 +503,11 @@ namespace Nucleus.Gaming
         private void DeleteProfileFolder(string file)
         {
             Process process = new Process();
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            //startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            startInfo.FileName = "cmd.exe";
-            startInfo.Arguments = "/C rd /S /Q  \"" + file + "\"";
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                Arguments = "/C rd /S /Q  \"" + file + "\""
+            };
             process.StartInfo = startInfo;
             process.Start();
             process.WaitForExit();
@@ -542,7 +515,7 @@ namespace Nucleus.Gaming
 
         public List<string> GetNetAdapters()
         {
-            List<String> values = new List<String>();
+            List<string> values = new List<string>();
             foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
             {
                 values.Add(nic.Name);
@@ -553,7 +526,9 @@ namespace Nucleus.Gaming
         public void End(bool fromStopButton)
         {
             if (!processingExit)
+            {
                 processingExit = true;
+            }
             else
             {
                 Log("Already processing exit");
@@ -561,20 +536,16 @@ namespace Nucleus.Gaming
             }
 
 
-	        if (fromStopButton && LockInput.IsLocked)
-	        {
-				//TODO: For some reason the Stop button is clicked during split screen. Temporary fix is to not end if input is locked.
-		        Log("IGNORING SHUTDOWN BECAUSE INPUT LOCKED");
-		        return;
-	        }
+            if (fromStopButton && LockInput.IsLocked)
+            {
+                //TODO: For some reason the Stop button is clicked during split screen. Temporary fix is to not end if input is locked.
+                Log("IGNORING SHUTDOWN BECAUSE INPUT LOCKED");
+                return;
+            }
 
             if (ini.IniReadValue("Misc", "ShowStatus") == "True")
             {
-                //if (statusForm != null)
-                //{
-                //    statusForm.Close();
-                //    Thread.Sleep(200);
-                //}
+ 
                 try
                 {
                     if (statusWinThread != null && statusWinThread.IsAlive)
@@ -583,19 +554,8 @@ namespace Nucleus.Gaming
                         Thread.Sleep(50);
                     }
 
-                //foreach(Form frm in Application.OpenForms)
-                //{
-                //    if(frm.Name == "Nucleus Coop - Status")
-                //    {
-                //        frm.Close();
-                //        Thread.Sleep(200);
-                //        break;
-                //    }
-                //}
-                //Invoke(new MethodInvoker(ShowStatus));
-                //ShowStatus();
-                statusWinThread = new Thread(ShowStatus);
-                statusWinThread.Start();
+                    statusWinThread = new Thread(ShowStatus);
+                    statusWinThread.Start();
                 }
                 catch { }
             }
@@ -639,7 +599,7 @@ namespace Nucleus.Gaming
                 Thread.Sleep(1000);
             }
 
-            if(gen.DeleteOnClose?.Length > 0)
+            if (gen.DeleteOnClose?.Length > 0)
             {
                 string exeFolder = Path.GetDirectoryName(userGame.ExePath).ToLower();
                 string rootFolder = exeFolder;
@@ -666,7 +626,10 @@ namespace Nucleus.Gaming
                     string origFileName = filePath.Replace("_NUCLEUS_BACKUP" + Path.GetExtension(filePath), Path.GetExtension(filePath));
                     Log($"Restoring {origFileName}");
                     if (File.Exists(origFileName) && File.Exists(filePath))
+                    {
                         File.Delete(origFileName);
+                    }
+
                     File.Move(filePath, origFileName);
                 }
             }
@@ -678,10 +641,10 @@ namespace Nucleus.Gaming
             Thread.Sleep(1000);
 
             string[] regFiles = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\backup"), "*.reg", SearchOption.AllDirectories);
-            if(regFiles.Length > 0)
+            if (regFiles.Length > 0)
             {
                 Log("Restoring backed up registry files");
-                foreach(string regFilePath in regFiles)
+                foreach (string regFilePath in regFiles)
                 {
                     Process proc = new Process();
 
@@ -844,7 +807,7 @@ namespace Nucleus.Gaming
                                         //MessageBox.Show("ERROR! User: {0} not found!", username);
                                     }
                                 }
-                                catch (Exception exception)
+                                catch (Exception)
                                 {
                                     //MessageBox.Show(exception.Message);
                                 }
@@ -893,7 +856,7 @@ namespace Nucleus.Gaming
 
                 if (gen.ChangeIPPerInstanceAlt)
                 {
-                    Log("Unistalling loopback adapters");
+                    Log("Uninstalling loopback adapters");
                     Process p = new Process();
 
                     //string devconPath = Path.Combine(Directory.GetCurrentDirectory(), "utils\\devcon\\devcon.exe");
@@ -936,7 +899,7 @@ namespace Nucleus.Gaming
                     //}
                 }
 
-                if(gen.FlawlessWidescreen?.Length > 0)
+                if (gen.FlawlessWidescreen?.Length > 0)
                 {
                     Process[] runnProcs = Process.GetProcesses();
                     foreach (Process proc in runnProcs)
@@ -948,7 +911,7 @@ namespace Nucleus.Gaming
                         }
                     }
 
-                    if(gen.FlawlessWidescreenOverrideDisplay)
+                    if (gen.FlawlessWidescreenOverrideDisplay)
                     {
                         Log("Restoring back up Flawless Widescreen settings file");
                         string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\FlawlessWidescreen\\" + garch);
@@ -957,42 +920,47 @@ namespace Nucleus.Gaming
                         if (File.Exists(backupPath))
                         {
                             if (File.Exists(setPath))
+                            {
                                 File.Delete(setPath);
+                            }
+
                             File.Move(backupPath, setPath);
                         }
                     }
                 }
             }
 
-            if (gen.ProtoInput.AutoHideTaskbar)
+            if (gen.ProtoInput.AutoHideTaskbar || ini.IniReadValue("CustomLayout", "SplitDiv") == "True")
             {
-	            ProtoInput.protoInput.SetTaskbarAutohide(false);
+                ProtoInput.protoInput.SetTaskbarAutohide(false);
             }
 
             User32Util.ShowTaskBar();
 
             hasEnded = true;
-            GameManager.Instance.ExecuteBackup(this.userGame.Game);
+            GameManager.Instance.ExecuteBackup(userGame.Game);
 
             LogManager.UnregisterForLogCallback(this);
 
-            foreach (var window in RawInputManager.windows)
+            foreach (Window window in RawInputManager.windows)
             {
-				window.HookPipe?.Close();
+                window.HookPipe?.Close();
             }
 
             Cursor.Clip = Rectangle.Empty; // guarantee were not clipping anymore
-            string backupDir = GameManager.Instance.GempTempFolder(this.userGame.Game);
+            string backupDir = GameManager.Instance.GempTempFolder(userGame.Game);
 
             if (_cursorModule != null)
+            {
                 _cursorModule.Stop();
+            }
 
             Thread.Sleep(1000);
             // delete symlink folder
 
             int tempIndex = 0;
 
-			RawInputManager.EndSplitScreen();
+            RawInputManager.EndSplitScreen();
 
 #if RELEASE
             if (!gen.SymlinkGame && !gen.HardlinkGame && !gen.HardcopyGame)
@@ -1010,7 +978,7 @@ namespace Nucleus.Gaming
                 {
                     try
                     {
-                        if(File.Exists(backupFilePath))
+                        if (File.Exists(backupFilePath))
                         {
                             string origFile = backupFilePath.Replace("_NUCLEUS_BACKUP", "");
                             File.Delete(origFile);
@@ -1023,7 +991,7 @@ namespace Nucleus.Gaming
 
             if (gen.KeepSymLinkOnExit == false)
             {
-                if(gen.SymlinkGame || gen.HardlinkGame || gen.HardcopyGame)
+                if (gen.SymlinkGame || gen.HardlinkGame || gen.HardcopyGame)
                 {
                     for (int i = 0; i < profile.PlayerData.Count; i++)
                     {
@@ -1156,8 +1124,7 @@ namespace Nucleus.Gaming
         public string GetFolder(Folder folder)
         {
             string str = folder.ToString();
-            string output;
-            if (jsData.TryGetValue(str, out output))
+            if (jsData.TryGetValue(str, out string output))
             {
                 return output;
             }
@@ -1169,16 +1136,16 @@ namespace Nucleus.Gaming
 
             instance = this;
 
-            this.userGame = game;
+            userGame = game;
             this.profile = profile;
 
             //AppDomain.CurrentDomain.UnhandledException += UnhandledHandler;
 
-//#if DEBUG
-//			isDebug = true;
-//#else
-//	        isDebug = false;
-//#endif
+            //#if DEBUG
+            //			isDebug = true;
+            //#else
+            //	        isDebug = false;
+            //#endif
             if (ini.IniReadValue("Misc", "DebugLog") == "True")
             {
                 isDebug = true;
@@ -1189,7 +1156,7 @@ namespace Nucleus.Gaming
 
             List<PlayerInfo> players = profile.PlayerData;
 
-            gen = game.Game as GenericGameInfo;
+            gen = game.Game;
             // see if we have any save game to backup
             if (gen == null)
             {
@@ -1198,7 +1165,7 @@ namespace Nucleus.Gaming
             }
 
             RawInputProcessor.CurrentGameInfo = gen;
-
+          
             try
             {
                 // if there's a keyboard player, re-order play list
@@ -1206,26 +1173,29 @@ namespace Nucleus.Gaming
 
                 for (int pl = 0; pl < players.Count; pl++)
                 {
-                    if(players[pl].IsKeyboardPlayer)
+                    if (players[pl].IsKeyboardPlayer)
                     {
                         hasKeyboardPlayer = true;
                         break;
                     }
                 }
 
-                if (hasKeyboardPlayer)
-                {
-	                bool IsKeyboard(PlayerInfo p) => p.IsRawKeyboard || p.IsRawMouse || p.IsKeyboardPlayer;
+                //if (hasKeyboardPlayer)
+                //{
+                //    bool IsKeyboard(PlayerInfo p)
+                //    {
+                //        return p.IsRawKeyboard || p.IsRawMouse || p.IsKeyboardPlayer;
+                //    }
 
-                    if (gen.KeyboardPlayerFirst)
-                    {
-                        players.Sort((x, y) => IsKeyboard(y).CompareTo(IsKeyboard(x)));
-                    }
-                    else
-                    {
-                        players.Sort((x, y) => IsKeyboard(x).CompareTo(IsKeyboard(y)));
-                    }
-                }
+                //    if (gen.KeyboardPlayerFirst)
+                //    {
+                //        players.Sort((x, y) => IsKeyboard(y).CompareTo(IsKeyboard(x)));   ////Commenté par bibi
+                //    }
+                //    else
+                //    {
+                //        players.Sort((x, y) => IsKeyboard(x).CompareTo(IsKeyboard(y)));
+                //    }
+                //}
             }
             catch (Exception ex)
             {
@@ -1234,12 +1204,16 @@ namespace Nucleus.Gaming
 
 
             if (gen.LockMouse)
+            {
                 _cursorModule = new CursorModule();
+            }
 
-            jsData = new Dictionary<string, string>();
-            jsData.Add(Folder.Documents.ToString(), Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
-            jsData.Add(Folder.MainGameFolder.ToString(), Path.GetDirectoryName(game.ExePath));
-            jsData.Add(Folder.InstancedGameFolder.ToString(), Path.GetDirectoryName(game.ExePath));
+            jsData = new Dictionary<string, string>
+            {
+                { Folder.Documents.ToString(), Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) },
+                { Folder.MainGameFolder.ToString(), Path.GetDirectoryName(game.ExePath) },
+                { Folder.InstancedGameFolder.ToString(), Path.GetDirectoryName(game.ExePath) }
+            };
 
             timerInterval = gen.HandlerInterval;
 
@@ -1247,7 +1221,7 @@ namespace Nucleus.Gaming
 
             JsFilename = gen.JsFileName;
             HandlerGUID = gen.GUID;
-            if(gen.LaunchAsDifferentUsers || gen.LaunchAsDifferentUsersAlt)
+            if (gen.LaunchAsDifferentUsers || gen.LaunchAsDifferentUsersAlt)
             {
                 UsingNucleusAccounts = true;
             }
@@ -1370,44 +1344,46 @@ namespace Nucleus.Gaming
             {
 
                 string lblTxt = "Engine starting up";
-            if (processingExit)
-                lblTxt = "Starting shut down procedures";
-            //private Label statusLbl;
-            Label statusLbl = new Label
-            {
-                Text = lblTxt,
-                Width = 560,
-                Height = 93,
-                AutoSize = false,
-                //ppDesc.MaximumSize = new Size(ppDesc.Width, 0);
-                //ppDesc.AutoSize = true;
-                Location = new Point(12, 9),
-                TextAlign = ContentAlignment.MiddleCenter
-            };
+                if (processingExit)
+                {
+                    lblTxt = "Starting shut down procedures";
+                }
+                //private Label statusLbl;
+                Label statusLbl = new Label
+                {
+                    Text = lblTxt,
+                    Width = 560,
+                    Height = 93,
+                    AutoSize = false,
+                    //ppDesc.MaximumSize = new Size(ppDesc.Width, 0);
+                    //ppDesc.AutoSize = true;
+                    Location = new Point(12, 9),
+                    TextAlign = ContentAlignment.MiddleCenter
+                };
 
-            //private Form statusForm;
-            Form statusForm = new Form()
-            {
-                Text = "Nucleus Coop - Status",
-                Width = 600,
-                Height = 150,
+                //private Form statusForm;
+                Form statusForm = new Form()
+                {
+                    Text = "Nucleus Coop - Status",
+                    Width = 600,
+                    Height = 150,
 
-                ControlBox = true,
-                StartPosition = FormStartPosition.Manual,
-                Location = new Point(0, 0),
-                MaximizeBox = false,
-                MinimizeBox = false,
-                FormBorderStyle = FormBorderStyle.FixedSingle,
-                TopMost = true,
-                Icon = Icon.FromHandle(Properties.Resources.icon.GetHicon()),
-                AutoScaleMode = AutoScaleMode.Font,
-                AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F)
-            };
+                    ControlBox = true,
+                    StartPosition = FormStartPosition.Manual,
+                    Location = new Point(0, 0),
+                    MaximizeBox = false,
+                    MinimizeBox = false,
+                    FormBorderStyle = FormBorderStyle.FixedSingle,
+                    TopMost = true,
+                    Icon = Icon.FromHandle(Properties.Resources.icon.GetHicon()),
+                    AutoScaleMode = AutoScaleMode.Font,
+                    AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F)
+                };
 
-            statusForm.FormClosing += new FormClosingEventHandler(StatusForm_Closing);
-            statusForm.Controls.Add(statusLbl);
-            statusForm.Show();
-            
+                statusForm.FormClosing += new FormClosingEventHandler(StatusForm_Closing);
+                statusForm.Controls.Add(statusLbl);
+                statusForm.Show();
+
 
 
                 while (statusWinThread != null && statusWinThread.IsAlive)
@@ -1451,15 +1427,16 @@ namespace Nucleus.Gaming
         {
             //long RetVal = 0;
 
-            DEVMODE dm = new DEVMODE();
+            DEVMODE dm = new DEVMODE
+            {
+                dmSize = (short)Marshal.SizeOf(typeof(DEVMODE)),
 
-            dm.dmSize = (short)Marshal.SizeOf(typeof(DEVMODE));
+                //dm.dmDeviceName = deviceName;
+                dmPelsWidth = w,
+                dmPelsHeight = h,
 
-            //dm.dmDeviceName = deviceName;
-            dm.dmPelsWidth = w;
-            dm.dmPelsHeight = h;
-
-            dm.dmFields = DEVMODE.DM_PELSWIDTH | DEVMODE.DM_PELSHEIGHT;
+                dmFields = DEVMODE.DM_PELSWIDTH | DEVMODE.DM_PELSHEIGHT
+            };
             //RetVal = ChangeDisplaySettings(ref dm, 0);
             DISP_CHANGE result = ChangeDisplaySettingsEx(deviceName, ref dm, IntPtr.Zero, (uint)(ChangeDisplaySettingsFlags.CDS_UPDATEREGISTRY | ChangeDisplaySettingsFlags.CDS_RESET), IntPtr.Zero);
             ChangeDisplaySettingsEx(null, IntPtr.Zero, IntPtr.Zero, 0, IntPtr.Zero);
@@ -1469,10 +1446,12 @@ namespace Nucleus.Gaming
 
         public static string EnumerateSupportedModes(Display displayDevice)
         {
-            DEVMODE dm = new DEVMODE();
-            //mode.dmSize = (short)Marshal.SizeOf(mode);
-            dm.dmSize = (short)Marshal.SizeOf(typeof(DEVMODE));
-            dm.dmDeviceName = displayDevice.DeviceName;
+            DEVMODE dm = new DEVMODE
+            {
+                //mode.dmSize = (short)Marshal.SizeOf(mode);
+                dmSize = (short)Marshal.SizeOf(typeof(DEVMODE)),
+                dmDeviceName = displayDevice.DeviceName
+            };
 
             int modeIndex = 0; // 0 = The first mode
 
@@ -1480,7 +1459,7 @@ namespace Nucleus.Gaming
 
             while (EnumDisplaySettings(null, modeIndex, ref dm) == true) // Mode found
             {
-                if((dm.dmPelsWidth > 0 && dm.dmPelsHeight > 0) && (dm.dmPelsWidth != displayDevice.Bounds.Width || dm.dmPelsHeight != displayDevice.Bounds.Height))
+                if ((dm.dmPelsWidth > 0 && dm.dmPelsHeight > 0) && (dm.dmPelsWidth != displayDevice.Bounds.Width || dm.dmPelsHeight != displayDevice.Bounds.Height))
                 {
                     size = dm.dmPelsWidth + "x" + dm.dmPelsHeight;
                     break;
@@ -1488,7 +1467,7 @@ namespace Nucleus.Gaming
                 else
                 {
                     modeIndex++; // The next mode
-                }                
+                }
             }
 
             return size;
@@ -1500,14 +1479,14 @@ namespace Nucleus.Gaming
             WindowsPrincipal principal = new WindowsPrincipal(identity);
 
             if (ini.IniReadValue("Misc", "IgnoreInputLockReminder") != "True")
-			{
-				MessageBox.Show("Some scripts will require you to press the End key to lock input. Remember to unlock input by pressing End again when you finish playing. You can disable this message in the Settings. ", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            {
+                MessageBox.Show("Some handlers will require you to press the End key to lock input. Remember to unlock input by pressing End again when you finish playing. You can disable this message in the Settings. ", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
             if ((gen.RequiresAdmin || gen.LaunchAsDifferentUsersAlt || gen.LaunchAsDifferentUsers || gen.ChangeIPPerInstanceAlt) && !principal.IsInRole(WindowsBuiltInRole.Administrator))
             {
                 earlyExit = true;
-                MessageBox.Show("This script requires you to run Nucleus as administrator.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("This handler requires you to run Nucleus as administrator.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Application.Exit();
             }
 
@@ -1518,7 +1497,7 @@ namespace Nucleus.Gaming
                 gameIs64 = true;
                 garch = "x64";
             }
-            
+
             if (gen.ForceGameArch?.Length > 0)
             {
                 if (gen.ForceGameArch == "x86")
@@ -1537,8 +1516,8 @@ namespace Nucleus.Gaming
             {
                 Log("--------------------- START ---------------------");
 
-                Log(string.Format("Game: {0}, Arch: {1}, Executable: {2}, Launcher: {3}, SteamID: {4}, Script: {5}, Content Folder: {6}", gen.GameName, garch, gen.ExecutableName, gen.LauncherExe, gen.SteamID, gen.JsFileName, gen.GUID));
-                
+                Log(string.Format("Game: {0}, Arch: {1}, Executable: {2}, Launcher: {3}, SteamID: {4}, Handler: {5}, Content Folder: {6}", gen.GameName, garch, gen.ExecutableName, gen.LauncherExe, gen.SteamID, gen.JsFileName, gen.GUID));
+
                 string pcSpecs = "PC Info - ";
                 var name = (from x in new ManagementObjectSearcher("SELECT Caption FROM Win32_OperatingSystem").Get().Cast<ManagementObject>()
                             select x.GetPropertyValue("Caption")).FirstOrDefault();
@@ -1567,47 +1546,64 @@ namespace Nucleus.Gaming
 
             ForceFinish();
 
-            gen.SetProtoInputValues();
-
-            List<PlayerInfo> players = profile.PlayerData;
-            gen.SetPlayerList(players);
-
             //Merge raw keyboard/mouse players into one
-            var groupWindows = players.Where(x => x.IsRawKeyboard || x.IsRawMouse).GroupBy(x => x.MonitorBounds).ToList();
-			foreach(var group in groupWindows)
-			{
-				var firstInGroup = group.First();
-				firstInGroup.IsRawKeyboard = group.Count(x => x.IsRawKeyboard) > 0;
-				firstInGroup.IsRawMouse = group.Count(x => x.IsRawMouse) > 0;
+            var groupWindows = profile.PlayerData.Where(x => x.IsRawKeyboard || x.IsRawMouse).GroupBy(x => x.MonitorBounds).ToList();
+            foreach (var group in groupWindows)
+            {
+                var firstInGroup = group.First();
+                firstInGroup.IsRawKeyboard = group.Count(x => x.IsRawKeyboard) > 0;
+                firstInGroup.IsRawMouse = group.Count(x => x.IsRawMouse) > 0;
 
-				if (firstInGroup.IsRawKeyboard) firstInGroup.RawKeyboardDeviceHandle = group.First(x => x.RawKeyboardDeviceHandle != (IntPtr)(-1)).RawKeyboardDeviceHandle;
-				if (firstInGroup.IsRawMouse) firstInGroup.RawMouseDeviceHandle = group.First(x => x.RawMouseDeviceHandle != (IntPtr)(-1)).RawMouseDeviceHandle;
+                if (firstInGroup.IsRawKeyboard) firstInGroup.RawKeyboardDeviceHandle = group.First(x => x.RawKeyboardDeviceHandle != (IntPtr)(-1)).RawKeyboardDeviceHandle;
+                if (firstInGroup.IsRawMouse) firstInGroup.RawMouseDeviceHandle = group.First(x => x.RawMouseDeviceHandle != (IntPtr)(-1)).RawMouseDeviceHandle;
 
-				foreach(var x in group)
-				{
-					players.Remove(x);
-				}
+                foreach (var x in group)
+                {
+                    profile.PlayerData.Remove(x);
+                }
 
-				players.Add(firstInGroup);
-			}
+                profile.PlayerData.Add(firstInGroup);
+            }
+           
+            var reorderPlayers = profile.PlayerData.OrderBy(c => c.ScreenIndex).ThenBy(c => c.EditBounds.Y).ThenBy(c => c.EditBounds.X);
+            List<PlayerInfo> reorderedPlyrs = new List<PlayerInfo>();
 
-            //List<Display> screensInUse = new List<Display>();
+            foreach (var player in reorderPlayers)
+            {
+                reorderedPlyrs.Add(player);
+            }
+
+            if (ini.IniReadValue("CustomLayout", "SplitDiv") == "True" && gen.SplitDivCompatibility == true)
+            {
+                for (int i = 0; i < reorderedPlyrs.Count; i++)
+                {
+                    //int SplitDivThickness = Convert.ToInt32(ini.IniReadValue("CustomLayout", "SplitDivThickness"));
+                    var player = reorderedPlyrs[i];
+                    Point XY = new Point(player.MonitorBounds.X+1, player.MonitorBounds.Y+1);
+                    Size WH = new Size(player.MonitorBounds.Width-2, player.MonitorBounds.Height-2); 
+                    Rectangle bounds = new Rectangle(XY, WH);
+                    player.MonitorBounds = bounds;
+                }
+            }
+
+            List<PlayerInfo> players = reorderedPlyrs; 
+
             for (int i = 0; i < players.Count; i++)
             {
                 players[i].PlayerID = i;
-
                 Log("Determining which monitors will be used by Nucleus");
-                foreach(Display dp in User32Util.GetDisplays())
+                foreach (Display dp in User32Util.GetDisplays())
                 {
-                    if(players[i].ScreenIndex == (dp.DisplayIndex - 1) && !screensInUse.Contains(dp))
+                    if (players[i].ScreenIndex == (dp.DisplayIndex - 1) && !screensInUse.Contains(dp))
                     {
-                        //Assign something extra for player here and display after? Like monitorID
-                        //Log($"TEMP: Found monitor with ID: {dp.MonitorID}");
                         screensInUse.Add(dp);
                     }
                 }
             }
 
+            gen.SetPlayerList(players);
+
+            gen.SetProtoInputValues();
 
             Log("Checking if any monitors to be used by Nucleus are using DPI scaling other than 100%");
             RegistryKey perMonKey = Registry.CurrentUser.OpenSubKey("Control Panel\\Desktop\\PerMonitorSettings", true);
@@ -1630,9 +1626,8 @@ namespace Nucleus.Gaming
                             int calc = dpi.X / 24; // 96 (100%) / 24 = 4
                             int diff = calc - 4;
 
-                            //var dpiVal = monitorKey.GetValue("DpiValue");
                             UInt32 currentVal = unchecked((UInt32)((Int32)monitorKey.GetValue("DpiValue")));
-                            //UInt32 newVal = currentVal - (UInt32)diff;
+
                             int newVal = unchecked((int)(currentVal - (UInt32)diff));
 
                             if (diff != 0)
@@ -1669,13 +1664,13 @@ namespace Nucleus.Gaming
             {
                 Log("PerMonitorSettings does not exist");
                 RegistryKey userCpDesktopKey = Registry.CurrentUser.OpenSubKey("Control Panel\\Desktop", true);
-                if(userCpDesktopKey != null)
+                if (userCpDesktopKey != null)
                 {
                     //Log("TEMP: Using Control Panel\\Desktop\\ LogPixels and Win8DpiScaling");
                     string origPix = userCpDesktopKey.GetValue("LogPixels", string.Empty).ToString();
                     string origScale = userCpDesktopKey.GetValue("Win8DpiScaling", string.Empty).ToString();
 
-                    if((!string.IsNullOrEmpty(origPix) && origPix != "96") || (!string.IsNullOrEmpty(origScale) && origScale != "0") || (string.IsNullOrEmpty(origPix) && string.IsNullOrEmpty(origScale)))
+                    if ((!string.IsNullOrEmpty(origPix) && origPix != "96") || (!string.IsNullOrEmpty(origScale) && origScale != "0") || (string.IsNullOrEmpty(origPix) && string.IsNullOrEmpty(origScale)))
                     {
                         Log($"Setting Windows DPI Scaling to 100% for the duration of Nucleus session - Original LogPixels:{origPix}, DpiScaling:{origScale}");
                         ExportRegistry(@"HKEY_CURRENT_USER\Control Panel\Desktop", Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Control Panel Desktop.reg"));
@@ -1707,7 +1702,7 @@ namespace Nucleus.Gaming
             UserScreen[] all = ScreensUtil.AllScreens();
 
             Log(string.Format("Display - DPIHandling: {0}, DPI Scale: {1}", gen.DPIHandling, DPIManager.Scale));
-            for (int x=0; x < all.Length; x++)
+            for (int x = 0; x < all.Length; x++)
             {
                 Log(string.Format("Monitor {0} - Resolution: {1}", x, all[x].MonitorBounds.Width + "x" + all[x].MonitorBounds.Height));
             }
@@ -1728,13 +1723,10 @@ namespace Nucleus.Gaming
                 workingFolder = Path.Combine(exeFolder, gen.WorkingFolder.ToLower());
             }
 
-            bool first = true;
-            bool keyboard = false;
+            RawInputProcessor.ToggleLockInputKey = gen.LockInputToggleKey;
 
-			RawInputProcessor.ToggleLockInputKey = gen.LockInputToggleKey;
-
-			RawInputManager.windows.Clear();
-			Window nextWindowToInject = null;
+            RawInputManager.windows.Clear();
+            Window nextWindowToInject = null;
 
             numPlayers = players.Count;
             Log(string.Format("Number of players: {0}", numPlayers));
@@ -1743,7 +1735,7 @@ namespace Nucleus.Gaming
             {
                 try
                 {
-                    if(statusWinThread != null && statusWinThread.IsAlive)
+                    if (statusWinThread != null && statusWinThread.IsAlive)
                     {
                         statusWinThread.Abort();
                         Thread.Sleep(50);
@@ -1757,11 +1749,11 @@ namespace Nucleus.Gaming
 
             }
 
-            if(isDebug)
+            if (isDebug)
             {
-                Log("NucleusCoop mod version: 1.1.3");
+                Log("Nucleus Co-op version: 2.0");
 
-                Log("########## START OF SCRIPT ##########");
+                Log("########## START OF HANDLER ##########");
                 string line;
 
                 StreamReader file = new StreamReader(Path.Combine(GameManager.Instance.GetJsScriptsPath(), gen.JsFileName));
@@ -1787,52 +1779,24 @@ namespace Nucleus.Gaming
 
                 if (ini.IniReadValue("Misc", "UseNicksInGame") == "True")
                 {
-                    if (!player.IsKeyboardPlayer || (player.IsKeyboardPlayer && player.IsRawKeyboard))
-                    {
-                        if (ini.IniReadValue("ControllerMapping", player.HIDDeviceID) == "")
+                        if (ini.IniReadValue("ControllerMapping", "Player_"+ (i+1)) == "")
                         {
                             player.Nickname = "Player" + (i + 1);
                         }
                         else
                         {
-                            player.Nickname = ini.IniReadValue("ControllerMapping", player.HIDDeviceID);
-                        }
-                    }
-                    else
-                    {
-                        keyboardInstance = i.ToString();
-                        if (ini.IniReadValue("ControllerMapping", "Keyboard") == "")
-                        {
-                            player.Nickname = "Player" + (i + 1);
-                        }
-                        else
-                        {
-                            player.Nickname = ini.IniReadValue("ControllerMapping", "Keyboard");
-                        }
-                    }
+                            player.Nickname = ini.IniReadValue("ControllerMapping", "Player_" + (i + 1));
+                        }               
                 }
                 else
                 {
                     player.Nickname = "Player" + (i + 1);
                 }
 
-
+                //Console.WriteLine(player.Nickname);
                 ProcessData procData = player.ProcessData;
                 bool hasSetted = procData != null && procData.Setted;
-
-                //if (ini.IniReadValue("Misc", "VibrateOpen") == "True")
-                //{
-                //    SlimDX.XInput.Controller gamePad = new SlimDX.XInput.Controller((SlimDX.XInput.UserIndex)i);
-                //    SlimDX.XInput.Vibration vib = new SlimDX.XInput.Vibration();
-
-                //    vib.LeftMotorSpeed = 32000;
-                //    vib.RightMotorSpeed = 16000;
-                //    gamePad.SetVibration(vib);
-                //}
-
-                //SlimDX.DirectInput.Get
-                //SlimDX.DirectInput.Joystick device = new SlimDX.DirectInput.Joystick()
-
+             
                 if (gen.PauseBeforeMutexKilling > 0)
                 {
                     Log(string.Format("Pausing for {0} seconds", gen.PauseBeforeMutexKilling));
@@ -1899,7 +1863,7 @@ namespace Nucleus.Gaming
                     }
                 }
 
-                if(!gen.KillMutexAtEnd)
+                if (!gen.KillMutexAtEnd)
                 {
                     if (!gen.RenameNotKillMutex && i > 0 && (gen.KillMutex?.Length > 0 || !hasSetted))
                     {
@@ -1973,13 +1937,12 @@ namespace Nucleus.Gaming
                                 {
                                     if (currentProc.ProcessName.ToLower() == Path.GetFileNameWithoutExtension(gen.MutexProcessExe).ToLower())
                                     {
-                                        if (/*(int)currentProc.NucleusGetMainWindowHandle() > 0 && !string.IsNullOrEmpty(currentProc.MainWindowTitle) &&*/ !mutexProcs.Contains(currentProc.Id))
+                                        if (!mutexProcs.Contains(currentProc.Id))
                                         {
                                             Log($"Found process {currentProc} (pid {currentProc.Id}) to kill mutexes");
                                             mProc = currentProc;
                                             mutexProcs.Add(currentProc.Id);
-                                            //attachedIdsLaunchers.Add(currentProc.Id);
-                                            //attachedLaunchers.Add(currentProc);
+
                                         }
                                     }
                                 }
@@ -2012,13 +1975,13 @@ namespace Nucleus.Gaming
 
                 if (i > 0 && !gen.ProcessChangesAtEnd && (gen.HookFocus || gen.SetWindowHook || gen.HideCursor || gen.PreventWindowDeactivation || gen.SupportsMultipleKeyboardsAndMice))
                 {
-                    if(gen.PreventWindowDeactivation && !isPrevent)
+                    if (gen.PreventWindowDeactivation && !isPrevent)
                     {
                         Log("PreventWindowDeactivation detected, setting flag");
                         isPrevent = true;
                     }
 
-                    if(isPrevent)
+                    if (isPrevent)
                     {
                         if (players[i - 1].IsKeyboardPlayer && gen.KeyboardPlayerSkipPreventWindowDeactivate)
                         {
@@ -2045,8 +2008,8 @@ namespace Nucleus.Gaming
                                 ProcessData pdata = before.ProcessData;
                                 User32Interop.SetForegroundWindow(pdata.Process.NucleusGetMainWindowHandle());
                                 InjectDLLs(pdata.Process, nextWindowToInject, before);
-							}
-						}
+                            }
+                        }
                     }
                     else
                     {
@@ -2056,12 +2019,12 @@ namespace Nucleus.Gaming
                         ProcessData pdata = before.ProcessData;
                         User32Interop.SetForegroundWindow(pdata.Process.NucleusGetMainWindowHandle());
                         InjectDLLs(pdata.Process, nextWindowToInject, before);
-					}
-				}
+                    }
+                }
 
-				Rectangle playerBounds = player.MonitorBounds;
+                Rectangle playerBounds = player.MonitorBounds;
                 owner = player.Owner;
-
+              
                 int width = playerBounds.Width;
                 int height = playerBounds.Height;
                 Log("Player monitor's resolution: " + owner.display.Width + "x" + owner.display.Height);
@@ -2083,7 +2046,7 @@ namespace Nucleus.Gaming
 
                     Log("Commencing file operations");
 
-                    if ((i==0 && (gen.SymlinkGame || gen.HardlinkGame)) || gen.HardcopyGame)
+                    if ((i == 0 && (gen.SymlinkGame || gen.HardlinkGame)) || gen.HardcopyGame)
                     {
                         for (int f = 0; f < players.Count; f++)
                         {
@@ -2099,8 +2062,8 @@ namespace Nucleus.Gaming
                         linkBinFolder = Path.Combine(linkFolder, gen.BinariesFolder);
                         //dirExclusions.Add(gen.BinariesFolder);
                     }
-                    exePath = Path.Combine(linkBinFolder, this.userGame.Game.ExecutableName);
-                    origExePath = Path.Combine(linkBinFolder, this.userGame.Game.ExecutableName);
+                    exePath = Path.Combine(linkBinFolder, userGame.Game.ExecutableName);
+                    origExePath = Path.Combine(linkBinFolder, userGame.Game.ExecutableName);
 
                     if ((i == 0 && (gen.SymlinkGame || gen.HardlinkGame)) || gen.HardcopyGame)
                     {
@@ -2144,10 +2107,10 @@ namespace Nucleus.Gaming
                     jsData[Folder.InstancedGameFolder.ToString()] = linkFolder;
 
                     Thread.Sleep(1000);
-                    if(i == 0 && (gen.LauncherExe?.Length > 0 && gen.LauncherExe.EndsWith("NucleusDefined")))
+                    if (i == 0 && (gen.LauncherExe?.Length > 0 && gen.LauncherExe.EndsWith("NucleusDefined")))
                     {
                         string exeName = null;
-                        if(gen.LauncherExe.Contains('|'))
+                        if (gen.LauncherExe.Contains('|'))
                         {
                             exeName = gen.LauncherExe.Split('|')[0];
                             Log($"User needs to select launcher exe ({exeName})");
@@ -2164,7 +2127,7 @@ namespace Nucleus.Gaming
                         Thread.Sleep(1000);
                         gen.LauncherExe = ofdPath;
 
-                        if(ofdPath != null && !string.IsNullOrEmpty(ofdPath))
+                        if (ofdPath != null && !string.IsNullOrEmpty(ofdPath))
                         {
                             Log("User selected " + ofdPath + " as the launcher exe, updating script file");
                             string text = File.ReadAllText(Path.Combine(GameManager.Instance.GetJsScriptsPath(), gen.JsFileName));
@@ -2258,7 +2221,7 @@ namespace Nucleus.Gaming
 
                             for (int k = 0; k < dirSymlinkCopyInstead.Length; k++)
                             {
-                                if(Directory.Exists(Path.Combine(origRootFolder, dirSymlinkCopyInstead[k])))
+                                if (Directory.Exists(Path.Combine(origRootFolder, dirSymlinkCopyInstead[k])))
                                 {
                                     dirExclusions.Add(dirSymlinkCopyInstead[k].ToLower());
 
@@ -2267,7 +2230,7 @@ namespace Nucleus.Gaming
                                         foreach (string dir in Directory.GetDirectories(Path.Combine(rootFolder, dirSymlinkCopyInstead[k]), "*", SearchOption.AllDirectories))
                                         {
                                             int extraChar = 1;
-                                            if(rootFolder.EndsWith("\\"))
+                                            if (rootFolder.EndsWith("\\"))
                                             {
                                                 extraChar = 0;
                                             }
@@ -2314,8 +2277,7 @@ namespace Nucleus.Gaming
                         {
                             Log(string.Format("Copying game folder {0} to {1} ", rootFolder, linkFolder));
                             // copy the directory
-                            int exitCode;
-                            FileUtil.CopyDirectory(rootFolder, new DirectoryInfo(rootFolder), linkFolder, out exitCode, dirExclusions.ToArray(), fileExclusionsArr, true);
+                            FileUtil.CopyDirectory(rootFolder, new DirectoryInfo(rootFolder), linkFolder, out int exitCode, dirExclusions.ToArray(), fileExclusionsArr, true);
                             while (exitCode != 1)
                             {
                                 Thread.Sleep(25);
@@ -2326,10 +2288,8 @@ namespace Nucleus.Gaming
                             if (i == 0)
                             {
                                 Log(string.Format("Hardlinking game folder and files at {0} to {1}, for each instance", rootFolder, tempDir));
-                                int exitCode;
-                                //CmdUtil.LinkDirectory(rootFolder, new DirectoryInfo(rootFolder), linkFolder, out exitCode, dirExclusions.ToArray(), fileExclusionsArr, fileCopiesArr, false, true);
-                                //Nucleus.Gaming.Platform.Windows.IO.LinkDirectory(rootFolder, new DirectoryInfo(rootFolder), linkFolder, out exitCode, dirExclusions.ToArray(), fileExclusionsArr, fileCopiesArr, true);
-                                while (!StartGameUtil.SymlinkGame(rootFolder, linkFolder, out exitCode, dirExclusions.ToArray(), fileExclusionsArr, fileCopiesArr, true, gen.SymlinkFolders, players.Count))
+
+                                while (!StartGameUtil.SymlinkGame(rootFolder, linkFolder, out int exitCode, dirExclusions.ToArray(), fileExclusionsArr, fileCopiesArr, true, gen.SymlinkFolders, players.Count))
                                 {
                                     Thread.Sleep(25);
                                 }
@@ -2340,18 +2300,12 @@ namespace Nucleus.Gaming
                             if (i == 0)
                             {
                                 Log(string.Format("Symlinking game folder and files at {0} to {1}, for each instance", rootFolder, tempDir));
-                                int exitCode;
-                                //CmdUtil.LinkDirectory(rootFolder, new DirectoryInfo(rootFolder), linkFolder, out exitCode, dirExclusions.ToArray(), fileExclusionsArr, fileCopiesArr, true, true);
-                                //Nucleus.Gaming.Platform.Windows.IO.WinDirectoryUtil.LinkDirectory(rootFolder, new DirectoryInfo(rootFolder), linkFolder, out exitCode, dirExclusions.ToArray(), fileExclusionsArr, fileCopiesArr, true);
-                                while (!StartGameUtil.SymlinkGame(rootFolder, linkFolder, out exitCode, dirExclusions.ToArray(), fileExclusionsArr, fileCopiesArr, false, gen.SymlinkFolders, players.Count))
+
+                                while (!StartGameUtil.SymlinkGame(rootFolder, linkFolder, out int exitCode, dirExclusions.ToArray(), fileExclusionsArr, fileCopiesArr, false, gen.SymlinkFolders, players.Count))
                                 {
                                     Thread.Sleep(25);
                                 }
 
-                                //if (!gen.SymlinkExe)
-                                //{
-                                //File.Copy(userGame.ExePath, exePath, true);
-                                //}
                             }
                         }
                     }
@@ -2363,13 +2317,13 @@ namespace Nucleus.Gaming
 
                     if (gen.LauncherExe?.Length > 0)
                     {
-                        if(gen.LauncherExe.Contains(':') && gen.LauncherExe.Contains('\\'))
+                        if (gen.LauncherExe.Contains(':') && gen.LauncherExe.Contains('\\'))
                         {
                             exePath = gen.LauncherExe;
                         }
                         else
                         {
-                            if(!gen.LauncherExeIgnoreFileCheck)
+                            if (!gen.LauncherExeIgnoreFileCheck)
                             {
                                 string[] launcherFiles = Directory.GetFiles(linkFolder, gen.LauncherExe, SearchOption.AllDirectories);
                                 if (launcherFiles.Length < 1)
@@ -2395,9 +2349,9 @@ namespace Nucleus.Gaming
                         }
                     }
 
-                    if(gen.CopyFoldersTo?.Length > 0)
+                    if (gen.CopyFoldersTo?.Length > 0)
                     {
-                        foreach(string sourceFolder in gen.CopyFoldersTo)
+                        foreach (string sourceFolder in gen.CopyFoldersTo)
                         {
                             string[] splitStr = sourceFolder.Split('|');
 
@@ -2408,11 +2362,15 @@ namespace Nucleus.Gaming
                             Directory.CreateDirectory(destinationPath);
 
                             foreach (string dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
+                            {
                                 Directory.CreateDirectory(dirPath.Replace(sourcePath, destinationPath));
+                            }
 
                             foreach (string newPath in Directory.GetFiles(sourcePath, "*.*",
                                 SearchOption.AllDirectories))
+                            {
                                 File.Copy(newPath, newPath.Replace(sourcePath, destinationPath), true);
+                            }
                         }
                     }
 
@@ -2426,7 +2384,7 @@ namespace Nucleus.Gaming
                             string destinationPath = Path.Combine(linkFolder, splitStr[1]);
                             Log($"Symlinking folder {sourcePath} to {destinationPath}");
 
-                            if(gen.SymlinkFolders)
+                            if (gen.SymlinkFolders)
                             {
                                 Platform.Windows.Interop.Kernel32Interop.CreateSymbolicLink(destinationPath, sourcePath, Platform.Windows.Interop.SymbolicLink.Directory);
                             }
@@ -2446,12 +2404,14 @@ namespace Nucleus.Gaming
                                     Directory.CreateDirectory(dirPath.Replace(sourcePath, destinationPath));
                                 }
                             }
-                                
+
                             foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
-                                Platform.Windows.Interop.Kernel32Interop.CreateSymbolicLink(newPath.Replace(sourcePath, destinationPath), newPath, Platform.Windows.Interop.SymbolicLink.File );
+                            {
+                                Platform.Windows.Interop.Kernel32Interop.CreateSymbolicLink(newPath.Replace(sourcePath, destinationPath), newPath, Platform.Windows.Interop.SymbolicLink.File);
+                            }
                         }
                     }
-                    
+
                     if (gen.HardlinkFoldersTo?.Length > 0)
                     {
                         foreach (string sourceFolder in gen.HardlinkFoldersTo)
@@ -2465,11 +2425,15 @@ namespace Nucleus.Gaming
                             Directory.CreateDirectory(destinationPath);
 
                             foreach (string dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
+                            {
                                 Directory.CreateDirectory(dirPath.Replace(sourcePath, destinationPath));
+                            }
 
                             foreach (string newPath in Directory.GetFiles(sourcePath, "*.*",
                                 SearchOption.AllDirectories))
+                            {
                                 Platform.Windows.Interop.Kernel32Interop.CreateHardLink(newPath.Replace(sourcePath, destinationPath), newPath, IntPtr.Zero);
+                            }
                         }
                     }
 
@@ -2485,9 +2449,6 @@ namespace Nucleus.Gaming
 
                     linkBinFolder = workingFolder;
                     linkFolder = rootFolder;
-
-                    //nucleusRootFolder = Directory.GetParent(rootFolder).FullName;
-                    //nucleusRootFolder = rootFolder;
 
                     instanceExeFolder = linkBinFolder;
                     origRootFolder = rootFolder;
@@ -2534,7 +2495,6 @@ namespace Nucleus.Gaming
 
                     Process p = new Process();
 
-                    //string devconPath = Path.Combine(Directory.GetCurrentDirectory(), "utils\\devcon\\devcon.exe");
                     p.StartInfo.FileName = "cmd.exe";
                     p.StartInfo.WorkingDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\utils\\devcon";
                     p.StartInfo.CreateNoWindow = false;
@@ -2561,7 +2521,7 @@ namespace Nucleus.Gaming
                         }
                     }
 
-                    if(players[i].Adapter == null)
+                    if (players[i].Adapter == null)
                     {
                         Log("Could not find new network adapter made for this player.");
                     }
@@ -2573,12 +2533,12 @@ namespace Nucleus.Gaming
 
                 if (gen.LaunchAsDifferentUsers || gen.LaunchAsDifferentUsersAlt)
                 {
-                    if(i == 0)
+                    if (i == 0)
                     {
                         Log("Searching for administrators local group");
                         ArrayList localGroups = GetUserGroups(Environment.UserName);
 
-                        if(localGroups != null && localGroups?.Count > 0)
+                        if (localGroups != null && localGroups?.Count > 0)
                         {
                             if (localGroups.Contains("Administrators"))
                             {
@@ -2632,12 +2592,12 @@ namespace Nucleus.Gaming
                                 UserExists = (up != null);
                             }
                             Log($"nucleusplayer{pc} exists: {UserExists}");
-                            if(!UserExists)
+                            if (!UserExists)
                             {
                                 createNeeded = true;
                                 using (StreamWriter sw = new StreamWriter(createUserBatPath, true))
                                 {
-                                    if(!echoLineUsed)
+                                    if (!echoLineUsed)
                                     {
                                         sw.WriteLine(@"@echo off");
                                         echoLineUsed = true;
@@ -2647,18 +2607,14 @@ namespace Nucleus.Gaming
                             }
                         }
 
-                        if(createNeeded)
+                        if (createNeeded)
                         {
                             Log("Some users need to be created; creating user accounts");
                             Process user = new Process();
                             user.StartInfo.FileName = createUserBatPath;
                             user.StartInfo.Verb = "runas";
                             user.StartInfo.UseShellExecute = true;
-                            //user.StartInfo.RedirectStandardOutput = true;
                             user.Start();
-
-                            //string stdOut = user.StandardOutput.ReadToEnd();
-                            //Log("LaunchAsDifferentUsers(Alt) create users output " + stdOut);
 
                             user.WaitForExit();
                         }
@@ -2674,21 +2630,6 @@ namespace Nucleus.Gaming
                             players[pc - 1].UserProfile = $"nucleusplayer{pc}";
                         }
                     }
-
-                    //Process cmd = new Process();
-
-                    //cmd.StartInfo.UseShellExecute = false;
-                    //cmd.StartInfo.Verb = "runas";
-                    //string cmdLine;
-
-                    //    cmd.StartInfo.FileName = "cmd.exe";
-                    //    cmdLine = $"/C runas /savecred /user:nucleusplayer{i + 1}" + " \"cmd.exe\"";
-
-                    //cmd.StartInfo.Arguments = cmdLine;
-
-                    //cmd.Start();
-
-                    //cmd.WaitForExit();
 
                     STARTUPINFO startup = new STARTUPINFO();
                     startup.cb = Marshal.SizeOf(startup);
@@ -2708,21 +2649,7 @@ namespace Nucleus.Gaming
                     {
                         Thread.Sleep(1000);
                         Log("Transfer Nucleus user account profiles is enabled");
-                        //for (int pc = 1; pc <= numPlayers; pc++)
-                        //{
-
-                        //string subFolder;
-                        //for (int fol = 0; fol < 2; fol++)
-                        //{
-                        //if(fol == 0)
-                        //{
-                        //    subFolder = "AppData";
-                        //}
-                        //else
-                        //{
-                        //    subFolder = "Documents";
-                        //}
-
+                      
                         List<string> SourcePath = new List<string>();
                         string OrigSourcePath = NucleusEnvironmentRoot + $@"\NucleusCoop\UserAccounts\{player.UserProfile}";
                         SourcePath.Add(OrigSourcePath);
@@ -2738,9 +2665,9 @@ namespace Nucleus.Gaming
                         string DestinationPath = $@"{Path.GetDirectoryName(NucleusEnvironmentRoot)}\{player.UserProfile}";
                         try
                         {
-                            foreach(string folder in SourcePath)
+                            foreach (string folder in SourcePath)
                             {
-                                if(folder != OrigSourcePath)
+                                if (folder != OrigSourcePath)
                                 {
                                     DestinationPath = $@"{Path.GetDirectoryName(NucleusEnvironmentRoot)}\{player.UserProfile}" + folder.Substring(NucleusEnvironmentRoot.Length);
                                 }
@@ -2754,13 +2681,6 @@ namespace Nucleus.Gaming
                                     Log("Copying " + folder + " to " + DestinationPath);
                                     Directory.CreateDirectory(DestinationPath);
 
-                                    //foreach (string dirPath in Directory.GetDirectories(SourcePath, "*",
-                                    //    SearchOption.AllDirectories))
-                                    //    Directory.CreateDirectory(dirPath.Replace(SourcePath, DestinationPath));
-
-                                    //foreach (string newPath in Directory.GetFiles(SourcePath, "*.*",
-                                    //    SearchOption.AllDirectories))
-                                    //    File.Copy(newPath, newPath.Replace(SourcePath, DestinationPath), true);
                                     string cmd = "xcopy \"" + folder + "\" \"" + DestinationPath + "\" /E/H/C/I/Y/R";
                                     int exitCode = -6942069;
                                     CmdUtil.ExecuteCommand(folder, out exitCode, cmd, true);
@@ -2780,21 +2700,19 @@ namespace Nucleus.Gaming
 
                 }
 
-                if(gen.UseNucleusEnvironment)
+                if (gen.UseNucleusEnvironment)
                 {
                     RegistryKey dkey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);
                     string mydocPath = dkey.GetValue("Personal").ToString();
                     //Log($"TEMP: User Shell Folder - Personal={mydocPath}");
-
                     //Log($"TEMP: Nucleus.Folder.Documents={GetFolder(Folder.Documents)}");
                     //Log($"TEMP: DocumentsRoot={DocumentsRoot}");
                 }
 
                 bool userConfigPathConverted = false;
-                if(gen.UserProfileConfigPath?.Length > 0 && gen.UserProfileConfigPath.ToLower().StartsWith(@"documents\"))
+                if (gen.UserProfileConfigPath?.Length > 0 && gen.UserProfileConfigPath.ToLower().StartsWith(@"documents\"))
                 {
                     gen.DocumentsConfigPath = gen.UserProfileConfigPath.Substring(10);
-                    //gen.UserProfileConfigPath = null;
                     gen.DocumentsConfigPathNoCopy = gen.UserProfileConfigPathNoCopy;
                     gen.ForceDocumentsConfigCopy = gen.ForceUserProfileConfigCopy;
                     userConfigPathConverted = true;
@@ -2804,7 +2722,6 @@ namespace Nucleus.Gaming
                 if (gen.UserProfileSavePath?.Length > 0 && gen.UserProfileSavePath.ToLower().StartsWith(@"documents\"))
                 {
                     gen.DocumentsSavePath = gen.UserProfileSavePath.Substring(10);
-                    //gen.UserProfileSavePath = null;
                     gen.DocumentsSavePathNoCopy = gen.UserProfileSavePathNoCopy;
                     gen.ForceDocumentsSaveCopy = gen.ForceUserProfileSaveCopy;
                     userSavePathConverted = true;
@@ -2838,13 +2755,12 @@ namespace Nucleus.Gaming
                 if (gen.DeleteFilesInConfigPath?.Length > 0)
                 {
                     string path = Path.Combine($@"{NucleusEnvironmentRoot}\NucleusCoop\{player.Nickname}\", gen.UserProfileConfigPath);
-                    //string realConfigPath = Path.Combine(Environment.GetEnvironmentVariable("userprofile"), gen.UserProfileConfigPath);
-                    foreach(string fileName in gen.DeleteFilesInConfigPath)
+                    foreach (string fileName in gen.DeleteFilesInConfigPath)
                     {
                         string[] foundFiles = Directory.GetFiles(path, fileName, SearchOption.AllDirectories);
-                        foreach(string foundFile in foundFiles)
+                        foreach (string foundFile in foundFiles)
                         {
-                            if(!gen.IgnoreDeleteFilesPrompt)
+                            if (!gen.IgnoreDeleteFilesPrompt)
                             {
                                 DialogResult dialogResult = MessageBox.Show("Are you sure you want to delete '" + foundFile + "'?", "Nucleus - Delete Files In Config Path", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                                 if (dialogResult != DialogResult.Yes)
@@ -2861,7 +2777,6 @@ namespace Nucleus.Gaming
                 if (gen.DeleteFilesInSavePath?.Length > 0)
                 {
                     string path = Path.Combine($@"{NucleusEnvironmentRoot}\NucleusCoop\{player.Nickname}\", gen.UserProfileConfigPath);
-                    //string realConfigPath = Path.Combine(Environment.GetEnvironmentVariable("userprofile"), gen.UserProfileSavePath);
                     foreach (string fileName in gen.DeleteFilesInSavePath)
                     {
                         string[] foundFiles = Directory.GetFiles(path, fileName, SearchOption.AllDirectories);
@@ -2886,12 +2801,12 @@ namespace Nucleus.Gaming
                     ChangeExe(i);
                 }
 
-                if(gen.RenameAndOrMoveFiles?.Length > 0)
+                if (gen.RenameAndOrMoveFiles?.Length > 0)
                 {
                     RenameOrMoveFiles(linkFolder, i);
                 }
 
-                if(gen.DeleteFiles?.Length > 0)
+                if (gen.DeleteFiles?.Length > 0)
                 {
                     DeleteFiles(linkFolder, i);
                 }
@@ -2899,10 +2814,12 @@ namespace Nucleus.Gaming
                 context = gen.CreateContext(profile, player, this, hasKeyboardPlayer);
                 context.PlayerID = player.PlayerID;
                 context.IsFullscreen = isFullscreen;
-                //context.bHasKeyboardPlayer = hasKeyboardPlayer;
 
-                if(gen.LauncherExe?.Length > 0)
+                if (gen.LauncherExe?.Length > 0)
+                {
                     context.LauncherFolder = Path.GetDirectoryName(gen.LauncherExe);
+                }
+
                 context.ExePath = exePath;
                 context.RootInstallFolder = exeFolder;
                 context.RootFolder = linkFolder;
@@ -2910,13 +2827,18 @@ namespace Nucleus.Gaming
                 context.UserProfileConfigPath = gen.UserProfileConfigPath;
                 context.UserProfileSavePath = gen.UserProfileSavePath;
 
-                if(userConfigPathConverted || userSavePathConverted)
+                if (userConfigPathConverted || userSavePathConverted)
                 {
                     context.UserProfileConvertedToDocuments = true;
                     if (userConfigPathConverted)
+                    {
                         context.UserProfileConfigPath = gen.DocumentsConfigPath;
+                    }
+
                     if (userSavePathConverted)
+                    {
                         context.UserProfileSavePath = gen.DocumentsSavePath;
+                    }
                 }
                 else
                 {
@@ -2932,9 +2854,13 @@ namespace Nucleus.Gaming
                     for (int plyri = 0; plyri < players.Count; plyri++)
                     {
                         if (players[plyri].IsKeyboardPlayer)
+                        {
                             context.NumKeyboards++;
+                        }
                         else
+                        {
                             context.NumControllers++;
+                        }
                     }
                 }
 
@@ -2959,11 +2885,11 @@ namespace Nucleus.Gaming
                     int counter = 0;
                     if (gen.SaveCustomUserGeneralValues || gen.SaveAndEditCustomUserGeneralValues || i > 0)
                     {
-                        Log("Script uses custom general values");
+                        Log("Handler uses custom general values");
                         if (File.Exists(valueFile))
                         {
                             Log("custom_gen_values.txt already exists for this script, setting values accordingly");
-                            
+
                             string line;
 
                             StreamReader file = new StreamReader(valueFile);
@@ -2977,7 +2903,7 @@ namespace Nucleus.Gaming
 
                             file.Close();
 
-                            if(counter != gen.CustomUserGeneralPrompts.Length)
+                            if (counter != gen.CustomUserGeneralPrompts.Length)
                             {
                                 Log("Number of lines in file do not match number of prompts. Overwriting file");
                             }
@@ -2995,21 +2921,6 @@ namespace Nucleus.Gaming
 
                     if (i == 0 && (!File.Exists(valueFile) || !gen.SaveCustomUserGeneralValues || gen.SaveAndEditCustomUserGeneralValues || (File.Exists(valueFile) && counter != gen.CustomUserGeneralPrompts.Length)))
                     {
-                        //List<string> lines = new List<string>();
-                        //if (File.Exists(valueFile))
-                        //{
-                        //    string line;
-                        //    StreamReader file = new StreamReader(valueFile);
-                        //    while ((line = file.ReadLine()) != null)
-                        //    {
-                        //        Log("Adding line " + line);
-                        //        lines.Add(line);
-                        //    }
-
-                        //    file.Close();
-
-
-                        //}
 
                         if (i == 0 && ((File.Exists(valueFile) && !gen.SaveAndEditCustomUserGeneralValues && !gen.SaveCustomUserGeneralValues) || (File.Exists(valueFile) && counter != gen.CustomUserGeneralPrompts.Length)))
                         {
@@ -3034,12 +2945,14 @@ namespace Nucleus.Gaming
                             }
                             Forms.CustomPrompt prompt = new Forms.CustomPrompt(gen.CustomUserGeneralPrompts[d], prevAnswer, d);
                             prompt.ShowDialog();
-                            if(customValue[d]?.Length > 0)
+                            if (customValue[d]?.Length > 0)
                             {
                                 context.CustomUserGeneralValues[d] = customValue[d];
                                 Log("User entered: " + customValue[d]);
                                 if (!containsValue)
+                                {
                                     containsValue = true;
+                                }
                             }
                             else
                             {
@@ -3048,7 +2961,7 @@ namespace Nucleus.Gaming
                             }
                         }
 
-                        if(containsValue)
+                        if (containsValue)
                         {
                             using (StreamWriter outputFile = new StreamWriter(valueFile))
                             {
@@ -3063,9 +2976,6 @@ namespace Nucleus.Gaming
 
                 if (gen.CustomUserPlayerPrompts?.Length > 0)
                 {
-                    //context.CustomUserPlayerValues = new string[gen.CustomUserPlayerValues.Length];
-                    //customValue = new string[gen.CustomUserPlayerValues.Length];
-
                     if (context.CustomUserPlayerValues == null || context.CustomUserPlayerValues?.Length < 1)
                     {
                         context.CustomUserPlayerValues = new string[gen.CustomUserPlayerPrompts.Length];
@@ -3111,27 +3021,14 @@ namespace Nucleus.Gaming
 
                     if (!File.Exists(valueFile) || !gen.SaveCustomUserPlayerValues || gen.SaveAndEditCustomUserPlayerValues || (File.Exists(valueFile) && counter != gen.CustomUserPlayerPrompts.Length))
                     {
-                        //List<string> lines = new List<string>();
-                        //if (File.Exists(valueFile))
-                        //{
-                        //    string line;
-                        //    StreamReader file = new StreamReader(valueFile);
-                        //    while ((line = file.ReadLine()) != null)
-                        //    {
-                        //        Log("Adding line " + line);
-                        //        lines.Add(line);
-                        //    }
-
-                        //    file.Close();
 
                         if ((File.Exists(valueFile) && !gen.SaveAndEditCustomUserPlayerValues && !gen.SaveCustomUserPlayerValues) || (File.Exists(valueFile) && counter != gen.CustomUserPlayerPrompts.Length))
                         {
                             Log("Deleting value file");
                             File.Delete(valueFile);
                         }
-                        //}
 
-                        if(!Directory.Exists(Path.GetDirectoryName(valueFile)))
+                        if (!Directory.Exists(Path.GetDirectoryName(valueFile)))
                         {
                             Directory.CreateDirectory(Path.GetDirectoryName(valueFile));
                         }
@@ -3149,7 +3046,7 @@ namespace Nucleus.Gaming
                             context.CustomUserPlayerValues[d] = customValue[d];
                             Log("User entered: " + customValue[d]);
                         }
-                        
+
                         using (StreamWriter outputFile = new StreamWriter(valueFile))
                         {
                             foreach (string line in customValue)
@@ -3163,8 +3060,6 @@ namespace Nucleus.Gaming
 
                 if (gen.CustomUserInstancePrompts?.Length > 0)
                 {
-                    //context.CustomUserInstanceValues = new string[gen.CustomUserInstanceValues.Length];
-                    //customValue = new string[gen.CustomUserInstanceValues.Length];
 
                     if (context.CustomUserInstanceValues == null || context.CustomUserInstanceValues?.Length < 1)
                     {
@@ -3211,19 +3106,7 @@ namespace Nucleus.Gaming
 
                     if (!File.Exists(valueFile) || !gen.SaveCustomUserInstanceValues || gen.SaveAndEditCustomUserInstanceValues || (File.Exists(valueFile) && counter != gen.CustomUserInstancePrompts.Length))
                     {
-                        //List<string> lines = new List<string>();
-                        //if (File.Exists(valueFile))
-                        //{
-                        //    string line;
-                        //    StreamReader file = new StreamReader(valueFile);
-                        //    while ((line = file.ReadLine()) != null)
-                        //    {
-                        //        Log("Adding line " + line);
-                        //        lines.Add(line);
-                        //    }
-
-                        //    file.Close();
-
+  
                         if ((File.Exists(valueFile) && !gen.SaveAndEditCustomUserInstanceValues && !gen.SaveCustomUserInstanceValues) || (File.Exists(valueFile) && counter != gen.CustomUserInstancePrompts.Length))
                         {
                             Log("Deleting value file");
@@ -3324,7 +3207,13 @@ namespace Nucleus.Gaming
 
                 if (gen.UseNemirtingasEpicEmu)
                 {
-                    UseNemirtingasEpicEmu(rootFolder, linkFolder, player, setupDll);
+                    context.StartArguments += "";
+                    UseNemirtingasEpicEmu(rootFolder, linkFolder, gen.UseNemirtingasEpicEmu, i, player, gen.GetEpicLanguage(), setupDll);                   
+                }
+
+                if (gen.UseNemirtingasGalaxyEmu)
+                {
+                    UseNemirtingasGalaxyEmu( rootFolder,linkFolder,i,player, gen.GetGogLanguage(), setupDll);
                 }
 
                 if (gen.CreateSteamAppIdByExe)
@@ -3342,7 +3231,7 @@ namespace Nucleus.Gaming
                     UseDevReorder(garch, player, players, i, setupDll);
                 }
 
-                if(gen.UseDInputBlocker)
+                if (gen.UseDInputBlocker)
                 {
                     UseDInputBlocker(garch, setupDll);
                 }
@@ -3377,16 +3266,27 @@ namespace Nucleus.Gaming
                     Log(string.Format("Pausing for {0} seconds", gen.PauseBetweenContextAndLaunch));
                     Thread.Sleep(TimeSpan.FromSeconds(gen.PauseBetweenContextAndLaunch));
                 }
+                if (gen.AltEpicEmuArgs)
+                {
+                    Log("Using pre-defined epic emu params");
+                    context.StartArguments += " ";
+                    context.StartArguments += " -AUTH_LOGIN=unused -AUTH_PASSWORD=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb -AUTH_TYPE=exchangecode -epicapp=CrabTest -epicenv=Prod -EpicPortal " + " -epiclocale=" + gen.GetEpicLanguage() + " -epicusername=" + player.Nickname + " -epicuserid=" + player.Nickname + " ";
+                }
 
                 if (gen.EpicEmuArgs)
                 {
+                    context.StartArguments += " ";
                     Log("Using pre-defined epic emu params");
+
                     if (!context.StartArguments.Contains("-AUTH_LOGIN"))
                     {
                         Log("Epic Emu parameters not found in arguments. Adding the necessary parameters to existing starting arguments");
-                        context.StartArguments += " -AUTH_LOGIN=unused -AUTH_PASSWORD=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb -AUTH_TYPE=exchangecode -epicapp=CrabTest -epicenv=Prod -EpicPortal -epicusername=\"" + player.Nickname + "\" -epicuserid=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA -epiclocale=en";
+                        //AUTH_LOGIN = unused - AUTH_PASSWORD = cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd - AUTH_TYPE = exchangecode - epicapp = CrabTest - epicenv = Prod - EpicPortal - epiclocale = en - epicusername =< same username as in the.json > -epicuserid =< same epicid as in the.json >                    
+                        context.StartArguments += " -AUTH_LOGIN=unused -AUTH_PASSWORD=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb -AUTH_TYPE=exchangecode -epicapp=CrabTest -epicenv=Prod -EpicPortal" + " -epiclocale=" + gen.GetEpicLanguage() + " -epicusername=" + player.Nickname + " -epicuserid=0000000000000000000000000player" + (i + 1) + " "; 
+                        //Console.WriteLine(context.StartArguments);
                     }
                 }
+
                 string startArgs = context.StartArguments;
 
                 if (!string.IsNullOrEmpty(lobbyConnectArg) && i > 0)
@@ -3404,18 +3304,23 @@ namespace Nucleus.Gaming
                 {
                     string[] saFiles = Directory.GetFiles(linkFolder, "account_name.txt", SearchOption.AllDirectories);
                     List<string> files = saFiles.ToList();
-                    if(saFiles.Length > 0)
+                    if (saFiles.Length > 0)
                     {
                         Log("Goldberg: account_name.txt file(s) were found in folder. Will update nicknames");
                     }
                     string goldbergNoLocal = $@"{NucleusEnvironmentRoot}\AppData\Roaming\Goldberg SteamEmu Saves\settings\account_name.txt";
-                    if(File.Exists(goldbergNoLocal))
+                    if (File.Exists(goldbergNoLocal))
+                    {
                         files.Add(goldbergNoLocal);
-                    if(gen.UseNucleusEnvironment)
+                    }
+
+                    if (gen.UseNucleusEnvironment)
                     {
                         goldbergNoLocal = $@"{NucleusEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Roaming\Goldberg SteamEmu Saves\settings\account_name.txt";
                         if (File.Exists(goldbergNoLocal))
+                        {
                             files.Add(goldbergNoLocal);
+                        }
                     }
 
                     foreach (string nameFile in files)
@@ -3423,7 +3328,6 @@ namespace Nucleus.Gaming
                         if (!string.IsNullOrEmpty(player.Nickname))
                         {
                             Log(string.Format("Writing nickname {0} in account_name.txt", player.Nickname));
-                            //MessageBox.Show("Found account_name.txt at: " + nameFile + ", replacing: " + File.ReadAllText(nameFile) + " with: " + player.Nickname + " for player " + i);
                             File.Delete(nameFile);
                             File.WriteAllText(nameFile, player.Nickname);
                         }
@@ -3432,7 +3336,6 @@ namespace Nucleus.Gaming
                             if (player.IsKeyboardPlayer && ini.IniReadValue("ControllerMapping", "Keyboard") != "")
                             {
                                 Log(string.Format("Writing nickname {0} in account_name.txt", ini.IniReadValue("ControllerMapping", "Keyboard")));
-                                //MessageBox.Show("Found account_name.txt at: " + nameFile + ", replacing: " + File.ReadAllText(nameFile) + " with: " + player.Nickname + " for player " + i);
                                 File.Delete(nameFile);
                                 File.WriteAllText(nameFile, ini.IniReadValue("ControllerMapping", "Keyboard"));
                             }
@@ -3452,12 +3355,17 @@ namespace Nucleus.Gaming
                     }
                     goldbergNoLocal = $@"{NucleusEnvironmentRoot}\AppData\Roaming\Goldberg SteamEmu Saves\settings\user_steam_id.txt";
                     if (File.Exists(goldbergNoLocal))
+                    {
                         files.Add(goldbergNoLocal);
+                    }
+
                     if (gen.UseNucleusEnvironment)
                     {
                         goldbergNoLocal = $@"{NucleusEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Roaming\Goldberg SteamEmu Saves\settings\user_steam_id.txt";
                         if (File.Exists(goldbergNoLocal))
+                        {
                             files.Add(goldbergNoLocal);
+                        }
                     }
 
                     foreach (string nameFile in files)
@@ -3489,7 +3397,6 @@ namespace Nucleus.Gaming
                 {
                     //Force no starting arguments as a launcher is being used
                     //Log("Removing starting arguments as a launcher is being used");
-                    //startArgs = string.Empty;
 
                     if (gen.HookInit || gen.RenameNotKillMutex || gen.SetWindowHookStart || gen.BlockRawInput || gen.CreateSingleDeviceFile)
                     {
@@ -3502,14 +3409,14 @@ namespace Nucleus.Gaming
                     }
                 }
 
-                if(processingExit)
+                if (processingExit)
                 {
                     return string.Empty;
                 }
 
                 if (context.NeedsSteamEmulation)
                 {
-                    string steamEmu = Path.Combine(linkFolder, "SmartSteamLoader"); //GameManager.Instance.ExtractSteamEmu(Path.Combine(linkFolder, "SmartSteamLoader"));
+                    string steamEmu = Path.Combine(linkFolder, "SmartSteamLoader"); 
                     ssePath = steamEmu;
                     string sourcePath = Path.Combine(GameManager.Instance.GetUtilsPath(), "SmartSteamEmu");
 
@@ -3523,7 +3430,9 @@ namespace Nucleus.Gaming
                             //Create all of the directories
                             foreach (string dirPath in Directory.GetDirectories(sourcePath, "*",
                                 SearchOption.AllDirectories))
+                            {
                                 Directory.CreateDirectory(dirPath.Replace(sourcePath, steamEmu));
+                            }
 
                             //Copy all the files & Replaces any files with the same name
                             foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
@@ -3543,14 +3452,11 @@ namespace Nucleus.Gaming
                     {
                         sseLoader = "SmartSteamLoader_x64.exe";
                     }
-                    else //if (Is64Bit(exePath) == false)
+                    else 
                     {
                         sseLoader = "SmartSteamLoader.exe";
                     }
-                    //else
-                    //{
-                    //    Log(string.Format("ERROR - Machine type {0} not implemented", GetDllMachineType(exePath)));
-                    //}
+
 
                     string emuExe = Path.Combine(steamEmu, sseLoader);
                     string emuIni = Path.Combine(steamEmu, "SmartSteamEmu.ini");
@@ -3601,42 +3507,31 @@ namespace Nucleus.Gaming
                     emu.IniWriteValue("SmartSteamEmu", "DisableOverlay", "1");
                     emu.IniWriteValue("SmartSteamEmu", "SeparateStorageByName", "1");
 
-                    if(gen.SSEAdditionalLines?.Length > 0)
+                    if (gen.SSEAdditionalLines?.Length > 0)
                     {
-                        foreach(string line in gen.SSEAdditionalLines)
+                        foreach (string line in gen.SSEAdditionalLines)
                         {
-                            if(line.Contains("|") && line.Contains("="))
+                            if (line.Contains("|") && line.Contains("="))
                             {
                                 string[] lineSplit = line.Split('|', '=');
-                                if(lineSplit?.Length == 3)
+                                if (lineSplit?.Length == 3)
                                 {
                                     string section = lineSplit[0];
                                     string key = lineSplit[1];
                                     string value = lineSplit[2];
-                                    Log(string.Format("Writing custom line in SSE, section: {0}, key: {1}, value: {2}",section,key,value));
+                                    Log(string.Format("Writing custom line in SSE, section: {0}, key: {1}, value: {2}", section, key, value));
                                     emu.IniWriteValue(section, key, value);
                                 }
                             }
                         }
                     }
 
-                    //string userName = $"Player { context.PlayerID }";
-
-                    //emu.IniWriteValue("SmartSteamEmu", "PersonaName", userName);
-                    //emu.IniWriteValue("SmartSteamEmu", "ManualSteamId", userName);
-
-                    //emu.IniWriteValue("SmartSteamEmu", "Offline", "False");
-                    //emu.IniWriteValue("SmartSteamEmu", "MasterServer", "");
-                    //emu.IniWriteValue("SmartSteamEmu", "MasterServerGoldSrc", "");
-
-                    //gen.SetupSse?.Invoke();
-
                     if (!gen.ThirdPartyLaunch)
                     {
                         if (context.KillMutex?.Length > 0)
                         {
                             // to kill the mutexes we need to orphanize the process
-                            while(!ProcessUtil.RunOrphanProcess(emuExe, gen.UseNucleusEnvironment, player.Nickname))
+                            while (!ProcessUtil.RunOrphanProcess(emuExe, gen.UseNucleusEnvironment, player.Nickname))
                             {
                                 Thread.Sleep(25);
                             }
@@ -3644,20 +3539,14 @@ namespace Nucleus.Gaming
                         }
                         else
                         {
-                            //ProcessStartInfo startInfo = new ProcessStartInfo();
-                            //startInfo.FileName = emuExe;
-
-                            //proc = Process.Start(emuExe);
-                            //Log(string.Format("Started process {0} (pid {1})", proc.ProcessName, proc.Id));
 
                             IntPtr envPtr = IntPtr.Zero;
 
                             if (gen.UseNucleusEnvironment)
                             {
                                 Log("Setting up Nucleus environment");
-                                var sb = new StringBuilder();
+                                StringBuilder sb = new StringBuilder();
                                 IDictionary envVars = Environment.GetEnvironmentVariables();
-                                //var username = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).Replace(@"C:\Users\", "");
                                 string username = WindowsIdentity.GetCurrent().Name.Split('\\')[1];
                                 envVars["USERPROFILE"] = $@"{NucleusEnvironmentRoot}\NucleusCoop\{player.Nickname}";
                                 envVars["HOMEPATH"] = $@"\Users\{username}\NucleusCoop\{player.Nickname}";
@@ -3672,18 +3561,17 @@ namespace Nucleus.Gaming
                                 Directory.CreateDirectory(envVars["LOCALAPPDATA"].ToString());
                                 Directory.CreateDirectory(Path.GetDirectoryName(DocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents");
 
-                                if(gen.DocumentsConfigPath?.Length > 0 || gen.DocumentsSavePath?.Length > 0)
+                                if (gen.DocumentsConfigPath?.Length > 0 || gen.DocumentsSavePath?.Length > 0)
                                 {
                                     if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg")))
                                     {
-                                        //string mydocPath = key.GetValue("Personal").ToString();
                                         ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg"));
                                     }
 
                                     RegistryKey dkey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);
                                     dkey.SetValue("Personal", Path.GetDirectoryName(DocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents", (RegistryValueKind)(int)RegType.ExpandString);
                                 }
-                              
+
                                 foreach (object envVarKey in envVars.Keys)
                                 {
                                     if (envVarKey != null)
@@ -3711,16 +3599,13 @@ namespace Nucleus.Gaming
 
                             bool success = CreateProcess(null, emuExe, IntPtr.Zero, IntPtr.Zero, false, (uint)ProcessCreationFlags.CREATE_UNICODE_ENVIRONMENT, envPtr, Path.GetDirectoryName(exePath), ref startup, out PROCESS_INFORMATION processInformation);
                             //Log(string.Format("Launching game directly at {0} with args {1}", exePath, startArgs));
-                            
 
                             if (!success)
                             {
                                 int error = Marshal.GetLastWin32Error();
                                 Log(string.Format("ERROR {0} - CreateProcess failed - startGamePath: {1}, startArgs: {2}, dirpath: {3}", error, exePath, startArgs, Path.GetDirectoryName(exePath)));
                             }
-                            //proc = Process.Start(startInfo);
 
-                            
                             proc = Process.GetProcessById(processInformation.dwProcessId);
                             Log(string.Format("Started process {0} (pid {1})", proc.ProcessName, proc.Id));
                         }
@@ -3730,7 +3615,7 @@ namespace Nucleus.Gaming
                         Log("Skipping launching of game via Nucleus for third party launch");
                     }
 
-                    //player.SteamEmu = true;
+
                     Log("SmartSteamEmu setup complete");
 
                     proc = null;
@@ -3747,17 +3632,16 @@ namespace Nucleus.Gaming
                         }
 
                         if (gen.ProtoInput.InjectStartup)
-						{
+                        {
                             Log("Starting game with ProtoInput");
-                            
+
                             IntPtr envPtr = IntPtr.Zero;
 
                             if (gen.UseNucleusEnvironment)
                             {
                                 Log("Setting up Nucleus environment");
-                                var sb = new StringBuilder();
+                                StringBuilder sb = new StringBuilder();
                                 IDictionary envVars = Environment.GetEnvironmentVariables();
-                                //var username = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).Replace(@"C:\Users\", "");
                                 string username = WindowsIdentity.GetCurrent().Name.Split('\\')[1];
                                 envVars["USERPROFILE"] = $@"{NucleusEnvironmentRoot}\NucleusCoop\{player.Nickname}";
                                 envVars["HOMEPATH"] = $@"\Users\{username}\NucleusCoop\{player.Nickname}";
@@ -3776,7 +3660,6 @@ namespace Nucleus.Gaming
                                 {
                                     if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg")))
                                     {
-                                        //string mydocPath = key.GetValue("Personal").ToString();
                                         ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg"));
                                     }
 
@@ -3806,21 +3689,21 @@ namespace Nucleus.Gaming
 
                             }
 
-                            ProtoInputLauncher.InjectStartup(exePath, 
-	                            startArgs, 0, nucleusRootFolder, i + 1, gen, player, out uint pid, envPtr,
+                            ProtoInputLauncher.InjectStartup(exePath,
+                                startArgs, 0, nucleusRootFolder, i + 1, gen, player, out uint pid, envPtr,
                                 (player.IsRawMouse ? (int)player.RawMouseDeviceHandle : -1),
-	                            (player.IsRawKeyboard ? (int)player.RawKeyboardDeviceHandle : -1),
-	                            (gen.ProtoInput.MultipleProtoControllers ? (player.ProtoController1) : ((player.IsRawMouse || player.IsRawKeyboard) ? 0 : player.GamepadId + 1)),
-	                            (gen.ProtoInput.MultipleProtoControllers ? player.ProtoController2 : 0),
-	                            (gen.ProtoInput.MultipleProtoControllers ? player.ProtoController3 : 0),
-	                            (gen.ProtoInput.MultipleProtoControllers ? player.ProtoController4 : 0)
+                                (player.IsRawKeyboard ? (int)player.RawKeyboardDeviceHandle : -1),
+                                (gen.ProtoInput.MultipleProtoControllers ? (player.ProtoController1) : ((player.IsRawMouse || player.IsRawKeyboard) ? 0 : player.GamepadId + 1)),
+                                (gen.ProtoInput.MultipleProtoControllers ? player.ProtoController2 : 0),
+                                (gen.ProtoInput.MultipleProtoControllers ? player.ProtoController3 : 0),
+                                (gen.ProtoInput.MultipleProtoControllers ? player.ProtoController4 : 0)
                                 );
 
                             try
                             {
                                 proc = Process.GetProcessById((int)pid);
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                                 proc = null;
                                 Log("Process By ID failed, setting process to null and continuing, will try and catch it later");
@@ -3853,23 +3736,18 @@ namespace Nucleus.Gaming
                                 }
                             }
 
-                            //string rawHID = player.DInputJoystick.Properties.InterfacePath;
-                            //string frmtRawHidPartA = rawHID.Substring(0, rawHID.LastIndexOf("&")).ToUpper();
-                            //string frmtRawHidPartB = rawHID.Substring(rawHID.LastIndexOf("&") + 1);
-                            //string frmtRawHid = frmtRawHidPartA + frmtRawHidPartB;
-                            //MessageBox.Show(frmtRawHid);
 
                             Log(string.Format("Launching game located at {0} through StartGameUtil", exePath));
                             uint sguOutPID = StartGameUtil.StartGame(/*
                                 GetRelativePath(exePath, nucleusRootFolder)*/exePath, startArgs,
                                 gen.HookInit, gen.HookInitDelay, gen.RenameNotKillMutex, mu, gen.SetWindowHookStart, isDebug, nucleusRootFolder, gen.BlockRawInput, gen.UseNucleusEnvironment, player.Nickname, startupHooksEnabled, gen.CreateSingleDeviceFile, player.RawHID, player.MonitorBounds.Width, player.MonitorBounds.Height, player.MonitorBounds.X
-                                , player.MonitorBounds.Y, DocumentsRoot, useDocs/*, gen.RunAsAdmin, rawHID,*/ /*GetRelativePath(linkFolder, nucleusRootFolder)*/);
+                                , player.MonitorBounds.Y, DocumentsRoot, useDocs);
 
                             try
                             {
                                 proc = Process.GetProcessById((int)sguOutPID);
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                                 proc = null;
                                 Log("Process By ID failed, setting process to null and continuing, will try and catch it later");
@@ -3884,23 +3762,13 @@ namespace Nucleus.Gaming
 
                                 Process cmd = new Process();
 
-                                //cmd.StartInfo.RedirectStandardOutput = true;
                                 cmd.StartInfo.UseShellExecute = false;
                                 cmd.StartInfo.Verb = "runas";
                                 string cmdLine;
-                                //if (!gen.LaunchAsDifferentUsersAlt)
-                                //{
+
                                 cmd.StartInfo.FileName = "cmd.exe";
                                 cmd.StartInfo.WorkingDirectory = Path.GetDirectoryName(exePath);
                                 cmdLine = $"elevate /C runas /savecred /env /user:nucleusplayer{i + 1}" + " \"" + exePath + " " + startArgs + "\"";
-                                //}
-                                //else
-                                //{
-                                //string psexecPath = Path.Combine(Directory.GetCurrentDirectory(), "utils\\LaunchUsers\\psexec.exe");
-                                //cmd.StartInfo.FileName = psexecPath;
-                                //cmdLine = $"-accepteula -e -h -u nucleusplayer{i + 1} -p 12345 -d -i \"" + exePath + "\" " + startArgs;
-                                //cmd.StartInfo.EnvironmentVariables["PATH"] += (";" + Path.GetDirectoryName(psexecPath));
-                                //}
 
                                 cmd.StartInfo.Arguments = cmdLine;
 
@@ -3909,8 +3777,7 @@ namespace Nucleus.Gaming
 
                                 if (gen.UseNucleusEnvironment)
                                 {
-                                    //var username = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).Replace(@"C:\Users\", "");
-                                    
+
                                     cmd.StartInfo.EnvironmentVariables["APPDATA"] = NucleusEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\AppData\Roaming";
                                     cmd.StartInfo.EnvironmentVariables["LOCALAPPDATA"] = NucleusEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\AppData\Local";
                                     cmd.StartInfo.EnvironmentVariables["USERPROFILE"] = NucleusEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}";
@@ -3929,7 +3796,6 @@ namespace Nucleus.Gaming
                                     {
                                         if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg")))
                                         {
-                                            //string mydocPath = key.GetValue("Personal").ToString();
                                             ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg"));
                                         }
 
@@ -3942,24 +3808,20 @@ namespace Nucleus.Gaming
 
                                 }
                                 else if (gen.UseCurrentUserEnvironment)
-                                {
-                                    //var username = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).Replace(@"C:\Users\", "");
-                                    cmd.StartInfo.EnvironmentVariables["APPDATA"] = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData); //$@"C:\Users\{username}\AppData\Roaming";
-                                    cmd.StartInfo.EnvironmentVariables["LOCALAPPDATA"] = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData); //$@"C:\Users\{username}\AppData\Local";
-                                    cmd.StartInfo.EnvironmentVariables["USERPROFILE"] = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile); //$@"C:\Users\{username}\";
-                                    cmd.StartInfo.EnvironmentVariables["HOMEPATH"] = Environment.GetEnvironmentVariable("homepath"); //$@"\Users\{username}\";
+                                {      
+                                    cmd.StartInfo.EnvironmentVariables["APPDATA"] = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData); 
+                                    cmd.StartInfo.EnvironmentVariables["LOCALAPPDATA"] = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData); 
+                                    cmd.StartInfo.EnvironmentVariables["USERPROFILE"] = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile); 
+                                    cmd.StartInfo.EnvironmentVariables["HOMEPATH"] = Environment.GetEnvironmentVariable("homepath"); 
 
-                                    Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)); //$@"C:\Users\{username}");
-                                    Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));//$@"C:\Users\{username}\Documents");
-                                    Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));//$@"C:\Users\{username}\AppData\Roaming");
-                                    Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));//$@"C:\Users\{username}\AppData\Local");
+                                    Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)); 
+                                    Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+                                    Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
+                                    Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
                                 }
 
-                                Log(string.Format("Launching game as user: nucleusplayer{0}, using command: {1}", (i+1), cmdLine));
+                                Log(string.Format("Launching game as user: nucleusplayer{0}, using command: {1}", (i + 1), cmdLine));
                                 cmd.Start();
-
-                                //string stdOut = cmd.StandardOutput.ReadToEnd();
-                                //Log("LaunchAsDifferentUsersAlt launch output " + stdOut);
 
                                 cmd.WaitForExit();
 
@@ -3969,10 +3831,9 @@ namespace Nucleus.Gaming
                             {
                                 IntPtr envPtr = IntPtr.Zero;
 
-                                //var username = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).Replace(@"C:\Users\", "");
                                 string username = WindowsIdentity.GetCurrent().Name.Split('\\')[1];
 
-                                var sb = new StringBuilder();
+                                StringBuilder sb = new StringBuilder();
                                 IDictionary envVars = Environment.GetEnvironmentVariables();
 
                                 if (gen.UseNucleusEnvironment)
@@ -4023,7 +3884,7 @@ namespace Nucleus.Gaming
                                     envPtr = Marshal.AllocHGlobal(envBytes.Length);
                                     Marshal.Copy(envBytes, 0, envPtr, envBytes.Length);
                                 }
-                                else if(gen.UseCurrentUserEnvironment)
+                                else if (gen.UseCurrentUserEnvironment)
                                 {
                                     Log("Setting environment to current user");
                                     //envVars["APPDATA"] = $@"C:\Users\{username}\AppData\Roaming";
@@ -4100,7 +3961,7 @@ namespace Nucleus.Gaming
                                 //cmd.StartInfo.CreateNoWindow = true;
                                 cmd.StartInfo.UseShellExecute = false;
 
-                                if(gen.UseForceBindIP)
+                                if (gen.UseForceBindIP)
                                 {
                                     cmd.StartInfo.WorkingDirectory = Path.GetDirectoryName(exePath);
                                 }
@@ -4118,11 +3979,11 @@ namespace Nucleus.Gaming
                                         {
                                             username = WindowsIdentity.GetCurrent().Name.Split('\\')[1];
                                         }
-                                        catch(Exception e)
+                                        catch (Exception)
                                         {
                                             Log("ERROR - getting current user's username, defaulting to using environment's username");
                                         }
-                                        
+
                                         cmd.StandardInput.WriteLine($@"set APPDATA={NucleusEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Roaming");
                                         cmd.StandardInput.WriteLine($@"set LOCALAPPDATA={NucleusEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Local");
                                         cmd.StandardInput.WriteLine($@"set USERPROFILE={NucleusEnvironmentRoot}\NucleusCoop\{player.Nickname}");
@@ -4238,7 +4099,7 @@ namespace Nucleus.Gaming
                                 else
                                 {
                                     string forceBindexe = string.Empty;
-                                    
+
 
                                     if (gameIs64)
                                     {
@@ -4283,7 +4144,7 @@ namespace Nucleus.Gaming
                                             RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);
                                             key.SetValue("Personal", Path.GetDirectoryName(DocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents", (RegistryValueKind)(int)RegType.ExpandString);
                                         }
-                                        
+
                                     }
 
                                     if (gen.CMDBatchBefore?.Length > 0 || gen.CMDBatchAfter?.Length > 0)
@@ -4325,11 +4186,11 @@ namespace Nucleus.Gaming
                                     }
 
                                     string iParam = string.Empty;
-                                    if(gen.ForceBindIPDelay)
+                                    if (gen.ForceBindIPDelay)
                                     {
                                         iParam = "-i ";
                                     }
-                                    string cmdLine = "\"" + Path.Combine(GameManager.Instance.GetUtilsPath(), "ForceBindIP\\" + forceBindexe) + "\" " + iParam + "127.0.0." + (i + 2) + " \"" + exePath + "\" dummy" + startArgs;   
+                                    string cmdLine = "\"" + Path.Combine(GameManager.Instance.GetUtilsPath(), "ForceBindIP\\" + forceBindexe) + "\" " + iParam + "127.0.0." + (i + 2) + " \"" + exePath + "\" dummy" + startArgs;
                                     Log(string.Format("Launching game using ForceBindIP command line argument: {0}", cmdLine));
                                     cmd.StandardInput.WriteLine(cmdLine);
 
@@ -4381,7 +4242,7 @@ namespace Nucleus.Gaming
                                 if (gen.UseNucleusEnvironment)
                                 {
                                     Log("Setting up Nucleus environment");
-                                    var sb = new StringBuilder();
+                                    StringBuilder sb = new StringBuilder();
                                     IDictionary envVars = Environment.GetEnvironmentVariables();
                                     //var username = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).Replace(@"C:\Users\", "");
                                     string username = WindowsIdentity.GetCurrent().Name.Split('\\')[1];
@@ -4464,7 +4325,7 @@ namespace Nucleus.Gaming
                     {
                         Log("Skipping launching of game via Nucleus for third party launch");
                         //MessageBox.Show("Press Ok when game has launched.", "Nucleus - Third Party Launch");
-                        if(!gen.IgnoreThirdPartyPrompt)
+                        if (!gen.IgnoreThirdPartyPrompt)
                         {
                             Forms.Prompt prompt = new Forms.Prompt("Press OK when game has launched.");
                             prompt.ShowDialog();
@@ -4478,27 +4339,27 @@ namespace Nucleus.Gaming
                         proc = null;
                     }
 
-                    if(proc != null && proc.ProcessName.ToLower() == "steamclient_loader")
+                    if (proc != null && proc.ProcessName.ToLower() == "steamclient_loader")
                     {
                         Log("Dropping process as it is the Goldberg Steamclient Loader");
                         proc = null;
                     }
 
-                    if(proc != null && !Process.GetProcesses().Any(x => x.Id == proc.Id))
+                    if (proc != null && !Process.GetProcesses().Any(x => x.Id == proc.Id))
                     {
                         Log("Process " + proc.Id + " is no longer running. Will search for process");
                         proc = null;
                     }
                 }
 
-                
-                
+
+
                 if (gen.GamePlayAfterLaunch && !gen.GamePlayBeforeGameSetup)
                 {
                     gen.PrePlay(context, this, player);
                 }
 
-                if(gen.LaunchAsDifferentUsers || gen.LaunchAsDifferentUsersAlt)
+                if (gen.LaunchAsDifferentUsers || gen.LaunchAsDifferentUsersAlt)
                 {
                     //Process[] openCmds = Process.GetProcessesByName("cmd");
                     //foreach (Process openCmd in openCmds)
@@ -4509,7 +4370,7 @@ namespace Nucleus.Gaming
                     //    }
                     //}
 
-                    if(launchProc != null)
+                    if (launchProc != null)
                     {
                         launchProc.Kill();
                         launchProc = null;
@@ -4522,7 +4383,7 @@ namespace Nucleus.Gaming
 
                 if (gen.ProcessChangesAtEnd)
                 {
-                    if(i == (players.Count - 1))
+                    if (i == (players.Count - 1))
                     {
                         if (gen.PauseBetweenStarts > 0)
                         {
@@ -4530,7 +4391,7 @@ namespace Nucleus.Gaming
                             Thread.Sleep(TimeSpan.FromSeconds(gen.PauseBetweenStarts));
                         }
 
-                        if(gen.PromptProcessChangesAtEnd)
+                        if (gen.PromptProcessChangesAtEnd)
                         {
                             Log("Prompted user before processing end changes");
                             //MessageBox.Show("Press OK when ready to make changes to game processes.", "Nucleus - Prompt Process Changes At End", MessageBoxButtons.OK, MessageBoxIcon.None, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly);
@@ -4567,7 +4428,7 @@ namespace Nucleus.Gaming
                         {
                             if (gen.PauseBetweenStarts > 0)
                             {
-                                if(!gen.PromptAfterFirstInstance || (gen.PromptAfterFirstInstance && i > 0))
+                                if (!gen.PromptAfterFirstInstance || (gen.PromptAfterFirstInstance && i > 0))
                                 {
                                     Log(string.Format("Pausing for {0} seconds", gen.PauseBetweenStarts));
                                     Thread.Sleep(TimeSpan.FromSeconds(gen.PauseBetweenStarts));
@@ -4587,7 +4448,7 @@ namespace Nucleus.Gaming
                     prompt.ShowDialog();
                 }
 
-                if(gen.PauseBetweenProcessGrab > 0)
+                if (gen.PauseBetweenProcessGrab > 0)
                 {
                     Log(string.Format("Pausing for {0} seconds", gen.PauseBetweenProcessGrab));
                     Thread.Sleep(TimeSpan.FromSeconds(gen.PauseBetweenProcessGrab));
@@ -4601,8 +4462,10 @@ namespace Nucleus.Gaming
                 if (gen.LauncherExe?.Length > 0 && gen.RunLauncherAndExe)
                 {
                     Log("Launching exe " + origExePath);
-                    ProcessStartInfo startInfo = new ProcessStartInfo();
-                    startInfo.FileName = origExePath;
+                    ProcessStartInfo startInfo = new ProcessStartInfo
+                    {
+                        FileName = origExePath
+                    };
                     proc = Process.Start(startInfo);
 
                     int counter = 0;
@@ -4616,8 +4479,10 @@ namespace Nucleus.Gaming
                         //}
 
                         Log("Launching exe again " + origExePath);
-                        startInfo = new ProcessStartInfo();
-                        startInfo.FileName = origExePath;
+                        startInfo = new ProcessStartInfo
+                        {
+                            FileName = origExePath
+                        };
                         proc = Process.Start(startInfo);
 
                         Log("Waiting to find process by window title");
@@ -4626,7 +4491,7 @@ namespace Nucleus.Gaming
                         while (!found)
                         {
                             Process[] processes = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(gen.ExecutableName));
-                            foreach (var process in processes)
+                            foreach (Process process in processes)
                             {
                                 if ((int)process.NucleusGetMainWindowHandle() > 0 && process.MainWindowTitle == gen.Hook.ForceFocusWindowName && (attachedIds.Count == 0 || (attachedIds.Count > 0 && !attachedIds.Contains(process.Id))))
                                 {
@@ -4654,7 +4519,7 @@ namespace Nucleus.Gaming
                         while (!found)
                         {
                             Process[] processes = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(gen.ExecutableName));
-                            foreach (var process in processes)
+                            foreach (Process process in processes)
                             {
                                 if ((int)process.NucleusGetMainWindowHandle() > 0 && process.MainWindowTitle == gen.Hook.ForceFocusWindowName && (attachedIds.Count == 0 || (attachedIds.Count > 0 && !attachedIds.Contains(process.Id))))
                                 {
@@ -4708,8 +4573,8 @@ namespace Nucleus.Gaming
                             string proceName = Path.GetFileNameWithoutExtension(gen.ExecutableName).ToLower();
                             if (gen.ChangeExe)
                             {
-                                proceName = Path.GetFileNameWithoutExtension(this.userGame.Game.ExecutableName) + " - Player " + (i + 1) + ".exe";
-                            }                          
+                                proceName = Path.GetFileNameWithoutExtension(userGame.Game.ExecutableName) + " - Player " + (i + 1) + ".exe";
+                            }
 
                             Process[] procs = Process.GetProcesses();
                             for (int j = 0; j < procs.Length; j++)
@@ -4781,7 +4646,7 @@ namespace Nucleus.Gaming
                 {
                     Log("Process is no longer running. Attempting to find process by window title");
                     Process[] processes = Process.GetProcesses();
-                    foreach (var process in processes)
+                    foreach (Process process in processes)
                     {
                         if (process.MainWindowTitle == gen.Hook.ForceFocusWindowName && !attachedIds.Contains(process.Id))
                         {
@@ -4803,9 +4668,9 @@ namespace Nucleus.Gaming
 
                 Log(string.Format("Process details; Name: {0}, ID: {1}, MainWindowtitle: {2}, NucleusGetMainWindowHandle(): {3}", proc.ProcessName, proc.Id, proc.MainWindowTitle, proc.NucleusGetMainWindowHandle()));
 
-                if(gen.WriteToProcessMemory?.Length > 0)
+                if (gen.WriteToProcessMemory?.Length > 0)
                 {
-                    if(gen.WriteToProcessMemory.Contains('|'))
+                    if (gen.WriteToProcessMemory.Contains('|'))
                     {
                         string[] writeSplit = gen.WriteToProcessMemory.Split('|');
                         long baseAddr = long.Parse(writeSplit[0], NumberStyles.HexNumber);
@@ -4867,8 +4732,6 @@ namespace Nucleus.Gaming
 
                 data.KilledMutexes = context.KillMutex?.Length == 0;
                 player.ProcessData = data;
-
-                first = false;
                 //InjectDLLs(proc);
 
                 if (gen.ProcessorPriorityClass?.Length > 0)
@@ -4912,11 +4775,14 @@ namespace Nucleus.Gaming
 
                 if ((gen.UseProcessor != null ? (gen.UseProcessor.Length > 0 ? 1 : 0) : 0) != 0)
                 {
-                    this.Log(string.Format("Assigning processors {0}", gen.UseProcessor));
-                    string[] strArray = this.gen.UseProcessor.Split(',');
+                    Log(string.Format("Assigning processors {0}", gen.UseProcessor));
+                    string[] strArray = gen.UseProcessor.Split(',');
                     int num2 = 0;
                     foreach (string s in strArray)
+                    {
                         num2 |= 1 << int.Parse(s) - 1;
+                    }
+
                     proc.ProcessorAffinity = (IntPtr)num2;
                 }
                 else
@@ -4924,17 +4790,20 @@ namespace Nucleus.Gaming
                     string[] processorsPerInstance = gen.UseProcessorsPerInstance;
                     if ((processorsPerInstance != null ? ((uint)processorsPerInstance.Length > 0U ? 1 : 0) : 0) != 0)
                     {
-                        foreach (string str7 in this.gen.UseProcessorsPerInstance)
+                        foreach (string str7 in gen.UseProcessorsPerInstance)
                         {
                             int num2 = int.Parse(str7.Split('|')[0]);
                             string str8 = str7.Split('|')[1];
                             if (num2 == i + 1)
                             {
-                                this.Log(string.Format("Assigning processors {0} for instance {1}", (object)str8, i));
+                                Log(string.Format("Assigning processors {0} for instance {1}", str8, i));
                                 string[] strArray = str8.Split(',');
                                 int num3 = 0;
                                 foreach (string s in strArray)
+                                {
                                     num3 |= 1 << int.Parse(s) - 1;
+                                }
+
                                 proc.ProcessorAffinity = (IntPtr)num3;
                             }
                         }
@@ -4962,7 +4831,7 @@ namespace Nucleus.Gaming
                     if ((int)proc.NucleusGetMainWindowHandle() > 0)
                     {
                         string windowTitle = proc.MainWindowTitle + "(" + i + ")";
-                        if(!string.IsNullOrEmpty(gen.FlawlessWidescreen))
+                        if (!string.IsNullOrEmpty(gen.FlawlessWidescreen))
                         {
                             windowTitle = "Nucleus Instance " + (i + 1) + "(" + gen.Hook.ForceFocusWindowName + ")";
                         }
@@ -4981,24 +4850,24 @@ namespace Nucleus.Gaming
                      gen.ProtoInput.InjectRuntime_EasyHookStealthMethod ||
                      gen.ProtoInput.InjectRuntime_RemoteLoadMethod))
                 {
-	                Log("Injecting ProtoInput at runtime into pid " + (uint)proc.Id);
+                    Log("Injecting ProtoInput at runtime into pid " + (uint)proc.Id);
 
-	                ProtoInputLauncher.InjectRuntime(
-		                gen.ProtoInput.InjectRuntime_EasyHookMethod,
-		                gen.ProtoInput.InjectRuntime_EasyHookStealthMethod,
-		                gen.ProtoInput.InjectRuntime_RemoteLoadMethod,
-		                (uint)proc.Id,
-		                nucleusFolderPath,
-		                i + 1,
-		                gen,
+                    ProtoInputLauncher.InjectRuntime(
+                        gen.ProtoInput.InjectRuntime_EasyHookMethod,
+                        gen.ProtoInput.InjectRuntime_EasyHookStealthMethod,
+                        gen.ProtoInput.InjectRuntime_RemoteLoadMethod,
+                        (uint)proc.Id,
+                        nucleusFolderPath,
+                        i + 1,
+                        gen,
                         player,
-		                (player.IsRawMouse ? (int)player.RawMouseDeviceHandle : -1),
-		                (player.IsRawKeyboard ? (int)player.RawKeyboardDeviceHandle : -1),
-		                (gen.ProtoInput.MultipleProtoControllers ? (player.ProtoController1) : ((player.IsRawMouse || player.IsRawKeyboard) ? 0 : player.GamepadId + 1)),
-						(gen.ProtoInput.MultipleProtoControllers ? player.ProtoController2 : 0),
-						(gen.ProtoInput.MultipleProtoControllers ? player.ProtoController3 : 0),
-		                (gen.ProtoInput.MultipleProtoControllers ? player.ProtoController4 : 0)
-	                );
+                        (player.IsRawMouse ? (int)player.RawMouseDeviceHandle : -1),
+                        (player.IsRawKeyboard ? (int)player.RawKeyboardDeviceHandle : -1),
+                        (gen.ProtoInput.MultipleProtoControllers ? (player.ProtoController1) : ((player.IsRawMouse || player.IsRawKeyboard) ? 0 : player.GamepadId + 1)),
+                        (gen.ProtoInput.MultipleProtoControllers ? player.ProtoController2 : 0),
+                        (gen.ProtoInput.MultipleProtoControllers ? player.ProtoController3 : 0),
+                        (gen.ProtoInput.MultipleProtoControllers ? player.ProtoController4 : 0)
+                    );
                 }
 
                 if (gen.PromptAfterFirstInstance)
@@ -5036,7 +4905,7 @@ namespace Nucleus.Gaming
                     foreach (Process aproc in attached)
                     {
                         IntPtr topMostFlag = new IntPtr(-1);
-                        if(gen.NotTopMost)
+                        if (gen.NotTopMost)
                         {
                             topMostFlag = new IntPtr(-2);
                         }
@@ -5056,7 +4925,7 @@ namespace Nucleus.Gaming
                 {
                     Log("Process is no longer running. Attempting to find process by window title");
                     Process[] processes = Process.GetProcesses();
-                    foreach (var process in processes)
+                    foreach (Process process in processes)
                     {
                         if (process.MainWindowTitle == gen.Hook.ForceFocusWindowName && !attachedIds.Contains(process.Id))
                         {
@@ -5117,7 +4986,7 @@ namespace Nucleus.Gaming
                 //Set up raw input window
                 //if (player.IsRawKeyboard || player.IsRawMouse)
                 {
-                    var window = CreateRawInputWindow(proc, player);
+                    Window window = CreateRawInputWindow(proc, player);
 
                     nextWindowToInject = window;
                 }
@@ -5131,9 +5000,9 @@ namespace Nucleus.Gaming
 
                     Log("All instances accounted for, performing final preperations");
 
-                    for(int pi=0;pi < players.Count; pi++)
+                    for (int pi = 0; pi < players.Count; pi++)
                     {
-                        if (ini.IniReadValue("Audio","Custom") == "1" && ini.IniReadValue("Audio", "AudioInstance" + (pi + 1)) != "" && ini.IniReadValue("Audio", "AudioInstance" + (pi + 1)) != "Default")
+                        if (ini.IniReadValue("Audio", "Custom") == "1" && ini.IniReadValue("Audio", "AudioInstance" + (pi + 1)) != "" && ini.IniReadValue("Audio", "AudioInstance" + (pi + 1)) != "Default")
                         {
                             Log($"Attempting to switch audio endpoint for process {players[pi].ProcessData.Process.ProcessName} pid ({players[pi].ProcessID}) to DeviceID {ini.IniReadValue("Audio", "AudioInstance" + (pi + 1))}");
                             Thread.Sleep(1000);
@@ -5222,9 +5091,9 @@ namespace Nucleus.Gaming
                         }
                     }
 
-                    if(!string.IsNullOrEmpty(gen.FlawlessWidescreen))
+                    if (!string.IsNullOrEmpty(gen.FlawlessWidescreen))
                     {
-                        for(int fw = 0; fw < players.Count; fw++)
+                        for (int fw = 0; fw < players.Count; fw++)
                         {
                             Process fwProc = Process.GetProcessById(players[fw].ProcessData.Process.Id);
                             string windowTitle = "Nucleus Instance " + (fw + 1) + "(" + gen.Hook.ForceFocusWindowName + ")";
@@ -5237,7 +5106,7 @@ namespace Nucleus.Gaming
                         }
                     }
 
-					if ((i > 0 || players.Count == 1) && (gen.HookFocus || gen.SetWindowHook || gen.HideCursor || gen.PreventWindowDeactivation || gen.SupportsMultipleKeyboardsAndMice))
+                    if ((i > 0 || players.Count == 1) && (gen.HookFocus || gen.SetWindowHook || gen.HideCursor || gen.PreventWindowDeactivation || gen.SupportsMultipleKeyboardsAndMice))
                     {
                         if (gen.PreventWindowDeactivation && !isPrevent)
                         {
@@ -5277,10 +5146,10 @@ namespace Nucleus.Gaming
                             Log("Injecting hook DLL for last instance");
                             User32Interop.SetForegroundWindow(data.Process.NucleusGetMainWindowHandle());
                             InjectDLLs(data.Process, nextWindowToInject, players[i]);
-						}
-					}
+                        }
+                    }
 
-                    if(!gen.IgnoreWindowBorderCheck)
+                    if (!gen.IgnoreWindowBorderCheck)
                     {
                         foreach (PlayerInfo plyr in players)
                         {
@@ -5288,11 +5157,11 @@ namespace Nucleus.Gaming
 
                             Process plyrProc = plyr.ProcessData.Process;
 
-                            if(!gen.DontRemoveBorders)
+                            if (!gen.DontRemoveBorders)
                             {
                                 const int flip = 0x00C00000 | 0x00080000 | 0x00040000; //WS_BORDER | WS_SYSMENU
 
-                                var x = (int)User32Interop.GetWindowLong(plyrProc.NucleusGetMainWindowHandle(), User32_WS.GWL_STYLE);
+                                int x = (int)User32Interop.GetWindowLong(plyrProc.NucleusGetMainWindowHandle(), User32_WS.GWL_STYLE);
                                 if ((x & flip) > 0)//has a border
                                 {
                                     Log("Process id " + plyrProc.Id + ", still has or regained a border, trying to remove it");
@@ -5308,20 +5177,22 @@ namespace Nucleus.Gaming
                             }
 
                             if (gen.EnableWindows)
+                            {
                                 EnableWindow(plyr.ProcessData.HWnd.NativePtr, true);
+                            }
                         }
                     }
 
                     // Fake mouse cursors
                     if (gen.DrawFakeMouseCursor)//&& gen.SupportsMultipleKeyboardsAndMice)
-					{
-						RawInputManager.CreateCursorsOnWindowThread(gen.UpdateFakeMouseWithInternalInput, gen.DrawFakeMouseCursorForControllers);
-					}
+                    {
+                        RawInputManager.CreateCursorsOnWindowThread(gen.UpdateFakeMouseWithInternalInput, gen.DrawFakeMouseCursorForControllers);
+                    }
 
                     //Window setup
-                    foreach (var window in RawInputManager.windows)
+                    foreach (Window window in RawInputManager.windows)
                     {
-                        var hWnd = window.hWnd;
+                        IntPtr hWnd = window.hWnd;
 
                         //Logger.WriteLine($"hWnd={hWnd}, mouse={window.MouseAttached}, kb={window.KeyboardAttached}");
 
@@ -5331,7 +5202,7 @@ namespace Nucleus.Gaming
 
                             int WindowEnum(IntPtr _hWnd, int lParam)
                             {
-                                var threadId = WinApi.GetWindowThreadProcessId(_hWnd, out int pid);
+                                int threadId = WinApi.GetWindowThreadProcessId(_hWnd, out int pid);
                                 if (threadId == lParam)
                                 {
                                     string windowText = WinApi.GetWindowText(_hWnd);
@@ -5355,7 +5226,7 @@ namespace Nucleus.Gaming
                     if (gen.SetForegroundWindowElsewhere)
                     {
                         Log("Setting the foreground window to Nucleus");
-                        IntPtr nucHwnd = User32Interop.FindWindow(null, "Nucleus Coop (Alpha 8 Mod)");
+                        IntPtr nucHwnd = User32Interop.FindWindow(null, "Nucleus Co-op");
 
                         if (nucHwnd != IntPtr.Zero)
                         {
@@ -5367,7 +5238,7 @@ namespace Nucleus.Gaming
                         }
                     }
 
-                    if(gen.SendFakeFocusMsg)
+                    if (gen.SendFakeFocusMsg)
                     {
                         foreach (PlayerInfo plyr in players)
                         {
@@ -5376,33 +5247,42 @@ namespace Nucleus.Gaming
                             Process plyrProc = plyr.ProcessData.Process;
 
                             if (gen.FakeFocusSendActivate)
+                            {
                                 User32Interop.SendMessage(plyrProc.NucleusGetMainWindowHandle(), (int)FocusMessages.WM_ACTIVATE, (IntPtr)0x00000002, IntPtr.Zero);
+                            }
+
                             User32Interop.SendMessage(plyrProc.NucleusGetMainWindowHandle(), (int)FocusMessages.WM_ACTIVATEAPP, (IntPtr)1, IntPtr.Zero);
                             User32Interop.SendMessage(plyrProc.NucleusGetMainWindowHandle(), (int)FocusMessages.WM_NCACTIVATE, (IntPtr)0x00000001, IntPtr.Zero);
                             User32Interop.SendMessage(plyrProc.NucleusGetMainWindowHandle(), (int)FocusMessages.WM_SETFOCUS, IntPtr.Zero, IntPtr.Zero);
-                            User32Interop.SendMessage(plyrProc.NucleusGetMainWindowHandle(), (int)FocusMessages.WM_MOUSEACTIVATE, (IntPtr)plyrProc.NucleusGetMainWindowHandle(), (IntPtr)1);
+                            User32Interop.SendMessage(plyrProc.NucleusGetMainWindowHandle(), (int)FocusMessages.WM_MOUSEACTIVATE, plyrProc.NucleusGetMainWindowHandle(), (IntPtr)1);
                         }
                     }
                 }
+
             }
 
             if (gen.LockInputAtStart)
             {
-	            Thread.Sleep(5000);
-	            LockInput.Lock(gen.LockInputSuspendsExplorer, gen.ProtoInput.FreezeExternalInputWhenInputNotLocked, gen?.ProtoInput);
+                Thread.Sleep(5000);
+                LockInput.Lock(gen.LockInputSuspendsExplorer, gen.ProtoInput.FreezeExternalInputWhenInputNotLocked, gen?.ProtoInput);
             }
 
             // Call the input lock/unlock callbacks, just in case they haven't been called with the players fully setup
             if (LockInput.IsLocked)
-	            gen.ProtoInput.OnInputLocked?.Invoke();
+            {
+                gen.ProtoInput.OnInputLocked?.Invoke();
+            }
             else
-	            gen.ProtoInput.OnInputUnlocked?.Invoke();
+            {
+                gen.ProtoInput.OnInputUnlocked?.Invoke();
+            }
 
             //if(statusForm != null)
             //{
             //    statusForm.Close();
             //    Thread.Sleep(200);
             //}
+
             Log("All done!");
             try
             {
@@ -5410,7 +5290,9 @@ namespace Nucleus.Gaming
                 {
                     Thread.Sleep(5000);
                     if (statusWinThread != null && statusWinThread.IsAlive)
-                            statusWinThread.Abort();
+                    {
+                        statusWinThread.Abort();
+                    }
                 }
             }
             catch { }
@@ -5461,7 +5343,7 @@ namespace Nucleus.Gaming
                     User32Interop.SetWindowLong(processData.HWnd.NativePtr, User32_WS.GWL_EXSTYLE, lStyle);
                 }
 
-                
+
                 User32Interop.SetWindowPos(processData.HWnd.NativePtr, IntPtr.Zero, 0, 0, 0, 0, (uint)(PositioningFlags.SWP_FRAMECHANGED | PositioningFlags.SWP_NOMOVE | PositioningFlags.SWP_NOSIZE | PositioningFlags.SWP_NOZORDER | PositioningFlags.SWP_NOOWNERZORDER));
             }
             catch (Exception ex)
@@ -5473,21 +5355,21 @@ namespace Nucleus.Gaming
         private Window CreateRawInputWindow(Process proc, PlayerInfo player)
         {
             Log("Creating raw input window");
-            var hWnd = WaitForProcWindowHandleNotZero(proc);
-	        var mouseHdev = player.IsRawKeyboard ? player.RawMouseDeviceHandle : (IntPtr) (-1);
-	        var keyboardHdev = player.IsRawMouse ? player.RawKeyboardDeviceHandle : (IntPtr) (-1);
+            IntPtr hWnd = WaitForProcWindowHandleNotZero(proc);
+            IntPtr mouseHdev = player.IsRawKeyboard ? player.RawMouseDeviceHandle : (IntPtr)(-1);
+            IntPtr keyboardHdev = player.IsRawMouse ? player.RawKeyboardDeviceHandle : (IntPtr)(-1);
 
-	        var window = new Window(hWnd)
-	        {
-		        CursorVisibility = player.IsRawMouse && !gen.HideCursor && gen.DrawFakeMouseCursor,
-		        KeyboardAttached = keyboardHdev,
-		        MouseAttached = mouseHdev
-	        };
+            Window window = new Window(hWnd)
+            {
+                CursorVisibility = player.IsRawMouse && !gen.HideCursor && gen.DrawFakeMouseCursor,
+                KeyboardAttached = keyboardHdev,
+                MouseAttached = mouseHdev
+            };
 
-	        window.CreateHookPipe(gen);
+            window.CreateHookPipe(gen);
 
-	        RawInputManager.windows.Add(window);
-	        return window;
+            RawInputManager.windows.Add(window);
+            return window;
         }
 
         private static bool IsRunning(Process process)
@@ -5499,26 +5381,26 @@ namespace Nucleus.Gaming
         }
 
         private void DeleteFiles(string linkFolder, int i)
-		{
-			foreach (string deleteLine in gen.DeleteFiles)
-			{
-				string[] deleteSplit = deleteLine.Split('|');
-				int indexOffset = 1;
-				if (deleteSplit.Length == 2)
-				{
-					if (int.Parse(deleteSplit[0]) != (i + 1))
-					{
-						continue;
-					}
-					indexOffset = 0;
-				}
-				//else if (deleteSplit.Length <= 1)
-				//{
-				//    Log("Invalid # of parameters provided for: " + deleteLine + ", skipping");
-				//    continue;
-				//}
+        {
+            foreach (string deleteLine in gen.DeleteFiles)
+            {
+                string[] deleteSplit = deleteLine.Split('|');
+                int indexOffset = 1;
+                if (deleteSplit.Length == 2)
+                {
+                    if (int.Parse(deleteSplit[0]) != (i + 1))
+                    {
+                        continue;
+                    }
+                    indexOffset = 0;
+                }
+                //else if (deleteSplit.Length <= 1)
+                //{
+                //    Log("Invalid # of parameters provided for: " + deleteLine + ", skipping");
+                //    continue;
+                //}
 
-				string fullFilePath = Path.Combine(linkFolder, deleteSplit[1 - indexOffset]);
+                string fullFilePath = Path.Combine(linkFolder, deleteSplit[1 - indexOffset]);
                 //FileInfo pathInfo = new FileInfo(fullFilePath);
                 //if (pathInfo.Attributes.HasFlag(FileAttributes.ReparsePoint))
                 //{
@@ -5528,7 +5410,7 @@ namespace Nucleus.Gaming
 
                 if (File.Exists(fullFilePath))
                 {
-                    
+
                     if (!gen.IgnoreDeleteFilesPrompt)
                     {
                         DialogResult dialogResult = MessageBox.Show("Are you sure you want to delete '" + fullFilePath + "'?", "Nucleus - Delete Files In Config Path", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
@@ -5578,7 +5460,7 @@ namespace Nucleus.Gaming
                 if (File.Exists(fullFilePath))
                 {
                     Log(string.Format("Renaming and/or moving {0} to {1}", Path.GetFileName(fullFilePath), Path.Combine(linkFolder, renameSplit[2 - indexOffset])));
-                    if(!Directory.Exists(Path.GetDirectoryName(Path.Combine(linkFolder, renameSplit[2 - indexOffset]))))
+                    if (!Directory.Exists(Path.GetDirectoryName(Path.Combine(linkFolder, renameSplit[2 - indexOffset]))))
                     {
                         Directory.CreateDirectory(Path.GetDirectoryName(Path.Combine(linkFolder, renameSplit[2 - indexOffset])));
                     }
@@ -5600,23 +5482,25 @@ namespace Nucleus.Gaming
 
             string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\FlawlessWidescreen\\" + pcArch);
 
-            if(gen.FlawlessWidescreenOverrideDisplay)
+            if (gen.FlawlessWidescreenOverrideDisplay)
             {
                 List<PlayerInfo> players = profile.PlayerData;
 
                 string setPath = utilFolder + "\\settings.xml";
                 string backupPath = Path.GetDirectoryName(setPath) + "\\settings_NUCLEUS_BACKUP.xml";
-                if(!File.Exists(backupPath))
+                if (!File.Exists(backupPath))
+                {
                     File.Copy(setPath, backupPath);
+                }
 
                 string text = File.ReadAllText(setPath);
                 text = text.Replace("1010_FirstUse", "Nucleus_FirstUse");
                 File.WriteAllText(setPath, text);
 
                 Log($"Enabling display detection override and setting width:{players[i].MonitorBounds.Width.ToString()}, height:{players[i].MonitorBounds.Height.ToString()}");
-                var setDoc = new XmlDocument();
+                XmlDocument setDoc = new XmlDocument();
                 setDoc.Load(setPath);
-                var nodes = setDoc.SelectNodes("Configuration/DisplayDetectionSettings/CustomSettings");
+                XmlNodeList nodes = setDoc.SelectNodes("Configuration/DisplayDetectionSettings/CustomSettings");
                 foreach (XmlNode node in nodes)
                 {
                     node.Attributes["Enabled"].Value = "true";
@@ -5635,7 +5519,7 @@ namespace Nucleus.Gaming
             if (gen.FlawlessWidescreenPluginPath?.Length > 0)
             {
                 fwGameFolder = Path.Combine(utilFolder, gen.FlawlessWidescreenPluginPath + "\\" + gen.FlawlessWidescreen);
-            }          
+            }
 
             if (!Directory.Exists(fwGameFolder))
             {
@@ -5652,10 +5536,12 @@ namespace Nucleus.Gaming
                 }
 
                 Log("Starting Flawless Widescreen process");
-                ProcessStartInfo startInfo = new ProcessStartInfo();
-                startInfo.UseShellExecute = true;
-                startInfo.WorkingDirectory = utilFolder;
-                startInfo.FileName = Path.Combine(utilFolder, "FlawlessWidescreen.exe");
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    UseShellExecute = true,
+                    WorkingDirectory = utilFolder,
+                    FileName = Path.Combine(utilFolder, "FlawlessWidescreen.exe")
+                };
                 Process util = Process.Start(startInfo);
                 util.WaitForExit();
                 //
@@ -5666,7 +5552,7 @@ namespace Nucleus.Gaming
                 //}
             }
 
-            if(Directory.Exists(fwGameFolder))
+            if (Directory.Exists(fwGameFolder))
             {
 
                 if (File.Exists(Path.Combine(fwGameFolder, "Dependencies\\Scripts\\" + gen.FlawlessWidescreen + ".lua")))
@@ -5679,7 +5565,7 @@ namespace Nucleus.Gaming
                 }
 
                 string newFwGameFolder = fwGameFolder + " - Nucleus Instance " + (i + 1);
-                if(Directory.Exists(newFwGameFolder))
+                if (Directory.Exists(newFwGameFolder))
                 {
                     Directory.Delete(newFwGameFolder, true);
                 }
@@ -5719,9 +5605,9 @@ namespace Nucleus.Gaming
                 string path = Path.Combine(utilFolder, "Plugins\\FWS_Plugins.fws");
                 path = Environment.ExpandEnvironmentVariables(path);
 
-                var doc = new XmlDocument();
+                XmlDocument doc = new XmlDocument();
                 doc.Load(path);
-                var nodes = doc.SelectNodes("Plugin/Modules/Module");
+                XmlNodeList nodes = doc.SelectNodes("Plugin/Modules/Module");
                 bool exists = false;
                 XmlNode origNode = null;
                 foreach (XmlNode node in nodes)
@@ -5734,13 +5620,13 @@ namespace Nucleus.Gaming
                     {
                         exists = true;
                     }
-                    if(origNode != null && exists)
+                    if (origNode != null && exists)
                     {
                         break;
                     }
                 }
 
-                if(!exists)
+                if (!exists)
                 {
                     // Create a new node with the name of your new server
                     XmlNode newNode = doc.CreateElement("Module");
@@ -5776,42 +5662,68 @@ namespace Nucleus.Gaming
 
                     //if (!appRunning)
                     //{
-                        Log("Starting Flawless Widescreen process");
-                        ProcessStartInfo startInfo = new ProcessStartInfo();
-                        startInfo.UseShellExecute = true;
-                        startInfo.WorkingDirectory = utilFolder;
-                        startInfo.FileName = Path.Combine(utilFolder, "FlawlessWidescreen.exe");
-                        Process.Start(startInfo);
+                    Log("Starting Flawless Widescreen process");
+                    ProcessStartInfo startInfo = new ProcessStartInfo
+                    {
+                        UseShellExecute = true,
+                        WorkingDirectory = utilFolder,
+                        FileName = Path.Combine(utilFolder, "FlawlessWidescreen.exe")
+                    };
+                    Process.Start(startInfo);
                     //}
                 }
 
                 Log("Flawless Widescreen setup complete");
                 //if (util != null)
                 //{
-                    //ShowWindow(util.NucleusGetMainWindowHandle(), SW_MINIMIZE);
+                //ShowWindow(util.NucleusGetMainWindowHandle(), SW_MINIMIZE);
                 //}
             }
         }
 
+
         private Process LaunchProcessPick(PlayerInfo player)
         {
+            ProcessPicker ppform = new ProcessPicker(); //using ProcessPicker.cs 
             Log("Launching process picker");
-            Label ppDesc = new Label();
-            string ppDescStr = "Select a process for Nucleus to use for process manipulation, including (but not limited to): resizing, repositioning and installing post-launch hooks.";
-            ppDesc.Text = ppDescStr;
 
             ListBox listBox = new ListBox();
             listBox.DoubleClick += new EventHandler(SelBtn_Click);
+            listBox.Dock = System.Windows.Forms.DockStyle.Fill;// listBox.Size = new Size(200, 143);
+            listBox.Font = new Font("Microsoft Sans Serif", 9.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            foreach (Control c in ppform.Controls)
+            {
+                if (c.Name == "refrshBtn")
+                {
+                    ppform.SuspendLayout();
+                    c.Click += new EventHandler(RefrshBtn_Click);
+                    ppform.ResumeLayout();
+                }
+            }
+                      
+            foreach (Control c in ppform.Controls)
+            {
+                if (c.Name == "selBtn")
+                {
+                    ppform.SuspendLayout();
+                    c.Click += new EventHandler(SelBtn_Click);
+                    ppform.ResumeLayout();
+                }
+            }            
 
-            Button refrshBtn = new Button();
-            refrshBtn.Text = "Refresh";
-            refrshBtn.Click += new EventHandler(RefrshBtn_Click);
-
-            Button selBtn = new Button();
-            selBtn.Text = "Select";
-            selBtn.Click += new EventHandler(SelBtn_Click);
+            foreach (Control container in ppform.Controls)
+            {
+                if (container.Name == "container")
+                {
+                    ppform.SuspendLayout();
+                    container.Controls.Add(listBox);
+                    ppform.ScaleList();
+                    ppform.ResumeLayout();
+                }
+            }
 
             Process[] allProc = Process.GetProcesses();
+
             foreach (Process p in allProc)
             {
                 if (p.Id == 0 || string.IsNullOrEmpty(p.MainWindowTitle))
@@ -5840,51 +5752,14 @@ namespace Nucleus.Gaming
                         listBox.Items.Add(p.Id + " - " + p.ProcessName);
                     }
                 }
+ 
             }
-
-            using (Form ppform = new Form())
-            {
-                ppform.AutoScaleMode = AutoScaleMode.Font;
-                ppform.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-
-                ppform.Text = "Nucleus Coop - Process Picker";
-                ppform.Width = 320;
-                ppform.Icon = Icon.FromHandle(Properties.Resources.icon.GetHicon());
-
-                ppform.ControlBox = true;
-                ppform.StartPosition = FormStartPosition.CenterScreen;
-                ppform.MaximizeBox = false;
-                ppform.MinimizeBox = false;
-                ppform.FormBorderStyle = FormBorderStyle.FixedSingle;
-                ppform.TopMost = true;
-
-                ppDesc.Width = ppform.Width - 20;
-                ppDesc.Height = 50;
-                ppDesc.AutoSize = false;
-                //ppDesc.MaximumSize = new Size(ppDesc.Width, 0);
-                //ppDesc.AutoSize = true;
-                ppDesc.Location = new Point(10, 10);
-
-                listBox.Width = ppform.Width - 22;
-                listBox.Height = 150;
-                listBox.Location = new Point(10, 20 + ppDesc.Height);
-                refrshBtn.Location = new Point((ppform.Width / 2) - (refrshBtn.Width + 5), 30 + ppDesc.Height + listBox.Height);
-                selBtn.Location = new Point((ppform.Width / 2) + 5, 30 + ppDesc.Height + listBox.Height);
-
-                ppform.Height = 50 + ppDesc.Height + listBox.Height + refrshBtn.Height + selBtn.Height;
-
-                ppform.Controls.Add(ppDesc);
-                ppform.Controls.Add(listBox);
-                ppform.Controls.Add(refrshBtn);
-                ppform.Controls.Add(selBtn);
-
-                ppform.ShowDialog();
-                WindowScrape.Static.HwndInterface.MakeTopMost(ppform.Handle);
-            }
+            
+            ppform.ShowDialog();
+            WindowScrape.Static.HwndInterface.MakeTopMost(ppform.Handle);
 
             if (listBox.SelectedItem != null)
             {
-                //MessageBox.Show(listBox.SelectedItem.ToString());
                 Process proc = Process.GetProcessById(int.Parse(listBox.SelectedItem.ToString().Split(' ')[0]));
                 Log(string.Format("Obtained process {0} (pid {1}) via process picker", proc.ProcessName, proc.Id));
                 attached.Add(proc);
@@ -5896,9 +5771,8 @@ namespace Nucleus.Gaming
                 }
                 return proc;
             }
-
+           
             return null;
-            //aForm.ShowDialog();  // Or just use Show(); if you don't want it to be modal.
         }
 
         private void ProcessEnd()
@@ -5912,7 +5786,7 @@ namespace Nucleus.Gaming
             for (int i = 0; i < players.Count; i++)
             {
                 Log("Setting up player " + (i + 1));
-                
+
                 PlayerInfo player = players[i];
                 Rectangle playerBounds = player.MonitorBounds;
                 owner = player.Owner;
@@ -5996,7 +5870,7 @@ namespace Nucleus.Gaming
 
                 Process proc = player.ProcessData.Process;
 
-                var window = CreateRawInputWindow(proc, players[i]);
+                Window window = CreateRawInputWindow(proc, players[i]);
 
                 Thread.Sleep(1000);
 
@@ -6091,22 +5965,6 @@ namespace Nucleus.Gaming
                     }
                 }
 
-
-                //Thread.Sleep(1000);
-                //const int flip = 0x00C00000 | 0x00080000 | 0x00040000; //WS_BORDER | WS_SYSMENU
-
-                //var x = (int)User32Interop.GetWindowLong(players[i].ProcessData.Process.NucleusGetMainWindowHandle(), User32_WS.GWL_STYLE);
-
-                //if (gen.ResetWindows || (x & flip) > 0)
-                //{
-                //    if ((x & flip) > 0 && !gen.ResetWindows)
-                //    {
-                //        Log("Process id " + players[i].ProcessData.Process.Id + ", still has, or regained a border, trying to remove it");
-                //    }
-                //    //x &= (~flip);
-                //    ResetWindows(players[i].ProcessData, players[i].MonitorBounds.X, players[i].MonitorBounds.Y, players[i].MonitorBounds.Width, players[i].MonitorBounds.Height, i + 1);
-                //}
-
                 if (gen.ResetWindows)
                 {
                     Thread.Sleep(1000);
@@ -6116,12 +5974,19 @@ namespace Nucleus.Gaming
                 //playerCount++;
                 Thread.Sleep(3000);
 
-                if (gen.HideTaskbar)
-                    User32Util.HideTaskbar();
+                //if (ini.IniReadValue("CustomLayout", "SplitDiv") == "True")
+                //{
+                //    User32Util.HideTaskbar();
+                //}
 
-                if (gen.ProtoInput.AutoHideTaskbar)
+                if (gen.HideTaskbar && ini.IniReadValue("CustomLayout", "SplitDiv") != "True")
                 {
-	                ProtoInput.protoInput.SetTaskbarAutohide(false);
+                    User32Util.HideTaskbar();
+                }              
+
+                if (gen.ProtoInput.AutoHideTaskbar && ini.IniReadValue("CustomLayout", "SplitDiv") != "False")
+                {
+                    ProtoInput.protoInput.SetTaskbarAutohide(false);
                 }
 
                 if (i == (players.Count - 1))
@@ -6133,7 +5998,9 @@ namespace Nucleus.Gaming
                         {
                             Thread.Sleep(5000);
                             if (statusWinThread != null && statusWinThread.IsAlive)
-                                    statusWinThread.Abort();
+                            {
+                                statusWinThread.Abort();
+                            }
                         }
                     }
                     catch { }
@@ -6144,140 +6011,7 @@ namespace Nucleus.Gaming
                 }
             }
 
-            //int playerIndex = 0;
-
-            //Process[] currProcs = Process.GetProcesses();
-            //foreach(Process proc in currProcs)
-            //for(int i=0; i < currProcs.Length; i++)
-            //{
-                //Process proc = currProcs[i];
-                
-                //string procName = Path.GetFileNameWithoutExtension(gen.ExecutableName).ToLower();
-                //if (proc.ProcessName.ToLower() == procName)
-                //{
-                    //Thread.Sleep(1000);
-
-                    //Set up raw input window.
-                    //var window = CreateRawInputWindow(player., players[i/*playerIndex*/]);
-
-                    //Thread.Sleep(1000);
-
-                    //if (gen.HookFocus || gen.SetWindowHook || gen.HideCursor || gen.PreventWindowDeactivation || gen.SupportsMultipleKeyboardsAndMice)
-                    //{
-                    //    Log("Injecting post-launch hooks for process " + proc.ProcessName + "(pid " + proc.Id + ")");
-                    //    //InjectDLLs(proc, window);
-                    //    //Thread.Sleep(1000);
-
-                    //    if (gen.PreventWindowDeactivation && !isPrevent)
-                    //    {
-                    //        Log("PreventWindowDeactivation detected, setting flag");
-                    //        isPrevent = true;
-                    //    }
-
-                    //    if (isPrevent)
-                    //    {
-                    //        if (players[playerIndex].IsKeyboardPlayer && gen.KeyboardPlayerSkipPreventWindowDeactivate)
-                    //        {
-                    //            Log("Ignoring PreventWindowDeactivation for keyboard player");
-                    //            gen.PreventWindowDeactivation = false;
-                    //        }
-                    //        else
-                    //        {
-                    //            Log("Keeping PreventWindowDeactivation on");
-                    //            gen.PreventWindowDeactivation = true;
-                    //        }
-                    //    }
-
-                    //    if (gen.PostHookInstances?.Length > 0)
-                    //    {
-                    //        string[] instancesToHook = gen.PostHookInstances.Split(',');
-                    //        foreach (string instanceToHook in instancesToHook)
-                    //        {
-                    //            if (int.Parse(instanceToHook) == (playerIndex + 1))
-                    //            {
-                    //                User32Interop.SetForegroundWindow(proc.NucleusGetMainWindowHandle());
-                    //                InjectDLLs(proc, window, players[playerIndex]);
-                    //            }
-                    //        }
-                    //    }
-                    //    else
-                    //    {
-                    //        User32Interop.SetForegroundWindow(proc.NucleusGetMainWindowHandle());
-                    //        InjectDLLs(proc, window, players[playerIndex]);
-                    //    }
-                    //}
-
-                    //Thread.Sleep(5000);
-
-                    //ChangeGameWindow(proc, players, playerIndex);
-                    //playerIndex++;
-                //}
-            //}
-
-            //if(playerIndex < players.Count)
-            //{
-            //    int numMissing = players.Count - playerIndex;
-            //    for(int x = 0; x <= numMissing; x++)
-            //    {
-            //        Thread.Sleep(1000);
-            //        Process proc = LaunchProcessPick(players[playerIndex + 1]);
-
-            //        //Set up raw input window.
-            //        var window = CreateRawInputWindow(proc, players[playerIndex + 1]);
-
-            //        Thread.Sleep(1000);
-
-            //        if (gen.HookFocus || gen.SetWindowHook || gen.HideCursor || gen.PreventWindowDeactivation || gen.SupportsMultipleKeyboardsAndMice)
-            //        {
-            //            Log("Injecting post-launch hooks for this process");
-            //            //InjectDLLs(proc, window);
-            //            //Thread.Sleep(1000);
-
-            //            if (gen.PreventWindowDeactivation && !isPrevent)
-            //            {
-            //                Log("PreventWindowDeactivation detected, setting flag");
-            //                isPrevent = true;
-            //            }
-
-            //            if (isPrevent)
-            //            {
-            //                if (players[playerIndex].IsKeyboardPlayer && gen.KeyboardPlayerSkipPreventWindowDeactivate)
-            //                {
-            //                    Log("Ignoring PreventWindowDeactivation for keyboard player");
-            //                    gen.PreventWindowDeactivation = false;
-            //                }
-            //                else
-            //                {
-            //                    Log("Keeping PreventWindowDeactivation on");
-            //                    gen.PreventWindowDeactivation = true;
-            //                }
-            //            }
-
-            //            if (gen.PostHookInstances?.Length > 0)
-            //            {
-            //                string[] instancesToHook = gen.PostHookInstances.Split(',');
-            //                foreach (string instanceToHook in instancesToHook)
-            //                {
-            //                    if (int.Parse(instanceToHook) == (playerIndex + 2))
-            //                    {
-            //                        User32Interop.SetForegroundWindow(proc.NucleusGetMainWindowHandle());
-            //                        InjectDLLs(proc, window, players[playerIndex + 1]);
-            //                    }
-            //                }
-            //            }
-            //            else
-            //            {
-            //                User32Interop.SetForegroundWindow(proc.NucleusGetMainWindowHandle());
-            //                InjectDLLs(proc, window, players[playerIndex + 1]);
-            //            }
-            //        }
-
-            //        Thread.Sleep(5000);
-
-            //        ChangeGameWindow(proc, players, playerIndex + 1);
-            //        playerIndex++;
-            //    }
-            //}
+         
 
             if (gen.FakeFocus)
             {
@@ -6289,7 +6023,7 @@ namespace Nucleus.Gaming
             if (gen.SetForegroundWindowElsewhere)
             {
                 Log("Setting the foreground window to Nucleus");
-                IntPtr nucHwnd = User32Interop.FindWindow(null, "Nucleus Coop (Alpha 8 Mod)");
+                IntPtr nucHwnd = User32Interop.FindWindow(null, "Nucleus Co-op");
 
                 if (nucHwnd != IntPtr.Zero)
                 {
@@ -6306,7 +6040,7 @@ namespace Nucleus.Gaming
             //attachedIds.Add(proc.Id);
             //players[playerIndex].ProcessID = proc.Id;
 
-            var hwnd = WaitForProcWindowHandleNotZero(proc);
+            IntPtr hwnd = WaitForProcWindowHandleNotZero(proc);
 
             Point loc = new Point(players[playerIndex].MonitorBounds.X, players[playerIndex].MonitorBounds.Y);
             Size size = new Size(players[playerIndex].MonitorBounds.Width, players[playerIndex].MonitorBounds.Height);
@@ -6437,20 +6171,20 @@ namespace Nucleus.Gaming
                 }
             }
 
-            if(!gen.DontResize)
+            if (!gen.DontResize)
             {
                 Log(string.Format("Resizing this game window and keeping aspect ratio. Values: width:{0}, height:{1}, aspectratio:{2}, origwidth:{3}, origheight:{4}, plyrboundwidth:{5}, plyrboundheight:{6}", size.Width, size.Height, origRatio, origWidth, origHeight, playerBoundsWidth, playerBoundsHeight));
                 WindowScrape.Static.HwndInterface.SetHwndSize(hwnd, size.Width, size.Height);
             }
 
-            if(!gen.DontReposition)
+            if (!gen.DontReposition)
             {
                 Log(string.Format("Repositioning this game window to coords x:{0},y:{1}", loc.X, loc.Y));
                 WindowScrape.Static.HwndInterface.SetHwndPos(hwnd, loc.X, loc.Y);
             }
 
             //User32Util.HideTaskbar();
-            if(!gen.NotTopMost)
+            if (!gen.NotTopMost)
             {
                 Log("Setting this game window to top most");
                 WindowScrape.Static.HwndInterface.MakeTopMost(hwnd);
@@ -6459,7 +6193,7 @@ namespace Nucleus.Gaming
 
         public string GetLocalIP()
         {
-            var dadada = GetBestInterface(BitConverter.ToUInt32(IPAddress.Parse("8.8.8.8").GetAddressBytes(), 0), out uint interfaceIndex);
+            int dadada = GetBestInterface(BitConverter.ToUInt32(IPAddress.Parse("8.8.8.8").GetAddressBytes(), 0), out uint interfaceIndex);
             IPAddress xxxd = NetworkInterface.GetAllNetworkInterfaces()
                             .Where(netInterface => netInterface.GetIPProperties().GetIPv4Properties().Index == BitConverter.ToInt32(BitConverter.GetBytes(interfaceIndex), 0)).First().GetIPProperties().UnicastAddresses.Where(ipAdd => ipAdd.Address.AddressFamily == AddressFamily.InterNetwork).First().Address;
 
@@ -6468,15 +6202,15 @@ namespace Nucleus.Gaming
 
         private void ChangeIPPerInstance(int i, string networkInterfaceOverride = null)
         {
-            Log(string.Format("Changing IP for instance {0}", i+1));
+            Log(string.Format("Changing IP for instance {0}", i + 1));
             if (i == 0)
             {
-                if(string.IsNullOrEmpty(iniNetworkInterface) || iniNetworkInterface == "Automatic")
+                if (string.IsNullOrEmpty(iniNetworkInterface) || iniNetworkInterface == "Automatic")
                 {
                     string localIP = GetLocalIP();
 
                     Log("No network interface provided, attempting to automatically find it");
-                    var ni = NetworkInterface.GetAllNetworkInterfaces();
+                    NetworkInterface[] ni = NetworkInterface.GetAllNetworkInterfaces();
                     bool foundNIC = false;
                     foreach (NetworkInterface item in ni)
                     {
@@ -6497,25 +6231,25 @@ namespace Nucleus.Gaming
                                 }
                             }
                         }
-                        if(foundNIC)
+                        if (foundNIC)
                         {
                             break;
                         }
                     }
                 }
 
-                if(iniNetworkInterface == null)
+                if (iniNetworkInterface == null)
                 {
                     Log("ERROR - Unable to resolve network interface");
                     MessageBox.Show("Unable to resolve network interface", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-                
+
                 try
                 {
-                    var networkInterface = NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(nw => nw.Name == iniNetworkInterface);
-                    var ipProperties = networkInterface.GetIPProperties();
-                    var ipInfo = ipProperties.UnicastAddresses.FirstOrDefault(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork);
+                    NetworkInterface networkInterface = NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(nw => nw.Name == iniNetworkInterface);
+                    IPInterfaceProperties ipProperties = networkInterface.GetIPProperties();
+                    UnicastIPAddressInformation ipInfo = ipProperties.UnicastAddresses.FirstOrDefault(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork);
                     currentIPaddress = ipInfo.Address.ToString();
                     currentSubnetMask = ipInfo.IPv4Mask.ToString();
                     currentGateway = ipProperties.GatewayAddresses?.FirstOrDefault(g => g.Address.AddressFamily.ToString() == "InterNetwork")?.Address.ToString();
@@ -6524,7 +6258,7 @@ namespace Nucleus.Gaming
                     IPAddressCollection dnsServers = ipProperties.DnsAddresses;
                     foreach (IPAddress dns in dnsServers)
                     {
-                        if(dns.AddressFamily == AddressFamily.InterNetwork)
+                        if (dns.AddressFamily == AddressFamily.InterNetwork)
                         {
                             dnsAddresses.Add(dns.ToString());
                             dnsServersStr += dns.ToString() + " ";
@@ -6538,7 +6272,7 @@ namespace Nucleus.Gaming
                 }
             }
 
-            if(networkInterfaceOverride == null)
+            if (networkInterfaceOverride == null)
             {
                 MessageBox.Show("WARNING: This feature is highly experimental!\n\nYour computers IP is about to be changed. You may receive a prompt immediately after to complete this action. Your IP settings will be reverted back to normal upon exiting Nucleus normally. However, if Nucleus crashes, it is not gauranteed that your settings will be set back.\n\nPress OK when ready to have your IP changed.\n\nOriginal Settings:\nNetworkInterface: " + iniNetworkInterface + "\nIP: " + currentIPaddress + "\nSubnet Mask: " + currentSubnetMask + "\nDefault Gateway: " + currentGateway + "\nDHCP: " + isDHCPenabled + "\nDynamic DNS: " + isDynamicDns + "\nDNS: " + dnsServersStr, "Nucleus - Change IP Per Instance", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
@@ -6549,7 +6283,7 @@ namespace Nucleus.Gaming
             string ipNetwork = currentIPaddress.Substring(0, currentIPaddress.LastIndexOf('.') + 1);
 
             Ping pingSender = new Ping();
-            for(int a = 0; a < 10; a++)
+            for (int a = 0; a < 10; a++)
             {
                 PingReply reply = pingSender.Send(ipNetwork + (hostAddr + i).ToString(), 1000);
 
@@ -6567,7 +6301,7 @@ namespace Nucleus.Gaming
             string shostAddr = (hostAddr + i).ToString();
             Log("Changing IP to: " + ipNetwork + shostAddr);
 
-            if(networkInterfaceOverride != null)
+            if (networkInterfaceOverride != null)
             {
                 SetIP(networkInterfaceOverride, ipNetwork + shostAddr, currentSubnetMask, currentGateway);
             }
@@ -6575,7 +6309,7 @@ namespace Nucleus.Gaming
             {
                 SetIP(iniNetworkInterface, ipNetwork + shostAddr, currentSubnetMask, currentGateway);
             }
-            
+
             //if(isDynamicDns)
             //{
             //    SetDNS(iniNetworkInterface, false);
@@ -6585,15 +6319,17 @@ namespace Nucleus.Gaming
 
         private bool SetIP(string networkInterfaceName, string ipAddress, string subnetMask, string gateway = null)
         {
-            var networkInterface = NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(nw => nw.Name == networkInterfaceName);
-            var ipProperties = networkInterface.GetIPProperties();
-            var ipInfo = ipProperties.UnicastAddresses.FirstOrDefault(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork);
-            var currentIPaddress = ipInfo.Address.ToString();
-            var currentSubnetMask = ipInfo.IPv4Mask.ToString();
-            var isDHCPenabled = ipProperties.GetIPv4Properties().IsDhcpEnabled;
+            NetworkInterface networkInterface = NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(nw => nw.Name == networkInterfaceName);
+            IPInterfaceProperties ipProperties = networkInterface.GetIPProperties();
+            UnicastIPAddressInformation ipInfo = ipProperties.UnicastAddresses.FirstOrDefault(ip => ip.Address.AddressFamily == AddressFamily.InterNetwork);
+            string currentIPaddress = ipInfo.Address.ToString();
+            string currentSubnetMask = ipInfo.IPv4Mask.ToString();
+            bool isDHCPenabled = ipProperties.GetIPv4Properties().IsDhcpEnabled;
 
             if (!isDHCPenabled && currentIPaddress == ipAddress && currentSubnetMask == subnetMask)
+            {
                 return true;    // no change necessary
+            }
 
             //string dnsArg = string.Empty;
             //if (dnsAddresses.Count > 0)
@@ -6664,19 +6400,21 @@ namespace Nucleus.Gaming
             //Thread.Sleep(5000);
             //netsh.Kill();
             netsh.WaitForExit();
-            var successful = netsh.ExitCode == 0;
+            bool successful = netsh.ExitCode == 0;
             netsh.Dispose();
             return successful;
         }
 
         private bool SetDHCP(string networkInterfaceName)
         {
-            var networkInterface = NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(nw => nw.Name == networkInterfaceName);
-            var ipProperties = networkInterface.GetIPProperties();
-            var isDHCPenabled = ipProperties.GetIPv4Properties().IsDhcpEnabled;
+            NetworkInterface networkInterface = NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(nw => nw.Name == networkInterfaceName);
+            IPInterfaceProperties ipProperties = networkInterface.GetIPProperties();
+            bool isDHCPenabled = ipProperties.GetIPv4Properties().IsDhcpEnabled;
 
             if (isDHCPenabled && ipProperties.DnsAddresses[0].ToString() == dnsAddresses[0])
+            {
                 return true;    // no change necessary
+            }
 
             //string dnsArg = $";interface ip set dnsservers {networkInterfaceName} dhcp";
 
@@ -6714,7 +6452,7 @@ namespace Nucleus.Gaming
             //Thread.Sleep(5000);
             //netsh.Kill();
             netsh.WaitForExit();
-            var successful = netsh.ExitCode == 0;
+            bool successful = netsh.ExitCode == 0;
             netsh.Dispose();
             return successful;
 
@@ -6746,14 +6484,14 @@ namespace Nucleus.Gaming
         //    return successful;
         //}
 
-        private void SelBtn_Click(object sender, EventArgs e)
+        public void SelBtn_Click(object sender, EventArgs e)
         {
             Control control = (Control)sender;
             Form ppform = control.FindForm();
 
             if (control.GetType() == typeof(ListBox))
             {
-                var listBox = control as ListBox;
+                ListBox listBox = control as ListBox;
                 if (listBox.SelectedItem == null)
                 {
                     MessageBox.Show("No process has been selected.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -6767,7 +6505,7 @@ namespace Nucleus.Gaming
                 {
                     if (c.GetType() == typeof(ListBox))
                     {
-                        var listBox = c as ListBox;
+                        ListBox listBox = c as ListBox;
                         if (listBox.SelectedItem == null)
                         {
                             MessageBox.Show("No process has been selected.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -6780,47 +6518,56 @@ namespace Nucleus.Gaming
             ppform.Close();
         }
 
-        private void RefrshBtn_Click(object sender, EventArgs e)
+        public void RefrshBtn_Click(object sender, EventArgs e)
         {
             Control control = (Button)sender;
 
             Form ppform = control.FindForm();
             foreach (Control c in ppform.Controls)
             {
-                if (c.GetType() == typeof(ListBox))
+                if (c.GetType() == typeof(Panel))
                 {
-                    var listBox = c as ListBox;
-                    listBox.Items.Clear();
-
-                    Process[] allProc = Process.GetProcesses();
-                    foreach (Process p in allProc)
+                    foreach (Control l in c.Controls)
                     {
-                        if (p.Id == 0 || string.IsNullOrEmpty(p.MainWindowTitle))
+                        if (l.GetType() == typeof(ListBox))
                         {
-                            continue;
+                            ListBox listBox = l as ListBox;
+                            listBox.Items.Clear();
+
+                            Process[] allProc = Process.GetProcesses();
+                            foreach (Process p in allProc)
+                            {
+                                if (p.Id == 0 || string.IsNullOrEmpty(p.MainWindowTitle))
+                                {
+                                    continue;
+                                }
+                                if (attachedIds.Contains(p.Id))
+                                {
+                                    if (p.ProcessName.ToLower().Contains(Path.GetFileNameWithoutExtension(gen.ExecutableName).ToLower()) || (gen.LauncherExe?.Length > 0 && p.ProcessName.ToLower().Contains(Path.GetFileNameWithoutExtension(gen.LauncherExe).ToLower())))
+                                    {
+                                        listBox.Items.Insert(0, p.Id + " - (DO NOT USE - Already assigned in Nucleus)" + p.ProcessName);
+                                    }
+                                    else
+                                    {
+                                        listBox.Items.Add(p.Id + " - (DO NOT USE - Already assigned in Nucleus)" + p.ProcessName);
+                                    }
+                                }
+                                else
+                                {
+                                    if (p.ProcessName.ToLower().Contains(Path.GetFileNameWithoutExtension(gen.ExecutableName).ToLower()) || (gen.LauncherExe?.Length > 0 && p.ProcessName.ToLower().Contains(Path.GetFileNameWithoutExtension(gen.LauncherExe).ToLower())))
+                                    {
+                                        listBox.Items.Insert(0, p.Id + " - " + p.ProcessName);
+                                    }
+                                    else
+                                    {
+                                        listBox.Items.Add(p.Id + " - " + p.ProcessName);
+                                    }
+                                }
+                            }
+
                         }
-                        if (attachedIds.Contains(p.Id))
-                        {
-                            if (p.ProcessName.ToLower().Contains(Path.GetFileNameWithoutExtension(gen.ExecutableName).ToLower()) || (gen.LauncherExe?.Length > 0 && p.ProcessName.ToLower().Contains(Path.GetFileNameWithoutExtension(gen.LauncherExe).ToLower())))
-                            {
-                                listBox.Items.Insert(0, p.Id + " - (DO NOT USE - Already assigned in Nucleus)" + p.ProcessName);
-                            }
-                            else
-                            {
-                                listBox.Items.Add(p.Id + " - (DO NOT USE - Already assigned in Nucleus)" + p.ProcessName);
-                            }
-                        }
-                        else
-                        {
-                            if (p.ProcessName.ToLower().Contains(Path.GetFileNameWithoutExtension(gen.ExecutableName).ToLower()) || (gen.LauncherExe?.Length > 0 && p.ProcessName.ToLower().Contains(Path.GetFileNameWithoutExtension(gen.LauncherExe).ToLower())))
-                            {
-                                listBox.Items.Insert(0, p.Id + " - " + p.ProcessName);
-                            }
-                            else
-                            {
-                                listBox.Items.Add(p.Id + " - " + p.ProcessName);
-                            }
-                        }
+
+
                     }
                 }
             }
@@ -6854,13 +6601,13 @@ namespace Nucleus.Gaming
 
         }
 
-		private void InjectDLLs(Process proc, Window window, PlayerInfo player)
-		{
+        private void InjectDLLs(Process proc, Window window, PlayerInfo player)
+        {
             Log("Injecting hooks DLL");
 
-			WaitForProcWindowHandleNotZero(proc);
+            WaitForProcWindowHandleNotZero(proc);
 
-			bool is64 = EasyHook.RemoteHooking.IsX64Process(proc.Id);
+            bool is64 = EasyHook.RemoteHooking.IsX64Process(proc.Id);
             string currDir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location); //Directory.GetCurrentDirectory();
 
 
@@ -6874,12 +6621,14 @@ namespace Nucleus.Gaming
             try
             {
                 string injectorPath = Path.Combine(currDir, $"Nucleus.IJ{(is64 ? "x64" : "x86")}.exe");
-                ProcessStartInfo startInfo = new ProcessStartInfo();
-                startInfo.FileName = injectorPath;
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = injectorPath
+                };
 
-				object[] args = new object[]
-				{
-					1, // Tier. 0 == start up hook, 1 == runtime hook
+                object[] args = new object[]
+                {
+                    1, // Tier. 0 == start up hook, 1 == runtime hook
 		            proc.Id, // Target PID
 		            0, // WakeUp Thread ID
 		            0, // InInjectionOptions (EasyHook)
@@ -6888,8 +6637,8 @@ namespace Nucleus.Gaming
 		            proc.NucleusGetMainWindowHandle(), // Game hWnd
 		            gen.HookFocus, // Hook GetForegroundWindow/etc
 		            gen.HideCursor,
-					isDebug,
-					nucleusFolderPath, // Primarily for log output
+                    isDebug,
+                    nucleusFolderPath, // Primarily for log output
 		            gen.SetWindowHook, // SetWindow hook (prevents window from moving)
 					gen.PreventWindowDeactivation,
                     player.MonitorBounds.Width,
@@ -6900,49 +6649,49 @@ namespace Nucleus.Gaming
 
                     //These options are enabled by default, but if the game isn't using these features the hooks are unwanted
 					gen.SupportsMultipleKeyboardsAndMice && gen.HookSetCursorPos,
-					gen.SupportsMultipleKeyboardsAndMice && gen.HookGetCursorPos,
-					gen.SupportsMultipleKeyboardsAndMice && gen.HookGetKeyState,
-					gen.SupportsMultipleKeyboardsAndMice && gen.HookGetAsyncKeyState,
-					gen.SupportsMultipleKeyboardsAndMice && gen.HookGetKeyboardState,
-					gen.SupportsMultipleKeyboardsAndMice && gen.HookFilterRawInput,
-					gen.SupportsMultipleKeyboardsAndMice && gen.HookFilterMouseMessages,
-					gen.SupportsMultipleKeyboardsAndMice && gen.HookUseLegacyInput,
-					!gen.HookDontUpdateLegacyInMouseMsg,
-					gen.SupportsMultipleKeyboardsAndMice && gen.HookMouseVisibility,
-					gen.HookReRegisterRawInput,
-					gen.HookReRegisterRawInputMouse,
-					gen.HookReRegisterRawInputKeyboard,
-					gen.InjectHookXinput,
-					gen.InjectDinputToXinputTranslation,
+                    gen.SupportsMultipleKeyboardsAndMice && gen.HookGetCursorPos,
+                    gen.SupportsMultipleKeyboardsAndMice && gen.HookGetKeyState,
+                    gen.SupportsMultipleKeyboardsAndMice && gen.HookGetAsyncKeyState,
+                    gen.SupportsMultipleKeyboardsAndMice && gen.HookGetKeyboardState,
+                    gen.SupportsMultipleKeyboardsAndMice && gen.HookFilterRawInput,
+                    gen.SupportsMultipleKeyboardsAndMice && gen.HookFilterMouseMessages,
+                    gen.SupportsMultipleKeyboardsAndMice && gen.HookUseLegacyInput,
+                    !gen.HookDontUpdateLegacyInMouseMsg,
+                    gen.SupportsMultipleKeyboardsAndMice && gen.HookMouseVisibility,
+                    gen.HookReRegisterRawInput,
+                    gen.HookReRegisterRawInputMouse,
+                    gen.HookReRegisterRawInputKeyboard,
+                    gen.InjectHookXinput,
+                    gen.InjectDinputToXinputTranslation,
 
-					windowNull ? "" : (window.HookPipe?.pipeNameWrite ?? ""),
-					windowNull ? "" : (window.HookPipe?.pipeNameRead ?? ""),
-					windowNull ? -1 : window.MouseAttached.ToInt32(),
-					windowNull ? -1 : window.KeyboardAttached.ToInt32()
-				};
+                    windowNull ? "" : (window.HookPipe?.pipeNameWrite ?? ""),
+                    windowNull ? "" : (window.HookPipe?.pipeNameRead ?? ""),
+                    windowNull ? -1 : window.MouseAttached.ToInt32(),
+                    windowNull ? -1 : window.KeyboardAttached.ToInt32()
+                };
 
-				var sbArgs = new StringBuilder();
-				foreach (object arg in args)
-				{
-					//Converting to base64 prevents characters like " or \ breaking the arguments
-					string arg64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(arg.ToString()));
+                StringBuilder sbArgs = new StringBuilder();
+                foreach (object arg in args)
+                {
+                    //Converting to base64 prevents characters like " or \ breaking the arguments
+                    string arg64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(arg.ToString()));
 
-					sbArgs.Append(" \"");
-					sbArgs.Append(arg64);
-					sbArgs.Append("\"");
-				}
+                    sbArgs.Append(" \"");
+                    sbArgs.Append(arg64);
+                    sbArgs.Append("\"");
+                }
 
-				string arguments = sbArgs.ToString();
-				startInfo.Arguments = arguments;
-				startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-				startInfo.CreateNoWindow = true;
-				startInfo.UseShellExecute = false;
-				startInfo.RedirectStandardOutput = true;
-				Process injectProc = Process.Start(startInfo);
-				injectProc.WaitForExit();
-			}
-			catch (Exception ex)
-			{
+                string arguments = sbArgs.ToString();
+                startInfo.Arguments = arguments;
+                startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                startInfo.CreateNoWindow = true;
+                startInfo.UseShellExecute = false;
+                startInfo.RedirectStandardOutput = true;
+                Process injectProc = Process.Start(startInfo);
+                injectProc.WaitForExit();
+            }
+            catch (Exception ex)
+            {
                 Log(string.Format("ERROR - {0}", ex.Message));
             }
         }
@@ -6956,7 +6705,7 @@ namespace Nucleus.Gaming
             }
 
             List<Process> fakeFocusProcs = new List<Process>();
-            var windows = RawInputManager.windows;
+            List<Window> windows = RawInputManager.windows;
             string ffPIDs = "";
 
             if (gen.FakeFocusInstances?.Length > 0)
@@ -6964,7 +6713,7 @@ namespace Nucleus.Gaming
                 string[] fakeFocusInstances = gen.FakeFocusInstances.Split(',');
                 for (int i = 0; i < fakeFocusInstances.Length; i++)
                 {
-                    if(int.Parse(fakeFocusInstances[i]) <= numPlayers)
+                    if (int.Parse(fakeFocusInstances[i]) <= numPlayers)
                     {
                         fakeFocusProcs.Add(attached[int.Parse(fakeFocusInstances[i]) - 1]);
                     }
@@ -6991,19 +6740,19 @@ namespace Nucleus.Gaming
                 ffPIDs = ffPIDs + p.Id + " ";
             }
 
-			try
-			{
-				while (true)
-				{
-					Thread.Sleep(gen.FakeFocusInterval);
+            try
+            {
+                while (true)
+                {
+                    Thread.Sleep(gen.FakeFocusInterval);
 
-					foreach (Process proc in attached)
-					{
-						//TODO: NCACTIVATE is a bad idea?
-						User32Interop.SendMessage(proc.NucleusGetMainWindowHandle(), (int)FocusMessages.WM_ACTIVATEAPP, (IntPtr)1, IntPtr.Zero);
-						User32Interop.SendMessage(proc.NucleusGetMainWindowHandle(), (int)FocusMessages.WM_NCACTIVATE, (IntPtr)0x00000001, IntPtr.Zero);
-						User32Interop.SendMessage(proc.NucleusGetMainWindowHandle(), (int)FocusMessages.WM_SETFOCUS, IntPtr.Zero, IntPtr.Zero);
-						User32Interop.SendMessage(proc.NucleusGetMainWindowHandle(), (int)FocusMessages.WM_MOUSEACTIVATE, (IntPtr)proc.NucleusGetMainWindowHandle(), (IntPtr)1);
+                    foreach (Process proc in attached)
+                    {
+                        //TODO: NCACTIVATE is a bad idea?
+                        User32Interop.SendMessage(proc.NucleusGetMainWindowHandle(), (int)FocusMessages.WM_ACTIVATEAPP, (IntPtr)1, IntPtr.Zero);
+                        User32Interop.SendMessage(proc.NucleusGetMainWindowHandle(), (int)FocusMessages.WM_NCACTIVATE, (IntPtr)0x00000001, IntPtr.Zero);
+                        User32Interop.SendMessage(proc.NucleusGetMainWindowHandle(), (int)FocusMessages.WM_SETFOCUS, IntPtr.Zero, IntPtr.Zero);
+                        User32Interop.SendMessage(proc.NucleusGetMainWindowHandle(), (int)FocusMessages.WM_MOUSEACTIVATE, proc.NucleusGetMainWindowHandle(), (IntPtr)1);
 
                         //Deep Rock Galactic doesn't work with this message
                         if (gen.FakeFocusSendActivate)
@@ -7028,22 +6777,22 @@ namespace Nucleus.Gaming
                         }
                     }
 
-					if (gen.PreventGameFocus)
-					{
-						foreach (var window in windows)
-						{
-							window.HookPipe.SendPreventForegroundWindow();
-						}
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				Logger.WriteLine($"ThreadAbortException in FakeFocus. Exiting. Error: {e}");
-			}
-		}
+                    if (gen.PreventGameFocus)
+                    {
+                        foreach (Window window in windows)
+                        {
+                            window.HookPipe.SendPreventForegroundWindow();
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteLine($"ThreadAbortException in FakeFocus. Exiting. Error: {e}");
+            }
+        }
 
-        struct TickThread
+        private struct TickThread
         {
             public double Interval;
             public Action Function;
@@ -7053,9 +6802,11 @@ namespace Nucleus.Gaming
         {
             Thread t = new Thread(PlayTickThread);
 
-            TickThread tick = new TickThread();
-            tick.Interval = interval;
-            tick.Function = function;
+            TickThread tick = new TickThread
+            {
+                Interval = interval,
+                Function = function
+            };
             t.Start(tick);
         }
 
@@ -7186,7 +6937,7 @@ namespace Nucleus.Gaming
 
                             if (!gen.PromptBetweenInstances)
                             {
-                                if(!gen.NotTopMost)
+                                if (!gen.NotTopMost)
                                 {
                                     Log("(Update) Setting game window to top most");
                                     data.HWnd.TopMost = true;
@@ -7197,7 +6948,7 @@ namespace Nucleus.Gaming
                             if (data.Status == 2)
                             {
 
-                                if(!gen.DontRemoveBorders)
+                                if (!gen.DontRemoveBorders)
                                 {
                                     Log("(Update) Removing game window border for pid " + data.Process.Id);
                                     uint lStyle = User32Interop.GetWindowLong(data.HWnd.NativePtr, User32_WS.GWL_STYLE);
@@ -7265,13 +7016,15 @@ namespace Nucleus.Gaming
                                 }
 
                                 if (gen.EnableWindows)
+                                {
                                     EnableWindow(data.HWnd.NativePtr, true);
+                                }
 
                                 //Minimise and un-minimise the window. Fixes black borders in Minecraft, but causing stretching issues in games like Minecraft.
                                 if (gen.RefreshWindowAfterStart)
                                 {
-	                                ShowWindow(data.HWnd.NativePtr, 6);
-	                                ShowWindow(data.HWnd.NativePtr, 9);
+                                    ShowWindow(data.HWnd.NativePtr, 6);
+                                    ShowWindow(data.HWnd.NativePtr, 9);
                                 }
 
                                 if (gen.WindowStyleEndChanges?.Length > 0 || gen.ExtWindowStyleEndChanges?.Length > 0)
@@ -7351,7 +7104,7 @@ namespace Nucleus.Gaming
                                     }
                                 }
 
-                                if(i == (players.Count - 1) && !gen.ProcessChangesAtEnd)
+                                if (i == (players.Count - 1) && !gen.ProcessChangesAtEnd)
                                 {
                                     Log("(Update) All done!");
                                     try
@@ -7360,7 +7113,9 @@ namespace Nucleus.Gaming
                                         {
                                             Thread.Sleep(5000);
                                             if (statusWinThread != null && statusWinThread.IsAlive)
+                                            {
                                                 statusWinThread.Abort();
+                                            }
                                         }
                                     }
                                     catch { }
@@ -7390,7 +7145,7 @@ namespace Nucleus.Gaming
                                         double newWidth = playerBoundsWidth;
                                         double newHeight = playerBoundsHeight;
 
-                                        if(newWidth < origWidth)
+                                        if (newWidth < origWidth)
                                         {
                                             if (origHeight > 0 && origWidth > 0)
                                             {
@@ -7423,12 +7178,12 @@ namespace Nucleus.Gaming
                                         data.HWnd.Size = new Size(Convert.ToInt32(newWidth), Convert.ToInt32(newHeight));
 
                                         //x horizontal , y vertical
-                                        if(newWidth < origWidth)
+                                        if (newWidth < origWidth)
                                         {
                                             int yOffset = Convert.ToInt32(data.Position.Y + ((playerBoundsHeight - newHeight) / 2));
                                             data.Position.Y = yOffset;
                                         }
-                                        if(newHeight < origHeight)
+                                        if (newHeight < origHeight)
                                         {
                                             int xOffset = Convert.ToInt32(data.Position.X + ((playerBoundsWidth - newWidth) / 2));
                                             data.Position.X = xOffset;
@@ -7445,7 +7200,7 @@ namespace Nucleus.Gaming
                                             data.Size.Width = playerBoundsWidth;
                                             data.Size.Height = playerBoundsHeight;
 
-                                            if(playerBoundsWidth == 0 || playerBoundsHeight == 0)
+                                            if (playerBoundsWidth == 0 || playerBoundsHeight == 0)
                                             {
                                                 Log("(Update) Play bounds width or height is showing as 0 for pid " + data.Process.Id + ", using monitor bound variables");
                                                 data.Size.Width = p.MonitorBounds.Width;
@@ -7542,7 +7297,7 @@ namespace Nucleus.Gaming
                                     data.HWnd = new HwndObject(data.Process.NucleusGetMainWindowHandle());
                                     Point pos = data.HWnd.Location;
 
-                                    if (String.IsNullOrEmpty(data.HWnd.Title) ||
+                                    if (string.IsNullOrEmpty(data.HWnd.Title) ||
                                         pos.X == -32000 ||
                                         data.HWnd.Title.ToLower() == gen.LauncherTitle?.ToLower())
                                     {
@@ -7621,60 +7376,89 @@ namespace Nucleus.Gaming
             catch { }
         }
 
-		private IntPtr WaitForProcWindowHandleNotZero(Process proc)
-		{
-			try
-			{
+        private IntPtr WaitForProcWindowHandleNotZero(Process proc)
+        {
+            try
+            {
                 if ((int)proc.NucleusGetMainWindowHandle() == 0)
-				{
-					for (int times = 0; times < 200; times++)
-					{
-						Thread.Sleep(500);
-						if ((int)proc.NucleusGetMainWindowHandle() > 0)
-						{
-							break;
-						}
+                {
+                    for (int times = 0; times < 200; times++)
+                    {
+                        Thread.Sleep(500);
+                        if ((int)proc.NucleusGetMainWindowHandle() > 0)
+                        {
+                            break;
+                        }
 
-						if (times == 199 && (int)proc.NucleusGetMainWindowHandle() == 0)
-						{
-							Log(string.Format(
-								"ERROR - WaitForProcWindowHandleNotZero could not find main window handle for {0} (pid {1})",
-								proc.ProcessName, proc.Id));
-						}
-					}
-				}
+                        if (times == 199 && (int)proc.NucleusGetMainWindowHandle() == 0)
+                        {
+                            Log(string.Format(
+                                "ERROR - WaitForProcWindowHandleNotZero could not find main window handle for {0} (pid {1})",
+                                proc.ProcessName, proc.Id));
+                        }
+                    }
+                }
 
-				return proc.NucleusGetMainWindowHandle();
-			}
-			catch
-			{
-				Log("ERROR - WaitForProcWindowHandleNotZero encountered an exception");
-				return (IntPtr)(-1);
-			}
-		}
+                return proc.NucleusGetMainWindowHandle();
+            }
+            catch
+            {
+                Log("ERROR - WaitForProcWindowHandleNotZero encountered an exception");
+                return (IntPtr)(-1);
+            }
+        }
 
-		string CheckFor45PlusVersion(int releaseKey)
+        private string CheckFor45PlusVersion(int releaseKey)
         {
             if (releaseKey >= 528040)
+            {
                 return "4.8 or later";
+            }
+
             if (releaseKey >= 461808)
+            {
                 return "4.7.2";
+            }
+
             if (releaseKey >= 461308)
+            {
                 return "4.7.1";
+            }
+
             if (releaseKey >= 460798)
+            {
                 return "4.7";
+            }
+
             if (releaseKey >= 394802)
+            {
                 return "4.6.2";
+            }
+
             if (releaseKey >= 394254)
+            {
                 return "4.6.1";
+            }
+
             if (releaseKey >= 393295)
+            {
                 return "4.6";
+            }
+
             if (releaseKey >= 379893)
+            {
                 return "4.5.2";
+            }
+
             if (releaseKey >= 378675)
+            {
                 return "4.5.1";
+            }
+
             if (releaseKey >= 378389)
+            {
                 return "4.5";
+            }
             // This code should never execute. A non-null release key should mean
             // that 4.5 or later is installed.
             return "No 4.5 or later version detected";
@@ -7686,11 +7470,13 @@ namespace Nucleus.Gaming
             Forms.Prompt prompt = new Forms.Prompt("Goldberg Lobby Connect: Press OK after you are hosting a game.");
             prompt.ShowDialog();
 
-            ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\GoldbergEmu\\lobby_connect\\lobby_connect.exe");
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\GoldbergEmu\\lobby_connect\\lobby_connect.exe"),
 
-            startInfo.RedirectStandardOutput = true;
-            startInfo.UseShellExecute = false;
+                RedirectStandardOutput = true,
+                UseShellExecute = false
+            };
             Process p = Process.Start(startInfo);
             p.OutputDataReceived += proc_OutputDataReceived;
             p.BeginOutputReadLine();
@@ -7727,7 +7513,7 @@ namespace Nucleus.Gaming
             //MessageBox.Show("Going to attempt to reposition and resize instance " + (i - 1));
             try
             {
-                if(!gen.DontRemoveBorders)
+                if (!gen.DontRemoveBorders)
                 {
                     uint lStyle = User32Interop.GetWindowLong(processData.HWnd.NativePtr, User32_WS.GWL_STYLE);
                     if (gen.WindowStyleValues?.Length > 0)
@@ -7793,9 +7579,14 @@ namespace Nucleus.Gaming
                 }
 
                 if (!gen.DontReposition)
+                {
                     processData.HWnd.Location = new Point(x, y);
+                }
+
                 if (!gen.DontResize)
+                {
                     processData.HWnd.Size = new Size(w, h);
+                }
             }
             catch (Exception ex)
             {
@@ -7804,20 +7595,20 @@ namespace Nucleus.Gaming
 
             try
             {
-	            if ((processData.HWnd.Location != new Point(x, y) && !gen.DontReposition) || (processData.HWnd.Size != new Size(w, h) && !gen.DontResize))
-	            {
-		            Log("ERROR - ResetWindows was unsuccessful for instance " + (i - 1));
-	            }
+                if ((processData.HWnd.Location != new Point(x, y) && !gen.DontReposition) || (processData.HWnd.Size != new Size(w, h) && !gen.DontResize))
+                {
+                    Log("ERROR - ResetWindows was unsuccessful for instance " + (i - 1));
+                }
             }
-            catch(Exception e)
-			{
-				Log("ERROR - Exception in ResetWindows for instance " + (i - 1) + ", error = " + e);
-			}
+            catch (Exception e)
+            {
+                Log("ERROR - Exception in ResetWindows for instance " + (i - 1) + ", error = " + e);
+            }
         }
 
         private void CustomDllEnabled(GenericContext context, PlayerInfo player, Rectangle playerBounds, int i, bool setupDll)
         {
-            if(setupDll)
+            if (setupDll)
             {
                 Log(string.Format("Setting up Custom DLL, UseAlpha8CustomDll: {0}", gen.Hook.UseAlpha8CustomDll));
                 byte[] xdata;
@@ -7970,7 +7761,7 @@ namespace Nucleus.Gaming
             x360.IniWriteValue("Options", "RerouteInput", context.Hook.XInputReroute.ToString(CultureInfo.InvariantCulture));
             x360.IniWriteValue("Options", "RerouteJoystickTemplate", JoystickDatabase.GetID(player.GamepadProductGuid.ToString()).ToString(CultureInfo.InvariantCulture));
 
-            if(context.Hook.EnableMKBInput || player.IsKeyboardPlayer)
+            if (context.Hook.EnableMKBInput || player.IsKeyboardPlayer)
             {
                 Log("Enabling MKB");
                 x360.IniWriteValue("Options", "EnableMKBInput", "True".ToString(CultureInfo.InvariantCulture));
@@ -7979,7 +7770,7 @@ namespace Nucleus.Gaming
             {
                 x360.IniWriteValue("Options", "EnableMKBInput", "False".ToString(CultureInfo.InvariantCulture));
             }
-            
+
             x360.IniWriteValue("Options", "IsKeyboardPlayer", player.IsKeyboardPlayer.ToString(CultureInfo.InvariantCulture));
 
             // windows events
@@ -8019,7 +7810,7 @@ namespace Nucleus.Gaming
 
         private void CopyCustomUtils(int i, string linkFolder, bool setupDll)
         {
-            if(setupDll)
+            if (setupDll)
             {
                 Log("Copying custom files/folders");
                 string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\User");
@@ -8038,7 +7829,7 @@ namespace Nucleus.Gaming
                     {
                         string utilInstances = splitParams[2];
                         List<int> instances = new List<int>();
-                        instances = utilInstances.Split(',').Select(Int32.Parse).ToList();
+                        instances = utilInstances.Split(',').Select(int.Parse).ToList();
                         if (!instances.Contains(i))
                         {
                             continue;
@@ -8155,7 +7946,7 @@ namespace Nucleus.Gaming
                 x360cedlls = gen.X360ceDll;
             }
 
-            if(setupDll)
+            if (setupDll)
             {
                 foreach (string x360ceDllName in x360cedlls)
                 {
@@ -8256,10 +8047,12 @@ namespace Nucleus.Gaming
             else
             {
                 Log("Starting x360ce process");
-                ProcessStartInfo startInfo = new ProcessStartInfo();
-                startInfo.UseShellExecute = true;
-                startInfo.WorkingDirectory = instanceExeFolder;
-                startInfo.FileName = Path.Combine(instanceExeFolder, x360exe);
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    UseShellExecute = true,
+                    WorkingDirectory = instanceExeFolder,
+                    FileName = Path.Combine(instanceExeFolder, x360exe)
+                };
                 //if (gen.RunAsAdmin)
                 //{
                 //    startInfo.Verb = "runas";
@@ -8317,7 +8110,7 @@ namespace Nucleus.Gaming
                     textChanges.Add(context.FindLineNumberInTextFile(Path.Combine(instanceExeFolder, "x360ce.ini"), "PAD3=", SearchType.StartsWith) + "|PAD3=");
                     textChanges.Add(context.FindLineNumberInTextFile(Path.Combine(instanceExeFolder, "x360ce.ini"), "PAD4=", SearchType.StartsWith) + "|PAD4=");
                 }
-                
+
                 context.ReplaceLinesInTextFile(Path.Combine(instanceExeFolder, "x360ce.ini"), textChanges.ToArray());
             }
 
@@ -8346,7 +8139,7 @@ namespace Nucleus.Gaming
                     "HookName=0\n" +
                     "HookMode=0\n"
                 );
-                
+
                 context.ReplaceLinesInTextFile(Path.Combine(instanceExeFolder, "x360ce.ini"), textChanges.ToArray());
             }
 
@@ -8410,7 +8203,7 @@ namespace Nucleus.Gaming
             //    Log(string.Format("ERROR - Machine type {0} not implemented", GetDllMachineType(exePath)));
             //}
 
-            if(setupDll)
+            if (setupDll)
             {
                 string ogFile = Path.Combine(instanceExeFolder, "dinput8.dll");
                 FileCheck(ogFile);
@@ -8425,18 +8218,22 @@ namespace Nucleus.Gaming
 
             //FileCheck(Path.Combine(instanceExeFolder, "devreorder.ini"));
             if (setupDll)
+            {
                 addedFiles.Add(Path.Combine(instanceExeFolder, "devreorder.ini"));
+            }
 
             //if (File.Exists(Path.Combine(instanceExeFolder, "devreorder.ini")))
             //{
             //    File.Delete(Path.Combine(instanceExeFolder, "devreorder.ini"));
             //}
 
-            List<string> iniConfig = new List<string>();
-            iniConfig.Add("[order]");
-            iniConfig.Add("{" + player.GamepadGuid + "}");
-            iniConfig.Add(string.Empty);
-            iniConfig.Add("[hidden]");
+            List<string> iniConfig = new List<string>
+            {
+                "[order]",
+                "{" + player.GamepadGuid + "}",
+                string.Empty,
+                "[hidden]"
+            };
 
             for (int p = 0; p < players.Count; p++)
             {
@@ -8476,7 +8273,7 @@ namespace Nucleus.Gaming
             //{
             //    Log(string.Format("ERROR - Machine type {0} not implemented", GetDllMachineType(exePath)));
             //}
-            if(setupDll)
+            if (setupDll)
             {
                 foreach (string xinputDllName in gen.XInputPlusDll)
                 {
@@ -8514,7 +8311,7 @@ namespace Nucleus.Gaming
                 }
             }
 
-            if(!gen.XInputPlusNoIni)
+            if (!gen.XInputPlusNoIni)
             {
                 List<string> textChanges = new List<string>();
                 if (!player.IsKeyboardPlayer || (player.IsKeyboardPlayer && gen.PlayersPerInstance <= 1))
@@ -8583,13 +8380,15 @@ namespace Nucleus.Gaming
                 File.Delete(Path.Combine(instanceExeFolder, "steam_appid.txt"));
             }
             File.WriteAllText(Path.Combine(instanceExeFolder, "steam_appid.txt"), gen.SteamID);
-            if(setupDll)
+            if (setupDll)
+            {
                 addedFiles.Add(Path.Combine(instanceExeFolder, "steam_appid.txt"));
+            }
         }
 
         private void UseEACBypass(string linkFolder, bool setupDll)
         {
-            if(setupDll)
+            if (setupDll)
             {
                 Log("Starting EAC Bypass setup");
 
@@ -8619,9 +8418,9 @@ namespace Nucleus.Gaming
             }
         }
 
-        private void UseNemirtingasEpicEmu(string rootFolder, string linkFolder, PlayerInfo player, bool setupDll)
+        private void UseNemirtingasEpicEmu(string rootFolder, string linkFolder,bool EpicEmuArgs,int i,PlayerInfo player, string epiclang, bool setupDll)
         {
-            if(setupDll)
+            if (setupDll)
             {
                 Log("Starting Nemirtingas Epic Emu setup");
                 string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\NemirtingasEpicEmu");
@@ -8632,11 +8431,92 @@ namespace Nucleus.Gaming
                 string dllFolder = string.Empty;
                 string instanceDllFolder = string.Empty;
 
+                Log("Generating emulator settings folder");
+                try
+                {
+                    if (!Directory.Exists(Path.Combine(instanceExeFolder, "nepice_settings")))
+                    {
+                        Directory.CreateDirectory((Path.Combine(instanceExeFolder, "nepice_settings")));
+                        Log("Emulator settings folder generated");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log("Nucleus is unable to generate the required emulator settings folder");
+                }
+
+                try
+                {
+                   
+                    string log;
+                    if (i == 0)
+                    {
+                        log = "TRACE";
+                    }
+                    else
+                    {
+                        log = "OFF";
+                    }
+                    
+                    JObject emuSettings;
+
+                    if (gen.AltEpicEmuArgs)
+                    {
+                         emuSettings = new JObject(
+                         new JProperty("enable_overlay", false),
+                         new JProperty("epicid", player.Nickname),
+                         new JProperty("disable_online_networking", false),
+                         new JProperty("enable_lan", true),
+                         //new JProperty("log_level", log),
+                         new JProperty("savepath", "appdata"),
+                         new JProperty("unlock_dlcs", true),
+                         new JProperty("language", epiclang),
+                         new JProperty("username", player.Nickname)
+                         );
+                    }
+                    else
+                    {
+                         emuSettings = new JObject(
+                         new JProperty("enable_overlay", false),
+                         //new JProperty("gamename", gen.GameName.ToLower()),
+                         new JProperty("epicid", "0000000000000000000000000player" + (i+1)),                                                 
+                         new JProperty("disable_online_networking", false),
+                         new JProperty("enable_lan", true),
+                        // new JProperty("log_level", log),
+                         new JProperty("savepath", "appdata"),
+                         new JProperty("unlock_dlcs", true),
+                         new JProperty("language", epiclang),
+                         new JProperty("username", player.Nickname)
+                         );
+                    }
+
+                    string jsonPath = Path.Combine(instanceExeFolder, "nepice_settings\\NemirtingasEpicEmu.json");
+
+                    string oldjsonPath = Path.Combine(instanceExeFolder, "NemirtingasEpicEmu.json");//for older eos emu version
+
+                    Log("Writing emulator settings NemirtingasEpicEmu.json");
+
+                    File.WriteAllText(jsonPath, emuSettings.ToString());
+
+                    File.WriteAllText(oldjsonPath, emuSettings.ToString());//for older eos emu version
+
+                    if (setupDll)
+                    {
+                        addedFiles.Add(jsonPath);
+                        addedFiles.Add(oldjsonPath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log("Nucleus is unable to write the required NemirtingasEpicEmu.json file");
+                }
+
                 string[] steamDllFiles = Directory.GetFiles(rootFolder, "EOSSDK-Win*.dll", SearchOption.AllDirectories);
                 foreach (string nameFile in steamDllFiles)
                 {
                     Log("Found " + nameFile);
                     dllrootFolder = Path.GetDirectoryName(nameFile);
+
                     string tempRootFolder = rootFolder;
                     if (tempRootFolder.EndsWith("\\"))
                     {
@@ -8651,10 +8531,6 @@ namespace Nucleus.Gaming
                         FileCheck(Path.Combine(instanceDllFolder, x64dll));
                         try
                         {
-                            //if (File.Exists(Path.Combine(instanceDllFolder, x64dll)))
-                            //{
-                            //    File.Delete(Path.Combine(instanceDllFolder, x64dll));
-                            //}
                             Log("Placing Epic Emu " + x64dll + " in instance dll folder " + instanceDllFolder);
                             File.Copy(Path.Combine(utilFolder, "x64\\" + x64dll), Path.Combine(instanceDllFolder, x64dll), true);
                         }
@@ -8671,10 +8547,6 @@ namespace Nucleus.Gaming
                         FileCheck(Path.Combine(instanceDllFolder, x86dll));
                         try
                         {
-                            //if (File.Exists(Path.Combine(instanceDllFolder, x86dll)))
-                            //{
-                            //    File.Delete(Path.Combine(instanceDllFolder, x86dll));
-                            //}
                             Log("Placing Epic Emu " + x86dll + " in instance steam dll folder " + instanceDllFolder);
                             File.Copy(Path.Combine(utilFolder, "x86\\" + x86dll), Path.Combine(instanceDllFolder, x86dll), true);
                         }
@@ -8687,50 +8559,140 @@ namespace Nucleus.Gaming
                     }
                 }
             }
-
-            //string lang = "english";
-            //if (ini.IniReadValue("Misc", "SteamLang") != "" && ini.IniReadValue("Misc", "SteamLang") != "Automatic")
-            //{
-            //    lang = ini.IniReadValue("Misc", "SteamLang").ToLower();
-            //}
-            //if (gen.GoldbergLanguage?.Length > 0)
-            //{
-            //    lang = gen.GoldbergLanguage;
-            //}
-            //else
-            //{
-            //    lang = gen.GetSteamLanguage();
-            //}
-            
-            JObject emuSettings = new JObject(
-                //new JProperty("enable_overlay", true),
-                //new JProperty("gamename", gen.GameName),
-                //new JProperty("language", lang),
-                //new JProperty("languages", lang),
-                //new JProperty("savepath", "appdata"),
-                //new JProperty("unlock_dlcs", true),
-                new JProperty("username", player.Nickname)
-            );
-
-            string jsonPath = Path.Combine(instanceExeFolder, "NemirtingasEpicEmu.json");
-            //if (File.Exists(jsonPath))
-            //{
-            //    Log("Deleting existing NemirtingasEpicEmu.json");
-            //    File.Delete(jsonPath);
-            //}
-            //FileCheck(jsonPath);
-            Log("Writing emulator settings NemirtingasEpicEmu.json");
-            File.WriteAllText(jsonPath, emuSettings.ToString());
-
-            if(setupDll)
-                addedFiles.Add(jsonPath);
+            // Console.WriteLine("Player id => " + player.PlayerID);
 
             Log("Epic Emu setup complete");
+        }
+        private void UseNemirtingasGalaxyEmu(string rootFolder, string linkFolder, int i, PlayerInfo player,string gogLang, bool setupDll)
+        {
+            if (setupDll)
+            {
+                Log("Starting Nemirtingas Galaxy Emu setup");
+                string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\NemirtingasGalaxyEmu");
+                string x86dll = "Galaxy.dll";
+                string x64dll = "Galaxy64.dll";
+
+                string dllrootFolder = string.Empty;
+                string dllFolder = string.Empty;
+                string instanceDllFolder = string.Empty;
+
+                Log("Generating emulator settings folder");
+                try
+                {
+                    if (!Directory.Exists(Path.Combine(instanceExeFolder, "ngalaxye_settings")))
+                    {
+                        Directory.CreateDirectory((Path.Combine(instanceExeFolder, "ngalaxye_settings")));
+                        Log("Emulator settings folder generated");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log("Nucleus is unable to generate the required emulator settings folder");
+                }
+
+                try
+                {
+
+                    string log;
+                    if (i == 0)
+                    {
+                        log = "TRACE";
+                    }
+                    else
+                    {
+                        log = "OFF";
+                    }
+
+                    JObject emuSettings;
+                    emuSettings = new JObject( 
+                    new JProperty("api_version", "1.100.2.0"),         
+                    new JProperty("disable_online_networking", false),
+                    new JProperty("enable_lan", true), 
+                    new JProperty("enable_overlay", false),
+                    new JProperty("galaxyid", 14601386556348240 + (i+1)),
+                    new JProperty("language", gogLang.ToLower()),
+                   // new JProperty("log_level", log),
+                    new JProperty("productid", 2104387650),
+                    new JProperty("savepath", "appdata"),
+                    new JProperty("unlock_dlcs", true),                       
+                    new JProperty("username", player.Nickname)
+                    );
+                   
+
+                    string jsonPath = Path.Combine(instanceExeFolder, "ngalaxye_settings\\NemirtingasGalaxyEmu.json");
+
+                    string oldjsonPath = Path.Combine(instanceExeFolder, "NemirtingasGalaxyEmu.json");//for older eos emu version
+
+                    Log("Writing emulator settings NemirtingasGalaxyEmu.json");
+
+                    File.WriteAllText(jsonPath, emuSettings.ToString());
+
+                    if (setupDll)
+                    {
+                        addedFiles.Add(jsonPath);
+                    }       
+                }
+                catch (Exception ex)
+                {
+                    Log("Nucleus is unable to write the required NemirtingasGalaxyEmu.json file");
+                }
+
+                string[] steamDllFiles = Directory.GetFiles(rootFolder, "Galaxy*.dll", SearchOption.AllDirectories);
+                foreach (string nameFile in steamDllFiles)
+                {
+                    Log("Found " + nameFile);
+                    dllrootFolder = Path.GetDirectoryName(nameFile);
+
+                    string tempRootFolder = rootFolder;
+                    if (tempRootFolder.EndsWith("\\"))
+                    {
+                        tempRootFolder = tempRootFolder.Substring(0, tempRootFolder.Length - 1);
+                    }
+                    dllFolder = dllrootFolder.Remove(0, (tempRootFolder.Length));
+
+                    instanceDllFolder = linkFolder.TrimEnd('\\') + "\\" + dllFolder.TrimStart('\\');
+
+                    if (nameFile.EndsWith(x64dll, true, null))
+                    {
+                        FileCheck(Path.Combine(instanceDllFolder, x64dll));
+                        try
+                        {
+                            Log("Placing Galaxy Emu " + x64dll + " in instance dll folder " + instanceDllFolder);
+                            File.Copy(Path.Combine(utilFolder, "x64\\" + x64dll), Path.Combine(instanceDllFolder, x64dll), true);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log("ERROR - " + ex.Message);
+                            Log("Using alternative copy method for " + x64dll);
+                            CmdUtil.ExecuteCommand(utilFolder, out int exitCode, "copy \"" + Path.Combine(utilFolder, "x64\\" + x64dll) + "\" \"" + Path.Combine(instanceDllFolder, x64dll) + "\"");
+                        }
+                    }
+
+                    if (nameFile.EndsWith(x86dll, true, null))
+                    {
+                        FileCheck(Path.Combine(instanceDllFolder, x86dll));
+                        try
+                        {
+                            Log("Placing Galaxy Emu " + x86dll + " in instance steam dll folder " + instanceDllFolder);
+                            File.Copy(Path.Combine(utilFolder, "x86\\" + x86dll), Path.Combine(instanceDllFolder, x86dll), true);
+                        }
+                        catch (Exception ex)
+                        {
+                            Log("ERROR - " + ex.Message);
+                            Log("Using alternative copy method for " + x86dll);
+                            CmdUtil.ExecuteCommand(utilFolder, out int exitCode, "copy \"" + Path.Combine(utilFolder, "x86\\" + x86dll) + "\" \"" + Path.Combine(instanceDllFolder, x86dll) + "\"");
+                        }
+                    }
+                }
+            }
+
+
+            Log("Galaxy Emu setup complete");
         }
 
         private void UseGoldberg(string rootFolder, string nucleusRootFolder, string linkFolder, int i, PlayerInfo player, List<PlayerInfo> players, bool setupDll)
         {
-            
+
             Log("Starting Goldberg setup");
             string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\GoldbergEmu");
             string steamDllrootFolder = string.Empty;
@@ -8774,12 +8736,12 @@ namespace Nucleus.Gaming
                 gen.ForceProcessSearch = true;
                 gen.GoldbergWriteSteamIDAndAccount = true;
 
-                if(i==0)
+                if (i == 0)
                 {
                     startingArgs = gen.StartArguments;
                 }
 
-                var sb = new StringBuilder();
+                StringBuilder sb = new StringBuilder();
                 string gblines = sb.Append("#My own modified version of ColdClientLoader originally by Rat431")
                                 .AppendLine()
                                 .Append("[SteamClient]")
@@ -8807,10 +8769,14 @@ namespace Nucleus.Gaming
                 string settingsFolder = exeFolder + "\\settings";
                 if (gen.GoldbergNoLocalSave)
                 {
-                    if(gen.UseNucleusEnvironment)
+                    if (gen.UseNucleusEnvironment)
+                    {
                         settingsFolder = $@"{NucleusEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Roaming\Goldberg SteamEmu Saves\settings\";
+                    }
                     else
+                    {
                         settingsFolder = $@"{NucleusEnvironmentRoot}\AppData\Roaming\Goldberg SteamEmu Saves\settings\";
+                    }
                 }
                 else
                 {
@@ -8818,8 +8784,10 @@ namespace Nucleus.Gaming
                     addedFiles.Add(Path.Combine(exeFolder, "local_save.txt"));
                 }
 
-                if(!Directory.Exists(settingsFolder))
+                if (!Directory.Exists(settingsFolder))
+                {
                     Directory.CreateDirectory(settingsFolder);
+                }
 
                 File.WriteAllText(Path.Combine(settingsFolder, "user_steam_id.txt"), "");
                 addedFiles.Add(Path.Combine(settingsFolder, "user_steam_id.txt"));
@@ -8970,7 +8938,7 @@ namespace Nucleus.Gaming
                             File.Copy(Path.Combine(utilFolder, "experimental\\steamclient64.dll"), Path.Combine(instanceSteamDllFolder, "steamclient64.dll"), true);
                         }
                     }
-                        
+
 
                     if (!string.IsNullOrEmpty(prevSteamDllFilePath))
                     {
@@ -8981,14 +8949,16 @@ namespace Nucleus.Gaming
                     }
                     Log("New steam api folder found");
                     prevSteamDllFilePath = Path.GetDirectoryName(nameFile);
-                    
+
                     //File.WriteAllText(Path.Combine(instanceSteam_SettingsFolder, "offline.txt"), "");
 
                     if (ini.IniReadValue("Misc", "UseNicksInGame") == "True" && !string.IsNullOrEmpty(player.Nickname))
                     {
                         //FileCheck(Path.Combine(instanceSteamSettingsFolder, "account_name.txt"));
                         if (setupDll)
+                        {
                             addedFiles.Add(Path.Combine(instanceSteamSettingsFolder, "account_name.txt"));
+                        }
                         //if (File.Exists(Path.Combine(instanceSteamSettingsFolder, "account_name.txt")))
                         //{
                         //    File.Delete(Path.Combine(instanceSteamSettingsFolder, "account_name.txt"));
@@ -9000,16 +8970,18 @@ namespace Nucleus.Gaming
                     {
                         //FileCheck(Path.Combine(instanceSteamSettingsFolder, "account_name.txt"));
                         if (setupDll)
+                        {
                             addedFiles.Add(Path.Combine(instanceSteamSettingsFolder, "account_name.txt"));
+                        }
                         //if (File.Exists(Path.Combine(instanceSteamSettingsFolder, "account_name.txt")))
                         //{
                         //    File.Delete(Path.Combine(instanceSteamSettingsFolder, "account_name.txt"));
                         //}
 
-                        if (ini.IniReadValue("Misc", "UseNicksInGame") == "True" && player.IsKeyboardPlayer && !player.IsRawKeyboard && ini.IniReadValue("ControllerMapping", "Keyboard") != "")
+                        if (ini.IniReadValue("Misc", "UseNicksInGame") == "True" && player.IsKeyboardPlayer && !player.IsRawKeyboard && ini.IniReadValue("ControllerMapping", "Player_" + (i + 1)) != "")
                         {
-                            File.WriteAllText(Path.Combine(instanceSteamSettingsFolder, "account_name.txt"), ini.IniReadValue("ControllerMapping", "Keyboard"));
-                            Log("Generating account_name.txt with nickname " + ini.IniReadValue("ControllerMapping", "Keyboard"));
+                            File.WriteAllText(Path.Combine(instanceSteamSettingsFolder, "account_name.txt"), ini.IniReadValue("ControllerMapping", "Player_" + (i + 1)));
+                            Log("Generating account_name.txt with nickname " + ini.IniReadValue("ControllerMapping", "Player_" + (i + 1)));
                         }
                         else
                         {
@@ -9035,7 +9007,10 @@ namespace Nucleus.Gaming
                     //}
                     //FileCheck(Path.Combine(instanceSteamSettingsFolder));
                     if (setupDll)
+                    {
                         addedFiles.Add(Path.Combine(instanceSteamSettingsFolder, "user_steam_id.txt"));
+                    }
+
                     File.WriteAllText(Path.Combine(instanceSteamSettingsFolder, "user_steam_id.txt"), (steamID).ToString());
 
                     if (setupDll)
@@ -9060,7 +9035,7 @@ namespace Nucleus.Gaming
                         //}
                         //FileCheck(Path.Combine(instanceSteamSettingsFolder, "language.txt"));
                         //if (setupDll)
-                            addedFiles.Add(Path.Combine(instanceSteamSettingsFolder, "language.txt"));
+                        addedFiles.Add(Path.Combine(instanceSteamSettingsFolder, "language.txt"));
                         File.WriteAllText(Path.Combine(instanceSteamSettingsFolder, "language.txt"), lang);
 
                         if (gen.GoldbergIgnoreSteamAppId)
@@ -9076,7 +9051,7 @@ namespace Nucleus.Gaming
                             //}
                             //FileCheck(Path.Combine(instanceSteamDllFolder, "steam_appid.txt"));
                             //if (setupDll)
-                                addedFiles.Add(Path.Combine(instanceSteamDllFolder, "steam_appid.txt"));
+                            addedFiles.Add(Path.Combine(instanceSteamDllFolder, "steam_appid.txt"));
                             File.WriteAllText(Path.Combine(instanceSteamDllFolder, "steam_appid.txt"), gen.SteamID);
                         }
 
@@ -9087,7 +9062,7 @@ namespace Nucleus.Gaming
                         //}
                         //FileCheck(Path.Combine(instanceSteamDllFolder, "local_save.txt"));
                         //if (setupDll)
-                            addedFiles.Add(Path.Combine(instanceSteamDllFolder, "local_save.txt"));
+                        addedFiles.Add(Path.Combine(instanceSteamDllFolder, "local_save.txt"));
                         if (!gen.GoldbergNoLocalSave)
                         {
                             File.WriteAllText(Path.Combine(instanceSteamDllFolder, "local_save.txt"), "");
@@ -9102,7 +9077,7 @@ namespace Nucleus.Gaming
                             //}
                             //FileCheck(Path.Combine(instanceSteamDllFolder, "steam_interfaces.txt"));
                             //if (setupDll)
-                                addedFiles.Add(Path.Combine(instanceSteamDllFolder, "steam_interfaces.txt"));
+                            addedFiles.Add(Path.Combine(instanceSteamDllFolder, "steam_interfaces.txt"));
                             if (File.Exists(Path.Combine(utilFolder, "tools\\steam_interfaces.txt")))
                             {
                                 Log("Found generated steam_interfaces.txt file in Nucleus util folder, copying this file");
@@ -9123,7 +9098,7 @@ namespace Nucleus.Gaming
                                 //}
                                 File.Copy(Path.Combine(steamDllrootFolder, "steam_interfaces.txt"), Path.Combine(instanceSteamDllFolder, "steam_interfaces.txt"), true);
                             }
-                            else if (File.Exists(nucleusRootFolder.TrimEnd('\\') + "\\scripts\\" + gen.JsFileName.Substring(0, gen.JsFileName.Length - 3) + "\\steam_interfaces.txt"))
+                            else if (File.Exists(nucleusRootFolder.TrimEnd('\\') + "\\handlers\\" + gen.JsFileName.Substring(0, gen.JsFileName.Length - 3) + "\\steam_interfaces.txt"))
                             {
                                 Log("Found steam_interfaces.txt in Nucleus game folder");
                                 //if (File.Exists(Path.Combine(instanceSteamDllFolder, "steam_interfaces.txt")))
@@ -9131,7 +9106,7 @@ namespace Nucleus.Gaming
                                 //    Log("steam_interfaces.txt already exists in instance folder, deleting that file first then copying");
                                 //    File.Delete(Path.Combine(instanceSteamDllFolder, "steam_interfaces.txt"));
                                 //}
-                                File.Copy(nucleusRootFolder.TrimEnd('\\') + "\\scripts\\" + gen.JsFileName.Substring(0, gen.JsFileName.Length - 3) + "\\steam_interfaces.txt", Path.Combine(instanceSteamDllFolder, "steam_interfaces.txt"), true);
+                                File.Copy(nucleusRootFolder.TrimEnd('\\') + "\\handlers\\" + gen.JsFileName.Substring(0, gen.JsFileName.Length - 3) + "\\steam_interfaces.txt", Path.Combine(instanceSteamDllFolder, "steam_interfaces.txt"), true);
                             }
                             else if (gen.OrigSteamDllPath?.Length > 0 && File.Exists(gen.OrigSteamDllPath))
                             {
@@ -9156,7 +9131,7 @@ namespace Nucleus.Gaming
                                 //}
                                 //FileCheck(Path.Combine(instanceSteamDllFolder, "steam_interfaces.txt"));
                                 //if (setupDll)
-                                    addedFiles.Add(Path.Combine(instanceSteamDllFolder, "steam_intterfaces.txt"));
+                                addedFiles.Add(Path.Combine(instanceSteamDllFolder, "steam_intterfaces.txt"));
                                 Log("Copying over generated steam_interfaces.txt");
                                 File.Copy(Path.Combine(Path.Combine(utilFolder, "tools"), "steam_interfaces.txt"), Path.Combine(instanceSteamDllFolder, "steam_interfaces.txt"), true);
 
@@ -9453,7 +9428,7 @@ namespace Nucleus.Gaming
 
         private void HexEditExeAddress(string exePath, int i)
         {
-            if(gen.SymlinkExe)
+            if (gen.SymlinkExe)
             {
                 Log("Skipping HexEditExeAddress, " + Path.GetFileName(exePath) + " is symlinked");
                 return;
@@ -9461,7 +9436,7 @@ namespace Nucleus.Gaming
 
             Log("HexEditExeAddress - Patching executable, " + Path.GetFileName(exePath) + ", in instance folder");
 
-            if(!gen.SymlinkGame && !gen.HardlinkGame && !gen.HardcopyGame)
+            if (!gen.SymlinkGame && !gen.HardlinkGame && !gen.HardcopyGame)
             {
                 string fileBackup = Path.Combine(Path.GetDirectoryName(exePath), Path.GetFileNameWithoutExtension(exePath) + "_NUCLEUS_BACKUP.exe");
                 if (File.Exists(exePath) && !File.Exists(fileBackup))
@@ -9476,7 +9451,7 @@ namespace Nucleus.Gaming
                     { }
                 }
             }
-            
+
             foreach (string hexSplitLine in gen.HexEditExeAddress)
             {
                 string[] hexSplit = hexSplitLine.Split('|');
@@ -9513,7 +9488,7 @@ namespace Nucleus.Gaming
                 List<byte> bytesConv = new List<byte>();
                 for (int s = 0; s < hexSplit[2 - indexOffset].Length; s += 2)
                 {
-                    bytesConv.Add(Convert.ToByte(hexSplit[2 - indexOffset].Substring(s,2), 16));
+                    bytesConv.Add(Convert.ToByte(hexSplit[2 - indexOffset].Substring(s, 2), 16));
                 }
                 byte[] bArray = bytesConv.ToArray();
 
@@ -9522,7 +9497,7 @@ namespace Nucleus.Gaming
                     stream.Position = long.Parse(hexSplit[1 - indexOffset], NumberStyles.HexNumber);
                     stream.Write(bArray, 0, bArray.Length);
                 }
-                
+
                 //if(origExists)
                 //{
                 //    Log(string.Format("Deleting temporary executable {0}", Path.GetFileNameWithoutExtension(exePath) + "-TEMP.exe"));
@@ -9533,7 +9508,7 @@ namespace Nucleus.Gaming
 
         private void HexEditFileAddress(string linkFolder, int i)
         {
-            
+
 
             foreach (string hexSplitLine in gen.HexEditFileAddress)
             {
@@ -9575,7 +9550,7 @@ namespace Nucleus.Gaming
                 //    File.Move(exePath, Path.Combine(Path.GetDirectoryName(exePath), Path.GetFileNameWithoutExtension(exePath) + exeSuffix));
                 //}
 
-                if(File.Exists(fullFilePath))
+                if (File.Exists(fullFilePath))
                 {
                     if (!gen.SymlinkGame && !gen.HardlinkGame && !gen.HardcopyGame)
                     {
@@ -9751,15 +9726,15 @@ namespace Nucleus.Gaming
 
         private void ChangeExe(int i)
         {
-            string newExe = Path.GetFileNameWithoutExtension(this.userGame.Game.ExecutableName) + " - Player " + (i + 1) + ".exe";
+            string newExe = Path.GetFileNameWithoutExtension(userGame.Game.ExecutableName) + " - Player " + (i + 1) + ".exe";
 
-            if(File.Exists(Path.Combine(instanceExeFolder, this.userGame.Game.ExecutableName)))
+            if (File.Exists(Path.Combine(instanceExeFolder, userGame.Game.ExecutableName)))
             {
                 if (File.Exists(Path.Combine(instanceExeFolder, newExe)))
                 {
                     File.Delete(Path.Combine(instanceExeFolder, newExe));
                 }
-                File.Copy(Path.Combine(instanceExeFolder, this.userGame.Game.ExecutableName), Path.Combine(instanceExeFolder, newExe));
+                File.Copy(Path.Combine(instanceExeFolder, userGame.Game.ExecutableName), Path.Combine(instanceExeFolder, newExe));
                 Log("Changed game executable from " + gen.ExecutableName + " to " + newExe);
             }
 
@@ -9768,20 +9743,20 @@ namespace Nucleus.Gaming
                 exePath = Path.Combine(instanceExeFolder, newExe);
                 Log("Using " + newExe + " as the game executable");
 
-                if(!gen.SymlinkGame && !gen.HardlinkGame && !gen.HardcopyGame)
+                if (!gen.SymlinkGame && !gen.HardlinkGame && !gen.HardcopyGame)
                 {
                     Log($"{newExe} will be deleted upon ending session");
                     addedFiles.Add(Path.Combine(instanceExeFolder, newExe));
                 }
                 else
                 {
-                    if (File.Exists(Path.Combine(instanceExeFolder, this.userGame.Game.ExecutableName)))
+                    if (File.Exists(Path.Combine(instanceExeFolder, userGame.Game.ExecutableName)))
                     {
-                        File.Delete(Path.Combine(instanceExeFolder, this.userGame.Game.ExecutableName));
+                        File.Delete(Path.Combine(instanceExeFolder, userGame.Game.ExecutableName));
                     }
                 }
             }
-            
+
         }
 
         public string GetUserSID(string userName)
@@ -9797,11 +9772,11 @@ namespace Nucleus.Gaming
             //    return null;
             //}
 
-            var principalContext = new PrincipalContext(ContextType.Machine);
-            var userPrincipal = UserPrincipal.FindByIdentity(principalContext, userName);
+            PrincipalContext principalContext = new PrincipalContext(ContextType.Machine);
+            UserPrincipal userPrincipal = UserPrincipal.FindByIdentity(principalContext, userName);
             if (userPrincipal != null)
             {
-                var userSid = userPrincipal.Sid;
+                SecurityIdentifier userSid = userPrincipal.Sid;
                 return userSid.ToString();
             }
 
@@ -9813,7 +9788,7 @@ namespace Nucleus.Gaming
             ArrayList myItems = new ArrayList();
             UserPrincipal oUserPrincipal = GetUser(sUserName);
 
-            if(oUserPrincipal != null)
+            if (oUserPrincipal != null)
             {
                 PrincipalSearchResult<Principal> oPrincipalSearchResult = oUserPrincipal.GetGroups();
 
@@ -9834,7 +9809,7 @@ namespace Nucleus.Gaming
                 LogManager.Log("ERROR - User Principal is null");
             }
 
-            if(myItems.Count == 0)
+            if (myItems.Count == 0)
             {
                 LogManager.Log("Error grabbing user groups for user: " + sUserName);
             }
@@ -9858,10 +9833,12 @@ namespace Nucleus.Gaming
         private void StatusForm_Closing(object sender, FormClosingEventArgs e)
         {
             if (!processingExit)
+            {
                 Thread.Sleep(5000);
+            }
         }
 
-        void ExportRegistry(string strKey, string filepath)
+        private void ExportRegistry(string strKey, string filepath)
         {
             try
             {
@@ -9879,7 +9856,7 @@ namespace Nucleus.Gaming
                     proc.WaitForExit();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // handle exception
             }
@@ -9919,7 +9896,7 @@ namespace Nucleus.Gaming
 
         public void SwitchProcessTo(string deviceId, ERole role, EDataFlow flow, uint processId)
         {
-            var roles = new[]
+            ERole[] roles = new[]
             {
                 ERole.eConsole,
                 ERole.eCommunications,
@@ -9970,7 +9947,7 @@ namespace Nucleus.Gaming
                 {
                     // Continually get the next task and try to execute it.
                     // This will continue until the scheduler is disposed and no more tasks remain.
-                    foreach (var t in _tasks.GetConsumingEnumerable())
+                    foreach (Task t in _tasks.GetConsumingEnumerable())
                     {
                         TryExecuteTask(t);
                     }
@@ -9997,7 +9974,10 @@ namespace Nucleus.Gaming
             /// </summary>
             public void Dispose()
             {
-                if (_tasks == null) return;
+                if (_tasks == null)
+                {
+                    return;
+                }
 
                 // Indicate that no new tasks will be coming in
                 _tasks.CompleteAdding();
@@ -10049,7 +10029,9 @@ namespace Nucleus.Gaming
             public static void Assert()
             {
                 if (InvokeRequired)
+                {
                     throw new Exception($"(InvalidThread)This operation must be run on the ComThread ThreadId: {Scheduler.ThreadId}");
+                }
             }
 
             public static void Invoke(Action action)
@@ -10156,7 +10138,7 @@ namespace Nucleus.Gaming
             public static extern void RoGetActivationFactory(
                 [MarshalAs(UnmanagedType.HString)] string activatableClassId,
                 [In] ref Guid iid,
-                [Out, MarshalAs(UnmanagedType.IInspectable)] out Object factory);
+                [Out, MarshalAs(UnmanagedType.IInspectable)] out object factory);
 
             [DllImport("combase.dll", PreserveSig = false)]
             public static extern void WindowsCreateString(
@@ -10169,7 +10151,7 @@ namespace Nucleus.Gaming
         {
             public static IAudioPolicyConfigFactory Create()
             {
-                var iid = typeof(IAudioPolicyConfigFactory).GUID;
+                Guid iid = typeof(IAudioPolicyConfigFactory).GUID;
                 ComBase.RoGetActivationFactory("Windows.Media.Internal.AudioPolicyConfig", ref iid, out object factory);
                 return (IAudioPolicyConfigFactory)factory;
             }
@@ -10203,9 +10185,21 @@ namespace Nucleus.Gaming
 
             private static string UnpackDeviceId(string deviceId)
             {
-                if (deviceId.StartsWith(MMDEVAPI_TOKEN)) deviceId = deviceId.Remove(0, MMDEVAPI_TOKEN.Length);
-                if (deviceId.EndsWith(DEVINTERFACE_AUDIO_RENDER)) deviceId = deviceId.Remove(deviceId.Length - DEVINTERFACE_AUDIO_RENDER.Length);
-                if (deviceId.EndsWith(DEVINTERFACE_AUDIO_CAPTURE)) deviceId = deviceId.Remove(deviceId.Length - DEVINTERFACE_AUDIO_CAPTURE.Length);
+                if (deviceId.StartsWith(MMDEVAPI_TOKEN))
+                {
+                    deviceId = deviceId.Remove(0, MMDEVAPI_TOKEN.Length);
+                }
+
+                if (deviceId.EndsWith(DEVINTERFACE_AUDIO_RENDER))
+                {
+                    deviceId = deviceId.Remove(deviceId.Length - DEVINTERFACE_AUDIO_RENDER.Length);
+                }
+
+                if (deviceId.EndsWith(DEVINTERFACE_AUDIO_CAPTURE))
+                {
+                    deviceId = deviceId.Remove(deviceId.Length - DEVINTERFACE_AUDIO_CAPTURE.Length);
+                }
+
                 return deviceId;
             }
 
@@ -10221,15 +10215,15 @@ namespace Nucleus.Gaming
                 LogManager.Log($"ExtendedPolicyClient SetDefaultEndPoint {deviceId} [{flow}] {processId}");
                 try
                 {
-                    var stringPtrDeviceId = IntPtr.Zero;
+                    IntPtr stringPtrDeviceId = IntPtr.Zero;
 
                     if (!string.IsNullOrWhiteSpace(deviceId))
                     {
-                        var str = GenerateDeviceId(deviceId, flow);
+                        string str = GenerateDeviceId(deviceId, flow);
                         ComBase.WindowsCreateString(str, (uint)str.Length, out stringPtrDeviceId);
                     }
 
-                    foreach (var eRole in roles)
+                    foreach (ERole eRole in roles)
                     {
                         PolicyConfig.SetPersistedDefaultAudioEndpoint(processId, flow, eRole, stringPtrDeviceId);
                     }

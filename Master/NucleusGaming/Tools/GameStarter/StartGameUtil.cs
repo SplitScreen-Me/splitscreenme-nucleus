@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Tools.GameStarter
 {
@@ -41,8 +40,10 @@ namespace Nucleus.Gaming.Tools.GameStarter
             lock (locker)
             {
                 string startGamePath = GetStartGamePath();
-                ProcessStartInfo startInfo = new ProcessStartInfo();
-                startInfo.FileName = startGamePath;
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = startGamePath
+                };
 
                 string mu = "";
                 for (int i = 0; i < mutex.Length; i++)
@@ -71,8 +72,10 @@ namespace Nucleus.Gaming.Tools.GameStarter
             lock (locker)
             {
                 string startGamePath = GetStartGamePath();
-                ProcessStartInfo startInfo = new ProcessStartInfo();
-                startInfo.FileName = startGamePath;
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = startGamePath
+                };
 
                 string mu = "";
                 for (int i = 0; i < mutex.Length; i++)
@@ -96,8 +99,7 @@ namespace Nucleus.Gaming.Tools.GameStarter
 
                 proc.WaitForExit();
 
-                bool result;
-                bool.TryParse(lastLine, out result);
+                bool.TryParse(lastLine, out bool result);
 
                 return result;
             }
@@ -116,8 +118,10 @@ namespace Nucleus.Gaming.Tools.GameStarter
             lock (locker)
             {
                 string startGamePath = GetStartGamePath();
-                ProcessStartInfo startInfo = new ProcessStartInfo();
-                startInfo.FileName = startGamePath;
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = startGamePath
+                };
 
                 if (!string.IsNullOrWhiteSpace(workingDir))
                 {
@@ -125,7 +129,7 @@ namespace Nucleus.Gaming.Tools.GameStarter
                 }
 
                 //string arguments = 
-                startInfo.Arguments = "\"" + "hook|::|" + hook + "\" \"delay|::|" + delay + "\" \"renamemutex|::|" + renameMutex + "\" \"mutextorename|::|" + mutexNames + "\" \"setwindow|::|" + setWindow + "\" \"isdebug|::|" + isDebug + "\" \"nucleusfolderpath|::|" + nucleusFolder + "\" \"blockraw|::|" + blockRaw + "\" \"nucenv|::|" + UseNucleusEnvironment + "\" \"playernick|::|" + playerNick + "\" \"starthks|::|" + startupHooksEnabled  + "\" \"createsingle|::|" + createSingle + "\" \"rawhid|::|" + rawHid + "\" \"width|::|" + width + "\" \"height|::|" + height + "\" \"posx|::|" + posx + "\" \"posy|::|" + posy  + "\" \"docpath|::|" + docpath + "\" \"usedocs|::|" + usedocs  /*+ "\" \"rawhid|::|" + rawHid*/ + "\" \"game|::|" + pathToGame + workingDir + ";" + args + "\"";
+                startInfo.Arguments = "\"" + "hook|::|" + hook + "\" \"delay|::|" + delay + "\" \"renamemutex|::|" + renameMutex + "\" \"mutextorename|::|" + mutexNames + "\" \"setwindow|::|" + setWindow + "\" \"isdebug|::|" + isDebug + "\" \"nucleusfolderpath|::|" + nucleusFolder + "\" \"blockraw|::|" + blockRaw + "\" \"nucenv|::|" + UseNucleusEnvironment + "\" \"playernick|::|" + playerNick + "\" \"starthks|::|" + startupHooksEnabled + "\" \"createsingle|::|" + createSingle + "\" \"rawhid|::|" + rawHid + "\" \"width|::|" + width + "\" \"height|::|" + height + "\" \"posx|::|" + posx + "\" \"posy|::|" + posy + "\" \"docpath|::|" + docpath + "\" \"usedocs|::|" + usedocs  /*+ "\" \"rawhid|::|" + rawHid*/ + "\" \"game|::|" + pathToGame + workingDir + ";" + args + "\"";
                 startInfo.RedirectStandardOutput = true;
                 startInfo.UseShellExecute = false;
 
@@ -153,14 +157,16 @@ namespace Nucleus.Gaming.Tools.GameStarter
         public static bool SymlinkGame(string root, string destination, out int exitCode,
             string[] dirExclusions, string[] fileExclusions, string[] fileCopyInstead, bool hardLink, bool symFolders, int numPlayers)
         {
-            
+
             exitCode = 1;
 
             lock (locker)
             {
                 string startGamePath = GetStartGamePath();
-                ProcessStartInfo startInfo = new ProcessStartInfo();
-                startInfo.FileName = startGamePath;
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = startGamePath
+                };
 
 
                 string de = "";

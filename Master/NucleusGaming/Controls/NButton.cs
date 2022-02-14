@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+﻿using System.Drawing;
 using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Controls
@@ -13,13 +9,13 @@ namespace Nucleus.Gaming.Controls
         protected Color disabledForeColor = Color.Black;
         public Color DefaultForeColor
         {
-            get { return defaultForeColor; }
-            set { defaultForeColor = value; }
+            get => defaultForeColor;
+            set => defaultForeColor = value;
         }
         public Color DisabledForeColor
         {
-            get { return disabledForeColor; }
-            set { disabledForeColor = value; }
+            get => disabledForeColor;
+            set => disabledForeColor = value;
         }
 
         protected override void OnPaint(PaintEventArgs pevent)
@@ -32,12 +28,14 @@ namespace Nucleus.Gaming.Controls
             else
             {
                 base.OnPaint(pevent);
-                SizeF sf = pevent.Graphics.MeasureString(this.Text, this.Font, this.Width);
-                Point ThePoint = new Point();
-                ThePoint.X = (int)((this.Width / 2) - (sf.Width / 2));
-                ThePoint.Y = (int)((this.Height / 2) - (sf.Height / 2));
+                SizeF sf = pevent.Graphics.MeasureString(Text, Font, Width);
+                Point ThePoint = new Point
+                {
+                    X = (int)((Width / 2) - (sf.Width / 2)),
+                    Y = (int)((Height / 2) - (sf.Height / 2))
+                };
                 Brush brush = new SolidBrush(disabledForeColor);
-                pevent.Graphics.DrawString(this.Text, this.Font, brush, ThePoint);
+                pevent.Graphics.DrawString(Text, Font, brush, ThePoint);
                 brush.Dispose();
             }
         }

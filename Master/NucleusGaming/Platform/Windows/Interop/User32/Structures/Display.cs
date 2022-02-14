@@ -1,49 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 
 namespace Nucleus
 {
     public class Display
     {
-        public Rectangle Bounds
-        {
-            get { return bounds; }
-        }
-        public string DeviceName
-        {
-            get { return deviceName; }
-        }
-        public bool Primary
-        {
-            get { return primary; }
-        }
-        public IntPtr Handle
-        {
-            get { return ptr; }
-        }
-        public string DeviceID
-        {
-            get { return deviceID; }
-        }
-        public string DeviceString
-        {
-            get { return deviceString; }
-        }
-        public string MonitorID
-        {
-            get { return monitorID; }
-        }
-        public int DisplayIndex
-        {
-            get { return displayIndex; }
-        }
-        public int MonitorIndex
-        {
-            get { return monitorIndex; }
-        }
+        public Rectangle Bounds => bounds;
+        public string DeviceName => deviceName;
+        public bool Primary => primary;
+        public IntPtr Handle => ptr;
+        public string DeviceID => deviceID;
+        public string DeviceString => deviceString;
+        public string MonitorID => monitorID;
+        public int DisplayIndex => displayIndex;
+        public int MonitorIndex => monitorIndex;
 
         private Rectangle bounds;
         private string deviceName;

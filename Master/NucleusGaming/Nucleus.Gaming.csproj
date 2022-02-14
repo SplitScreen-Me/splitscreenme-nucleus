@@ -39,7 +39,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\Release\bin\</OutputPath>
     <DefineConstants>TRACE;UNSAFE;ALPHA;RELEASE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
@@ -49,6 +49,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <DebugSymbols>true</DebugSymbols>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestDebug|AnyCPU'">
     <OutputPath>bin\TestDebug\</OutputPath>
@@ -68,6 +69,7 @@
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationFramework" />
     <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpDX.4.2.0\lib\net45\SharpDX.dll</HintPath>
     </Reference>
@@ -139,6 +141,14 @@
     <Compile Include="Coop\BasicTypes\IntVector2.cs" />
     <Compile Include="Coop\BasicTypes\RECT.cs" />
     <Compile Include="Coop\BasicTypes\Ref.cs" />
+    <Compile Include="Coop\Generic\async.cs" />
+    <Compile Include="Coop\Generic\HttpClient.cs" />
+    <Compile Include="Coop\Generic\ProcessPicker.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Coop\Generic\ProcessPicker.Designer.cs">
+      <DependentUpon>ProcessPicker.cs</DependentUpon>
+    </Compile>
     <Compile Include="Coop\Generic\Hub.cs" />
     <Compile Include="Coop\Generic\KeyboardPlayer.cs" />
     <Compile Include="Coop\Generic\RegType.cs" />
@@ -207,6 +217,7 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Coop\Generic\DPIHandling.cs" />
+    <Compile Include="DPI\DeviceCapEnum.cs" />
     <Compile Include="DPI\DPIManager.cs" />
     <Compile Include="DPI\DPIMonitor.cs" />
     <Compile Include="DPI\IDynamicSized.cs" />
@@ -223,6 +234,10 @@
       <DependentUpon>Prompt.cs</DependentUpon>
     </Compile>
     <Compile Include="Globals.cs" />
+    <Compile Include="New\GameControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="New\PositionsControlBase.cs" />
     <Compile Include="Platform\IO\WinDirectoryUtil.cs" />
     <Compile Include="Platform\Windows\Interop\Gdi32\Gdi32Interop.cs" />
     <Compile Include="Platform\Windows\Interop\Kernel32\Kernel32Interop.cs" />
@@ -261,9 +276,6 @@
     <Compile Include="IO\MFT\FileNameAndParentFrn.cs" />
     <Compile Include="IO\MFT\MFTReader.cs" />
     <Compile Include="Coop\GameManager.cs" />
-    <Compile Include="New\GameControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="New\ImageButtonState.cs" />
     <Compile Include="New\ImageButton.cs">
       <SubType>UserControl</SubType>
@@ -283,6 +295,11 @@
     <Compile Include="New\PositionsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Util\RectangleUtil.cs" />
     <Compile Include="Platform\Windows\MonitorDpiType.cs" />
     <Compile Include="Platform\Windows\ProcessDpiAwareness.cs" />
@@ -291,11 +308,6 @@
     <Compile Include="Coop\PlayerInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Coop\Generic\ProcessData.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Util\AssemblyUtil.cs" />
     <Compile Include="Util\CmdUtil.cs" />
     <Compile Include="Util\Palette.cs" />
@@ -310,8 +322,14 @@
     <Compile Include="Util\StringUtil.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Controls\ControlListBox.resx">
+      <DependentUpon>ControlListBox.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\CoolCheckbox.resx">
       <DependentUpon>CoolCheckbox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CoolListControl.resx">
+      <DependentUpon>CoolListControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\PictureButton.resx">
       <DependentUpon>PictureButton.cs</DependentUpon>
@@ -319,17 +337,32 @@
     <EmbeddedResource Include="Controls\TextMessageBox.resx">
       <DependentUpon>TextMessageBox.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Coop\Generic\ProcessPicker.resx">
+      <DependentUpon>ProcessPicker.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\CustomPrompt.resx">
       <DependentUpon>CustomPrompt.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Prompt.resx">
       <DependentUpon>Prompt.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="New\GameControl.resx">
+      <DependentUpon>GameControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="New\ImageButton.resx">
+      <DependentUpon>ImageButton.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="New\PlayerCountControl.resx">
       <DependentUpon>PlayerCountControl.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="New\PlayerOptionsControl.resx">
+      <DependentUpon>PlayerOptionsControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="New\PositionsControl.resx">
       <DependentUpon>PositionsControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="New\UserInputControl.resx">
+      <DependentUpon>UserInputControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -382,6 +415,12 @@
     <None Include="Resources\keyboard.png" />
     <None Include="Resources\players.png" />
     <None Include="Resources\icon.png" />
+    <Content Include="Resources\icon.ico" />
+    <None Include="Resources\icon.ico.back" />
+    <None Include="Resources\instruction.gif" />
+    <None Include="Resources\instruction.png" />
+    <None Include="Resources\instruction-close.png" />
+    <None Include="Resources\instructions.gif" />
     <Content Include="Resources\mouse.png" />
     <None Include="Resources\rawkeyboard.png" />
     <Content Include="Resources\xinput1_3.dll" />

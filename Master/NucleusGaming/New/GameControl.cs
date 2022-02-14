@@ -1,21 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using Nucleus.Gaming;
+﻿using Nucleus.Gaming;
 using Nucleus.Gaming.Coop;
+using System;
+using System.Drawing;
+using System.IO;
+using System.Windows.Forms;
+using System.Media;
 
 namespace Nucleus.Coop
 {
     public class GameControl : UserControl, IDynamicSized, IRadioControl
     {
+        private readonly IniFile ini = new Gaming.IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));    
         public GenericGameInfo GameInfo { get; private set; }
         public UserGameInfo UserGameInfo { get; private set; }
-
+  
         private PictureBox picture;
         private PictureBox playerIcon;
         private Label title;
@@ -23,36 +21,76 @@ namespace Nucleus.Coop
         private ToolTip numPlayersTt;
         public string TitleText { get; set; }
         public string PlayerText { get; set; }
-
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+               CreateParams handleparams = base.CreateParams;
+                handleparams.ExStyle = 0x02000000;
+               return handleparams;
+            }
+        }
+        public void button_Click(object sender, EventArgs e)
+        {   
+			string ChoosenTheme = ini.IniReadValue("Theme", "Theme");
+            SoundPlayer splayer = new SoundPlayer((Path.Combine(Application.StartupPath, @"gui\theme\"+ChoosenTheme+"\\button_click.wav")));
+            splayer.Play();
+        }
+		
         public GameControl(GenericGameInfo game, UserGameInfo userGame)
         {
+            string ChoosenTheme = ini.IniReadValue("Theme", "Theme");
+            IniFile theme = new IniFile(Path.Combine(Directory.GetCurrentDirectory() + "\\gui\\theme\\" + ChoosenTheme, "theme.ini"));
+
+            bool MouseClick = Convert.ToBoolean(theme.IniReadValue("Sounds", "MouseClick"));
+            SuspendLayout();
+            AutoScaleDimensions = new SizeF(96F, 96F);
+            AutoScaleMode = AutoScaleMode.Dpi;
+            AutoSize = false;
+            Name = "GameControl";
+            Size = new Size(203, 42);
+            ResumeLayout(false);
+
             GameInfo = game;
             UserGameInfo = userGame;
 
-            picture = new PictureBox();
-            picture.SizeMode = PictureBoxSizeMode.StretchImage;
+            picture = new PictureBox
+            {
+                SizeMode = PictureBoxSizeMode.StretchImage,
+            };
 
-            playerIcon = new PictureBox();
-            playerIcon.SizeMode = PictureBoxSizeMode.StretchImage;
-            playerIcon.Image = Gaming.Properties.Resources.players;
+            playerIcon = new PictureBox
+            {
+                SizeMode = PictureBoxSizeMode.StretchImage,
+                Image = Gaming.Properties.Resources.players
+            };
 
             numPlayersTt = new ToolTip();
             numPlayersTt.SetToolTip(playerIcon, "Number of players");
 
-            title = new Label();
-            title.Font = new Font("Segoe UI", 11, FontStyle.Bold);
-            players = new Label();
-            players.Font = new Font("Segoe UI", 9);
+            title = new Label
+            {
+                AutoSize = false,
+                Font = new Font("Franklin Gothic Medium", 8, FontStyle.Bold, GraphicsUnit.Point, 0),
+               
+            };
+
+            players = new Label
+            {
+                AutoSize = true,
+                Font = new Font("Franklin Gothic Medium", 7, FontStyle.Regular, GraphicsUnit.Point, 0)
+            };
+
             if (game == null)
             {
                 title.Text = "No games";
                 players.Text = string.Empty;
-                title.Font = new Font("Segoe UI", 11, FontStyle.Regular);
+                title.Font = new Font("Franklin Gothic Medium", 9, FontStyle.Bold, GraphicsUnit.Point, 0);               
             }
             else
             {
                 title.Text = GameInfo.GameName;
-                if(GameInfo.MaxPlayers > 2)
+                if (GameInfo.MaxPlayers > 2)
                 {
                     players.Text = "2-" + GameInfo.MaxPlayers;
                 }
@@ -60,24 +98,29 @@ namespace Nucleus.Coop
                 {
                     players.Text = GameInfo.MaxPlayers.ToString();
                 }
-                //players.Text = "Players: " + GameInfo.MaxPlayers;
             }
+            
             TitleText = title.Text;
             PlayerText = players.Text;
+            BackColor = BackColor = Color.Transparent;
 
-            BackColor = Color.FromArgb(30, 30, 30);
-            Size = new Size(200, 52);
+            if (MouseClick)
+            {
+                Click += new EventHandler(button_Click);
+            }
 
             Controls.Add(picture);
             Controls.Add(title);
             Controls.Add(players);
-            Controls.Add(playerIcon);
-
+            if (title.Text != "No games")
+            {
+                Controls.Add(playerIcon);
+            }
             DPIManager.Register(this);
         }
         ~GameControl()
         {
-            DPIManager.Unregister(this);
+           DPIManager.Unregister(this);
         }
 
         public void UpdateSize(float scale)
@@ -87,68 +130,57 @@ namespace Nucleus.Coop
                 DPIManager.Unregister(this);
                 return;
             }
-
+            
             SuspendLayout();
 
-            int border = DPIManager.Adjust(4, scale);
-            int dborder = border * 2;
-
+            int margin = 40;
+            int border = 4;
+          
+            picture.Size = new Size((int)((margin - border) * scale), (int)((margin - border) * scale));
             picture.Location = new Point(border, border);
-            picture.Size = new Size(DPIManager.Adjust(44, scale), DPIManager.Adjust(44, scale));
 
-            Height = DPIManager.Adjust(52, scale);
-
-            Size labelSize = TextRenderer.MeasureText(TitleText, title.Font);
             Size plabelSize = TextRenderer.MeasureText(PlayerText, players.Font);
-            float reservedSpaceLabel = this.Width - picture.Width;
-
-            if (labelSize.Width > reservedSpaceLabel)
-            {
-                // make text smaller
-                int charSize = TextRenderer.MeasureText("g", title.Font).Width;
-                int toRemove = (int)((reservedSpaceLabel - labelSize.Width) / (float)charSize);
-                toRemove = Math.Max(toRemove + 3, 7);
-                title.Text = TitleText.Remove(TitleText.Length - toRemove, toRemove) + "...";
-            }
-            else
-            {
-                title.Text = TitleText;
-            }
+            
+            title.Text = TitleText;
             players.Text = PlayerText;
-            title.Size = labelSize;
+
+            title.AutoSize = true;       
+            title.MaximumSize = new Size(Width - picture.Width - (border*2), 0);
+           
             players.Size = plabelSize;
+            playerIcon.Size = new Size(players.Size.Height, players.Size.Height);//why not?
 
-            float height = this.Height / 2.0f;
-            float lheight = labelSize.Height / 2.0f;
 
-            title.Location = new Point(picture.Width + picture.Left + border, (int)(height - labelSize.Height)/*(int)(height - lheight)*/);
-            players.Location = new Point(picture.Width + picture.Left + border + playerIcon.Width + 10, (int)height);
+            title.Location = new Point(picture.Right + border, picture.Location.Y);
+            playerIcon.Location = new Point(picture.Right + border, title.Bottom);
+            players.Location = new Point(picture.Right + border + playerIcon.Width, playerIcon.Bottom-players.Height);               
 
-            playerIcon.Location = new Point(picture.Width + picture.Left + border + 10, (int)height);
-            playerIcon.Size = new Size(DPIManager.Adjust(players.Size.Height, scale), DPIManager.Adjust(players.Size.Height, scale));
-
+            if(picture.Height < playerIcon.Bottom)//more than one title row
+            {
+                Height = playerIcon.Bottom + border;
+                picture.Location = new Point(picture.Location.X, Height / 2 - picture.Height / 2);
+            }
+            else// one row
+            {
+                Height = picture.Bottom + border;//adjust the control Height
+            }
+         
             ResumeLayout();
         }
 
         protected override void OnControlAdded(ControlEventArgs e)
         {
             base.OnControlAdded(e);
-
             Control c = e.Control;
             c.Click += C_Click;
             c.MouseEnter += C_MouseEnter;
-            c.MouseLeave += C_MouseLeave;
+            c.MouseLeave += C_MouseLeave;          
+            DPIManager.Update(this);
         }
-
-        protected override void OnSizeChanged(EventArgs e)
-        {
-            base.OnSizeChanged(e);
-            UpdateSize(DPIManager.Scale);
-        }
-
+     
         private void C_MouseEnter(object sender, EventArgs e)
         {
-            OnMouseEnter(e);
+            OnMouseEnter(e);	
         }
 
         private void C_MouseLeave(object sender, EventArgs e)
@@ -159,46 +191,57 @@ namespace Nucleus.Coop
         private void C_Click(object sender, EventArgs e)
         {
             OnClick(e);
+
         }
 
         public Image Image
         {
-            get { return this.picture.Image; }
-            set { this.picture.Image = value; }
+            get => picture.Image;
+            set => picture.Image = value;
         }
-
-        public override string ToString()
+		
+          public override string ToString()
         {
             return Text;
         }
 
         private bool isSelected;
+		
         public void RadioSelected()
         {
-            BackColor = Color.FromArgb(80, 80, 80);
+            string ChoosenTheme = ini.IniReadValue("Theme", "Theme");
+            IniFile theme = new IniFile(Path.Combine(Directory.GetCurrentDirectory() + "\\gui\\theme\\" + ChoosenTheme, "theme.ini"));
+            string[] rgb_SelectionColor = theme.IniReadValue("Colors", "SelectionColor").Split(','); 
+            BackColor = Color.FromArgb(Convert.ToInt32(Convert.ToInt32(rgb_SelectionColor[0])), Convert.ToInt32(rgb_SelectionColor[1]), Convert.ToInt32(rgb_SelectionColor[2])); 		
             isSelected = true;
         }
 
         public void RadioUnselected()
         {
-            BackColor = Color.FromArgb(30, 30, 30);
+            BackColor = BackColor = Color.Transparent;
             isSelected = false;
         }
 
         public void UserOver()
         {
-            BackColor = Color.FromArgb(60, 60, 60);
+            string ChoosenTheme = ini.IniReadValue("Theme", "Theme");
+            IniFile theme = new IniFile(Path.Combine(Directory.GetCurrentDirectory() + "\\gui\\theme\\" + ChoosenTheme, "theme.ini"));
+            string[] rgb_MouseOverColor = theme.IniReadValue("Colors", "MouseOverColor").Split(','); 
+            BackColor = Color.FromArgb(Convert.ToInt32(Convert.ToInt32(rgb_MouseOverColor[0])), Convert.ToInt32(rgb_MouseOverColor[1]), Convert.ToInt32(rgb_MouseOverColor[2]));
         }
 
         public void UserLeave()
         {
             if (isSelected)
             {
-                BackColor = Color.FromArgb(80, 80, 80);
+                string ChoosenTheme = ini.IniReadValue("Theme", "Theme");
+                IniFile theme = new IniFile(Path.Combine(Directory.GetCurrentDirectory() + "\\gui\\theme\\" + ChoosenTheme, "theme.ini"));
+                string[] rgb_SelectionColor = theme.IniReadValue("Colors", "SelectionColor").Split(','); 
+                BackColor = Color.FromArgb(Convert.ToInt32(rgb_SelectionColor[0]), Convert.ToInt32(rgb_SelectionColor[1]), Convert.ToInt32(rgb_SelectionColor[2])); 				
             }
             else
             {
-                BackColor = Color.FromArgb(30, 30, 30);
+                BackColor = Color.Transparent;
             }
         }
     }

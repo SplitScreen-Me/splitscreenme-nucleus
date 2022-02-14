@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Nucleus.Gaming.Coop
 {
@@ -21,26 +16,23 @@ namespace Nucleus.Gaming.Coop
 
         public Rectangle SwapTypeBounds
         {
-            get { return swapTypeRect; }
-            set { swapTypeRect = value; }
+            get => swapTypeRect;
+            set => swapTypeRect = value;
         }
 
         public Rectangle UIBounds
         {
-            get { return uiBounds; }
-            set { uiBounds = value; }
+            get => uiBounds;
+            set => uiBounds = value;
         }
 
         public UserScreenType Type
         {
-            get { return type; }
-            set { type = value; }
+            get => type;
+            set => type = value;
         }
 
-        public Rectangle MonitorBounds
-        {
-            get { return display; }
-        }
+        public Rectangle MonitorBounds => display;
 
         public UserScreen(Rectangle display)
         {
