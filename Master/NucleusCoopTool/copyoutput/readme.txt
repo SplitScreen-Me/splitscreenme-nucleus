@@ -1,4 +1,4 @@
-Nucleus Co-op - version 2.0
+Nucleus Co-op - version 1.1.4
 
 This a new Nucleus Co-op version that includes the following:
 
@@ -169,8 +169,6 @@ NemirtingasEpicEmu.json edition from a handler example
         Context.WriteTextFile(jsonPath,params);	
 		
 //////////////////////////////////////		
-Game.SplitDivCompatibility = false;                    //Explicitly disable splitscreen divison if the game is know to be imcompatible with it.(Does not require to be true for compatible game)Default = true
-
 Game.Hook.EnableMKBInput = false;			//Enable Mouse/Keyboard input for instances when using Alpha 10 custom xinput dll (normally MKB is restricted)		
 Game.UseDInputBlocker = false;				//Setup wizark952's dinput blocker (block dinput for the game)
 Game.PromptAfterFirstInstance = false;			//Show a prompt that user must click on ok to continue, after the first instance is setup
@@ -360,7 +358,7 @@ Known Issues: ------------------------------------------------------------------
 
 Changelog: -----------------------------------------------------------------------------------------
 
-v2.0 - xx
+v1.1.4 - xx
  - New overhauled user interface with support for themes, game covers and screenshots.
  - Fixed ui scaling issues at more than 100% desktop scale(and all other issues related to it).
  - Fixed multi-monitor vertical setup drawing to not overlap input device list.

@@ -323,7 +323,8 @@ namespace Nucleus.Gaming
                 {
                     if (lang.Key == ini.IniReadValue("Misc", "EpicLang"))
                     {                     
-                       epicLang = lang.Value;                      
+                       epicLang = lang.Value;
+                       Console.WriteLine(epicLang);                       
                     }                 
                 }
                 return epicLang;
