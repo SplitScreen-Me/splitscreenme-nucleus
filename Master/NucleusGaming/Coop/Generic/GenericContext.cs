@@ -108,7 +108,9 @@ namespace Nucleus.Gaming
         public string[] PlayerSteamIDs;
         public int NumControllers = 0;
         public int NumKeyboards = 0;
-
+        //public int OrigWidth;
+        //public int OrigHeight;
+        //public string EpicLang;
         private List<string> regKeyPaths = new List<string>();
 
         public string NucleusEnvironmentRoot = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -237,7 +239,7 @@ namespace Nucleus.Gaming
         public string GamepadGuid => pInfo.GamepadGuid.ToString();
 
         public bool IsKeyboardPlayer => pInfo.IsKeyboardPlayer;
-        public int GamepadId => pInfo.GamepadId+1;
+
         public float OrigAspectRatioDecimal => (float)profile.Screens[pInfo.PlayerID].display.Width / profile.Screens[pInfo.PlayerID].display.Height;
 
         public string OrigAspectRatio
@@ -261,6 +263,25 @@ namespace Nucleus.Gaming
                 return string.Format("{0}:{1}", Width / gcd, Height / gcd);
             }
         }
+
+        //public readonly IniFile ini = new IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));
+        //public string EpicLang
+        //{
+        //    get
+        //    {
+        //        if (ini.IniReadValue("Misc", "EpicLang") != "")
+        //        {
+        //            string EpicLang = " -epiclocale=" + ini.IniReadValue("Misc", "EpicLang");
+        //            return EpicLang;
+        //        }
+        //        else
+        //        {
+        //            string EpicLang = "-epiclocale=en";
+        //            return EpicLang;
+        //        }
+        //    }
+
+        //}
 
         private string epicLang;
         public string EpicLang
@@ -302,13 +323,29 @@ namespace Nucleus.Gaming
                 {
                     if (lang.Key == ini.IniReadValue("Misc", "EpicLang"))
                     {                     
-                       epicLang = lang.Value;                      
+                       epicLang = lang.Value;
+                       Console.WriteLine(epicLang);                       
                     }                 
                 }
                 return epicLang;
             }
         }
         
+//public int OrigWidth
+//{
+//    get
+//    {
+//        return pInfo.ProcessData.HWnd.Size.Width;
+//    }
+//}
+
+//public int OrigHeight
+//{
+//    get
+//    {
+//        return profile.Screens[pInfo.PlayerID].display.Height;
+//    }
+//}
 
 public string Nickname => pInfo.Nickname;
 

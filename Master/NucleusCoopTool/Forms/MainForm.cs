@@ -31,8 +31,8 @@ namespace Nucleus.Coop
     /// </summary>
     public partial class MainForm : BaseForm, IDynamicSized
     {
-        public string version = "v2.0";
-        private string faq_link = "https://www.splitscreen.me/docs/faq";
+        public string version = "v1.1.4";
+        private string faq_link = "https://nucleus-coop.github.io/docs/FAQ/";
         private Settings settingsForm = null;
 
         private int currentStepIndex;
@@ -87,10 +87,6 @@ namespace Nucleus.Coop
         private bool IntroSound_On;
         private bool stopSleep = false;
         private string offline;
-        private Color ChoosenColor;
-        public Form hform;
-        //public PictureBox loading;
-
         //private System.Windows.Forms.Timer DisposeTimer;
         public void CheckNetCon()//should be re-worked
         {
@@ -345,7 +341,6 @@ namespace Nucleus.Coop
                 label_StepTitle.BackgroundImage = AppButtons;
                 btn_GameDesc.BackgroundImage = AppButtons;
                 btn_scriptAuthorTxt.BackgroundImage = AppButtons;
-                btn_dlFromHub.BackgroundImage = Image.FromFile(Path.Combine(Application.StartupPath, @"gui\theme\" + ChoosenTheme + "\\dlhub_btn.png"));
                 glowingLine0.Image = Image.FromFile(Path.Combine(Application.StartupPath,@"gui\theme\" + ChoosenTheme + "\\lightbar_top.gif"));
                 glowingLine1.Image = Image.FromFile(Path.Combine(Application.StartupPath,@"gui\theme\" + ChoosenTheme + "\\lightbar_bottom.gif"));
                 //
@@ -360,7 +355,6 @@ namespace Nucleus.Coop
                 btn_Next.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
                 btn_GameDesc.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
                 btn_scriptAuthorTxt.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
-                btn_dlFromHub.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
                 gameContextMenuStrip.BackColor = MenuStripBackColor;
                 gameContextMenuStrip.ForeColor = MenuStripFontColor;
 
@@ -378,10 +372,10 @@ namespace Nucleus.Coop
                 Settings settingsForm = new Settings(this, positionsControl);
                 positionsControl.Paint += PositionsControl_Paint;
 
-                //Log("positions control");
+                Log("positions control");
                 settingsForm.RegHotkeys(this);
 
-                //Log("referencing controls");
+                Log("referencing controls");
                 controls = new Dictionary<UserGameInfo, GameControl>();
                 gameManager = new GameManager(this);
 
@@ -819,8 +813,7 @@ namespace Nucleus.Coop
                 gameDescription = "";
 
                 string name = currentGame.GUID;
-                try
-                {
+               
                     ///Apply covers
                     if (File.Exists(Path.Combine(Application.StartupPath, @"gui\covers\" + name + ".jpeg")))
                     {
@@ -841,9 +834,9 @@ namespace Nucleus.Coop
                         clientAreaPanel.BackgroundImage = defBackground;
                         clientAreaPanel.ResumeLayout();
                     }
-
-                    //Apply screenshots randomly
-
+              
+                //Apply screenshots randomly
+               
                     if (Directory.Exists(Path.Combine(Application.StartupPath, @"gui\screenshots\" + name)))
                     {
                         string[] imgsPath = Directory.GetFiles((Path.Combine(Application.StartupPath, @"gui\screenshots\" + name)));
@@ -862,39 +855,36 @@ namespace Nucleus.Coop
                         clientAreaPanel.BackgroundImage = defBackground;
                         clientAreaPanel.ResumeLayout();
                     }
-                }
                
-                catch
-                { }
             }
            
-            //if (connected)
-            //{ 
-            //    try//get game description (online)
-            //    {
-            //        hubHandler = getId.GetHandler(currentGameInfo.Game.GetHubId());
-            //        gameDescription = hubHandler.GameDescription;
+            if (connected)
+            { 
+                try//get game description (online)
+                {
+                    hubHandler = getId.GetHandler(currentGameInfo.Game.GetHubId());
+                    gameDescription = hubHandler.GameDescription;
 
-            //        if (gameDescription.EndsWith("."))
-            //        {
-            //            txt_GameDesc.Text = hubHandler.GameDescription;
-            //            btn_GameDesc.Enabled = true;
-            //            btn_GameDesc.Visible = true;
-            //        }
-            //        else
-            //        {
-            //            btn_GameDesc.Enabled = false;
-            //            txt_GameDescSizer.Visible = false;
-            //            txt_GameDesc.Visible = false;                        
-            //        }
-            //    }
-            //    catch (Exception)
-            //    {
-            //        btn_GameDesc.Enabled = false;
-            //        txt_GameDescSizer.Visible = false;
-            //        txt_GameDesc.Visible = false;
-            //    }
-            // }
+                    if (gameDescription.EndsWith("."))
+                    {
+                        txt_GameDesc.Text = hubHandler.GameDescription;
+                        btn_GameDesc.Enabled = true;
+                        btn_GameDesc.Visible = true;
+                    }
+                    else
+                    {
+                        btn_GameDesc.Enabled = false;
+                        txt_GameDescSizer.Visible = false;
+                        txt_GameDesc.Visible = false;                        
+                    }
+                }
+                catch (Exception)
+                {
+                    btn_GameDesc.Enabled = false;
+                    txt_GameDescSizer.Visible = false;
+                    txt_GameDesc.Visible = false;
+                }
+             }
            
 
             btn_Play.Enabled = false;
@@ -1065,12 +1055,9 @@ namespace Nucleus.Coop
                 }
                 catch { }
             }
-
             User32Util.ShowTaskBar();
         }
 
-        private System.Windows.Forms.Timer slideshow;
-        private List<Form> list = new List<Form>();
         private void btn_Play_Click(object sender, EventArgs e)
         {
             if (btn_Play.Text == "S T O P")
@@ -1121,12 +1108,12 @@ namespace Nucleus.Coop
                 handlerThread.Start();
             }
 
-            if (currentGame.HideTaskbar && ini.IniReadValue("CustomLayout", "SplitDiv") != "True")
+            if (currentGame.HideTaskbar)
             {
                 User32Util.HideTaskbar();
             }
 
-            if (currentGame.ProtoInput.AutoHideTaskbar || ini.IniReadValue("CustomLayout", "SplitDiv") == "True")
+            if (currentGame.ProtoInput.AutoHideTaskbar)
             {
                 if (ProtoInput.protoInput.GetTaskbarAutohide())
                 {
@@ -1137,79 +1124,18 @@ namespace Nucleus.Coop
                     ProtoInput.protoInput.SetTaskbarAutohide(true);
                 }
             }
-     
-            if (ini.IniReadValue("CustomLayout", "SplitDiv") == "True")
-            {                
-                IDictionary<string, Color> splitColors = new Dictionary<string, Color>();
 
-                splitColors.Add("Black", Color.Black);
-                splitColors.Add("Gray", Color.DimGray);
-                splitColors.Add("White", Color.White);
-                splitColors.Add("Dark Blue", Color.DarkBlue);
-                splitColors.Add("Blue", Color.Blue);
-                splitColors.Add("Purple", Color.Purple);
-                splitColors.Add("Pink", Color.Pink);
-                splitColors.Add("Red", Color.Red);
-                splitColors.Add("Orange", Color.Orange);
-                splitColors.Add("Yellow", Color.Yellow);
-                splitColors.Add("Green", Color.Green);
-
-                foreach (KeyValuePair<string, Color> color in splitColors)
-                {
-                    if (color.Key == ini.IniReadValue("CustomLayout", "SplitDivColor"))
-                    {
-                        ChoosenColor = color.Value;
-                    }
-                }
-
-                var loadTimer = new System.Windows.Forms.Timer
-                {
-                    Interval = (80000) //millisecond
-                };
-
-                loadTimer.Tick += new EventHandler(loadTimerTick);
-                loadTimer.Start();
-
-                slideshow = new System.Windows.Forms.Timer
-                {
-                    Interval = (8000) //millisecond
-                };
-
-                slideshow.Tick += new EventHandler(slideshowTick);
-                slideshow.Start();
-
+            if (currentGame.HideDesktop)
+            {
                 foreach (Screen screen in Screen.AllScreens)
                 {
                     Form hform = new Form
                     {
                         BackColor = Color.Black,
-                        Location = new Point(screen.Bounds.X, screen.Bounds.Y),
-                        Width = screen.WorkingArea.Size.Width,
-                        Height = screen.WorkingArea.Size.Height+50,
-                        BackgroundImage = clientAreaPanel.BackgroundImage,
-                        BackgroundImageLayout = ImageLayout.Stretch,
-                        FormBorderStyle = FormBorderStyle.None,
-                        StartPosition = FormStartPosition.Manual
+                        Location = new Point(0, 0),
+                        Size = screen.WorkingArea.Size
                     };
-
-                    list.Add(hform);
-                    hform.Show();                   
-                }
-            }
-
-            if (currentGame.HideDesktop && ini.IniReadValue("CustomLayout", "SplitDiv") != "True")
-            {
-                foreach (Screen screen in Screen.AllScreens)
-                {
-                    hform = new Form
-                    {
-                        BackColor = Color.Black,
-                        Location = new Point(screen.Bounds.X, screen.Bounds.Y),
-                        
-                };
-            
-                    hform.Width = screen.WorkingArea.Size.Width;
-                    hform.Height = screen.WorkingArea.Size.Height+50;
+                    Size = screen.WorkingArea.Size;
                     hform.FormBorderStyle = FormBorderStyle.None;
                     hform.StartPosition = FormStartPosition.Manual;
                     hform.Show();
@@ -1217,37 +1143,6 @@ namespace Nucleus.Coop
             }
            
             WindowState = FormWindowState.Minimized;
-        }
-
-        private void slideshowTick(Object myObject, EventArgs myEventArgs)
-        {
-           
-            if (Directory.Exists(Path.Combine(Application.StartupPath, @"gui\screenshots\" + currentGameInfo.Game.GameName)))
-            {
-               
-                string[] imgsPath = Directory.GetFiles((Path.Combine(Application.StartupPath, @"gui\screenshots\" + currentGameInfo.Game.GameName)));
-                Random rNum = new Random();
-                int RandomIndex = rNum.Next(0, imgsPath.Count());
-
-                screenshotImg = Image.FromFile(Path.Combine(Application.StartupPath, @"gui\screenshots\" + currentGameInfo.Game.GameName + "\\" + RandomIndex + "_" + currentGameInfo.Game.GameName + ".jpeg"));  
-                foreach (Form l in list)
-                {
-                   l.SuspendLayout();
-                   l.BackgroundImage = screenshotImg;
-                   l.ResumeLayout();
-                }
-
-            }
-        }
-
-        private void loadTimerTick(Object myObject, EventArgs myEventArgs)
-        {
-            slideshow.Stop();
-            foreach (Form l in list)
-            {
-                l.BackgroundImage = null;
-                l.BackColor = ChoosenColor;
-            }
         }
 
         private void SetBtnToPlay()
@@ -1258,7 +1153,6 @@ namespace Nucleus.Coop
 
         private void handler_Ended()
         {
-            hform.Dispose();
             Log("Handler ended method called");
             User32Util.ShowTaskBar();
             handler = null;
@@ -1400,7 +1294,7 @@ namespace Nucleus.Coop
                         }
                         else
                         {
-                            MessageBox.Show(string.Format("The executable '{0}' was not found in any game handler's Game.ExecutableName field. Game has not been added.", Path.GetFileName(path)), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show(string.Format("The executable '{0}' was not found in any game script's Game.ExecutableName field. Game has not been added.", Path.GetFileName(path)), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                 }
@@ -1497,7 +1391,7 @@ namespace Nucleus.Coop
                             arch = "Unknown";
                         }
 
-                        MessageBox.Show(string.Format("Game Name: {0}\nArchitecture: {1}\nSteam ID: {2}\n\nHandler Filename: {3}\nNucleus Game Content Path: {4}\nOrig Exe Path: {5}\n\nMax Players: {6}\nSupports XInput: {7}\nSupports DInput: {8}\nSupports Keyboard: {9}\nSupports multiple keyboards and mice: {10}", currentGameInfo.Game.GameName, arch, currentGameInfo.Game.SteamID, currentGameInfo.Game.JsFileName, Path.Combine(gameManager.GetAppContentPath(), gameGuid), exePath, currentGameInfo.Game.MaxPlayers, currentGameInfo.Game.Hook.XInputEnabled || currentGameInfo.Game.ProtoInput.XinputHook, currentGameInfo.Game.Hook.DInputEnabled, currentGameInfo.Game.SupportsKeyboard, currentGameInfo.Game.SupportsMultipleKeyboardsAndMice), "Game Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(string.Format("Game Name: {0}\nArchitecture: {1}\nSteam ID: {2}\n\nScript Filename: {3}\nNucleus Game Content Path: {4}\nOrig Exe Path: {5}\n\nMax Players: {6}\nSupports XInput: {7}\nSupports DInput: {8}\nSupports Keyboard: {9}\nSupports multiple keyboards and mice: {10}", currentGameInfo.Game.GameName, arch, currentGameInfo.Game.SteamID, currentGameInfo.Game.JsFileName, Path.Combine(gameManager.GetAppContentPath(), gameGuid), exePath, currentGameInfo.Game.MaxPlayers, currentGameInfo.Game.Hook.XInputEnabled || currentGameInfo.Game.ProtoInput.XinputHook, currentGameInfo.Game.Hook.DInputEnabled, currentGameInfo.Game.SupportsKeyboard, currentGameInfo.Game.SupportsMultipleKeyboardsAndMice), "Game Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }
@@ -2259,7 +2153,7 @@ namespace Nucleus.Coop
         }
         private void logo_Click(object sender, EventArgs e)
         {
-            Process.Start("https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases");
+            Process.Start("https://github.com/ZeroFox5866/nucleuscoop/releases");
         }
         private void link_faq_Click(object sender, EventArgs e)
         {
@@ -2334,17 +2228,12 @@ namespace Nucleus.Coop
 
         private void button1_Click_1(object sender, EventArgs e)
         {
-           // offline = ini.IniReadValue("Dev", "OfflineMod");
+            offline = ini.IniReadValue("Dev", "OfflineMod");
 
-            //if (offline == "Off")
-            //{
+            if (offline == "Off")
+            {
                 CheckNetCon();
-           // }
-        }
-
-        private void button1_Click_2(object sender, EventArgs e)
-        {
-            Process.Start("https://hub.splitscreen.me/");
+            }
         }
     }
 }

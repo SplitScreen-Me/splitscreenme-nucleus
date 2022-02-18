@@ -1,3 +1,3 @@
 These utilities are third party applications and were not designed by the Nucleus Co-op team. Credit goes to each respective developer.
 
-Mr_Goldberg (Goldberg Emulator), syahmixp (SmartSteamEmu), EJocys (x360ce), 0dd14 Lab (Xinput Plus), r1ch (ForceBindIP), HaYDeN (Flawless Widescreen), briankendall (devreorder), VerGreeneyes (DirectXWrapper), wizark952 (dinput8 blocker), Nemirtingas (Epic\Galaxy Emulator), Josivan88 (SplitCalculator)
+Mr_Goldberg (Goldberg Emulator), syahmixp (SmartSteamEmu), EJocys (x360ce), 0dd14 Lab (Xinput Plus), r1ch (ForceBindIP), HaYDeN (Flawless Widescreen), briankendall (devreorder), VerGreeneyes (DirectXWrapper), wizark952 (dinput8 blocker), Nemirtingas (Epic Emulator), Josivan88 (SplitCalculator)

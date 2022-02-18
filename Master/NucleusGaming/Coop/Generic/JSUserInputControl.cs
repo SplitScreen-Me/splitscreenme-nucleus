@@ -19,9 +19,25 @@ namespace Nucleus.Gaming
         public CustomStep CustomStep;
         public ContentManager Content;
 
+
         public override bool CanProceed => canProceed;
         public override string Title => CustomStep.Title;
         public override bool CanPlay => canPlay;
+
+        public override bool CanProceed
+        {
+            get { return canProceed; }
+        }
+        public override string Title
+        {
+            get { return CustomStep.Title; }
+        }
+        public override bool CanPlay
+        {
+            get { return canPlay; }
+        }
+
+
 
         public bool HasProperty(IDictionary<string, object> expando, string key)
         {
@@ -77,7 +93,6 @@ namespace Nucleus.Gaming
 
                     control.Title = name;
 
-
                     string details = "";
                     if (value.TryGetValue("Details", out object detailsObj))
                     {
@@ -118,7 +133,6 @@ namespace Nucleus.Gaming
             canProceed = true;
             CanPlayUpdated(true, true);
         }
-
 
     }
 }

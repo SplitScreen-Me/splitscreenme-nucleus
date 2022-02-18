@@ -1,6 +1,5 @@
 ﻿using Ionic.Zip;
 using Nucleus.Gaming;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -27,30 +26,25 @@ namespace Nucleus.Coop.Forms
         public DownloadPrompt(Handler handler, MainForm mf, string zipFileName)
         {
             string ChoosenTheme = prompt.IniReadValue("Theme", "Theme");
-            try
-            {
-                InitializeComponent();
-          
-                Handler = handler;
-                mainForm = mf;
+            IniFile theme = new IniFile(Path.Combine(Directory.GetCurrentDirectory() + "\\gui\\theme\\" + ChoosenTheme, "theme.ini"));
+            InitializeComponent();
 
-                lbl_Handler.Text = zipFile;
-                BackgroundImage = Image.FromFile(Path.Combine(Application.StartupPath, @"gui\theme\" + ChoosenTheme + "\\other_backgrounds.jpg"));
-                if (zipFileName == null)
-                {
-                    Text = "Downloading Game Handler";
-                    zipFile = string.Format("handler-{0}-v{1}.nc", Handler.Id, Handler.CurrentVersion);
-                    BeginDownload();
-                }
-                else
-                {
-                    Text = "Extracting Game Handler";
-                    zipFile = zipFileName;
-                    ExtractHandler();
-                }
-            }
-            catch (Exception)
+            Handler = handler;
+            mainForm = mf;
+
+            lbl_Handler.Text = zipFile;
+            BackgroundImage = Image.FromFile(Path.Combine(Application.StartupPath, @"gui\theme\" + ChoosenTheme + "\\other_backgrounds.jpg"));
+            if (zipFileName == null)
             {
+                Text = "Downloading Game Handler";
+                zipFile = string.Format("handler-{0}-v{1}.nc", Handler.Id, Handler.CurrentVersion);
+                BeginDownload();
+            }
+            else
+            {
+                Text = "Extracting Game Handler";
+                zipFile = zipFileName;
+                ExtractHandler();
             }
         }
 
