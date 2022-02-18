@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Nucleus.Gaming
 {
@@ -71,8 +67,6 @@ namespace Nucleus.Gaming
         public static void CopyDirectory(string root, DirectoryInfo currentDir, string destination, out int exitCode, string[] dirExclusions, string[] fileExclusions, bool firstRun = true)
         {
             exitCode = 1;
-
-            bool special = false;
             bool skip = false;
 
             if (dirExclusions.Length > 0 && !string.IsNullOrEmpty(dirExclusions[0]))
@@ -98,8 +92,6 @@ namespace Nucleus.Gaming
                             break;
                         }
 
-                        // special case, one of our subfolders is excluded
-                        special = true;
                         break;
                     }
                 }

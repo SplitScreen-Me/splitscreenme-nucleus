@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Ionic.Zip;
+using Nucleus.Gaming;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Ionic.Zip;
 
 namespace Nucleus.Coop.Forms
 {
@@ -20,35 +21,42 @@ namespace Nucleus.Coop.Forms
         private int numEntries;
         private int entriesDone = 0;
         private bool overwriteWithoutAsking = false;
-
+        private readonly IniFile prompt = new Gaming.IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));
         private MainForm mainForm;
 
         public DownloadPrompt(Handler handler, MainForm mf, string zipFileName)
         {
-            InitializeComponent();
-
-            Handler = handler;
-            mainForm = mf;
-
-            lbl_Handler.Text = zipFile;
-
-            if(zipFileName == null)
+            string ChoosenTheme = prompt.IniReadValue("Theme", "Theme");
+            try
             {
-                this.Text = "Downloading Game Script";
-                zipFile = string.Format("handler-{0}-v{1}.nc", Handler.Id, Handler.CurrentVersion);
-                BeginDownload();
+                InitializeComponent();
+          
+                Handler = handler;
+                mainForm = mf;
+
+                lbl_Handler.Text = zipFile;
+                BackgroundImage = Image.FromFile(Path.Combine(Application.StartupPath, @"gui\theme\" + ChoosenTheme + "\\other_backgrounds.jpg"));
+                if (zipFileName == null)
+                {
+                    Text = "Downloading Game Handler";
+                    zipFile = string.Format("handler-{0}-v{1}.nc", Handler.Id, Handler.CurrentVersion);
+                    BeginDownload();
+                }
+                else
+                {
+                    Text = "Extracting Game Handler";
+                    zipFile = zipFileName;
+                    ExtractHandler();
+                }
             }
-            else
+            catch (Exception)
             {
-                this.Text = "Extracting Game Script";
-                zipFile = zipFileName;
-                ExtractHandler();
             }
         }
 
         public DownloadPrompt(Handler handler, MainForm mf, string zipFileName, bool overwriteWithoutAsking) : this(handler, mf, zipFileName)
         {
-	        this.overwriteWithoutAsking = overwriteWithoutAsking;
+            this.overwriteWithoutAsking = overwriteWithoutAsking;
         }
 
         private void BeginDownload()
@@ -66,13 +74,13 @@ namespace Nucleus.Coop.Forms
             }
         }
 
-        void wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        private void wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
             prog_DownloadBar.Value = e.ProgressPercentage;
             lbl_ProgPerc.Text = e.ProgressPercentage + "%";
         }
 
-        void wc_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
+        private void wc_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
         {
             ExtractHandler();
             Close();
@@ -121,7 +129,13 @@ namespace Nucleus.Coop.Forms
                 {
                     int count = 0;
                     foreach (char c in ze.FileName)
-                        if (c == '/') count++;
+                    {
+                        if (c == '/')
+                        {
+                            count++;
+                        }
+                    }
+
                     if (count == 1)
                     {
                         handlerFolders.Add(ze.FileName.TrimEnd('/'));
@@ -138,7 +152,7 @@ namespace Nucleus.Coop.Forms
             string frmHandleTitle = pattern.Replace(zipFile, "");
             string exeName = null;
             int found = 0;
-            foreach (var line in File.ReadAllLines(Path.Combine(scriptTempFolder, "handler.js")))
+            foreach (string line in File.ReadAllLines(Path.Combine(scriptTempFolder, "handler.js")))
             {
                 if (line.ToLower().StartsWith("game.executablename"))
                 {
@@ -163,7 +177,7 @@ namespace Nucleus.Coop.Forms
 
             if (File.Exists(Path.Combine(scriptFolder, frmHandleTitle + ".js")))
             {
-                DialogResult ovdialogResult = overwriteWithoutAsking ? DialogResult.Yes : MessageBox.Show("An existing script with the name " + (frmHandleTitle + ".js") + " already exists. Do you wish to overwrite it?", "Script already exists", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                DialogResult ovdialogResult = overwriteWithoutAsking ? DialogResult.Yes : MessageBox.Show("An existing handler with the name " + (frmHandleTitle + ".js") + " already exists. Do you wish to overwrite it?", "Handler already exists", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (ovdialogResult != DialogResult.Yes)
                 {
                     zip.Dispose();
@@ -171,7 +185,7 @@ namespace Nucleus.Coop.Forms
                     File.Delete(Path.Combine(scriptFolder, zipFile));
                     //MessageBox.Show("Handler extraction aborted.", "Exiting", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     Close();
-                    
+
                     return;
                 }
             }
@@ -223,15 +237,15 @@ namespace Nucleus.Coop.Forms
             label1.Text = "Finished!";
 
             File.Delete(Path.Combine(scriptFolder, zipFile));
-            
+
             DialogResult dialogResult = MessageBox.Show(
-	            "Downloading and extraction of " + frmHandleTitle +
-	            " script is complete. Would you like to add this game to Nucleus now? You will need to select the game executable to add it.",
-	            "Download finished! Add to Nucleus?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                "Downloading and extraction of " + frmHandleTitle +
+                " handler is complete. Would you like to add this game to Nucleus now? You will need to select the game executable to add it.",
+                "Download finished! Add to Nucleus?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (dialogResult == DialogResult.Yes)
             {
-	            Gaming.GameManager.Instance.AddScript(frmHandleTitle);
-	            mainForm.SearchGame(exeName);
+                Gaming.GameManager.Instance.AddScript(frmHandleTitle);
+                mainForm.SearchGame(exeName);
             }
         }
     }

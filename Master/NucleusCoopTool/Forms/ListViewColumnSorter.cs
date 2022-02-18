@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
@@ -36,14 +35,8 @@ namespace ListViewSorter
         private SortModifiers mySortModifier = SortModifiers.SortByText;
         public SortModifiers _SortModifier
         {
-            set
-            {
-                mySortModifier = value;
-            }
-            get
-            {
-                return mySortModifier;
-            }
+            set => mySortModifier = value;
+            get => mySortModifier;
         }
 
         /// <summary>
@@ -147,14 +140,8 @@ namespace ListViewSorter
         /// </summary>
         public int SortColumn
         {
-            set
-            {
-                ColumnToSort = value;
-            }
-            get
-            {
-                return ColumnToSort;
-            }
+            set => ColumnToSort = value;
+            get => ColumnToSort;
         }
 
         /// <summary>
@@ -162,14 +149,8 @@ namespace ListViewSorter
         /// </summary>
         public SortOrder Order
         {
-            set
-            {
-                OrderOfSort = value;
-            }
-            get
-            {
-                return OrderOfSort;
-            }
+            set => OrderOfSort = value;
+            get => OrderOfSort;
         }
 
     }
@@ -276,12 +257,12 @@ namespace ListViewSorter
                 return 1;
             }
 
-            if ((x is System.String) && IsDecimalNumber((string)x) && (y is System.String) && IsDecimalNumber((string)y))
+            if ((x is string) && IsDecimalNumber((string)x) && (y is string) && IsDecimalNumber((string)y))
             {
                 try
                 {
-                    decimal xx = Decimal.Parse(((string)x).Trim());
-                    decimal yy = Decimal.Parse(((string)y).Trim());
+                    decimal xx = decimal.Parse(((string)x).Trim());
+                    decimal yy = decimal.Parse(((string)y).Trim());
 
                     return base.Compare(xx, yy);
                 }

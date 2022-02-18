@@ -1,12 +1,8 @@
-﻿using System;
+﻿using Nucleus.Gaming.Coop;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using Nucleus.Gaming.Coop;
 
 namespace Nucleus.Gaming
 {
@@ -16,19 +12,10 @@ namespace Nucleus.Gaming
         private List<Button> top;
         private List<Button> bot;
 
-        public override bool CanProceed
-        {
-            get { return canProceed; }
-        }
-        public override string Title
-        {
-            get { return "Player Count"; }
-        }
+        public override bool CanProceed => canProceed;
+        public override string Title => "Player Count";
 
-        public override bool CanPlay
-        {
-            get { return false; }
-        }
+        public override bool CanPlay => false;
 
         public PlayerCountControl()
         {
@@ -37,9 +24,11 @@ namespace Nucleus.Gaming
 
         private Button MkButton()
         {
-            Button btn = new Button();
-            btn.FlatStyle = FlatStyle.Flat;
-            btn.Font = this.Font;
+            Button btn = new Button
+            {
+                FlatStyle = FlatStyle.Flat,
+                Font = Font
+            };
             btn.Click += btn_Click;
 
             return btn;
@@ -65,12 +54,12 @@ namespace Nucleus.Gaming
         {
             base.OnSizeChanged(e);
 
-            if (this.game == null)
+            if (game == null)
             {
                 return;
             }
 
-            int maxPlayers = this.game.Game.MaxPlayers;
+            int maxPlayers = game.Game.MaxPlayers;
             int half = (int)Math.Round(maxPlayers / 2.0);
             int left = Math.Max(half - 1, 1);
             int width = Size.Width / left;
@@ -95,7 +84,7 @@ namespace Nucleus.Gaming
         {
             base.Initialize(game, profile);
 
-            this.Controls.Clear();
+            Controls.Clear();
             canProceed = false;
 
             int maxPlayers = game.Game.MaxPlayers;
@@ -118,7 +107,7 @@ namespace Nucleus.Gaming
                 btn.SetBounds(i * width, 0, width, height);
 
                 top.Add(btn);
-                this.Controls.Add(btn);
+                Controls.Add(btn);
             }
 
             half = maxPlayers - half;
@@ -132,7 +121,7 @@ namespace Nucleus.Gaming
                 btn.SetBounds(i * width, height, width, height);
 
                 bot.Add(btn);
-                this.Controls.Add(btn);
+                Controls.Add(btn);
             }
         }
     }

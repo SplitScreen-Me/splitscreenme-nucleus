@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Reflection;
-using Newtonsoft.Json;
-using System.Threading;
+﻿using Newtonsoft.Json;
 //using Ionic.Zip;
-using Nucleus.Gaming.Properties;
 using Nucleus.Gaming.Coop;
-using System.Windows.Forms;
-using Nucleus.Gaming.Coop.BasicTypes;
-using System.Diagnostics;
 using Nucleus.Gaming.Coop.InputManagement;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Windows.Forms;
 
 namespace Nucleus.Gaming
 {
@@ -23,8 +21,8 @@ namespace Nucleus.Gaming
     {
         private static GameManager instance;
 
-		public static Form mainForm;
-		public static IntPtr mainFormHandle;
+        public static Form mainForm;
+        public static IntPtr mainFormHandle;
 
         private Dictionary<string, GenericGameInfo> games;
         private Dictionary<string, GenericGameInfo> gameInfos;
@@ -33,30 +31,30 @@ namespace Nucleus.Gaming
         private string error;
         private bool isSaving;
 
-		private GameProfile currentProfile;
+        private GameProfile currentProfile;
 
-		private RawInputProcessor rawInputProcessor;
-		//private InputInterceptor inputInterceptor;
+        private RawInputProcessor rawInputProcessor;
+        //private InputInterceptor inputInterceptor;
 
-		/// object instance so we can thread-safe save the user profile
-		private object saving = new object();
+        /// object instance so we can thread-safe save the user profile
+        private object saving = new object();
 
-        public string Error { get { return error; } }
+        public string Error => error;
 
-        public bool IsSaving { get { return isSaving; } }
+        public bool IsSaving => isSaving;
 
         /// <summary>
         /// A dictionary containing GameInfos. The key is the game's guid
         /// </summary>
-        public Dictionary<string, GenericGameInfo> Games { get { return games; } }
-        public Dictionary<string, GenericGameInfo> GameInfos { get { return gameInfos; } }
+        public Dictionary<string, GenericGameInfo> Games => games;
+        public Dictionary<string, GenericGameInfo> GameInfos => gameInfos;
 
-        public static GameManager Instance { get { return instance; } }
+        public static GameManager Instance => instance;
 
         public UserProfile User
         {
-            get { return user; }
-            set { user = value; }
+            get => user;
+            set => user = value;
         }
 
         public GameManager(Form mainForm)
@@ -65,10 +63,10 @@ namespace Nucleus.Gaming
             games = new Dictionary<string, GenericGameInfo>();
             gameInfos = new Dictionary<string, GenericGameInfo>();
 
-			GameManager.mainForm = mainForm;
-			GameManager.mainFormHandle = mainForm.Handle;
+            GameManager.mainForm = mainForm;
+            GameManager.mainFormHandle = mainForm.Handle;
 
-			string appData = GetAppContentPath();
+            string appData = GetAppContentPath();
             Directory.CreateDirectory(appData);
 
             string gameJs = GetJsScriptsPath();
@@ -76,27 +74,27 @@ namespace Nucleus.Gaming
 
             //inputInterceptor = new InputInterceptor();
 
-//            LockInput.Unlock();
+            //            LockInput.Unlock();
 
             //Subscribe to raw input
-			//TODO: update isRunningSplitScreen
-			Debug.WriteLine("Registering raw input");
-			rawInputProcessor = new RawInputProcessor(() => LockInput.IsLocked);//TODO: needs more robust method
-			//Action<IntPtr> rawInputAction = rawInputProcessor.Process;
-			//GameManager.mainForm.GetType().GetProperty("RawInputAction").SetValue(GameManager.mainForm, rawInputAction, new object[] { });
-			//IntPtr rawInputHwnd = GameManager.mainFormHandle;
+            //TODO: update isRunningSplitScreen
+            Debug.WriteLine("Registering raw input");
+            rawInputProcessor = new RawInputProcessor(() => LockInput.IsLocked);//TODO: needs more robust method
+                                                                                //Action<IntPtr> rawInputAction = rawInputProcessor.Process;
+                                                                                //GameManager.mainForm.GetType().GetProperty("RawInputAction").SetValue(GameManager.mainForm, rawInputAction, new object[] { });
+                                                                                //IntPtr rawInputHwnd = GameManager.mainFormHandle;
 
-			RawInputManager.RegisterRawInput(rawInputProcessor);
+            RawInputManager.RegisterRawInput(rawInputProcessor);
 
-			Initialize();
+            Initialize();
             LoadUser();
         }
 
-		public void UpdateCurrentGameProfile(GameProfile newProfile)
-		{
-			currentProfile = newProfile;
-			RawInputProcessor.CurrentProfile = newProfile;
-		}
+        public void UpdateCurrentGameProfile(GameProfile newProfile)
+        {
+            currentProfile = newProfile;
+            RawInputProcessor.CurrentProfile = newProfile;
+        }
 
         /// <summary>
         /// Tests if there's any game with the named exe
@@ -119,7 +117,7 @@ namespace Nucleus.Gaming
             string fileName = Path.GetFileName(exePath).ToLower();
             string dir = Path.GetDirectoryName(exePath);
 
-            var possibilities = Games.Values.Where(c => string.Equals(c.ExecutableName.ToLower(), fileName, StringComparison.OrdinalIgnoreCase));
+            IEnumerable<GenericGameInfo> possibilities = Games.Values.Where(c => string.Equals(c.ExecutableName.ToLower(), fileName, StringComparison.OrdinalIgnoreCase));
 
             foreach (GenericGameInfo game in possibilities)
             {
@@ -163,7 +161,7 @@ namespace Nucleus.Gaming
             string fileName = Path.GetFileName(exePath).ToLower();
             string dir = Path.GetDirectoryName(exePath);
 
-            var possibilities = Games.Values.Where(c => c.ExecutableName.ToLower() == fileName);
+            IEnumerable<GenericGameInfo> possibilities = Games.Values.Where(c => c.ExecutableName.ToLower() == fileName);
             List<GenericGameInfo> games = new List<GenericGameInfo>();
 
             foreach (GenericGameInfo game in possibilities)
@@ -213,7 +211,7 @@ namespace Nucleus.Gaming
                 if (dialogResult == DialogResult.No)
                 {
                     return null;
-                }               
+                }
             }
 
             LogManager.Log("Found game: {0}, full path: {1}", game.GameName, exePath);
@@ -236,7 +234,7 @@ namespace Nucleus.Gaming
             string fileName = Path.GetFileName(exePath).ToLower();
             string dir = Path.GetDirectoryName(exePath);
 
-            var possibilities = Games.Values.Where(c => c.ExecutableName.ToLower() == fileName);
+            IEnumerable<GenericGameInfo> possibilities = Games.Values.Where(c => c.ExecutableName.ToLower() == fileName);
 
             foreach (GenericGameInfo game in possibilities)
             {
@@ -356,7 +354,7 @@ namespace Nucleus.Gaming
         public string GetJsScriptsPath()
         {
             string local = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            return Path.Combine(local, "scripts");
+            return Path.Combine(local, "handlers");
         }
 
         public string GetUtilsPath()
@@ -615,7 +613,7 @@ namespace Nucleus.Gaming
                 }
                 catch (ArgumentException ex)
                 {
-                    MessageBox.Show(ex.InnerException + ": " + ex.Message, "Error with script " + f.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(ex.InnerException + ": " + ex.Message, "Error with handler " + f.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     continue;
                 }
 
@@ -659,11 +657,11 @@ namespace Nucleus.Gaming
             }
             catch (ArgumentException ex)
             {
-                MessageBox.Show(ex.InnerException + ": " + ex.Message, "Error with script " + f.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.InnerException + ": " + ex.Message, "Error with handler " + f.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 //continue;
             }
 
-            
+
         }
         #endregion
 

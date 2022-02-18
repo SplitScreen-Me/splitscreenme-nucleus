@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using Nucleus.Gaming;
+﻿using Nucleus.Gaming;
 using Nucleus.Gaming.Coop;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace Nucleus.Coop.Controls
 {
@@ -16,7 +10,7 @@ namespace Nucleus.Coop.Controls
         private UserGameInfo gameInfo;
         public UserGameInfo GameInfo
         {
-            get { return gameInfo; }
+            get => gameInfo;
             set
             {
                 if (gameInfo != value)
@@ -35,12 +29,16 @@ namespace Nucleus.Coop.Controls
 
         public GameNameControl()
         {
-            picture = new PictureBox();
-            picture.SizeMode = PictureBoxSizeMode.StretchImage;
+            picture = new PictureBox
+            {
+                SizeMode = PictureBoxSizeMode.StretchImage
+            };
 
-            title = new Label();
-            title.Text = "Nothing selected";
-            title.AutoSize = true;
+            title = new Label
+            {
+                Text = "No game selected",
+                AutoSize = true
+            };
 
             BackColor = Color.FromArgb(30, 30, 30);
 
@@ -74,7 +72,7 @@ namespace Nucleus.Coop.Controls
 
             Width = picture.Width + dborder + title.Width;
 
-            float height = this.Height / 2.0f;
+            float height = Height / 2.0f;
             float lheight = title.Size.Height / 2.0f;
             title.Location = new Point(picture.Width + picture.Left + border, (int)(height - lheight));
 

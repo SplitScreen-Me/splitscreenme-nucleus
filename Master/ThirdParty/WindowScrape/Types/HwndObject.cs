@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using WindowScrape.Constants;
 using WindowScrape.Static;
 using Point = System.Drawing.Point;
@@ -22,18 +20,15 @@ namespace WindowScrape.Types
         /// <summary>
         /// The registered class name (if any) of this object.
         /// </summary>
-        public string ClassName
-        {
-            get { return HwndInterface.GetHwndClassName(NativePtr); }
-        }
+        public string ClassName => HwndInterface.GetHwndClassName(NativePtr);
 
         /// <summary>
         /// The title of this object - Setting this will only effect window title-bar text.
         /// </summary>
         public string Title
         {
-            get { return HwndInterface.GetHwndTitle(NativePtr); }
-            set { HwndInterface.SetHwndTitle(NativePtr, value); }
+            get => HwndInterface.GetHwndTitle(NativePtr);
+            set => HwndInterface.SetHwndTitle(NativePtr, value);
         }
 
         /// <summary>
@@ -41,8 +36,8 @@ namespace WindowScrape.Types
         /// </summary>
         public string Text
         {
-            get { return HwndInterface.GetHwndText(NativePtr); }
-            set { HwndInterface.SetHwndText(NativePtr, value); }
+            get => HwndInterface.GetHwndText(NativePtr);
+            set => HwndInterface.SetHwndText(NativePtr, value);
         }
 
         /// <summary>
@@ -50,16 +45,16 @@ namespace WindowScrape.Types
         /// </summary>
         public Point Location
         {
-            get { return HwndInterface.GetHwndPos(NativePtr); }
+            get => HwndInterface.GetHwndPos(NativePtr);
             set
             {
                 if (TopMost)
                 {
-                    HwndInterface.SetHwndPosTopMost(NativePtr, (int)value.X, (int)value.Y);
+                    HwndInterface.SetHwndPosTopMost(NativePtr, value.X, value.Y);
                 }
                 else
                 {
-                    HwndInterface.SetHwndPos(NativePtr, (int)value.X, (int)value.Y);
+                    HwndInterface.SetHwndPos(NativePtr, value.X, value.Y);
                 }
             }
         }
@@ -68,7 +63,7 @@ namespace WindowScrape.Types
 
         public bool TopMost
         {
-            get { return isTopMost; }
+            get => isTopMost;
             set
             {
                 isTopMost = value;
@@ -88,16 +83,16 @@ namespace WindowScrape.Types
         /// </summary>
         public Size Size
         {
-            get { return HwndInterface.GetHwndSize(NativePtr); }
+            get => HwndInterface.GetHwndSize(NativePtr);
             set
             {
                 if (TopMost)
                 {
-                    HwndInterface.SetHwndSizeTopMost(NativePtr, (int)value.Width, (int)value.Height);
+                    HwndInterface.SetHwndSizeTopMost(NativePtr, value.Width, value.Height);
                 }
                 else
                 {
-                    HwndInterface.SetHwndSize(NativePtr, (int)value.Width, (int)value.Height);
+                    HwndInterface.SetHwndSize(NativePtr, value.Width, value.Height);
                 }
             }
         }
@@ -108,9 +103,12 @@ namespace WindowScrape.Types
         /// <returns></returns>
         public static List<HwndObject> GetWindows()
         {
-            var result = new List<HwndObject>();
-            foreach (var hwnd in HwndInterface.EnumHwnds())
+            List<HwndObject> result = new List<HwndObject>();
+            foreach (IntPtr hwnd in HwndInterface.EnumHwnds())
+            {
                 result.Add(new HwndObject(hwnd));
+            }
+
             return result;
         }
 
@@ -198,9 +196,12 @@ namespace WindowScrape.Types
         /// <returns></returns>
         public List<HwndObject> GetChildren()
         {
-            var result = new List<HwndObject>();
-            foreach (var hwnd in HwndInterface.EnumChildren(NativePtr))
+            List<HwndObject> result = new List<HwndObject>();
+            foreach (IntPtr hwnd in HwndInterface.EnumChildren(NativePtr))
+            {
                 result.Add(new HwndObject(hwnd));
+            }
+
             return result;
         }
 
@@ -212,7 +213,7 @@ namespace WindowScrape.Types
         /// <returns></returns>
         public HwndObject GetChild(string cls, string title)
         {
-            var hwnd = HwndInterface.GetHwndChild(NativePtr, cls, title);
+            IntPtr hwnd = HwndInterface.GetHwndChild(NativePtr, cls, title);
             return new HwndObject(hwnd);
         }
 
@@ -223,9 +224,9 @@ namespace WindowScrape.Types
 
         public override string ToString()
         {
-            var pt = Location;
-            var sz = Size;
-            var result =
+            Point pt = Location;
+            Size sz = Size;
+            string result =
                 string.Format(
                     "({0}) {1},{2}:{3}x{4} \"{5}\"",
                     NativePtr,

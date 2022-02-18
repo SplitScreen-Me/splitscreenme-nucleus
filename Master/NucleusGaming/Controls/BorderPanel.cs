@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Controls
 {
@@ -21,7 +16,7 @@ namespace Nucleus.Gaming.Controls
         protected Bitmap len;
         public Bitmap EdgeImage
         {
-            get { return edge; }
+            get => edge;
             set
             {
                 edge = value;
@@ -35,7 +30,7 @@ namespace Nucleus.Gaming.Controls
                 eLeft = (Bitmap)edge.Clone();
                 eLeft.RotateFlip(RotateFlipType.Rotate270FlipNone);
 
-                this.Invalidate();
+                Invalidate();
             }
         }
 
@@ -47,7 +42,7 @@ namespace Nucleus.Gaming.Controls
 
         public Bitmap BorderImage
         {
-            get { return len; }
+            get => len;
             set
             {
                 len = value;
@@ -61,7 +56,7 @@ namespace Nucleus.Gaming.Controls
                 left = (Bitmap)len.Clone();
                 left.RotateFlip(RotateFlipType.Rotate270FlipNone);
 
-                this.Invalidate();
+                Invalidate();
             }
         }
 
@@ -74,12 +69,12 @@ namespace Nucleus.Gaming.Controls
             BackgroundColor = Color.FromArgb(25, 25, 25);
             InitializeComponent();
 
-            this.Resize += BorderPanel_Resize;
+            Resize += BorderPanel_Resize;
         }
 
-        void BorderPanel_Resize(object sender, EventArgs e)
+        private void BorderPanel_Resize(object sender, EventArgs e)
         {
-            this.Invalidate();
+            Invalidate();
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -93,7 +88,7 @@ namespace Nucleus.Gaming.Controls
                 g.InterpolationMode = InterpolationMode.NearestNeighbor;
                 g.PixelOffsetMode = PixelOffsetMode.None;
 
-                Rectangle bounds = this.Bounds;
+                Rectangle bounds = Bounds;
 
                 int x = 0;
                 int y = 0;
@@ -107,7 +102,7 @@ namespace Nucleus.Gaming.Controls
                 g.DrawImage(right, new Rectangle(bounds.Width - right.Width, edge.Height, right.Width, bounds.Height - edge.Height - edge.Height));
                 g.DrawImage(left, new Rectangle(0, edge.Height, right.Width, bounds.Height - edge.Height - edge.Height));
 
-                Brush brush = new SolidBrush(this.BackgroundColor);
+                Brush brush = new SolidBrush(BackgroundColor);
                 g.FillRectangle(brush, new Rectangle(left.Width, edge.Height, bounds.Width - left.Width - right.Width, bounds.Height - edge.Height - edge.Height));
                 g.FillRectangle(brush, new Rectangle(edge.Width, len.Height, bounds.Width - edge.Width - edge.Width, edge.Height - len.Height));
                 g.FillRectangle(brush, new Rectangle(edge.Width, bounds.Height - edge.Height, bounds.Width - edge.Width - edge.Width, edge.Height - len.Height));

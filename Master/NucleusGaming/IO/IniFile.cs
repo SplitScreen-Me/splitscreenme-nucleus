@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Nucleus.Gaming
@@ -17,10 +15,7 @@ namespace Nucleus.Gaming
 
         private string path;
 
-        public string Path
-        {
-            get { return path; }
-        }
+        public string Path => path;
 
         /// <summary>
         /// INIFile Constructor.
@@ -41,7 +36,7 @@ namespace Nucleus.Gaming
         /// Value Name
         public void IniWriteValue(string Section, string Key, string Value)
         {
-            WritePrivateProfileString(Section, Key, Value, this.path);
+            WritePrivateProfileString(Section, Key, Value, path);
         }
 
         /// <summary>
@@ -55,7 +50,7 @@ namespace Nucleus.Gaming
         {
             StringBuilder temp = new StringBuilder(255);
             int i = GetPrivateProfileString(Section, Key, "", temp,
-                                            255, this.path);
+                                            255, path);
             return temp.ToString();
 
         }

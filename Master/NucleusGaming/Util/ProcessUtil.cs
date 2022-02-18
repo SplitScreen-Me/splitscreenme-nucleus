@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using Nucleus.Gaming.Interop;
-using System.Threading;
-using System.Management;
-using System.IO;
+﻿using Microsoft.Win32;
 using Nucleus.Gaming;
-using System.Security.Principal;
-using Microsoft.Win32;
+using Nucleus.Gaming.Interop;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Management;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Security.Principal;
 
 namespace Nucleus
 {
@@ -40,7 +37,7 @@ namespace Nucleus
                 {
                     username = WindowsIdentity.GetCurrent().Name.Split('\\')[1];
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     Log("ERROR - getting current user's username, defaulting to using environment's username");
                 }
@@ -109,7 +106,7 @@ namespace Nucleus
                     proc.WaitForExit();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // handle exception
             }
@@ -122,7 +119,7 @@ namespace Nucleus
         }
         private static void Log(string logMessage)
         {
-            if(ini.IniReadValue("Misc", "DebugLog") == "True")
+            if (ini.IniReadValue("Misc", "DebugLog") == "True")
             {
                 //StreamWriter w = new StreamWriter("debug-log.txt", true);
                 //w.WriteLine($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}]PROCESSUTIL: {logMessage}");
@@ -130,7 +127,7 @@ namespace Nucleus
                 //w.Close();
                 //w.Dispose();
 
-                using (StreamWriter writer = new StreamWriter("debug-log.txt",true))
+                using (StreamWriter writer = new StreamWriter("debug-log.txt", true))
                 {
                     writer.WriteLine($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}]PROCESSUTIL: {logMessage}");
                     writer.Close();
@@ -153,10 +150,10 @@ namespace Nucleus
                 Log("Attempt #" + i);
                 Console.WriteLine("Loop " + i);
 
-                if(partial)
+                if (partial)
                 {
-                    var handles = Win32Processes.GetHandles(process, mutexType);
-                    foreach (var handle in handles)
+                    List<Win32API.SYSTEM_HANDLE_INFORMATION> handles = Win32Processes.GetHandles(process, mutexType);
+                    foreach (Win32API.SYSTEM_HANDLE_INFORMATION handle in handles)
                     {
                         string strObjectName = Win32Processes.getObjectName(handle, Process.GetProcessById(handle.ProcessID));
 
@@ -181,7 +178,7 @@ namespace Nucleus
                 }
                 else
                 {
-                    var handles = Win32Processes.GetHandles(process, mutexType, "", mutexName);
+                    List<Win32API.SYSTEM_HANDLE_INFORMATION> handles = Win32Processes.GetHandles(process, mutexType, "", mutexName);
 
                     if (handles.Count == 0)
                     {
@@ -189,7 +186,7 @@ namespace Nucleus
                         continue;
                     }
 
-                    foreach (var handle in handles)
+                    foreach (Win32API.SYSTEM_HANDLE_INFORMATION handle in handles)
                     {
                         string strObjectName = Win32Processes.getObjectName(handle, Process.GetProcessById(handle.ProcessID));
                         Log(string.Format("Killing mutex {0}", strObjectName));
@@ -217,32 +214,32 @@ namespace Nucleus
 
         public static bool MutexExists(Process process, string mutexType, string mutexName, bool partial)
         {
-            if(mutexName.ToLower().StartsWith("type:") && mutexName.Contains("|"))
+            if (mutexName.ToLower().StartsWith("type:") && mutexName.Contains("|"))
             {
                 mutexType = mutexName.Substring("type:".Length, mutexName.IndexOf('|') - "type:".Length);
                 mutexName = mutexName.Substring(mutexName.IndexOf('|') + 1);
             }
 
 
-            Log(string.Format("Checking if mutex '{0}' of type '{1}' exists in process '{2} (pid {3})'", mutexName,mutexType,process.ProcessName,process.Id));
+            Log(string.Format("Checking if mutex '{0}' of type '{1}' exists in process '{2} (pid {3})'", mutexName, mutexType, process.ProcessName, process.Id));
             // 4 tries
             for (int i = 0; i < 4; i++)
             {
                 try
                 {
-                    var handles = Win32Processes.GetHandles(process, mutexType, "", mutexName);
+                    List<Win32API.SYSTEM_HANDLE_INFORMATION> handles = Win32Processes.GetHandles(process, mutexType, "", mutexName);
 
-                    if(partial)
+                    if (partial)
                     {
                         bool foundHandle = false;
 
-                        foreach (var handle in handles)
+                        foreach (Win32API.SYSTEM_HANDLE_INFORMATION handle in handles)
                         {
                             string strObjectName = Win32Processes.getObjectName(handle, Process.GetProcessById(handle.ProcessID));
                             if (!string.IsNullOrWhiteSpace(strObjectName) && strObjectName.Contains(mutexName))
                             {
                                 Log(string.Format("Found mutex that contains search criteria. Located at {0}", strObjectName));
-                                if(!foundHandle)
+                                if (!foundHandle)
                                 {
                                     foundHandle = true;
                                 }
@@ -256,12 +253,12 @@ namespace Nucleus
                         if (handles.Count > 0)
                         {
                             Log("Found the following mutexes:");
-                            foreach (var handle in handles)
+                            foreach (Win32API.SYSTEM_HANDLE_INFORMATION handle in handles)
                             {
                                 string strObjectName = Win32Processes.getObjectName(handle, Process.GetProcessById(handle.ProcessID));
                                 Log(strObjectName);
                             }
-                            
+
                             return true;
                         }
                     }
@@ -290,7 +287,7 @@ namespace Nucleus
             ManagementObjectCollection collection = searcher.Get();
 
             List<int> ids = new List<int>();
-            foreach (var item in collection)
+            foreach (ManagementBaseObject item in collection)
             {
                 uint ui = (uint)item["ProcessId"];
 
@@ -300,7 +297,7 @@ namespace Nucleus
             return ids;
         }
 
-     
+
     }
 }
 //        [DllImport("ntdll.dll")]

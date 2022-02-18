@@ -1,10 +1,4 @@
-﻿using Nucleus.Gaming.Coop;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Nucleus.Gaming.Coop
+﻿namespace Nucleus.Gaming.Coop
 {
     public class KeyboardPlayer : GameOptionValue
     {
@@ -19,10 +13,10 @@ namespace Nucleus.Gaming.Coop
         private static KeyboardPlayer player3 = new KeyboardPlayer("Player 3", 2);
         private static KeyboardPlayer player4 = new KeyboardPlayer("Player 4", 3);
 
-        public static KeyboardPlayer NoKeyboardPlayer { get { return noKeyboardPlayer; } }
-        public static KeyboardPlayer Player1 { get { return player1; } }
-        public static KeyboardPlayer Player2 { get { return player2; } }
-        public static KeyboardPlayer Player3 { get { return player3; } }
-        public static KeyboardPlayer Player4 { get { return player4; } }
+        public static KeyboardPlayer NoKeyboardPlayer => noKeyboardPlayer;
+        public static KeyboardPlayer Player1 => player1;
+        public static KeyboardPlayer Player2 => player2;
+        public static KeyboardPlayer Player3 => player3;
+        public static KeyboardPlayer Player4 => player4;
     }
 }

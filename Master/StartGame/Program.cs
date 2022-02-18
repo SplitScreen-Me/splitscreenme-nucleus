@@ -268,7 +268,7 @@ namespace StartGame
                 //proc = Process.Start(startInfo);
                 //string currDir = Directory.GetCurrentDirectory();
 
-				// This works even if the current directory is set elsewhere.
+                // This works even if the current directory is set elsewhere.
                 string currDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
                 //bool is64 = EasyHook.RemoteHooking.IsX64Process((int)pi.dwProcessId);
@@ -302,7 +302,7 @@ namespace StartGame
 
                     Directory.CreateDirectory(Path.GetDirectoryName(DocumentsRoot) + $@"\NucleusCoop\{playerNick}\Documents");
 
-                    if(useDocs)
+                    if (useDocs)
                     {
                         if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg")))
                         {
@@ -343,19 +343,19 @@ namespace StartGame
 
                 Thread.Sleep(1000);
 
-				if (useStartupHooks && (isHook || renameMutex || setWindow || blockRaw || createSingle))
+                if (useStartupHooks && (isHook || renameMutex || setWindow || blockRaw || createSingle))
                 {
                     Log("Starting game and injecting start up hooks via Nucleus.Inject");
 
                     bool? is64_n = Is64Bit(path);
 
-					if (!is64_n.HasValue)
-					{
-						Log(string.Format("ERROR - Machine type {0} not implemented", GetDllMachineType(path)));
-						return;
-					}
+                    if (!is64_n.HasValue)
+                    {
+                        Log(string.Format("ERROR - Machine type {0} not implemented", GetDllMachineType(path)));
+                        return;
+                    }
 
-					bool is64 = is64_n.Value;
+                    bool is64 = is64_n.Value;
 
                     //PROCESS_INFORMATION procInfo = new PROCESS_INFORMATION();
 
@@ -367,7 +367,7 @@ namespace StartGame
                         {
                             if (gameProc.GetMainModuleFileName().ToLower() == path.ToLower())
                             {
-                                
+
                                 Log("Process with this path is already running! Skipping creating a new process");
                                 pOutPID = (uint)gameProc.Id;
                                 alreadyExists = true;
@@ -375,7 +375,7 @@ namespace StartGame
                         }
                     }
 
-                    if(!alreadyExists)
+                    if (!alreadyExists)
                     {
                         try
                         {
@@ -499,7 +499,7 @@ namespace StartGame
                 bool foundProc = false;
                 if (!isRunning || (isRunning && Process.GetProcessById((int)pOutPID).ProcessName.ToLower() != Path.GetFileNameWithoutExtension(path).ToLower()))
                 {
-                    if(isRunning)
+                    if (isRunning)
                     {
                         Log("Process ID " + pOutPID + " exists but does not match expected process name. Attempting to resolve.");
                     }
@@ -522,7 +522,7 @@ namespace StartGame
                                 pOutPID = (uint)gameProc.Id;
                             }
                         }
-                        if(!foundProc)
+                        if (!foundProc)
                         {
                             Log("Could not find process by its path");
                         }
@@ -535,7 +535,7 @@ namespace StartGame
                 else
                 {
                     Log("Process ID: " + pOutPID);
-                    if(Process.GetProcessById((int)pOutPID).GetMainModuleFileName().ToLower() == path.ToLower())
+                    if (Process.GetProcessById((int)pOutPID).GetMainModuleFileName().ToLower() == path.ToLower())
                     {
                         foundProc = true;
                         isRunning = true;
@@ -543,7 +543,7 @@ namespace StartGame
                 }
 
                 //Thread.Sleep(100);
-                
+
                 //if (proc != null && proc.Threads[0].ThreadState != System.Diagnostics.ThreadState.Running)
                 if (!isRunning && !foundProc)
                 {
@@ -572,8 +572,8 @@ namespace StartGame
                 {
                     //if (regMethod)
                     //{
-                        //Thread.Sleep(100);
-                        Log(string.Format("Game started, process ID: {0}", pOutPID));
+                    //Thread.Sleep(100);
+                    Log(string.Format("Game started, process ID: {0}", pOutPID));
                     //}
                     //else
                     //{
@@ -581,7 +581,7 @@ namespace StartGame
                     //    Log(string.Format("Game started, process ID: {0}", pOutPID));
                     //}
                 }
-                
+
             }
 
             catch (Exception ex)
@@ -589,7 +589,7 @@ namespace StartGame
                 tri++;
                 if (tri < tries)
                 {
-                    if(!ex.Message.Contains("debug-log"))
+                    if (!ex.Message.Contains("debug-log"))
                     {
                         Log(string.Format("ERROR - Failed to start process. EXCEPTION: {0} STACKTRACE: {1}", ex.Message, ex.StackTrace));
                         Console.WriteLine("Failed to start process. Retrying...");
@@ -633,7 +633,7 @@ namespace StartGame
             {
                 return;
             }
-            if(e.Data.Equals("injectfailed"))
+            if (e.Data.Equals("injectfailed"))
             {
                 injectFailed = true;
                 return;
@@ -707,8 +707,8 @@ namespace StartGame
                              && !skey.Contains("docpath")
                              && !skey.Contains("usedocs")
                              && !skey.Contains("output"))
-                             
-                                                          
+
+
                         {
                             i++;
                             if (string.IsNullOrEmpty(argument))

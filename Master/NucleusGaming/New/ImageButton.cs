@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Nucleus.Gaming
@@ -16,7 +13,7 @@ namespace Nucleus.Gaming
 
         public Image Image
         {
-            get { return image; }
+            get => image;
             set
             {
                 image = value;
@@ -25,7 +22,7 @@ namespace Nucleus.Gaming
         }
         public Image ImageHover
         {
-            get { return imageHover; }
+            get => imageHover;
             set
             {
                 imageHover = value;
@@ -34,7 +31,7 @@ namespace Nucleus.Gaming
         }
         public Image ImagePressed
         {
-            get { return imagePressed; }
+            get => imagePressed;
             set
             {
                 imagePressed = value;
@@ -44,7 +41,7 @@ namespace Nucleus.Gaming
 
         public Image ImageDisabled
         {
-            get { return imageDisabled; }
+            get => imageDisabled;
             set
             {
                 imageDisabled = value;
@@ -100,7 +97,7 @@ namespace Nucleus.Gaming
         {
             base.OnPaint(e);
 
-            if (this.Enabled)
+            if (Enabled)
             {
                 switch (State)
                 {
@@ -145,6 +142,17 @@ namespace Nucleus.Gaming
                     e.Graphics.DrawImage(ImageDisabled, e.ClipRectangle);
                 }
             }
+        }
+
+        private void InitializeComponent()
+        {
+            SuspendLayout();
+            // 
+            // ImageButton
+            // 
+            Name = "ImageButton";
+            ResumeLayout(false);
+
         }
     }
 }

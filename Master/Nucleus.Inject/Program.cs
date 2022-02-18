@@ -107,12 +107,10 @@ namespace Nucleus.Inject
 				try
 				{
 
-				
-				RuntimeHook(argsDecoded, i, is64);
+
+					RuntimeHook(argsDecoded, i, is64);
 				}
-				catch (
-					Exception
-				e)
+				catch (Exception e)
 				{
 					Log("error = " + e);
 					throw;
@@ -226,27 +224,27 @@ namespace Nucleus.Inject
 
 			int size = 48 + logPathLength + targetsBytesLength + rawHidBytesLength + playerNickLength;
 			var data = new byte[size];
-			data[0] = hookWindow == true ? (byte) 1 : (byte) 0;
-			data[1] = renameMutex == true ? (byte) 1 : (byte) 0;
-			data[2] = setWindow == true ? (byte) 1 : (byte) 0;
-			data[3] = isDebug == true ? (byte) 1 : (byte) 0;
-			data[4] = blockRaw == true ? (byte) 1 : (byte) 0;
-			data[5] = createSingle == true ? (byte)1 : (byte) 0;
+			data[0] = hookWindow == true ? (byte)1 : (byte)0;
+			data[1] = renameMutex == true ? (byte)1 : (byte)0;
+			data[2] = setWindow == true ? (byte)1 : (byte)0;
+			data[3] = isDebug == true ? (byte)1 : (byte)0;
+			data[4] = blockRaw == true ? (byte)1 : (byte)0;
+			data[5] = createSingle == true ? (byte)1 : (byte)0;
 
 			data[6] = (byte)(rawHidBytesLength >> 24);
 			data[7] = (byte)(rawHidBytesLength >> 16);
 			data[8] = (byte)(rawHidBytesLength >> 8);
 			data[9] = (byte)rawHidBytesLength;
 
-			data[10] = (byte) (logPathLength >> 24);
-			data[11] = (byte) (logPathLength >> 16);
-			data[12] = (byte) (logPathLength >> 8);
-			data[13] = (byte) logPathLength;
+			data[10] = (byte)(logPathLength >> 24);
+			data[11] = (byte)(logPathLength >> 16);
+			data[12] = (byte)(logPathLength >> 8);
+			data[13] = (byte)logPathLength;
 
-			data[14] = (byte) (targetsBytesLength >> 24);
-			data[15] = (byte) (targetsBytesLength >> 16);
-			data[16] = (byte) (targetsBytesLength >> 8);
-			data[17] = (byte) targetsBytesLength;
+			data[14] = (byte)(targetsBytesLength >> 24);
+			data[15] = (byte)(targetsBytesLength >> 16);
+			data[16] = (byte)(targetsBytesLength >> 8);
+			data[17] = (byte)targetsBytesLength;
 
 			data[18] = (byte)(width >> 24);
 			data[19] = (byte)(width >> 16);
@@ -327,7 +325,7 @@ namespace Nucleus.Inject
 					if (result != 0)
 					{
 						Log("Attempt " + (attempts + 1) +
-						    "/5 Failed to create process and inject start up hook dll. Result code: " + result);
+							"/5 Failed to create process and inject start up hook dll. Result code: " + result);
 					}
 					//}
 
@@ -346,14 +344,14 @@ namespace Nucleus.Inject
 				{
 					Log("CreateAndInject failed");
 					Console.WriteLine("injectfailed");
-					
+
 				}
 				else
 				{
 					//if (procid == 0)
 					Log("CreateAndInject successful, returning " + Marshal.ReadInt32(pid));
 					Console.WriteLine(Marshal.ReadInt32(pid));
-					
+
 					//else
 					//Console.WriteLine(procid);
 				}
@@ -411,7 +409,7 @@ namespace Nucleus.Inject
 
 			string writePipeName = args[i++];
 			string readPipeName = args[i++];
-			
+
 			int.TryParse(args[i++], out int allowedRawMouseHandle);
 			int.TryParse(args[i++], out int allowedRawKeyboardHandle);
 
@@ -430,22 +428,22 @@ namespace Nucleus.Inject
 			byte[] dataToSend = new byte[size];
 
 			int index = 0;
-			dataToSend[index++] = (byte) (hWnd >> 24);
-			dataToSend[index++] = (byte) (hWnd >> 16);
-			dataToSend[index++] = (byte) (hWnd >> 8);
-			dataToSend[index++] = (byte) (hWnd);
+			dataToSend[index++] = (byte)(hWnd >> 24);
+			dataToSend[index++] = (byte)(hWnd >> 16);
+			dataToSend[index++] = (byte)(hWnd >> 8);
+			dataToSend[index++] = (byte)(hWnd);
 
-			dataToSend[index++] = (byte) (allowedRawMouseHandle >> 24);
-			dataToSend[index++] = (byte) (allowedRawMouseHandle >> 16);
-			dataToSend[index++] = (byte) (allowedRawMouseHandle >> 8);
-			dataToSend[index++] = (byte) (allowedRawMouseHandle);
+			dataToSend[index++] = (byte)(allowedRawMouseHandle >> 24);
+			dataToSend[index++] = (byte)(allowedRawMouseHandle >> 16);
+			dataToSend[index++] = (byte)(allowedRawMouseHandle >> 8);
+			dataToSend[index++] = (byte)(allowedRawMouseHandle);
 
-			dataToSend[index++] = (byte) (allowedRawKeyboardHandle >> 24);
-			dataToSend[index++] = (byte) (allowedRawKeyboardHandle >> 16);
-			dataToSend[index++] = (byte) (allowedRawKeyboardHandle >> 8);
-			dataToSend[index++] = (byte) (allowedRawKeyboardHandle);
+			dataToSend[index++] = (byte)(allowedRawKeyboardHandle >> 24);
+			dataToSend[index++] = (byte)(allowedRawKeyboardHandle >> 16);
+			dataToSend[index++] = (byte)(allowedRawKeyboardHandle >> 8);
+			dataToSend[index++] = (byte)(allowedRawKeyboardHandle);
 
-			byte Bool_1_0(bool x) => x ? (byte) 1 : (byte) 0;
+			byte Bool_1_0(bool x) => x ? (byte)1 : (byte)0;
 			dataToSend[index++] = Bool_1_0(preventWindowDeactivation);
 			dataToSend[index++] = Bool_1_0(setWindow);
 			dataToSend[index++] = Bool_1_0(isDebug);
@@ -468,20 +466,20 @@ namespace Nucleus.Inject
 			dataToSend[index++] = Bool_1_0(hookXinput);
 			dataToSend[index++] = Bool_1_0(dinputToXinputTranslation);
 
-			dataToSend[index++] = (byte) (logPathLength >> 24);
-			dataToSend[index++] = (byte) (logPathLength >> 16);
-			dataToSend[index++] = (byte) (logPathLength >> 8);
-			dataToSend[index++] = (byte) logPathLength;
+			dataToSend[index++] = (byte)(logPathLength >> 24);
+			dataToSend[index++] = (byte)(logPathLength >> 16);
+			dataToSend[index++] = (byte)(logPathLength >> 8);
+			dataToSend[index++] = (byte)logPathLength;
 
-			dataToSend[index++] = (byte) (writePipeNameLength >> 24);
-			dataToSend[index++] = (byte) (writePipeNameLength >> 16);
-			dataToSend[index++] = (byte) (writePipeNameLength >> 8);
-			dataToSend[index++] = (byte) writePipeNameLength;
+			dataToSend[index++] = (byte)(writePipeNameLength >> 24);
+			dataToSend[index++] = (byte)(writePipeNameLength >> 16);
+			dataToSend[index++] = (byte)(writePipeNameLength >> 8);
+			dataToSend[index++] = (byte)writePipeNameLength;
 
-			dataToSend[index++] = (byte) (readPipeNameLength >> 24);
-			dataToSend[index++] = (byte) (readPipeNameLength >> 16);
-			dataToSend[index++] = (byte) (readPipeNameLength >> 8);
-			dataToSend[index++] = (byte) readPipeNameLength;
+			dataToSend[index++] = (byte)(readPipeNameLength >> 24);
+			dataToSend[index++] = (byte)(readPipeNameLength >> 16);
+			dataToSend[index++] = (byte)(readPipeNameLength >> 8);
+			dataToSend[index++] = (byte)readPipeNameLength;
 
 			dataToSend[index++] = (byte)(width >> 24);
 			dataToSend[index++] = (byte)(width >> 16);
@@ -519,13 +517,13 @@ namespace Nucleus.Inject
 			{
 				if (is64)
 				{
-					Injector64.RhInjectLibrary((uint) InTargetPID, (uint) InWakeUpTID, (uint) InInjectionOptions, "",
-						InLibraryPath_x64, intPtr, (uint) size);
+					Injector64.RhInjectLibrary((uint)InTargetPID, (uint)InWakeUpTID, (uint)InInjectionOptions, "",
+						InLibraryPath_x64, intPtr, (uint)size);
 				}
 				else
 				{
-					Injector32.RhInjectLibrary((uint) InTargetPID, (uint) InWakeUpTID, (uint) InInjectionOptions,
-						InLibraryPath_x86, "", intPtr, (uint) size);
+					Injector32.RhInjectLibrary((uint)InTargetPID, (uint)InWakeUpTID, (uint)InInjectionOptions,
+						InLibraryPath_x86, "", intPtr, (uint)size);
 				}
 			}
 			catch (Exception ex)

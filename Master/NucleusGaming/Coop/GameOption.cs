@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections;
 
 namespace Nucleus.Gaming.Coop
 {
@@ -21,37 +17,28 @@ namespace Nucleus.Gaming.Coop
         /// <summary>
         /// The name of the variable
         /// </summary>
-        public string Name
-        {
-            get { return name; }
-        }
+        public string Name => name;
 
         /// <summary>
         /// The description of the variable
         /// </summary>
-        public string Description
-        {
-            get { return description; }
-        }
+        public string Description => description;
 
         /// <summary>
         /// The value of the variable
         /// </summary>
         public object Value
         {
-            get { return value; }
-            set { this.value = value; }
+            get => value;
+            set => this.value = value;
         }
 
         /// <summary>
         /// The key to this variable
         /// </summary>
-        public string Key
-        {
-            get { return key; }
-        }
+        public string Key => key;
 
-        public IList List { get { return list; } }
+        public IList List => list;
         public bool Hidden { get; set; }
 
         /// <summary>
@@ -65,12 +52,12 @@ namespace Nucleus.Gaming.Coop
         public GameOption(string name, string desc, string key, object value)
         {
             this.name = name;
-            this.description = desc;
+            description = desc;
             this.value = value;
             this.key = key;
             if (value is IList)
             {
-                this.list = (IList)value;
+                list = (IList)value;
                 this.value = 0;
             }
         }
@@ -79,19 +66,19 @@ namespace Nucleus.Gaming.Coop
         {
             DefaultValue = defaultValue;
             this.name = name;
-            this.description = desc;
+            description = desc;
             this.value = value;
             this.key = key;
             if (value is IList)
             {
-                this.list = (IList)value;
+                list = (IList)value;
                 this.value = 0;
             }
         }
 
         public GameOption Instantiate()
         {
-            return new GameOption(this.Name, this.Description, this.Key, this.Value);
+            return new GameOption(Name, Description, Key, Value);
         }
 
         public override string ToString()

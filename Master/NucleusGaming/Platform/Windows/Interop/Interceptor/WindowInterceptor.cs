@@ -7,27 +7,22 @@
 //Copyright: (C) 2006, Sergey Stoyan
 //********************************************************************************************
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 using Win32;
-using System.Windows.Forms;
-using System.Diagnostics;
 
 namespace CliverSoft
-{    
+{
     /// <summary>
     /// Intercept creation of window and get its HWND
     /// </summary>
     public class WindowInterceptor
     {
-        IntPtr hook_id = IntPtr.Zero;
-
-        Functions.HookProc hookProcedure;
+        private IntPtr hook_id = IntPtr.Zero;
+        private Functions.HookProc hookProcedure;
 
         public delegate int HookProc(int nCode, IntPtr wParam, IntPtr lParam);
 
-        int errorCode;
+        private int errorCode;
 
         /// <summary>
         /// Start dialog box interception for the specified owner window
@@ -37,10 +32,10 @@ namespace CliverSoft
         public WindowInterceptor(IntPtr hMod, uint threadID)
         {
             hookProcedure = new Functions.HookProc(HookProcedure);
-            
+
             //hook_id = Win32.Functions.SetWindowsHookEx(Win32.HookType.WH_CALLWNDPROCRET, cbf, IntPtr.Zero, Win32.Functions.GetCurrentThreadId());   
             hook_id = Win32.Functions.SetWindowsHookEx(Win32.HookType.WH_CALLWNDPROCRET, hookProcedure, hMod, threadID);
-            
+
             errorCode = Marshal.GetLastWin32Error();
         }
 
@@ -64,7 +59,9 @@ namespace CliverSoft
         private IntPtr HookProcedure(int nCode, IntPtr wParam, IntPtr lParam)
         {
             if (nCode < 0)
+            {
                 return Win32.Functions.CallNextHookEx(hook_id, nCode, wParam, lParam);
+            }
 
             Win32.CWPRETSTRUCT msg = (Win32.CWPRETSTRUCT)Marshal.PtrToStructure(lParam, typeof(Win32.CWPRETSTRUCT));
 

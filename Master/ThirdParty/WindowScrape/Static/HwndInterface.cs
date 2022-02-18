@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using WindowScrape.Constants;
@@ -14,7 +13,7 @@ namespace WindowScrape.Static
         #region Windows
         public static List<IntPtr> EnumHwnds()
         {
-            var parent = IntPtr.Zero;
+            IntPtr parent = IntPtr.Zero;
             return EnumChildren(parent);
         }
 
@@ -47,7 +46,7 @@ namespace WindowScrape.Static
         #region Hwnd Attributes
         public static string GetHwndClassName(IntPtr hwnd)
         {
-            var result = new StringBuilder(256);
+            StringBuilder result = new StringBuilder(256);
             GetClassName(hwnd, result, result.MaxCapacity);
             return result.ToString();
         }
@@ -57,8 +56,8 @@ namespace WindowScrape.Static
         }
         public static string GetHwndTitle(IntPtr hwnd)
         {
-            var length = GetHwndTitleLength(hwnd);
-            var result = new StringBuilder(length + 1);
+            int length = GetHwndTitleLength(hwnd);
+            StringBuilder result = new StringBuilder(length + 1);
             GetWindowText(hwnd, result, result.Capacity);
             return result.ToString();
         }
@@ -68,8 +67,8 @@ namespace WindowScrape.Static
         }
         public static string GetHwndText(IntPtr hwnd)
         {
-            var len = (int)SendMessage(hwnd, (UInt32)WM.GETTEXTLENGTH, 0, 0) + 1;
-            var sb = new StringBuilder(len);
+            int len = (int)SendMessage(hwnd, (UInt32)WM.GETTEXTLENGTH, 0, 0) + 1;
+            StringBuilder sb = new StringBuilder(len);
             SendMessage(hwnd, (UInt32)WM.GETTEXT, (uint)len, sb);
             return sb.ToString();
         }
@@ -87,9 +86,9 @@ namespace WindowScrape.Static
         }
         public static Point GetHwndPos(IntPtr hwnd)
         {
-            var rect = new RECT();
+            RECT rect = new RECT();
             GetWindowRect(hwnd, out rect);
-            var result = new Point(rect.Left, rect.Top);
+            Point result = new Point(rect.Left, rect.Top);
             return result;
         }
         public static bool SetHwndSize(IntPtr hwnd, int w, int h)
@@ -113,9 +112,9 @@ namespace WindowScrape.Static
 
         public static Size GetHwndSize(IntPtr hwnd)
         {
-            var rect = new RECT();
+            RECT rect = new RECT();
             GetWindowRect(hwnd, out rect);
-            var result = new Size(rect.Right - rect.Left, rect.Bottom - rect.Top);
+            Size result = new Size(rect.Right - rect.Left, rect.Bottom - rect.Top);
             return result;
         }
 
@@ -129,12 +128,15 @@ namespace WindowScrape.Static
         #region Hwnd Functions
         public static List<IntPtr> EnumChildren(IntPtr hwnd)
         {
-            var child = IntPtr.Zero;
-            var results = new List<IntPtr>();
+            IntPtr child = IntPtr.Zero;
+            List<IntPtr> results = new List<IntPtr>();
             do
             {
                 child = FindWindowEx(hwnd, child, null, null);
-                if (child != IntPtr.Zero) results.Add(child);
+                if (child != IntPtr.Zero)
+                {
+                    results.Add(child);
+                }
             } while (child != IntPtr.Zero);
             return results;
         }
@@ -148,7 +150,7 @@ namespace WindowScrape.Static
         }
         public static int SendMessage(IntPtr hwnd, WM msg, uint param1, uint param2)
         {
-            return (int)SendMessage(hwnd, (uint) msg, param1, param2);
+            return (int)SendMessage(hwnd, (uint)msg, param1, param2);
         }
         public static int SendMessage(IntPtr hwnd, WM msg, uint param1, string param2)
         {
@@ -156,13 +158,13 @@ namespace WindowScrape.Static
         }
         public static string GetMessageString(IntPtr hwnd, WM msg, uint param)
         {
-            var sb = new StringBuilder(65536);
-            SendMessage(hwnd, (uint) msg, param, sb);
+            StringBuilder sb = new StringBuilder(65536);
+            SendMessage(hwnd, (uint)msg, param, sb);
             return sb.ToString();
         }
         public static int GetMessageInt(IntPtr hwnd, WM msg)
         {
-            return (int) SendMessage(hwnd, (uint) msg, 0, 0);
+            return (int)SendMessage(hwnd, (uint)msg, 0, 0);
         }
         public static void ClickHwnd(IntPtr hwnd)
         {
@@ -170,13 +172,14 @@ namespace WindowScrape.Static
         }
         public static Point GetTitleBarSize(IntPtr hwnd)
         {
-            RECT rcClient, rcWind;
-            GetClientRect(hwnd, out rcClient);
-            GetWindowRect(hwnd, out rcWind);
+            GetClientRect(hwnd, out RECT rcClient);
+            GetWindowRect(hwnd, out RECT rcWind);
 
-            Point ptDiff = new Point();
-            ptDiff.X = (rcWind.Right - rcWind.Left) - rcClient.Right;
-            ptDiff.Y = (rcWind.Bottom - rcWind.Top) - rcClient.Bottom;
+            Point ptDiff = new Point
+            {
+                X = (rcWind.Right - rcWind.Left) - rcClient.Right,
+                Y = (rcWind.Bottom - rcWind.Top) - rcClient.Bottom
+            };
             return ptDiff;
         }
 
@@ -184,10 +187,10 @@ namespace WindowScrape.Static
 
         #region lib
 
-        static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
-        static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
-        static readonly IntPtr HWND_TOP = new IntPtr(0);
-        static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
+        private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+        private static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
+        private static readonly IntPtr HWND_TOP = new IntPtr(0);
+        private static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
 
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool MoveWindow(IntPtr hWnd, int x, int y, int nWidth, int nHeight, bool bRepaint);

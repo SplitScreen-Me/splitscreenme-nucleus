@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Nucleus.Gaming.Coop
 {
@@ -11,8 +8,8 @@ namespace Nucleus.Gaming.Coop
 
         public List<UserGameInfo> Games
         {
-            get { return games; }
-            set { games = value; }
+            get => games;
+            set => games = value;
         }
 
         public UserProfile()

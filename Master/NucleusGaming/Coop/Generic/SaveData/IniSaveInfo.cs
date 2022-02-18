@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Nucleus.Gaming
+﻿namespace Nucleus.Gaming
 {
     public class IniSaveInfo : SaveInfo
     {
@@ -13,9 +8,9 @@ namespace Nucleus.Gaming
 
         public IniSaveInfo(string section, string key, string value)
         {
-            this.Section = section;
-            this.Key = key;
-            this.Value = value;
+            Section = section;
+            Key = key;
+            Value = value;
         }
 
         public override string ToString()

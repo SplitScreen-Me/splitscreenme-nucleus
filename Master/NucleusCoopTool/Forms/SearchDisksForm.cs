@@ -8,10 +8,12 @@ using System.Linq;
 using System.Security.Principal;
 using System.Threading;
 using System.Windows.Forms;
+using System.Media;
+using System.Reflection;
 
 namespace Nucleus.Coop
 {
-    public partial class SearchDisksForm : BaseForm
+    public partial class SearchDisksForm : BaseForm, IDynamicSized
     {
         public struct SearchDriveInfo
         {
@@ -23,7 +25,7 @@ namespace Nucleus.Coop
                 return text;
             }
         }
-
+        
         private float progress;
         private float lastProgress;
 
@@ -32,18 +34,67 @@ namespace Nucleus.Coop
         private bool searching;
         private bool closed;
         private MainForm main;
+        
+		private readonly IniFile ini = new Gaming.IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));
+		
+		
+		public void button_Click(object sender, EventArgs e)
+        {   
+		    
+			string ChoosenTheme = ini.IniReadValue("Theme", "Theme");
+            IniFile theme = new IniFile(Path.Combine(Directory.GetCurrentDirectory() + "\\gui\\theme\\" + ChoosenTheme, "theme.ini"));
+			
+            SoundPlayer splayer = new SoundPlayer((Path.Combine(Application.StartupPath, @"gui\theme\"+ChoosenTheme+"\\button_click.wav")));
+            splayer.Play();
+        }
+		
+		private void closeButton(object sender, EventArgs e)
+		{
+            closing = true;
+            this.Visible = false;
+		}
 
-        private readonly IniFile ini = new Gaming.IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));
 
         public SearchDisksForm(MainForm main)
         {
-            
+            string ChoosenTheme = ini.IniReadValue("Theme", "Theme");
+            IniFile theme = new IniFile(Path.Combine(Directory.GetCurrentDirectory() + "\\gui\\theme\\" + ChoosenTheme, "theme.ini"));
+            bool MouseClick = Convert.ToBoolean(theme.IniReadValue("Sounds", "MouseClick"));
+            string[] rgb_font = theme.IniReadValue("Colors", "FontColor").Split(',');
+            string[] rgb_MouseOverColor = theme.IniReadValue("Colors", "MouseOverColor").Split(',');
+            Image AppButtons = Image.FromFile(Path.Combine(Application.StartupPath, @"gui\Theme\" +ChoosenTheme+"\\button.png"));
+					
+			Color MouseOverBackColor = Color.FromArgb(Convert.ToInt32(rgb_MouseOverColor[0]), Convert.ToInt32(rgb_MouseOverColor[1]), Convert.ToInt32(rgb_MouseOverColor[2])); 
+			
             this.main = main;
             InitializeComponent();
 
-            DPIManager.AddForm(this);
-            DPIManager.ForceUpdate();
+            ForeColor = Color.FromArgb(Convert.ToInt32(rgb_font[0]), Convert.ToInt32(rgb_font[1]), Convert.ToInt32(rgb_font[2]));
 
+            BackgroundImage = Image.FromFile(Path.Combine(Application.StartupPath, @"gui\Theme\"+ChoosenTheme+ "\\other_backgrounds.jpg"));
+            
+            //Controls Image
+			btn_addSelection.BackgroundImage = AppButtons;
+			btn_customPath.BackgroundImage = AppButtons;
+			btnSearch.BackgroundImage = AppButtons;
+			btn_delPath.BackgroundImage = AppButtons;
+			btn_selectAll.BackgroundImage = AppButtons;
+			btn_deselectAll.BackgroundImage = AppButtons;
+			//
+			//MouseOverColor
+			//
+			btn_addSelection.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
+			btn_customPath.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
+			btnSearch.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
+			btn_delPath.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
+			btn_selectAll.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
+			btn_deselectAll.FlatAppearance.MouseOverBackColor = MouseOverBackColor;
+           
+            if (MouseClick)
+            {
+               foreach (Control button in this.Controls) { if (button is Button) { button.Click += new System.EventHandler(this.button_Click);}}
+            }
+            
             for (int x = 1; x <= 100; x++)
             {
                 if (ini.IniReadValue("SearchPaths", x.ToString()) == "")
@@ -53,32 +104,83 @@ namespace Nucleus.Coop
                 else
                 {
                     disksBox.Items.Add(ini.IniReadValue("SearchPaths", x.ToString()), true);
+                   
+
                 }
             }
+
+            Location = new Point(main.Location.X + main.Width / 2 - Width / 2, main.Location.Y + main.Height / 2 - Height / 2);
+            DPIManager.Register(this);
+            DPIManager.AddForm(this);
+            DPIManager.Update(this);
         }
 
-        protected override Size DefaultSize
+        ~SearchDisksForm()
         {
-            get
+           // DPIManager.Unregister(this);
+        }
+
+        public void UpdateSize(float scale)
+        {
+            if (IsDisposed)
             {
-                return new Size(720, 500);
+                DPIManager.Unregister(this);
+                return;
             }
+
+            if (scale > 1.0F)
+            {
+                var heightField = typeof(CheckedListBox).GetField(
+                "scaledListItemBordersHeight",
+                BindingFlags.NonPublic | BindingFlags.Instance
+                );
+
+                var addedHeight = 26;
+
+                heightField.SetValue(disksBox, addedHeight);
+                heightField.SetValue(checkboxFoundGames, addedHeight);
+            }
+            else
+            {
+                var heightField = typeof(CheckedListBox).GetField(
+               "scaledListItemBordersHeight",
+               BindingFlags.NonPublic | BindingFlags.Instance
+               );
+
+                var addedHeight = 6;
+
+                heightField.SetValue(disksBox, addedHeight);
+                heightField.SetValue(checkboxFoundGames, addedHeight);
+
+            }
+
+            float newFontSize = Font.Size * scale;
+            float textBoxFontSize = (Font.Size + 4) * scale;
+
+            foreach (Control c in Controls)
+            {
+                if (c.GetType() == typeof(CheckedListBox))
+                {
+                    c.Font = new Font("Franklin Gothic Medium", newFontSize, FontStyle.Regular, GraphicsUnit.Point, 0);
+                }
+
+                if (c.GetType() == typeof(TextBox))
+                {
+                    c.Font = new Font("Franklin Gothic Medium", textBoxFontSize, FontStyle.Regular, GraphicsUnit.Point, 0);
+                }
+            }
+
+
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             base.OnFormClosing(e);
-
+            DPIManager.Unregister(this);
             closed = true;
         }
 
-        private bool IsElevated
-        {
-            get
-            {
-                return new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
-            }
-        }
+        private bool IsElevated => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
@@ -114,7 +216,7 @@ namespace Nucleus.Coop
 
             for (int i = 0; i < disksBox.CheckedItems.Count; i++)
             {
-                pathsToSearch.Add(disksBox.CheckedItems[i].ToString());
+                pathsToSearch.Add(disksBox.CheckedItems[i].ToString());             
             }
 
             ThreadPool.QueueUserWorkItem(SearchDrive, null);
@@ -128,14 +230,14 @@ namespace Nucleus.Coop
             if (dif > 0.005f || toAdd == 0) // only update after .5% or if the user has just requested an update
             {
                 lastProgress = progress;
-                if (this.IsDisposed || closing)
+                if (IsDisposed || closing)
                 {
                     return;
                 }
 
                 Invoke(new Action(delegate
                 {
-                    if (this.IsDisposed || progressBar1.IsDisposed || closing)
+                    if (IsDisposed || progressBar1.IsDisposed || closing)
                     {
                         return;
                     }
@@ -229,7 +331,7 @@ namespace Nucleus.Coop
 
         private void SearchDrive(object state)
         {
-            var watch = System.Diagnostics.Stopwatch.StartNew();
+            System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
             try
             {
                 for (int i = 0; i < pathsToSearch.Count; i++)
@@ -269,7 +371,7 @@ namespace Nucleus.Coop
                         }
 
                         //UpdateProgress(increment);
-                        
+
                         if (GameManager.Instance.User.Games.Any(c => c.ExePath.ToLower() == exeFilePath.ToLower()))
                         {
                             continue;
@@ -298,7 +400,7 @@ namespace Nucleus.Coop
                                 Invoke(new Action(delegate
                                 {
                                     bool exists = false;
-                                    foreach (var item in checkboxFoundGames.Items)
+                                    foreach (object item in checkboxFoundGames.Items)
                                     {
                                         if (item.ToString() == uinfo.GameName + " | " + exeFilePath)
                                         {
@@ -327,7 +429,7 @@ namespace Nucleus.Coop
 
                 watch.Stop();
 
-                var elapsedMs = watch.ElapsedMilliseconds / 1000;
+                long elapsedMs = watch.ElapsedMilliseconds / 1000;
 
                 if (checkboxFoundGames.Items.Count == 0)
                 {
@@ -339,7 +441,7 @@ namespace Nucleus.Coop
                     progressBar1.Value = 0;
                     return;
                 }
-                
+
                 progress = 1;
                 UpdateProgress(0);
                 btn_addSelection.Enabled = true;
@@ -365,12 +467,13 @@ namespace Nucleus.Coop
         private bool closing;
         private void SearchDisksForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            Refresh();
             closing = true;
         }
 
         private void Btn_customPath_Click(object sender, EventArgs e)
         {
-            using (var fbd = new FolderBrowserDialog())
+            using (FolderBrowserDialog fbd = new FolderBrowserDialog())
             {
                 DialogResult result = fbd.ShowDialog();
 
@@ -378,9 +481,9 @@ namespace Nucleus.Coop
                 {
                     disksBox.Items.Add(fbd.SelectedPath, true);
                     int freeIndex = 1;
-                    for(int x = 1; x <= 100; x++)
+                    for (int x = 1; x <= 100; x++)
                     {
-                        if(ini.IniReadValue("SearchPaths",x.ToString()) == "")
+                        if (ini.IniReadValue("SearchPaths", x.ToString()) == "")
                         {
                             freeIndex = x;
                             break;
@@ -402,7 +505,7 @@ namespace Nucleus.Coop
                 }
             }
 
-            if(checkboxFoundGames.CheckedItems.Count > 0)
+            if (checkboxFoundGames.CheckedItems.Count > 0)
             {
                 List<string> gamesToAdd = new List<string>();
                 int numAdded = 0;
@@ -455,7 +558,7 @@ namespace Nucleus.Coop
             DialogResult dialogResult = MessageBox.Show("Are you sure you want to delete the paths that are currently checked?", "Confirm deletion", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (dialogResult == DialogResult.Yes)
             {
-                foreach (var item in disksBox.CheckedItems.OfType<string>().ToList())
+                foreach (string item in disksBox.CheckedItems.OfType<string>().ToList())
                 {
                     disksBox.Items.Remove(item);
                     for (int x = 1; x <= 100; x++)
@@ -484,6 +587,32 @@ namespace Nucleus.Coop
             {
                 checkboxFoundGames.SetItemChecked(i, false);
             }
+        }
+
+        private void SearchDisksForm_Load(object sender, EventArgs e)
+        {
+          
+            
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void disksBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txt_Stage_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

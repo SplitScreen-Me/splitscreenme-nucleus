@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Nucleus.Gaming
 {
@@ -43,8 +41,7 @@ namespace Nucleus.Gaming
         {
             // clear the url
             url = url.ToLower();
-            Image img;
-            if (loadedImages.TryGetValue(url, out img))
+            if (loadedImages.TryGetValue(url, out Image img))
             {
                 return img;
             }

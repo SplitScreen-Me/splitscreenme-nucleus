@@ -1,11 +1,9 @@
 ﻿#if UNSAFE
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-using System.Runtime.InteropServices;
-using System.IO;
 using System.ComponentModel;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace Nucleus.Gaming
 {
@@ -15,8 +13,8 @@ namespace Nucleus.Gaming
 
         public Dictionary<ulong, FileNameAndParentFrn> Directories
         {
-            get { return _directories; }
-            set { _directories = value; }
+            get => _directories;
+            set => _directories = value;
         }
 
         private IntPtr _changeJournalRootHandle;
@@ -24,26 +22,23 @@ namespace Nucleus.Gaming
 
         public string Drive
         {
-            get { return _drive; }
-            set 
-            { 
-                _drive = value.Replace(@"\", "");
-            }
+            get => _drive;
+            set => _drive = value.Replace(@"\", "");
         }
 
         #region DllImports and Constants
 
-        public const UInt32 GENERIC_READ = 0x80000000;
-        public const UInt32 GENERIC_WRITE = 0x40000000;
-        public const UInt32 FILE_SHARE_READ = 0x00000001;
-        public const UInt32 FILE_SHARE_WRITE = 0x00000002;
-        public const UInt32 FILE_ATTRIBUTE_DIRECTORY = 0x00000010;
-        public const UInt32 OPEN_EXISTING = 3;
-        public const UInt32 FILE_FLAG_BACKUP_SEMANTICS = 0x02000000;
-        public const Int32 INVALID_HANDLE_VALUE = -1;
-        public const UInt32 FSCTL_QUERY_USN_JOURNAL = 0x000900f4;
-        public const UInt32 FSCTL_ENUM_USN_DATA = 0x000900b3;
-        public const UInt32 FSCTL_CREATE_USN_JOURNAL = 0x000900e7;
+        public const uint GENERIC_READ = 0x80000000;
+        public const uint GENERIC_WRITE = 0x40000000;
+        public const uint FILE_SHARE_READ = 0x00000001;
+        public const uint FILE_SHARE_WRITE = 0x00000002;
+        public const uint FILE_ATTRIBUTE_DIRECTORY = 0x00000010;
+        public const uint OPEN_EXISTING = 3;
+        public const uint FILE_FLAG_BACKUP_SEMANTICS = 0x02000000;
+        public const int INVALID_HANDLE_VALUE = -1;
+        public const uint FSCTL_QUERY_USN_JOURNAL = 0x000900f4;
+        public const uint FSCTL_ENUM_USN_DATA = 0x000900b3;
+        public const uint FSCTL_CREATE_USN_JOURNAL = 0x000900e7;
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr CreateFile(string lpFileName, uint dwDesiredAccess,
@@ -63,21 +58,21 @@ namespace Nucleus.Gaming
         [DllImport("kernel32.dll", ExactSpelling = true, SetLastError = true, CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool DeviceIoControl(IntPtr hDevice,
-                                                      UInt32 dwIoControlCode,
-                                                      IntPtr lpInBuffer, Int32 nInBufferSize,
-                                                      out USN_JOURNAL_DATA lpOutBuffer, Int32 nOutBufferSize,
+                                                      uint dwIoControlCode,
+                                                      IntPtr lpInBuffer, int nInBufferSize,
+                                                      out USN_JOURNAL_DATA lpOutBuffer, int nOutBufferSize,
                                                       out uint lpBytesReturned, IntPtr lpOverlapped);
 
         [DllImport("kernel32.dll", ExactSpelling = true, SetLastError = true, CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool DeviceIoControl(IntPtr hDevice,
-                                                      UInt32 dwIoControlCode,
-                                                      IntPtr lpInBuffer, Int32 nInBufferSize,
-                                                      IntPtr lpOutBuffer, Int32 nOutBufferSize,
+                                                      uint dwIoControlCode,
+                                                      IntPtr lpInBuffer, int nInBufferSize,
+                                                      IntPtr lpOutBuffer, int nOutBufferSize,
                                                       out uint lpBytesReturned, IntPtr lpOverlapped);
 
         [DllImport("kernel32.dll")]
-        public static extern void ZeroMemory(IntPtr ptr, Int32 size);
+        public static extern void ZeroMemory(IntPtr ptr, int size);
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct BY_HANDLE_FILE_INFORMATION
@@ -105,38 +100,38 @@ namespace Nucleus.Gaming
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct USN_JOURNAL_DATA
         {
-            public UInt64 UsnJournalID;
-            public Int64 FirstUsn;
-            public Int64 NextUsn;
-            public Int64 LowestValidUsn;
-            public Int64 MaxUsn;
-            public UInt64 MaximumSize;
-            public UInt64 AllocationDelta;
+            public ulong UsnJournalID;
+            public long FirstUsn;
+            public long NextUsn;
+            public long LowestValidUsn;
+            public long MaxUsn;
+            public ulong MaximumSize;
+            public ulong AllocationDelta;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct MFT_ENUM_DATA
         {
-            public UInt64 StartFileReferenceNumber;
-            public Int64 LowUsn;
-            public Int64 HighUsn;
+            public ulong StartFileReferenceNumber;
+            public long LowUsn;
+            public long HighUsn;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct CREATE_USN_JOURNAL_DATA
         {
-            public UInt64 MaximumSize;
-            public UInt64 AllocationDelta;
+            public ulong MaximumSize;
+            public ulong AllocationDelta;
         }
 
         public class USN_RECORD
         {
-            public UInt32 RecordLength;
-            public UInt64 FileReferenceNumber;
-            public UInt64 ParentFileReferenceNumber;
-            public UInt32 FileAttributes;
-            public Int32 FileNameLength;
-            public Int32 FileNameOffset;
+            public uint RecordLength;
+            public ulong FileReferenceNumber;
+            public ulong ParentFileReferenceNumber;
+            public uint FileAttributes;
+            public int FileNameLength;
+            public int FileNameOffset;
             public string FileName = string.Empty;
 
             private const int FR_OFFSET = 8;
@@ -147,19 +142,19 @@ namespace Nucleus.Gaming
 
             public USN_RECORD(IntPtr p)
             {
-                this.RecordLength = (UInt32)Marshal.ReadInt32(p);
-                this.FileReferenceNumber = (UInt64)Marshal.ReadInt64(p, FR_OFFSET);
-                this.ParentFileReferenceNumber = (UInt64)Marshal.ReadInt64(p, PFR_OFFSET);
-                this.FileAttributes = (UInt32)Marshal.ReadInt32(p, FA_OFFSET);
-                this.FileNameLength = Marshal.ReadInt16(p, FNL_OFFSET);
-                this.FileNameOffset = Marshal.ReadInt16(p, FN_OFFSET);
-                FileName = Marshal.PtrToStringUni(new IntPtr(p.ToInt32() + this.FileNameOffset), this.FileNameLength / sizeof(char));
+                RecordLength = (uint)Marshal.ReadInt32(p);
+                FileReferenceNumber = (ulong)Marshal.ReadInt64(p, FR_OFFSET);
+                ParentFileReferenceNumber = (ulong)Marshal.ReadInt64(p, PFR_OFFSET);
+                FileAttributes = (uint)Marshal.ReadInt32(p, FA_OFFSET);
+                FileNameLength = Marshal.ReadInt16(p, FNL_OFFSET);
+                FileNameOffset = Marshal.ReadInt16(p, FN_OFFSET);
+                FileName = Marshal.PtrToStringUni(new IntPtr(p.ToInt32() + FileNameOffset), FileNameLength / sizeof(char));
             }
         }
 
         #endregion
 
-        public void EnumerateVolume(out Dictionary<UInt64, FileNameAndParentFrn> files, string[] fileExtensions)
+        public void EnumerateVolume(out Dictionary<ulong, FileNameAndParentFrn> files, string[] fileExtensions)
         {
             files = new Dictionary<ulong, FileNameAndParentFrn>();
             IntPtr medBuffer = IntPtr.Zero;
@@ -215,8 +210,8 @@ namespace Nucleus.Gaming
                 bool bRtn = MFTReader.GetFileInformationByHandle(hRoot, out fi);
                 if (bRtn)
                 {
-                    UInt64 fileIndexHigh = (UInt64)fi.FileIndexHigh;
-                    UInt64 indexRoot = (fileIndexHigh << 32) | fi.FileIndexLow;
+                    ulong fileIndexHigh = fi.FileIndexHigh;
+                    ulong indexRoot = (fileIndexHigh << 32) | fi.FileIndexLow;
 
                     FileNameAndParentFrn f = new FileNameAndParentFrn(driveRoot, 0);
                     _directories.Add(indexRoot, f);
@@ -260,20 +255,20 @@ namespace Nucleus.Gaming
                 frn = _directories[frn.ParentFrn];
             }
 
-            return this.Drive + @"\" + address;
+            return Drive + @"\" + address;
         }
 
-        unsafe public void EnumerateFiles(IntPtr medBuffer, ref Dictionary<ulong, FileNameAndParentFrn> files, string[] fileExtensions)
+        public unsafe void EnumerateFiles(IntPtr medBuffer, ref Dictionary<ulong, FileNameAndParentFrn> files, string[] fileExtensions)
         {
-            IntPtr pData = Marshal.AllocHGlobal(sizeof(UInt64) + 0x10000);
-            MFTReader.ZeroMemory(pData, sizeof(UInt64) + 0x10000);
+            IntPtr pData = Marshal.AllocHGlobal(sizeof(ulong) + 0x10000);
+            MFTReader.ZeroMemory(pData, sizeof(ulong) + 0x10000);
             uint outBytesReturned = 0;
 
             while (false != MFTReader.DeviceIoControl(_changeJournalRootHandle, MFTReader.FSCTL_ENUM_USN_DATA, medBuffer,
-                                    sizeof(MFTReader.MFT_ENUM_DATA), pData, sizeof(UInt64) + 0x10000, out outBytesReturned,
+                                    sizeof(MFTReader.MFT_ENUM_DATA), pData, sizeof(ulong) + 0x10000, out outBytesReturned,
                                     IntPtr.Zero))
             {
-                IntPtr pUsnRecord = new IntPtr(pData.ToInt32() + sizeof(Int64));
+                IntPtr pUsnRecord = new IntPtr(pData.ToInt32() + sizeof(long));
                 while (outBytesReturned > 60)
                 {
                     MFTReader.USN_RECORD usn = new MFTReader.USN_RECORD(pUsnRecord);
@@ -377,14 +372,13 @@ namespace Nucleus.Gaming
             Marshal.FreeHGlobal(pData);
         }
 
-        unsafe private void CreateChangeJournal()
+        private unsafe void CreateChangeJournal()
         {
             // This function creates a journal on the volume. If a journal already  
             // exists this function will adjust the MaximumSize and AllocationDelta  
             // parameters of the journal  
-            UInt64 MaximumSize = 0x800000;
-            UInt64 AllocationDelta = 0x100000;
-            UInt32 cb;
+            ulong MaximumSize = 0x800000;
+            ulong AllocationDelta = 0x100000;
             MFTReader.CREATE_USN_JOURNAL_DATA cujd;
             cujd.MaximumSize = MaximumSize;
             cujd.AllocationDelta = AllocationDelta;
@@ -395,16 +389,15 @@ namespace Nucleus.Gaming
             Marshal.StructureToPtr(cujd, cujdBuffer, true);
 
             bool fOk = MFTReader.DeviceIoControl(_changeJournalRootHandle, MFTReader.FSCTL_CREATE_USN_JOURNAL,
-                cujdBuffer, sizeCujd, IntPtr.Zero, 0, out cb, IntPtr.Zero);
+                cujdBuffer, sizeCujd, IntPtr.Zero, 0, out uint cb, IntPtr.Zero);
             if (!fOk)
             {
                 throw new IOException("DeviceIoControl() returned false", new Win32Exception(Marshal.GetLastWin32Error()));
             }
         }
 
-        unsafe private void SetupMFT_Enum_DataBuffer(ref IntPtr medBuffer)
+        private unsafe void SetupMFT_Enum_DataBuffer(ref IntPtr medBuffer)
         {
-            uint bytesReturned = 0;
             MFTReader.USN_JOURNAL_DATA ujd = new MFTReader.USN_JOURNAL_DATA();
 
             bool bOk = MFTReader.DeviceIoControl(_changeJournalRootHandle,                           // Handle to drive  
@@ -413,7 +406,7 @@ namespace Nucleus.Gaming
                 0,                          // In Buffer Size  
                 out ujd,                    // Out Buffer  
                 sizeof(MFTReader.USN_JOURNAL_DATA),  // Size Of Out Buffer  
-                out bytesReturned,          // Bytes Returned  
+                out uint bytesReturned,          // Bytes Returned  
                 IntPtr.Zero);               // lpOverlapped  
             if (bOk)
             {

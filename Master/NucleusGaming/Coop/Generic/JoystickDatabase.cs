@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Nucleus.Gaming
 {
@@ -14,8 +11,7 @@ namespace Nucleus.Gaming
 
         public static int GetID(string deviceGuid)
         {
-            int id = 0;
-            if (JoystickIDs.TryGetValue(deviceGuid, out id))
+            if (JoystickIDs.TryGetValue(deviceGuid, out int id))
             {
                 return id;
             }

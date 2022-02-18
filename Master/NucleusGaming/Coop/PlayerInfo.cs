@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Drawing;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using Nucleus.Coop;
 //using SlimDX.DirectInput;
 using SharpDX.DirectInput;
-using Nucleus.Gaming.Coop;
-using Nucleus.Coop;
-using Nucleus.Gaming.Coop.InputManagement.Logging;
+using System;
+using System.Diagnostics;
+using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Nucleus.Gaming.Coop
 {
@@ -37,13 +32,13 @@ namespace Nucleus.Gaming.Coop
         public bool IsDInput;
         public bool IsFake;
 
-		public bool IsRawMouse;
-		public bool IsRawKeyboard;
-		//public IntPtr RawDeviceHandle = (IntPtr)(-1);
-		public IntPtr RawMouseDeviceHandle = (IntPtr)(-1);
-		public IntPtr RawKeyboardDeviceHandle = (IntPtr)(-1);
+        public bool IsRawMouse;
+        public bool IsRawKeyboard;
+        //public IntPtr RawDeviceHandle = (IntPtr)(-1);
+        public IntPtr RawMouseDeviceHandle = (IntPtr)(-1);
+        public IntPtr RawKeyboardDeviceHandle = (IntPtr)(-1);
 
-		public Guid GamepadProductGuid;
+        public Guid GamepadProductGuid;
         public Guid GamepadGuid;
         public int GamepadId;
         public string GamepadName;
@@ -56,7 +51,9 @@ namespace Nucleus.Gaming.Coop
         public int ProtoController2;
         public int ProtoController3;
         public int ProtoController4;
-
+        public int Row;
+        public int Col;
+        // public bool isfirstPlayer;
         public string HIDDeviceID;
         public string Nickname;
         public string InstanceId;
@@ -78,8 +75,8 @@ namespace Nucleus.Gaming.Coop
         /// </summary>
         public Rectangle MonitorBounds
         {
-            get { return monitorBounds; }
-            set { monitorBounds = value; }
+            get => monitorBounds;
+            set => monitorBounds = value;
         }
 
 
@@ -87,8 +84,8 @@ namespace Nucleus.Gaming.Coop
 
         public Rectangle SourceEditBounds
         {
-            get { return sourceEditBounds; }
-            set { sourceEditBounds = value; }
+            get => sourceEditBounds;
+            set => sourceEditBounds = value;
         }
 
         /// <summary>
@@ -97,8 +94,8 @@ namespace Nucleus.Gaming.Coop
         /// </summary>
         public Rectangle EditBounds
         {
-            get { return editBounds; }
-            set { editBounds = value; }
+            get => editBounds;
+            set => editBounds = value;
         }
 
         /// <summary>
@@ -106,8 +103,8 @@ namespace Nucleus.Gaming.Coop
         /// </summary>
         public int ScreenIndex
         {
-            get { return screenIndex; }
-            set { screenIndex = value; }
+            get => screenIndex;
+            set => screenIndex = value;
         }
 
         /// <summary>
@@ -115,8 +112,8 @@ namespace Nucleus.Gaming.Coop
         /// </summary>
         public object Tag
         {
-            get { return tag; }
-            set { tag = value; }
+            get => tag;
+            set => tag = value;
         }
 
         /// <summary>
@@ -124,45 +121,48 @@ namespace Nucleus.Gaming.Coop
         /// </summary>
         public ProcessData ProcessData
         {
-            get { return processData; }
-            set { processData = value; }
+            get => processData;
+            set => processData = value;
         }
 
-		#region Flash
-		public bool ShouldFlash;
+        #region Flash
+        public bool ShouldFlash;
 
-		private Stopwatch flashStopwatch = new Stopwatch();
-		private Task flashTask = null;
-		public void FlashIcon()
-		{
-			if (ShouldFlash && flashStopwatch != null && flashStopwatch.IsRunning && flashStopwatch.ElapsedMilliseconds <= 250) return;
+        private Stopwatch flashStopwatch = new Stopwatch();
+        private Task flashTask = null;
+        public void FlashIcon()
+        {
+            if (ShouldFlash && flashStopwatch != null && flashStopwatch.IsRunning && flashStopwatch.ElapsedMilliseconds <= 250)
+            {
+                return;
+            }
 
-			if (!ShouldFlash)
-			{
-				ShouldFlash = true;
-				PositionsControl.InvalidateFlash();
-			}
+            if (!ShouldFlash)
+            {
+                ShouldFlash = true;
+                PositionsControl.InvalidateFlash();
+            }
 
-			flashStopwatch.Restart();
+            flashStopwatch.Restart();
 
-			if (flashTask == null)
-			{
-				flashTask = new Task(delegate
-				{
-					while (flashStopwatch.ElapsedMilliseconds <= 500)
-					{
-						Thread.Sleep(501 - (int)flashStopwatch.ElapsedMilliseconds);
-					}
-					
-					flashTask = null;
+            if (flashTask == null)
+            {
+                flashTask = new Task(delegate
+                {
+                    while (flashStopwatch.ElapsedMilliseconds <= 500)
+                    {
+                        Thread.Sleep(501 - (int)flashStopwatch.ElapsedMilliseconds);
+                    }
 
-					ShouldFlash = false;
-					PositionsControl.InvalidateFlash();
-				});
+                    flashTask = null;
 
-				flashTask.Start();
-			}
-		}
-		#endregion
-	}
+                    ShouldFlash = false;
+                    PositionsControl.InvalidateFlash();
+                });
+
+                flashTask.Start();
+            }
+        }
+        #endregion
+    }
 }

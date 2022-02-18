@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AutoHotkey.Interop
 {
@@ -18,7 +13,7 @@ namespace AutoHotkey.Interop
             Util.EnsureAutoHotkeyLoaded();
 
             //ensure that a thread is started
-            AutoHotkeyDll.ahktextdll("", "", ""); 
+            AutoHotkeyDll.ahktextdll("", "", "");
         }
 
         /// <summary>
@@ -28,7 +23,7 @@ namespace AutoHotkey.Interop
         /// <returns>Returns the value of the variable, or an empty string if the variable does not exist.</returns>
         public string GetVar(string variableName)
         {
-            var p = AutoHotkeyDll.ahkgetvar(variableName, 0);
+            IntPtr p = AutoHotkeyDll.ahkgetvar(variableName, 0);
             return Marshal.PtrToStringUni(p);
         }
 
@@ -40,7 +35,9 @@ namespace AutoHotkey.Interop
         public void SetVar(string variableName, string value)
         {
             if (value == null)
+            {
                 value = "";
+            }
 
             AutoHotkeyDll.ahkassign(variableName, value);
         }
@@ -52,7 +49,7 @@ namespace AutoHotkey.Interop
         /// <returns>Returns the result of an expression</returns>
         public string Eval(string code)
         {
-            var codeToRun = "A__EVAL:=" + code;
+            string codeToRun = "A__EVAL:=" + code;
             AutoHotkeyDll.ahkExec(codeToRun);
             return GetVar("A__EVAL");
         }
@@ -128,9 +125,13 @@ namespace AutoHotkey.Interop
             IntPtr ret = AutoHotkeyDll.ahkFunction(functionName, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
 
             if (ret == IntPtr.Zero)
+            {
                 return null;
+            }
             else
+            {
                 return Marshal.PtrToStringUni(ret);
+            }
         }
 
 

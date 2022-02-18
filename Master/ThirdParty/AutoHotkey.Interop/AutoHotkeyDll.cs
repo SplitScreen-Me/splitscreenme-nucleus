@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AutoHotkey.Interop
 {
@@ -99,7 +95,7 @@ namespace AutoHotkey.Interop
         /// <remarks>pointerLine can be used in ahkExecuteLine to execute one line only or until a return is encountered.</remarks>
         [DllImport(DLLPATH, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
         public static extern uint addFile(
-            [MarshalAs(UnmanagedType.LPWStr)]string FilePath,
+            [MarshalAs(UnmanagedType.LPWStr)] string FilePath,
             byte AllowDuplicateInclude,
             byte IgnoreLoadFailure);
 
@@ -118,7 +114,7 @@ namespace AutoHotkey.Interop
         /// <remarks>pointerLine can be used in ahkExecuteLine to execute one line only or until a return is encountered.</remarks>
         [DllImport(DLLPATH, CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
         public static extern uint addScript(
-            [MarshalAs(UnmanagedType.LPWStr)]string code,
+            [MarshalAs(UnmanagedType.LPWStr)] string code,
             byte execute);
 
         #endregion

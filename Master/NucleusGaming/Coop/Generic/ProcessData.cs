@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using WindowScrape.Types;
 
 namespace Nucleus.Gaming
@@ -29,25 +25,22 @@ namespace Nucleus.Gaming
         /// <summary>
         /// A reference to the game's process, if it's running
         /// </summary>
-        public Process Process
-        {
-            get { return process; }
-        }
+        public Process Process => process;
 
         public HwndObject HWnd
         {
-            get { return hWnd; }
-            set { hWnd = value; }
+            get => hWnd;
+            set => hWnd = value;
         }
 
         public ProcessData(Process proc)
         {
-            this.process = proc;
+            process = proc;
         }
 
         public void AssignProcess(Process proc)
         {
-            this.process = proc;
+            process = proc;
         }
     }
 }

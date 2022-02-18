@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
 
 namespace Nucleus.Gaming
 {
@@ -21,19 +15,18 @@ namespace Nucleus.Gaming
 
         public int Border
         {
-            get { return border; }
-            set { border = value; }
+            get => border;
+            set => border = value;
         }
 
         public ControlListBox()
         {
-            //this.AutoScroll = true;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScroll = false;
-            this.HorizontalScroll.Maximum = 0;
-            this.AutoScroll = false;
-            this.VerticalScroll.Visible = false;
-            this.AutoScroll = true;
+            AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            HorizontalScroll.Maximum = 0;
+            VerticalScroll.Visible = false;
+            AutoScroll = true;
+            DoubleBuffered = true;
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
         }
 
         public override bool AutoScroll
@@ -44,9 +37,9 @@ namespace Nucleus.Gaming
                 base.AutoScroll = value;
                 if (!value)
                 {
-                    this.HorizontalScroll.Visible = false;
-                    this.HorizontalScroll.Enabled = false;
-                    this.VerticalScroll.Visible = false;
+                    HorizontalScroll.Visible = false;
+                    HorizontalScroll.Enabled = false;
+                    VerticalScroll.Visible = false;
                 }
             }
         }
@@ -64,7 +57,7 @@ namespace Nucleus.Gaming
             {
                 return;
             }
-
+            VerticalScroll.Value = 0;//avoid weird glitchs if scrolled before maximizing the main window.
             updatingSize = true;
 
             totalHeight = 0;
@@ -72,10 +65,10 @@ namespace Nucleus.Gaming
             int v = isVerticalVisible ? (1 + SystemInformation.VerticalScrollBarWidth) : 0;
 
 
-            for (int i = 0; i < this.Controls.Count; i++)
+            for (int i = 0; i < Controls.Count; i++)
             {
-                var con = Controls[i];
-                con.Width = this.Width - v;
+                Control con = Controls[i];
+                con.Width = Width - v;
 
                 con.Location = new Point(0, totalHeight);
                 totalHeight += con.Height + border;
@@ -86,11 +79,14 @@ namespace Nucleus.Gaming
             updatingSize = false;
 
             HorizontalScroll.Visible = false;
-            VerticalScroll.Visible = totalHeight > this.Height;
+            VerticalScroll.Visible = totalHeight > Height;
+            VerticalScroll.Value = 0;//avoid weird glitchs if scrolled before maximizing the main window.
             if (VerticalScroll.Visible != isVerticalVisible)
             {
                 UpdateSizes(); // need to update again
+                VerticalScroll.Value = 0;//avoid weird glitchs if scrolled before maximizing the main window.
             }
+
         }
 
         private void C_SizeChanged(object sender, EventArgs e)
@@ -104,7 +100,7 @@ namespace Nucleus.Gaming
         {
             base.OnControlAdded(e);
 
-            if (!this.DesignMode && e.Control != null)
+            if (!DesignMode && e.Control != null)
             {
                 Control c = e.Control;
 
@@ -117,7 +113,7 @@ namespace Nucleus.Gaming
                     c.MouseLeave += c_MouseLeave;
                 }
 
-                int index = this.Controls.IndexOf(c);
+                int index = Controls.IndexOf(c);
                 Size s = c.Size;
 
                 c.Location = new Point(0, totalHeight);
@@ -173,9 +169,9 @@ namespace Nucleus.Gaming
         {
             Control parent = (Control)sender;
 
-            for (int i = 0; i < this.Controls.Count; i++)
+            for (int i = 0; i < Controls.Count; i++)
             {
-                Control c = this.Controls[i];
+                Control c = Controls[i];
                 if (c is IRadioControl)
                 {
                     IRadioControl high = (IRadioControl)c;
@@ -194,16 +190,17 @@ namespace Nucleus.Gaming
             if (parent != null &&
                 parent != SelectedControl)
             {
-                if (this.SelectedChanged != null)
+                if (SelectedChanged != null)
                 {
                     SelectedControl = parent;
-                    this.SelectedChanged(SelectedControl, this);
+                    SelectedChanged(SelectedControl, this);
                 }
             }
 
             SelectedControl = parent;
 
-            this.OnClick(e);
+            OnClick(e);
         }
+
     }
 }

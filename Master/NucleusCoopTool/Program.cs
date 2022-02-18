@@ -1,8 +1,6 @@
 ﻿using Nucleus.Gaming;
 using Nucleus.Gaming.Windows;
 using System;
-using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace Nucleus.Coop
@@ -12,8 +10,10 @@ namespace Nucleus.Coop
         [STAThread]
         static void Main()
         {
-	        if (!StartChecks.StartCheck())
-		        return;
+            if (!StartChecks.StartCheck())
+            {
+                return;
+            }
 
             // initialize DPIManager BEFORE setting 
             // the application to be DPI aware

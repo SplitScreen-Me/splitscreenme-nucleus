@@ -2,10 +2,10 @@
 
 namespace Nucleus.Gaming.Coop.InputManagement.Structs
 {
-	[StructLayout(LayoutKind.Sequential)]
-	public struct POINT
-	{
-		public int X;
-		public int Y;
-	}
+    [StructLayout(LayoutKind.Sequential)]
+    public struct POINT
+    {
+        public int X;
+        public int Y;
+    }
 }

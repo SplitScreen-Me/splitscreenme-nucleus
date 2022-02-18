@@ -1,7 +1,10 @@
-﻿using Nucleus.Gaming;
+﻿using Microsoft.Win32;
+using Nucleus.Gaming;
 using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
+
 
 namespace Nucleus.Coop
 {
@@ -9,54 +12,48 @@ namespace Nucleus.Coop
     /// Form that all other forms inherit from. Has all
     /// the default design parameters to have the Nucleus Coop look and feel
     /// </summary>
-    public class BaseForm : System.Windows.Forms.Form, IDynamicSized
+    public class BaseForm : Form, IDynamicSized
     {
+        public readonly IniFile ini = new IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));
         public BaseForm()
-        {
+        {        
+            //SystemEvents.DisplaySettingsChanged += new EventHandler(SystemEvents_DisplaySettingsChanged); 
+
+            Name = "BaseForm";
+            Text = "BaseForm";
             // Default DPI = 96 = 100%
             // 1 pt = 1/72 inch
             // 12pt = 1/6 inch
             // 12 * 300% = 36
             // 12 * 125% = 15
             // 12 * 150% = 18
-            AutoScaleMode = AutoScaleMode.Font;
-            AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            BackColor = Color.FromArgb(50, 50, 50);
-            ForeColor = Color.White;
-            Margin = new Padding(4, 4, 4, 4);
-            Name = "BaseForm";
-            Text = "BaseForm";
+            //AutoScaleMode = AutoScaleMode.Font;
+
+            // BackColor = Color.FromArgb(50, 50, 50);
+            // ForeColor = Color.White;
+            //  Margin = new Padding(4, 4, 4, 4);
+
 
             // create it here, else the desgienr will show the default windows font
-            Font = new Font("Segoe UI", 12, GraphicsUnit.Point); 
+            //Font = new Font("Segoe UI", 12, GraphicsUnit.Point);
 
-            DPIManager.Register(this);
+           DPIManager.Register(this);
         }
+
+     
+
         ~BaseForm()
-        {
-            DPIManager.Unregister(this);
+        {       
+           //DPIManager.Unregister(this);
         }
+
+        //private void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
+        //{
+        //    DPIManager.ForceUpdate();
+        //}
 
         public void UpdateSize(float scale)
         {
-            if (IsDisposed)
-            {
-                DPIManager.Unregister(this);
-                return;
-            }
-
-            SuspendLayout();
-
-            Font = DPIManager.Font;
-            //AutoScaleMode = AutoScaleMode.Font;
-            //AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            //Size defaultSize = DefaultSize;
-            //int wid = DPIManager.Adjust(defaultSize.Width, scale);
-            //int hei = DPIManager.Adjust(defaultSize.Height, scale);
-            ////Size = new Size(wid, hei);
-            //Console.WriteLine("Changed to {0}x{1}", wid, hei);
-
-            ResumeLayout();
         }
 
         /// <summary>
@@ -64,7 +61,7 @@ namespace Nucleus.Coop
         /// </summary>
         public void RemoveFlicker()
         {
-            this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.DoubleBuffer, true);
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.DoubleBuffer, true);
         }
 
         /// <summary>
