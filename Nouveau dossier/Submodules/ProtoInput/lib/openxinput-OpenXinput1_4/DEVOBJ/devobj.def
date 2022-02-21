@@ -1,9 +1,0 @@
-LIBRARY devobj.dll
-EXPORTS
-DevObjCreateDeviceInfoList
-DevObjGetClassDevs
-DevObjDestroyDeviceInfoList
-DevObjEnumDeviceInterfaces
-DevObjGetDeviceInterfaceDetail
-DevObjEnumDeviceInfo
-DevObjGetDeviceProperty
