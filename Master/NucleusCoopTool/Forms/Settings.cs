@@ -28,7 +28,7 @@ namespace Nucleus.Coop
         public int TopMost_HotkeyID = 2;
         public int StopSession_HotkeyID = 3;
 
-        private TextBox[] controllerGuids;
+        //private TextBox[] controllerGuids;
         private TextBox[] controllerNicks;
 
         //private List<string> audioDevices;
@@ -86,11 +86,43 @@ namespace Nucleus.Coop
                 foreach (Control button in this.Controls) { if (button is Button) { button.Click += new System.EventHandler(this.button_Click); } }
             }
 
-            controllerGuids = new TextBox[] { controllerOneGuid, controllerTwoGuid, controllerThreeGuid, controllerFourGuid, controllerFiveGuid, controllerSixGuid, controllerSevenGuid, controllerEightGuid, controllerNineGuid, controllerTenGuid, controllerElevenGuid, controllerTwelveGuid, controllerThirteenGuid, controllerFourteenGuid, controllerFifteenGuid, controllerSixteenGuid };
+           
             controllerNicks = new TextBox[] { controllerOneNick, controllerTwoNick, controllerThreeNick, controllerFourNick, controllerFiveNick, controllerSixNick, controllerSevenNick, controllerEightNick, controllerNineNick, controllerTenNick, controllerElevenNick, controllerTwelveNick, controllerThirteenNick, controllerFourteenNick, controllerFifteenNick, controllerSixteenNick };
 
             mainForm = mf;
             positionsControl = pc;
+
+            if (ini.IniReadValue("CustomLayout", "SplitDiv") == "True")
+            {
+                SplitDiv.Checked = true;
+            }
+            else
+            {
+                SplitDiv.Checked = false;
+            }
+
+            IDictionary<string, Color> splitColors = new Dictionary<string, Color>();
+
+            splitColors.Add("Black", Color.Black);
+            splitColors.Add("Gray", Color.DimGray);
+            splitColors.Add("White", Color.White);
+            splitColors.Add("Dark Blue", Color.DarkBlue);
+            splitColors.Add("Blue", Color.Blue);
+            splitColors.Add("Purple", Color.Purple);
+            splitColors.Add("Pink", Color.Pink);
+            splitColors.Add("Red", Color.Red);
+            splitColors.Add("Orange", Color.Orange);
+            splitColors.Add("Yellow", Color.Yellow);           
+            splitColors.Add("Green", Color.Green);
+
+            foreach (KeyValuePair<string, Color> color in splitColors)
+            {
+                if (color.Key == ini.IniReadValue("CustomLayout", "SplitDivColor"))
+                {
+                    SplitColors.Text = color.Key;
+                }
+
+            }
 
             //epiclangs 
             IDictionary<string, string> epiclangs = new Dictionary<string, string>();
@@ -132,7 +164,9 @@ namespace Nucleus.Coop
                
             }
 
-            //Console.WriteLine(epicLang);
+            //Custom HotKey
+            comboBox_lockKey.Text = ini.IniReadValue("Hotkeys", "LockKey");
+            //
 
             RefreshCmbNetwork();
             if (ini.IniReadValue("Misc", "Network") != "")
@@ -212,12 +246,12 @@ namespace Nucleus.Coop
             }
 
             //Controll
-            GetControllers();
+            GetPlayersNickName();
 
-            if (ini.IniReadValue("ControllerMapping", "Keyboard") != "")
-            {
-                keyboardNick.Text = ini.IniReadValue("ControllerMapping", "Keyboard");
-            }
+            //if (ini.IniReadValue("ControllerMapping", "Keyboard") != "")
+            //{
+            //    keyboardNick.Text = ini.IniReadValue("ControllerMapping", "Keyboard");
+            //}
 
             //Custom Layout
             //if (ini.IniReadValue("CustomLayout", "Enabled") != "")
@@ -397,12 +431,12 @@ namespace Nucleus.Coop
             DPIManager.Register(this);
         }
 
-        private void GetControllers()
+        private void GetPlayersNickName()
         {
-            foreach (TextBox tbox in controllerGuids)
-            {
-                tbox.Clear();
-            }
+            //foreach (TextBox tbox in controllerGuids)
+            //{
+            //    tbox.Clear();
+            //}
 
             foreach (TextBox tbox in controllerNicks)
             {
@@ -410,50 +444,50 @@ namespace Nucleus.Coop
             }
 
 
-            dinput = new DirectInput();
-            IList<DeviceInstance> devices = dinput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly);
-            int gcDevicesCnt = devices.Count;
-            for (int i = 0; i < devices.Count; i++)
+            //dinput = new DirectInput();
+            //IList<DeviceInstance> devices = dinput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly);
+            //int gcDevicesCnt = devices.Count;
+            for (int i = 0; i <  16 ; i++)
             {
-                DeviceInstance device = devices[i];
-                Joystick gamePad = new Joystick(dinput, device.InstanceGuid);
-                string hid = gamePad.Properties.InterfacePath;
-                int start = hid.IndexOf("hid#");
-                int end = hid.LastIndexOf("#{");
-                string fhid = hid.Substring(start, end - start).Replace('#', '\\').ToUpper();
-                controllerGuids[i].Text = fhid;
-                if (ini.IniReadValue("ControllerMapping", fhid) != "")
-                {
-                    controllerNicks[i].Text = ini.IniReadValue("ControllerMapping", fhid);
-                }
-                gamePad.Dispose();
-            }
-            dinput.Dispose();
-
-
-            foreach ((Gaming.Coop.InputManagement.Structs.RID_DEVICE_INFO deviceInfo, IntPtr deviceHandle) device in RawInputManager.GetDeviceList().Where(x => x.deviceInfo.dwType <= 1))
-            {
-
-                //string hid = device.deviceInfo.hid.ToString();
+                //DeviceInstance device = devices[i];
+                //Joystick gamePad = new Joystick(dinput, device.InstanceGuid);
+                //string hid = gamePad.Properties.InterfacePath;
                 //int start = hid.IndexOf("hid#");
                 //int end = hid.LastIndexOf("#{");
                 //string fhid = hid.Substring(start, end - start).Replace('#', '\\').ToUpper();
-
-                //controllerGuids[gcDevicesCnt].Text = fhid;
-                string did = string.Empty;
-                if (device.deviceInfo.dwType == 0)
+                //controllerGuids[i].Text = fhid;
+                if (ini.IniReadValue("ControllerMapping", "Player_" + (i+1)) != "")
                 {
-                    did = "T" + device.deviceInfo.dwType + "PID" + device.deviceInfo.hid.dwProductId + "VID" + device.deviceInfo.hid.dwVendorId + "VN" + device.deviceInfo.hid.dwVersionNumber;
-                    controllerGuids[gcDevicesCnt].Text = did;
-                    gcDevicesCnt++;
+                    controllerNicks[i].Text = ini.IniReadValue("ControllerMapping", "Player_" + (i + 1));
                 }
-
-
-                if (ini.IniReadValue("ControllerMapping", did) != "")
-                {
-                    controllerNicks[gcDevicesCnt].Text = ini.IniReadValue("ControllerMapping", did);
-                }
+               // gamePad.Dispose();
             }
+            //dinput.Dispose();
+
+
+            //foreach ((Gaming.Coop.InputManagement.Structs.RID_DEVICE_INFO deviceInfo, IntPtr deviceHandle) device in RawInputManager.GetDeviceList().Where(x => x.deviceInfo.dwType <= 1))
+            //{
+
+            //    //string hid = device.deviceInfo.hid.ToString();
+            //    //int start = hid.IndexOf("hid#");
+            //    //int end = hid.LastIndexOf("#{");
+            //    //string fhid = hid.Substring(start, end - start).Replace('#', '\\').ToUpper();
+
+            //    //controllerGuids[gcDevicesCnt].Text = fhid;
+            //    string did = string.Empty;
+            //    if (device.deviceInfo.dwType == 0)
+            //    {
+            //        did = "T" + device.deviceInfo.dwType + "PID" + device.deviceInfo.hid.dwProductId + "VID" + device.deviceInfo.hid.dwVendorId + "VN" + device.deviceInfo.hid.dwVersionNumber;
+            //        controllerGuids[gcDevicesCnt].Text = did;
+            //        gcDevicesCnt++;
+            //    }
+
+
+                //if (ini.IniReadValue("ControllerMapping", did) != "")
+                //{
+                //    controllerNicks[gcDevicesCnt].Text = ini.IniReadValue("ControllerMapping", did);
+                //}
+            //}
         }
 
         private void SettingsSaveBtn_Click(object sender, EventArgs e)
@@ -476,22 +510,22 @@ namespace Nucleus.Coop
                 User32Interop.RegisterHotKey(mainForm.Handle, TopMost_HotkeyID, GetMod(ini.IniReadValue("Hotkeys", "TopMost").Split('+')[0].ToString()), (int)Enum.Parse(typeof(Keys), ini.IniReadValue("Hotkeys", "TopMost").Split('+')[1].ToString()));
                 User32Interop.RegisterHotKey(mainForm.Handle, StopSession_HotkeyID, GetMod(ini.IniReadValue("Hotkeys", "Stop").Split('+')[0].ToString()), (int)Enum.Parse(typeof(Keys), ini.IniReadValue("Hotkeys", "Stop").Split('+')[1].ToString()));
 
-                for (int i = 0; i < controllerGuids.Length; i++)
+                for (int i = 0; i < controllerNicks.Length; i++)
                 {
-                    if (!string.IsNullOrEmpty(controllerGuids[i].Text)) //&& !string.IsNullOrEmpty(controllerNicks[i].Text))
-                    {
-                        ini.IniWriteValue("ControllerMapping", controllerGuids[i].Text, controllerNicks[i].Text);
-                    }
+                    //if (!string.IsNullOrEmpty(controllerNicks[i].Text)) //&& !string.IsNullOrEmpty(controllerNicks[i].Text))
+                    //{
+                        ini.IniWriteValue("ControllerMapping", "Player_" + (i+1), controllerNicks[i].Text);
+                    //}
                 }
                 if (positionsControl != null)
                 {
                     positionsControl.Refresh();
                 }
 
-                if (!string.IsNullOrEmpty(keyboardNick.Text))
-                {
-                    ini.IniWriteValue("ControllerMapping", "Keyboard", keyboardNick.Text);
-                }
+                //if (!string.IsNullOrEmpty(keyboardNick.Text))
+                //{
+                //    ini.IniWriteValue("ControllerMapping", "Keyboard", keyboardNick.Text);
+                //}
 
                 ini.IniWriteValue("Misc", "UseNicksInGame", useNicksCheck.Checked.ToString());
                 ini.IniWriteValue("Misc", "IgnoreInputLockReminder", ignoreInputLockReminderCheckbox.Checked.ToString());
@@ -613,7 +647,7 @@ namespace Nucleus.Coop
 
         private void Btn_Refresh_Click(object sender, EventArgs e)
         {
-            GetControllers();
+            GetPlayersNickName();
         }
 
         private void Btn_credits_Click(object sender, EventArgs e)
@@ -847,7 +881,7 @@ namespace Nucleus.Coop
 
         private void OfflineMod_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ini.IniWriteValue("Dev", "OfflineMod", offlineMod.SelectedItem.ToString());
+            //ini.IniWriteValue("Dev", "OfflineMod", offlineMod.SelectedItem.ToString());
             if(offlineMod.SelectedIndex == 1)
             {
                 mainForm.connected = false;
@@ -859,6 +893,32 @@ namespace Nucleus.Coop
             {
                 mainForm.CheckNetCon();
             }
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (SplitDiv.Checked)
+            {               
+                ini.IniWriteValue("CustomLayout", "SplitDiv", "True");
+            }
+            else 
+            {
+                ini.IniWriteValue("CustomLayout", "SplitDiv", "False");
+            }
+        }
+
+        private void SplitColors_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ini.IniWriteValue("CustomLayout", "SplitDivColor", SplitColors.SelectedItem.ToString());
+        }
+
+        private void tabPage4_Click(object sender, EventArgs e)
+        {
+
+        }
+        private void comboBox_lockKey_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ini.IniWriteValue("Hotkeys", "LockKey", comboBox_lockKey.SelectedItem.ToString());
         }
     }
 }

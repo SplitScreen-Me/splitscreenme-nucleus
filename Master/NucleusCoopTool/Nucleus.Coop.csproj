@@ -362,6 +362,7 @@
     <None Include="Resources\not_found_white.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\splitscreen-me-logo.png" />
     <None Include="Resources\no_hub.png" />
     <None Include="Resources\no_hub1.png" />
     <None Include="Resources\no_hub.jpg" />
@@ -533,6 +534,7 @@
     <Content Include="gui\theme\default\cover_layer.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="gui\theme\default\dlhub_btn.png" />
     <Content Include="gui\theme\default\download_bar.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -588,6 +590,10 @@
     <None Include="Resources\discord4.png" />
     <None Include="Resources\discord5.png" />
     <None Include="Resources\close_button.png" />
+    <None Include="Resources\hform_Background.jpg" />
+    <None Include="Resources\hform_Background.png" />
+    <None Include="Resources\1_2B9jzdGvieTx98er34lZ0w.gif" />
+    <None Include="Resources\hform.gif" />
     <Content Include="Resources\icon.ico" />
   </ItemGroup>
   <ItemGroup>

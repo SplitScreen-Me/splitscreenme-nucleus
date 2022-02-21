@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# Updates the doxygen documentation, and copies it into the appropriate place
+# in the gh-pages branch.
+
+set -e
+
+tempdir=`mktemp -d`
+branch=`git rev-parse --abbrev-ref HEAD`
+
+cp -r @PROJECT_BINARY_DIR@/doc/html/ ${tempdir}
+
+git stash
+git checkout gh-pages
+
+rm -rf @PROJECT_SOURCE_DIR@/assets/doxygen
+mkdir @PROJECT_SOURCE_DIR@/assets/doxygen
+cp -r ${tempdir}/html/* @PROJECT_SOURCE_DIR@/assets/doxygen/
+
+rm -rf ${tempdir}
+
+git commit @PROJECT_SOURCE_DIR@/assets/doxygen
+
+git checkout ${branch}
+git stash apply

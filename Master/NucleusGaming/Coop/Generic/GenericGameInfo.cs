@@ -61,7 +61,7 @@ namespace Nucleus.Gaming
         public int FakeFocusInterval = 1000;//TODO: high CPU usage with low value?
         public bool FakeFocusSendActivate = true;
         public bool SendFakeFocusMsg;
-
+        public bool SplitDivCompatibility = true;
 
         public void AddOption(string name, string desc, string key, object value, object defaultValue)
         {
@@ -232,6 +232,7 @@ namespace Nucleus.Gaming
         public bool IgnoreWindowBorderCheck;
         public string WriteToProcessMemory;
         public bool UseNemirtingasEpicEmu;
+        public bool UseNemirtingasGalaxyEmu;
         public bool EpicEmuArgs;
         public bool AltEpicEmuArgs;
         public bool PromptAfterFirstInstance;
@@ -267,6 +268,7 @@ namespace Nucleus.Gaming
         public string ForceGameArch;
         public string[] SSEAdditionalLines;
         public string[] DeleteOnClose;
+      
 
         // -- From USS
         //Effectively a switch for all of USS features
@@ -301,7 +303,8 @@ namespace Nucleus.Gaming
         public bool LockInputAtStart = false;
         public bool PreventGameFocus = false;
         public int LockInputToggleKey = 0x23;//End by default. Keys: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
-                                             // --
+        public bool ForceEnvironmentUse;
+        public bool ForceLauncherExeIgnoreFileCheck;                                  
 
         // Proto Input
         public ProtoInputOptions ProtoInput = new ProtoInputOptions();
@@ -473,6 +476,7 @@ namespace Nucleus.Gaming
         //    return EpicLang;
         //}
         private string EpicLang;
+        
         public string GetEpicLanguage()
         {
             IniFile ini = new IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));
@@ -504,9 +508,7 @@ namespace Nucleus.Gaming
                 epiclangs.Add("Thai", "th");
                 epiclangs.Add("Turkish", "tr");
                 epiclangs.Add("Ukrainian", "uk");
-
-           
-
+       
             foreach (KeyValuePair<string, string> lang in epiclangs)
             {
                 if (lang.Key == ini.IniReadValue("Misc", "EpicLang"))
@@ -517,6 +519,51 @@ namespace Nucleus.Gaming
             }
             return EpicLang;
         }
+
+        private string GogLang;
+        public string GetGogLanguage()
+        {
+            IniFile ini = new IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));
+
+            IDictionary<string, string> epiclangs = new Dictionary<string, string>();
+            epiclangs.Add("Arabic", "ar");
+            epiclangs.Add("Brazilian", "pt-BR");
+            epiclangs.Add("Bulgarian", "bg");
+            epiclangs.Add("Chinese", "zh");
+            epiclangs.Add("Czech", "cs");
+            epiclangs.Add("Danish", "da");
+            epiclangs.Add("Dutch", "nl");
+            epiclangs.Add("English", "en");
+            epiclangs.Add("Finnish", "fi");
+            epiclangs.Add("French", "fr");
+            epiclangs.Add("German", "de");
+            epiclangs.Add("Greek", "el");
+            epiclangs.Add("Hungarian", "hu");
+            epiclangs.Add("Italian", "it");
+            epiclangs.Add("Japanese", "ja");
+            epiclangs.Add("Koreana", "ko");
+            epiclangs.Add("Norwegian", "no");
+            epiclangs.Add("Polish", "pl");
+            epiclangs.Add("Portuguese", "pt");
+            epiclangs.Add("Romanian", "ro");
+            epiclangs.Add("Russian", "ru");
+            epiclangs.Add("Spanish", "es");
+            epiclangs.Add("Swedish", "sv");
+            epiclangs.Add("Thai", "th");
+            epiclangs.Add("Turkish", "tr");
+            epiclangs.Add("Ukrainian", "uk");
+
+            foreach (KeyValuePair<string, string> lang in epiclangs)
+            {
+                if (lang.Key == ini.IniReadValue("Misc", "EpicLang"))
+                {
+                    GogLang = lang.Key;
+                    Console.WriteLine(GogLang);
+                }
+            }
+            return GogLang;
+        }
+
         public string GetSteamLanguage()
         {
             string result;

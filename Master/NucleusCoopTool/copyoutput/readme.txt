@@ -1,4 +1,4 @@
-Nucleus Co-op - version 1.1.4
+Nucleus Co-op - version 2.0
 
 This a new Nucleus Co-op version that includes the following:
 
@@ -76,6 +76,7 @@ Game.CMDBatchBefore = [ "0|ops1", "1|ops2" ];		//When using CMDLaunch (or UseFor
 Game.CMDBatchAfter = [ "0|ops1", "1|ops2" ]; 		//When using CMDLaunch (or UseForceBindIP), specify command lines to run AFTER the game launches in same cmd session, syntax is instance and | symbol as a delimiter and the line you want that instance to run. If you want same line to run all instances, leave out the # and | (only write the line in quotes)
 Game.GoldbergNoLocalSave = false;			//Do not create a local_save.txt file for Goldberg, saves are to use default game save location
 Game.UseNucleusEnvironment = false;			//Use custom environment variables for games that use them, replaces some common paths (e.g. AppData) with C:\Users\<your username>\NucleusCoop
+Game.ForceEnvironmentUse = true;                        // Experimental// Force use of custom environment variable when Game.ThirdPartyLaunch = true;
 Game.ThirdPartyLaunch = false;				//Use if the game is launched outside of Nucleus | NOTE: You will not be able to use start up hooks or CMDLaunch with this option
 Game.ForceProcessPick = false;				//Manually select the process that will be used for process manipulation, such as resizing, repositioning and used for post-launch hooks
 Game.DirExclusions = ["dir1"];				//Folders (+ all its contents) listed here will not be linked or copied over to Nucleus game content folder, the instance folders
@@ -131,10 +132,11 @@ Game.GamePlayAfterLaunch;				//Call the Game.Play function after the call has la
 Game.UserProfileConfigPathNoCopy = false;		//Do not copy files from original UserProfileConfigPath if using Nucleus Environment
 Game.UserProfileSavePathNoCopy = false;			//Do not copy files from original UserProfileSavePath if using Nucleus Environment
 Game.LauncherExeIgnoreFileCheck = false;		//Do not check if Launcher Exe exists in game folder | you will need to provide a relative filepath from game root folder
+Game.ForceLauncherExeIgnoreFileCheck = false;           //Experimental//Force LauncherExeIgnoreFileCheck when game isn't symlinked
+Game.UseNemirtingasGalaxyEmu = false;                   //Automatically set up Nemirtinga's Galaxy Emulator in Nucleus
 Game.UseNemirtingasEpicEmu = false;			//Automatically set up Nemirtinga's Epic Emulator in Nucleus
-
 Game.EpicEmuArgs = false;				//When using Nemirtinga's Epic Emulator, use pre-defined parameters " -AUTH_LOGIN=unused -AUTH_PASSWORD=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb -AUTH_TYPE=exchangecode -epicapp=CrabTest -epicenv=Prod -EpicPortal -epicusername=" + <Player Nickname here> + " -epicuserid=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" + "-epiclocale=" + EpicLang"
-Game.AltEpicEmuArgs                     //Optional. When using Nemirtinga's Epic Emulator, use pre-defined parameters + Set NickName as epic id, only to use with game that do not use epic id to start or connect(Set clever save names if the game use the epic id to name saves ex: Tiny Tina's Assault On Dragon Keep)" -AUTH_LOGIN=unused -AUTH_PASSWORD=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb -AUTH_TYPE=exchangecode -epicapp=CrabTest -epicenv=Prod -EpicPortal -epicusername=" + <Player Nickname here> + " -epicuserid="+ <Player Nickname here> + "-epiclocale=" + EpicLang"
+Game.AltEpicEmuArgs = false;                            //Optional. When using Nemirtinga's Epic Emulator, use pre-defined parameters + Set NickName as epic id, only to use with game that do not use epic id to start or connect(Set clever save names if the game use the epic id to name saves ex: Tiny Tina's Assault On Dragon Keep)" -AUTH_LOGIN=unused -AUTH_PASSWORD=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb -AUTH_TYPE=exchangecode -epicapp=CrabTest -epicenv=Prod -EpicPortal -epicusername=" + <Player Nickname here> + " -epicuserid="+ <Player Nickname here> + "-epiclocale=" + EpicLang"
 ////////////////////////////////////// 
 NemirtingasEpicEmu.json edition from a handler example
 
@@ -169,6 +171,7 @@ NemirtingasEpicEmu.json edition from a handler example
         Context.WriteTextFile(jsonPath,params);	
 		
 //////////////////////////////////////		
+Game.SplitDivCompatibility = false;                    //Explicitly disable splitscreen divison if the game is know to be imcompatible with it.(Does not require to be true for compatible game)Default = true
 Game.Hook.EnableMKBInput = false;			//Enable Mouse/Keyboard input for instances when using Alpha 10 custom xinput dll (normally MKB is restricted)		
 Game.UseDInputBlocker = false;				//Setup wizark952's dinput blocker (block dinput for the game)
 Game.PromptAfterFirstInstance = false;			//Show a prompt that user must click on ok to continue, after the first instance is setup
@@ -273,8 +276,11 @@ Context.DeleteRegKey(string baseKey, string sKey, string subKey)				//Delete a r
 Context.EditRegKey(string baseKey, string sKey, string name, object data, RegType type)	//Edit a registry key for current user, baseKey can either be "HKEY_LOCAL_MACHINE" or "HKEY_CURRENT_USER"
 	EditRegKey uses a custom registry data type to use, by using Nucleus.RegType.DWord for example. The last word can be of the same name of RegistryValueKind enum.
 Context.Nickname										//Use this in a game handler to get the player's nickname
-Context.EpicLang         //A start argument that get user Epic language parameter //ex: Context.StartArguments = ' -AlwaysFocus -nosplash -nomoviestartup -nomouse' + Context.EpicLang; (if Epic Language is set to "en" return => "-epiclocale=en", Should not be necessary in most cases)
-Context.GamepadGuid										//Get the raw gamepad guid
+Context.EpicLang                                                                                //A start argument that get user Epic language parameter //ex: Context.StartArguments = ' -AlwaysFocus -nosplash -nomoviestartup -nomouse' + Context.EpicLang; (if Epic Language is set to "en" return => "-epiclocale=en", Should not be necessary in most cases)
+Context.GamepadGuid                                                                             //Get the raw gamepad guid
+
+Context.GamepadId										//Useful to make sure that controllers are correctly assigned to the player they are meant to be assigned.
+
 Context.x360ceGamepadGuid									//Get the x360ce formatted gamepad guid
 Context.LocalIP											//Local IP address of the computer
 Context.EnvironmentPlayer									//Path to current players Nucleus environment
@@ -358,13 +364,17 @@ Known Issues: ------------------------------------------------------------------
 
 Changelog: -----------------------------------------------------------------------------------------
 
-v1.1.4 - xx
+v2.0 - xx
  - New overhauled user interface with support for themes, game covers and screenshots.
  - Fixed ui scaling issues at more than 100% desktop scale(and all other issues related to it).
  - Fixed multi-monitor vertical setup drawing to not overlap input device list.
  - Quality of life improvements such as but not limited to: new discord invite link, Nucleus Co-op github release link and much more. 
+ - Added Nermintingas Galaxy emulator support.
  - SplitCalculator(Josivan88) integration.
  - Renamed scripts to handlers. 
+ - Added new handler callbacks 
+ - New player nickname assignation
+ - New player order processing
 
 v1.1.3 - September 28, 2021
  - Fixed only 4 Xinput controllers showing

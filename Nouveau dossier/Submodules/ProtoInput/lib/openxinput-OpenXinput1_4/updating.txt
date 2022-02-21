@@ -1,0 +1,6 @@
+NOTE:
+
+When updating OpenXinput, remember to make these modifications so it works with Proto Input:
+- rename DllMain to OpenXinputDllMain
+- rename the exported functions in OpenXinput.cpp and OpenXinput.h from XInput to OpenXInput (e.g. XInputGetState to OpenXInputGetState)
+- set OPENXINPUT_XUSER_MAX_COUNT to 64 (instead of 4)

@@ -5,10 +5,10 @@ using System.Windows.Forms;
 
 namespace Nucleus.Coop
 {
-    internal static class Program
+    static class Program
     {
         [STAThread]
-        private static void Main()
+        static void Main()
         {
             if (!StartChecks.StartCheck())
             {

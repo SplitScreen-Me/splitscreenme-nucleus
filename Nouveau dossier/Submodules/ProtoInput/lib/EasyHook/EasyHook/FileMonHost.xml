@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+
+<!--
+EasyHook (File: EasyHook\FileMonHost.xml)
+
+Copyright (c) 2009 Christoph Husse & Copyright (c) 2015 Justin Stenning
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+Please visit https://easyhook.github.io for more information
+about the project and latest updates.
+-->
+
+<remarks>
+  The following demonstrates how to use <see cref="RemoteHooking"/> and <see cref="Config"/>:
+  <code>
+    using System;
+    using System.Collections.Generic;
+    using System.Runtime.Remoting;
+    using System.Text;
+    using System.IO;
+    using EasyHook;
+
+    namespace FileMon
+    {
+        public class FileMonInterface : MarshalByRefObject
+        {
+            public void IsInstalled(Int32 InClientPID)
+            {
+                Console.WriteLine("FileMon has been installed in target {0}.\r\n", InClientPID);
+            }
+
+            public void OnCreateFile(Int32 InClientPID, String[] InFileNames)
+            {
+                for (int i = 0; i &lt; InFileNames.Length; i++)
+                {
+                    Console.WriteLine(InFileNames[i]);
+                }
+            }
+
+            public void ReportException(Exception InInfo)
+            {
+                Console.WriteLine("The target process has reported an error:\r\n" + InInfo.ToString());
+            }
+
+            public void Ping()
+            {
+            }
+        }
+
+        class Program
+        {
+            static String ChannelName = null;
+
+            static void Main(string[] args)
+            {
+                try
+                {
+                    Config.Register(
+                        "A FileMon like demo application.",
+                        "FileMon.exe",
+                        "FileMonInject.dll");
+
+                    RemoteHooking.IpcCreateServer&lt;FileMonInterface&gt;(ref ChannelName, WellKnownObjectMode.SingleCall);
+
+                    RemoteHooking.Inject(
+                        Int32.Parse(args[0]),
+                        "FileMonInject.dll",
+                        "FileMonInject.dll",
+                        ChannelName);
+                
+                    Console.ReadLine();
+                }
+                catch (Exception ExtInfo)
+                {
+                    Console.WriteLine("There was an error while connecting to target:\r\n{0}", ExtInfo.ToString());
+                }
+            }
+        }
+    }
+  </code>
+</remarks>

@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>EasyHook</id>
+        <version>2.7.6789.0</version>
+        <title>EasyHook</title>
+        <authors>EasyHook</authors>
+        <owners>EasyHook</owners>
+        <licenseUrl>https://github.com/EasyHook/EasyHook#license</licenseUrl>
+        <projectUrl>https://easyhook.github.io/</projectUrl>
+        <requireLicenseAcceptance>true</requireLicenseAcceptance>
+        <description>This project supports extending (hooking) unmanaged code (APIs) with pure managed ones, from within a fully managed environment on 32- or 64-bit Windows XP SP2, Windows Vista x64, Windows Server 2008 x64, Windows 7, Windows 8.1, and Windows 10.
+
+EasyHook currently supports injecting assemblies built for .NET Framework 3.5 and 4.0 and can also inject native DLLs.</description>
+        <summary>The reinvention of Windows API Hooking</summary>
+        <releaseNotes>2.7.6789.0:
+1. Support hooking far jumps even if not first instruction for x64 (#243)
+
+2.7.6684.0:
+1. x64 trampoline: ensure stack is 16 bytes aligned (#214 and #234)
+
+2.7.6682.0:
+1. Quoted service path to avoid path spaces vulnerability (outlined in CVE-2005-1185, CVE-2005-2938 and CVE-2000-1128)
+2. Rename CLIENT_ID struct to DBG_CLIENT_ID (fix build error on Windows SDK 10.0.16299.0) (#225)
+3. NuGet support for VS2017 (v141) native C/C++ package (#181)
+
+2.7.6578.0:
+1. Allow EasyLoad library path to be specified within Config class - only impacts managed remote hook (#220)
+            
+2.7.6270.0:
+1. CreateAndInject now supports long command lines (#84 / #170)
+2. RhCreateRemoveStealthThread now works for 64-bit targets (#91 / #159)
+3. Added LhGetHookBypassAddress / LocalHook.HookBypassAddress to allow bypassing the hook and call original directly without having to be within the hook handler (#155)
+
+2.7.6035.0:
+1. MAX_HOOK_COUNT increased from 128 to 1024
+2. CreateAndInject fixed to support injection across sessions (providing appropriate privileges).
+3. RhCreateStealthRemoteThread fixed for 32-bit (still fairly experimental)  (#91)
+4. 64-bit driver now preserves RAX register for trampoline (#78)
+
+2.7.5870.0:
+1. Added WOW64 boundary executables to NuGet package</releaseNotes>
+        <copyright>Copyright © 2009 Christoph Husse &amp; Copyright © 2012 Justin Stenning</copyright>
+        <tags>api hook hooking easyhook</tags>
+        <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System.Runtime.Remoting" targetFramework="" />
+        </frameworkAssemblies>
+    </metadata>
+    <files>
+        <file src="Build\netfx3.5-Release\x64\EasyHook32.dll" target="content\net35\EasyHook32.dll" />
+        <file src="Build\netfx3.5-Release\x64\EasyHook32Svc.exe" target="content\net35\EasyHook32Svc.exe" />
+        <file src="Build\netfx3.5-Release\x64\EasyHook64.dll" target="content\net35\EasyHook64.dll" />
+        <file src="Build\netfx3.5-Release\x64\EasyHook64Svc.exe" target="content\net35\EasyHook64Svc.exe" />
+        <file src="Build\netfx3.5-Release\x64\EasyLoad32.dll" target="content\net35\EasyLoad32.dll" />
+        <file src="Build\netfx3.5-Release\x64\EasyLoad64.dll" target="content\net35\EasyLoad64.dll" />
+        <file src="Build\netfx4-Release\x64\EasyHook32.dll" target="content\net40\EasyHook32.dll" />
+        <file src="Build\netfx4-Release\x64\EasyHook32Svc.exe" target="content\net40\EasyHook32Svc.exe" />
+        <file src="Build\netfx4-Release\x64\EasyHook64.dll" target="content\net40\EasyHook64.dll" />
+        <file src="Build\netfx4-Release\x64\EasyHook64Svc.exe" target="content\net40\EasyHook64Svc.exe" />
+        <file src="Build\netfx4-Release\x64\EasyLoad32.dll" target="content\net40\EasyLoad32.dll" />
+        <file src="Build\netfx4-Release\x64\EasyLoad64.dll" target="content\net40\EasyLoad64.dll" />
+        <file src="Build\netfx3.5-Release\x64\EasyHook.dll" target="lib\net35\EasyHook.dll" />
+        <file src="Build\netfx3.5-Release\x64\EasyHook.xml" target="lib\net35\EasyHook.xml" />
+        <file src="Build\netfx4-Release\x64\EasyHook.dll" target="lib\net40\EasyHook.dll" />
+        <file src="Build\netfx4-Release\x64\EasyHook.xml" target="lib\net40\EasyHook.xml" />
+        <file src="tools\install.ps1" target="tools\install.ps1" />
+    </files>
+</package>

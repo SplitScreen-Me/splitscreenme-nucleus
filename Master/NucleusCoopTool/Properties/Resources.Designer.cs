@@ -163,6 +163,26 @@ namespace Nucleus.Coop.Properties {
         /// <summary>
         ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap hform {
+            get {
+                object obj = ResourceManager.GetObject("hform", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap hform_Background {
+            get {
+                object obj = ResourceManager.GetObject("hform_Background", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap icon {
             get {
                 object obj = ResourceManager.GetObject("icon", resourceCulture);
@@ -426,6 +446,16 @@ namespace Nucleus.Coop.Properties {
         internal static System.Drawing.Bitmap SplitCalculator {
             get {
                 object obj = ResourceManager.GetObject("SplitCalculator", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap splitscreen_me_logo {
+            get {
+                object obj = ResourceManager.GetObject("splitscreen-me-logo", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

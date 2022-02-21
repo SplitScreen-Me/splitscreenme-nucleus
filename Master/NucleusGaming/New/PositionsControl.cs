@@ -94,6 +94,7 @@ namespace Nucleus.Coop
         //private TextBox instructionText;
         private PictureBox instruction;
         private PictureBox instructionImg;
+
         public PositionsControl()
         {
             PositionsControl._positionsControl = this;
@@ -118,7 +119,7 @@ namespace Nucleus.Coop
             
             Anchor = AnchorStyles.Top | AnchorStyles.Bottom| AnchorStyles.Left| AnchorStyles.Right;
             playerFont = new Font("Franklin Gothic Medium", 20.0f, FontStyle.Regular, GraphicsUnit.Point, 0);
-            playerCustomFont = new Font("Franklin Gothic Medium", 9.0f, FontStyle.Regular, GraphicsUnit.Point, 0);
+            playerCustomFont = new Font("Franklin Gothic Medium", 16.0f, FontStyle.Bold, GraphicsUnit.Point, 0);
             playerTextFont = new Font("Franklin Gothic Medium", 12.0f, FontStyle.Regular, GraphicsUnit.Point, 0);
             smallTextFont = new Font("Franklin Gothic Medium", 12.0f, FontStyle.Regular, GraphicsUnit.Point, 0);
             extraSmallTextFont = new Font("Franklin Gothic Medium", 10.25f, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -491,10 +492,10 @@ namespace Nucleus.Coop
                     int end = hid.LastIndexOf("#{");
                     string fhid = hid.Substring(start, end - start).Replace('#', '\\').ToUpper();
                     player.HIDDeviceID = fhid;
-                    if (ini.IniReadValue("ControllerMapping", fhid) != "")
-                    {
-                        player.Nickname = ini.IniReadValue("ControllerMapping", fhid);
-                    }
+                    //if (ini.IniReadValue("ControllerMapping", "Player_"+ (i + 1)) != "")
+                    //{
+                    //    player.Nickname = ini.IniReadValue("ControllerMapping", "Player_" + (i + 1));
+                    //}
                     player.DInputJoystick.Acquire();
 
                     data.Add(player);
@@ -590,10 +591,10 @@ namespace Nucleus.Coop
                                 int end = hid.LastIndexOf("#{");
                                 string fhid = hid.Substring(start, end - start).Replace('#', '\\').ToUpper();
                                 player.HIDDeviceID = fhid;
-                                if (ini.IniReadValue("ControllerMapping", fhid) != "")
-                                {
-                                    player.Nickname = ini.IniReadValue("ControllerMapping", fhid);
-                                }
+                                //if (ini.IniReadValue("ControllerMapping", "Player_" + (i + 1)) != "")
+                                //{
+                                //    player.Nickname = ini.IniReadValue("ControllerMapping", "Player_" + (i + 1));
+                                //}
 
                                 player.DInputJoystick.Acquire();
 
@@ -854,8 +855,10 @@ namespace Nucleus.Coop
             if (total < playerCount)
             {
                 int newVertical = vertical + 1;
+                playerCustomFont = new Font("Franklin Gothic Medium", newplayerCustomFontSize*0.8f, FontStyle.Regular, GraphicsUnit.Point, 0);
                 playerSize = (int)Math.Round(((playerHeight/1.2f) / newVertical));
             }
+
 
             for (int i = 0; i < playerData.Count; i++)
             {
@@ -1496,19 +1499,20 @@ namespace Nucleus.Coop
             Pen PositionScreenPen = new Pen(Color.FromArgb(Convert.ToInt32(rgb_PositionScreenColor[0]), Convert.ToInt32(rgb_PositionScreenColor[1]), Convert.ToInt32(rgb_PositionScreenColor[2])));
             Pen PositionPlayerScreenPen = new Pen(Color.FromArgb(Convert.ToInt32(rgb_PositionPlayerScreenColor[0]), Convert.ToInt32(rgb_PositionPlayerScreenColor[1]), Convert.ToInt32(rgb_PositionPlayerScreenColor[2])));
             Graphics g = e.Graphics;
-
+            int gampadCount = 0;
 #if DEBUG
             //g.FillRectangle(Brushes.Green, playersArea);
             //g.FillRectangle(Brushes.CornflowerBlue, screensArea);
             //g.FillRectangle(Brushes.CornflowerBlue, new RectangleF(0, 0, Width, Height));
 #endif
+            SuspendLayout();
             UpdateScreens();
 
             for (int i = 0; i < screens.Length; i++)
             {
                 UserScreen s = screens[i];
                 g.DrawRectangle(PositionScreenPen, s.UIBounds);
-                //g.DrawRectangle(Pens.White, s.SwapTypeBounds);
+                g.DrawRectangle(PositionScreenPen, s.SwapTypeBounds);
 
                 switch (s.Type)
                 {
@@ -1540,15 +1544,14 @@ namespace Nucleus.Coop
             }
 
             List<PlayerInfo> players = profile.PlayerData;
+
             if (players.Count == 0)
             {
-                //g.DrawString("No Gamepads connected", playerTextFont, Brushes.Red, new PointF(100, 10));
             }
             else
             {
                 for (int i = 0; i < players.Count; i++)
-                {
-
+                {                    
                     PlayerInfo info = players[i];
 
                     Brush[] colors = new Brush[]
@@ -1561,8 +1564,7 @@ namespace Nucleus.Coop
                       Brushes.Wheat, Brushes.Crimson, Brushes.Turquoise, Brushes.Chocolate,
                       Brushes.OrangeRed, Brushes.Olive, Brushes.DarkRed, Brushes.Lavender
                     };
-
-                    //MessageBox.Show("Game name: " + ggi.GameName + "\nDInputEnabled: " + ggi.Hook.DInputEnabled + "\nDInputForceDisable: " + ggi.Hook.DInputForceDisable + "\nXInputReroute: " + ggi.Hook.XInputReroute + "\nPlayers count: " + players.Count + "\n\nController Name: " + info.GamepadName + "\nHID Device ID: " + info.HIDDeviceID + "\nInstance GUID: " + info.GamepadGuid + "\nSlot: " + i + "\nIsXInput: " + info.IsXInput + "\nIsDInput: " + info.IsDInput + "\nIsKeyboardPlayer: " + info.IsKeyboardPlayer + "\nRaw hid: " + info.DInputJoystick.Properties.InterfacePath);
+          
                     Rectangle s = info.EditBounds;
                     g.ResetClip();
                     g.Clip = new Region(new RectangleF(s.X, s.Y, s.Width + 1, s.Height + 1));
@@ -1572,10 +1574,11 @@ namespace Nucleus.Coop
                     string str = (i + 1).ToString();
                     SizeF size = g.MeasureString(str, playerFont);
                     PointF loc = RectangleUtil.Center(size, s);
+
                     if (gamePadPressed == info.GamepadId)
                     {
-                        var playerColor = colors[info.GamepadId];
-                        g.FillEllipse(playerColor, gamepadRect);
+                        var playerColor =  colors[info.GamepadId];
+                        g.FillPie(playerColor, gamepadRect,100.0f,-20.0f);
                         gamePadPressed = -1;
                     }
                     else
@@ -1584,27 +1587,17 @@ namespace Nucleus.Coop
                     }
 
                     if (info.IsXInput)
-                    {
-                       
-                        var playerColor = colors[info.GamepadId];
+                    {                       
                         loc.Y -= gamepadRect.Height * 0.1f;
-                       
-                        //g.DrawString(flags.ToString(), smallTextFont, Brushes.White, new PointF(loc.X, loc.Y + gamepadRect.Height * 0.01f));
+                        var playerColor = colors[info.GamepadId];
+                        gampadCount++;
+                        str = Convert.ToString(gampadCount);                           
 
-                        if /*(!string.IsNullOrEmpty(info.Nickname)) */ (ini.IniReadValue("ControllerMapping", info.HIDDeviceID) != "")
-                        {
-                            str = ini.IniReadValue("ControllerMapping", info.HIDDeviceID);
-                            //str = info.Nickname;
-                            size = g.MeasureString(str, playerCustomFont);
-                            loc = RectangleUtil.Center(size, s);
-                            loc.Y -= 10;
+                        size = g.MeasureString(str, playerCustomFont);
+                        loc = RectangleUtil.Center(size, s);
+                        loc.Y -= 5;
                             
-                            g.DrawString(str, playerCustomFont, playerColor, loc);
-                        }
-                        else
-                        {
-                            g.DrawString((info.GamepadId + 1).ToString(), playerFont, playerColor, loc);
-                        }
+                        g.DrawString(str, playerCustomFont, playerColor, loc);
                         g.DrawImage(gamepadImg, gamepadRect);
                     }
                     else if (info.IsKeyboardPlayer && !info.IsRawKeyboard && !info.IsRawMouse)
@@ -1627,28 +1620,16 @@ namespace Nucleus.Coop
                     else
                     {
                         loc.Y -= gamepadRect.Height * 0.2f;
-  
-                        if /*(!string.IsNullOrEmpty(info.Nickname))*/ (ini.IniReadValue("ControllerMapping", info.HIDDeviceID) != "")
-                        {
-                            var playerColor = colors[info.GamepadId];
-                            str = ini.IniReadValue("ControllerMapping", info.HIDDeviceID);
-                            //str = info.Nickname;
-                            size = g.MeasureString(str, playerCustomFont);
-                            loc = RectangleUtil.Center(size, s);
-                            loc.Y -= 10;
-                            
-                            g.DrawString(str, playerCustomFont, playerColor, loc);
-                        }
-                        else
-                        {
-                            var playerColor = colors[info.GamepadId];
-                            size = g.MeasureString(str, playerTextFont);
-                            loc = RectangleUtil.Center(size, s);
-                            loc.Y -= 10;
-                          
-
-                            g.DrawString((info.GamepadId + 1).ToString()/*info.GamepadName*/, playerTextFont, playerColor, loc);
-                        }
+                        
+                        var playerColor = colors[info.GamepadId];
+                        gampadCount++;
+                        str = Convert.ToString(gampadCount);
+                        size = g.MeasureString(str, playerCustomFont);
+                        loc = RectangleUtil.Center(size, s);
+                        loc.Y -= 5;
+                        
+                        g.DrawString(str, playerCustomFont, playerColor, loc);
+                      
                         g.DrawImage(genericImg, gamepadRect);
                     }
 
@@ -1670,7 +1651,10 @@ namespace Nucleus.Coop
                 }
             }
             g.ResetClip();
-
+            if (dragging && draggingScreen != -1)
+            {
+                g.DrawRectangle(Pens.LimeGreen, draggingScreenRec);
+            }
             if (players.Count == 0)
             {
                 g.DrawString(game.Game.SupportsMultipleKeyboardsAndMice ? "Input Devices" : "No Gamepads detected", playerTextFont, myBrush, new PointF(10, 10));
@@ -1679,10 +1663,7 @@ namespace Nucleus.Coop
             {
                 g.DrawString( "Input Devices", playerTextFont, myBrush, new PointF(10, 10));
             }
-            //string dragEachGamepad = $"Drag each {((game.Game.SupportsMultipleKeyboardsAndMice || game.Game.SupportsKeyboard) ? "input device" : "gamepad")} to a screen.\nClick top-left corner to change layout\nRight click on player screen to expand.";
-            //dragEachGamepad = StringUtil.WrapString(Width /** 0.3f*/, dragEachGamepad, g, extraSmallTextFont, out SizeF dragEachGamepadSize);
-            //g.DrawString(dragEachGamepad, extraSmallTextFont, myBrush, new PointF(Width - dragEachGamepadSize.Width-20, 4/*playersArea.Y - 50*/));
-    
+            ResumeLayout();
         }
 
     }

@@ -1,0 +1,464 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{223DBDAE-E362-452C-9455-F518D002B154}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Nucleus.Gaming</RootNamespace>
+    <AssemblyName>Nucleus.Gaming</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>GamingKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;UNSAFE;ALPHA</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\bin\</OutputPath>
+    <DefineConstants>TRACE;UNSAFE;ALPHA;RELEASE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <DebugSymbols>true</DebugSymbols>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestDebug|AnyCPU'">
+    <OutputPath>bin\TestDebug\</OutputPath>
+    <DefineConstants>UNSAFE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EasyHook">
+      <HintPath>..\ThirdParty\easyhook\EasyHook.dll</HintPath>
+    </Reference>
+    <Reference Include="Jint, Version=0.0.0.0, Culture=neutral, PublicKeyToken=2e92ba9c8d81157f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Jint.2.11.58\lib\net451\Jint.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationFramework" />
+    <Reference Include="SharpDX, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpDX.4.2.0\lib\net45\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.DirectInput, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpDX.DirectInput.4.2.0\lib\net45\SharpDX.DirectInput.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.XInput, Version=4.2.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpDX.XInput.4.2.0\lib\net45\SharpDX.XInput.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.DirectoryServices.AccountManagement" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\BorderPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\BorderPanel.Designer.cs">
+      <DependentUpon>BorderPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ControlListBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CoolCheckbox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\CoolCheckbox.Designer.cs">
+      <DependentUpon>CoolCheckbox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CoolListControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\Font2.cs" />
+    <Compile Include="Controls\HotkeyListener.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\HotkeyListener.Designer.cs">
+      <DependentUpon>HotkeyListener.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ICanProceed.cs" />
+    <Compile Include="Controls\IHighlightControl.cs" />
+    <Compile Include="Controls\NButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\PictureButton.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\PictureButton.Designer.cs">
+      <DependentUpon>PictureButton.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SizeableCheckbox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\TextMessageBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\TextMessageBox.Designer.cs">
+      <DependentUpon>TextMessageBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Coop\BasicTypes\IntVector2.cs" />
+    <Compile Include="Coop\BasicTypes\RECT.cs" />
+    <Compile Include="Coop\BasicTypes\Ref.cs" />
+    <Compile Include="Coop\Generic\async.cs" />
+    <Compile Include="Coop\Generic\HttpClient.cs" />
+    <Compile Include="Coop\Generic\ProcessPicker.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Coop\Generic\ProcessPicker.Designer.cs">
+      <DependentUpon>ProcessPicker.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Coop\Generic\Hub.cs" />
+    <Compile Include="Coop\Generic\KeyboardPlayer.cs" />
+    <Compile Include="Coop\Generic\RegType.cs" />
+    <Compile Include="Coop\Generic\SearchType.cs" />
+    <Compile Include="Coop\InputManagement\Enums\DataCommand.cs" />
+    <Compile Include="Coop\InputManagement\Enums\HeaderDwType.cs" />
+    <Compile Include="Coop\InputManagement\Enums\KeyboardEvents.cs" />
+    <Compile Include="Coop\InputManagement\Enums\MessageTypes.cs" />
+    <Compile Include="Coop\InputManagement\Enums\MouseEvents.cs" />
+    <Compile Include="Coop\InputManagement\Enums\RawInputButtonFlags.cs" />
+    <Compile Include="Coop\InputManagement\Enums\RawInputDevice_dwFlags.cs" />
+    <Compile Include="Coop\InputManagement\Enums\WindowStyles.cs" />
+    <Compile Include="Coop\InputManagement\Enums\WindowStylesEx.cs" />
+    <Compile Include="Coop\InputManagement\Enums\WNDCLASSEX.cs" />
+    <Compile Include="Coop\InputManagement\HookPipe.cs" />
+    <Compile Include="Coop\InputManagement\InputInterceptor.cs" />
+    <Compile Include="Coop\InputManagement\LockInput.cs" />
+    <Compile Include="Coop\InputManagement\Logger.cs" />
+    <Compile Include="Coop\InputManagement\RawInputManager.cs" />
+    <Compile Include="Coop\InputManagement\RawInputProcessor.cs" />
+    <Compile Include="Coop\InputManagement\RawInputWindow.cs" />
+    <Compile Include="Coop\InputManagement\Structs\KBDLLHOOKSTRUCT.cs" />
+    <Compile Include="Coop\InputManagement\Structs\MSG.cs" />
+    <Compile Include="Coop\InputManagement\Structs\POINT.cs" />
+    <Compile Include="Coop\InputManagement\Structs\RAWHID.cs" />
+    <Compile Include="Coop\InputManagement\Structs\RAWINPUT.cs" />
+    <Compile Include="Coop\InputManagement\Structs\RAWINPUTDEVICE.cs" />
+    <Compile Include="Coop\InputManagement\Structs\RAWINPUTDEVICELIST.cs" />
+    <Compile Include="Coop\InputManagement\Structs\RAWINPUTHEADER.cs" />
+    <Compile Include="Coop\InputManagement\Structs\RAWINPUT_DATA.cs" />
+    <Compile Include="Coop\InputManagement\Structs\RAWKEYBOARD.cs" />
+    <Compile Include="Coop\InputManagement\Structs\RAWMOUSE.cs" />
+    <Compile Include="Coop\InputManagement\Structs\RID_DEVICE_INFO.cs" />
+    <Compile Include="Coop\InputManagement\Structs\RID_DEVICE_INFO_HID.cs" />
+    <Compile Include="Coop\InputManagement\Structs\RID_DEVICE_INFO_KEYBOARD.cs" />
+    <Compile Include="Coop\InputManagement\Structs\RID_DEVICE_INFO_MOUSE.cs" />
+    <Compile Include="Coop\InputManagement\Structs\WM_MOUSEMOVE_wParam.cs" />
+    <Compile Include="Coop\InputManagement\WinApi.cs" />
+    <Compile Include="Coop\OpenXinputController.cs" />
+    <Compile Include="Coop\ProtoInput\GetMainWindow.cs" />
+    <Compile Include="Coop\ProtoInput\ProtoInput.cs" />
+    <Compile Include="Coop\ProtoInput\ProtoInputLauncher.cs" />
+    <Compile Include="Coop\ProtoInput\ProtoInputOptions.cs" />
+    <Compile Include="Coop\Window.cs" />
+    <Compile Include="DirectInput\DInputManager.cs" />
+    <Compile Include="Coop\GameOption.cs" />
+    <Compile Include="Coop\GameOptionValue.cs" />
+    <Compile Include="Coop\GameProfile.cs" />
+    <Compile Include="Coop\Generic\Cursor\CursorBarrier.cs" />
+    <Compile Include="Coop\Generic\Cursor\CursorBarrierLower.cs" />
+    <Compile Include="Coop\Generic\Cursor\CursorBarrierUpper.cs" />
+    <Compile Include="Coop\Generic\Cursor\CursorModule.cs" />
+    <Compile Include="Coop\Generic\Cursor\NativeMethods.cs" />
+    <Compile Include="Coop\Generic\DynamicAttribute.cs" />
+    <Compile Include="Coop\Generic\GenericContext.cs" />
+    <Compile Include="Coop\Generic\GenericGameInfo.cs" />
+    <Compile Include="Coop\Generic\JoystickDatabase.cs" />
+    <Compile Include="Coop\Generic\SaveData\CfgSaveInfo.cs" />
+    <Compile Include="Coop\Generic\SaveData\IniSaveInfo.cs" />
+    <Compile Include="Coop\Generic\SaveInfo.cs" />
+    <Compile Include="Coop\Generic\Step\CustomStep.cs" />
+    <Compile Include="Coop\Generic\Step\CustomStepType.cs" />
+    <Compile Include="Coop\Generic\UserInfo.cs" />
+    <Compile Include="Coop\Generic\GameHookInfo.cs" />
+    <Compile Include="Coop\Generic\JSUserInputControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Coop\Generic\DPIHandling.cs" />
+    <Compile Include="DPI\DeviceCapEnum.cs" />
+    <Compile Include="DPI\DPIManager.cs" />
+    <Compile Include="DPI\DPIMonitor.cs" />
+    <Compile Include="DPI\IDynamicSized.cs" />
+    <Compile Include="Forms\CustomPrompt.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\CustomPrompt.Designer.cs">
+      <DependentUpon>CustomPrompt.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Prompt.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Prompt.Designer.cs">
+      <DependentUpon>Prompt.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Globals.cs" />
+    <Compile Include="New\GameControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="New\PositionsControlBase.cs" />
+    <Compile Include="Platform\IO\WinDirectoryUtil.cs" />
+    <Compile Include="Platform\Windows\Interop\Gdi32\Gdi32Interop.cs" />
+    <Compile Include="Platform\Windows\Interop\Kernel32\Kernel32Interop.cs" />
+    <Compile Include="Platform\Windows\Interop\Kernel32\SymbolicLink.cs" />
+    <Compile Include="Platform\Windows\Interop\Shcore\ShcoreInterop.cs" />
+    <Compile Include="Platform\Windows\Interop\User32\Structures\Display.cs" />
+    <Compile Include="Platform\Windows\Interop\User32\C\Rect.cs" />
+    <Compile Include="IO\Content\ContentManager.cs" />
+    <Compile Include="IO\Logging\ILogNode.cs" />
+    <Compile Include="IO\SourceCfgFile.cs" />
+    <Compile Include="Coop\IGameHandler.cs" />
+    <Compile Include="Coop\IGameInfo.cs" />
+    <Compile Include="Coop\UserGameInfo.cs" />
+    <Compile Include="Coop\UserProfile.cs" />
+    <Compile Include="Coop\UserScreen.cs" />
+    <Compile Include="Coop\UserScreenType.cs" />
+    <Compile Include="Coop\Generic\GenericGameHandler.cs" />
+    <Compile Include="Coop\Generic\IGenericGameInfo.cs" />
+    <Compile Include="Coop\Generic\SaveType.cs" />
+    <Compile Include="Coop\Generic\Folder.cs" />
+    <Compile Include="Platform\Windows\Interop\Shell32\Shell32.cs" />
+    <Compile Include="Platform\Windows\Interop\Shell32\ShFileInfo.cs" />
+    <Compile Include="Platform\Windows\Interop\Shell32\ShgFi.cs" />
+    <Compile Include="IO\BackupFile.cs" />
+    <Compile Include="IO\IniFile.cs" />
+    <Compile Include="Platform\Windows\Interop\Interceptor\Win32.cs" />
+    <Compile Include="Platform\Windows\Interop\Interceptor\Win32EnumWindows.cs" />
+    <Compile Include="Platform\Windows\Interop\Interceptor\Win32Messages.cs" />
+    <Compile Include="Platform\Windows\Interop\Interceptor\WindowInterceptor.cs" />
+    <Compile Include="Platform\Windows\Interop\User32\User32Util.cs" />
+    <Compile Include="Platform\Windows\Interop\User32\User32Interop.cs" />
+    <Compile Include="Platform\Windows\Interop\User32\User32_WS.cs" />
+    <Compile Include="Platform\Windows\Interop\Win32Api.cs" />
+    <Compile Include="Platform\Windows\Interop\User32\WindowShowStyle.cs" />
+    <Compile Include="IO\Logging\LogManager.cs" />
+    <Compile Include="IO\MFT\FileNameAndParentFrn.cs" />
+    <Compile Include="IO\MFT\MFTReader.cs" />
+    <Compile Include="Coop\GameManager.cs" />
+    <Compile Include="New\ImageButtonState.cs" />
+    <Compile Include="New\ImageButton.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="New\UserInputControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="New\PlayerCountControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="New\PlayerCountControl.Designer.cs">
+      <DependentUpon>PlayerCountControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="New\PlayerOptionsControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="New\PositionsControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Util\RectangleUtil.cs" />
+    <Compile Include="Platform\Windows\MonitorDpiType.cs" />
+    <Compile Include="Platform\Windows\ProcessDpiAwareness.cs" />
+    <Compile Include="Platform\Windows\WindowsVersionInfo.cs" />
+    <Compile Include="PlayerID.cs" />
+    <Compile Include="Coop\PlayerInfo.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Coop\Generic\ProcessData.cs" />
+    <Compile Include="Util\AssemblyUtil.cs" />
+    <Compile Include="Util\CmdUtil.cs" />
+    <Compile Include="Util\Palette.cs" />
+    <Compile Include="Util\ConsoleU.cs" />
+    <Compile Include="Util\FileUtil.cs" />
+    <Compile Include="Util\FormUtil.cs" />
+    <Compile Include="Util\MathUtil.cs" />
+    <Compile Include="Util\ProcessUtil.cs" />
+    <Compile Include="Util\ScreensUtil.cs" />
+    <Compile Include="Tools\GameStarter\StartGameUtil.cs" />
+    <Compile Include="Util\SteamUtil.cs" />
+    <Compile Include="Util\StringUtil.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Controls\ControlListBox.resx">
+      <DependentUpon>ControlListBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CoolCheckbox.resx">
+      <DependentUpon>CoolCheckbox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\CoolListControl.resx">
+      <DependentUpon>CoolListControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\PictureButton.resx">
+      <DependentUpon>PictureButton.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TextMessageBox.resx">
+      <DependentUpon>TextMessageBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Coop\Generic\ProcessPicker.resx">
+      <DependentUpon>ProcessPicker.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\CustomPrompt.resx">
+      <DependentUpon>CustomPrompt.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Prompt.resx">
+      <DependentUpon>Prompt.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="New\GameControl.resx">
+      <DependentUpon>GameControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="New\ImageButton.resx">
+      <DependentUpon>ImageButton.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="New\PlayerCountControl.resx">
+      <DependentUpon>PlayerCountControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="New\PlayerOptionsControl.resx">
+      <DependentUpon>PlayerOptionsControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="New\PositionsControl.resx">
+      <DependentUpon>PositionsControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="New\UserInputControl.resx">
+      <DependentUpon>UserInputControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GamingKey.snk" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="New\Utils\" />
+    <Folder Include="Util\Extensions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\4players.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\fullscreen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\horizontal.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ncoop.ini" />
+    <None Include="Resources\vertical.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ThirdParty\WindowScrape\WindowScrape.csproj">
+      <Project>{d9716550-921d-44e8-a289-c297950db1f7}</Project>
+      <Name>WindowScrape</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\gamepad.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\generic.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\16players.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\_6players.bmp" />
+    <None Include="Resources\6players.png" />
+    <None Include="Resources\8players.png" />
+    <None Include="Resources\customLayout.png" />
+    <None Include="Resources\keyboard_computer_hardware-512.png" />
+    <None Include="Resources\keyboard.png" />
+    <None Include="Resources\players.png" />
+    <None Include="Resources\icon.png" />
+    <Content Include="Resources\icon.ico" />
+    <None Include="Resources\icon.ico.back" />
+    <None Include="Resources\instruction.gif" />
+    <None Include="Resources\instruction.png" />
+    <None Include="Resources\instruction-close.png" />
+    <None Include="Resources\instructions.gif" />
+    <Content Include="Resources\mouse.png" />
+    <None Include="Resources\rawkeyboard.png" />
+    <Content Include="Resources\xinput1_3.dll" />
+    <None Include="Resources\xinput1_3_a10_log.dll" />
+    <None Include="Resources\xinput1_3_a10_x64.dll" />
+    <None Include="Resources\xinput1_3_a10.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="IWshRuntimeLibrary">
+      <Guid>{F935DC20-1CF0-11D0-ADB9-00C04FD58A0B}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

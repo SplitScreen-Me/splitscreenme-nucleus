@@ -63,12 +63,7 @@ namespace Nucleus.Coop
                     Width = list.Width,
                     Font = new Font("Segoe UI", 8)
                 };
-
-                CoolListControl cool = new CoolListControl(false);
-                cool.Title = opt.Name;
-                cool.Details = opt.Description;
-                cool.Width = list.Width;
-                cool.Font = new Font("Segoe UI", 11);
+                //cool.DetailsFont = detailsFont;
 
                 list.Controls.Add(cool);
 

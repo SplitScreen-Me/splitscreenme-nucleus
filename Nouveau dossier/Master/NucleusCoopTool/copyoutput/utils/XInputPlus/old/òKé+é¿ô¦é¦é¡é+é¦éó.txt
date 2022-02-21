@@ -1,0 +1,150 @@
+XInput Plus (ver4.15.0)
+
+*本プログラムの使用によるいかなる損害も作成者は責任を負いません。自己責任で使用お願いします。
+*本プログラムを許可なく他のサイトにアップロードして再配布することは禁止します。
+更新状況・作者への連絡などは以下のサイトを参照ください
+https://sites.google.com/site/0dd14lab/
+
+
+◆これはなに？　◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆
+
+XInput標準対応（XBOX360コントローラー標準対応）のゲーム等にて、
+キーアサインの変更、感度変更、軸反転、自動連射/ホールド・振動の設定などを実現するものです。
+加えてDirectInput出力機能により、DirectInput使用時の問題（LT/RTの割り当て・フォースフィードバックへ
+の対応）に対応します。
+Windows10(64bit)にて開発・動作確認を行っています。
+
+*対象プログラムのコントローラー入力の実装形態により、うまく動作しない場合もあります
+*DirectInput出力が動作するのは、DirectInput5以降を使用しているアプリケーションとなります。
+（アプリケーション側のDLL呼び出しの仕様によりうまく動作しない場合もあります）
+*オンラインゲームなどで、不正プログラムチェックがされている場合にはうまく動作しない場合があります。
+
+
+
+◆使い方(通常適用）　　◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆
+
+１．ZIP中のファイル一式を任意のフォルダに展開してください。
+
+２．XInputPlus.exeを実行します。（プログラムフォルダへの書き込みを行うため、管理者権限が要求されま
+す）
+
+３．ダイアログ上部に、設定を適用したい実行ファイルを指定します。
+
+４．各設定タブにて、キーアサイン・感度設定などを設定します。
+
+５.「全体テスト」ボタンを押すことで、設定内容のテストが行えます。
+
+６．「適用」ボタンを押すことで、指定した実行ファイルに対して、DLLおよび設定ファイルの配布が行われま
+す。
+実行ファイルと同じフォルダに[XInput1_3.dll]および[XInputPlus.ini]がコピーされます。
+
+７．通常通り、実行プログラムを起動し、設定が反映しているか確認します。
+
+＊．「解除」ボタンを押すことで、指定した実行ファイルに対する適用を解除します。
+このときコピーした[XInput1_3.dll]および[XInputPlus.ini]が削除されます。
+
+
+
+◆設定項目について　◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆
+
+◆【割り当て】タブ
+・入力に使用するボタン・スティックなどを指定できます。
+
+◆【スティック】【トリガー】タブ
+・スティック・トリガーのの入力感度の設定、軸反転・軸無効化の設定が行えます。
+
+◆【ボタン】タブ
+・各ボタンに対して連射機能/ホールド機能/その他機能を設定できます。
+
+◆【振動】タブ
+・左右振動モーターの振動強度・有効状態を設定できます。
+
+◆【DirectInput】タブ
+・DirectInput出力機能の有効化・動作設定を行えます。
+
+◆【設定】タブ
+・【コントローラー番号】
+	使用コントローラー番号の割り当てが行えます。
+・【Dllファイル】
+	適用時に使用するDLLの設定が行えます。
+・【その他】
+	・その他動作設定が行えます。
+
+◆【情報】タブ
+・コントローラーの接続状態の確認が行えます。
+・AboutタブでXInputPlusのバージョン情報が確認できます
+
+
+◆オプション：XInput Plus Loaderについて　◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆
+
+＊注意　＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+XInput Plus Loaderは対象プログラムに ”強引に” XInput Plusを注入します。
+不正プログラムチェックに検出される可能性がより高いため、オンラインゲームなどで使用する
+ことはお勧めしません。自己責任にて使用してください。
+＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊
+
+XInput Plus Loaderは強制的にXInput Plusを適用するランチャープログラムです
+XInput Plus Loaderから対象プログラムを起動することで、通常適用でうまく動作しないものについても
+XInput Plusを動作させることができます。
+基本的には通常適用で使用し、うまくいかない場合にXInput Plus Loaderを使うことをお勧めします。
+
+◆XInput Plus Loader使用方法
+
+１．通常適用と同じようにXInputPlus.exeにて設定を行います。
+
+２．ウインドウ右上にあるメニューボタンから、「設定ファイルのみを適用」を実行します。
+　　これにより対象プログラムフォルダに設定ファイル「XInputPlus.ini」のみがコピーされます。
+
+３．「Loader」フォルダにある「XInputPlusLoader.exe」を実行します。
+
+４．対象プログラムをXInput Plus LoaderのウインドウにDrag&Dropすることでプログラムを起動します。
+　XInput Plus Loaderのウインドウで「動作モード」に「ショートカット作成」を選択してDrag&Dropすると、
+デスクトップにXInput Plus Loaderから起動するショートカットが作成されます。
+
+その他の活用方法
+XInput Plus Loaderを使用した場合、動作設定ファイルXInputPlus.iniは以下の優先順位で読み込まれます。
+１．対象プログラムのあるフォルダ
+２．XInputPlusLoader.exeのあるフォルダ
+対象プログラムのフォルダにXInputPlus.iniがない場合、XInputPlusLoader.exeのフォルダのXInputPlus.iniを
+デフォルト設定として動作します。
+
+
+◆使用・再配布等について　◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆
+
+本プログラムの使用については制約はありませんが、商用利用は禁止します。
+*本プログラムを許可なく他のサイトにアップロードして再配布することは禁止します。
+
+
+◆その他　◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆
+
+XInputPlusLoaderはMarton Anka氏作成のMhookライブラリを使用しています。
+MhookライブラリはMIT licenseにて提供されています。
+
+XInputPlusLoader uses Mhook Libraly.
+Mhook is distributed under the MIT license.
+------------------------------------------------------------------------------
+MHOOK, AN API HOOKING LIBRARY
+http://codefromthe70s.org/
+
+Copyright (c) 2007-2008, Marton Anka
+Portions Copyright (c) 2007, Matt Conover
+
+Permission is hereby granted, free of charge, to any person obtaining a copy 
+of this software and associated documentation files (the "Software"), to deal 
+in the Software without restriction, including without limitation the rights 
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+copies of the Software, and to permit persons to whom the Software is 
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in 
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR 
+OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, 
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR 
+OTHER DEALINGS IN THE SOFTWARE.
+------------------------------------------------------------------------------
+

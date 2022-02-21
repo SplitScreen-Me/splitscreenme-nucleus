@@ -35,9 +35,10 @@ namespace Nucleus.Coop
 
 
             // create it here, else the desgienr will show the default windows font
-            //Font = new Font("Segoe UI", 12, GraphicsUnit.Point);
+            //Font = new Font("Segoe UI", 9, GraphicsUnit.Point);
+            Font = new Font("Franklin Gothic Medium",9.75f, GraphicsUnit.Point);
 
-           DPIManager.Register(this);
+            DPIManager.Register(this);
         }
 
      

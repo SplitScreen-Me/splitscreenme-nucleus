@@ -1,0 +1,309 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\imgui">
+      <UniqueIdentifier>{58e924f4-69cf-4baf-89d8-3288b448e3df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\glew">
+      <UniqueIdentifier>{c64bed7d-0594-4fa0-b517-aa65b9b84296}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Hooks">
+      <UniqueIdentifier>{962a1f72-14be-43ee-b2eb-e4b50ae17607}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\MessageFilters">
+      <UniqueIdentifier>{017a2168-ac43-4ded-a945-1ef32899ea5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\openxinput">
+      <UniqueIdentifier>{14e41680-f011-4d2c-b31b-3fd2d6ae9a52}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RawInput.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Hook.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InstallHooks.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HookManager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PipeCommunication.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pipeinclude\pipeinclude.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageFilterBase.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FontData.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageList.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HwndSelector.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FakeMouse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FakeMouseKeyboard.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FocusHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="GetAsyncKeyStateHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="GetCursorPosHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="GetKeyStateHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="GetRawInputDataHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageFilterHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="RegisterRawInputHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="SetCursorPosHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="GetKeyboardStateHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageFilters.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RawInputFilter.h">
+      <Filter>Source Files\MessageFilters</Filter>
+    </ClInclude>
+    <ClInclude Include="MouseMoveFilter.h">
+      <Filter>Source Files\MessageFilters</Filter>
+    </ClInclude>
+    <ClInclude Include="MouseActivateFilter.h">
+      <Filter>Source Files\MessageFilters</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowActivateFilter.h">
+      <Filter>Source Files\MessageFilters</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowActivateAppFilter.h">
+      <Filter>Source Files\MessageFilters</Filter>
+    </ClInclude>
+    <ClInclude Include="MouseWheelFilter.h">
+      <Filter>Source Files\MessageFilters</Filter>
+    </ClInclude>
+    <ClInclude Include="FocusMessageLoop.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MouseButtonFilter.h">
+      <Filter>Source Files\MessageFilters</Filter>
+    </ClInclude>
+    <ClInclude Include="Cleanup.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StateInfo.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FakeCursor.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CursorVisibilityHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="ClipCursorHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="RenameHandlesHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="XinputHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyboardButtonFilter.h">
+      <Filter>Source Files\MessageFilters</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenXinputWrapper.h">
+      <Filter>Source Files\openxinput</Filter>
+    </ClInclude>
+    <ClInclude Include="DinputOrderHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="SetWindowPosHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="BlockRawInputHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="FindWindowHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateSingleHIDHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowStyleHook.h">
+      <Filter>Source Files\Hooks</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\imgui\imgui.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\imgui\imgui_demo.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\imgui\imgui_draw.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\imgui\imgui_tables.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\imgui\imgui_widgets.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\glew\src\glew.c">
+      <Filter>Source Files\glew</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\glew\src\glewinfo.c">
+      <Filter>Source Files\glew</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\glew\src\visualinfo.c">
+      <Filter>Source Files\glew</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\imgui\backends\imgui_impl_opengl3.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\lib\imgui\backends\imgui_impl_win32.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="GuiImpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HookInstaller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RawInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HookManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PipeCommunication.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HwndSelector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FakeMouseKeyboard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FocusHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="GetAsyncKeyStateHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="GetCursorPosHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="GetKeyStateHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="GetRawInputDataHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageFilterHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="RegisterRawInputHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="SetCursorPosHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="GetKeyboardStateHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="FocusMessageLoop.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cleanup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StateInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FakeCursor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CursorVisibilityHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="ClipCursorHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="RenameHandlesHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="XinputHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenXinputWrapper.cpp">
+      <Filter>Source Files\openxinput</Filter>
+    </ClCompile>
+    <ClCompile Include="DinputOrderHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="SetWindowPosHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="BlockRawInputHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="FindWindowHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateSingleHIDHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowStyleHook.cpp">
+      <Filter>Source Files\Hooks</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
