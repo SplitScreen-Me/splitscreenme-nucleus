@@ -1,7 +1,7 @@
-name: "💡 Feature Request App"
+name: "✨ Feature Request App"
 description: Requesting a new feature for the Nucleus Coop app
-title: '💡 <feature name>'
-labels: [💡 new app feature]
+title: '✨ <feature name>'
+labels: [✨ new app feature]
 body:
   - type: markdown
     attributes:

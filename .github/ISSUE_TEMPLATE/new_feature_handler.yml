@@ -1,7 +1,7 @@
-name: "💡 Feature Request Handler"
+name: "✨ Feature Request Handler"
 description: Requesting a new feature for scripting/making game handlers
-title: '💡 <feature name>'
-labels: [💡 new handler feature]
+title: '✨ <feature name>'
+labels: [✨ new handler feature]
 body:
   - type: markdown
     attributes:
