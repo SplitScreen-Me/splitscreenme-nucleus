@@ -1,7 +1,7 @@
-name: Feature Request Handler
+name: "💡 Feature Request App"
 description: Requesting a new feature for the Nucleus Coop app
-title: '[FEATURE REQUEST] <feature name>'
-labels: [new-feature-app]
+title: '💡 <feature name>'
+labels: [💡 new app feature]
 body:
   - type: markdown
     attributes:
