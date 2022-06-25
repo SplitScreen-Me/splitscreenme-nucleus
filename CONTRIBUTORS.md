@@ -1,11 +1,13 @@
 # Main contributors
 
-- Original Nucleus Co-op Project: [Lucas Assis (lucasassislar)](https://github.com/lucasassislar)  
-- Nucleus Co-op Alpha 8 Mod : [ZeroFox](https://github.com/ZeroFox5866)  
-- Proto Input, USS, multiple keyboards/mice & hooks: [Ilyaki](https://github.com/Ilyaki)  
-- Official Nucleus Co-op 2.0 and Up: [Mikou27](https://github.com/Mikou27)
-- Website & handler API: [r-mach](https://github.com/r-mach)  
-- Handlers development and general testing: [Talos91](https://github.com/Talos910), PoundlandBacon, Pizzo, dr.oldboi and many more.
+- [Original Nucleus Co-op Project](https://github.com/lucasassislar/nucleuscoop) -> [Lucas Assis (lucasassislar)](https://github.com/lucasassislar)  
+- [Nucleus Co-op Alpha 8 Mod](https://github.com/ZeroFox5866/nucleuscoop) -> [ZeroFox](https://github.com/ZeroFox5866)  
+- [Proto Input](https://github.com/Ilyaki/ProtoInput), [USS](https://github.com/UniversalSplitScreen/UniversalSplitScreen), multiple keyboards/mice & hooks -> [Ilyaki](https://github.com/Ilyaki)  
+- [Official Nucleus Co-op 2.0 and Up](https://github.com/SplitScreen-Me/splitscreenme-nucleus) -> [Mikou27](https://github.com/Mikou27)
+- [Handler Hub + API](https://github.com/SplitScreen-Me/splitscreenme-hub) -> [r-mach](https://github.com/r-mach) and [Snailedlt](https://github.com/Snailedlt)
+- [Splitscreenme-discordbot](https://github.com/SplitScreen-Me/splitscreenme-discordbot) -> [r-mach](https://github.com/r-mach) and [Snailedlt](https://github.com/Snailedlt)
+- [Splitscreen.me Website](https://github.com/SplitScreen-Me/splitscreenme-www) ->  [r-mach](https://github.com/r-mach) and [Snailedlt](https://github.com/Snailedlt)
+- Handlers development and general testing: [Talos91](https://github.com/Talos910), [PoundlandBacon](https://github.com/orgs/SplitScreen-Me/people/PoundlandBacon), [Pizzo](https://github.com/orgs/SplitScreen-Me/people/Bizzo499), [dr.oldboi](https://github.com/orgs/SplitScreen-Me/people/Maxine202) and many more.
   
 ## Additional credits to all original developers of the third party utilities Nucleus Co-op uses
 
