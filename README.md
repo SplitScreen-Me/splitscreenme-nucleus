@@ -11,12 +11,12 @@ This repo is a new and improved official version of the Nucleus Co-op applicatio
 - New player and input order processing (left to right).
 - New player nickname assignation.
 - New optional splitscreen divisions setting (visually  similar to native splitscreen games).
-- Massive increase to the amount of compatible games, 480+ as of now.
+- Massive increase to the amount of compatible games, ~500 as of now.
 - Much more game handlers customization.
-- Many quality of life improvements and ton of bug fixes.
+- Many quality of life improvements and tons of bug fixes.
 - And so much more!
 
-View the full list of features/changes and changelog in the Readme.txt inside Nucleus. Download latest [Nucleus Co-op here](https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases).
+View the full list of features/changes and [changelog](CHANGELOG.md), as well as the [known issues](KNOWN_ISSUES.md). Download latest [Nucleus Co-op here](https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases).
 
 ## Disclaimer
 
@@ -46,13 +46,26 @@ Note that Nucleus does not add multiplayer or co-op to single player games, the 
 
 ## How can you contribute?
 
+### Give Feedback
+
 Please report any bugs you may find and provide any feedback you have regarding the app. We are always open to suggestions and we want to make split-screen available for even more games, for everyone! Don't forget to create game handlers and share!
 
 You can find us in the Nucleus subreddit/discord as well as the Splitscreen Dreams discord, a special community created specifically to split-screen games by any means.
 
+### Donate
+
 In addition, we accept donations should you wish to support our endevor. It is greatly appreciated but completely voluntary, we will continue our best to help the community and enhance this project.
 
 Thank you ^_^
+
+### Make Handlers
+
+If you want to contribute in a meaningful way, a good way to do so is to create a [handler](https://www.splitscreen.me/docs/handlers) for a game that you want to play splitscreen. You can see the full [handler documentation](HANDLER_DOCUMENTATION.md) in this repo, and/or watch the guide on how to [create your handler](https://www.splitscreen.me/docs/create-handlers) in the docs on our [website](https://splitscreen.me).
+
+### Contribute with code
+
+The app is built in [C#](https://docs.microsoft.com/en-us/dotnet/csharp/) and it uses [WinForms](https://docs.microsoft.com/en-us/dotnet/desktop/winforms/?view=netdesktop-6.0) for the UI.
+> More info will come here shortly.
 
 ## Credits
 
