@@ -16,7 +16,7 @@ namespace Nucleus.Gaming.Tools.GameStarter
 
         public static string GetStartGamePath()
         {
-            return Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "StartGame.exe");
+            return Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "StartGame.exe");
         }
 
         public static string GetArguments(string pathToGame, string args, int waitTime, string mutexType, params string[] mutex)

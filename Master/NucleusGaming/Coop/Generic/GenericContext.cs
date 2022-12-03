@@ -120,7 +120,7 @@ namespace Nucleus.Gaming
 
         public string NucleusDocumentsRoot = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-        public string UtilFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\utils";
+        public string UtilFolder = Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location) + "\\utils";
 
         public Type HandlerType => typeof(GenericGameHandler);
 

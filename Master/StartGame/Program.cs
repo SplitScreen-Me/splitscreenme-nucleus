@@ -259,7 +259,7 @@ namespace StartGame
 
             if (!Path.IsPathRooted(path))
             {
-                string root = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                string root = Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location);
                 path = Path.Combine(root, path);
             }
 
@@ -304,10 +304,10 @@ namespace StartGame
 
                     if (useDocs)
                     {
-                        if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg")))
+                        if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg")))
                         {
                             //string mydocPath = key.GetValue("Personal").ToString();
-                            ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg"));
+                            ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg"));
                         }
 
                         RegistryKey dkey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);

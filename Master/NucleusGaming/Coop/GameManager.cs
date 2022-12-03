@@ -343,7 +343,7 @@ namespace Nucleus.Gaming
         public string GetAppContentPath()
         {
 #if ALPHA
-            string local = Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location);
+            string local = Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager))(GameManager)).Location);
             return Path.Combine(local, "content");
 #else
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -353,13 +353,13 @@ namespace Nucleus.Gaming
 
         public string GetJsScriptsPath()
         {
-            string local = Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location);
+            string local = Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager))(GameManager)).Location);
             return Path.Combine(local, "handlers");
         }
 
         public string GetUtilsPath()
         {
-            string local = Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location);
+            string local = Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager))(GameManager)).Location);
             return Path.Combine(local, "utils");
         }
 
@@ -685,7 +685,7 @@ namespace Nucleus.Gaming
                 error = ex.Message;
                 try
                 {
-                    string[] regFiles = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\backup"), "*.reg", SearchOption.AllDirectories);
+                    string[] regFiles = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager))(GameManager)).Location), "utils\\backup"), "*.reg", SearchOption.AllDirectories);
                     if (regFiles.Length > 0)
                     {
                         LogManager.Log("Restoring backed up registry files - method 1");

@@ -105,7 +105,7 @@ namespace Nucleus.Coop
 
                     if (mydocPath.Contains("NucleusCoop"))
                     {
-                        string[] environmentRegFileBackup = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\backup"), "*.reg", SearchOption.AllDirectories);
+                        string[] environmentRegFileBackup = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(StartChecks)).Location), "utils\\backup"), "*.reg", SearchOption.AllDirectories);
 
                         if (environmentRegFileBackup.Length > 0)
                         {

@@ -369,7 +369,7 @@ namespace Nucleus.Gaming
 
         private string startingArgs;
 
-        private readonly IniFile ini = new Gaming.IniFile(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Settings.ini"));
+        private readonly IniFile ini = new Gaming.IniFile(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "Settings.ini"));
         bool isDebug;
 
         UserScreen owner;
@@ -642,7 +642,7 @@ namespace Nucleus.Gaming
 
             Thread.Sleep(1000);
 
-            string[] regFiles = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\backup"), "*.reg", SearchOption.AllDirectories);
+            string[] regFiles = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\backup"), "*.reg", SearchOption.AllDirectories);
             if (regFiles.Length > 0)
             {
                 Log("Restoring backed up registry files");
@@ -804,7 +804,7 @@ namespace Nucleus.Gaming
                             }
                         }
 
-                        string deleteUserBatPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\LaunchUsers\\delete_users.bat");
+                        string deleteUserBatPath = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\LaunchUsers\\delete_users.bat");
                         if (File.Exists(deleteUserBatPath))
                         {
                             File.Delete(deleteUserBatPath);
@@ -849,7 +849,7 @@ namespace Nucleus.Gaming
 
                     //string devconPath = Path.Combine(Directory.GetCurrentDirectory(), "utils\\devcon\\devcon.exe");
                     p.StartInfo.FileName = "cmd.exe";
-                    p.StartInfo.WorkingDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\utils\\devcon";
+                    p.StartInfo.WorkingDirectory = Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location) + "\\utils\\devcon";
                     p.StartInfo.CreateNoWindow = true;
                     p.StartInfo.RedirectStandardError = true;
                     p.StartInfo.RedirectStandardOutput = true;
@@ -902,7 +902,7 @@ namespace Nucleus.Gaming
                     if (gen.FlawlessWidescreenOverrideDisplay)
                     {
                         Log("Restoring back up Flawless Widescreen settings file");
-                        string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\FlawlessWidescreen\\" + garch);
+                        string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\FlawlessWidescreen\\" + garch);
                         string setPath = utilFolder + "\\settings.xml";
                         string backupPath = Path.GetDirectoryName(setPath) + "\\settings_NUCLEUS_BACKUP.xml";
                         if (File.Exists(backupPath))
@@ -1472,10 +1472,10 @@ namespace Nucleus.Gaming
 
                                 if (diff != 0)
                                 {
-                                    if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $@"utils\backup\{v.ToString()}.reg")))
+                                    if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), $@"utils\backup\{v.ToString()}.reg")))
                                     {
                                         Log($"Backing up monitor settings for {screen.MonitorID}");
-                                        ExportRegistry($@"HKEY_CURRENT_USER\Control Panel\Desktop\PerMonitorSettings\{v.ToString()}", Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), $@"utils\backup\{v.ToString()}.reg"));
+                                        ExportRegistry($@"HKEY_CURRENT_USER\Control Panel\Desktop\PerMonitorSettings\{v.ToString()}", Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), $@"utils\backup\{v.ToString()}.reg"));
                                     }
 
                                     Log($"Setting DpiValue for {screen.MonitorID} from {currentVal} to {newVal}");
@@ -1513,7 +1513,7 @@ namespace Nucleus.Gaming
                         if ((!string.IsNullOrEmpty(origPix) && origPix != "96") || (!string.IsNullOrEmpty(origScale) && origScale != "0") || (string.IsNullOrEmpty(origPix) && string.IsNullOrEmpty(origScale)))
                         {
                             Log($"Setting Windows DPI Scaling to 100% for the duration of Nucleus session - Original LogPixels:{origPix}, DpiScaling:{origScale}");
-                            ExportRegistry(@"HKEY_CURRENT_USER\Control Panel\Desktop", Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Control Panel Desktop.reg"));
+                            ExportRegistry(@"HKEY_CURRENT_USER\Control Panel\Desktop", Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Control Panel Desktop.reg"));
 
                             userCpDesktopKey.SetValue("LogPixels", 96, RegistryValueKind.DWord);
                             userCpDesktopKey.SetValue("Win8DpiScaling", 0, RegistryValueKind.DWord);
@@ -1552,7 +1552,7 @@ namespace Nucleus.Gaming
                 Log(string.Format("Monitor {0} - Resolution: {1}", x, all[x].MonitorBounds.Width + "x" + all[x].MonitorBounds.Height));
             }
 
-            string nucleusRootFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            string nucleusRootFolder = Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location);
             nucleusFolderPath = nucleusRootFolder;
 
             string tempDir = GameManager.Instance.GempTempFolder(gen);
@@ -2397,7 +2397,7 @@ namespace Nucleus.Gaming
                     Process p = new Process();
 
                     p.StartInfo.FileName = "cmd.exe";
-                    p.StartInfo.WorkingDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\utils\\devcon";
+                    p.StartInfo.WorkingDirectory = Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location) + "\\utils\\devcon";
                     p.StartInfo.CreateNoWindow = false;
                     p.StartInfo.UseShellExecute = false;
                     p.StartInfo.RedirectStandardError = true;
@@ -2471,7 +2471,7 @@ namespace Nucleus.Gaming
                         }
 
                         Log("Checking if sufficient Nucleus user accounts already exist");
-                        string createUserBatPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\LaunchUsers\\create_users.bat");
+                        string createUserBatPath = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\LaunchUsers\\create_users.bat");
 
                         if (File.Exists(createUserBatPath))
                         {
@@ -3532,9 +3532,9 @@ namespace Nucleus.Gaming
 
                             if (gen.DocumentsConfigPath?.Length > 0 || gen.DocumentsSavePath?.Length > 0)
                             {
-                                if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg")))
+                                if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg")))
                                 {
-                                    ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg"));
+                                    ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg"));
                                 }
 
                                 RegistryKey dkey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);
@@ -3600,9 +3600,9 @@ namespace Nucleus.Gaming
 
                                 if (gen.DocumentsConfigPath?.Length > 0 || gen.DocumentsSavePath?.Length > 0)
                                 {
-                                    if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg")))
+                                    if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg")))
                                     {
-                                        ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg"));
+                                        ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg"));
                                     }
 
                                     RegistryKey dkey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);
@@ -3685,9 +3685,9 @@ namespace Nucleus.Gaming
 
                             if (gen.DocumentsConfigPath?.Length > 0 || gen.DocumentsSavePath?.Length > 0)
                             {
-                                if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg")))
+                                if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg")))
                                 {
-                                    ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg"));
+                                    ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg"));
                                 }
 
                                 RegistryKey dkey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);
@@ -3753,9 +3753,9 @@ namespace Nucleus.Gaming
 
                                 if (gen.DocumentsConfigPath?.Length > 0 || gen.DocumentsSavePath?.Length > 0)
                                 {
-                                    if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg")))
+                                    if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg")))
                                     {
-                                        ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg"));
+                                        ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg"));
                                     }
 
                                     RegistryKey dkey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);
@@ -3883,9 +3883,9 @@ namespace Nucleus.Gaming
 
                                     if (gen.DocumentsConfigPath?.Length > 0 || gen.DocumentsSavePath?.Length > 0)
                                     {
-                                        if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg")))
+                                        if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg")))
                                         {
-                                            ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg"));
+                                            ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg"));
                                         }
 
                                         RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);
@@ -3942,9 +3942,9 @@ namespace Nucleus.Gaming
 
                                     if (gen.DocumentsConfigPath?.Length > 0 || gen.DocumentsSavePath?.Length > 0)
                                     {
-                                        if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg")))
+                                        if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg")))
                                         {
-                                            ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg"));
+                                            ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg"));
                                         }
 
                                         RegistryKey dkey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);
@@ -4076,9 +4076,9 @@ namespace Nucleus.Gaming
 
                                         if (gen.DocumentsConfigPath?.Length > 0 || gen.DocumentsSavePath?.Length > 0)
                                         {
-                                            if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg")))
+                                            if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg")))
                                             {
-                                                ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg"));
+                                                ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg"));
                                             }
 
                                             RegistryKey dkey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);
@@ -4202,9 +4202,9 @@ namespace Nucleus.Gaming
 
                                         if (gen.DocumentsConfigPath?.Length > 0 || gen.DocumentsSavePath?.Length > 0)
                                         {
-                                            if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg")))
+                                            if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg")))
                                             {
-                                                ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg"));
+                                                ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg"));
                                             }
 
                                             RegistryKey dkey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);
@@ -4329,9 +4329,9 @@ namespace Nucleus.Gaming
 
                                     if (gen.DocumentsConfigPath?.Length > 0 || gen.DocumentsSavePath?.Length > 0)
                                     {
-                                        if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg")))
+                                        if (!File.Exists(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg")))
                                         {
-                                            ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"utils\backup\User Shell Folders.reg"));
+                                            ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), @"utils\backup\User Shell Folders.reg"));
                                         }
 
                                         RegistryKey dkey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);
@@ -5314,7 +5314,7 @@ namespace Nucleus.Gaming
 
             if (gen.UseNucleusEnvironment)
             {
-                string[] environmentRegFile = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\backup"), "*.reg", SearchOption.AllDirectories);
+                string[] environmentRegFile = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\backup"), "*.reg", SearchOption.AllDirectories);
 
                 if (environmentRegFile.Length > 0)
                 {
@@ -5570,7 +5570,7 @@ namespace Nucleus.Gaming
 
             bool pcIs64 = Environment.Is64BitOperatingSystem;
             string pcArch = pcIs64 ? "x64" : "x86";
-            string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\FlawlessWidescreen\\" + pcArch);
+            string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\FlawlessWidescreen\\" + pcArch);
 
             if (gen.FlawlessWidescreenOverrideDisplay)
             {
@@ -6535,7 +6535,7 @@ namespace Nucleus.Gaming
             WaitForProcWindowHandleNotZero(proc);
 
             bool is64 = EasyHook.RemoteHooking.IsX64Process(proc.Id);
-            string currDir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location); //Directory.GetCurrentDirectory();
+            string currDir = Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location); //Directory.GetCurrentDirectory();
 
             bool windowNull = (window == null);
 
@@ -7334,7 +7334,7 @@ namespace Nucleus.Gaming
             prompt.ShowDialog();
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
-            startInfo.FileName = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\GoldbergEmu\\lobby_connect\\lobby_connect.exe");
+            startInfo.FileName = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\GoldbergEmu\\lobby_connect\\lobby_connect.exe");
 
             startInfo.RedirectStandardOutput = true;
             startInfo.UseShellExecute = false;
@@ -7640,7 +7640,7 @@ namespace Nucleus.Gaming
             if (setupDll)
             {
                 Log("Copying custom files/folders");
-                string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\User");
+                string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\User");
                 foreach (string customUtil in gen.CopyCustomUtils)
                 {
                     int numParams = customUtil.Count(x => x == '|') + 1;
@@ -7663,7 +7663,7 @@ namespace Nucleus.Gaming
                         }
                     }
 
-                    string source_dir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "\\utils\\User\\" + utilPath;
+                    string source_dir = Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location) + "\\utils\\User\\" + utilPath;
                     FileAttributes attr = File.GetAttributes(source_dir);
 
                     if (attr.HasFlag(FileAttributes.Directory)) //directory
@@ -7698,7 +7698,7 @@ namespace Nucleus.Gaming
             if (setupDll)
             {
                 Log("Copying over DirectX 9, Direct 3D Wrapper (d3d9.dll) to instance executable folder");
-                string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\DirectXWrapper");
+                string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\DirectXWrapper");
                 string ogFile = Path.Combine(instanceExeFolder, "d3d9.dll");
 
                 FileCheck(ogFile);
@@ -7712,7 +7712,7 @@ namespace Nucleus.Gaming
             Log("Setting up x360ce");
             string x360exe = "";
             string x360dll = "";
-            string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\x360ce");
+            string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\x360ce");
 
             string[] x360cedlls = { "xinput1_3.dll" };
             if (gen.X360ceDll?.Length > 0)
@@ -7893,7 +7893,7 @@ namespace Nucleus.Gaming
         private void UseDInputBlocker(string garch, bool setupDll)
         {
             Log("Setting up DInput blocker");
-            string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\dinput8.blocker");
+            string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\dinput8.blocker");
 
             if (setupDll)
             {
@@ -7909,7 +7909,7 @@ namespace Nucleus.Gaming
         private void UseDevReorder(string garch, PlayerInfo player, List<PlayerInfo> players, int i, bool setupDll)
         {
             Log("Setting up Devreorder");
-            string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\devreorder");
+            string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\devreorder");
 
             if (setupDll)
             {
@@ -7946,10 +7946,10 @@ namespace Nucleus.Gaming
         private void SetupXInputPlusDll(string garch, PlayerInfo player, GenericContext context, int i, bool setupDll)
         {
             Log("Setting up XInput Plus");
-            string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\XInputPlus");
+            string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\XInputPlus");
             if (gen.XInputPlusOldDll)
             {
-                utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\XInputPlus\\old");
+                utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\XInputPlus\\old");
             }
 
             if (setupDll)
@@ -8052,7 +8052,7 @@ namespace Nucleus.Gaming
             {
                 Log("Starting EAC Bypass setup");
 
-                string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\EAC Bypass");
+                string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\EAC Bypass");
 
                 string[] eac64DllFiles = Directory.GetFiles(linkFolder, "EasyAntiCheat_x64.dll", SearchOption.AllDirectories);
                 foreach (string nameFile in eac64DllFiles)
@@ -8083,7 +8083,7 @@ namespace Nucleus.Gaming
             if (setupDll)
             {
                 Log("Starting Nemirtingas Epic Emu setup");
-                string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\NemirtingasEpicEmu");
+                string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\NemirtingasEpicEmu");
                 string x86dll = "EOSSDK-Win32-Shipping.dll";
                 string x64dll = "EOSSDK-Win64-Shipping.dll";
 
@@ -8227,7 +8227,7 @@ namespace Nucleus.Gaming
             if (setupDll)
             {
                 Log("Starting Nemirtingas Galaxy Emu setup");
-                string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\NemirtingasGalaxyEmu");
+                string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\NemirtingasGalaxyEmu");
                 string x86dll = "Galaxy.dll";
                 string x64dll = "Galaxy64.dll";
 
@@ -8351,7 +8351,7 @@ namespace Nucleus.Gaming
         {
 
             Log("Starting Goldberg setup");
-            string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\GoldbergEmu");
+            string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\GoldbergEmu");
             string steamDllrootFolder = string.Empty;
             string steamDllFolder = string.Empty;
             string instanceSteamDllFolder = string.Empty;
@@ -8743,7 +8743,7 @@ namespace Nucleus.Gaming
         {
             if (setupDll)
             {
-                string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\Steam Stub DRM Patcher");
+                string utilFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\Steam Stub DRM Patcher");
 
                 string archToUse = garch;
                 if (gen.SteamStubDRMPatcherArch?.Length > 0)

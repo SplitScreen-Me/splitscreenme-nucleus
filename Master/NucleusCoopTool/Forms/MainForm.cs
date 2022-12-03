@@ -2121,7 +2121,7 @@ namespace Nucleus.Coop
                     {
 
                         Log("Restoring backed up registry files - method 3");
-                        string[] regFiles = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "utils\\backup"), "*.reg", SearchOption.AllDirectories);
+                        string[] regFiles = Directory.GetFiles(Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(GameManager)).Location), "utils\\backup"), "*.reg", SearchOption.AllDirectories);
                         foreach (string regFilePath in regFiles)
                         {
                             Process proc = new Process();

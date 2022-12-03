@@ -7,7 +7,7 @@ namespace Nucleus.Gaming
     {
         public static string GetStartFolder()
         {
-            Assembly entry = Assembly.GetEntryAssembly();
+            Assembly entry = Assembly.GetAssembly(typeof(GameManager));
             return Path.GetDirectoryName(entry.Location);
         }
     }
