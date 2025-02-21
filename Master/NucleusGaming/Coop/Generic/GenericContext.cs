@@ -191,6 +191,7 @@ namespace Nucleus.Gaming
         private GameProfile profile;
         private PlayerInfo pInfo;
         private GenericGameHandler parent;
+
         public GenericContext(GameProfile prof, PlayerInfo info, GenericGameHandler handler, bool hasKeyboard)
         {
             profile = prof;
@@ -249,17 +250,18 @@ namespace Nucleus.Gaming
         public string x360ceGamepadGuid => "IG_" + pInfo.GamepadGuid.ToString().Replace("-", string.Empty);
 
         public string GamepadGuid => pInfo.GamepadGuid.ToString();
+        public string RawHID => pInfo.RawHID.ToString();
 
         public bool IsKeyboardPlayer => pInfo.IsKeyboardPlayer;
         public int GamepadId => pInfo.GamepadId + 1;
-        public float OrigAspectRatioDecimal => (float)profile.Screens[pInfo.PlayerID].display.Width / profile.Screens[pInfo.PlayerID].display.Height;
+        public float OrigAspectRatioDecimal => (float)profile.Screens[pInfo.PlayerID].MonitorBounds.Width / profile.Screens[pInfo.PlayerID].MonitorBounds.Height;
 
         public string OrigAspectRatio
         {
             get
             {
-                int width = profile.Screens[pInfo.PlayerID].display.Width;
-                int height = profile.Screens[pInfo.PlayerID].display.Height;
+                int width = profile.Screens[pInfo.PlayerID].MonitorBounds.Width;
+                int height = profile.Screens[pInfo.PlayerID].MonitorBounds.Height;
                 int gcd = GCD(width, height);
                 return string.Format("{0}:{1}", width / gcd, height / gcd);
             }
@@ -407,12 +409,14 @@ namespace Nucleus.Gaming
 
         public string UserProfileConfigPath
         {
-            get; set;
+            get; 
+            set;
         }
 
         public string UserProfileSavePath
         {
-            get; set;
+            get; 
+            set;
         }
 
         public string DocumentsConfigPath

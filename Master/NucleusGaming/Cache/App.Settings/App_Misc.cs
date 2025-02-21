@@ -223,7 +223,8 @@ namespace Nucleus.Gaming.App.Settings
             get => theme;
             set
             {
-                theme = value; Globals.ini.IniWriteValue("Theme", "Theme", value);
+                theme = value;
+                Globals.ini.IniWriteValue("Theme", "Theme", value);
             }
         }
 
@@ -321,10 +322,37 @@ namespace Nucleus.Gaming.App.Settings
             disablePathCheck = bool.Parse(Globals.ini.IniReadValue("Dev", "DisablePathCheck"));
             textEditorPath = Globals.ini.IniReadValue("Dev", "TextEditorPath");
             useXinputIndex = bool.Parse(Globals.ini.IniReadValue("Dev", "UseXinputIndex"));
-            blur =  int.Parse(Globals.ini.IniReadValue("Dev", "Blur"));
+            blur = int.Parse(Globals.ini.IniReadValue("Dev", "Blur"));
             osdColor = Globals.ini.IniReadValue("Dev", "OSDColor");
-
+            gamesSorting = Globals.ini.IniReadValue("Misc", "GameSortingOpt").Split(',').ToList();
             return true;
+        }
+
+
+        private static List<string> gamesSorting;
+        public static List<string> GamesSorting
+        {
+            get => gamesSorting;
+            set
+            {
+                gamesSorting = value;
+
+                string result = string.Empty;
+
+                for (int i = 0; i < value.Count; i++)
+                {
+                    if (i == 0)
+                    {
+                        result += value[i];
+                    }
+                    else
+                    {
+                        result += "," + value[i];
+                    }
+                }
+
+                Globals.ini.IniWriteValue("Misc", "GameSortingOpt", result);
+            }
         }
 
     }

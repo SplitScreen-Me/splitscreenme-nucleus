@@ -1,6 +1,6 @@
 ﻿namespace Nucleus.Coop.Controls
 {
-    partial class CustomRadioButton
+    partial class CustomSwitch
     {
         /// <summary> 
         /// Variable nécessaire au concepteur.

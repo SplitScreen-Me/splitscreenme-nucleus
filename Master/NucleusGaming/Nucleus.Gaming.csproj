@@ -24,6 +24,8 @@
     </TargetFrameworkProfile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -88,6 +90,7 @@
       <HintPath>..\packages\SharpDX.XInput.4.2.0\lib\net45\SharpDX.XInput.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
@@ -95,6 +98,11 @@
     <Reference Include="System.Management" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime, Version=4.1.1.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.4.3.1\lib\net462\System.Runtime.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
@@ -113,7 +121,7 @@
     <Compile Include="Cache\App.Settings\App_Hotkeys.cs" />
     <Compile Include="Cache\App.Settings\App_Misc.cs" />
     <Compile Include="Cache\App.Settings\App_Settings_Loader.cs" />
-    <Compile Include="Controls\BufferedClientAreaPanel.cs">
+    <Compile Include="Controls\DoubleBufferPanel.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\BufferedFlowLayoutPanel.cs">
@@ -212,15 +220,44 @@
     <Compile Include="Coop\BasicTypes\Ref.cs" />
     <Compile Include="Coop\Generic\async.cs" />
     <Compile Include="Coop\Generic\HttpClient.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\DInput.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\D_Joystick.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\GamepadButtons.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\GamepadNavigation.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\GamepadState.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL2Utils\SDL_ControllerUtils.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Audio.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_BlendMode.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Clipboard.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Error.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Events.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_GameController.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_GL.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Joystick.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Keyboard.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Keycode.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Loader.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Log.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Mouse.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Pixels.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Rect.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Render.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_rwops.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Scancode.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Surface.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_SysWM.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Touch.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Version.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2\SDL_Video.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDLDevices.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\XInput.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\X_Joystick.cs" />
     <Compile Include="Coop\InputManagement\HotkeysRegistration.cs" />
     <Compile Include="Coop\InputManagement\Osk.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\GamepadShortcuts.cs" />
     <Compile Include="Coop\InputManagement\RawInputDeviceName.cs" />
     <Compile Include="Coop\InputManagement\VirtualInputs.cs" />
-    <Compile Include="Coop\ProfilePlayer.cs" />
     <Compile Include="Coop\GameMetaInfo.cs" />
     <Compile Include="DPI\ThreadDPIContext.cs" />
     <Compile Include="Forms\NucleusMessageBox\CustomMessageBox.cs">
@@ -402,6 +439,8 @@
     <Compile Include="Tools\DInputBlocker\DInputBlocker.cs" />
     <Compile Include="Tools\DirectX9Wrapper\DirectX9Wrapper.cs" />
     <Compile Include="Tools\DllsInjector\DllsInjector.cs" />
+    <Compile Include="Tools\SDL2Dll\SDL2Dll.cs" />
+    <Compile Include="Tools\UserDriveInfo\UserDriveInfo.cs" />
     <Compile Include="Tools\EACBypass\EACBypass.cs" />
     <Compile Include="Tools\CleanGameContent\CleanGameContent.cs" />
     <Compile Include="Tools\NucleusUsers\NucleusUsers.cs" />

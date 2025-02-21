@@ -1,12 +1,17 @@
-﻿using Nucleus.Gaming.Controls.SetupScreen;
+﻿using Nucleus.Gaming.Cache;
+using Nucleus.Gaming.Controls.SetupScreen;
 //using SlimDX.DirectInput;
 using SharpDX.DirectInput;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
+using Nucleus.Gaming.Coop.InputManagement.Gamepads;
+using SDL;
 
 namespace Nucleus.Gaming.Coop
 {
@@ -17,6 +22,12 @@ namespace Nucleus.Gaming.Coop
         private RectangleF editBounds;
         private Rectangle monitorBounds;
         private Rectangle defaultMonitorBounds;
+
+        //Only to use for "profile players"
+        public Rectangle OwnerDisplay;
+        public RectangleF OwnerUIBounds;
+        public int OwnerType;
+        //
 
         private object tag;
 
@@ -35,14 +46,112 @@ namespace Nucleus.Gaming.Coop
         public bool SteamEmu;
         public bool GotLauncher;
         public bool GotGame;
-        public bool IsKeyboardPlayer;
-        public bool IsXInput;
-        public bool IsDInput;
+
+        private bool isRawMouse;
+        public bool IsRawMouse
+        {
+            get => isRawMouse;
+            set
+            {
+                isRawMouse = value;
+                if (value && !IsRawKeyboard)
+                {
+                    Image = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "proto_mouse.png"));
+                }
+                else if (isRawMouse && isRawKeyboard)//merged profile k&b player
+                {
+                    Image = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "keyboard.png"));
+                }
+            }
+        }
+
+        private bool isRawKeyboard;
+        public bool IsRawKeyboard
+        {
+            get => isRawKeyboard;
+            set
+            {
+                isRawKeyboard = value;
+                if(value && !isRawMouse)
+                {
+                    Image = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "proto_keyboard.png"));
+                }
+                else if (isRawMouse && isRawKeyboard)//merged profile k&b player
+                {
+                    Image = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "keyboard.png"));
+                }
+            }
+        }
+
+        private bool isKeyboardPlayer;
+        public bool IsKeyboardPlayer
+        {
+            get => isKeyboardPlayer;
+            set
+            {
+                isKeyboardPlayer = value;
+                if(value && !isRawMouse && !isRawKeyboard)
+                {
+                    Image = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "keyboard.png"));
+                }               
+            }
+        }
+
+        private bool isXinput;
+        public bool IsXInput
+        {
+            get => isXinput;
+            set
+            {
+                isXinput = value;
+                IsController = value;
+
+                if(value)
+                {
+                    Image = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "xinput.png"));
+                }    
+            }
+        }
+
+        private bool isSDL2;
+        public bool IsSDL2
+        {
+            get => isSDL2;
+            set
+            {
+                isSDL2 = value;
+                IsController = value;
+
+                if (value)
+                {
+                    Image = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "xinput.png"));
+                }
+            }
+        }
+
+        private bool isDInput;
+        public bool IsDInput
+        {
+            get => isDInput;
+            set
+            {
+                isDInput = value;
+                IsController = value;
+
+                if (value)
+                {
+                    Image = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "dinput.png"));
+                }
+            }
+        }
+
+
+        public Bitmap Image;
         public bool IsFake;
-        public bool IsRawMouse;
-        public bool IsRawKeyboard;
+              
         public bool IsInputUsed;
         public bool IsController;//Good to do not have to loop both Xinput & DInput  
+        public bool IsPolling;
         public bool Vibrate;
 
         public Guid GamepadProductGuid;
@@ -50,20 +159,22 @@ namespace Nucleus.Gaming.Coop
 
         public Display Display;
         public UserScreen Owner;
+        
         public Joystick DInputJoystick;
         public OpenXinputController XInputJoystick;
+        public SDL_GameController SDL2Joystick;
+
         private ProcessData processData;
 
-        public Window RawInputWindow
-        { get; set; }
+        public Window RawInputWindow { get; set; }
 
-        public long SteamID = -1;
+        public long SteamID;
 
         public uint ProtoInputInstanceHandle = 0;
 
         public int CurrentLayout = 0;
         public int ScreenPriority;
-        public int GamepadId;
+        public int GamepadId = -1;
         public int GamepadMask;
         public int DisplayIndex = -1;
         private int screenIndex = -1;
@@ -144,7 +255,7 @@ namespace Nucleus.Gaming.Coop
         private Stopwatch flashStopwatch = new Stopwatch();
         private Task flashTask = null;
 
-        public void FlashIcon()
+        public virtual void FlashIcon()
         {
             if (ShouldFlash && flashStopwatch != null && flashStopwatch.IsRunning && flashStopwatch.ElapsedMilliseconds <= 250)
             {

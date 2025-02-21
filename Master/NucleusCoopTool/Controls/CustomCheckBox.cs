@@ -1,4 +1,5 @@
 ﻿using Nucleus.Gaming;
+using Nucleus.Gaming.Windows;
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -7,7 +8,7 @@ using System.Windows.Forms;
 
 namespace Nucleus.Coop.Controls
 {
-    public class CustomCheckBox : CheckBox, IDynamicSized
+    public class CustomCheckBox : CheckBox
     {
         private Color mBorderColor = Color.White;
         [EditorBrowsable(EditorBrowsableState.Always), Browsable(true)]
@@ -57,7 +58,7 @@ namespace Nucleus.Coop.Controls
             }
         }
 
-        private float _scale;
+        private float _scale => (float)User32Util.GetDpiForWindow(this.Handle) / (float)100;
 
         public CustomCheckBox() : base()
         {
@@ -70,8 +71,6 @@ namespace Nucleus.Coop.Controls
             ForeColor = Color.White;
 
             CheckedChanged += Checked_Changed;
-
-            DPIManager.Register(this);
         }
 
         private void Checked_Changed(object sender, EventArgs e)
@@ -99,17 +98,6 @@ namespace Nucleus.Coop.Controls
             outline.Dispose();
         }
 
-
-        public void UpdateSize(float scale)
-        {
-            if (IsDisposed)
-            {
-                DPIManager.Unregister(this);
-                return;
-            }
-
-            _scale = scale;
-        }
     }
 
 }

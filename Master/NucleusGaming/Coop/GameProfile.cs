@@ -246,7 +246,7 @@ namespace Nucleus.Gaming.Coop
         }
 
         public static List<RectangleF> AllScreens = new List<RectangleF>();
-        public static List<ProfilePlayer> ProfilePlayersList = new List<ProfilePlayer>();
+        public static List<PlayerInfo> ProfilePlayersList = new List<PlayerInfo>();
         public static List<PlayerInfo> AssignedDevices = new List<PlayerInfo>();
         public static List<PlayerInfo> DevicesToMerge = new List<PlayerInfo>();
         public static List<(Rectangle, RectangleF)> GhostBounds = new List<(Rectangle, RectangleF)>();
@@ -273,11 +273,11 @@ namespace Nucleus.Gaming.Coop
             }
         }
 
-        public void Reset()
+        public virtual void Reset()
         {
             bool profileDisabled = App_Misc.DisableGameProfiles;
 
-            SetupScreenControl.Instance.CanPlayUpdated(false, false);
+            SetupScreenControl.Instance?.CanPlayUpdated(false, false);
 
             ProfilePlayersList.Clear();
             AllScreens.Clear();
@@ -310,8 +310,11 @@ namespace Nucleus.Gaming.Coop
             {
                 TotalAssignedPlayers = 0;
 
-                BoundsFunctions.RefreshScreens();
-
+                if(SetupScreenControl.Instance != null)
+                {
+                    BoundsFunctions.RefreshScreens();
+                }
+              
                 if (deviceList != null)//Switching profile
                 {
                     foreach (PlayerInfo player in DevicesList)
@@ -320,7 +323,7 @@ namespace Nucleus.Gaming.Coop
                         player.EditBounds = player.SourceEditBounds;
                         player.ScreenIndex = -1;
                         player.PlayerID = -1;
-                        player.SteamID = -1;
+                        player.SteamID = 0;
                         player.Nickname = null;
                     }
 
@@ -334,7 +337,7 @@ namespace Nucleus.Gaming.Coop
                     options.Add(opt.Key, opt.Value);
                 }
 
-                ProfilesList.Instance.Update_Unload();
+                ProfilesList.Instance?.Update_Unload();
 
                 AssignedDevices.Clear();
                 DevicesToMerge.Clear();
@@ -345,13 +348,17 @@ namespace Nucleus.Gaming.Coop
                 }
             }
 
-            if (BoundsFunctions.Screens != null)
+            if (SetupScreenControl.Instance != null)
             {
-                screens = BoundsFunctions.Screens.ToList();
+                if (BoundsFunctions.Screens != null)
+                {
+                    screens = BoundsFunctions.Screens.ToList();
+                }
             }
+            
         }
 
-        public void InitializeDefault(UserGameInfo userGameInfo)
+        public virtual void InitializeDefault(UserGameInfo userGameInfo)
         {
             Instance = this;
 
@@ -419,7 +426,7 @@ namespace Nucleus.Gaming.Coop
             }
         }
 
-        public bool LoadGameProfile(int _profileToLoad)
+        public virtual bool LoadGameProfile(int _profileToLoad)
         {
             try
             {
@@ -491,7 +498,7 @@ namespace Nucleus.Gaming.Coop
 
                 for (int i = 0; i < JplayersInfos.Count(); i++)
                 {
-                    ProfilePlayer player = new ProfilePlayer();
+                    PlayerInfo player = new PlayerInfo();
 
                     player.PlayerID = (int)JplayersInfos[i]["PlayerID"];
                     player.Nickname = (string)JplayersInfos[i]["Nickname"];
@@ -528,6 +535,7 @@ namespace Nucleus.Gaming.Coop
 
                     player.IsDInput = (bool)JplayersInfos[i]["IsDInput"];
                     player.IsXInput = (bool)JplayersInfos[i]["IsXInput"];
+                    player.IsSDL2 = JplayersInfos[i]["IsSDL2"] == null  ? false : (bool)JplayersInfos[i]["IsSDL2"];
 
                     player.IsKeyboardPlayer = (bool)JplayersInfos[i]["IsKeyboardPlayer"];
                     player.IsRawMouse = (bool)JplayersInfos[i]["IsRawMouse"];
@@ -538,7 +546,7 @@ namespace Nucleus.Gaming.Coop
                         hidIds.SetValue(JplayersInfos[i]["HIDDeviceID"][h].ToString(), h);
                     }
 
-                    player.HIDDeviceIDs = hidIds;
+                    player.HIDDeviceID = hidIds;
 
                     player.ScreenPriority = (int)JplayersInfos[i]["ScreenPriority"];
                     player.ScreenIndex = (int)JplayersInfos[i]["ScreenIndex"];
@@ -547,7 +555,7 @@ namespace Nucleus.Gaming.Coop
                     player.Affinity = (string)JplayersInfos[i]["Processor"]["ProcessorAffinity"];
                     player.PriorityClass = (string)JplayersInfos[i]["Processor"]["ProcessorPriorityClass"];
 
-                    if (player.IsXInput || player.IsDInput)
+                    if (player.IsXInput || player.IsDInput || player.IsSDL2)
                     {
                         gamepadCount++;
                     }
@@ -576,12 +584,14 @@ namespace Nucleus.Gaming.Coop
                 AudioInstances.Clear();
 
                 JToken JAudioInstances = Jprofile["AudioInstances"] as JToken;
+
                 foreach (JProperty JaudioDevice in JAudioInstances)
                 {
                     AudioInstances.Add((string)JaudioDevice.Name, (string)JaudioDevice.Value);
                 }
 
-                JToken JAllscreens = Jprofile["AllScreens"] as JToken;
+                JToken JAllscreens = Jprofile["AllScreens"] as JToken; 
+
                 for (int s = 0; s < JAllscreens.Count(); s++)
                 {
                     AllScreens.Add(new RectangleF((float)JAllscreens[s]["X"], (float)JAllscreens[s]["Y"], (float)JAllscreens[s]["Width"], (float)JAllscreens[s]["Height"]));
@@ -590,7 +600,6 @@ namespace Nucleus.Gaming.Coop
                 totalProfilePlayers = JplayersInfos.Count();
 
                 modeText = $"Profile n°{profileToSave}";
-
 
                 Ready = true;
 
@@ -726,9 +735,9 @@ namespace Nucleus.Gaming.Coop
 
             for (int i = 0; i < ProfilePlayersList.Count(); i++)//build per player object
             {
-                ProfilePlayer player = ProfilePlayersList[i];
+                PlayerInfo player = ProfilePlayersList[i];
 
-                if (player.IsXInput || player.IsDInput)
+                if (player.IsXInput || player.IsDInput || player.IsSDL2)
                 {
                     gamepadCount++;
                 }
@@ -779,10 +788,11 @@ namespace Nucleus.Gaming.Coop
                                  new JProperty("GamepadGuid", player.GamepadGuid),
                                  new JProperty("IsDInput", player.IsDInput),
                                  new JProperty("IsXInput", player.IsXInput),
+                                 new JProperty("IsSDL2", player.IsSDL2),
                                  new JProperty("Processor", JProcessor),
                                  new JProperty("IsKeyboardPlayer", player.IsKeyboardPlayer),
                                  new JProperty("IsRawMouse", player.IsRawMouse),
-                                 new JProperty("HIDDeviceID", player.HIDDeviceIDs),
+                                 new JProperty("HIDDeviceID", player.HIDDeviceID),
                                  new JProperty("ScreenPriority", player.ScreenPriority),
                                  new JProperty("ScreenIndex", player.ScreenIndex),
                                  new JProperty("EditBounds", JEditBounds),
@@ -860,6 +870,7 @@ namespace Nucleus.Gaming.Coop
             if (profileDisabled || GameInfo.Game.MetaInfo.DisableProfiles || !GameInfo.Game.MetaInfo.SaveProfile)
             {
                 saved = true;
+                Globals.MainOSD.Show(1600, $"Setup Finished");
                 return;
             }
 
@@ -879,6 +890,7 @@ namespace Nucleus.Gaming.Coop
             }
 
             JObject options = new JObject();
+
             foreach (KeyValuePair<string, object> opt in profile.Options)
             {
                 if (opt.Value.GetType() == typeof(System.Dynamic.ExpandoObject))//Only used for options with pictures so far
@@ -960,7 +972,7 @@ namespace Nucleus.Gaming.Coop
 
             for (int i = 0; i < players.Count(); i++)//build per players object
             {
-                if (players[i].IsXInput || players[i].IsDInput)
+                if (players[i].IsXInput || players[i].IsDInput || players[i].IsSDL2)
                 {
                     gamepadCount++;
                 }
@@ -979,10 +991,10 @@ namespace Nucleus.Gaming.Coop
                                                            new JProperty("Height", players[i].Owner.UIBounds.Height))),
                                    new JProperty("DisplayIndex", players[i].Owner.DisplayIndex),
                                    new JProperty("Display", new JObject(
-                                                           new JProperty("X", players[i].Owner.display.X),
-                                                           new JProperty("Y", players[i].Owner.display.Y),
-                                                           new JProperty("Width", players[i].Owner.display.Width),
-                                                           new JProperty("Height", players[i].Owner.display.Height))));
+                                                           new JProperty("X", players[i].Owner.MonitorBounds.X),
+                                                           new JProperty("Y", players[i].Owner.MonitorBounds.Y),
+                                                           new JProperty("Width", players[i].Owner.MonitorBounds.Width),
+                                                           new JProperty("Height", players[i].Owner.MonitorBounds.Height))));
 
 
                 JObject JMonitorBounds = new JObject(
@@ -1011,6 +1023,7 @@ namespace Nucleus.Gaming.Coop
                                  new JProperty("GamepadGuid", players[i].GamepadGuid),
                                  new JProperty("IsDInput", players[i].IsDInput),
                                  new JProperty("IsXInput", players[i].IsXInput),
+                                 new JProperty("IsSDL2", players[i].IsSDL2),
                                  new JProperty("Processor", JProcessor),
                                  new JProperty("IsKeyboardPlayer", players[i].IsKeyboardPlayer),
                                  new JProperty("IsRawMouse", players[i].IsRawMouse),
@@ -1086,12 +1099,12 @@ namespace Nucleus.Gaming.Coop
 
             LogManager.Log("Handler Profile Saved");
 
-            Globals.MainOSD.Show(1600, $"Handler Profile Saved");
+            Globals.MainOSD.Show(1600, $"Handler Profile Saved. Setup Finished");
         }
 
         public static void FindProfilePlayers(PlayerInfo player)
         {
-            if (AssignedDevices.Contains(player) || BoundsFunctions.dragging)
+            if (AssignedDevices.Contains(player))
             {
                 return;
             }
@@ -1116,7 +1129,7 @@ namespace Nucleus.Gaming.Coop
             {
                 GroupKeyboardAndMouse();
 
-                ProfilePlayer profilePlayer = FindProfilePlayerInput(player);
+                PlayerInfo profilePlayer = FindProfilePlayerInput(player);
 
                 if (profilePlayer == null)
                 {
@@ -1169,7 +1182,7 @@ namespace Nucleus.Gaming.Coop
 
         private void GetGhostBounds()
         {
-            foreach (ProfilePlayer pp in ProfilePlayersList)
+            foreach (PlayerInfo pp in ProfilePlayersList)
             {
                 var scr = FindScreenOrAlternative(pp);
                 var ghostBounds = TranslateBounds(pp, scr.Item1);
@@ -1178,7 +1191,7 @@ namespace Nucleus.Gaming.Coop
             }
         }
 
-        private static void SetProfilePlayerDatas(PlayerInfo player, ProfilePlayer profilePlayer, UserScreen screen, int screenIndex)
+        private static void SetProfilePlayerDatas(PlayerInfo player, PlayerInfo profilePlayer, UserScreen screen, int screenIndex)
         {
             player.Owner = screen;
             player.Owner.Type = screen.Type;
@@ -1199,9 +1212,9 @@ namespace Nucleus.Gaming.Coop
             player.IsInputUsed = true;
         }
 
-        private static ProfilePlayer FindProfilePlayerInput(PlayerInfo player)
+        private static PlayerInfo FindProfilePlayerInput(PlayerInfo player)
         {
-            ProfilePlayer profilePlayer = null;
+            PlayerInfo profilePlayer = null;
 
             var screens = Instance.screens;
 
@@ -1210,9 +1223,9 @@ namespace Nucleus.Gaming.Coop
             //DInput && XInput (follow gamepad api indexes)
             if (player.IsController && useXinputIndex)
             {
-                foreach (ProfilePlayer pp in ProfilePlayersList)
+                foreach (PlayerInfo pp in ProfilePlayersList)
                 {
-                    if (AssignedDevices.All(lp => lp.PlayerID != pp.PlayerID) && (pp.IsDInput || pp.IsXInput))
+                    if (AssignedDevices.All(lp => lp.PlayerID != pp.PlayerID) && (pp.IsDInput || pp.IsXInput || pp.IsSDL2))
                     {
                         profilePlayer = pp;
                         skipGuid = true;
@@ -1224,7 +1237,7 @@ namespace Nucleus.Gaming.Coop
             //DInput && XInput using GamepadGuid(do not follow gamepad api indexes)
             if (player.IsController && !skipGuid && !useXinputIndex)
             {
-                profilePlayer = ProfilePlayersList.Where(pl => (pl.IsDInput || pl.IsXInput) && (pl.GamepadGuid == player.GamepadGuid)).FirstOrDefault();
+                profilePlayer = ProfilePlayersList.Where(pl => (pl.IsDInput || pl.IsXInput || pl.IsSDL2) && (pl.GamepadGuid == player.GamepadGuid)).FirstOrDefault();
             }
 
             //single k&m 
@@ -1239,7 +1252,7 @@ namespace Nucleus.Gaming.Coop
             if (isKm)
             {
                 profilePlayer = ProfilePlayersList.Where(pl => isKm &&
-                (pl.HIDDeviceIDs.Contains(player.HIDDeviceID[0]) && pl.HIDDeviceIDs.Contains(player.HIDDeviceID[1]))).FirstOrDefault();
+                (pl.HIDDeviceID.Contains(player.HIDDeviceID[0]) && pl.HIDDeviceID.Contains(player.HIDDeviceID[1]))).FirstOrDefault();
             }
 
             for (int i = 0; i < screens.Count(); i++)
@@ -1261,7 +1274,7 @@ namespace Nucleus.Gaming.Coop
             {
                 List<PlayerInfo> groupedPlayers = new List<PlayerInfo>();
 
-                ProfilePlayer kbPlayer = ProfilePlayersList[i];
+                PlayerInfo kbPlayer = ProfilePlayersList[i];
 
                 for (int pl = 0; pl < Instance.DevicesList.Count; pl++)
                 {
@@ -1269,7 +1282,7 @@ namespace Nucleus.Gaming.Coop
 
                     if (p.IsRawKeyboard || p.IsRawMouse)
                     {
-                        if (kbPlayer.HIDDeviceIDs.Any(hid => hid == p.HIDDeviceID[0]))
+                        if (kbPlayer.HIDDeviceID.Any(hid => hid == p.HIDDeviceID[0]))
                         {
                             groupedPlayers.Add(p);
                         }
@@ -1313,7 +1326,7 @@ namespace Nucleus.Gaming.Coop
             }
         }
 
-        internal static (UserScreen, int) FindScreenOrAlternative(ProfilePlayer profilePlayer)
+        internal static (UserScreen, int) FindScreenOrAlternative(PlayerInfo profilePlayer)
         {
             UserScreen screen = BoundsFunctions.Screens.ElementAtOrDefault(profilePlayer.ScreenIndex);
             int ogIndex = profilePlayer.ScreenIndex;
@@ -1326,11 +1339,11 @@ namespace Nucleus.Gaming.Coop
 
             screen.Type = (UserScreenType)profilePlayer.OwnerType;
 
-            BoundsFunctions.GetScreenDivisionBounds(screen);
+            //BoundsFunctions.GetScreenDivisionBounds(screen);
             return (screen, ogIndex);
         }
 
-        internal static (Rectangle, RectangleF) TranslateBounds(ProfilePlayer profilePlayer, UserScreen screen)
+        internal static (Rectangle, RectangleF) TranslateBounds(PlayerInfo profilePlayer, UserScreen screen)
         {
             RectangleF ogScrUiBounds = AllScreens[profilePlayer.ScreenIndex];
             RectangleF ogEditBounds = profilePlayer.EditBounds;
@@ -1444,7 +1457,7 @@ namespace Nucleus.Gaming.Coop
                 steamID = PlayersIdentityCache.GetSteamIdAt(playerIndex);
             }
 
-            Console.WriteLine(steamID + " " + player.Nickname + "\n");
+            //Console.WriteLine(steamID + " " + player.Nickname + "\n");
 
             player.SteamID = long.Parse(steamID);
 

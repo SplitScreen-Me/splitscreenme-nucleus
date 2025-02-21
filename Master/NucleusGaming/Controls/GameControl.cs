@@ -2,13 +2,10 @@
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Controls;
 using Nucleus.Gaming.Coop;
-using Nucleus.Gaming.Tools.GlobalWindowMethods;
 using Nucleus.Gaming.UI;
 using System;
-using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Threading;
 using System.Windows.Forms;
 
 namespace Nucleus.Coop
@@ -80,11 +77,8 @@ namespace Nucleus.Coop
                 IniFile theme = Globals.ThemeConfigFile;
 
                 string themePath = Globals.ThemeFolder;
-                string[] rgb_SelectionColor = theme.IniReadValue("Colors", "Selection").Split(',');
-                string[] rgb_MouseOverColor = theme.IniReadValue("Colors", "MouseOver").Split(',');
-                string customFont = theme.IniReadValue("Font", "FontFamily");
 
-                defaultForeColor = Color.FromArgb(255, int.Parse(theme.IniReadValue("Colors", "Font").Split(',')[0]), int.Parse(theme.IniReadValue("Colors", "Font").Split(',')[0]), int.Parse(theme.IniReadValue("Colors", "Font").Split(',')[0]));
+                defaultForeColor = Theme_Settings.ControlsForeColor;
                 radioSelectedBackColor = Theme_Settings.SelectedBackColor;
                 favorite_Unselected = ImageCache.GetImage(themePath + "favorite_unselected.png");
                 favorite_Selected = ImageCache.GetImage(themePath + "favorite_selected.png");
@@ -113,19 +107,19 @@ namespace Nucleus.Coop
                 title = new Label
                 {
                     AutoSize = true,
-                    Font = new Font(customFont, 8.25f, FontStyle.Bold, GraphicsUnit.Point, 0),  
+                    Font = new Font(Theme_Settings.CustomFont, Theme_Settings.FontSize - 1.75F, FontStyle.Bold, GraphicsUnit.Point, 0),  
                 };
 
                 players = new Label
                 {
                     AutoSize = true,
-                    Font = new Font(customFont, 7, FontStyle.Bold, GraphicsUnit.Point, 0)
+                    Font = new Font(Theme_Settings.CustomFont, Theme_Settings.FontSize - 3.00F, FontStyle.Bold, GraphicsUnit.Point, 0)
                 };
 
                 if (game == null)
                 {
                     title.Text = "No games";
-                    title.Font = new Font(customFont, 9, FontStyle.Bold, GraphicsUnit.Point, 0);
+                    title.Font = new Font(Theme_Settings.CustomFont, Theme_Settings.FontSize - 1.00F, FontStyle.Bold, GraphicsUnit.Point, 0);
                     Visible = false;
                 }
                 else
@@ -256,7 +250,7 @@ namespace Nucleus.Coop
             title.AutoSize = true;
             title.MaximumSize = new Size((int)(209 * scale) - picture.Width - (border * 2), 0);
 
-            playerIcon.Size = new Size(players.Size.Height + 2, players.Size.Height + 2 );
+            playerIcon.Size = new Size(players.Size.Height , players.Size.Height  );
 
             title.Location = new Point(picture.Right + border, picture.Location.Y);
             playerIcon.Location = new Point(title.Location.X + 2, title.Bottom + 3);
@@ -272,7 +266,7 @@ namespace Nucleus.Coop
                 Height = picture.Bottom + border;//adjust the control Height
             }
 
-            FavoriteBox.Size = new Size(playerIcon.Width, playerIcon.Width);
+            FavoriteBox.Size = new Size(playerIcon.Width - 1, playerIcon.Width - 1);
 
             float favoriteX = (209 * scale) - (playerIcon.Width + 5);
             float favoriteY = Height - (FavoriteBox.Height + 5);

@@ -1,9 +1,10 @@
-﻿using Nucleus.Coop.Controls;
+﻿using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Controls;
 using System.Collections.Generic;
 using System.Drawing;
+
 using System.Windows.Forms;
 
 namespace Nucleus.Coop
@@ -14,15 +15,48 @@ namespace Nucleus.Coop
 
         public static Control[] SetInputsIcons(GenericGameInfo game)
         {
-            MainForm mainForm = MainForm.Instance;
+            MainForm mainForm = UI_Interface.MainForm;
 
             List<PictureBox> icons = new List<PictureBox>();
+
+            if (game.Hook.SDL2Enabled)
+            {
+                Bitmap bmp1 = ImageCache.GetImage(Globals.ThemeFolder + "xinput_icon.png");
+                float ratio1 = (float)bmp1.Width / (float)bmp1.Height;
+                Size size1 = new Size((int)(mainForm.Icons_Container.Height * ratio1), mainForm.Icons_Container.Height);
+
+                PictureBox icon1 = new PictureBox
+                {
+                    Name = "icon1",
+                    Size = size1,
+                    Image = bmp1,
+                    SizeMode = PictureBoxSizeMode.StretchImage,
+                };
+
+                CustomToolTips.SetToolTip(icon1, "Supports xinput gamepads (e.g. X360).", "icon1", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                icons.Add(icon1);
+
+                Bitmap bmp2 = ImageCache.GetImage(Globals.ThemeFolder + "dinput_icon.png");
+                float ratio2 = (float)bmp2.Width / (float)bmp2.Height;
+                Size size2 = new Size((int)(mainForm.Icons_Container.Height * ratio2), mainForm.Icons_Container.Height);
+
+                PictureBox icon2 = new PictureBox
+                {
+                    Name = "icon2",
+                    Size = size2,
+                    Image = bmp2,
+                    SizeMode = PictureBoxSizeMode.StretchImage,
+                };
+
+                CustomToolTips.SetToolTip(icon2, "Supports dinput gamepads (e.g. Ps3).", "icon2", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                icons.Add(icon2);
+            }
 
             if ((game.Hook.XInputEnabled && !game.Hook.XInputReroute && !game.ProtoInput.DinputDeviceHook) || game.ProtoInput.XinputHook)
             {
                 Bitmap bmp = ImageCache.GetImage(Globals.ThemeFolder + "xinput_icon.png");
                 float ratio = (float)bmp.Width / (float)bmp.Height;
-                Size size = new Size((int)(mainForm.icons_Container.Height * ratio), mainForm.icons_Container.Height);
+                Size size = new Size((int)(mainForm.Icons_Container.Height * ratio), mainForm.Icons_Container.Height);
 
                 PictureBox icon = new PictureBox
                 {
@@ -40,7 +74,7 @@ namespace Nucleus.Coop
             {
                 Bitmap bmp = ImageCache.GetImage(Globals.ThemeFolder + "dinput_icon.png");
                 float ratio = (float)bmp.Width / (float)bmp.Height;
-                Size size = new Size((int)(mainForm.icons_Container.Height * ratio), mainForm.icons_Container.Height);
+                Size size = new Size((int)(mainForm.Icons_Container.Height * ratio), mainForm.Icons_Container.Height);
 
                 PictureBox icon = new PictureBox
                 {
@@ -58,7 +92,7 @@ namespace Nucleus.Coop
             {
                 Bitmap bmp = ImageCache.GetImage(Globals.ThemeFolder + "dinput_icon.png");
                 float ratio = (float)bmp.Width / (float)bmp.Height;
-                Size size = new Size((int)(mainForm.icons_Container.Height * ratio), mainForm.icons_Container.Height);
+                Size size = new Size((int)(mainForm.Icons_Container.Height * ratio), mainForm.Icons_Container.Height);
 
                 PictureBox icon = new PictureBox
                 {
@@ -76,7 +110,7 @@ namespace Nucleus.Coop
             {
                 Bitmap bmp = ImageCache.GetImage(Globals.ThemeFolder + "keyboard_icon.png");
                 float ratio = (float)bmp.Width / (float)bmp.Height;
-                Size size = new Size((int)(mainForm.icons_Container.Height * ratio), mainForm.icons_Container.Height);
+                Size size = new Size((int)(mainForm.Icons_Container.Height * ratio), mainForm.Icons_Container.Height);
 
                 PictureBox icon = new PictureBox
                 {
@@ -94,7 +128,7 @@ namespace Nucleus.Coop
             {
                 Bitmap bmp = ImageCache.GetImage(Globals.ThemeFolder + "keyboard_icon.png");
                 float ratio = (float)bmp.Width / (float)bmp.Height;
-                Size size = new Size((int)(mainForm.icons_Container.Height * ratio), mainForm.icons_Container.Height);
+                Size size = new Size((int)(mainForm.Icons_Container.Height * ratio), mainForm.Icons_Container.Height);
 
                 PictureBox iconKB1 = new PictureBox
                 {

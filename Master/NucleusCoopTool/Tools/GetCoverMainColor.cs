@@ -18,6 +18,11 @@ namespace Nucleus.Coop.Tools
 
         public static int[] ParseColor(Bitmap image)
         {
+            if(image == null)
+            {
+                return null;
+            }
+
             var rct = new Rectangle(0, 0, image.Width, image.Height);
             var source = new int[rct.Width * rct.Height];
             var bits = image.LockBits(rct, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);

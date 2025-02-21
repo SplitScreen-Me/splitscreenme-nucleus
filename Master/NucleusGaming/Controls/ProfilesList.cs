@@ -32,7 +32,7 @@ namespace Nucleus.Gaming.Controls
         private Color foreColor;
         public static readonly string PartialTitle = "Load profile:";
 
-        private int[] backGradient;
+        private Color backGradient;
 
         private Control parentControl;
         private bool useGradient;
@@ -52,28 +52,19 @@ namespace Nucleus.Gaming.Controls
             Anchor = AnchorStyles.Top | AnchorStyles.Right;
             Visible = false;
             BorderStyle = BorderStyle.None;
-            
-            foreColor = Color.FromArgb(int.Parse(themeIni.IniReadValue("Colors", "Font").Split(',')[0]), 
-                                       int.Parse(themeIni.IniReadValue("Colors", "Font").Split(',')[1]), 
-                                       int.Parse(themeIni.IniReadValue("Colors", "Font").Split(',')[2]));
 
-            if (int.Parse(themeIni.IniReadValue("Colors", "BackgroundGradient").Split(',')[0]) == 1)
+            foreColor = Theme_Settings.ControlsForeColor;
+
+            if (Theme_Settings.BackgroundGradientColor.A == 1)
             {
-                backGradient = new int[] {int.Parse(themeIni.IniReadValue("Colors", "BackgroundGradient").Split(',')[0]),
-                                       int.Parse(themeIni.IniReadValue("Colors", "BackgroundGradient").Split(',')[1]),
-                                       int.Parse(themeIni.IniReadValue("Colors", "BackgroundGradient").Split(',')[2]),
-                                       int.Parse(themeIni.IniReadValue("Colors", "BackgroundGradient").Split(',')[2])};
-                
+                backGradient = Theme_Settings.BackgroundGradientColor;
                 BackColor = Color.Transparent;
                 useGradient = true;
             }
             else
             {
-                backGradient = new int[] {0,0,0,0};
-                BackColor = Color.FromArgb(int.Parse(themeIni.IniReadValue("Colors", "MainButtonFrameBackground").Split(',')[0]),
-                                               int.Parse(themeIni.IniReadValue("Colors", "MainButtonFrameBackground").Split(',')[1]),
-                                               int.Parse(themeIni.IniReadValue("Colors", "MainButtonFrameBackground").Split(',')[2]),
-                                               int.Parse(themeIni.IniReadValue("Colors", "MainButtonFrameBackground").Split(',')[3]));
+                backGradient = Color.FromArgb(0, 0, 0, 0);
+                BackColor = Theme_Settings.WindowPanelBackColor;
             }
 
             eventArgs = new MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0);
@@ -192,8 +183,8 @@ namespace Nucleus.Gaming.Controls
 
             if (titleFont == null)
             {
-                titleFont = new Font("Franklin Gothic", 12F, FontStyle.Regular, GraphicsUnit.Pixel, 0);
-                previewFont = new Font("Franklin Gothic", (float)10, FontStyle.Regular, GraphicsUnit.Pixel, 0);
+                titleFont = new Font(Theme_Settings.CustomFont,12F, FontStyle.Bold, GraphicsUnit.Pixel, 0);
+                previewFont = new Font(Theme_Settings.CustomFont, 10F, FontStyle.Bold, GraphicsUnit.Pixel, 0);
             }
 
             for (int i = 0; i < GameProfile.profilesPathList.Count + 1; i++)
@@ -486,8 +477,8 @@ namespace Nucleus.Gaming.Controls
                 return;
             }
 
-            Color color = Color.FromArgb(useGradient ? 100 : 0, backGradient[1], backGradient[2], backGradient[3]);
-            Color color2 = Color.FromArgb(useGradient ? 120 : 0, backGradient[1], backGradient[2], backGradient[3]);
+            Color color = Color.FromArgb(useGradient ? 100 : 0, backGradient.R, backGradient.G, backGradient.B);
+            Color color2 = Color.FromArgb(useGradient ? 120 : 0, backGradient.R, backGradient.G, backGradient.B);
             LinearGradientBrush lgb =
             new LinearGradientBrush(gradientBrushbounds, Color.Transparent, color, 90f);
 

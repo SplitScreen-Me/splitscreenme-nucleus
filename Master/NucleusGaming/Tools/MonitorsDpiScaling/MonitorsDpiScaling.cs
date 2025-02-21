@@ -173,6 +173,7 @@ namespace Nucleus.Gaming.Tools.MonitorsDpiScaling
                             int calc = dpi.X / 24; // 96 (100%) / 24 = 4
                             int diff = calc - 4;
 
+                    
                             UInt32 currentVal = unchecked((UInt32)((Int32)monitorKey.GetValue("DpiValue")));
 
                             int newVal = unchecked((int)(currentVal - (UInt32)diff));
@@ -189,6 +190,7 @@ namespace Nucleus.Gaming.Tools.MonitorsDpiScaling
                                 monitorKey.SetValue("DpiValue", newVal, RegistryValueKind.DWord);
 
                                 string modeOutput = EnumerateSupportedModes(screen);
+
                                 if (modeOutput != "NULL")
                                 {
                                     int width = Convert.ToInt32(modeOutput.Substring(0, modeOutput.IndexOf("x")));
@@ -201,6 +203,7 @@ namespace Nucleus.Gaming.Tools.MonitorsDpiScaling
                                     Thread.Sleep(1000);
                                     SetResolution(800, 600, screen.DeviceName);
                                 }
+
                                 Thread.Sleep(1000);
                                 SetResolution(screen.Bounds.Width, screen.Bounds.Height, screen.DeviceName);
 
@@ -256,6 +259,7 @@ namespace Nucleus.Gaming.Tools.MonitorsDpiScaling
         public static void ResetMonitorsSettings()
         {
             var handlerInstance = GenericGameHandler.Instance;
+
             if (screensChanged.Count > 0)
             {
                 foreach (Display screen in screensChanged)

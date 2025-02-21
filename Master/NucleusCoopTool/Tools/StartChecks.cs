@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
+using Nucleus.Gaming.Tools.UserDriveInfo;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -52,6 +53,11 @@ namespace Nucleus.Coop
             return isRunning;
         }
 
+        public static bool IsInvalidDriveFormat()
+        {
+            return UserDriveInfo.IsExFat(Globals.NucleusInstallRoot, true);       
+        }       
+                   
         public static void CheckFilesIntegrity()
         {
             string[] ncFiles = {

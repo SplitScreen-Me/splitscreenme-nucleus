@@ -10,9 +10,11 @@ using Nucleus.Gaming.Tools.NemirtingasGalaxyEmu;
 using Nucleus.Gaming.Tools.Steam;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Windows.Forms;
 
 namespace Nucleus.Gaming
 {
@@ -25,6 +27,7 @@ namespace Nucleus.Gaming
 
         public GameHookInfo Hook = new GameHookInfo();
         public List<GameOption> Options = new List<GameOption>();
+        private List<string> profilesPath = new List<string>();
 
         public SaveType SaveType;
         public string SavePath;
@@ -148,6 +151,7 @@ namespace Nucleus.Gaming
         public bool XboxOneControllerFix;
         public bool UseForceBindIP;
         public string[] XInputPlusDll;
+        public string[] SDLPaths;//Relative to instanced game directory root 
         public string[] CopyCustomUtils;
         public int PlayersPerInstance;
         public bool UseDevReorder;
@@ -400,7 +404,7 @@ namespace Nucleus.Gaming
                 });
             }
 
-            MetaInfo.LoadGameMetaInfo(GUID);
+            MetaInfo.LoadGameMetaInfo(this);
 
             if (MetaInfo.CheckUpdate)
             {
@@ -518,6 +522,212 @@ namespace Nucleus.Gaming
             }
 
             return context;
+        }
+
+
+        public List<string> Profiles_ConfigPath => GetProfConfigPath();
+        private List<string> GetProfConfigPath()
+        {
+            UpdateProfilesPath();
+
+            List<string> playersProfilePath = new List<string>();
+
+            if (UserProfileConfigPath?.Length > 0)
+            {
+                if (profilesPath.Count > 0)
+                {
+                    try
+                    {
+                        foreach (string profilePath in profilesPath)
+                        {
+                            string currPath = Path.Combine(profilePath, UserProfileConfigPath);
+                            if (Directory.Exists(currPath))
+                            {
+                                playersProfilePath.Add(profilePath);
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        return playersProfilePath;
+                    }
+                }
+
+                return playersProfilePath;
+            }
+
+            return playersProfilePath;
+        }
+
+        public List<string> Profiles_SavePath => GetProfSavePath();
+        private List<string> GetProfSavePath()
+        {
+            UpdateProfilesPath();
+
+            List<string> playersProfilePath = new List<string>();
+
+            if (UserProfileSavePath?.Length > 0)
+            {
+                if (profilesPath.Count > 0)
+                {
+                    try
+                    {
+                        foreach (string profilePath in profilesPath)
+                        {
+                            string currPath = Path.Combine(profilePath, UserProfileSavePath);
+                            if (Directory.Exists(currPath))
+                            {
+                                playersProfilePath.Add(profilePath);
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        return playersProfilePath;
+                    }
+                }
+
+                return playersProfilePath;
+            }
+
+            return playersProfilePath;
+        }
+
+
+        public List<string> Profiles_Documents_ConfigPath => GetProfDocConfigPath();
+        private List<string> GetProfDocConfigPath()
+        {
+            UpdateProfilesPath();
+
+            List<string> playersProfilePath = new List<string>();
+
+            if (DocumentsConfigPath?.Length > 0)
+            {
+                if (profilesPath.Count > 0)
+                {
+                    try
+                    {
+                        foreach (string profilePath in profilesPath)
+                        {
+                            string currPath = Path.Combine(profilePath, DocumentsConfigPath);
+                            if (Directory.Exists(currPath))
+                            {
+                                playersProfilePath.Add(profilePath);
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        return playersProfilePath;
+                    }
+                }
+
+                return playersProfilePath;
+            }
+
+            return playersProfilePath;
+        }
+
+        public List<string> Profiles_Documents_SavePath => GetProfDocSavePath();
+        private List<string> GetProfDocSavePath()
+        {
+            UpdateProfilesPath();
+
+            List<string> playersProfilePath = new List<string>();
+
+            if (DocumentsSavePath?.Length > 0)
+            {
+                if (profilesPath.Count > 0)
+                {
+                    try
+                    {
+                        foreach (string profilePath in profilesPath)
+                        {
+                            string currPath = Path.Combine(profilePath, DocumentsSavePath);
+                            if (Directory.Exists(currPath))
+                            {
+                                playersProfilePath.Add(profilePath);
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        return playersProfilePath;
+                    }
+                }
+
+                return playersProfilePath;
+            }
+
+            return playersProfilePath;
+        }
+
+        public List<string> Players_BackupPath => GetPlayersBackupPath();
+        private List<string> GetPlayersBackupPath()
+        {
+            List<string> playersBackupPath = new List<string>();
+
+            string backupsPath = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\_Game Files Backup_\{GUID}";
+
+            if (Directory.Exists(backupsPath))
+            {
+                return Directory.GetDirectories(backupsPath, "*", SearchOption.TopDirectoryOnly).ToList();
+            }
+
+            return playersBackupPath;
+        }
+
+
+        public string Content_Folder => GetContentDir();
+        private string GetContentDir()
+        {
+            GameManager gameManager = GameManager.Instance;
+            string path = Path.Combine(gameManager.GetAppContentPath(), GUID);
+
+            if (Directory.Exists(path))
+            {
+                return path;
+            }
+
+            return string.Empty;
+        }
+
+        private void UpdateProfilesPath()
+        {
+            profilesPath.Clear();
+            profilesPath.Add(Environment.GetEnvironmentVariable("userprofile"));
+            profilesPath.Add(Globals.UserDocumentsRoot);
+
+            if (UseNucleusEnvironment)
+            {
+                string targetDirectory = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\";
+
+                if (Directory.Exists(targetDirectory))
+                {
+                    string[] subdirectoryEntries = Directory.GetDirectories(targetDirectory, "*", SearchOption.TopDirectoryOnly);
+                    foreach (string subdirectory in subdirectoryEntries)
+                    {
+                        profilesPath.Add(subdirectory);
+                        if ($@"{Path.GetDirectoryName(Globals.UserDocumentsRoot)}\NucleusCoop\" == targetDirectory)
+                        {
+                            profilesPath.Add(subdirectory + "\\Documents");
+                        }
+                    }
+                }
+
+                if ($@"{Path.GetDirectoryName(Globals.UserDocumentsRoot)}\NucleusCoop\" != targetDirectory)
+                {
+                    targetDirectory = $@"{Path.GetDirectoryName(Globals.UserDocumentsRoot)}\NucleusCoop\";
+                    if (Directory.Exists(targetDirectory))
+                    {
+                        string[] subdirectoryEntries = Directory.GetDirectories(targetDirectory, "*", SearchOption.TopDirectoryOnly);
+                        foreach (string subdirectory in subdirectoryEntries)
+                        {
+                            profilesPath.Add(subdirectory + "\\Documents");
+                        }
+                    }
+                }
+            }
         }
 
         public string EpicLang => NemirtingasEpicEmu.GetEpicLanguage();

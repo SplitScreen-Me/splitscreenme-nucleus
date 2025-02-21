@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Coop;
@@ -22,12 +23,12 @@ namespace Nucleus.Coop.Tools
         public static void DownloadAllGamesAssets(GameControl currentControl)
         {
             List<UserGameInfo> games = GameManager.Instance.User.Games;
-            var mainForm = MainForm.Instance;
+            var mainForm = UI_Interface.MainForm;
 
-            mainForm.rightFrame.Enabled = false;
-            mainForm.mainButtonFrame.Enabled = false;
-            mainForm.StepPanel.Enabled = false;
-            mainForm.game_listSizer.Enabled = false;
+            mainForm.InfoPanel.Enabled = false;
+            mainForm.WindowPanel.Enabled = false;
+            mainForm.SetupPanel.Enabled = false;
+            mainForm.GameListContainer.Enabled = false;
             mainForm.Invalidate(false);
 
             System.Threading.Tasks.Task.Run(() =>
@@ -70,21 +71,21 @@ namespace Nucleus.Coop.Tools
 
                 mainForm.Invoke((MethodInvoker)delegate ()
                 {
-                    mainForm.rightFrame.Enabled = true;
-                    mainForm.mainButtonFrame.Enabled = true;
-                    mainForm.game_listSizer.Enabled = true;
-                    mainForm.StepPanel.Enabled = true;
+                    mainForm.InfoPanel.Enabled = true;
+                    mainForm.WindowPanel.Enabled = true;
+                    mainForm.GameListContainer.Enabled = true;
+                    mainForm.SetupPanel.Enabled = true;
 
                     Globals.MainOSD.Show(2000, "Download Completed!");
 
-                    if (currentControl != null && mainForm.StepPanel.Visible)
+                    if (currentControl != null && mainForm.SetupPanel.Visible)
                     {
-                        SetBackroundAndCover.ApplyBackgroundAndCover(currentControl.UserGameInfo.GameGuid);
-                        mainForm.clientAreaPanel.Invalidate();
+                        UI_Actions.On_GameChange?.Invoke();
+                        mainForm.HomeScreen.Invalidate();
                     }
 
                     mainForm.Invalidate(false);
-                    mainForm.mainButtonFrame.Select();                 
+                    mainForm.WindowPanel.Select();                 
                 });
 
             });
@@ -92,11 +93,11 @@ namespace Nucleus.Coop.Tools
 
         public static void DownloadGameAssets(UserGameInfo game, GameControl currentControl)
         {
-            MainForm mainForm = MainForm.Instance;
+            MainForm mainForm = UI_Interface.MainForm;
 
-            mainForm.mainButtonFrame.Enabled = false;
-            mainForm.StepPanel.Enabled = false;
-            mainForm.game_listSizer.Enabled = false;
+            mainForm.WindowPanel.Enabled = false;
+            mainForm.SetupPanel.Enabled = false;
+            mainForm.GameListContainer.Enabled = false;
             mainForm.Invalidate(false);
 
             System.Threading.Tasks.Task.Run(() =>
@@ -139,25 +140,25 @@ namespace Nucleus.Coop.Tools
 
                 mainForm.Invoke((MethodInvoker)delegate ()
                 {
-                    mainForm.rightFrame.Enabled = true;
-                    mainForm.mainButtonFrame.Enabled = true;
-                    mainForm.game_listSizer.Enabled = true;
-                    mainForm.StepPanel.Enabled = true;
-                    mainForm.rightFrame.Enabled = true;
+                    mainForm.InfoPanel.Enabled = true;
+                    mainForm.WindowPanel.Enabled = true;
+                    mainForm.GameListContainer.Enabled = true;
+                    mainForm.SetupPanel.Enabled = true;
+                    mainForm.InfoPanel.Enabled = true;
 
                     if (!error)
                     {
                         Globals.MainOSD.Show(2000, "Download Completed!");
                     }
 
-                    if (currentControl != null && mainForm.StepPanel.Visible)
+                    if (currentControl != null && mainForm.SetupPanel.Visible)
                     {
-                        SetBackroundAndCover.ApplyBackgroundAndCover(currentControl.UserGameInfo.GameGuid);
-                        mainForm.clientAreaPanel.Invalidate();
+                        UI_Actions.On_GameChange?.Invoke();
+                        mainForm.HomeScreen.Invalidate();
                     }
 
                     mainForm.Invalidate(false);
-                    mainForm.mainButtonFrame.Select();                
+                    mainForm.WindowPanel.Select();                
                 });
 
             });

@@ -1,7 +1,9 @@
 ﻿using Ionic.Zip;
 using Nucleus.Coop.Tools;
+using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
+using Nucleus.Gaming.UI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,7 +16,6 @@ using System.Windows.Forms;
 
 namespace Nucleus.Coop.Forms
 {
-
     public partial class DownloadPrompt : Form
     {
         private Handler Handler;
@@ -50,15 +51,13 @@ namespace Nucleus.Coop.Forms
 
         public DownloadPrompt(Handler handler, string zipFileName)
         {
-            MainForm mainForm = MainForm.Instance;
-            fontSize = float.Parse(mainForm.themeIni.IniReadValue("Font", "DownloadPromptFontSize"));
+            fontSize = float.Parse(Globals.ThemeConfigFile.IniReadValue("Font", "DownloadPromptFontSize"));
 
             try
             {
                 InitializeComponent();
 
                 Handler = handler;
-                mainForm = MainForm.Instance;
 
                 lbl_Handler.Text = zipFile;
 
@@ -88,7 +87,7 @@ namespace Nucleus.Coop.Forms
 
                 foreach (Control control in ctrls)
                 {
-                    control.Font = new Font(mainForm.customFont, fontSize, FontStyle.Regular, GraphicsUnit.Pixel, 0);
+                    control.Font = new Font(Theme_Settings.CustomFont, fontSize, FontStyle.Regular, GraphicsUnit.Pixel, 0);
                 }
 
                 ResumeLayout();

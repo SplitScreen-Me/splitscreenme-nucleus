@@ -442,7 +442,7 @@ namespace Nucleus.Gaming
         {
             lock (user.Games)
             {
-                user.Games = user.Games.OrderBy(g => g.GameGuid).ToList();
+                user.Games = user.Games.OrderBy(g => g.Game.GameName).ToList();
             }
         }
 
@@ -450,7 +450,7 @@ namespace Nucleus.Gaming
         {
             lock (user.Games)
             {
-                user.Games = user.Games.OrderBy(g => g.GameGuid).ToList();
+                user.Games = user.Games.OrderBy(g => g.Game.GameName).ToList();
             }
 
             string userProfile = GetUserProfilePath();
@@ -518,7 +518,7 @@ namespace Nucleus.Gaming
                             }
 
                             CleanGamesAssets(null);
-                            user.Games = user.Games.OrderBy(g => g.GameGuid).ToList();
+                            user.Games = user.Games.OrderBy(g => g.Game.GameName).ToList();
                         }
 
                         SaveUser(userProfile);
@@ -754,7 +754,7 @@ namespace Nucleus.Gaming
                     }
                 }
 
-                user.Games = user.Games.OrderBy(g => g.GameGuid).ToList();
+                user.Games = user.Games.OrderBy(g => g.Game.GameName).ToList();
 
                 return info;
             }

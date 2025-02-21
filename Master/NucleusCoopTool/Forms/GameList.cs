@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace Nucleus.Coop.Forms
 {
-    public partial class GameList : BaseForm
+    public partial class GameList : Form
     {
         protected override CreateParams CreateParams
         {

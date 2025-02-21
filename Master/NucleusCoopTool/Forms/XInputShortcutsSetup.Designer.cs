@@ -91,7 +91,7 @@ namespace Nucleus.Coop.Forms
             this.reminderPict = new System.Windows.Forms.PictureBox();
             this.shortcutReminderLabel = new System.Windows.Forms.Label();
             this.ShortcutsReminderContainer = new System.Windows.Forms.GroupBox();
-            this.gamepadTopFront = new BufferedClientAreaPanel();
+            this.gamepadTopFront = new DoubleBufferPanel();
             this.radioButtonXbox = new Nucleus.Coop.Controls.CustomRadio();
             this.radioButtonPs = new Nucleus.Coop.Controls.CustomRadio();
             this.enabled_chk = new Nucleus.Coop.Controls.CustomCheckBox();
@@ -1024,7 +1024,7 @@ namespace Nucleus.Coop.Forms
         private System.Windows.Forms.Label plus11;
         private System.Windows.Forms.PictureBox slave11;
         private System.Windows.Forms.Label label_11;
-        private BufferedClientAreaPanel gamepadTopFront;
+        private DoubleBufferPanel gamepadTopFront;
         private CustomRadio radioButtonXbox;
         private CustomRadio radioButtonPs;
         private System.Windows.Forms.GroupBox groupBoxType;

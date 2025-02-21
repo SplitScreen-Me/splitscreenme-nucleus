@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Controls.SetupScreen
 {
-    internal static class BoundsFunctions
+    public static class BoundsFunctions
     {
         public static void Initialize(SetupScreenControl _parent, UserGameInfo _userGameInfo, GameProfile _profile)
         {
@@ -29,7 +29,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         public static Point MousePos => mousePos;
         internal static int draggingIndex = -1;
         internal static int draggingScreen = -1;
-        internal static int destBoundsScale;
+       // internal static int screen.SubscreenBoundsScale;
 
         internal static Rectangle totalBounds;
         internal static RectangleF sizer;
@@ -136,7 +136,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             }
             else
             {
-                ScreensArea = new RectangleF(10.0F, 35.0F + (float)parent.Height * 0.2f, (float)parent.Width - 20.0F, (float)parent.Height * 0.5f);
+                ScreensArea = new RectangleF(10.0F, 35.0F + (float)parent?.Height * 0.2f, (float)parent.Width - 20.0F, (float)parent?.Height * 0.5f);
             }
 
             ScreensAreaScale = ScreensArea.Width / (float)totalBounds.Width;
@@ -177,151 +177,10 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 screen.SwapTypeBounds = new RectangleF(uiBounds.X, uiBounds.Y, uiBounds.Width * 0.1f, uiBounds.Width * 0.1f);
 
                 screen.Index = i;
-                GetScreenDivisionBounds(screen);
             }
 
             float instHeight = ScreensArea.Width / 1.77f;
           
-        }
-
-        internal static void GetScreenDivisionBounds(UserScreen screen)
-        {
-            screen.SubScreensBounds = new Dictionary<Rectangle, RectangleF>();
-
-            UserScreenType screenType = screen.Type;
-            Rectangle bounds = screen.MonitorBounds;
-            RectangleF ebounds = screen.UIBounds;
-
-            int index = 0;
-            int horLines = 0;
-            int verLines = 0;
-            int maxPlayers = 0;
-
-            bool Regular(int width, int height)
-            {
-                if (index == maxPlayers)
-                {
-                    return false;
-                }
-
-                int y = index % height;
-                int x = (index - y) / height;
-
-                int halfw = bounds.Width / height;
-                int halfh = bounds.Height / width;
-
-                Rectangle monitorBounds = new Rectangle(bounds.X + (halfw * y), bounds.Y + (halfh * x), halfw, halfh);
-                float ey = (float)index % (float)height;
-                float ex = ((float)index - ey) / (float)height;
-
-                float halfwe = ebounds.Width / (float)height;
-                float halfhe = ebounds.Height / (float)width;
-                RectangleF editorBounds = new RectangleF(ebounds.X + (halfwe * ey), ebounds.Y + (halfhe * ex), halfwe, halfhe);
-
-                screen.SubScreensBounds.Add(monitorBounds, editorBounds);
-                return true;
-            }
-
-            switch (screenType)
-            {
-                case UserScreenType.FullScreen:
-                    {
-                        screen.SubScreensBounds.Add(bounds, ebounds);
-                        return;
-                    }
-                case UserScreenType.DualHorizontal:
-                    {
-                        horLines = 2;
-                        verLines = 1;
-                        maxPlayers = 2;
-
-                        break;
-                    }
-                case UserScreenType.DualVertical:
-                    {
-                        horLines = 1;
-                        verLines = 2;
-                        maxPlayers = 2;
-                        break;
-                    }
-                case UserScreenType.FourPlayers:
-                    {
-                        horLines = 2;
-                        verLines = 2;
-                        maxPlayers = 4;
-                        break;
-                    }
-                case UserScreenType.SixPlayers:
-                    {
-                        horLines = 2;
-                        verLines = 3;
-                        maxPlayers = 6;
-                        break;
-                    }
-                case UserScreenType.EightPlayers:
-                    {
-                        horLines = 2;
-                        verLines = 4;
-                        maxPlayers = 8;
-                        break;
-                    }
-                case UserScreenType.SixteenPlayers:
-                    {
-                        horLines = 4;
-                        verLines = 4;
-                        maxPlayers = 16;
-                        break;
-                    }
-                case UserScreenType.Custom:
-                    {
-                        horLines = GameProfile.CustomLayout_Hor + 1;
-                        verLines = GameProfile.CustomLayout_Ver + 1;
-                        maxPlayers = horLines * verLines;
-                        break;
-                    }
-                case UserScreenType.Manual:
-                    {
-                        int max = 60;//set grid density, could be an option?
-                        int[] divs = new int[max];
-                        int last = 0;
-                        int destBoundsScaleFactor = 1;
-
-                        float divW;
-                        float divH;
-
-                        float width = (float)bounds.Width;
-                        float height = (float)bounds.Height;
-
-                        for (float i = 2; i < max; i++)
-                        {
-                            divW = width / i;
-                            divH = height / i;
-
-                            if ((divW % 1) == 0 && (divH % 1) == 0)
-                            {
-                                divs[(int)i] = (int)i;
-                                last = (int)i;
-                                if (i < 5)
-                                {
-                                    destBoundsScaleFactor = (int)i;
-                                }
-                            }
-                        }
-
-                        horLines = (int)divs[last];
-                        verLines = (int)divs[last];
-                        maxPlayers = horLines * verLines;
-
-                        destBoundsScale = destBoundsScaleFactor;
-
-                        break;
-                    }
-            }
-
-            while (Regular(horLines, verLines))
-            {
-                ++index;
-            }
         }
 
         public static RectangleF ActiveSizer => activeSizer;
@@ -379,8 +238,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         {
                             screen.Type++;
                         }
-
-                        GetScreenDivisionBounds(screen);
 
                         ///invalidate all players inside screen
                         for (int j = 0; j < players.Count; j++)
@@ -459,8 +316,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         {
                             screen.Type--;
                         }
-
-                        GetScreenDivisionBounds(screen);
 
                         ///invalidate all players inside screen
                         for (int j = 0; j < players.Count; j++)
@@ -950,8 +805,8 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             if (screen.Type == UserScreenType.Manual)
             {
-                destMonitorBounds = new Rectangle(destMonitorBounds.X, destMonitorBounds.Y, screen.MonitorBounds.Width / destBoundsScale, screen.MonitorBounds.Height / destBoundsScale);
-                destEditBounds = new RectangleF(destEditBounds.X, destEditBounds.Y, screen.UIBounds.Width / (float)destBoundsScale, screen.UIBounds.Height / (float)destBoundsScale);
+                destMonitorBounds = new Rectangle(destMonitorBounds.X, destMonitorBounds.Y, screen.MonitorBounds.Width / screen.ManualTypeDefautScale, screen.MonitorBounds.Height / screen.ManualTypeDefautScale);
+                destEditBounds = new RectangleF(destEditBounds.X, destEditBounds.Y, screen.UIBounds.Width / (float)screen.ManualTypeDefautScale, screen.UIBounds.Height / (float)screen.ManualTypeDefautScale);
 
                 if (destEditBounds.Bottom > s.Bottom || destEditBounds.Right > s.Right)
                 {
@@ -973,7 +828,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     }
 
                     //Check if this bounds are the bounds of a profile player. 
-                    ProfilePlayer profilePlayer = GameProfile.ProfilePlayersList.Where(ppl => GameProfile.TranslateBounds(ppl, GameProfile.FindScreenOrAlternative(ppl).Item1).Item1.IntersectsWith(destMonitorBounds)).FirstOrDefault();
+                    PlayerInfo profilePlayer = GameProfile.ProfilePlayersList.Where(ppl => GameProfile.TranslateBounds(ppl, GameProfile.FindScreenOrAlternative(ppl).Item1).Item1.IntersectsWith(destMonitorBounds)).FirstOrDefault();
 
                     if (GameProfile.TotalAssignedPlayers == GameProfile.TotalProfilePlayers || profilePlayer == null)
                     {
@@ -1087,7 +942,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                                 if (isManual)
                                 {
-                                    if (pmb.Width < screen.MonitorBounds.Width / destBoundsScale)
+                                    if (pmb.Width < screen.MonitorBounds.Width / screen.ManualTypeDefautScale)
                                     {
                                         return;
                                     }
@@ -1166,7 +1021,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                                 if (isManual)
                                 {
-                                    if (pmb.Width < screen.MonitorBounds.Width / destBoundsScale)
+                                    if (pmb.Width < screen.MonitorBounds.Width / screen.ManualTypeDefautScale)
                                     {
                                         return;
                                     }
@@ -1245,7 +1100,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                                 if (isManual)
                                 {
-                                    if (pmb.Height < screen.MonitorBounds.Height / destBoundsScale)
+                                    if (pmb.Height < screen.MonitorBounds.Height / screen.ManualTypeDefautScale)
                                     {
                                         return;
                                     }
@@ -1324,7 +1179,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                                 if (isManual)
                                 {
-                                    if (pmb.Height < screen.MonitorBounds.Height / destBoundsScale)
+                                    if (pmb.Height < screen.MonitorBounds.Height / screen.ManualTypeDefautScale)
                                     {
                                         return;
                                     }

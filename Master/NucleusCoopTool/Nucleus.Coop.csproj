@@ -110,6 +110,7 @@
     <Reference Include="Ionic.Zip.Reduced, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
       <HintPath>..\packages\DotNetZip.Reduced.1.9.1.8\lib\net20\Ionic.Zip.Reduced.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Microsoft.Web.WebView2.Core, Version=1.0.2210.55, Culture=neutral, PublicKeyToken=2a8ab48044d2601e, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Web.WebView2.1.0.2210.55\lib\net45\Microsoft.Web.WebView2.Core.dll</HintPath>
       <Private>False</Private>
@@ -258,11 +259,11 @@
     <Compile Include="Controls\CustomRadio.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\CustomRadioButton.cs">
+    <Compile Include="Controls\CustomSwitch.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\CustomRadioButton.Designer.cs">
-      <DependentUpon>CustomRadioButton.cs</DependentUpon>
+    <Compile Include="Controls\CustomSwitch.Designer.cs">
+      <DependentUpon>CustomSwitch.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\FlatCombo.cs">
       <SubType>Component</SubType>
@@ -276,11 +277,42 @@
     <Compile Include="Controls\HubWebView.Designer.cs">
       <DependentUpon>HubWebView.cs</DependentUpon>
     </Compile>
+    <Compile Include="Controls\PlaytimePanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\PlaytimePanel.Designer.cs">
+      <DependentUpon>PlaytimePanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SearchTextBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\SearchTextBox.Designer.cs">
+      <DependentUpon>SearchTextBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SortOptionsPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\SortOptionsPanel.Designer.cs">
+      <DependentUpon>SortOptionsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Enums\SortOption_Enums.cs" />
+    <Compile Include="Controls\SortGamesButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\ToggleFavoriteButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Controls\Tutorial.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Controls\Tutorial.Designer.cs">
       <DependentUpon>Tutorial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\GameList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\GameList.Designer.cs">
+      <DependentUpon>GameList.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Screen_Identifier.cs" />
     <Compile Include="Forms\Settings.cs">
@@ -301,6 +333,7 @@
     <Compile Include="Forms\XInputShortcutsSetup.Designer.cs">
       <DependentUpon>XInputShortcutsSetup.cs</DependentUpon>
     </Compile>
+    <Compile Include="Links.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -310,26 +343,11 @@
     <Compile Include="Tools\blur.cs" />
     <Compile Include="Tools\ChangeGameIcon.cs" />
     <Compile Include="Tools\CheckGameRequirements.cs" />
-    <Compile Include="Controls\Caroussel\Caroussel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\Caroussel\Caroussel.designer.cs">
-      <DependentUpon>Caroussel.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\BaseForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="Forms\DownloadPrompt.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\DownloadPrompt.Designer.cs">
       <DependentUpon>DownloadPrompt.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\GameList.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\GameList.Designer.cs">
-      <DependentUpon>GameList.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
@@ -357,21 +375,27 @@
     <Compile Include="Tools\OpenHandler.cs" />
     <Compile Include="Tools\RemoveGame.cs" />
     <Compile Include="Tools\SearchGame.cs" />
-    <Compile Include="Tools\SetBackroundAndCover.cs" />
+    <Compile Include="Tools\SortGameFunction.cs" />
     <Compile Include="Tools\StartChecks.cs" />
     <Compile Include="Tools\CustomToolStripRenderer.cs" />
+    <Compile Include="UI\Core_Interface.cs" />
+    <Compile Include="UI\Generic_Functions.cs" />
+    <Compile Include="UI\MainWindowFunc.cs" />
+    <Compile Include="UI\Runtime_Controls.cs" />
+    <Compile Include="UI\SocialMenuFunc.cs" />
+    <Compile Include="UI\UI_Actions.cs" />
+    <Compile Include="UI\UI_Functions.cs" />
+    <Compile Include="UI\UI_Graphics.cs" />
+    <Compile Include="UI\UI_Interface.cs" />
+    <Compile Include="UI\GameOptionMenuFunc.cs" />
     <EmbeddedResource Include="Controls\AddGameButton.resx">
       <DependentUpon>AddGameButton.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\CustomRadioButton.resx">
-      <DependentUpon>CustomRadioButton.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\CustomSwitch.resx">
+      <DependentUpon>CustomSwitch.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\Caroussel\Caroussel.resx">
-      <DependentUpon>Caroussel.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\BaseForm.resx">
-      <DependentUpon>BaseForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
+    <EmbeddedResource Include="Controls\SearchTextBox.resx">
+      <DependentUpon>SearchTextBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\DownloadPrompt.resx">
       <DependentUpon>DownloadPrompt.cs</DependentUpon>
@@ -379,16 +403,15 @@
     <EmbeddedResource Include="Controls\HubWebView.resx">
       <DependentUpon>HubWebView.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\GameList.resx">
+      <DependentUpon>GameList.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Settings.resx">
       <DependentUpon>Settings.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ProfileSettings.resx">
       <DependentUpon>ProfileSettings.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\GameList.resx">
-      <DependentUpon>GameList.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\MainForm.resx">
@@ -586,6 +609,8 @@
     <Content Include="copyoutput\utils\ForceBindIP\ForceBindIP64.exe" />
     <None Include="Resources\no_image.jpg" />
     <Content Include="copyoutput\utils\LaunchUsers\PsExec.exe" />
+    <Content Include="copyoutput\utils\SDL2\x64\SDL2.dll" />
+    <Content Include="copyoutput\utils\SDL2\x86\SDL2.dll" />
     <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu.dll" />
     <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu.txt" />
     <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu64.dll" />

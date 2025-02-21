@@ -30,7 +30,7 @@ namespace Nucleus.Coop.Tools
         }
 
         private RectangleF[] particles;
-        private int[] alpha = new int[12];
+        private int[] alpha;
 
         public void Draw(object sender, Control control, PaintEventArgs e, int particlesMax, int refreshRate, int[] color)
         {
@@ -38,9 +38,11 @@ namespace Nucleus.Coop.Tools
 
             if(particles == null)
             {
-                particles = new RectangleF[particlesMax];
+                particles = new RectangleF[particlesMax];               
             }
-       
+
+            alpha = new int[particlesMax];
+
             if (particlesTimer == null)
             {
                 senderControl = sender as Control;
@@ -52,14 +54,14 @@ namespace Nucleus.Coop.Tools
                 }
 
                 particlesTimer = new System.Threading.Timer(particlesTimer_Tick, null, 0, refreshRate);
-
+                  
                 for (int i = 0; i < particles.Count(); i++)
                 {
-                    int randMultX = rand.Next(-senderControl.Width / 2, senderControl.Width / 2);
-                    int randMultY = rand.Next(-senderControl.Height / 2, senderControl.Height / 2);
+                    int randMultX = rand.Next(-senderControl.ClientRectangle.Width / 2, senderControl.ClientRectangle.Width / 2);
+                    int randMultY = rand.Next(-senderControl.ClientRectangle.Height / 2, senderControl.ClientRectangle.Height / 2);
 
-                    int randX = rand.Next(0, senderControl.Width + randMultX);
-                    int randY = rand.Next(0, senderControl.Height + randMultY);
+                    int randX = rand.Next(0, senderControl.ClientRectangle.Width + randMultX);
+                    int randY = rand.Next(0, senderControl.ClientRectangle.Height + randMultY);
                     int randS = rand.Next(3, 5);
 
                     particles[i] = new RectangleF(randX, randY, randS, randS);
@@ -74,7 +76,7 @@ namespace Nucleus.Coop.Tools
                 particles[i].Width -= 0.2f;
                 particles[i].Height -= 0.2f;
 
-                if (particles[i].X < senderControl.Width / 2)
+                if (particles[i].X < senderControl.ClientRectangle.Width / 2)
                 {
                     particles[i].X -= 0.2f;
                 }
@@ -89,21 +91,21 @@ namespace Nucleus.Coop.Tools
 
                 if (minSize)
                 {
-                    int randMultX = rand.Next(-senderControl.Width / 2 , senderControl.Width / 2);
-                    int randMultY = rand.Next(-senderControl.Height / 2, senderControl.Height / 2);
+                    int randMultX = rand.Next(-senderControl.ClientRectangle.Width / 2 , senderControl.ClientRectangle.Width / 2);
+                    int randMultY = rand.Next(-senderControl.ClientRectangle.Height / 2, senderControl.ClientRectangle.Height / 2);
 
-                    int randX = rand.Next(0, senderControl.Width  + randMultX);
-                    int randY = rand.Next(0, senderControl.Height + randMultY);
+                    int randX = rand.Next(0, senderControl.ClientRectangle.Width  + randMultX);
+                    int randY = rand.Next(0, senderControl.ClientRectangle.Height + randMultY);
                     int randS = rand.Next(3, 5);
 
-                    while(particles.Any(p => (new RectangleF(randX - 30, randY - 30, randS + 60, randS + 60).Contains(p))) || 
+                    while(particles.Any(p => (new RectangleF(randX - 15, randY - 15, randS + 30, randS + 30).Contains(p))) || 
                           particles.Any(p => p != particles[i] && p.Width == randS))
                     {
-                         randMultX = rand.Next(-senderControl.Width / 3, senderControl.Width / 3);
-                         randMultY = rand.Next(-senderControl.Height / 3, senderControl.Height / 3);
+                         randMultX = rand.Next(-senderControl.ClientRectangle.Width / 3, senderControl.ClientRectangle.Width / 3);
+                         randMultY = rand.Next(-senderControl.ClientRectangle.Height / 3, senderControl.ClientRectangle.Height / 3);
 
-                         randX = rand.Next(0, senderControl.Width + randMultX);
-                         randY = rand.Next(0, senderControl.Height + randMultY);
+                         randX = rand.Next(0, senderControl.ClientRectangle.Width + randMultX);
+                         randY = rand.Next(0, senderControl.ClientRectangle.Height + randMultY);
                          randS -= 1;
                     }
 

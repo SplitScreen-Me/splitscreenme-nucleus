@@ -25,6 +25,7 @@ using Nucleus.Gaming.Tools.NemirtingasEpicEmu;
 using Nucleus.Gaming.Tools.NemirtingasGalaxyEmu;
 using Nucleus.Gaming.Tools.Network;
 using Nucleus.Gaming.Tools.NucleusUsers;
+using Nucleus.Gaming.Tools.SDL2Dll;
 using Nucleus.Gaming.Tools.Steam;
 using Nucleus.Gaming.Tools.WindowFakeFocus;
 using Nucleus.Gaming.Tools.X360ce;
@@ -735,7 +736,7 @@ namespace Nucleus.Gaming
 
                 int width = playerBounds.Width;
                 int height = playerBounds.Height;
-                Log($"Player monitor's resolution: {owner.display.Width} x {owner.display.Height}");
+                Log($"Player monitor's resolution: {owner.MonitorBounds.Width} x {owner.MonitorBounds.Height}");
                 bool isFullscreen = owner.Type == UserScreenType.FullScreen;
 
                 string linkFolder;
@@ -1354,6 +1355,7 @@ namespace Nucleus.Gaming
                 if (userConfigPathConverted || userSavePathConverted)
                 {
                     context.UserProfileConvertedToDocuments = true;
+
                     if (userConfigPathConverted)
                     {
                         context.UserProfileConfigPath = gen.DocumentsConfigPath;
@@ -1530,6 +1532,11 @@ namespace Nucleus.Gaming
                 if (gen.UseDirectX9Wrapper)
                 {
                     DirectX9Wrapper.UseDirectX9Wrapper(setupDll);
+                }
+
+                if(gen.Hook.SDL2Enabled)
+                {
+                    SDL2Dll.SetupSDL2Dll(player, i, setupDll);
                 }
 
                 if (gen.CopyCustomUtils?.Length > 0)
@@ -2553,7 +2560,7 @@ namespace Nucleus.Gaming
                 data.KilledMutexes = context.KillMutex?.Length == 0;
                 player.ProcessData = data;
 
-                ProfilePlayer profilePlayer = null;
+               PlayerInfo profilePlayer = null;
 
                 //Using static GameProfile 
                 if (GameProfile.ProfilePlayersList.Count > 0)
@@ -2785,6 +2792,9 @@ namespace Nucleus.Gaming
                     }
 
                     Log("All instances accounted for, performing final preperations");
+
+                    //Audio routing is never called if the handler use ProcessChangeAtEnd()
+                    //Add try/catch we never know
                     if (GameProfile.AudioInstances.Count > 0)
                     {
                         for (int pi = 0; pi < players.Count; pi++)
@@ -3102,6 +3112,11 @@ namespace Nucleus.Gaming
                     X360ce.UseX360ce(i, player, setupDll);
                 }
 
+                if (gen.Hook.SDL2Enabled)
+                {
+                    SDL2Dll.SetupSDL2Dll(player, i, setupDll);
+                }
+
                 if (gen.PromptBetweenInstancesEnd)
                 {
                     Log(string.Format("Prompted user for Instance {0}", (i + 1)));
@@ -3296,7 +3311,7 @@ namespace Nucleus.Gaming
 
             gen.OnFinishedSetup?.Invoke();
 
-            WindowsMerger.Instance?.InsertGameWindows();
+            WindowsMerger.Instance?.InsertGameWindows();   
         }
 
         struct UpdateTickThread
@@ -3512,11 +3527,6 @@ namespace Nucleus.Gaming
             Thread.Sleep(1000);
 
             List<PlayerInfo> data = profile.DevicesList;
-
-            foreach (PlayerInfo player in data)
-            {
-                player.DInputJoystick?.Dispose();
-            }
 
             if (!earlyExit)
             {

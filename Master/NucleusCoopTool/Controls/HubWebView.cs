@@ -4,6 +4,7 @@ using Microsoft.Web.WebView2.WinForms;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nucleus.Coop.Tools;
+using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.UI;
@@ -49,7 +50,7 @@ namespace Nucleus.Coop.Forms
 
         public HubWebView()
         {
-            mainForm = MainForm.Instance;
+            mainForm = UI_Interface.MainForm;
 
             InitializeComponent();
 
@@ -115,12 +116,12 @@ namespace Nucleus.Coop.Forms
 
             foreach (Control c in Controls)
             {
-                c.Click += mainForm.ClickAnyControl;
+                c.Click += Generic_Functions.ClickAnyControl;
                 if (c.HasChildren)
                 {
                     foreach (Control child in c.Controls)
                     {
-                        child.Click += mainForm.ClickAnyControl;
+                        child.Click += Generic_Functions.ClickAnyControl;
                     }
                 }
             }
@@ -287,20 +288,20 @@ namespace Nucleus.Coop.Forms
         {
             CoreWebView2 currentWindow = (CoreWebView2)sender;
 
-            if (!e.Uri.StartsWith("https://hub.splitscreen.me/"))
-            {
-                if(!inUserBrowser)
-                {
-                    Process.Start(e.Uri);
-                    inUserBrowser = true; 
-                }
-                else
-                {
-                    currentWindow.Reload();
-                }
+            //if (!e.Uri.StartsWith("https://hub.splitscreen.me/"))
+            //{
+            //    if(!inUserBrowser)
+            //    {
+            //        Process.Start(e.Uri);
+            //        inUserBrowser = true; 
+            //    }
+            //    else
+            //    {
+            //        currentWindow.Reload();
+            //    }
 
-                e.Cancel = true;
-            }
+            //    e.Cancel = true;
+            //}
         }
 
         private void WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
@@ -593,7 +594,7 @@ namespace Nucleus.Coop.Forms
                 BuildHandlersDatas();
                 SendDatas();
 
-                mainForm.RefreshGames();
+                SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
 
                 HideModal();
                 return;
@@ -658,7 +659,12 @@ namespace Nucleus.Coop.Forms
         private void Home_Click(object sender, EventArgs e)
         {
             if (webView.CoreWebView2 != null)
+            {
+                //string localHtmlPath = Path.Combine(Application.StartupPath, "Game\\index.html");
+                //webView.CoreWebView2.Navigate($"file:///{localHtmlPath.Replace("\\", "/")}");
                 webView.CoreWebView2.Navigate(hubUri);
+            }
+
         }
 
         public void CloseBtn_Click(object sender, EventArgs e)

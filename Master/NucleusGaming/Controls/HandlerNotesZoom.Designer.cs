@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.close_Btn = new System.Windows.Forms.Button();
-            this.warning = new System.Windows.Forms.Label();
+            this.Warning = new System.Windows.Forms.Label();
             this.TextBox = new Nucleus.Gaming.Controls.TransparentRichTextBox();
             this.SuspendLayout();
             // 
@@ -50,19 +50,19 @@
             this.close_Btn.MouseEnter += new System.EventHandler(this.Close_Btn_MouseEnter);
             this.close_Btn.MouseLeave += new System.EventHandler(this.Close_Btn_MouseLeave);
             // 
-            // warning
+            // Warning
             // 
-            this.warning.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.Warning.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.warning.BackColor = System.Drawing.Color.Transparent;
-            this.warning.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.warning.Font = new System.Drawing.Font("Franklin Gothic Medium", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.warning.ForeColor = System.Drawing.Color.Red;
-            this.warning.Location = new System.Drawing.Point(0, 3);
-            this.warning.Name = "warning";
-            this.warning.Size = new System.Drawing.Size(768, 20);
-            this.warning.TabIndex = 2;
-            this.warning.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.Warning.BackColor = System.Drawing.Color.Transparent;
+            this.Warning.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.Warning.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.5F, System.Drawing.FontStyle.Bold);
+            this.Warning.ForeColor = System.Drawing.Color.Red;
+            this.Warning.Location = new System.Drawing.Point(0, 3);
+            this.Warning.Name = "Warning";
+            this.Warning.Size = new System.Drawing.Size(768, 20);
+            this.Warning.TabIndex = 2;
+            this.Warning.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // TextBox
             // 
@@ -71,7 +71,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.TextBox.BackColor = System.Drawing.Color.CadetBlue;
             this.TextBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.TextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.TextBox.ForeColor = System.Drawing.Color.White;
             this.TextBox.Location = new System.Drawing.Point(0, 22);
             this.TextBox.Margin = new System.Windows.Forms.Padding(0);
@@ -86,9 +86,10 @@
             // 
             this.BackColor = System.Drawing.Color.Transparent;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.Controls.Add(this.warning);
+            this.Controls.Add(this.Warning);
             this.Controls.Add(this.close_Btn);
             this.Controls.Add(this.TextBox);
+            this.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Size = new System.Drawing.Size(768, 471);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.HandlerNotesZoom_Paint);
             this.ResumeLayout(false);
@@ -98,6 +99,6 @@
         #endregion
         public Gaming.Controls.TransparentRichTextBox TextBox;
         private System.Windows.Forms.Button close_Btn;
-        public System.Windows.Forms.Label warning;
+        public System.Windows.Forms.Label Warning;
     }
 }

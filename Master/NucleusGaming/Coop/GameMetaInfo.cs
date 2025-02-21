@@ -1,9 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using Jint.Native;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Coop
 {
@@ -11,7 +15,9 @@ namespace Nucleus.Gaming.Coop
     {
         private readonly string nucleusEnvironment = $@"{Globals.UserEnvironmentRoot}\NucleusCoop";
         private readonly string metaInfoJson = "metaInfo.json";
-        private string guid;
+
+        private GenericGameInfo gen;
+        private string gameGuid;
 
         private string lastPlayedAt;
         public string LastPlayedAt => GetLastPlayed();
@@ -96,11 +102,26 @@ namespace Nucleus.Gaming.Coop
             }
         }
 
-        public void LoadGameMetaInfo(string gameGuid)
+
+        private string steamLanguage;
+        public string SteamLanguage
+        {
+            get => steamLanguage;
+            set
+            {
+                steamLanguage = value;
+                SaveGameMetaInfo();
+            }
+        }
+        
+
+        public void LoadGameMetaInfo(GenericGameInfo genericGameInfo)
         {
             try
             {
-                guid = gameGuid;
+                gen = genericGameInfo;
+
+                gameGuid = genericGameInfo.GUID;
 
                 string path = $"{nucleusEnvironment}\\{metaInfoJson}";
 
@@ -123,6 +144,7 @@ namespace Nucleus.Gaming.Coop
                         favorite = JMetaInfo[gameGuid]["Favorite"] != null && (bool)JMetaInfo[gameGuid]["Favorite"];
                         firstLaunch = JMetaInfo[gameGuid]["FirstLaunch"] == null || (bool)JMetaInfo[gameGuid]["FirstLaunch"];
                         checkUpdate = JMetaInfo[gameGuid]["CheckUpdate"] == null || (bool)JMetaInfo[gameGuid]["CheckUpdate"];
+                        steamLanguage = (string)JMetaInfo[gameGuid]["SteamLanguage"] ?? "App Setting";
                         return;
                     }
 
@@ -135,8 +157,10 @@ namespace Nucleus.Gaming.Coop
                     favorite = false;
                     firstLaunch = true;
                     checkUpdate = true;
-
+                    steamLanguage = "App Setting";
                 }
+
+                SaveGameMetaInfo();
             }
             catch 
             {
@@ -163,24 +187,25 @@ namespace Nucleus.Gaming.Coop
 
                     JMetaInfo = (JObject)JsonConvert.DeserializeObject(jsonString);
 
-                    bool hasMetaInfo = JMetaInfo[guid] != null;
+                    bool hasMetaInfo = JMetaInfo[gameGuid] != null;
 
                     if (hasMetaInfo)
                     {
-                        JMetaInfo[guid]["TotalPlayTime"] = totalPlayTime;
-                        JMetaInfo[guid]["LastPlayedAt"] = lastPlayedAt;
-                        JMetaInfo[guid]["IconPath"] = iconPath;
-                        JMetaInfo[guid]["SaveProfile"] = saveProfile;
-                        JMetaInfo[guid]["DisableProfiles"] = disableProfiles;
-                        JMetaInfo[guid]["KeepSymLink"] = keepSymLink;
-                        JMetaInfo[guid]["Favorite"] = favorite;
-                        JMetaInfo[guid]["FirstLaunch"] = firstLaunch;
-                        JMetaInfo[guid]["CheckUpdate"] = checkUpdate;
+                        JMetaInfo[gameGuid]["TotalPlayTime"] = totalPlayTime;
+                        JMetaInfo[gameGuid]["LastPlayedAt"] = lastPlayedAt;
+                        JMetaInfo[gameGuid]["IconPath"] = iconPath;
+                        JMetaInfo[gameGuid]["SaveProfile"] = saveProfile;
+                        JMetaInfo[gameGuid]["DisableProfiles"] = disableProfiles;
+                        JMetaInfo[gameGuid]["KeepSymLink"] = keepSymLink;
+                        JMetaInfo[gameGuid]["Favorite"] = favorite;
+                        JMetaInfo[gameGuid]["FirstLaunch"] = firstLaunch;
+                        JMetaInfo[gameGuid]["CheckUpdate"] = checkUpdate;
+                        JMetaInfo[gameGuid]["SteamLanguage"] = steamLanguage;
                     }
                     else
                     {
                         //new game metaInfo
-                        JProperty gameMeta = new JProperty(guid, new JObject(new JProperty("TotalPlayTime", totalPlayTime),
+                        JProperty gameMeta = new JProperty(gameGuid, new JObject(new JProperty("TotalPlayTime", totalPlayTime),
                                                             new JProperty("LastPlayedAt", lastPlayedAt),
                                                             new JProperty("IconPath", iconPath),
                                                             new JProperty("SaveProfile", saveProfile),
@@ -188,7 +213,8 @@ namespace Nucleus.Gaming.Coop
                                                             new JProperty("KeepSymLink", keepSymLink),
                                                             new JProperty("Favorite", favorite),
                                                             new JProperty("FirstLaunch", firstLaunch),
-                                                            new JProperty("CheckUpdate", checkUpdate)
+                                                            new JProperty("CheckUpdate", checkUpdate),
+                                                            new JProperty("SteamLanguage", steamLanguage)
                                                             ));
                         JMetaInfo.Add(gameMeta);
                     }
@@ -203,13 +229,11 @@ namespace Nucleus.Gaming.Coop
                                                    new JProperty("KeepSymLink", keepSymLink),
                                                    new JProperty("Favorite", favorite),
                                                    new JProperty("FirstLaunch", firstLaunch),
-                                                   new JProperty("CheckUpdate", checkUpdate)
+                                                   new JProperty("CheckUpdate", checkUpdate),
+                                                   new JProperty("SteamLanguage", steamLanguage)
                                                    );
 
-                    JMetaInfo = new JObject
-                    (
-                       new JProperty(guid, gameMeta)
-                    );
+                    JMetaInfo = new JObject(new JProperty(gameGuid, gameMeta));
                 }
 
                 using (FileStream stream = new FileStream(path, FileMode.Create))

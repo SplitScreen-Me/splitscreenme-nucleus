@@ -15,7 +15,7 @@ namespace Nucleus.Gaming
 
         public static void CleanContentFolder(GenericGameInfo currentGameInfo, bool askBefore)
         {
-            string path = Path.Combine(GameManager.Instance.GetAppContentPath(), currentGameInfo.GUID);
+            string path = currentGameInfo.Content_Folder;
             bool contentExist = Directory.Exists(path);
 
             if (askBefore)

@@ -32,6 +32,7 @@ namespace Nucleus.Gaming.Controls
                 BackColor = Color.FromArgb(255, rgbBackColor[1], rgbBackColor[2], rgbBackColor[3]),
                 ForeColor = Color.FromArgb(255, rgbForeColor[1], rgbForeColor[2], rgbForeColor[3]),
                 UseAnimation = false,
+                ShowAlways = true,
                 UseFading = true,//Default setting
                 Id = id
             };

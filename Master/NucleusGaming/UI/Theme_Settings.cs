@@ -1,16 +1,51 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Text;
+using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Nucleus.Gaming.UI
 {
     public static class Theme_Settings
     {
-        public static string ThemeFolder => Globals.ThemeFolder;
-        public static IniFile ThemeConfigFile => Globals.ThemeConfigFile;
+        private static string ThemeFolder => Globals.ThemeFolder;
+        private static IniFile ThemeConfigFile => Globals.ThemeConfigFile;
 
         public static Cursor Default_Cursor => GetCursorDefaut();
-        private static Cursor default_Cursor;   
-        
+        private static Cursor default_Cursor;
+        public static  PrivateFontCollection modernFont;
+
+        public static float FontSize = float.Parse(Globals.ThemeConfigFile.IniReadValue("Font", "MainFontSize"));
+
+        public static string CustomFont  => Globals.ThemeConfigFile.IniReadValue("Font", "FontFamily");
+        //private static FontFamily customFont;
+        //public static FontFamily CustomFont
+        //{
+        //    get
+        //    {
+        //        if (customFont == null)
+        //        {
+        //            modernFont = new PrivateFontCollection();
+
+        //            var fontFile = Directory.GetFiles(ThemeFolder, "*.*", SearchOption.AllDirectories)
+        //                 .Where(s => s.EndsWith(".otf") || s.EndsWith(".ttf")).ToList();
+
+        //            if (fontFile.Count() == 0)
+        //            {
+        //                return null;
+        //            }
+
+        //            modernFont.AddFontFile(fontFile[0]);
+        //            customFont = modernFont.Families[0];
+        //            //label.Font = new Font(modernFont.Families[0], 40);`
+        //        }
+
+        //        return customFont;
+        //    }
+
+        //}
+
         private static Cursor GetCursorDefaut()
         {
             if(default_Cursor == null)
@@ -41,116 +76,314 @@ namespace Nucleus.Gaming.UI
             return hand_Cursor;
         }
 
-        public static Color SelectedBackColor => GetSelectedBackColor();
-        private static string[] selectedBackColor = null;
-
-        private static Color GetSelectedBackColor()
+        private static Color selectedBackColor;
+        public static Color SelectedBackColor
         {
-            if (selectedBackColor == null)
+            get
             {
-                selectedBackColor = ThemeConfigFile.IniReadValue("Colors", "Selection").Split(',');
-                return Color.FromArgb(int.Parse(selectedBackColor[0]), int.Parse(selectedBackColor[1]), int.Parse(selectedBackColor[2]), int.Parse(selectedBackColor[3]));
-            }
+                if (selectedBackColor.IsEmpty)
+                {
+                    selectedBackColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "Selection").Split(','));
+                }
 
-            return Color.FromArgb(int.Parse(selectedBackColor[0]), int.Parse(selectedBackColor[1]), int.Parse(selectedBackColor[2]), int.Parse(selectedBackColor[3]));
+                return selectedBackColor;
+            }
         }
 
-        public static Color MainButtonFrameBackColor => GetMainButtonFrameBackColor();
-        private static string[] mainButtonFrameBackColor = null;
-
-        private static Color GetMainButtonFrameBackColor()
+        private static Color handlerNoteForeColor;
+        public static Color HandlerNoteForeColor
         {
-            if (mainButtonFrameBackColor == null)
+            get
             {
-                mainButtonFrameBackColor = ThemeConfigFile.IniReadValue("Colors", "HandlerNoteBackground").Split(',');
-                return Color.FromArgb(int.Parse(mainButtonFrameBackColor[0]), int.Parse(mainButtonFrameBackColor[1]), int.Parse(mainButtonFrameBackColor[2]), int.Parse(mainButtonFrameBackColor[3]));
-            }
+                if (handlerNoteForeColor.IsEmpty)
+                {
+                    handlerNoteForeColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "HandlerNoteFont").Split(','));
+                }
 
-            return Color.FromArgb(int.Parse(mainButtonFrameBackColor[0]), int.Parse(mainButtonFrameBackColor[1]), int.Parse(mainButtonFrameBackColor[2]), int.Parse(mainButtonFrameBackColor[3]));
+                return handlerNoteForeColor;
+            }
         }
 
-        public static Color RightFrameBackColor => GetRightFrameBackColor();
-        private static string[] rightFrameBackColor = null;
-
-        private static Color GetRightFrameBackColor()
+        private static Color handlerNoteTitleForeColor;
+        public static Color HandlerNoteTitleForeColor
         {
-            if (rightFrameBackColor == null)
+            get
             {
-                rightFrameBackColor = ThemeConfigFile.IniReadValue("Colors", "RightFrameBackground").Split(',');
-                return Color.FromArgb(int.Parse(rightFrameBackColor[0]), int.Parse(rightFrameBackColor[1]), int.Parse(rightFrameBackColor[2]), int.Parse(rightFrameBackColor[3]));
-            }
+                if (handlerNoteTitleForeColor.IsEmpty)
+                {
+                    handlerNoteTitleForeColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "HandlerNoteTitleFont").Split(','));
+                }
 
-            return Color.FromArgb(int.Parse(rightFrameBackColor[0]), int.Parse(rightFrameBackColor[1]), int.Parse(rightFrameBackColor[2]), int.Parse(rightFrameBackColor[3]));
+                return handlerNoteTitleForeColor;
+            }
+        }      
+
+        private static Color mouseOverBackColor;
+        public static Color MouseOverBackColor
+        {
+            get
+            {
+                if (mouseOverBackColor.IsEmpty)
+                {
+                    mouseOverBackColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "MouseOver").Split(','));
+                }
+
+                return mouseOverBackColor;
+            }
         }
 
-        public static Color GameListBackColor => GetGameListBackColor();
-        private static string[] gameListBackColor = null;
-
-        private static Color GetGameListBackColor()
+        private static Color windowPanelBackColor;
+        public static Color WindowPanelBackColor
         {
-            if (gameListBackColor == null)
+            get
             {
-                gameListBackColor = ThemeConfigFile.IniReadValue("Colors", "GameListBackground").Split(',');
-                return Color.FromArgb(int.Parse(gameListBackColor[0]), int.Parse(gameListBackColor[1]), int.Parse(gameListBackColor[2]), int.Parse(gameListBackColor[3]));
-            }
+                if (windowPanelBackColor.IsEmpty)
+                {
+                    windowPanelBackColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "MainButtonFrameBackground").Split(','));
+                }
 
-            return Color.FromArgb(int.Parse(gameListBackColor[0]), int.Parse(gameListBackColor[1]), int.Parse(gameListBackColor[2]), int.Parse(gameListBackColor[3]));
+                return windowPanelBackColor;
+            }
         }
 
-        public static Color SetupScreenBackColor => GetSetupScreenBackColor();
-        private static string[] setupScreentBackColor = null;
-
-        private static Color GetSetupScreenBackColor()
+        private static Color infoPanelBackColor;
+        public static Color InfoPanelBackColor
         {
-            if (setupScreentBackColor == null)
+            get
             {
-                setupScreentBackColor = ThemeConfigFile.IniReadValue("Colors", "SetupScreenBackground").Split(',');
-                return Color.FromArgb(int.Parse(setupScreentBackColor[0]), int.Parse(setupScreentBackColor[1]), int.Parse(setupScreentBackColor[2]), int.Parse(setupScreentBackColor[3]));
-            }
+                if (infoPanelBackColor.IsEmpty)
+                {
+                    infoPanelBackColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "RightFrameBackground").Split(','));
+                }
 
-            return Color.FromArgb(int.Parse(setupScreentBackColor[0]), int.Parse(setupScreentBackColor[1]), int.Parse(setupScreentBackColor[2]), int.Parse(setupScreentBackColor[3]));
+                return infoPanelBackColor;
+            }
         }
 
-        public static Color BackgroundGradientColor => GetBackgroundGradientColor();
-        private static string[] backgroundGradientColor = null;
-
-        private static Color GetBackgroundGradientColor()
+        private static Color gameListBackColor;
+        public static Color GameListBackColor
         {
-            if (backgroundGradientColor == null)
+            get
             {
-                backgroundGradientColor = ThemeConfigFile.IniReadValue("Colors", "BackgroundGradient").Split(',');
-                return Color.FromArgb(int.Parse(backgroundGradientColor[0]), int.Parse(backgroundGradientColor[1]), int.Parse(backgroundGradientColor[2]), int.Parse(backgroundGradientColor[3]));
-            }
+                if (gameListBackColor.IsEmpty)
+                {
+                    gameListBackColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "GameListBackground").Split(','));
+                }
 
-            return Color.FromArgb(int.Parse(backgroundGradientColor[0]), int.Parse(backgroundGradientColor[1]), int.Parse(backgroundGradientColor[2]), int.Parse(backgroundGradientColor[3]));
+                return gameListBackColor;
+            }
         }
 
-        public static Color HandlerNoteBackColor => GetHandlerNoteBackColor();
-        private static string[] handlerNoteBackColor = null;
+       
 
-        private static Color GetHandlerNoteBackColor()
+        private static Color backgroundGradientColor;
+        public static Color BackgroundGradientColor
         {
-            if (handlerNoteBackColor == null)
+            get
             {
-                handlerNoteBackColor = ThemeConfigFile.IniReadValue("Colors", "HandlerNoteBackground").Split(',');
-                return Color.FromArgb(int.Parse(handlerNoteBackColor[0]), int.Parse(handlerNoteBackColor[1]), int.Parse(handlerNoteBackColor[2]), int.Parse(handlerNoteBackColor[3]));
-            }
+                if (backgroundGradientColor.IsEmpty)
+                {
+                    backgroundGradientColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "BackgroundGradient").Split(','));
+                }
 
-            return Color.FromArgb(int.Parse(handlerNoteBackColor[0]), int.Parse(handlerNoteBackColor[1]), int.Parse(handlerNoteBackColor[2]), int.Parse(handlerNoteBackColor[3]));
+                return backgroundGradientColor;
+            }
         }
 
-        public static Color ButtonsBackColor => GetButtonsBackColor();
-        private static string[] buttonsBackColor = null;
-
-        private static Color GetButtonsBackColor()
+        private static Color defaultBorderGradientColor;
+        public static Color DefaultBorderGradientColor
         {
-            if (buttonsBackColor == null)
+            get
             {
-                buttonsBackColor = ThemeConfigFile.IniReadValue("Colors", "ButtonsBackground").Split(',');
-                return Color.FromArgb(int.Parse(buttonsBackColor[0]), int.Parse(buttonsBackColor[1]), int.Parse(buttonsBackColor[2]), int.Parse(buttonsBackColor[3]));
-            }
+                if (defaultBorderGradientColor.IsEmpty)
+                {
+                    defaultBorderGradientColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "WindowBorderGradient").Split(','));
+                }
 
-            return Color.FromArgb(int.Parse(buttonsBackColor[0]), int.Parse(buttonsBackColor[1]), int.Parse(buttonsBackColor[2]), int.Parse(buttonsBackColor[3]));
+                return defaultBorderGradientColor;
+            }
+        }
+
+        private static Color mainWindowBackColor;
+        public static Color MainWindowBackColor
+        {
+            get
+            {
+                if (mainWindowBackColor.IsEmpty)
+                {
+                    mainWindowBackColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "WindowBorder").Split(','));
+                }
+
+                return mainWindowBackColor;
+            }
+        }
+
+        
+
+        private static Color controlsForeColor;
+        public static Color ControlsForeColor
+        {
+            get
+            {
+                if (controlsForeColor.IsEmpty)
+                {
+                    controlsForeColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "Font").Split(','));
+                }
+
+                return controlsForeColor;
+            }
+        }
+
+        private static Color handlerNoteBackColor;
+        public static Color HandlerNoteBackColor
+        {
+            get
+            {
+                if (handlerNoteBackColor.IsEmpty)
+                {
+                    handlerNoteBackColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "HandlerNoteBackground").Split(','));
+                }
+
+                return handlerNoteBackColor;
+            }
+        }
+
+        private static Color buttonsBackColor;
+        public static Color ButtonsBackColor
+        {
+            get
+            {
+                if (buttonsBackColor.IsEmpty)
+                {
+                    buttonsBackColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "ButtonsBackground").Split(','));
+                }
+
+                return buttonsBackColor;
+            }
+        }
+
+        private static Color buttonsBorderColor;
+        public static Color ButtonsBorderColor
+        {
+            get
+            {
+                if (buttonsBorderColor.IsEmpty)
+                {
+                    buttonsBorderColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "ButtonsBorder").Split(','));
+                }
+
+                return buttonsBorderColor;
+            }
+        }
+
+        private static Color gameOptionMenuBackColor;
+        public static Color GameOptionMenuBackColor
+        {
+            get
+            {
+                if (gameOptionMenuBackColor.IsEmpty)
+                {
+                    gameOptionMenuBackColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "MenuStripBack").Split(','));
+                }
+
+                return gameOptionMenuBackColor;
+            }      
+        }
+
+        private static Color gameOptionMenuForeColor;
+        public static Color GameOptionMenuForeColor
+        {
+            get
+            {
+                if (gameOptionMenuForeColor.IsEmpty)
+                {
+                    gameOptionMenuForeColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "MenuStripFont").Split(','));
+                }
+
+                return gameOptionMenuForeColor;
+            }
+        }
+
+
+        private static Color setupScreenBackColor;
+        public static Color SetupScreenBackColor
+        {
+            get
+            {
+                if (setupScreenBackColor.IsEmpty)
+                {
+                    setupScreenBackColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "SetupScreenBackground").Split(','));
+                }
+
+                return setupScreenBackColor;
+            }
+        }
+
+        private static Color setupScreenForeColor;
+        public static Color SetupScreenForeColor
+        {
+            get
+            {
+                if (setupScreenForeColor.IsEmpty)
+                {
+                    setupScreenForeColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "SetupScreenFont").Split(','));
+                }
+
+                return setupScreenForeColor;
+            }
+        }
+
+        private static Color setupScreenUIScreenColor;
+        public static Color SetupScreenUIScreenColor
+        {
+            get
+            {
+                if (setupScreenUIScreenColor.IsEmpty)
+                {
+                    setupScreenUIScreenColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "SetupScreenBorder").Split(','));
+                }
+
+                return setupScreenUIScreenColor;
+            }
+        }
+
+        private static Color setupScreenPlayerScreenColor;
+        public static Color SetupScreenPlayerScreenColor
+        {
+            get
+            {
+                if (setupScreenPlayerScreenColor.IsEmpty)
+                {
+                    setupScreenPlayerScreenColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "SetupScreenPlayerBorder").Split(','));
+                }
+
+                return setupScreenPlayerScreenColor;
+            }
+        }
+
+
+        public static bool ControllerIdentification => bool.Parse(ThemeConfigFile.IniReadValue("Misc", "ControllerIdentificationOn"));
+
+        public static bool UseSetupScreenBorder => bool.Parse(ThemeConfigFile.IniReadValue("Misc", "UseSetupScreenBorder"));
+
+        public static bool UseLayoutSelectionBorder => bool.Parse(ThemeConfigFile.IniReadValue("Misc", "UseLayoutSelectionBorder"));
+
+        public static bool UseSetupScreenImage => bool.Parse(ThemeConfigFile.IniReadValue("Misc", "UseSetupScreenImage"));
+
+        private static Color ParseColor(string[] colorArray)
+        {
+            if (colorArray.Length == 4)
+            {
+                return Color.FromArgb(int.Parse(colorArray[0]), int.Parse(colorArray[1]), int.Parse(colorArray[2]), int.Parse(colorArray[3]));
+            }
+            else if (colorArray.Length == 3)
+            {
+                return Color.FromArgb(255, int.Parse(colorArray[0]), int.Parse(colorArray[1]), int.Parse(colorArray[2]));
+            }
+            else
+            {
+                return Color.Red;
+            }
         }
     }
 }

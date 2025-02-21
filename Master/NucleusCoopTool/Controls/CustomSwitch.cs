@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace Nucleus.Coop.Controls
 {
-    public partial class CustomRadioButton : UserControl
+    public partial class CustomSwitch : UserControl
     {      
         [Browsable(true)]
         private bool radioChecked;
@@ -69,7 +69,7 @@ namespace Nucleus.Coop.Controls
             set{radioTooltipText = value;}
         }
 
-        public CustomRadioButton()
+        public CustomSwitch()
         {
             InitializeComponent();
             SetStyle(

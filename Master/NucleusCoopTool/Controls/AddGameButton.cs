@@ -8,12 +8,14 @@ using System.Windows.Forms;
 using System.Drawing.Drawing2D;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.UI;
+using Nucleus.Coop.UI;
+using Nucleus.Coop.Tools;
 
 namespace Nucleus.Coop.Controls
 {
-    public partial class AddGameButton : BufferedClientAreaPanel
+    public partial class AddGameButton : DoubleBufferPanel
     {
-        private MainForm mainForm;
+        private MainForm mainForm => UI_Interface.MainForm;
         private Panel favoriteContainer;
         private PictureBox btn_AddGamePb;
         private PictureBox favoriteOnly;
@@ -35,8 +37,6 @@ namespace Nucleus.Coop.Controls
 
         public AddGameButton(int width, int height)
         {
-            mainForm = MainForm.Instance;
-
             InitializeComponent();
 
             favorite_Unselected = ImageCache.GetImage(Globals.ThemeFolder + "favorite_unselected.png");
@@ -64,7 +64,7 @@ namespace Nucleus.Coop.Controls
             btn_AddGameLabel = new Label()
             {
                 TextAlign = ContentAlignment.MiddleLeft,
-                Font = new Font(mainForm.customFont, 8, FontStyle.Bold, GraphicsUnit.Point, 0),
+                Font = new Font(Theme_Settings.CustomFont, 8, FontStyle.Bold, GraphicsUnit.Point, 0),
                 AutoSize = true,
                 Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
                 BackColor = Color.Transparent,
@@ -74,7 +74,7 @@ namespace Nucleus.Coop.Controls
             btn_AddGameLabel.MouseEnter += ZoomInPicture;
             btn_AddGameLabel.MouseLeave += ZoomOutPicture;
 
-            favoriteContainer = new BufferedClientAreaPanel()//So it is easier to click the favorite button without opening the webview
+            favoriteContainer = new DoubleBufferPanel()//So it is easier to click the favorite button without opening the webview
             {
                 Size = new Size(Height, Height),
                 BackColor = Color.Transparent,
@@ -87,7 +87,7 @@ namespace Nucleus.Coop.Controls
                 BackColor = Color.Transparent,
                 Cursor = Theme_Settings.Hand_Cursor,
                 Size = new Size(baseSize / 2, baseSize / 2),
-                Image = mainForm.ShowFavoriteOnly ? favorite_Selected : favorite_Unselected,
+                Image = UI_Interface.ShowFavoriteOnly ? favorite_Selected : favorite_Unselected,
             };
 
             favoriteOnly.Click += FavoriteOnly_Click;
@@ -100,18 +100,18 @@ namespace Nucleus.Coop.Controls
 
             Controls.Add(btn_AddGamePb);
             Controls.Add(btn_AddGameLabel);
-            Controls.Add(favoriteContainer);
+            //Controls.Add(favoriteContainer);
 
-            Click += mainForm.ClickAnyControl;
+            Click += Generic_Functions.ClickAnyControl;
 
             foreach (Control control in Controls)
             {
-                control.Click += mainForm.ClickAnyControl;
+                control.Click += Generic_Functions.ClickAnyControl;
                 if (control.HasChildren)
                 {
                     foreach (Control child in control.Controls)
                     {
-                        child.Click += mainForm.ClickAnyControl;
+                        child.Click += Generic_Functions.ClickAnyControl;
                     }
                 }
             }
@@ -121,9 +121,9 @@ namespace Nucleus.Coop.Controls
 
         public void Update(bool connected)
         {          
-            Click += connected ? mainForm.InsertWebview : new EventHandler(RefreshNetStatus);
-            btn_AddGamePb.Click += connected ? mainForm.InsertWebview : new EventHandler(RefreshNetStatus);
-            btn_AddGameLabel.Click += connected ? mainForm.InsertWebview : new EventHandler(RefreshNetStatus);
+            Click += connected ? Generic_Functions.InsertWebview : new EventHandler(RefreshNetStatus);
+            btn_AddGamePb.Click += connected ? Generic_Functions.InsertWebview : new EventHandler(RefreshNetStatus);
+            btn_AddGameLabel.Click += connected ? Generic_Functions.InsertWebview : new EventHandler(RefreshNetStatus);
 
             btn_AddGameLabel.Text = connected ? "Add New Games" : "Offline";
             btn_AddGamePb.BackgroundImage = connected ? ImageCache.GetImage(Globals.ThemeFolder + "add_game.png") : ImageCache.GetImage(Globals.ThemeFolder + "title_no_hub.png");
@@ -163,15 +163,15 @@ namespace Nucleus.Coop.Controls
 
         private void FavoriteOnly_Click(object sender, EventArgs e)
         {
-            if (GameManager.Instance.User.Games.All(g => g.Game.MetaInfo.Favorite == false) && !mainForm.ShowFavoriteOnly) { return; }
+            if (GameManager.Instance.User.Games.All(g => g.Game.MetaInfo.Favorite == false) && !UI_Interface.ShowFavoriteOnly) { return; }
 
             bool selected = favoriteOnly.Image.Equals(favorite_Selected);
 
             favoriteOnly.Image = selected ? favorite_Unselected : favorite_Selected;
-            mainForm.ShowFavoriteOnly = !selected;
+            UI_Interface.ShowFavoriteOnly = !selected;
 
-            App_Misc.ShowFavoriteOnly = mainForm.ShowFavoriteOnly; 
-            mainForm.RefreshGames();
+            App_Misc.ShowFavoriteOnly = UI_Interface.ShowFavoriteOnly;
+            SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
             mainForm.Invalidate(false);
         }
 

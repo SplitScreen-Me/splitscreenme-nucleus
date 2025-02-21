@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Coop;
 using System;
@@ -13,7 +14,6 @@ namespace Nucleus.Coop.Tools
     {
         public static void Remove(UserGameInfo currentGameInfo, bool dontConfirm)
         {
-            MainForm mainForm = MainForm.Instance;
             GameManager gameManager = GameManager.Instance;
 
             string userProfile = gameManager.GetUserProfilePath();
@@ -51,7 +51,7 @@ namespace Nucleus.Coop.Tools
                                     }
                                     catch (IOException)
                                     {
-                                        mainForm.cover.BackgroundImage.Dispose();
+                                        UI_Interface.Cover.BackgroundImage.Dispose();
                                         File.Delete(Path.Combine(Application.StartupPath, $"gui\\covers\\{gameGuid}.jpeg"));                                  
                                     }
                                 }
@@ -64,7 +64,7 @@ namespace Nucleus.Coop.Tools
                                     }
                                     catch (Exception)
                                     {
-                                        mainForm.clientAreaPanel.BackgroundImage.Dispose();
+                                        UI_Interface.HomeScreen.BackgroundImage.Dispose();
                                         Directory.Delete(Path.Combine(Application.StartupPath, $"gui\\screenshots\\{gameGuid}"), true);
                                     }
                                 }
@@ -91,11 +91,11 @@ namespace Nucleus.Coop.Tools
                                 //    File.WriteAllLines(Path.Combine(Directory.GetCurrentDirectory() + "\\gui\\icons\\icons.ini"), newContent);
                                 //}
 
-                                mainForm.RefreshUI(true);
+                                UI_Functions.RefreshUI(true);
                                 return;
                             }
 
-                            mainForm.RefreshUI(false);
+                            UI_Functions.RefreshUI(false);
                         }
                     }
                 }

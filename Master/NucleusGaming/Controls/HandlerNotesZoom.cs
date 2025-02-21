@@ -9,22 +9,17 @@ using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Controls
 {
-    public partial class HandlerNotesZoom : BufferedClientAreaPanel, IDynamicSized
+    public partial class HandlerNotesZoom : DoubleBufferPanel, IDynamicSized
     {
         public TransparentRichTextBox Notes => TextBox;
+        public Font DefaultNotesFont;
         private Pen linePen;
 
-        private string customFont;
-
         public HandlerNotesZoom()
-        {
-            customFont = Globals.ThemeConfigFile.IniReadValue("Font", "FontFamily");
-
+        {         
             InitializeComponent();
 
-            ForeColor = Color.FromArgb(int.Parse(Globals.ThemeConfigFile.IniReadValue("Colors", "HandlerNoteFont").Split(',')[0]),
-                                       int.Parse(Globals.ThemeConfigFile.IniReadValue("Colors", "HandlerNoteFont").Split(',')[1]), 
-                                       int.Parse(Globals.ThemeConfigFile.IniReadValue("Colors", "HandlerNoteFont").Split(',')[2]));
+            ForeColor = Theme_Settings.HandlerNoteForeColor;
 
             BackColor = Theme_Settings.HandlerNoteBackColor;
 
@@ -34,7 +29,11 @@ namespace Nucleus.Gaming.Controls
 
             linePen = new Pen(TextBox.ForeColor, 1);
 
+            TextBox.DetectUrls = true;
+            TextBox.Width = Width - 10;
+
             MouseDown += HandlerNotesZoom_MouseDown;
+            TextBox.Resize += OnResize;
 
             DPIManager.Register(this);
         }
@@ -68,10 +67,17 @@ namespace Nucleus.Gaming.Controls
         {
             close_Btn.Size = new Size((int)(20 * scale), (int)(20 * scale));
             close_Btn.Location = new Point(Width / 2 - (close_Btn.Width / 2), (Height - close_Btn.Height) - 10);
-            warning.Height = (int)(warning.Height * scale);
-            TextBox.Height -= warning.Height + close_Btn.Height;
-            TextBox.Location = new Point(0, warning.Bottom + 10);
-            TextBox.Font = new Font(customFont, 18f * scale, FontStyle.Regular, GraphicsUnit.Pixel, 0);
+            Warning.Height = (int)(Warning.Height * scale);
+            TextBox.Height -= Warning.Height + close_Btn.Height;
+            TextBox.Location = new Point(0, Warning.Bottom + 10);
+            TextBox.Font = new Font(Theme_Settings.CustomFont, 18f * scale, FontStyle.Regular, GraphicsUnit.Pixel, 0);
+            DefaultNotesFont = TextBox.Font;
+        }
+
+        private void OnResize(object sender, EventArgs e)
+        {
+            close_Btn.Location = new Point(Width / 2 - (close_Btn.Width / 2),TextBox.Bottom + 30);
+            TextBox.Width = Width - 10;
         }
 
         private const int WM_NCLBUTTONDOWN = 0xA1;

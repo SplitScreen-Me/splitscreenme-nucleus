@@ -713,7 +713,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                 // data.HWnd.TopMost = false;//debug
 
-                Rectangle ownerBounds = WindowsMerger.Instance == null ? new Rectangle(p.Owner.display.X, p.Owner.display.Y, p.Owner.display.Width, p.Owner.display.Height)
+                Rectangle ownerBounds = WindowsMerger.Instance == null ? new Rectangle(p.Owner.MonitorBounds.X, p.Owner.MonitorBounds.Y, p.Owner.MonitorBounds.Width, p.Owner.MonitorBounds.Height)
                                                                        : WindowsMerger.Instance.WindowBounds;
 
                 Rectangle localizeFirstOfScr = new Rectangle(ownerBounds.Location.X, ownerBounds.Location.Y, 20, 20);
@@ -736,7 +736,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                             if (fisrtOfScr)
                             {
                                 Rectangle Win = new Rectangle(adjust ? ownerBounds.Location.X + 1 : ownerBounds.Location.X,
-                                                              adjust ? ownerBounds.Location.Y + 1 : p.Owner.display.Location.Y,
+                                                              adjust ? ownerBounds.Location.Y + 1 : p.Owner.MonitorBounds.Location.Y,
                                                               adjust ? (ownerBounds.Width / 2) - 3 : ownerBounds.Width / 2,
                                                               adjust ? ownerBounds.Height - 2 : ownerBounds.Height);
                                 data.HWnd.Size = Win.Size;
@@ -1027,7 +1027,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                     return;
                 }
 
-                Rectangle ownerBounds = WindowsMerger.Instance == null ? new Rectangle(p.Owner.display.X, p.Owner.display.Y, p.Owner.display.Width, p.Owner.display.Height)
+                Rectangle ownerBounds = WindowsMerger.Instance == null ? new Rectangle(p.Owner.MonitorBounds.X, p.Owner.MonitorBounds.Y, p.Owner.MonitorBounds.Width, p.Owner.MonitorBounds.Height)
                                                                         : WindowsMerger.Instance.WindowBounds;
                 Point hiddenWindowsLoc = WindowsMerger.Instance == null ? new Point(-32000, -32000) : new Point(ownerBounds.Right, 1);
 

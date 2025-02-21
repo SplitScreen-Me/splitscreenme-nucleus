@@ -35,8 +35,8 @@
             this.next = new System.Windows.Forms.Button();
             this.home = new System.Windows.Forms.Button();
             this.button_Panel = new System.Windows.Forms.Panel();
-            this.modal = new BufferedClientAreaPanel();
-            this.modalControlsContainer = new BufferedClientAreaPanel();
+            this.modal = new DoubleBufferPanel();
+            this.modalControlsContainer = new DoubleBufferPanel();
             this.modal_text = new System.Windows.Forms.Label();
             this.modal_yes = new System.Windows.Forms.Button();
             this.modal_no = new System.Windows.Forms.Button();
@@ -229,7 +229,7 @@
 
         private Microsoft.Web.WebView2.WinForms.WebView2 webView;
         private System.Windows.Forms.Button closeBtn;
-        private BufferedClientAreaPanel modal;
+        private DoubleBufferPanel modal;
         private System.Windows.Forms.Button back;
         private System.Windows.Forms.Button next;
         private System.Windows.Forms.Button home;
@@ -237,6 +237,6 @@
         private System.Windows.Forms.Label modal_text;
         private System.Windows.Forms.Button modal_no;
         private System.Windows.Forms.Button modal_yes;
-        private BufferedClientAreaPanel modalControlsContainer;
+        private DoubleBufferPanel modalControlsContainer;
     }
 }

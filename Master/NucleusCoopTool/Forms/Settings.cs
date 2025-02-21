@@ -1,5 +1,6 @@
 ﻿using NAudio.CoreAudioApi;
 using Nucleus.Coop.Controls;
+using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Cache;
@@ -29,8 +30,6 @@ namespace Nucleus.Coop
 
     public partial class Settings : Form, IDynamicSized
     {
-        private MainForm mainForm;
-
         private string prevTheme;
         private string currentNickname;
         private string currentSteamId;
@@ -70,7 +69,6 @@ namespace Nucleus.Coop
         public Settings()
         {
             fontSize = float.Parse(Globals.ThemeConfigFile.IniReadValue("Font", "SettingsFontSize"));
-            mainForm = MainForm.Instance;
 
             InitializeComponent();
 
@@ -84,6 +82,8 @@ namespace Nucleus.Coop
             BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "other_backgrounds.jpg");
 
             _ctrlr_shorcuts = ctrlr_shorcutsBtn;
+
+            Font = new Font(Theme_Settings.CustomFont, Font.Size, Font.Style, GraphicsUnit.Pixel, 0);
 
             Controlscollect();
 
@@ -99,7 +99,7 @@ namespace Nucleus.Coop
                 {
                     if (c.Name != "audioWarningLabel" && c.Name != "warningLabel")
                     {
-                        c.Font = new Font(mainForm.customFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
+                        c.Font = new Font(Theme_Settings.CustomFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
                     }
 
                     if(c is CustomCheckBox checkbox)
@@ -121,7 +121,7 @@ namespace Nucleus.Coop
 
                 if (c is FlatCombo || c is FlatTextBox || c is GroupBox)
                 {
-                    c.Font = new Font(mainForm.customFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
+                    c.Font = new Font(Theme_Settings.CustomFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
 
                     if(c is FlatCombo fCB)
                     {                   
@@ -143,7 +143,7 @@ namespace Nucleus.Coop
 
                 if (c is CustomNumericUpDown num)
                 {
-                    num.Font = new Font(mainForm.customFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
+                    num.Font = new Font(Theme_Settings.CustomFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
                     num.UpdownBackColor = Color.FromArgb(selectionColor.R, selectionColor.G, selectionColor.B);
                 }
 
@@ -180,26 +180,28 @@ namespace Nucleus.Coop
 
                 if (c.Parent.Name == "hotkeyBox")
                 {
-                    c.Font = new Font(mainForm.customFont, fontSize, FontStyle.Bold, GraphicsUnit.Pixel, 0);
+                    c.Font = new Font(Theme_Settings.CustomFont, fontSize, FontStyle.Bold, GraphicsUnit.Pixel, 0);
                 }
+
+                c.Font = new Font(Theme_Settings.CustomFont,c.Font.Size, c.Font.Style, GraphicsUnit.Pixel, 0);
 
             }
 
-            ForeColor = Color.FromArgb(int.Parse(mainForm.rgb_font[0]), int.Parse(mainForm.rgb_font[1]), int.Parse(mainForm.rgb_font[2]));
+            ForeColor = Theme_Settings.ControlsForeColor;
 
             ctrlr_shorcutsBtn.BackColor = Color.FromArgb(255, 31, 34, 35);
             ctrlr_shorcutsBtn.FlatAppearance.MouseOverBackColor = ctrlr_shorcutsBtn.BackColor;
             btn_Gb_Update.BackColor = Color.FromArgb(255, 31, 34, 35);
             btn_Gb_Update.FlatAppearance.MouseOverBackColor = btn_Gb_Update.BackColor;
 
-            audioBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "audio.png");
-            playersBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "players.png");
-            settingsBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "shared.png");
-            layoutBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "layout.png");
-            closeBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "title_close.png");
-            audioRefresh.BackgroundImage = ImageCache.GetImage(mainForm.theme + "refresh.png");
-            btnNext.BackgroundImage = ImageCache.GetImage(mainForm.theme + "page1.png");
-            refreshScreenDatasButton.BackgroundImage = ImageCache.GetImage(mainForm.theme + "refresh.png");
+            audioBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "audio.png");
+            playersBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "players.png");
+            settingsBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "shared.png");
+            layoutBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "layout.png");
+            closeBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close.png");
+            audioRefresh.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "refresh.png");
+            btnNext.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "page1.png");
+            refreshScreenDatasButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "refresh.png");
 
             plus1.ForeColor = ForeColor;
             plus2.ForeColor = ForeColor;
@@ -236,7 +238,7 @@ namespace Nucleus.Coop
             page1.BringToFront();
 
             btnNext.Parent = playersTab;
-            btnNext.BackColor = mainForm.buttonsBackColor;
+            btnNext.BackColor = Theme_Settings.ButtonsBackColor;
             btnNext.FlatAppearance.MouseOverBackColor = Color.Transparent;
             btnNext.Location = new Point(page1.Right - btnNext.Width, (page1.Top - btnNext.Height) - 5);
            
@@ -327,7 +329,7 @@ namespace Nucleus.Coop
                     _path[last]
                 });
 
-                string[] themeName = mainForm.theme.Split('\\');
+                string[] themeName = Globals.ThemeFolder.Split('\\');
                 if (_path[last] != themeName[themeName.Length - 2])
                 {
                     continue;
@@ -731,7 +733,7 @@ namespace Nucleus.Coop
                 if (DevicesFunctions.UseGamepadApiIndex != gamepadsAssignMethods.Checked)
                 {
                     DevicesFunctions.UseGamepadApiIndex = gamepadsAssignMethods.Checked;
-                    mainForm.RefreshUI(true);
+                    UI_Functions.RefreshUI(true);
                 }
             }
 
@@ -745,13 +747,13 @@ namespace Nucleus.Coop
             if (themeCbx.SelectedItem.ToString() != prevTheme)
             {
                 App_Misc.Theme = themeCbx.SelectedItem.ToString();
-                mainForm.restartRequired = true;
+                UI_Interface.RestartRequired = true;
                 needToRestart = true;
             }
 
-            if (mainForm.Xinput_S_Setup.Visible)
+            if (UI_Interface.Xinput_S_Setup.Visible)
             {
-                mainForm.Xinput_S_Setup.Visible = false;
+                UI_Interface.Xinput_S_Setup.Visible = false;
             }
 
             #region take a picture of the hotkeys
@@ -803,7 +805,7 @@ namespace Nucleus.Coop
             }
 
             App_Misc.SettingsLocation = Location.X + "X" + Location.Y;
-            mainForm.BringToFront();
+            UI_Interface.MainForm.BringToFront();
             Visible = false;
         }
 
@@ -929,23 +931,23 @@ namespace Nucleus.Coop
 
         private void CloseBtnPicture_MouseEnter(object sender, EventArgs e)
         {
-            closeBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "title_close_mousehover.png");
+            closeBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close_mousehover.png");
         }
 
         private void CloseBtnPicture_MouseLeave(object sender, EventArgs e)
         {
-            closeBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "title_close.png");
+            closeBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close.png");
         }
 
         private void Ctrlr_shorcuts_Click(object sender, EventArgs e)
         {
-            if (mainForm.Xinput_S_Setup.Visible)
+            if (UI_Interface.Xinput_S_Setup.Visible)
             {
-                mainForm.Xinput_S_Setup.BringToFront();
+                UI_Interface.Xinput_S_Setup.BringToFront();
                 return;
             }
 
-            mainForm.Xinput_S_Setup.Show();
+            UI_Interface.Xinput_S_Setup.Show();
         }
 
         private void KeepAccountsCheck_Click(object sender, EventArgs e)
@@ -1367,7 +1369,7 @@ namespace Nucleus.Coop
                 debugLogCheck.Checked = App_Misc.DebugLog;
             }
 
-            mainForm.DisableGameProfiles = disableGameProfiles.Checked;
+            Core_Interface.DisableGameProfiles = disableGameProfiles.Checked;
         }
 
         private const int WM_NCLBUTTONDOWN = 0xA1;

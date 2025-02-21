@@ -4,7 +4,7 @@ using Nucleus.Gaming.Coop;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-
+using Nucleus.Coop.UI;
 
 namespace Nucleus.Coop.Tools
 {
@@ -12,7 +12,7 @@ namespace Nucleus.Coop.Tools
     {
         public static void ChangeIcon(UserGameInfo userGameInfo)
         {
-            MainForm mainForm = MainForm.Instance;
+            MainForm mainForm = UI_Interface.MainForm;
 
             using (OpenFileDialog dlg = new OpenFileDialog())
             {
@@ -32,11 +32,11 @@ namespace Nucleus.Coop.Tools
                     //string prevImage = userGameInfo.Game.MetaInfo.IconPath;
                     userGameInfo.Game.MetaInfo.IconPath = dlg.FileName;
 
-                    lock (mainForm.controls)
+                    lock (Core_Interface.GameControlsInfo)
                     {
-                        if (mainForm.controls.ContainsKey(userGameInfo))
+                        if (Core_Interface.GameControlsInfo.ContainsKey(userGameInfo))
                         {
-                            GameControl control = mainForm.controls[userGameInfo];
+                            GameControl control = Core_Interface.GameControlsInfo[userGameInfo];
 
                             if (userGameInfo.Game.MetaInfo.IconPath.EndsWith(".exe"))
                             { 

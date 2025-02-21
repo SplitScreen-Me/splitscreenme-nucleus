@@ -89,7 +89,11 @@ namespace Nucleus.Gaming.Tools.Steam
         {
             string lang;
 
-            if (App_Misc.SteamLang != "" && App_Misc.SteamLang != "Automatic")
+            if(game.MetaInfo.SteamLanguage != null && game.MetaInfo.SteamLanguage != "App Setting")
+            {
+                lang = game.MetaInfo.SteamLanguage;
+            }
+            else if (App_Misc.SteamLang != "" && App_Misc.SteamLang != "Automatic")
             {
                 lang = App_Misc.SteamLang.ToLower();
             }

@@ -109,10 +109,10 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             if (profile?.DevicesList != null)
             {
-                foreach (PlayerInfo player in profile.DevicesList)
-                {
-                    player.DInputJoystick?.Dispose();
-                }
+                //foreach (PlayerInfo player in profile.DevicesList)
+                //{
+                //    player.DInputJoystick?.Dispose();
+                //}
             }
         }
 
@@ -122,12 +122,12 @@ namespace Nucleus.Gaming.Controls.SetupScreen
            
             foreach (PlayerInfo player in profile.DevicesList)
             {
-                player.DInputJoystick?.Unacquire();
+                if(player.DInputJoystick != null)
                 player.DInputJoystick?.Dispose();
             }
 
             DevicesFunctions.ClearDInputDevicesList();
-            DevicesFunctions.gamepadTimer?.Dispose();
+            DevicesFunctions.DisposeGamePadTimer();
         }
 
         protected override void OnSizeChanged(EventArgs e)
@@ -187,8 +187,12 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 PlayerInfo player = profile.DevicesList[i];
 
                 if (GameProfile.Loaded)
-                {
-                    GameProfile.FindProfilePlayers(player);
+                {  
+                    if(!BoundsFunctions.dragging)
+                    {
+                        GameProfile.FindProfilePlayers(player);
+                    }
+                    
                     Draw.GhostBounds(e.Graphics);
                 }
 

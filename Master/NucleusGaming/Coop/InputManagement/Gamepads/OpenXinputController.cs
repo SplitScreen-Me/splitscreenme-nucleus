@@ -6,6 +6,7 @@ using SharpDX.Mathematics.Interop;
 using SharpDX.Win32;
 using SharpDX.XInput;
 using System.Runtime.InteropServices;
+using static Nucleus.Gaming.Coop.OpenXinputController.NativeOpenXinput;
 
 namespace Nucleus.Gaming.Coop
 {
@@ -13,6 +14,17 @@ namespace Nucleus.Gaming.Coop
     {
         public static class NativeOpenXinput
         {
+            [StructLayout(LayoutKind.Sequential)]
+            public struct CapabilitiesEx
+            {
+                public Capabilities Capabilities;  // Nested structure
+                public ushort VendorId;       // WORD -> ushort (16-bit)
+                public ushort ProductId;      // WORD -> ushort (16-bit)
+                public ushort ProductVersion; // WORD -> ushort (16-bit)
+                public ushort unk1;           // WORD -> ushort (16-bit)
+                public uint unk2;             // DWORD -> uint (32-bit)
+            }
+
             [DllImport("openxinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetKeystroke")]
             public static extern int XInputGetKeystroke(int dwUserIndex, int dwReserved, out Keystroke keystrokeRef);
 
@@ -35,6 +47,7 @@ namespace Nucleus.Gaming.Coop
 
             [DllImport("openxinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetCapabilities")]
             public static extern int XInputGetCapabilities(int dwUserIndex, DeviceQueryType dwFlags, out Capabilities capabilitiesRef);
+
         }
 
         public static class NativeXinput
@@ -80,6 +93,24 @@ namespace Nucleus.Gaming.Coop
                 ).CheckError();
             return temp;
         }
+
+
+        [DllImport("openxinput1_3.dll", EntryPoint = "#108", CallingConvention = CallingConvention.StdCall)]
+        public static extern uint XInputGetCapabilitiesEx(
+       uint dwReserved,   // Must be 1
+       uint dwUserIndex,  // Controller index
+       uint dwFlags,      // Device query flags
+       out CapabilitiesEx pCapabilitiesEx // Receives capabilities
+        );
+
+        //[DllImport("openxinput1_3.dll", CharSet = CharSet.Auto, EntryPoint = "XInputGetCapabilitiesEx")]
+        //public static extern uint XInputGetCapabilitiesEx(uint reserved /*must be 1*/, uint dwUserIndex, DeviceQueryType dwFlags, out CapabilitiesEx capabilitiesExRef);
+        ////public CapabilitiesEx XInputGetCapabilitiesEx(uint reserved /*must be 1*/, uint dwUserIndex, uint dwFlags)
+        ////{
+        ////    CapabilitiesEx temp;
+        ////    NativeOpenXinput.XInputGetCapabilitiesEx(reserved, dwUserIndex, dwFlags, out temp);
+        ////    return temp;
+        ////}
 
         public Capabilities GetCapabilities(DeviceQueryType deviceQueryType)
         {

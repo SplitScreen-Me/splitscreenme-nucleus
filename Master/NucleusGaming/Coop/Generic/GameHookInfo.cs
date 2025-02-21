@@ -26,6 +26,12 @@
         /// </summary>
         public bool XInputEnabled;
 
+
+        /// <summary>
+        /// If the game supports xinput joysticks
+        /// </summary>
+        public bool SDL2Enabled;
+
         public string[] XInputNames = new string[]
         {
             "xinput1_3.dll"
