@@ -10,6 +10,9 @@ namespace Gamepads
 {
     unsafe public static class SDLDevices
     {
+
+        private static bool logDeviceInfo = false;
+
         public static bool SDL_INITIALIZED { get; private set; }
         public static List<SDL_GameController> SDL2DevicesList = new List<SDL_GameController>();
         public static int JoystickCount => SDL2.NumJoysticks();
@@ -52,16 +55,15 @@ namespace Gamepads
 
         private static void Refresh_SDL_CallBack(SynchronizationContext syncContext)
         {
-            // Post the method call back to DevicesFunctions thread(main thread)
+            // Post the method callback to DevicesFunctions thread(main thread)
             syncContext.Post(_ =>
             {
-                DevicesFunctions.RefreshSDL();
+                DevicesFunctions.RefreshSDL(syncContext);
 
             }, null);
         }
 
-
-        public static void Refresh()
+        public static void Refresh(SynchronizationContext syncContext)
         {
             for (int i = 0; i < SDL2DevicesList.Count; i++)
             {
@@ -72,13 +74,13 @@ namespace Gamepads
             SDL2DevicesList.Clear();
 
             SDL2.Quit();
-
+            SDL_INITIALIZED = false;
             Thread.Sleep(1000);
 
             SDL2.InitSubSystem(InitFlags.Video);
             SDL2.InitSubSystem(InitFlags.GameController);
-
-            InitGameControllers();
+            
+            InitSDL(syncContext);
         }
 
         private static void InitGameControllers()
@@ -90,11 +92,14 @@ namespace Gamepads
             {
                 SDL_GameController controller = SDL2.GameControllerOpen(i);
                 SDL2DevicesList.Add(controller);        
-               // LogDeviceInfo(controller);
+                
+                if(logDeviceInfo)
+                {
+                    LogDeviceInfo(controller);
+                }
+
                 LoadControllerMapping(controller);           
             }
-
-            SDL2.QuitSubSystem(InitFlags.Video);
         }
     
         #endregion
@@ -130,7 +135,7 @@ namespace Gamepads
 
                 SDL2.GameControllerUpdate();
 
-                SDL2.SDL_Delay(50);
+                SDL2.SDL_Delay(16);
             }
         }
 

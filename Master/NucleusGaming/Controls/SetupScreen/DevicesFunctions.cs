@@ -29,7 +29,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             useGamepadApiIndex = App_Misc.UseXinputIndex;
 
             _syncContext = SynchronizationContext.Current ?? new SynchronizationContext();
-            Console.WriteLine($"Main Thread (Thread A) ID: {Thread.CurrentThread.ManagedThreadId}");
 
             ClearDInputDevicesList();
             SDLDevices.InitSDL(_syncContext);
@@ -37,9 +36,9 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             GamepadTimer = new System.Threading.Timer(GamepadTimer_Tick, null, 0, 500);         
         }
 
-        public static void RefreshSDL()
+        public static void RefreshSDL(SynchronizationContext syncContext)
         {
-            SDLDevices.Refresh();
+            SDLDevices.Refresh(syncContext);       
         }
 
         internal static List<Joystick> JoyStickList = new List<Joystick>();
