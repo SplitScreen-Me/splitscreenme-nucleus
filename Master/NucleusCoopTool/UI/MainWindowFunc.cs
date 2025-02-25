@@ -8,13 +8,13 @@ using System.Diagnostics;
 using Nucleus.Gaming.App.Settings;
 using System.Linq;
 using System.Drawing;
+using Nucleus.Gaming.Cache;
 
 namespace Nucleus.Coop.UI
 {
     public static class MainWindowFunc
     {
         private static System.Windows.Forms.Timer FadeInTimer;
-        //public static List<Control> AllFormControls = new List<Control>();
 
         public static void SetWindowSizeAndLoc(MainForm mainForm)
         {
@@ -113,26 +113,6 @@ namespace Nucleus.Coop.UI
             }
         }
 
-
-        //public static void MainFormShown(EventArgs e)
-        //{
-        //    //base.OnShown(e);
-        //    //WebStatusTimer = new System.Windows.Forms.Timer();
-        //    //WebStatusTimer.Interval = (2000);
-        //    //WebStatusTimer.Tick += WebStatusTimerTick;
-        //    //WebStatusTimer.Start();
-        //    DPIManager.ForceUpdate();
-
-        //    if (startArgs != null)
-        //    {
-        //        GameControl con = Core_Interface.GameControlsInfo?.Where(g => g.Value.GameInfo.GUID == startArgs[0]).FirstOrDefault().Value;
-
-        //        if (con != null)
-        //            UI_Functions.GameList_SelectedChanged(con, null);
-        //    }
-        //}
-
-
         public static void MainForm_ClientSizeChanged(object sender, EventArgs e)
         {
             MainForm mainForm = (MainForm)sender;
@@ -160,7 +140,7 @@ namespace Nucleus.Coop.UI
                 Generic_Functions.SizeAndScaleTuto();
             }
 
-            //maximizeBtn.BackgroundImage = mainForm.WindowState == FormWindowState.Maximized ? ImageCache.GetImage(Globals.ThemeFolder + "title_windowed.png") : ImageCache.GetImage(Globals.ThemeFolder + "title_maximize.png");
+            UI_Interface.MaximizeButton.BackgroundImage = mainForm.WindowState == FormWindowState.Maximized ? ImageCache.GetImage(Globals.ThemeFolder + "title_windowed.png") : ImageCache.GetImage(Globals.ThemeFolder + "title_maximize.png");
 
             if (UI_Interface.SetupScreen != null && Core_Interface.I_GameHandler == null)
             {
@@ -210,8 +190,6 @@ namespace Nucleus.Coop.UI
         {
             MainForm mainForm = (MainForm)sender;
 
-            //base.OnFormClosed(e);
-
             UI_Interface.IsFormClosing = true;
 
             Core_Interface.I_GameHandlerEndFunc("OnFormClosed", false);
@@ -225,11 +203,5 @@ namespace Nucleus.Coop.UI
                 Process.GetCurrentProcess().Kill();
             }
         }
-
-        public static void MainForm_Deactivate(object sender, EventArgs e)
-        {
-            //txt_version.Focus();
-        }
-        
     }
 }

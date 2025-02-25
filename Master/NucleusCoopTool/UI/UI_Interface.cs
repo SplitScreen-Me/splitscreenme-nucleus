@@ -55,7 +55,6 @@ namespace Nucleus.Coop.UI
                     FormGraphicsUtil.CreateRoundedControlRegion(mainForm, 0, 0, mainForm.Width, mainForm.Height, 20, 20);
                 }
 
-                //mainForm.Shown += 
                 mainForm.ClientSizeChanged += MainWindowFunc.MainForm_ClientSizeChanged;
                 mainForm.ResizeBegin += MainWindowFunc.MainForm_ResizeBegin;
                 mainForm.ResizeEnd += MainWindowFunc.MainForm_ResizeEnd;
@@ -711,7 +710,7 @@ namespace Nucleus.Coop.UI
             if (bool.Parse(Globals.ThemeConfigFile.IniReadValue("Misc", "HideVersion")) == false)
             {
                 versionTxt.Text = Globals.Version;
-                versionTxt.ForeColor = ForeColor;
+                versionTxt.ForeColor = MainForm.ForeColor;
             }
             else
             {

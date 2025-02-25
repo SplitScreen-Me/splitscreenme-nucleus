@@ -13,7 +13,7 @@ using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Markup;
-
+using static Nucleus.Gaming.Coop.OpenXinputController.NativeOpenXinput;
 using static SDL.SDL_ControllerUtils;
 
 namespace Nucleus.Gaming.Controls.SetupScreen
@@ -36,6 +36,12 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             GamepadTimer = new System.Threading.Timer(GamepadTimer_Tick, null, 0, 500);         
         }
 
+
+        /// <summary>
+        /// We need this if a new controller is plugged after sdl initialization
+        /// else Nucleus sdl gamepad indexes will not match with the custom sdl one loaded by the game.
+        /// </summary>
+        /// <param name="RefreshSDL"></param>
         public static void RefreshSDL(SynchronizationContext syncContext)
         {
             SDLDevices.Refresh(syncContext);       
@@ -96,7 +102,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             }
         }
        
-
         internal static void Vibration_Tick(object state)
         {
             PlayerInfo player = (PlayerInfo)state;
@@ -151,6 +156,14 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             try
             {
+                //if (vgmDevicesOnly)
+                //{
+                //    if (!player.DInputJoystick.Properties.VendorId.ToString().StartsWith("202"))
+                //    {
+                //        return false;
+                //    }
+                //}
+
                 if ((bool)player.DInputJoystick?.GetCurrentState().Buttons.Any(b => b == true))
                 {
                     return true;
@@ -179,6 +192,20 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 {
                     return false;
                 }
+
+                if (vgmDevicesOnly)
+                {
+                    CapabilitiesEx cap;
+                    var _cap = OpenXinputController.XInputGetCapabilitiesEx((uint)1, (uint)player.GamepadId, 1, out cap);
+
+                    if (!cap.VendorId.ToString().StartsWith("202"))
+                    {
+                        return false;
+                    }
+
+                    JoyStickList = JoyStickList.Where(j => j.Properties.VendorId.ToString().StartsWith("202")).ToList();
+                }
+
 
                 if (player.XInputJoystick.GetState().Gamepad.Buttons != 0)
                 {
@@ -265,7 +292,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             return false;
         }
 
-        public static bool FindSDLDInputDeviceGUID(PlayerInfo player)
+        public static bool PollSDLGamepad(PlayerInfo player)
         {
             if (polling)
             {
@@ -351,8 +378,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             {
                                 SendRumble(player.SDL2Joystick);
                                 player.Vibrate = true;
-                            }
-                          
+                            }                  
                         }
                     }
 
@@ -463,7 +489,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         }
                     }
 
-
                     DeletePlayers(playersToDelete);
 
                     for (int i = 0; i < devices.Count; i++)
@@ -487,24 +512,29 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             continue;
                         }
 
-                        changed = true;
+                        Joystick joystick = new Joystick(dinput, devices[i].InstanceGuid);
 
-                        // new gamepad
-                        PlayerInfo player = new PlayerInfo
+                        PlayerInfo player = new PlayerInfo();
+
+                        if (vgmDevicesOnly)
                         {
-                            DInputJoystick = new Joystick(dinput, devices[i].InstanceGuid)
-                        };
+                            if (!joystick.Properties.VendorId.ToString().StartsWith("202"))
+                            {
+                                continue;
+                            }
+                        }
 
-                        if (player.DInputJoystick.Properties.InterfacePath.ToUpper().Contains("IG_") && !g.Hook.XInputReroute && g.Hook.XInputEnabled)
+                        if (joystick.Properties.InterfacePath.ToUpper().Contains("IG_") && !g.Hook.XInputReroute && g.Hook.XInputEnabled)
                         {
                             continue;
                         }
 
+                        joystick.Acquire();
+                        player.DInputJoystick = joystick;
                         player.GamepadProductGuid = devices[i].ProductGuid;
                         player.GamepadGuid = devices[i].InstanceGuid;
                         player.GamepadName = devices[i].InstanceName;
                         player.IsDInput = true;
-                        player.IsController = true;
                         player.GamepadId = i;
                         string hid = player.DInputJoystick.Properties.InterfacePath;
                         player.RawHID = hid;
@@ -512,10 +542,11 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         int end = hid.LastIndexOf("#{");
                         string fhid = hid.Substring(start, end - start).Replace('#', '\\').ToUpper();
                         player.HIDDeviceID = new string[] { fhid, "" };
-                        player.DInputJoystick.Acquire();
+
                         player.IsInputUsed = true;
 
                         data.Add(player);
+                        changed = true;
                     }
                 }
 
@@ -592,6 +623,18 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                 continue;
                             }
 
+
+                            if (vgmDevicesOnly)
+                            {
+                                CapabilitiesEx cap;
+                                var _cap = OpenXinputController.XInputGetCapabilitiesEx((uint)1, (uint)i, 1, out cap);
+
+                                if (!cap.VendorId.ToString().StartsWith("202"))
+                                {
+                                    continue;
+                                }
+                            }
+
                             changed = true;
 
                             //new gamepad
@@ -600,7 +643,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                 HIDDeviceID = new string[] { "Not required", "Not required" },
                                 XInputJoystick = c,
                                 IsXInput = true,
-                                IsController = true,
                                 GamepadId = i
                             };
 
@@ -680,7 +722,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         player.SDL2Joystick = controller;
                         player.IsSDL2 = true;
                         player.GamepadId = SDL2.SDL_GameControllerGetPlayerIndex(player.SDL2Joystick);
-
 
                         if (useGamepadApiIndex)
                         {

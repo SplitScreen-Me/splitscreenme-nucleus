@@ -144,7 +144,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                         }
                         else if (button == ReleaseCursor || rt == LockInputs || lt == LockInputs)///Try to release the cursor from game window by alt+tab inputs
                         {
-                            //Todo Try by pausing focus loop instead so we can release the cursor from it's current window(but what for protoinput hooks?)
+                            //Todo Try by pausing focus loop instead so we can release the cursor from its current window(but what for protoinput hooks?)
                             SendKeys.SendWait("%+{TAB}");
                             Thread.Sleep(500);
                         }
@@ -160,7 +160,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
 
                     if (Pressed == 1024)//Guide button
                     {
-                        Thread.Sleep(500);//good enough to check for long press here
+                        Thread.Sleep(900);//good enough to check for long press here
 
                         if (GamepadState.GetPressedButtons(i) == 1024)//good enough to check for long press here
                         {

@@ -41,7 +41,6 @@ public class FlatTextBox : TextBox
         }
     }
     
-    
     protected override void WndProc(ref Message m)
     {
         base.WndProc(ref m);
@@ -63,7 +62,7 @@ public class FlatTextBox : TextBox
                 using (var g = this.CreateGraphics())
                 {
                     TextRenderer.DrawText(g, this.Hint, hintFont ,
-                        this.DisplayRectangle/*new Rectangle(0, (DisplayRectangle.Height / 2) - ((Height - 5)/2) - DisplayRectangle.Height/2,Width, Height/*(Height - 5)*/, SystemColors.GrayText, this.BackColor,
+                        this.DisplayRectangle, SystemColors.GrayText, this.BackColor,
                         TextFormatFlags.Top | TextFormatFlags.Left);
                 }
             }

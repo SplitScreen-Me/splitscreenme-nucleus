@@ -74,12 +74,6 @@
             }
         }
 
-        //private static Tuple<string, string> shortcutsReminder;
-        //public static Tuple<string, string> GPShorcut_ShortcutsReminder { get => shortcutsReminder; set { shortcutsReminder = value; Globals.ini.IniWriteValue("XShortcuts", "ShortcutsReminder", $"{value.Item1}+{value.Item2}"); } }
-
-        //private static Tuple<string, string> switchMergerChildForeGround;
-        //public static Tuple<string, string> GPShorcut_SwitchMergerForeGroundChild { get => switchMergerChildForeGround; set { switchMergerChildForeGround = value; Globals.ini.IniWriteValue("XShortcuts", "SwitchMergerChildForeGround", $"{value.Item1}+{value.Item2}"); } }
-
         private static int[] lockInputs;
         public static int[] LockInputs
         {
@@ -110,9 +104,7 @@
             setFocus = new int[] { int.Parse(Globals.ini.IniReadValue("XShortcuts", "SetFocus").Split('+')[0]), int.Parse(Globals.ini.IniReadValue("XShortcuts", "SetFocus").Split('+')[1]) };
             resetWindows = new int[] { int.Parse(Globals.ini.IniReadValue("XShortcuts", "ResetWindows").Split('+')[0]), int.Parse(Globals.ini.IniReadValue("XShortcuts", "ResetWindows").Split('+')[1]) };
             cutscenes = new int[] { int.Parse(Globals.ini.IniReadValue("XShortcuts", "Cutscenes").Split('+')[0]), int.Parse(Globals.ini.IniReadValue("XShortcuts", "Cutscenes").Split('+')[1]) };
-            _switch = new int[] { int.Parse(Globals.ini.IniReadValue("XShortcuts", "Switch").Split('+')[0]), int.Parse(Globals.ini.IniReadValue("XShortcuts", "Switch").Split('+')[1]) };
-            //shortcutsReminder = Tuple.Create(Globals.ini.IniReadValue("XShortcuts", "ShortcutsReminder").Split('+')[0], Globals.ini.IniReadValue("XShortcuts", "ShortcutsReminder").Split('+')[1]);
-            //switchMergerChildForeGround = Tuple.Create(Globals.ini.IniReadValue("XShortcuts", "SwitchMergerChildForeGround").Split('+')[0], Globals.ini.IniReadValue("XShortcuts", "SwitchMergerChildForeGround").Split('+')[1]);
+            _switch = new int[] { int.Parse(Globals.ini.IniReadValue("XShortcuts", "Switch").Split('+')[0]), int.Parse(Globals.ini.IniReadValue("XShortcuts", "Switch").Split('+')[1]) };       
             lockInputs = new int[] { int.Parse(Globals.ini.IniReadValue("XShortcuts", "LockInputs").Split('+')[0]), int.Parse(Globals.ini.IniReadValue("XShortcuts", "LockInputs").Split('+')[1]) };
             releaseCursor = new int[] { int.Parse(Globals.ini.IniReadValue("XShortcuts", "ReleaseCursor").Split('+')[0]), int.Parse(Globals.ini.IniReadValue("XShortcuts", "ReleaseCursor").Split('+')[1]) };
 

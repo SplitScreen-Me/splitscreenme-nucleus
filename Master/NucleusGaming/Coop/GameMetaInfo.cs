@@ -16,6 +16,9 @@ namespace Nucleus.Gaming.Coop
         private readonly string nucleusEnvironment = $@"{Globals.UserEnvironmentRoot}\NucleusCoop";
         private readonly string metaInfoJson = "metaInfo.json";
 
+        private ulong intervale = 20000;//milliseconds
+        private bool stopped;
+
         private GenericGameInfo gen;
         private string gameGuid;
 
@@ -102,7 +105,6 @@ namespace Nucleus.Gaming.Coop
             }
         }
 
-
         private string steamLanguage;
         public string SteamLanguage
         {
@@ -114,7 +116,6 @@ namespace Nucleus.Gaming.Coop
             }
         }
         
-
         public void LoadGameMetaInfo(GenericGameInfo genericGameInfo)
         {
             try
@@ -279,12 +280,8 @@ namespace Nucleus.Gaming.Coop
                 return "...";
             }
 
-            return lastPlayedAt.Split(' ')[0];//dispaly the date only
+            return lastPlayedAt.Split(' ')[0];//display the date only
         }
-
-        private ulong intervale = 20000;//mmilliseconds
-
-        private bool stopped;
 
         public void StopGameplayTimerThread()
         {

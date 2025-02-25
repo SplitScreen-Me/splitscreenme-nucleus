@@ -75,7 +75,6 @@ namespace Nucleus.Gaming.Coop.InputManagement
                 Debug.WriteLine("Warning: rawInputProcessor is being reassigned");
             }
 
-            //LockInputKey = LockInput.GetLockKey();
             rawInputProcessor = this;
         }
 

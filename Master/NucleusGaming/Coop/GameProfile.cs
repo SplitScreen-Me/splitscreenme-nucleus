@@ -45,7 +45,7 @@ namespace Nucleus.Gaming.Coop
         private static int profileToSave;
         public static int CurrentProfileId => profileToSave;
 
-        private static string modeText;// = "New Profile";
+        private static string modeText;
         public static string ModeText => modeText;
         public static bool IsNewProfile => modeText == "New Profile";
 
@@ -1220,7 +1220,7 @@ namespace Nucleus.Gaming.Coop
 
             bool skipGuid = false;
 
-            //DInput && XInput (follow gamepad api indexes)
+            //DInput/XInput/SDL2 (follow gamepad api indexes)
             if (player.IsController && useXinputIndex)
             {
                 foreach (PlayerInfo pp in ProfilePlayersList)
@@ -1234,7 +1234,7 @@ namespace Nucleus.Gaming.Coop
                 }
             }
 
-            //DInput && XInput using GamepadGuid(do not follow gamepad api indexes)
+            //DInput/XInput/SDL2 using GamepadGuid(do not follow gamepad api indexes)
             if (player.IsController && !skipGuid && !useXinputIndex)
             {
                 profilePlayer = ProfilePlayersList.Where(pl => (pl.IsDInput || pl.IsXInput || pl.IsSDL2) && (pl.GamepadGuid == player.GamepadGuid)).FirstOrDefault();
@@ -1339,7 +1339,6 @@ namespace Nucleus.Gaming.Coop
 
             screen.Type = (UserScreenType)profilePlayer.OwnerType;
 
-            //BoundsFunctions.GetScreenDivisionBounds(screen);
             return (screen, ogIndex);
         }
 
@@ -1461,7 +1460,7 @@ namespace Nucleus.Gaming.Coop
 
             player.SteamID = long.Parse(steamID);
 
-            if (secondInBounds != null)
+            if (secondInBounds != null)//mkb
             {
                 secondInBounds.Nickname = player.Nickname;
                 secondInBounds.SteamID = player.SteamID;

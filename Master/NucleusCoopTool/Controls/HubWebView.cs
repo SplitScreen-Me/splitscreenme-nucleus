@@ -287,21 +287,6 @@ namespace Nucleus.Coop.Forms
         private void NavigationStarting(object sender, CoreWebView2NavigationStartingEventArgs e)
         {
             CoreWebView2 currentWindow = (CoreWebView2)sender;
-
-            //if (!e.Uri.StartsWith("https://hub.splitscreen.me/"))
-            //{
-            //    if(!inUserBrowser)
-            //    {
-            //        Process.Start(e.Uri);
-            //        inUserBrowser = true; 
-            //    }
-            //    else
-            //    {
-            //        currentWindow.Reload();
-            //    }
-
-            //    e.Cancel = true;
-            //}
         }
 
         private void WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
@@ -660,11 +645,8 @@ namespace Nucleus.Coop.Forms
         {
             if (webView.CoreWebView2 != null)
             {
-                //string localHtmlPath = Path.Combine(Application.StartupPath, "Game\\index.html");
-                //webView.CoreWebView2.Navigate($"file:///{localHtmlPath.Replace("\\", "/")}");
                 webView.CoreWebView2.Navigate(hubUri);
             }
-
         }
 
         public void CloseBtn_Click(object sender, EventArgs e)

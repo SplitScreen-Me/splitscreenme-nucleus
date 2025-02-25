@@ -259,10 +259,5 @@ namespace Gamepads
             return anyState > 0;
         }
 
-        //private static bool CompareGamepadPath(SDL_GameController gamepad)
-        //{
-        //    return SDL_XInputGamepads.Any(gp => gp.RawHid.ToLower() ==
-        //           SDL.GetString(SDL.SDL_GameControllerPath(gamepad)).ToLower());
-        //}
     }
 }

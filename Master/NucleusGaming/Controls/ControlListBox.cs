@@ -42,7 +42,6 @@ namespace Nucleus.Gaming
             HorizontalScroll.Maximum = 0;
             VerticalScroll.Visible = false;
             AutoScroll = true;
-            //DoubleBuffered = true;
             Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             this.MouseWheel += Scrolling;
         }

@@ -104,9 +104,7 @@ namespace Nucleus.Gaming.Controls
         public CustomComboBox()
         {
             InitializeComponent();
-//            SetStyle( ControlStyles.AllPaintingInWmPaint |ControlStyles.UserPaint |ControlStyles.DoubleBuffer | ControlStyles.OptimizedDoubleBuffer
-//                | /*ControlStyles.FixedHeight | ControlStyles.FixedWidth |*/ ControlStyles.ResizeRedraw,
-//true);
+
             BackColor = Color.FromArgb(100, 0, 0, 0);
             BorderStyle = BorderStyle.FixedSingle;
 
@@ -147,7 +145,7 @@ namespace Nucleus.Gaming.Controls
             MainItem.Location = new Point(0, 0);
             MainItem.LostFocus += Main_LostFocus;
             LostFocus += _LostFocus;
-            //MainItem.MouseCaptureChanged += Main_LostFocus;
+
             MainItem.Click += Main_Click;
 
             Controls.Add(MainItem);

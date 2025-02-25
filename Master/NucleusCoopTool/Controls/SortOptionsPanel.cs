@@ -70,15 +70,6 @@ namespace Nucleus.Coop.Controls
             descending.Checked = App_Misc.GamesSorting.Contains(descending.Name);
             Controls.Add(descending);
 
-            //SortCheckBox byUpdate = new SortCheckBox();
-            //byUpdate.Name = "Sort_2";
-            //byUpdate.Text = "Update Available";
-            //byUpdate.Location = new Point(10, descending.Bottom + 2);
-            //byUpdate.AutoSize = true;
-            //byUpdate.SortOptions = SortOptions.Update;
-            //byUpdate.Checked = App_Misc.GamesSorting.Contains(byUpdate.Name);
-            //Controls.Add(byUpdate);
-
             SortCheckBox byMaxPlayer = new SortCheckBox();
             byMaxPlayer.Name = "Sort_2";
             byMaxPlayer.Text = "Sort By Max Supported Players";

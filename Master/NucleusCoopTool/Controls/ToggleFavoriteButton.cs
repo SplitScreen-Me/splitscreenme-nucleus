@@ -40,7 +40,6 @@ namespace Nucleus.Coop.Controls
             MouseLeave += FavoriteOnly_MouseLeave;
         }
 
-
         private void FavoriteOnly_Click(object sender, EventArgs e)
         {
             if (GameManager.Instance.User.Games.All(g => g.Game.MetaInfo.Favorite == false) && !UI_Interface.ShowFavoriteOnly) { return; }

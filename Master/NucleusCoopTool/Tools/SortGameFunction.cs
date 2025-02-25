@@ -8,7 +8,6 @@ namespace Nucleus.Coop.Tools
 {
     public static class SortGameFunction
     {
-
         public static void SortGames(List<SortOptions> options)
         {
             List<UserGameInfo> tempList = new List <UserGameInfo>();
@@ -26,7 +25,7 @@ namespace Nucleus.Coop.Tools
                 {
                     case SortOptions.Gamepads:
                         {
-                            var find = games.FindAll(g => (g.Game.Hook.XInputEnabled || g.Game.ProtoInput.XinputHook || g.Game.Hook.DInputEnabled || g.Game.Hook.XInputReroute || g.Game.ProtoInput.DinputDeviceHook) && tempList.All(tl => tl != g));
+                            var find = games.FindAll(g => (g.Game.Hook.XInputEnabled || g.Game.ProtoInput.XinputHook || g.Game.Hook.DInputEnabled || g.Game.Hook.XInputReroute || g.Game.ProtoInput.DinputDeviceHook || g.Game.Hook.SDL2Enabled) && tempList.All(tl => tl != g));
                             tempList.AddRange(find);
                             break;
                         }

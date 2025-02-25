@@ -90,9 +90,7 @@ namespace Nucleus.Gaming
                         if (!string.IsNullOrEmpty(imageUrl))
                         {
                             control.ImageUrl = imageUrl;
-
-                            //Image img = Content.LoadImage(imageUrl);
-                            
+ 
                             PictureBox box = new PictureBox
                             {
                                 Anchor = AnchorStyles.Top | AnchorStyles.Right,

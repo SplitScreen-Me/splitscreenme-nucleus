@@ -23,8 +23,6 @@ namespace Nucleus.Gaming.Controls
 {
     public partial class ProfilesList : ControlListBox
     {
-        private IniFile themeIni = Globals.ThemeConfigFile;
-
         private float _scale;
         public static ProfilesList Instance;
         public bool Locked = false;

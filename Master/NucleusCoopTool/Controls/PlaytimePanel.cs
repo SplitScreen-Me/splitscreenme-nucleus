@@ -55,8 +55,6 @@ namespace Nucleus.Coop.Controls
             AddLabels();
             Resize += OnResize;
             FontChanged += OnResize;
-            
-            //UI_Interface.On_GameChange += UpdateInfo;
         }
 
         private void OnResize(object sender , EventArgs e)
@@ -108,27 +106,6 @@ namespace Nucleus.Coop.Controls
             playtimeLabelValue.Size = new Size(20, 20);
             playtimeLabelValue.Location = new Point(playtimeLabel.Right, playtimeLabel.Location.Y);
             Controls.Add(playtimeLabelValue);
-        }
-
-        public void UpdateInfo()
-        {
-            ////Size = new Size();
-
-            //GenericGameInfo gameInfo = UI_Interface.Current_GameInfo;
-
-            //Hide();
-
-            //if (gameInfo == null)
-            //{
-            //    return;
-            //}
-
-            //LastPlayed = gameInfo.MetaInfo.LastPlayedAt;
-            //Playtime = gameInfo.MetaInfo.TotalPlayTime;
-
-            //Show();
-
-            //Invalidate();
         }
     }
 }

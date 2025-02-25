@@ -201,7 +201,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 PointF loc = RectangleUtil.Center(size, s);
                 loc.Y -= gamepadRect.Height * 0.10f;
 
-                if (DevicesFunctions.FindSDLDInputDeviceGUID(player))
+                if (DevicesFunctions.PollSDLGamepad(player))
                 {
                     DevicesFunctions.polling = true;
                     g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, flashImageAttributes);
@@ -289,7 +289,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     }
                 }                
             }
-            else
+            else if (player.IsDInput)
             {
                 string str = (player.GamepadId + 1).ToString();
                 SizeF size = g.MeasureString(str, fontToScale);

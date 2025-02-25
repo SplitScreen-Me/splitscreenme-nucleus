@@ -35,6 +35,7 @@ namespace SDL
 
         public static void LoadUserControllerMappings()
         { 
+            //<reminder: app that help creating mappings
             //https://gitlab.com/ryochan7/sdl2-gamepad-mapper/-/releases
             if (Directory.Exists(dbsDirectory))
             {

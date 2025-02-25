@@ -9,8 +9,6 @@ using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.Generic;
 using Nucleus.Gaming.Coop.InputManagement;
-using Nucleus.Gaming.Coop.InputManagement.Gamepads;
-using Nucleus.Gaming.Platform.PCSpecs;
 using Nucleus.Gaming.Tools.GlobalWindowMethods;
 using Nucleus.Gaming.UI;
 using Nucleus.Gaming.Windows;
@@ -153,7 +151,6 @@ namespace Nucleus.Coop
 
             SetCommonControlsAttributes();
 
-            //Core_Interface.RefreshGames(null, null);
             SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
             Core_Interface.InitializeGamepadThreads();
 

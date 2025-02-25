@@ -24,15 +24,11 @@ namespace Nucleus.Coop.Controls
             
         }
 
-        private SortOptionsPanel sortOptionsPanel;
-
         private void OpenSortOptions(object sender , object e)
         {           
             UI_Interface.SortOptionsPanel.Location = new Point(UI_Interface.GameListContainer.Right, UI_Interface.GameListContainer.Top);
             UI_Interface.SortOptionsPanel.Visible = !UI_Interface.SortOptionsPanel.Visible;
             UI_Interface.SortOptionsPanel.BringToFront();
         }
-
-
     }
 }

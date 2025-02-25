@@ -119,7 +119,7 @@ namespace Nucleus.Coop.UI
 
         public static void MainFormPaintBackground(PaintEventArgs e)
         {
-            //add sender and unpack it instead of calling the UI_Interfave object
+            //add sender and unpack it instead of calling the UI_Interface object
             int edgingHeight = UI_Interface.HomeScreen.Location.Y - 3;
             Rectangle topGradient = new Rectangle(0, 0, UI_Interface.MainForm.Width, edgingHeight);
             Rectangle bottomGradient = new Rectangle(0, (UI_Interface.MainForm.Height - edgingHeight) - 1, UI_Interface.MainForm.Width, edgingHeight);

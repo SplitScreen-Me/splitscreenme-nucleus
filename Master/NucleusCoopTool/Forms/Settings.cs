@@ -339,7 +339,7 @@ namespace Nucleus.Coop
                 prevTheme = _path[last];
             }
 
-            ///epiclangs setting
+            ///epic lang setting
             cmb_EpicLang.SelectedItem = App_Misc.EpicLang;
 
             useNicksCheck.Checked = App_Misc.UseNicksInGame;

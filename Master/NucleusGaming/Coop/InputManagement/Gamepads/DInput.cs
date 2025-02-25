@@ -18,19 +18,17 @@ public static class DInput
     {
         if (dinput == null)
         {
-            lock (_joystickLock)
+            if (dinput == null) 
             {
-                if (dinput == null) // Double-checked locking
+                dinput = new DirectInput();
+                watchDevicesListThread = new Thread(WatchDevicesList)
                 {
-                    dinput = new DirectInput();
-                    watchDevicesListThread = new Thread(WatchDevicesList)
-                    {
-                        IsBackground = true // Ensure the thread exits when the application closes
-                    };
-                    watchDevicesListThread.Start();
-                }
+                    IsBackground = true 
+                };
+                watchDevicesListThread.Start();
             }
         }
+
         return true;
     }
 
@@ -47,28 +45,26 @@ public static class DInput
         while (true)
         {
             IList<DeviceInstance> watchList;
+
             lock (_joystickLock)
             {
                 watchList = dinput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly);
-            }
 
-            // Check for newly connected devices
-            foreach (var device in watchList)
-            {
-                lock (_joystickLock)
+                // Check for newly connected devices
+                foreach (var device in watchList)
                 {
+
                     if (devicesList.All(d => d.InstanceGuid != device.InstanceGuid))
                     {
                         devicesList.Add(device);
                         AddJoystick(device);
                     }
-                }
-            }
 
-            // Check for disconnected devices
-            var deviceToRemove = new List<DeviceInstance>();
-            lock (_joystickLock)
-            {
+                }
+
+                // Check for disconnected devices
+                var deviceToRemove = new List<DeviceInstance>();
+
                 foreach (var device in devicesList)
                 {
                     if (!dinput.IsDeviceAttached(device.InstanceGuid))

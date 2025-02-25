@@ -5,7 +5,6 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
-//using System.IO;
 
 namespace Nucleus.Gaming.Forms
 {

@@ -206,10 +206,7 @@ namespace Nucleus.Coop.UI
 
                                     Console.WriteLine(nucPrefix + Path.GetFileName(profileSavePath.TrimEnd('\\')));
                                     (gameOptionMenu.Items["openUserProfSaveMenuItem"] as ToolStripMenuItem).DropDownItems.Add(nucPrefix + Path.GetFileName(profileSavePath.TrimEnd('\\')), null, UserProfileOpenSubmenuItem_Click);
-                                    //gameOptionMenu.Items["openUserProfSaveMenuItem"].Click += UserProfileOpenSubmenuItem_Click;
-
                                     (gameOptionMenu.Items["deleteUserProfSaveMenuItem"] as ToolStripMenuItem).DropDownItems.Add(nucPrefix + Path.GetFileName(profileSavePath.TrimEnd('\\')), null, UserProfileDeleteSubmenuItem_Click);
-                                    //gameOptionMenu.Items["deleteUserProfSaveMenuItem"].Click += UserProfileDeleteSubmenuItem_Click;
                                 }
                             }
                         }
@@ -241,9 +238,7 @@ namespace Nucleus.Coop.UI
                                     }
 
                                     (gameOptionMenu.Items["openDocumentConfMenuItem"] as ToolStripMenuItem).DropDownItems.Add(nucPrefix + Directory.GetParent(profilePath).Name, null, DocOpenSubmenuItem_Click);
-                                    //gameOptionMenu.Items["openDocumentConfMenuItem"].Click += DocOpenSubmenuItem_Click;
                                     (gameOptionMenu.Items["deleteDocumentConfMenuItem"] as ToolStripMenuItem).DropDownItems.Add(nucPrefix + Directory.GetParent(profilePath).Name, null, DocDeleteSubmenuItem_Click);
-                                    //gameOptionMenu.Items["deleteDocumentConfMenuItem"].Click += DocDeleteSubmenuItem_Click;
                                 }
                             }
                         }
@@ -304,11 +299,8 @@ namespace Nucleus.Coop.UI
                                     string path = playerBackup;
                                     string playerName = playerBackup.Split('\\').Last();
                                     
-                                    (gameOptionMenu.Items["openBackupFolderMenuItem"] as ToolStripMenuItem).DropDownItems.Add(playerName, null, OpenBackupFolderSubmenuItem_Click);
-                                    //gameOptionMenu.Items["openBackupFolderMenuItem"].Click += OpenBackupFolderSubmenuItem_Click;
-                                    
+                                    (gameOptionMenu.Items["openBackupFolderMenuItem"] as ToolStripMenuItem).DropDownItems.Add(playerName, null, OpenBackupFolderSubmenuItem_Click);                                 
                                     (gameOptionMenu.Items["deleteBackupFolderMenuItem"] as ToolStripMenuItem).DropDownItems.Add(playerName, null, DeleteBackupFolderSubmenuItem_Click);
-                                    //gameOptionMenu.Items["deleteBackupFolderMenuItem"].Click += DeleteBackupFolderSubmenuItem_Click;
                                 }
 
                                 backupFolderExist = true;
@@ -565,6 +557,7 @@ namespace Nucleus.Coop.UI
             }
 
             string path;
+
             if (item.Text.StartsWith("Nucleus: "))
             {
                 path = Path.Combine($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{item.Text.Substring("Nucleus: ".Length)}\", pathSuffix);
@@ -631,6 +624,7 @@ namespace Nucleus.Coop.UI
             }
 
             string path;
+
             if (item.Text.StartsWith("Nucleus: "))
             {
                 path = Path.Combine($@"{Path.GetDirectoryName(Globals.UserDocumentsRoot)}\NucleusCoop\{item.Text.Substring("Nucleus: ".Length)}\Documents", pathSuffix);
@@ -662,6 +656,7 @@ namespace Nucleus.Coop.UI
             }
 
             string path;
+
             if (item.Text.StartsWith("Nucleus: "))
             {
                 path = Path.Combine($@"{Path.GetDirectoryName(Globals.UserDocumentsRoot)}\NucleusCoop\{item.Text.Substring("Nucleus: ".Length)}\Documents", pathSuffix);

@@ -103,15 +103,6 @@ namespace Nucleus.Gaming.Coop
        out CapabilitiesEx pCapabilitiesEx // Receives capabilities
         );
 
-        //[DllImport("openxinput1_3.dll", CharSet = CharSet.Auto, EntryPoint = "XInputGetCapabilitiesEx")]
-        //public static extern uint XInputGetCapabilitiesEx(uint reserved /*must be 1*/, uint dwUserIndex, DeviceQueryType dwFlags, out CapabilitiesEx capabilitiesExRef);
-        ////public CapabilitiesEx XInputGetCapabilitiesEx(uint reserved /*must be 1*/, uint dwUserIndex, uint dwFlags)
-        ////{
-        ////    CapabilitiesEx temp;
-        ////    NativeOpenXinput.XInputGetCapabilitiesEx(reserved, dwUserIndex, dwFlags, out temp);
-        ////    return temp;
-        ////}
-
         public Capabilities GetCapabilities(DeviceQueryType deviceQueryType)
         {
             ErrorCodeHelper.ToResult(

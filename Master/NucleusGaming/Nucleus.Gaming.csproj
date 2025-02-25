@@ -257,7 +257,6 @@
     <Compile Include="Coop\InputManagement\Osk.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\GamepadShortcuts.cs" />
     <Compile Include="Coop\InputManagement\RawInputDeviceName.cs" />
-    <Compile Include="Coop\InputManagement\VirtualInputs.cs" />
     <Compile Include="Coop\GameMetaInfo.cs" />
     <Compile Include="DPI\ThreadDPIContext.cs" />
     <Compile Include="Forms\NucleusMessageBox\CustomMessageBox.cs">
