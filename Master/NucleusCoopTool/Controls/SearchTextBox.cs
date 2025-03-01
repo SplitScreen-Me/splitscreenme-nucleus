@@ -1,4 +1,5 @@
-﻿using Nucleus.Gaming;
+﻿using Nucleus.Coop.UI;
+using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.UI;
 using System;
@@ -18,6 +19,9 @@ namespace Nucleus.Coop.Controls
     {
         public string ImagePath { get; set; }
         public FlatTextBox SearchText { get; private set; }
+
+        public Action<bool> Toggle_Visiblility;
+
         //always a square 
         private PictureBox imageBox;
         private Color backColor = Theme_Settings.BackgroundGradientColor;
@@ -28,13 +32,12 @@ namespace Nucleus.Coop.Controls
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.ResizeRedraw |ControlStyles.UserPaint, true);
 
-
             BackColor = Color.FromArgb(255, 31, 34, 35);
             AutoSize = true;
             Resize += SearchText_Resize;
             Click += Focus_TextBox;
             ControlAdded += Control_Added;
-
+            VisibleChanged += On_VisibleChanged;
             CreateControls();
 
             DPIManager.Register(this);
@@ -90,6 +93,10 @@ namespace Nucleus.Coop.Controls
                e.Control.Click += Focus_TextBox;
         }
 
+        private void On_VisibleChanged(object sender, object e)
+        {
+            Toggle_Visiblility?.Invoke(Visible);
+        }
     }
 
 }

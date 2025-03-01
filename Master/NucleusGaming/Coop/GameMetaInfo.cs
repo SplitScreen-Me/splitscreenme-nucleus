@@ -25,6 +25,9 @@ namespace Nucleus.Gaming.Coop
         private string lastPlayedAt;
         public string LastPlayedAt => GetLastPlayed();
 
+        private string lastPlayedAtFull;
+        public string LastPlayedAtFull => GetLastPlayedFull();
+
         private string totalPlayTime;
         public string TotalPlayTime => FormatPlayTime();
 
@@ -282,6 +285,17 @@ namespace Nucleus.Gaming.Coop
 
             return lastPlayedAt.Split(' ')[0];//display the date only
         }
+
+        private string GetLastPlayedFull()
+        {
+            if (lastPlayedAt == null)
+            {
+                return "...";
+            }
+
+            return lastPlayedAt;//returns the full datetime
+        }
+
 
         public void StopGameplayTimerThread()
         {

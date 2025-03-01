@@ -67,5 +67,10 @@ namespace Nucleus.Coop.Controls
             con.Size = new Size(con.Width -= 3, con.Height -= 3);
             con.Location = new Point(con.Location.X + 1, con.Location.Y + 1);
         }
+
+        public void ToggleVisibility(bool visible)
+        {
+            Visible = visible;
+        }
     }
 }

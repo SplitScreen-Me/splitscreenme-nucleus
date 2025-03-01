@@ -359,6 +359,11 @@ namespace Nucleus.Coop.UI
 
             UI_Interface.WindowPanel.Focus();
             UI_Interface.BigLogo.Refresh();
+            if(UI_Interface.SearchTextBox != null)
+            {
+                UI_Interface.SearchTextBox.Visible = UI_Interface.GameList.Controls.Count >= 2;
+            }
+           
         }
 
     }

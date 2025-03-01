@@ -36,7 +36,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             GamepadTimer = new System.Threading.Timer(GamepadTimer_Tick, null, 0, 500);         
         }
 
-
         /// <summary>
         /// We need this if a new controller is plugged after sdl initialization
         /// else Nucleus sdl gamepad indexes will not match with the custom sdl one loaded by the game.
@@ -156,14 +155,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             try
             {
-                //if (vgmDevicesOnly)
-                //{
-                //    if (!player.DInputJoystick.Properties.VendorId.ToString().StartsWith("202"))
-                //    {
-                //        return false;
-                //    }
-                //}
-
                 if ((bool)player.DInputJoystick?.GetCurrentState().Buttons.Any(b => b == true))
                 {
                     return true;
@@ -254,11 +245,13 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             player.GamepadGuid = player.DInputJoystick.Information.InstanceGuid;
                             player.GamepadProductGuid = player.DInputJoystick.Information.ProductGuid;
                             player.GamepadName = player.DInputJoystick.Information.InstanceName;
-                            string hid = player.DInputJoystick.Properties.InterfacePath;
-                            player.RawHID = hid;
+                            
+                            string hid = player.DInputJoystick.Properties.InterfacePath;                          
                             int start = hid.IndexOf("hid#");
                             int end = hid.LastIndexOf("#{");
                             string fhid = hid.Substring(start, end - start).Replace('#', '\\').ToUpper();
+
+                            player.RawHID = hid;
                             player.HIDDeviceID = new string[] { fhid, "" };
                             player.IsInputUsed = true;
                             Vibrate(player);
@@ -366,11 +359,13 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             player.GamepadGuid = player.DInputJoystick.Information.InstanceGuid;
                             player.GamepadProductGuid = player.DInputJoystick.Information.ProductGuid;
                             player.GamepadName = player.DInputJoystick.Information.InstanceName;
-                            string hid = player.DInputJoystick.Properties.InterfacePath;
-                            player.RawHID = hid;
+                            
+                            string hid = player.DInputJoystick.Properties.InterfacePath;                           
                             int start = hid.IndexOf("hid#");
                             int end = hid.LastIndexOf("#{");
                             string fhid = hid.Substring(start, end - start).Replace('#', '\\').ToUpper();
+
+                            player.RawHID = hid;
                             player.HIDDeviceID = new string[] { fhid, "" };
                             player.IsInputUsed = true;
 
@@ -537,10 +532,12 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         player.IsDInput = true;
                         player.GamepadId = i;
                         string hid = player.DInputJoystick.Properties.InterfacePath;
-                        player.RawHID = hid;
+
                         int start = hid.IndexOf("hid#");
                         int end = hid.LastIndexOf("#{");
                         string fhid = hid.Substring(start, end - start).Replace('#', '\\').ToUpper();
+
+                        player.RawHID = hid;             
                         player.HIDDeviceID = new string[] { fhid, "" };
 
                         player.IsInputUsed = true;
@@ -550,7 +547,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     }
                 }
 
-                //Create a list of all DInput Joysticks available (Only used to grab gamepads hardware informations for XInput devices when polling)                
+                //Create a list of all DInput Joysticks available (Only used to grab gamepads hardware informations for XInput/SDL2 devices when polling)                
                 IList<DeviceInstance> dInputList = dinput.GetDevices(SharpDX.DirectInput.DeviceType.Gamepad, DeviceEnumerationFlags.AttachedOnly);
 
                 for (int x = 0; x < dInputList.Count; x++)
@@ -646,7 +643,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                 GamepadId = i
                             };
 
-                            if (useGamepadApiIndex /*|| parent.profileDisabled*/)
+                            if (useGamepadApiIndex)
                             {
                                 string guid = player.GamepadId + 1 >= 10 ? $"00000000-0000-0000-0000-2000000000{player.GamepadId + 1}" : $"00000000-0000-0000-0000-20000000000{player.GamepadId + 1}";
                                 player.GamepadGuid = new Guid(guid);
@@ -681,7 +678,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     {
                         bool already = false;
 
-                        SDL_GameController controller = SDLDevices.SDL2DevicesList[i]; //SDL2.GameControllerOpen(i);//
+                        SDL_GameController controller = SDLDevices.SDL2DevicesList[i];
                         ///Check if this gamepad is already assigned to a player
                         foreach (PlayerInfo p in data)
                         {

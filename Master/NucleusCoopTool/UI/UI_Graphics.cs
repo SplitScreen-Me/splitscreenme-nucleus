@@ -231,15 +231,24 @@ namespace Nucleus.Coop.UI
         {
             DoubleBufferPanel gameListContainer = (DoubleBufferPanel)sender;
 
-            if (UI_Interface.AddGameButton != null)
+            if (UI_Interface.HubButton != null && UI_Interface.SearchTextBox != null)
             {
-                Rectangle sortOptBack = new Rectangle(UI_Interface.SortGamesButton.Left, UI_Interface.SearchTextBox.Top,
-                                                     gameListContainer.Right - UI_Interface.SortGamesButton.Left, UI_Interface.SearchTextBox.Height);
-                Color backCol = UI_Interface.SearchTextBox.BackColor;
+                if(UI_Interface.SearchTextBox.Visible)
+                {
+                    Rectangle sortOptBack = new Rectangle(UI_Interface.SortGamesButton.Left - 10, UI_Interface.SearchTextBox.Top,
+                                                     (gameListContainer.Right - UI_Interface.SortGamesButton.Left) + 10, UI_Interface.SearchTextBox.Height);
 
-                SolidBrush sortBrush = new SolidBrush(Color.FromArgb(255, backCol.R, backCol.G, backCol.B));
-                e.Graphics.FillRectangle(sortBrush, sortOptBack);
-                sortBrush.Dispose();
+                    Color backCol = UI_Interface.SearchTextBox.BackColor;
+
+                    SolidBrush sortBrush = new SolidBrush(Color.FromArgb(255, backCol.R, backCol.G, backCol.B));
+
+                    GraphicsPath backGp = FormGraphicsUtil.MakeRoundedRect(sortOptBack, 10, 10, false, true, true, false);
+
+                    e.Graphics.FillPath(sortBrush, backGp);
+                    //e.Graphics.FillRectangle(sortBrush, sortOptBack);
+                    sortBrush.Dispose();
+                }
+                
             }
 
             if (backGradient.A == 0)

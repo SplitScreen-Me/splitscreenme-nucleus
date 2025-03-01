@@ -13,7 +13,7 @@ using Nucleus.Coop.Tools;
 
 namespace Nucleus.Coop.Controls
 {
-    public partial class AddGameButton : DoubleBufferPanel
+    public partial class HubButton : DoubleBufferPanel
     {
         private MainForm mainForm => UI_Interface.MainForm;
         private PictureBox btn_AddGamePb;
@@ -30,7 +30,7 @@ namespace Nucleus.Coop.Controls
             }
         }
 
-        public AddGameButton(int width, int height)
+        public HubButton(int width, int height)
         {
             InitializeComponent();
 

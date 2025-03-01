@@ -86,10 +86,11 @@ namespace Nucleus.Coop.Tools
             }
             else if (sortLastPlayed)
             {
-                var notPlayedList = tempList.Where(g => g.Game.MetaInfo.LastPlayedAt == "...").ToList();
-                tempList = tempList.Where(g => g.Game.MetaInfo.LastPlayedAt != "...").OrderByDescending(g => DateTime.Parse(g.Game.MetaInfo.LastPlayedAt)).ToList();
+                var notPlayedList = tempList.Where(g => g.Game.MetaInfo.LastPlayedAtFull == "...").ToList();
+                tempList = tempList.Where(g => g.Game.MetaInfo.LastPlayedAtFull != "...").OrderByDescending(g => DateTime.Parse(g.Game.MetaInfo.LastPlayedAtFull)).ToList();
+
                 
-                if(notPlayedList != null)
+                if (notPlayedList != null)
                 {
                     tempList.AddRange(notPlayedList);
                 }              

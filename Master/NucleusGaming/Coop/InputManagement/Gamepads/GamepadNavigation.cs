@@ -164,13 +164,13 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                         {
                             EnabledRuntime = false;
                             Globals.MainOSD.Show(1600, $"UI Control Locked");
-                            Thread.Sleep(800);
+                            Thread.Sleep(500);
                         }
                         else if (!EnabledRuntime && (pressed == LockUIControl))
                         {
                             EnabledRuntime = true;
                             Globals.MainOSD.Show(1600, $"UI Control Unlocked");
-                            Thread.Sleep(800);
+                            Thread.Sleep(500);
                         }
                     }
 

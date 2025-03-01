@@ -60,7 +60,6 @@ namespace SDL
                         }
                         catch (Exception ex)
                         {
-                            //VGM_Debug.Log($"Error: {ex.Message}");
                         }
                     }
                 }
@@ -74,7 +73,6 @@ namespace SDL
                 string report = string.Empty;
 
                 SDL_DeviceInfo info = GetSDL_DeviceInfo(controller);
-                //VGM_Debug.Log($"Current mapping \n\n {info.MAPPINGSTRING}\n\n");
 
                 foreach (KeyValuePair<string[], string> key in mappingsRef)
                 {
@@ -102,16 +100,11 @@ namespace SDL
                                     $"{s_newMapping}";
                                 break;
                         }
-
-                        //VGM_Debug.Log(report);
-
                     }
                 }
 
                 return;
             }
-
-            //VGM_Debug.Log("No user controller mappings found.");
         }
 
         public static void RefreshControllerMappings()
@@ -174,8 +167,6 @@ namespace SDL
             }
 
             File.WriteAllText(path, info.MAPPINGSTRING);
-
-            //VGM_Debug.Log($"Mapping exported to {path}");
         }
 
         public static void LogDeviceInfo(SDL_GameController controller)
@@ -195,13 +186,6 @@ namespace SDL
             sb.Append($"_ _ _ _ _ _ _ _ _ _ _ _ _\n");
             Console.WriteLine(sb.ToString());
         }
-
-
-        //public static string GetGameControllerSerial(IntPtr gamecontroller)
-        //{
-        //    string serialPtr = SDL2.GameControllerGetSerial(gamecontroller);
-        //    return Marshal.PtrToStringAnsi(serialPtr);
-        //}
 
         private static JoystickID GetJoystickID(SDL_GameController controller)
         {
@@ -258,8 +242,6 @@ namespace SDL
             {
                 SDL2.SDL_GameControllerRumble(controller, 10000, 10000, 70);
             }
-
-            //VGM_Debug.Log($"Rumble Function Called");
         }
     }
 }

@@ -105,15 +105,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         protected override void Dispose(bool disposing)
         {
-            base.Dispose(disposing);
-
-            if (profile?.DevicesList != null)
-            {
-                //foreach (PlayerInfo player in profile.DevicesList)
-                //{
-                //    player.DInputJoystick?.Dispose();
-                //}
-            }
+            base.Dispose(disposing);     
         }
 
         public override void Ended()

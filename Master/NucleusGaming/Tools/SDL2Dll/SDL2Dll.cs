@@ -1,11 +1,6 @@
 ﻿using Nucleus.Gaming.Coop;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 
 namespace Nucleus.Gaming.Tools.SDL2Dll
 {
@@ -38,11 +33,11 @@ namespace Nucleus.Gaming.Tools.SDL2Dll
 
                 try
                 {
-                    File.WriteAllText(handlerInstance.instanceExeFolder + "\\config.ini", controllerIndex);
+                    File.WriteAllText(handlerInstance.instanceExeFolder + "\\SDL2.ini", controllerIndex);
                 }  
                 catch (Exception ex)
                 {
-                    handlerInstance.Log($"ERROR - Failed to write config.ini for {player.Nickname}(index {i}) at {handlerInstance.instanceExeFolder}" );
+                    handlerInstance.Log($"ERROR - Failed to write SDL2.ini for {player.Nickname}(index {i}) at {handlerInstance.instanceExeFolder}" );
                     handlerInstance.Log("ERROR INFO - Message \n" + ex.Message);
                     return;
                 }

@@ -30,5 +30,10 @@ namespace Nucleus.Coop.Controls
             UI_Interface.SortOptionsPanel.Visible = !UI_Interface.SortOptionsPanel.Visible;
             UI_Interface.SortOptionsPanel.BringToFront();
         }
+
+        public void ToggleVisibility(bool visible)
+        {
+            Visible = visible;
+        }
     }
 }

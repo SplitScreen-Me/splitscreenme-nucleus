@@ -17,6 +17,7 @@ using System.Threading;
 using Nucleus.Coop.Controls;
 using Nucleus.Coop.Forms;
 using Nucleus.Coop.Tools;
+using System.Security.Cryptography;
 
 namespace Nucleus.Coop.UI
 {
@@ -63,7 +64,7 @@ namespace Nucleus.Coop.UI
                 if (disableGameProfiles != value)
                 {
                     disableGameProfiles = value;
-                    UI_Functions.RefreshUI(true);///A changer surement
+                    UI_Functions.RefreshUI(true);
                 }
             }
         }
@@ -105,11 +106,6 @@ namespace Nucleus.Coop.UI
                         Font = UI_Interface.MainForm.Font,
                     };
 
-                    if (UI_Interface.SearchTextBox != null)
-                    {
-                        UI_Interface.SearchTextBox.Visible = false;
-                    }
-
                     UI_Interface.GameList.Controls.Add(con);
                 }
                 else
@@ -150,27 +146,22 @@ namespace Nucleus.Coop.UI
                     }
                 }
 
-                if (UI_Interface.AddGameButton == null)
-                {
-                    float scale = (float)User32Util.GetDpiForWindow(UI_Interface.MainForm.Handle) / (float)100;
-                    int size = (int)((float)15 * scale);
-                    int offset = (int)((float)3 * scale);
-
-                    UI_Interface.SearchTextBox = new SearchTextBox();
-                    UI_Interface.SearchTextBox.Location = new Point(0, 3);
-                    UI_Interface.SearchTextBox.Size = new Size((UI_Interface.GameListContainer.Width - (size * 3)) + offset, UI_Interface.GameList.Controls[0].Height /2);
-                    UI_Interface.GameListContainer.Controls.Add(UI_Interface.SearchTextBox);
-
-                    UI_Interface.SortGamesButton = new SortGamesButton(new Size(size , size),new Point(UI_Interface.SearchTextBox.Right, (UI_Interface.SearchTextBox.Top + UI_Interface.SearchTextBox.Height / 2) - size / 2));
-                    UI_Interface.GameListContainer.Controls.Add(UI_Interface.SortGamesButton);
-
-                    UI_Interface.ToggleFavoriteButton = new ToggleFavoriteButton(new Size(size, size), new Point(UI_Interface.GameListContainer.Right - (size + 5), UI_Interface.SortGamesButton.Top));
-                    UI_Interface.GameListContainer.Controls.Add(UI_Interface.ToggleFavoriteButton);
-
-                    UI_Interface.AddGameButton = new AddGameButton(UI_Interface.GameListContainer.Width, UI_Interface.GameList.Controls[0].Height);        
+                if (UI_Interface.HubButton == null)
+                {          
+                    //Add search fied controls first because the hub button location is relative to their location
+                    Runtime_Controls.Insert_SearchFieldControls();
+                    Runtime_Controls.Insert_HubButton();
                 }
 
                 UI_Interface.GameList.Visible = true;
+            }
+
+            if (UI_Interface.GameList.Controls.Count > 1)
+            {
+                if (UI_Interface.SearchTextBox != null)
+                {
+                    UI_Interface.SearchTextBox.Visible = true;
+                }
             }
 
             if (UI_Interface.CurrentGameListControl != null)
@@ -366,6 +357,7 @@ namespace Nucleus.Coop.UI
 
             if ((string)playButton.Tag == "S T O P")
             {
+                UI_Functions.RefreshUI(true);//Sort the game in case the last played sorting filter is enabled
                 I_GameHandlerEndFunc("Stop button clicked", true);
                 GameProfile.Instance.Reset();
                 DevicesFunctions.GamepadTimer = new System.Threading.Timer(DevicesFunctions.GamepadTimer_Tick, null, 0, 500);

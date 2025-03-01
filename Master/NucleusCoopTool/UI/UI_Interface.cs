@@ -592,19 +592,13 @@ namespace Nucleus.Coop.UI
             }
         }
 
-        private static AddGameButton addGameButton;
-        public static AddGameButton AddGameButton
+        private static HubButton hubButton;
+        public static HubButton HubButton
         {
-            get => addGameButton;
+            get => hubButton;
             set
             {            
-                addGameButton = value;
-                GameListContainer.Controls.Add(addGameButton);
-                GameList.Height -= addGameButton.Height;
-                addGameButton.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-                addGameButton.Location = new Point(0, searchTextBox.Bottom);
-                GameList.Top = addGameButton.Bottom;
-
+                hubButton = value;
             }
         }
 
@@ -617,6 +611,7 @@ namespace Nucleus.Coop.UI
                 searchTextBox = value;
                 searchTextBox.SearchText.Font = new Font(Theme_Settings.CustomFont, 13f, FontStyle.Bold, GraphicsUnit.Pixel, 0);
                 searchTextBox.SearchText.TextChanged += Core_Interface.RefreshGames;
+                searchTextBox.Visible = false;
             }
         }
        
@@ -627,6 +622,7 @@ namespace Nucleus.Coop.UI
             set
             {
                 sortGamesButton = value;
+                sortGamesButton.Visible = false;
             }
         }
 
@@ -637,6 +633,7 @@ namespace Nucleus.Coop.UI
             set
             {
                 toggleFavoriteButton = value;
+                toggleFavoriteButton.Visible = false;
             }
         }
       

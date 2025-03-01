@@ -61,9 +61,9 @@ namespace Nucleus.Coop
                         }
                     });
 
-                    if (UI_Interface.AddGameButton != null)
+                    if (UI_Interface.HubButton != null)
                     {
-                        UI_Interface.AddGameButton.Update(value);
+                        UI_Interface.HubButton.Update(value);
                     }
                 }
             }
@@ -426,7 +426,7 @@ namespace Nucleus.Coop
             if (!hotkeysCooldown)
             {
                 hotkeysCooldownTimer.Stop();
-                hotkeysCooldownTimer.Interval = (600); //millisecond
+                hotkeysCooldownTimer.Interval = 600; //millisecond
                 hotkeysCooldownTimer.Start();
                 hotkeysCooldown = true;
             }

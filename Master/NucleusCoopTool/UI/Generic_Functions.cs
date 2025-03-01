@@ -202,7 +202,7 @@ namespace Nucleus.Coop.UI
             UI_Interface.WebView.Size = UI_Interface.HomeScreen.Size;
             UI_Interface.WebView.Location = UI_Interface.GameListContainer.Location;
 
-            UI_Interface.AddGameButton.Selected = true;
+            UI_Interface.HubButton.Selected = true;
 
             UI_Functions.RefreshUI(true);
             UI_Interface.MainForm.Invalidate(true);
@@ -233,7 +233,7 @@ namespace Nucleus.Coop.UI
             UI_Interface.WebView.Dispose();
             UI_Interface.WebView = null;
 
-            UI_Interface.AddGameButton.Selected = false;
+            UI_Interface.HubButton.Selected = false;
 
             UI_Interface.MainForm.Invalidate(false);
 

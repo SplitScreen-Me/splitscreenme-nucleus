@@ -609,8 +609,12 @@
     <Content Include="copyoutput\utils\ForceBindIP\ForceBindIP64.exe" />
     <None Include="Resources\no_image.jpg" />
     <Content Include="copyoutput\utils\LaunchUsers\PsExec.exe" />
-    <Content Include="copyoutput\utils\SDL2\x64\SDL2.dll" />
-    <Content Include="copyoutput\utils\SDL2\x86\SDL2.dll" />
+    <Content Include="copyoutput\utils\SDL2\x64\SDL2.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="copyoutput\utils\SDL2\x86\SDL2.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu.dll" />
     <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu.txt" />
     <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu64.dll" />
