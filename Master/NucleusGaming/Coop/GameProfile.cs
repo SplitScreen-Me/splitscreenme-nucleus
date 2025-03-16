@@ -253,10 +253,7 @@ namespace Nucleus.Gaming.Coop
 
         private List<PlayerInfo> GetDevicesList()
         {
-            lock (deviceList)
-            {
-                return deviceList;
-            }
+            return deviceList;       
         }
 
         private void ListGameProfiles()
@@ -278,7 +275,7 @@ namespace Nucleus.Gaming.Coop
             bool profileDisabled = App_Misc.DisableGameProfiles;
 
             SetupScreenControl.Instance?.CanPlayUpdated(false, false);
-
+            
             ProfilePlayersList.Clear();
             AllScreens.Clear();
             GhostBounds.Clear();
@@ -355,7 +352,8 @@ namespace Nucleus.Gaming.Coop
                     screens = BoundsFunctions.Screens.ToList();
                 }
             }
-            
+
+            //SetupScreenControl.Instance?.Invalidate(false);
         }
 
         public virtual void InitializeDefault(UserGameInfo userGameInfo)
@@ -1235,7 +1233,7 @@ namespace Nucleus.Gaming.Coop
             }
 
             //DInput/XInput/SDL2 using GamepadGuid(do not follow gamepad api indexes)
-            if (player.IsController && !skipGuid && !useXinputIndex)
+            if (player.IsXInput || player.IsDInput || player.IsSDL2 && !skipGuid && !useXinputIndex)
             {
                 profilePlayer = ProfilePlayersList.Where(pl => (pl.IsDInput || pl.IsXInput || pl.IsSDL2) && (pl.GamepadGuid == player.GamepadGuid)).FirstOrDefault();
             }
@@ -1433,7 +1431,6 @@ namespace Nucleus.Gaming.Coop
             player.Nickname = getIdFromProfile ? ProfilePlayersList[playerIndex].Nickname :
                              PlayersIdentityCache.GetNicknameAt(playerIndex);
 
-
             string steamID = string.Empty;
 
             if (getIdFromProfile)//get profile value
@@ -1455,8 +1452,6 @@ namespace Nucleus.Gaming.Coop
             {
                 steamID = PlayersIdentityCache.GetSteamIdAt(playerIndex);
             }
-
-            //Console.WriteLine(steamID + " " + player.Nickname + "\n");
 
             player.SteamID = long.Parse(steamID);
 

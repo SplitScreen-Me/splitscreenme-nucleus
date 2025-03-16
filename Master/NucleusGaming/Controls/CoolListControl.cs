@@ -19,6 +19,7 @@ namespace SplitTool.Controls
         protected int expandedHeight = 156;
         public object ImageUrl;
         private Color backBrushColor;
+        public bool Selected;
 
         protected override CreateParams CreateParams
         {
@@ -47,6 +48,7 @@ namespace SplitTool.Controls
         }
 
         public bool EnableHighlighting { get; private set; }
+
         public object Data { get; set; }
         public event Action<object> OnSelected;
 
@@ -60,6 +62,7 @@ namespace SplitTool.Controls
             Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             BackColor = Color.Transparent;
             Font font = new Font(customFont, 10.0f, FontStyle.Bold, GraphicsUnit.Point, 0);
+            Cursor = Theme_Settings.Default_Cursor;
 
             titleLabel = new Label
             {
@@ -76,7 +79,7 @@ namespace SplitTool.Controls
             };
 
             descLabel.LinkClicked += DescLabelLinkClicked;
-
+            
             Controls.Add(titleLabel);
             Controls.Add(descLabel);
             
@@ -234,13 +237,18 @@ namespace SplitTool.Controls
             }
 
             GraphicsPath graphicsPath = FormGraphicsUtil.MakeRoundedRect(bounds, 15, 15, true, true, true, true);
-            SolidBrush brush = new SolidBrush(backBrushColor);
+            SolidBrush brush = Selected ? new SolidBrush(Theme_Settings.SelectedBackColor) : new SolidBrush(backBrushColor);
+
+            if(Selected)
+            {
+                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                e.Graphics.CompositingQuality = CompositingQuality.HighQuality;
+            }
 
             e.Graphics.FillPath(brush, graphicsPath);
 
             graphicsPath.Dispose();
-            brush.Dispose();
-            
+            brush.Dispose(); 
         }
     }
 }

@@ -52,33 +52,34 @@ namespace Nucleus.Coop.Tools
             }
             else
             {
+                string stepTxt = GameProfile.Game.Options.Count > 0 ? "Click \"NEXT\" When Ready." : "Click \"PLAY\" When Ready.";
                 string screenText = GameProfile.Instance.Screens.Count > 1 ? "On The Desired Screens" : "On The Screen";
 
                 if (GameProfile.Game.SupportsMultipleKeyboardsAndMice)
                 {
-                    msg = $"Press A Key\\Button On Each Device And Drop Them {screenText}.";
+                    msg = $"Press A Key\\Button On Each Device And Drop Them {screenText}. {stepTxt}";
 
                 }
                 else if (!GameProfile.Game.SupportsMultipleKeyboardsAndMice && !GameProfile.Game.SupportsKeyboard)
                 {
                     if (DevicesFunctions.UseGamepadApiIndex || profileDisabled)
                     {
-                        msg = $"Drop The Gamepads {screenText}.";
+                        msg = $"Drop The Gamepads {screenText}. {stepTxt}";
                     }
                     else
                     {
-                        msg = $"Press A Button On Each Gamepad And Drop Them {screenText}.";
+                        msg = $"Press A Button On Each Gamepad And Drop Them {screenText}. {stepTxt}";
                     }
                 }
                 else
                 {
                     if (DevicesFunctions.UseGamepadApiIndex || profileDisabled)
                     {
-                        msg = $"Drop The Gamepads Or Keyboard\\Mouse {screenText}.";
+                        msg = $"Drop The Gamepads Or Keyboard\\Mouse {screenText}. {stepTxt}";
                     }
                     else
                     {
-                        msg = $"Press A Button On Each Gamepad And Drop The Devices {screenText}.";
+                        msg = $"Press A Button On Each Gamepad And Drop The Devices {screenText}. {stepTxt}";
                     }
                 }
             }

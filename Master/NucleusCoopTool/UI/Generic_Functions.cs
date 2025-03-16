@@ -108,21 +108,7 @@ namespace Nucleus.Coop.UI
             }
         }
 
-        public static void SetCoverLocation(bool profileEnabled)
-        {
-            UI_Interface.Cover.Visible = false;
 
-            if (profileEnabled)
-            {
-                UI_Interface.Cover.Location = UI_Interface.DefCoverLoc;
-                UI_Interface.Cover.Visible = true;
-                return;
-            }
-
-            UI_Interface.Cover.BringToFront();
-            UI_Interface.Cover.Location = new Point(UI_Interface.Cover.Location.X, UI_Interface.ProfileButtonsPanel.Bottom - 5);
-            UI_Interface.Cover.Visible = true;
-        }
 
         public static void DisposeTutorial()
         {

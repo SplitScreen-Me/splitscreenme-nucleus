@@ -29,6 +29,7 @@ namespace Nucleus.Gaming.Coop
         public int OwnerType;
         //
 
+        public InputType InputType;
         private object tag;
 
         public string IdealProcessor = "*";
@@ -46,7 +47,7 @@ namespace Nucleus.Gaming.Coop
         public bool SteamEmu;
         public bool GotLauncher;
         public bool GotGame;
-
+        public bool Polling;
         private bool isRawMouse;
         public bool IsRawMouse
         {
@@ -56,11 +57,13 @@ namespace Nucleus.Gaming.Coop
                 isRawMouse = value;
                 if (value && !IsRawKeyboard)
                 {
-                    Image = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "proto_mouse.png"));
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "proto_mouse.png");
+                    InputType = InputType.Mouse;
                 }
                 else if (isRawMouse && isRawKeyboard)//merged profile k&b player
                 {
-                    Image = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "keyboard.png"));
+                    InputType = InputType.KBM;
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "keyboard.png");
                 }
             }
         }
@@ -74,11 +77,13 @@ namespace Nucleus.Gaming.Coop
                 isRawKeyboard = value;
                 if(value && !isRawMouse)
                 {
-                    Image = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "proto_keyboard.png"));
+                    InputType = InputType.KB;
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "proto_keyboard.png");
                 }
                 else if (isRawMouse && isRawKeyboard)//merged profile k&b player
                 {
-                    Image = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "keyboard.png"));
+                    InputType = InputType.KBM;
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "keyboard.png");
                 }
             }
         }
@@ -92,7 +97,8 @@ namespace Nucleus.Gaming.Coop
                 isKeyboardPlayer = value;
                 if(value && !isRawMouse && !isRawKeyboard)
                 {
-                    Image = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "keyboard.png"));
+                    InputType = InputType.SingleKB;
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "keyboard.png");
                 }               
             }
         }
@@ -100,7 +106,7 @@ namespace Nucleus.Gaming.Coop
         private bool isXinput;
         public bool IsXInput
         {
-            get => isXinput;
+            get => isXinput;                        
             set
             {
                 isXinput = value;
@@ -108,7 +114,8 @@ namespace Nucleus.Gaming.Coop
 
                 if(value)
                 {
-                    Image = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "xinput.png"));
+                    InputType = InputType.XInput;
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "xinput.png");
                 }    
             }
         }
@@ -124,7 +131,8 @@ namespace Nucleus.Gaming.Coop
 
                 if (value)
                 {
-                    Image = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "xinput.png"));
+                    InputType = InputType.SDL2;
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "xinput.png");
                 }
             }
         }
@@ -140,7 +148,8 @@ namespace Nucleus.Gaming.Coop
 
                 if (value)
                 {
-                    Image = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "dinput.png"));
+                    InputType = InputType.DInput;
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "dinput.png");
                 }
             }
         }
@@ -151,7 +160,6 @@ namespace Nucleus.Gaming.Coop
               
         public bool IsInputUsed;
         public bool IsController;//Good to do not have to loop both Xinput & DInput  
-        public bool IsPolling;
         public bool Vibrate;
 
         public Guid GamepadProductGuid;
@@ -160,10 +168,10 @@ namespace Nucleus.Gaming.Coop
         public Display Display;
         public UserScreen Owner;
         
-        public Joystick DInputJoystick;
+        public D_Joystick DInputJoystick;
         public OpenXinputController XInputJoystick;
         public SDL_GameController SDL2Joystick;
-
+        
         private ProcessData processData;
 
         public Window RawInputWindow { get; set; }
@@ -259,13 +267,13 @@ namespace Nucleus.Gaming.Coop
         {
             if (ShouldFlash && flashStopwatch != null && flashStopwatch.IsRunning && flashStopwatch.ElapsedMilliseconds <= 250)
             {
-                return;
+                return; 
             }
 
             if (!ShouldFlash)
             {
                 ShouldFlash = true;
-                SetupScreenControl.InvalidateFlash();
+                SetupScreenControl.InvalidateFlash(new Rectangle((int)editBounds.X, (int)editBounds.Y, (int)editBounds.Width, (int)editBounds.Height));
             }
 
             flashStopwatch.Restart();
@@ -282,7 +290,7 @@ namespace Nucleus.Gaming.Coop
                     flashTask = null;
 
                     ShouldFlash = false;
-                    SetupScreenControl.InvalidateFlash();
+                    SetupScreenControl.InvalidateFlash(new Rectangle((int)editBounds.X, (int)editBounds.Y, (int)editBounds.Width, (int)editBounds.Height));
                 });
 
                 flashTask.Start();

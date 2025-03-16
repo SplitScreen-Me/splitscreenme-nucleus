@@ -44,6 +44,7 @@ namespace Nucleus.Gaming
             AutoScroll = true;
             Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             this.MouseWheel += Scrolling;
+            Cursor = Theme_Settings.Default_Cursor;
         }
 
 
@@ -239,12 +240,25 @@ namespace Nucleus.Gaming
 
             SelectedControl = parent;
 
-            if(SelectedControl is CoolListControl coolListControl)
+            if (SelectedControl is CoolListControl coolListControl)
             {
-                if(coolListControl.ImageUrl != null)
+                coolListControl.Selected = true;
+
+                if (coolListControl.ImageUrl != null)
                 {
-                    coolListControl.BackColor = Theme_Settings.SelectedBackColor;
-                }          
+                    foreach (Control con in Controls)
+                    {
+                        if (con is CoolListControl _coolListControl)
+                        {
+                            if (con != SelectedControl)
+                            {
+                                _coolListControl.Selected = false;
+                            }
+
+                            con.Invalidate();
+                        }
+                    }
+                }
             }
 
             if (SelectedControl is GameControl gameControl)

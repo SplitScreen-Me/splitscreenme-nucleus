@@ -13,6 +13,8 @@ using System.Linq;
 using Nucleus.Coop.Tools;
 using System.IO;
 using Nucleus.Gaming.Controls.SetupScreen;
+using Nucleus.Gaming.App.Settings;
+using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 
 namespace Nucleus.Coop.UI
 {
@@ -47,11 +49,25 @@ namespace Nucleus.Coop.UI
             UI_Interface.MaximizeButton.BackgroundImage = UI_Interface.MainForm.WindowState == FormWindowState.Maximized ? 
             ImageCache.GetImage(Globals.ThemeFolder + "title_windowed.png") : ImageCache.GetImage(Globals.ThemeFolder + "title_maximize.png");
 
+        public static void VirtualMouseToggle_MouseClick(object sender, MouseEventArgs e)
+        {
+            PictureBox navPb = sender as PictureBox;
+
+            if (e.Button == MouseButtons.Left)
+            {
+                App_GamePadNavigation.Enabled = !App_GamePadNavigation.Enabled;
+                GamepadNavigation.UpdateUINavSettings();
+                navPb.Invalidate();
+            }
+            else if (e.Button == MouseButtons.Right)
+            {
+                UI_Interface.Xinput_S_Setup.Visible = !UI_Interface.Xinput_S_Setup.Visible;
+            }
+        }
 
         public static void ExtractHandlerButton_Click(object sender, EventArgs e)=> ExtractHandler.Extract();
         public static void ExtractHandlerButton_MouseEnter(object sender, EventArgs e) => UI_Interface.ExtractHandlerButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "extract_nc_mousehover.png");
         public static void ExtractHandlerButton_MouseLeave(object sender, EventArgs e) => UI_Interface.ExtractHandlerButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "extract_nc.png");
-
 
         public static void SearchGameButton_Click(object sender, EventArgs e) => SearchGame.Search(null, null);
         public static void SearchGameButton_MouseEnter(object sender, EventArgs e) => UI_Interface.SearchGameButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "search_game_mousehover.png");
@@ -148,6 +164,18 @@ namespace Nucleus.Coop.UI
         public static void GotoPrev_Click(object sender, EventArgs e) => Core_Interface.GotoPrevStep();
 
         public static void GotoNext_Click(object sender, EventArgs e) => Core_Interface.GotoNextStep();
+
+        public static void GotoPrevEnabledChanged(object sender, EventArgs e)
+        {
+            Button stepBtn = (Button)sender;        
+            //stepBtn.Visible = stepBtn.Enabled;
+        }
+
+        public static void GotoNextEnabledChanged(object sender, EventArgs e)
+        {
+            Button stepBtn = (Button)sender;
+            //stepBtn.Visible = stepBtn.Enabled;
+        }
 
         public static void Play_Click(object sender, EventArgs e) => Core_Interface.PlayClicked(sender);
         
@@ -279,7 +307,6 @@ namespace Nucleus.Coop.UI
                 UI_Interface.HandlerNotesZoom.Notes.Font = UI_Interface.HandlerNotesZoom.DefaultNotesFont;//Upate the font after setting rtf
                 UI_Interface.HandlerNotesZoom.Warning.Visible = false;
             }
-
         }
 
         public static void Button_UpdateAvailable_Click(object sender, EventArgs e)
@@ -336,6 +363,50 @@ namespace Nucleus.Coop.UI
 
         public static void HandlerNotes_LinkClicked(object sender, LinkClickedEventArgs e) => Process.Start(e.LinkText);
 
+
+        public static void ProfileListButton_VisibleChanged(object sender, EventArgs e)
+        {
+            SetGameProfileButtonLoc();
+        }
+
+        public static void SetGameProfileButtonLoc()
+        {
+            //Button listBtn = sender as Button;
+
+            UI_Interface.ProfileSettingsButton.Location = UI_Interface.ProfileListButton.Visible ? (Point)UI_Interface.ProfileSettingsButton.Tag : UI_Interface.ProfileListButton.Location;           
+            UI_Interface.SaveProfileSwitch.Location = new Point(UI_Interface.ProfileSettingsButton.Right + 5, UI_Interface.SaveProfileSwitch.Location.Y);
+        }
+
+
+        public static void SetCoverLocation(bool profileEnabled)
+        {
+            UI_Interface.Cover.Visible = false;
+
+            if (profileEnabled)
+            {
+                UI_Interface.Cover.Location = UI_Interface.DefCoverLoc;
+                //UI_Interface.StepButtonsPanel.Location = new Point(UI_Interface.StepButtonsPanel.Location.X, UI_Interface.Cover.Bottom+5);
+                UI_Interface.Cover.Visible = true;
+                return;
+            }
+
+            UI_Interface.Cover.BringToFront();
+            UI_Interface.Cover.Location = new Point(UI_Interface.Cover.Location.X, UI_Interface.ProfileButtonsPanel.Bottom - 5);
+            // UI_Interface.StepButtonsPanel.Location = new Point(UI_Interface.StepButtonsPanel.Location.X, UI_Interface.Cover.Bottom + 5);
+            UI_Interface.Cover.Visible = true;
+        }
+
+        public static void ProfileButtonsPanel_StateChanged(object sender,EventArgs e)
+        {
+            SetProfileButtonPanelLockPbState();
+        }
+
+        public static void SetProfileButtonPanelLockPbState()
+        {
+            UI_Interface.ProfileButtonPanelLockPb.Text = UI_Interface.ProfileButtonsPanel.Enabled ? "" : "🔒";
+            UI_Interface.ProfileButtonPanelLockPb.Location = new Point(UI_Interface.ProfileButtonsPanel.Right - UI_Interface.ProfileButtonPanelLockPb.Width, UI_Interface.SaveProfileSwitch.Top + ((UI_Interface.SaveProfileSwitch.Height / 2) - (UI_Interface.ProfileButtonPanelLockPb.Height / 2)) - 2);
+        }
+
         public static void RefreshUI(bool refreshAll)
         {
             if (refreshAll)
@@ -343,13 +414,13 @@ namespace Nucleus.Coop.UI
                 UI_Interface.InputsTextLabel.Text = "";
                 Core_Interface.Current_GenericGameInfo = null;
                 UI_Interface.ProfileButtonsPanel.Visible = false;
-                UI_Interface.StepButtonsPanel.Visible = false;
+                UI_Interface.GotoNext.Enabled = false;
+                UI_Interface.GotoPrev.Enabled = false;
                 UI_Interface.InfoPanel.Visible = false;
                 UI_Interface.SetupPanel.Visible = false;
                 UI_Interface.BigLogo.Visible = UI_Interface.WebView == null;
                 UI_Graphics.RainbowTimer?.Dispose();
                 UI_Graphics.RainbowTimerRunning = false;
-                UI_Interface.GotoPrev.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_left.png");
                 UI_Graphics.BackgroundImg = UI_Graphics.DefaultBackground;
                 UI_Interface.HomeScreen.Invalidate();
             }
@@ -359,9 +430,10 @@ namespace Nucleus.Coop.UI
 
             UI_Interface.WindowPanel.Focus();
             UI_Interface.BigLogo.Refresh();
+
             if(UI_Interface.SearchTextBox != null)
             {
-                UI_Interface.SearchTextBox.Visible = UI_Interface.GameList.Controls.Count >= 2;
+                UI_Interface.SearchTextBox.Visible = Core_Interface.GameManager?.User.Games.Count >= 2;
             }
            
         }

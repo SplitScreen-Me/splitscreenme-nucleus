@@ -16,11 +16,11 @@ namespace Nucleus.Coop.Tools
         private static int _width;
         private static int _height;
 
-        public static int[] ParseColor(Bitmap image)
+        public static Color ParseColor(Bitmap image)
         {
             if(image == null)
             {
-                return null;
+                return Color.LightGray;
             }
 
             var rct = new Rectangle(0, 0, image.Width, image.Height);
@@ -35,7 +35,7 @@ namespace Nucleus.Coop.Tools
             return ProcessColor(source);
         }
 
-        private static int[] ProcessColor(int[] source)
+        private static Color ProcessColor(int[] source)
         {
             int bottomRedTotal = 0, bottomGreenTotal = 0, bottomBlueTotal = 0, bottomCount = 0;
 
@@ -49,10 +49,10 @@ namespace Nucleus.Coop.Tools
                 bottomCount++;
             }
 
-            return new int[] {
+            return Color.FromArgb(
                 Math.Min(255, bottomRedTotal / bottomCount),
                 Math.Min(255, bottomGreenTotal / bottomCount),
-                Math.Min(255, bottomBlueTotal / bottomCount)};
+                Math.Min(255, bottomBlueTotal / bottomCount));
         }
                
         

@@ -111,7 +111,7 @@ namespace SDL
         {
             LoadUserControllerMappings();
 
-            foreach (SDL_GameController controller in SDLDevices.SDL2DevicesList)
+            foreach (SDL_GameController controller in SDLManager.SDL2DevicesList)
             {
                 LoadControllerMapping(controller);
             }
@@ -130,8 +130,8 @@ namespace SDL
             info.GUIDSTRING = GetGuidString(info.GUID);
             info.MAPPINGSTRING = SDL2.GetString(SDL2.GameControllerMappingForGUID(info.GUID));
 
-            int index = SDLDevices.SDL2DevicesList.IndexOf(controller);
-            if (SDLDevices.SDL2DevicesList.Contains(controller))
+            int index = SDLManager.SDL2DevicesList.IndexOf(controller);
+            if (SDLManager.SDL2DevicesList.Contains(controller))
             {
                 if(index != -1)
                 {

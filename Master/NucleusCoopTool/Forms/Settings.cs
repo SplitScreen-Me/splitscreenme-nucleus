@@ -24,10 +24,8 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
-
 namespace Nucleus.Coop
 {
-
     public partial class Settings : Form, IDynamicSized
     {
         private string prevTheme;

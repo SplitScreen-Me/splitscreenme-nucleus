@@ -64,7 +64,6 @@ namespace Nucleus.Gaming.Controls
                         Rtf = rtfFormated;
                     }
                 }
-
             }
             catch
             { }

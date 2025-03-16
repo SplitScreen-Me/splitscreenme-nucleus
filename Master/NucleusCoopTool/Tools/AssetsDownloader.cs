@@ -4,6 +4,7 @@ using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Coop;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -181,6 +182,7 @@ namespace Nucleus.Coop.Tools
                     ServicePointManager.DefaultConnectionLimit = 9999;
 
                     HttpWebRequest request = (HttpWebRequest)WebRequest.Create(urls);
+                    request.Timeout = 6000;
                     request.UserAgent = "request";
 
                     using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
@@ -191,8 +193,10 @@ namespace Nucleus.Coop.Tools
                     }
                 }
             }
-            catch
-            { }
+            catch(Exception)
+            {
+                Globals.MainOSD.Show(2000, $"Download Aborted: Timeout");
+            }
         }
 
         public static void DownloadScreenshots(string json, string gameName)
@@ -228,6 +232,7 @@ namespace Nucleus.Coop.Tools
                         ServicePointManager.DefaultConnectionLimit = 9999;
 
                         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+                        request.Timeout = 6000;
                         request.UserAgent = "request";
 
                         using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
@@ -244,8 +249,10 @@ namespace Nucleus.Coop.Tools
                     }
                 }
             }
-            catch
-            { }
+            catch(Exception) 
+            {
+                Globals.MainOSD.Show(2000, $"Download Aborted: Timeout");
+            }
         }
 
         public static void SaveDescriptions(string desc, string gameGuid)

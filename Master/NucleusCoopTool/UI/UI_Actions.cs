@@ -2,12 +2,15 @@
 using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Controls;
+using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.UI;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Nucleus.Coop.UI
@@ -27,8 +30,25 @@ namespace Nucleus.Coop.UI
             On_GameChange += ChangeGame;
             On_GameChange += SetPlayTime;           
             On_GameChange += GetGameAssets;
-
+            DevicesFunctions.OnAssignedDeviceDisconnect += DeviceDisconnected_CallBack;
             ProfileEnabled_Change += SetProfileState;
+        }
+
+        private static void DeviceDisconnected_CallBack(SynchronizationContext syncContext,string data)
+        {
+            if (Core_Interface.CurrentStepIndex > 0)
+            {
+                // Post the method callback to DevicesFunctions thread(main thread)
+                syncContext.Post(_ =>
+                {
+                    string[] dataArr = data.Split('|');
+                    //GameProfile.Instance.Reset();
+                    GameProfile.Ready = false;
+                    Core_Interface.GoToStep(0);
+                    Globals.MainOSD.Show(3000, $@"/!\ Device Connection Lost or Updated For {dataArr[0]} ({dataArr[1]}) /!\");
+
+                }, null);
+            }
         }
 
         private static void ChangeGame()
@@ -123,14 +143,18 @@ namespace Nucleus.Coop.UI
 
                 ProfilesList.Instance.Locked = false;
 
-                Generic_Functions.SetCoverLocation(true);
+                UI_Functions.SetCoverLocation(true);
+
+                //UI_Interface.ProfileSettingsButton.Location = showList ? (Point)UI_Interface.ProfileSettingsButton.Tag : UI_Interface.ProfileListButton.Location;
+                //UI_Interface.SaveProfileSwitch.Location = new Point(UI_Interface.ProfileSettingsButton.Right + 5, UI_Interface.SaveProfileSwitch.Location.Y);
+                UI_Functions.SetGameProfileButtonLoc();
+                UI_Interface.ProfileButtonsPanel.Visible = true;
             }
             else
             {
-                UI_Interface.ProfileSettingsButton.Visible = false;
                 UI_Interface.SetupScreen.ProfilesList.Visible = false;
-                UI_Interface.ProfileListButton.Visible = false;
-                Generic_Functions.SetCoverLocation(false);
+                UI_Interface.ProfileButtonsPanel.Visible = false;
+                UI_Functions.SetCoverLocation(false);
             }
 
             if (currentGame.Description?.Length > 0)
@@ -155,10 +179,9 @@ namespace Nucleus.Coop.UI
 
             // content manager is shared within the same game
             Core_Interface.HandlerContent = new ContentManager(currentGame);
-            UI_Interface.ProfileButtonsPanel.Visible = true;
-
-            UI_Interface.StepButtonsPanel.Visible = currentGame.Options?.Count > 0;
-
+           
+            UI_Interface.GotoNext.Enabled = currentGame.Options?.Count > 0;
+            UI_Interface.GotoPrev.Enabled = currentGame.Options?.Count > 0;
             Core_Interface.GoToStep(0);
         }
 
@@ -166,28 +189,46 @@ namespace Nucleus.Coop.UI
         {
             var gameGUID = Core_Interface.Current_UserGameInfo?.GameGuid;
 
-            if (File.Exists(Path.Combine(Application.StartupPath, $"gui\\covers\\{gameGUID}.jpeg")))
+            Image coverBmp = null;
+
+            var coversPath = Directory.GetFiles(Path.Combine(Application.StartupPath, $"gui\\covers")).Where(s => s.Contains(gameGUID) && (
+                s.EndsWith(".png") ||
+                s.EndsWith(".jpeg") ||
+                s.EndsWith(".jpg") ||
+                s.EndsWith(".bmp") ||
+                s.EndsWith(".gif"))
+                ).ToList();
+
+            if (coversPath.Count > 0)
             {
-               UI_Interface.Cover.BackgroundImage = new Bitmap(Path.Combine(Application.StartupPath, $"gui\\covers\\{gameGUID}.jpeg"));
+                coverBmp = new Bitmap(coversPath[0]);
             }
             else
             {
-                UI_Interface.Cover.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "no_cover.png");
+                coverBmp = ImageCache.GetImage(Globals.ThemeFolder + "no_cover.png");
             }
+
+            UI_Interface.Cover.BackgroundImage = coverBmp;
 
             UI_Interface.MainForm.Invoke((MethodInvoker)delegate ()
             {
                 ///Apply screenshots randomly
                 if (Directory.Exists(Path.Combine(Application.StartupPath, $"gui\\screenshots\\{gameGUID}")))
                 {
-                    string[] imgsPath = Directory.GetFiles(Path.Combine(Application.StartupPath, $"gui\\screenshots\\{gameGUID}"));
+                    var imgsPath = Directory.GetFiles(Path.Combine(Application.StartupPath, $"gui\\screenshots\\{gameGUID}")).Where(s =>
+                    s.EndsWith(".png") ||
+                    s.EndsWith(".jpeg") ||
+                    s.EndsWith(".jpg") ||
+                    s.EndsWith(".bmp") ||
+                    s.EndsWith(".gif")
+                    ).ToList();
 
-                    if (imgsPath.Length > 0)
+                    if (imgsPath.Count > 0)
                     {
                         Random rNum = new Random();
-                        int RandomIndex = rNum.Next(0, imgsPath.Length);
+                        int RandomIndex = rNum.Next(0, imgsPath.Count);
 
-                        Bitmap backgroundImg = UI_Graphics.ApplyBlur(new Bitmap(Path.Combine(Application.StartupPath, $"gui\\screenshots\\{gameGUID}\\{RandomIndex}_{gameGUID}.jpeg")));
+                        Bitmap backgroundImg = UI_Graphics.ApplyBlur(new Bitmap(imgsPath[RandomIndex]));
                         UI_Graphics.BackgroundImg = backgroundImg;
                     }
                     else
@@ -247,8 +288,10 @@ namespace Nucleus.Coop.UI
                         Core_Interface.GoToStep(0);
                     }
 
-                    Generic_Functions.SetCoverLocation(true);
+                    UI_Functions.SetCoverLocation(true);
                     UI_Interface.InfoPanel.Refresh();
+
+                    UI_Interface.ProfileButtonsPanel.Visible = true;
                 }
             }
             else
@@ -262,7 +305,7 @@ namespace Nucleus.Coop.UI
                     UI_Interface.SetupScreen.ProfilesList.Visible = false;
                     UI_Interface.ProfileListButton.Visible = false;
                     UI_Interface.ProfileSettingsButton.Visible = false;
-                    Generic_Functions.SetCoverLocation(false);
+                    UI_Functions.SetCoverLocation(false);
                     UI_Interface.InfoPanel.Refresh();
                 }
 
@@ -270,14 +313,16 @@ namespace Nucleus.Coop.UI
                 {
                     Core_Interface.GoToStep(0);
                 }
+
+                UI_Interface.ProfileButtonsPanel.Visible = false;
             }
 
-            if (UI_Interface.StepButtonsPanel.Visible)
-            {
-                UI_Interface.ProfileButtonsPanel.Visible = true;
-            }
+            //if (UI_Interface.GotoNext.Enabled || UI_Interface.GotoPrev.Enabled)
+            //{
+            //    UI_Interface.ProfileButtonsPanel.Visible = true;
+            //}
 
-            GameManager.Instance.SaveUserProfile();
+            //GameManager.Instance.SaveUserProfile();
         }
 
     }

@@ -13,12 +13,10 @@ namespace Nucleus.Coop.Controls
     public partial class SortCheckBox : CustomCheckBox
     {
         public SortOptions SortOptions { get; set; }
-
     }
 
     public partial class SortOptionsPanel : UserControl
     {
-
         private SortCheckBox last;
         List<string> saveToIniList = new List<string>();
 

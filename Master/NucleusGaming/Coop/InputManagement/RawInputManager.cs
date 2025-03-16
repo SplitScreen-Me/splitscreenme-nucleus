@@ -162,9 +162,11 @@ namespace Nucleus.Gaming.Coop.InputManagement
             }
         }
 
-        public static IEnumerable<PlayerInfo> GetDeviceInputInfos()
+        public static List<PlayerInfo> GetDeviceInputInfos()
         {
             int i = 100;
+
+            List<PlayerInfo> rawDevices = new List<PlayerInfo>();
 
             foreach ((RID_DEVICE_INFO deviceInfo, IntPtr deviceHandle, string deviceName) device in GetDeviceList().Where(x => x.deviceInfo.dwType <= 1))
             {
@@ -189,7 +191,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
 
                 player.IsKeyboardPlayer = true;
 
-                yield return player;
+                rawDevices.Add(player);
             }
 
             // Zero device handle mouse
@@ -206,7 +208,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
                 playerMouseZero.RawKeyboardDeviceHandle = (IntPtr)(-1);
                 playerMouseZero.IsKeyboardPlayer = true;
 
-                yield return playerMouseZero;
+                rawDevices.Add(playerMouseZero);
             }
 
             // Zero device handle keyboard
@@ -223,8 +225,10 @@ namespace Nucleus.Gaming.Coop.InputManagement
                 playerKeyboardZero.RawMouseDeviceHandle = (IntPtr)(-1);
                 playerKeyboardZero.IsKeyboardPlayer = true;
 
-                yield return playerKeyboardZero;
+                rawDevices.Add(playerKeyboardZero);
             }
+
+            return rawDevices.OrderBy(dv => dv.IsRawKeyboard).ToList();
         }
     }
 }

@@ -476,6 +476,36 @@ namespace Nucleus.Gaming
 
                 plyrIndex = i;
 
+
+                //DPIHandling DPIHandling;
+
+                ////if (handlerInstance.context != null)
+                ////{
+                ////    DPIHandling = handlerInstance.context.DPIHandling;
+                ////}
+                ////else
+                ////{
+                //    DPIHandling = CurrentGameInfo.DPIHandling;
+                ////}
+
+                //Size mbSize;
+
+                //switch (DPIHandling)
+                //{
+                //    case DPIHandling.Scaled:
+                //        mbSize = new Size((int)((player.MonitorBounds.Width * DPIManager.Scale) + 0.5), (int)((player.MonitorBounds.Height * DPIManager.Scale) + 0.5));
+                //        break;
+                //    case DPIHandling.InvScaled:
+                //        mbSize = new Size((int)((player.MonitorBounds.Width * (1 / DPIManager.Scale)) + 0.5), (int)((player.MonitorBounds.Height * (1 / DPIManager.Scale)) + 0.5));
+                //        break;
+                //    case DPIHandling.True:
+                //    default:
+                //        mbSize = new Size(player.MonitorBounds.Width, player.MonitorBounds.Height);
+                //        break;
+                //}
+
+                //player.MonitorBounds = new Rectangle(player.MonitorBounds.Location.X, player.MonitorBounds.Location.Y, mbSize.Width, mbSize.Height);
+
                 if (!GameProfile.UseNicknames)
                 {
                     player.Nickname = $"Player{i + 1}";

@@ -42,8 +42,8 @@ namespace Nucleus.Gaming
         {
             if (OnCanPlayUpdated != null)
             {
-                OnCanPlayUpdated(this, canPlay, autoProceed);
-            }
+                OnCanPlayUpdated(this, canPlay, autoProceed);       
+            }        
         }
 
     }

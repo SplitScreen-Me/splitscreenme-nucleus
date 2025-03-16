@@ -90,8 +90,14 @@ namespace Nucleus.Coop
             this.GameListContainer = new DoubleBufferPanel();
             this.GameList = new Nucleus.Gaming.ControlListBox();
             this.InfoPanel = new DoubleBufferPanel();
+            this.cover = new DoubleBufferPanel();
+            this.coverFrame = new DoubleBufferPanel();
+            this.btn_Play = new System.Windows.Forms.Button();
+            this.btn_Prev = new System.Windows.Forms.Button();
+            this.btn_Next = new System.Windows.Forms.Button();
             this.PlayTimePanel = new Nucleus.Coop.Controls.PlaytimePanel();
             this.ProfileButtonsPanel = new DoubleBufferPanel();
+            this.ProfileButtonPanelLockPb = new System.Windows.Forms.Label();
             this.ProfileSettings_btn = new System.Windows.Forms.Button();
             this.ProfilesList_btn = new System.Windows.Forms.Button();
             this.SaveProfileSwitch = new Nucleus.Coop.Controls.CustomSwitch();
@@ -100,10 +106,8 @@ namespace Nucleus.Coop
             this.ExpandHandlerNotes_btn = new System.Windows.Forms.PictureBox();
             this.HandlerNotes = new Nucleus.Gaming.Controls.TransparentRichTextBox();
             this.HandlerNoteTitle = new System.Windows.Forms.Label();
-            this.cover = new DoubleBufferPanel();
-            this.coverFrame = new DoubleBufferPanel();
-            this.btn_Play = new System.Windows.Forms.Button();
             this.WindowPanel = new DoubleBufferPanel();
+            this.VirtualMouseToggle = new System.Windows.Forms.PictureBox();
             this.MainButtonsPanel = new DoubleBufferPanel();
             this.btn_downloadAssets = new System.Windows.Forms.Button();
             this.btn_debuglog = new System.Windows.Forms.Button();
@@ -112,9 +116,6 @@ namespace Nucleus.Coop
             this.SettingsButton = new System.Windows.Forms.Button();
             this.btnSearch = new System.Windows.Forms.Button();
             this.InputsTextLabel = new System.Windows.Forms.Label();
-            this.StepButtonsPanel = new DoubleBufferPanel();
-            this.btn_Prev = new System.Windows.Forms.Button();
-            this.btn_Next = new System.Windows.Forms.Button();
             this.donationBtn = new System.Windows.Forms.Button();
             this.closeBtn = new System.Windows.Forms.Button();
             this.btn_Links = new System.Windows.Forms.Button();
@@ -128,14 +129,14 @@ namespace Nucleus.Coop
             this.HomeScreen.SuspendLayout();
             this.GameListContainer.SuspendLayout();
             this.InfoPanel.SuspendLayout();
+            this.cover.SuspendLayout();
+            this.coverFrame.SuspendLayout();
             this.ProfileButtonsPanel.SuspendLayout();
             this.HandlerNotesContainer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ExpandHandlerNotes_btn)).BeginInit();
-            this.cover.SuspendLayout();
-            this.coverFrame.SuspendLayout();
             this.WindowPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.VirtualMouseToggle)).BeginInit();
             this.MainButtonsPanel.SuspendLayout();
-            this.StepButtonsPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.logo)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.BigLogo)).BeginInit();
             this.SuspendLayout();
@@ -552,8 +553,8 @@ namespace Nucleus.Coop
             // 
             // GameList
             // 
-            this.GameList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.GameList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.GameList.AutoScroll = true;
             this.GameList.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
@@ -568,18 +569,20 @@ namespace Nucleus.Coop
             this.GameList.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.GameList.Size = new System.Drawing.Size(230, 572);
             this.GameList.TabIndex = 2;
-            // 
+            //
             // InfoPanel
             // 
             this.InfoPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.InfoPanel.BackColor = System.Drawing.Color.Transparent;
             this.InfoPanel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.InfoPanel.Controls.Add(this.cover);
+            this.InfoPanel.Controls.Add(this.btn_Prev);
+            this.InfoPanel.Controls.Add(this.btn_Next);
             this.InfoPanel.Controls.Add(this.PlayTimePanel);
             this.InfoPanel.Controls.Add(this.ProfileButtonsPanel);
             this.InfoPanel.Controls.Add(this.Icons_Container);
             this.InfoPanel.Controls.Add(this.HandlerNotesContainer);
-            this.InfoPanel.Controls.Add(this.cover);
             this.InfoPanel.Location = new System.Drawing.Point(980, 58);
             this.InfoPanel.Margin = new System.Windows.Forms.Padding(0);
             this.InfoPanel.Name = "InfoPanel";
@@ -587,11 +590,86 @@ namespace Nucleus.Coop
             this.InfoPanel.TabIndex = 34;
             this.InfoPanel.Visible = false;
             // 
+            // cover
+            // 
+            this.cover.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cover.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.cover.BackColor = System.Drawing.Color.Black;
+            this.cover.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.cover.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.cover.Controls.Add(this.coverFrame);
+            this.cover.Location = new System.Drawing.Point(23, 127);
+            this.cover.Name = "cover";
+            this.cover.Size = new System.Drawing.Size(140, 180);
+            this.cover.TabIndex = 27;
+            // 
+            // coverFrame
+            // 
+            this.coverFrame.BackColor = System.Drawing.Color.Transparent;
+            this.coverFrame.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.coverFrame.Controls.Add(this.btn_Play);
+            this.coverFrame.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.coverFrame.Location = new System.Drawing.Point(0, 0);
+            this.coverFrame.Margin = new System.Windows.Forms.Padding(0);
+            this.coverFrame.Name = "coverFrame";
+            this.coverFrame.Size = new System.Drawing.Size(138, 178);
+            this.coverFrame.TabIndex = 26;
+            // 
+            // btn_Play
+            // 
+            this.btn_Play.BackColor = System.Drawing.Color.Transparent;
+            this.btn_Play.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.btn_Play.FlatAppearance.BorderColor = System.Drawing.Color.Silver;
+            this.btn_Play.FlatAppearance.BorderSize = 0;
+            this.btn_Play.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_Play.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_Play.ForeColor = System.Drawing.Color.Lime;
+            this.btn_Play.Location = new System.Drawing.Point(17, 38);
+            this.btn_Play.Margin = new System.Windows.Forms.Padding(2);
+            this.btn_Play.Name = "btn_Play";
+            this.btn_Play.Size = new System.Drawing.Size(106, 106);
+            this.btn_Play.TabIndex = 4;
+            this.btn_Play.Tag = "START";
+            this.btn_Play.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btn_Play.UseVisualStyleBackColor = false;
+            // 
+            // btn_Prev
+            // 
+            this.btn_Prev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_Prev.BackColor = System.Drawing.Color.Transparent;
+            this.btn_Prev.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.btn_Prev.FlatAppearance.BorderColor = System.Drawing.Color.Silver;
+            this.btn_Prev.FlatAppearance.BorderSize = 0;
+            this.btn_Prev.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_Prev.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_Prev.Location = new System.Drawing.Point(3, 128);
+            this.btn_Prev.Margin = new System.Windows.Forms.Padding(0);
+            this.btn_Prev.Name = "btn_Prev";
+            this.btn_Prev.Size = new System.Drawing.Size(19, 180);
+            this.btn_Prev.TabIndex = 9;
+            this.btn_Prev.UseVisualStyleBackColor = false;
+            // 
+            // btn_Next
+            // 
+            this.btn_Next.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_Next.BackColor = System.Drawing.Color.Transparent;
+            this.btn_Next.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.btn_Next.FlatAppearance.BorderColor = System.Drawing.Color.Silver;
+            this.btn_Next.FlatAppearance.BorderSize = 0;
+            this.btn_Next.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_Next.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_Next.Location = new System.Drawing.Point(164, 128);
+            this.btn_Next.Margin = new System.Windows.Forms.Padding(0);
+            this.btn_Next.Name = "btn_Next";
+            this.btn_Next.Size = new System.Drawing.Size(19, 180);
+            this.btn_Next.TabIndex = 11;
+            this.btn_Next.UseVisualStyleBackColor = false;
+            // 
             // PlayTimePanel
             // 
             this.PlayTimePanel.AutoSize = true;
             this.PlayTimePanel.LastPlayed = null;
-            this.PlayTimePanel.Location = new System.Drawing.Point(4, 39);
+            this.PlayTimePanel.Location = new System.Drawing.Point(4, 40);
             this.PlayTimePanel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.PlayTimePanel.Name = "PlayTimePanel";
             this.PlayTimePanel.Playtime = null;
@@ -600,15 +678,26 @@ namespace Nucleus.Coop
             // 
             // ProfileButtonsPanel
             // 
+            this.ProfileButtonsPanel.Controls.Add(this.ProfileButtonPanelLockPb);
             this.ProfileButtonsPanel.Controls.Add(this.ProfileSettings_btn);
             this.ProfileButtonsPanel.Controls.Add(this.ProfilesList_btn);
             this.ProfileButtonsPanel.Controls.Add(this.SaveProfileSwitch);
-            this.ProfileButtonsPanel.Location = new System.Drawing.Point(8, 82);
+            this.ProfileButtonsPanel.Location = new System.Drawing.Point(8, 84);
             this.ProfileButtonsPanel.Margin = new System.Windows.Forms.Padding(0);
             this.ProfileButtonsPanel.Name = "ProfileButtonsPanel";
             this.ProfileButtonsPanel.Size = new System.Drawing.Size(175, 24);
             this.ProfileButtonsPanel.TabIndex = 103;
             this.ProfileButtonsPanel.Visible = false;
+            // 
+            // ProfileButtonPanelLockPb
+            // 
+            this.ProfileButtonPanelLockPb.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.ProfileButtonPanelLockPb.AutoSize = true;
+            this.ProfileButtonPanelLockPb.Location = new System.Drawing.Point(162, 5);
+            this.ProfileButtonPanelLockPb.Name = "ProfileButtonPanelLockPb";
+            this.ProfileButtonPanelLockPb.Size = new System.Drawing.Size(0, 15);
+            this.ProfileButtonPanelLockPb.TabIndex = 106;
+            this.ProfileButtonPanelLockPb.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // ProfileSettings_btn
             // 
@@ -619,7 +708,7 @@ namespace Nucleus.Coop
             this.ProfileSettings_btn.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
             this.ProfileSettings_btn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.ProfileSettings_btn.ForeColor = System.Drawing.Color.White;
-            this.ProfileSettings_btn.Location = new System.Drawing.Point(1, 1);
+            this.ProfileSettings_btn.Location = new System.Drawing.Point(25, 1);
             this.ProfileSettings_btn.Margin = new System.Windows.Forms.Padding(2);
             this.ProfileSettings_btn.Name = "ProfileSettings_btn";
             this.ProfileSettings_btn.Size = new System.Drawing.Size(21, 21);
@@ -635,7 +724,7 @@ namespace Nucleus.Coop
             this.ProfilesList_btn.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
             this.ProfilesList_btn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.ProfilesList_btn.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.ProfilesList_btn.Location = new System.Drawing.Point(25, 1);
+            this.ProfilesList_btn.Location = new System.Drawing.Point(1, 1);
             this.ProfilesList_btn.Margin = new System.Windows.Forms.Padding(2);
             this.ProfilesList_btn.Name = "ProfilesList_btn";
             this.ProfilesList_btn.Size = new System.Drawing.Size(21, 21);
@@ -676,7 +765,7 @@ namespace Nucleus.Coop
             this.HandlerNotesContainer.Controls.Add(this.ExpandHandlerNotes_btn);
             this.HandlerNotesContainer.Controls.Add(this.HandlerNotes);
             this.HandlerNotesContainer.Controls.Add(this.HandlerNoteTitle);
-            this.HandlerNotesContainer.Location = new System.Drawing.Point(8, 323);
+            this.HandlerNotesContainer.Location = new System.Drawing.Point(8, 331);
             this.HandlerNotesContainer.Margin = new System.Windows.Forms.Padding(5);
             this.HandlerNotesContainer.Name = "HandlerNotesContainer";
             this.HandlerNotesContainer.Size = new System.Drawing.Size(171, 249);
@@ -727,58 +816,15 @@ namespace Nucleus.Coop
             this.HandlerNoteTitle.Text = "Handler Notes";
             this.HandlerNoteTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // cover
-            // 
-            this.cover.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.cover.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.cover.BackColor = System.Drawing.Color.Black;
-            this.cover.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.cover.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.cover.Controls.Add(this.coverFrame);
-            this.cover.Location = new System.Drawing.Point(16, 116);
-            this.cover.Name = "cover";
-            this.cover.Size = new System.Drawing.Size(154, 195);
-            this.cover.TabIndex = 27;
-            // 
-            // coverFrame
-            // 
-            this.coverFrame.BackColor = System.Drawing.Color.Transparent;
-            this.coverFrame.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.coverFrame.Controls.Add(this.btn_Play);
-            this.coverFrame.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.coverFrame.Location = new System.Drawing.Point(0, 0);
-            this.coverFrame.Margin = new System.Windows.Forms.Padding(0);
-            this.coverFrame.Name = "coverFrame";
-            this.coverFrame.Size = new System.Drawing.Size(152, 193);
-            this.coverFrame.TabIndex = 26;
-            // 
-            // btn_Play
-            // 
-            this.btn_Play.BackColor = System.Drawing.Color.Transparent;
-            this.btn_Play.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btn_Play.FlatAppearance.BorderColor = System.Drawing.Color.Silver;
-            this.btn_Play.FlatAppearance.BorderSize = 0;
-            this.btn_Play.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btn_Play.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btn_Play.ForeColor = System.Drawing.Color.Lime;
-            this.btn_Play.Location = new System.Drawing.Point(25, 43);
-            this.btn_Play.Margin = new System.Windows.Forms.Padding(2);
-            this.btn_Play.Name = "btn_Play";
-            this.btn_Play.Size = new System.Drawing.Size(106, 106);
-            this.btn_Play.TabIndex = 4;
-            this.btn_Play.Tag = "START";
-            this.btn_Play.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btn_Play.UseVisualStyleBackColor = false;
-            // 
             // WindowPanel
             // 
             this.WindowPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.WindowPanel.BackColor = System.Drawing.Color.Transparent;
             this.WindowPanel.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.WindowPanel.Controls.Add(this.VirtualMouseToggle);
             this.WindowPanel.Controls.Add(this.MainButtonsPanel);
             this.WindowPanel.Controls.Add(this.InputsTextLabel);
-            this.WindowPanel.Controls.Add(this.StepButtonsPanel);
             this.WindowPanel.Controls.Add(this.donationBtn);
             this.WindowPanel.Controls.Add(this.closeBtn);
             this.WindowPanel.Controls.Add(this.btn_Links);
@@ -791,6 +837,15 @@ namespace Nucleus.Coop
             this.WindowPanel.Name = "WindowPanel";
             this.WindowPanel.Size = new System.Drawing.Size(1166, 58);
             this.WindowPanel.TabIndex = 0;
+            // 
+            // VirtualMouseToggle
+            // 
+            this.VirtualMouseToggle.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.VirtualMouseToggle.Location = new System.Drawing.Point(1008, 8);
+            this.VirtualMouseToggle.Name = "VirtualMouseToggle";
+            this.VirtualMouseToggle.Size = new System.Drawing.Size(27, 20);
+            this.VirtualMouseToggle.TabIndex = 106;
+            this.VirtualMouseToggle.TabStop = false;
             // 
             // MainButtonsPanel
             // 
@@ -911,48 +966,6 @@ namespace Nucleus.Coop
             this.InputsTextLabel.Size = new System.Drawing.Size(0, 15);
             this.InputsTextLabel.TabIndex = 104;
             this.InputsTextLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // StepButtonsPanel
-            // 
-            this.StepButtonsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.StepButtonsPanel.BackColor = System.Drawing.Color.Transparent;
-            this.StepButtonsPanel.Controls.Add(this.btn_Prev);
-            this.StepButtonsPanel.Controls.Add(this.btn_Next);
-            this.StepButtonsPanel.Location = new System.Drawing.Point(910, 28);
-            this.StepButtonsPanel.Name = "StepButtonsPanel";
-            this.StepButtonsPanel.Size = new System.Drawing.Size(70, 30);
-            this.StepButtonsPanel.TabIndex = 40;
-            this.StepButtonsPanel.Visible = false;
-            // 
-            // btn_Prev
-            // 
-            this.btn_Prev.BackColor = System.Drawing.Color.Transparent;
-            this.btn_Prev.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btn_Prev.FlatAppearance.BorderColor = System.Drawing.Color.Silver;
-            this.btn_Prev.FlatAppearance.BorderSize = 0;
-            this.btn_Prev.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btn_Prev.Location = new System.Drawing.Point(2, 0);
-            this.btn_Prev.Margin = new System.Windows.Forms.Padding(2);
-            this.btn_Prev.Name = "btn_Prev";
-            this.btn_Prev.Size = new System.Drawing.Size(30, 30);
-            this.btn_Prev.TabIndex = 9;
-            this.btn_Prev.UseVisualStyleBackColor = false;
-            // 
-            // btn_Next
-            // 
-            this.btn_Next.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_Next.BackColor = System.Drawing.Color.Transparent;
-            this.btn_Next.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.btn_Next.FlatAppearance.BorderColor = System.Drawing.Color.Silver;
-            this.btn_Next.FlatAppearance.BorderSize = 0;
-            this.btn_Next.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btn_Next.Location = new System.Drawing.Point(43, 0);
-            this.btn_Next.Margin = new System.Windows.Forms.Padding(2);
-            this.btn_Next.Name = "btn_Next";
-            this.btn_Next.Size = new System.Drawing.Size(30, 30);
-            this.btn_Next.TabIndex = 11;
-            this.btn_Next.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            this.btn_Next.UseVisualStyleBackColor = false;
             // 
             // donationBtn
             // 
@@ -1098,16 +1111,16 @@ namespace Nucleus.Coop
             this.GameListContainer.ResumeLayout(false);
             this.InfoPanel.ResumeLayout(false);
             this.InfoPanel.PerformLayout();
+            this.cover.ResumeLayout(false);
+            this.coverFrame.ResumeLayout(false);
             this.ProfileButtonsPanel.ResumeLayout(false);
             this.ProfileButtonsPanel.PerformLayout();
             this.HandlerNotesContainer.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.ExpandHandlerNotes_btn)).EndInit();
-            this.cover.ResumeLayout(false);
-            this.coverFrame.ResumeLayout(false);
             this.WindowPanel.ResumeLayout(false);
             this.WindowPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.VirtualMouseToggle)).EndInit();
             this.MainButtonsPanel.ResumeLayout(false);
-            this.StepButtonsPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.logo)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.BigLogo)).EndInit();
             this.ResumeLayout(false);
@@ -1148,7 +1161,6 @@ namespace Nucleus.Coop
         public TransparentRichTextBox HandlerNotes;
         public Button btn_debuglog;
         private Button donationBtn;
-        private DoubleBufferPanel StepButtonsPanel;
         private ContextMenuStrip socialLinksMenu;
         private ToolStripMenuItem fAQMenuItem;
         private ToolStripMenuItem redditMenuItem;
@@ -1199,5 +1211,7 @@ namespace Nucleus.Coop
         public ToolStripMenuItem gameAssetsMenuItem;
         public ToolStripMenuItem disableHandlerUpdateMenuItem;
         public ToolStripMenuItem steamLanguage;
+        public PictureBox VirtualMouseToggle;
+        private Label ProfileButtonPanelLockPb;
     }
 }

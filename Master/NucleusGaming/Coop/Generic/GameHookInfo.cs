@@ -28,7 +28,7 @@
 
 
         /// <summary>
-        /// If the game supports xinput joysticks
+        /// If the game supports sdl2 joysticks(not a hook)
         /// </summary>
         public bool SDL2Enabled;
 

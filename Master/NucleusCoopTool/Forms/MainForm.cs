@@ -14,11 +14,8 @@ using Nucleus.Gaming.UI;
 using Nucleus.Gaming.Windows;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 using Nucleus.Coop.UI;
 
@@ -30,7 +27,7 @@ namespace Nucleus.Coop
     public partial class MainForm : Form, IDynamicSized
     {
         private string[] startArgs;
-  
+
         public Action<IntPtr> RawInputAction { get; set; }
 
         private bool canResize = false;
@@ -75,15 +72,14 @@ namespace Nucleus.Coop
             {
                 startArgs = args;
             }
-
-            MainWindowFunc.FadeIn();
-
+      
             connected = Program.Connected;
             Hub.Connected = connected;
 
             InitializeComponent();
 
             UI_Interface.MainForm = this;
+            MainWindowFunc.FadeIn();
 
             UI_Interface.HomeScreen = HomeScreen;
             UI_Interface.WindowPanel = WindowPanel;
@@ -92,6 +88,7 @@ namespace Nucleus.Coop
             UI_Interface.MinimizeButton = minimizeBtn;
             UI_Interface.MaximizeButton = maximizeBtn;
             UI_Interface.DonationButton = donationBtn;
+            UI_Interface.ToggleVirtualMouse = VirtualMouseToggle;
             UI_Interface.SocialMenuButton = btn_Links;
             UI_Interface.MainButtonsPanel = MainButtonsPanel;
             UI_Interface.InputsTextLabel = InputsTextLabel;
@@ -100,9 +97,10 @@ namespace Nucleus.Coop
             UI_Interface.ExtractHandlerButton = btn_Extract;
             UI_Interface.SearchGameButton = btnSearch;
             UI_Interface.OpenLogButton = btn_debuglog;
+
             
-            UI_Interface.GameList = GameList;
             UI_Interface.GameListContainer = GameListContainer;
+            UI_Interface.GameList = GameList;
             UI_Interface.SortOptionsPanel = new SortOptionsPanel();
             UI_Interface.InfoPanel = InfoPanel;
             UI_Interface.IconsContainer = Icons_Container;
@@ -118,7 +116,7 @@ namespace Nucleus.Coop
             UI_Interface.GotoPrev = btn_Prev;
             UI_Interface.GotoNext = btn_Next;
             UI_Interface.PlayButton = btn_Play;
-            
+
             UI_Interface.ProfileSettingsButton = ProfileSettings_btn;
             UI_Interface.ProfileListButton = ProfilesList_btn;
 
@@ -126,22 +124,23 @@ namespace Nucleus.Coop
 
             UI_Interface.GameOptionMenu = GameOptionMenu;
             UI_Interface.SocialMenu = socialLinksMenu;
-            UI_Interface.SaveProfileSwitch = SaveProfileSwitch;        
-         
+            UI_Interface.SaveProfileSwitch = SaveProfileSwitch;
+
             UI_Interface.Logo = logo;
             UI_Interface.BigLogo = BigLogo;
             UI_Interface.ProfileButtonsPanel = ProfileButtonsPanel;
+            UI_Interface.ProfileButtonPanelLockPb = ProfileButtonPanelLockPb;
+
             UI_Interface.SetupPanel = SetupPanel;
-            UI_Interface.StepButtonsPanel = StepButtonsPanel;
 
             UI_Interface.SetupScreen = new SetupScreenControl();
-           
+
             UI_Interface.Settings = new Settings();
             UI_Interface.ProfileSettings = new ProfileSettings();
             UI_Interface.Xinput_S_Setup = new XInputShortcutsSetup();
 
-            UI_Actions.InitUIActions();       
- 
+            UI_Actions.InitUIActions();
+
             Core_Interface.GameControlsInfo = new Dictionary<UserGameInfo, GameControl>();
             Core_Interface.GameManager = new GameManager();
             Core_Interface.OptionsControl = new PlayerOptionsControl();
@@ -155,8 +154,8 @@ namespace Nucleus.Coop
             Core_Interface.InitializeGamepadThreads();
 
             if (!IsHandleCreated)//need this for custom scaling factors now(?) 
-            { 
-                CreateHandle(); 
+            {
+                CreateHandle();
             }
 
             DPIManager.Register(this);
@@ -179,7 +178,7 @@ namespace Nucleus.Coop
                 {
                     if (button != InputsTextLabel)
                     {
-                        button.Font = new Font(Theme_Settings.CustomFont, mainButtonFrameFont,button.Font.Style, GraphicsUnit.Pixel, 0);
+                        button.Font = new Font(Theme_Settings.CustomFont, mainButtonFrameFont, button.Font.Style, GraphicsUnit.Pixel, 0);
                     }
                 }
             }
@@ -196,7 +195,7 @@ namespace Nucleus.Coop
             UI_Interface.MainButtonsPanel.Location = new Point(UI_Interface.WindowPanel.Width / 2 - UI_Interface.MainButtonsPanel.Width / 2, 0);
             UI_Interface.MainButtonsPanelButton.Size = new Size((int)(39 * scale), (int)(10 * scale));
 
-            UI_Interface.DefCoverLoc = UI_Interface.Cover.Location;          
+            UI_Interface.DefCoverLoc = UI_Interface.Cover.Location;
         }
 
         private void SetCommonControlsAttributes()
@@ -205,7 +204,7 @@ namespace Nucleus.Coop
             {
                 if (control.Name != "HandlerNoteTitle" && control.Name != "HandlerNotes" && control.Name != "Warning")
                 {
-                    if (!(control is TransparentRichTextBox) && control != InputsTextLabel)
+                    if (!(control is TransparentRichTextBox) && control != InputsTextLabel && control != btn_Next && control != btn_Prev && control != ProfileButtonPanelLockPb)
                     {
                         control.Font = new Font(Theme_Settings.CustomFont, Theme_Settings.FontSize, control.Font.Style, GraphicsUnit.Pixel, 0);
                     }
@@ -232,13 +231,13 @@ namespace Nucleus.Coop
             if (startArgs != null)
             {
                 GameControl con = Core_Interface.GameControlsInfo?.Where(g => g.Value.GameInfo.GUID == startArgs[0]).FirstOrDefault().Value;
-
                 if (con != null)
                 {
                     UI_Functions.GameList_SelectedChanged(con, null);
                 }
-                    
             }
+
+            UI_Interface.HomeScreen.Focus();    
         }
 
         private void WebStatusTimerTick(object Object, EventArgs EventArgs)
@@ -440,7 +439,7 @@ namespace Nucleus.Coop
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            UI_Graphics.MainFormPaintBackground(e);          
-        }        
+            UI_Graphics.MainFormPaintBackground(e);
+        }
     }
 }

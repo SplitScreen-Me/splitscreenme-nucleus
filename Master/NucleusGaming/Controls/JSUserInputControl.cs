@@ -1,5 +1,6 @@
 ﻿using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Generic.Step;
+using Nucleus.Gaming.UI;
 using SplitTool.Controls;
 using System.Collections;
 using System.Collections.Generic;
@@ -67,6 +68,7 @@ namespace Nucleus.Gaming
                     };
 
                     control.OnSelected += Control_OnSelected;
+                    control.Cursor = Theme_Settings.Hand_Cursor;
 
                     IDictionary<string, object> value = (IDictionary<string, object>)val;
                     string name = value["Name"].ToString();
@@ -101,6 +103,7 @@ namespace Nucleus.Gaming
                             box.Location = new Point(list.Width - box.Width - 10, 10);
                             box.SizeMode = PictureBoxSizeMode.Zoom;
                             box.Image = Content.LoadImage(imageUrl);
+                      
                             control.Controls.Add(box);
                         }
                         else

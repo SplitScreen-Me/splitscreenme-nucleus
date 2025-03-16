@@ -60,11 +60,10 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             userGameInfo = game;
             DevicesFunctions.Initialize(this, game, profile);
-
             BoundsFunctions.Initialize(this, game, profile);
             Draw.Initialize(this, game, profile);
 
-            if (game.Game.UseHandlerSteamIds && game.Game.PlayerSteamIDs != null /*&& Game.PlayerSteamIDs.Length < Game.MaxPlayers*/)
+            if (game.Game.UseHandlerSteamIds && game.Game.PlayerSteamIDs != null)
             {
                 GameProfile.GenMissingIdFromPlayerSteamIDs();//just in case Game.PlayerSteamIDs is missing values or user add more players than the handler supports
             }
@@ -75,8 +74,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             {
                 DevicesFunctions.UseGamepadApiIndex = false;
             }
-
-            DevicesFunctions.UpdateDevices();
         }
 
         public void UpdateSize(float scale)
@@ -98,9 +95,9 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             ResumeLayout();
         }
 
-        public static void InvalidateFlash()
+        public static void InvalidateFlash(Rectangle iconBounds)
         {
-            Instance?.Invalidate(false);
+            Instance?.Invalidate(iconBounds,false);
         }
 
         protected override void Dispose(bool disposing)
@@ -110,15 +107,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         public override void Ended()
         {
-            base.Ended();
-           
-            foreach (PlayerInfo player in profile.DevicesList)
-            {
-                if(player.DInputJoystick != null)
-                player.DInputJoystick?.Dispose();
-            }
-
-            DevicesFunctions.ClearDInputDevicesList();
+            base.Ended();         
             DevicesFunctions.DisposeGamePadTimer();
         }
 
@@ -162,7 +151,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-
+        
             if (BoundsFunctions.selectedPlayer?.MonitorBounds != Rectangle.Empty &&
                 BoundsFunctions.selectedPlayer?.MonitorBounds != null)
             {
@@ -207,8 +196,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             {
                 Draw.DestinationBounds(e.Graphics);
             }
-
-            DevicesFunctions.polling = false;
         }
     }
 }

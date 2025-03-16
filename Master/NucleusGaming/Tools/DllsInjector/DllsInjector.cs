@@ -2,7 +2,9 @@
 using Nucleus.Gaming.Coop.ProtoInput;
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
+using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
 
@@ -45,10 +47,10 @@ namespace Nucleus.Gaming.Tools.DllsInjector
                     Globals.NucleusInstallRoot, // Primarily for log output
 		            handlerInstance.CurrentGameInfo.SetWindowHook, // SetWindow hook (prevents window from moving)
 					handlerInstance.CurrentGameInfo.PreventWindowDeactivation,
-                    player.MonitorBounds.Width,
-                    player.MonitorBounds.Height,
-                    player.MonitorBounds.X,
-                    player.MonitorBounds.Y,
+                    player.MonitorBounds.Width,//Add Nucleus.DPIHandling support
+                    player.MonitorBounds.Height,//Add Nucleus.DPIHandling support
+                    player.MonitorBounds.X,//Add Nucleus.DPIHandling support
+                    player.MonitorBounds.Y,//Add Nucleus.DPIHandling support
                     (player.IsRawMouse || player.IsRawKeyboard) ? 0 : (player.GamepadId+1),
 
                     //These options are enabled by default, but if the game isn't using these features the hooks are unwanted

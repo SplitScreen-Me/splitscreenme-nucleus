@@ -29,8 +29,8 @@ namespace Nucleus.Gaming
         public List<GameOption> Options = new List<GameOption>();
         private List<string> profilesPath = new List<string>();
 
-        public SaveType SaveType;
-        public string SavePath;
+        public SaveType SaveType;//Not used but could be present in some handlers
+        public string SavePath;//Not used but could be present in some handlers
         public bool UpdateAvailable;
         public string[] DirSymlinkExclusions;
         public string[] FileSymlinkExclusions;

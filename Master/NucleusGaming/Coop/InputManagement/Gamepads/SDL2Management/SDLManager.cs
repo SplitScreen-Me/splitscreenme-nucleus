@@ -5,12 +5,14 @@ using System.Threading;
 using System.Linq;
 using static SDL.SDL_ControllerUtils;
 using Nucleus.Gaming.Controls.SetupScreen;
+using Nucleus.Gaming.Coop.InputManagement.Gamepads;
+using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.App.Settings;
 
 namespace Gamepads
 {
-    unsafe public static class SDLDevices
+    unsafe public static class SDLManager
     {
-
         private static bool logDeviceInfo = false;
 
         public static bool SDL_INITIALIZED { get; private set; }
@@ -51,7 +53,6 @@ namespace Gamepads
             SDL_INITIALIZED = true;
             sdl_Loop.Start();
         }
-
 
         private static void Refresh_SDL_CallBack(SynchronizationContext syncContext)
         {
@@ -140,7 +141,6 @@ namespace Gamepads
         }
 
         #endregion
-
 
         #region ADD/REMOVE SDL DEVICES FUNCTIONS
 
@@ -257,6 +257,95 @@ namespace Gamepads
             #endregion
 
             return anyState > 0;
+        }
+
+        public static bool Poll(PlayerInfo player)
+        {
+            try
+            {
+                if (!SDLManager.IsConnected(player.SDL2Joystick))
+                {
+                    return false;
+                }
+
+                SDL_DeviceInfo info = SDL_ControllerUtils.GetSDL_DeviceInfo(player.SDL2Joystick);
+
+                if (vgmDevicesOnly)
+                {
+                    if (!info.VENDORID.StartsWith("202"))
+                    {
+                        return false;
+                    }
+
+                    // JoyStickList = JoyStickList.Where(j => j.Properties.VendorId.ToString().StartsWith("202")).ToList();
+                }
+
+                if (SDLManager.QueryControllerStateAny(player.SDL2Joystick))
+                {
+                    if (App_Misc.UseXinputIndex && !player.Vibrate)
+                    {
+                        SendRumble(player.SDL2Joystick);
+                        player.Vibrate = true;
+                        return true;
+                    }
+
+                    int pressedCount = 0;
+
+                    D_Joystick joystick = null;
+
+                    for (int i = 0; i < DInputManager.D_JoysticksList.Count; i++)
+                    {
+                        joystick = DInputManager.D_JoysticksList[i];
+
+                        if (joystick.State.Buttons.Any(b => b == true))
+                        {
+                            player.DInputJoystick = joystick;
+                            ++pressedCount;
+                        }
+                    }
+
+                    if (pressedCount != 1)
+                    {
+                        return false;
+                    }
+
+                    if (player.DInputJoystick != null)
+                    {
+                        player.GamepadGuid = player.DInputJoystick.InstanceGuid;
+                        player.GamepadProductGuid = player.DInputJoystick.ProductGuid;
+                        player.GamepadName = player.DInputJoystick.InstanceName;
+                        player.RawHID = player.DInputJoystick.InterfacePath;
+                        
+                        int start = player.RawHID.IndexOf("hid#");
+                        int end = player.RawHID.LastIndexOf("#{");
+                        string fhid = player.RawHID.Substring(start, end - start).Replace('#', '\\').ToUpper();
+            
+                        player.HIDDeviceID = new string[] { fhid, "" };
+                        player.IsInputUsed = true;
+
+                        if (!player.Vibrate)
+                        {
+                            SendRumble(player.SDL2Joystick);
+                            player.Vibrate = true;
+                        }
+                    }
+
+                    if (player.DInputJoystick != null)
+                    {
+                        player.IsInputUsed = true;
+                        return true;
+                    }
+
+                    return false;
+                }
+
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return false;
         }
 
     }

@@ -4,17 +4,21 @@ using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 using Nucleus.Gaming.UI;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 
 namespace Nucleus.Coop.UI
 {
     public static class UI_Graphics
     {
-       
         private static RectangleF backImgRect;
 
         public static bool Refreshing;
@@ -48,10 +52,10 @@ namespace Nucleus.Coop.UI
         private static LinearGradientBrush infoPanelBrush;
 
         private static Pen inputTextOutlinePen;
-     
+
         private static DrawParticles playParticles;
         private static DrawParticles bigLogoParticles;
-       
+
         public static void HomeScreen_Paint(object sender, PaintEventArgs e)
         {
             DoubleBufferPanel homeScreen = (DoubleBufferPanel)sender;
@@ -165,7 +169,7 @@ namespace Nucleus.Coop.UI
 
             Rectangle fill = new Rectangle(0, 0, UI_Interface.MainForm.Width, UI_Interface.MainForm.Height);
 
-            if(borderBrush == null)
+            if (borderBrush == null)
             {
                 borderBrush = new SolidBrush(Theme_Settings.MainWindowBackColor);
             }
@@ -217,7 +221,7 @@ namespace Nucleus.Coop.UI
             }
 
             var prevText = UI_Interface.InputsTextLabel.Text;
-            var inputText = Core_Interface.CurrentStepIndex == 0 ? InputsText.GetInputText(Core_Interface.DisableGameProfiles) : ("", UI_Interface.InputsTextLabel.ForeColor);
+            var inputText = Core_Interface.CurrentStepIndex == 0 ? InputsText.GetInputText(Core_Interface.DisableGameProfiles) : (Core_Interface.CurrentStep?.Title, UI_Interface.InputsTextLabel.ForeColor = Theme_Settings.ControlsForeColor);
 
             if (prevText != inputText.Item1)
             {
@@ -233,7 +237,7 @@ namespace Nucleus.Coop.UI
 
             if (UI_Interface.HubButton != null && UI_Interface.SearchTextBox != null)
             {
-                if(UI_Interface.SearchTextBox.Visible)
+                if (UI_Interface.SearchTextBox.Visible)
                 {
                     Rectangle sortOptBack = new Rectangle(UI_Interface.SortGamesButton.Left - 10, UI_Interface.SearchTextBox.Top,
                                                      (gameListContainer.Right - UI_Interface.SortGamesButton.Left) + 10, UI_Interface.SearchTextBox.Height);
@@ -245,10 +249,9 @@ namespace Nucleus.Coop.UI
                     GraphicsPath backGp = FormGraphicsUtil.MakeRoundedRect(sortOptBack, 10, 10, false, true, true, false);
 
                     e.Graphics.FillPath(sortBrush, backGp);
-                    //e.Graphics.FillRectangle(sortBrush, sortOptBack);
                     sortBrush.Dispose();
                 }
-                
+
             }
 
             if (backGradient.A == 0)
@@ -276,7 +279,7 @@ namespace Nucleus.Coop.UI
                 ColorBlend topcblend = new ColorBlend(6);
                 topcblend.Colors = new Color[6] { Color.Transparent, color1, color2, color3, color4, Color.Transparent };
                 topcblend.Positions = new float[6] { 0f, 0.2f, 0.4f, 0.6f, 0.8f, 1.0f };
-  
+
                 gameListContainerBrush.InterpolationColors = topcblend;
             }
 
@@ -318,7 +321,7 @@ namespace Nucleus.Coop.UI
 
             e.Graphics.FillRectangle(infoPanelBrush, infoPanel.ClientRectangle);
         }
-        
+
         public static void BigLogo_Paint(object sender, PaintEventArgs e)
         {
             PictureBox bigLogo = (PictureBox)sender;
@@ -382,11 +385,193 @@ namespace Nucleus.Coop.UI
             return blur.Process(blurValue);
         }
 
+        public static void VirtualMouseToggle_Paint(object sender, PaintEventArgs e)
+        {
+            PictureBox navPb = UI_Interface.ToggleVirtualMouse;
+
+            string text;
+            ImageAttributes gpImageAttributes = new ImageAttributes();
+
+            Rectangle bounds = navPb.ClientRectangle;
+            ColorMatrix colorMatrix;
+
+            if (App_GamePadNavigation.Enabled)
+            {
+                if (GamepadNavigation.ReceiveInputs.Any(b => b == true))
+                {
+                    colorMatrix = new ColorMatrix(new[]//orange
+                    {
+                       new float[] {1, 0, 0, 0, 0},  // Keep Red channel unchanged
+                       new float[] {0, 1, 0, 0, 0},  // Keep Green channel unchanged
+                       new float[] {0, 0, 0, 0, 0},  // Remove Blue contribution
+                       new float[] {0, 0, 0, 1, 0},  // Alpha channel unchanged
+                       new float[] {1f, 1f, 0, 0, 1} // Boost Red & Green slightly for brightness
+                     });
+                }
+                else
+                {
+                    colorMatrix = new ColorMatrix(new[]//green
+                    {
+                     new float[] {0, 0, 0, 0, 0},  // Red channel set to 0
+                     new float[] {0, 1, 0, 0, 0},  // Green channel remains unchanged
+                     new float[] {0, 0, 0, 0, 0},  // Blue channel set to 0
+                     new float[] {0, 0, 0, 1, 0},  // Alpha channel unchanged
+                     new float[] {0, 0.6f, 0, 0, 1} // Adjusting brightness in the green channel
+                   });
+                }
+                gpImageAttributes = new ImageAttributes();
+                gpImageAttributes.SetColorMatrix(colorMatrix);
+
+                text = "ON";
+            }
+            else
+            {
+                colorMatrix = new ColorMatrix(new[]
+                {
+                   new float[] {0.8f, 0.8f, 0.8f, 0, 0},  // Higher Red contribution
+                   new float[] {0.8f, 0.8f, 0.8f, 0, 0},  // Higher Green contribution
+                   new float[] {0.8f, 0.8f, 0.8f, 0, 0},  // Higher Blue contribution
+                   new float[] {0, 0, 0, 1, 0},          // Alpha channel unchanged
+                   new float[] {0.4f, 0.4f, 0.4f, 0, 1}  // Stronger brightness boost
+                 });
+
+                text = "OFF";
+
+                gpImageAttributes = new ImageAttributes();
+                gpImageAttributes.SetColorMatrix(colorMatrix);
+            }
+
+            Image gpImg = ImageCache.GetImage(Globals.ThemeFolder + "xinput.png");
+
+            e.Graphics.DrawImage(gpImg, bounds, 0, 0, gpImg.Width, gpImg.Height, GraphicsUnit.Pixel, gpImageAttributes);
+
+            Font font = new Font(UI_Interface.MainForm.Font.FontFamily, 7.0f, FontStyle.Bold);
+
+            SizeF tagSize = e.Graphics.MeasureString(text, font);
+            Point tagLocation = new Point(((int)bounds.Width / 2) - ((int)tagSize.Width / 2) - 2, ((int)bounds.Height / 2) - ((int)tagSize.Height / 2) - 3);
+
+            e.Graphics.DrawString(text, font, Brushes.White, tagLocation);
+
+            gpImageAttributes.Dispose();
+
+            font.Dispose();
+        }
+
+        private static System.Threading.Timer blink;
+        private static bool blinking;
+
+        private static void Blink_Tick(object state)
+        {
+            Button stepBtn = (Button)state;
+
+            if(!stepBtn.Enabled)
+            {
+                blink?.Dispose();
+                blink = null;
+                return;
+            }
+            
+            blinking = !blinking;
+            stepBtn.Invalidate();
+        }
+
+        public static void GotoPrevPaint(object sender, PaintEventArgs e)
+        {
+            Button stepBtn = (Button)sender;
+
+            Rectangle bounds = new Rectangle(stepBtn.ClientRectangle.X, stepBtn.ClientRectangle.Y, stepBtn.ClientRectangle.Width -1, stepBtn.ClientRectangle.Height -1);
+
+            stepBtn.Location = new Point((UI_Interface.Cover.Left - bounds.Width) -1, UI_Interface.Cover.Top);
+
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            e.Graphics.CompositingQuality = CompositingQuality.HighQuality;
+
+            Color backCol = Theme_Settings.InfoPanelBackColor;
+
+            SolidBrush textBrush = new SolidBrush(Color.FromArgb(255,Theme_Settings.SelectedBackColor.R, Theme_Settings.SelectedBackColor.G, Theme_Settings.SelectedBackColor.B));
+            SolidBrush sortBrush = new SolidBrush(Color.FromArgb(90, backCol.R, backCol.G, backCol.B));
+            GraphicsPath backGp = FormGraphicsUtil.MakeRoundedRect(bounds, 20, 20, true, false, false, true);
+            Pen pathPen = new Pen(Color.FromArgb(210, 50, 50, 50));
+
+            StringBuilder sb = new StringBuilder();
+
+            string text = (string)stepBtn.Tag;
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (i == 0) { sb.Append(c); } else { sb.Append('\n');  sb.Append(c);}
+            }
+
+            SizeF textSize = e.Graphics.MeasureString(sb.ToString(), stepBtn.Font);
+            Point ghostTagLocation = new Point(((int)bounds.Width / 2) - ((int)textSize.Width / 2), ((int)bounds.Height / 2) - ((int)textSize.Height / 2));
+
+            if (stepBtn.Enabled)
+            {
+                e.Graphics.FillPath(sortBrush, backGp);
+                e.Graphics.DrawPath(pathPen, backGp);
+                e.Graphics.DrawString(sb.ToString(), stepBtn.Font, textBrush, ghostTagLocation.X, ghostTagLocation.Y);
+            }
+
+            sortBrush.Dispose();
+            textBrush.Dispose();
+            pathPen.Dispose();
+            backGp.Dispose();
+        }
+
+        public static void GotoNextPaint(object sender, PaintEventArgs e)
+        {
+            Button stepBtn = (Button)sender;
+
+            if(blink == null && stepBtn.Enabled)
+            {
+                blink = new System.Threading.Timer(Blink_Tick, sender, 400,400);
+            }
+
+            Rectangle bounds = new Rectangle(stepBtn.ClientRectangle.X, stepBtn.ClientRectangle.Y, stepBtn.ClientRectangle.Width - 1, stepBtn.ClientRectangle.Height - 1 );
+            stepBtn.Location = new Point(UI_Interface.Cover.Right, UI_Interface.Cover.Top);
+
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            e.Graphics.CompositingQuality = CompositingQuality.HighQuality;
+
+            Color backCol = Theme_Settings.InfoPanelBackColor;
+
+            SolidBrush  textBrush = blinking ?new SolidBrush(Color.White) : new SolidBrush(Color.FromArgb(255, Theme_Settings.SelectedBackColor.R, Theme_Settings.SelectedBackColor.G, Theme_Settings.SelectedBackColor.B)); ;
+ 
+            SolidBrush sortBrush = new SolidBrush(Color.FromArgb(90, backCol.R, backCol.G, backCol.B));
+            GraphicsPath backGp = FormGraphicsUtil.MakeRoundedRect(bounds, 20, 20, false, true, true, false);
+            Pen pathPen = new Pen(Color.FromArgb(210, 50, 50, 50));
+            
+            StringBuilder sb = new StringBuilder();
+
+            string text = (string)stepBtn.Tag;
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (i == 0) { sb.Append(c); } else { sb.Append('\n'); sb.Append(c); }
+            }
+  
+            SizeF textSize = e.Graphics.MeasureString(sb.ToString(), stepBtn.Font);
+            Point textLocation = new Point(((int)bounds.Width / 2) - ((int)textSize.Width / 2), ((int)bounds.Height / 2) - ((int)textSize.Height / 2));
+
+            if (stepBtn.Enabled)
+            {
+                e.Graphics.FillPath(sortBrush, backGp);
+                e.Graphics.DrawPath(pathPen, backGp);
+                e.Graphics.DrawString(sb.ToString(), stepBtn.Font, textBrush, textLocation.X, textLocation.Y);
+            }
+ 
+            sortBrush.Dispose();
+            textBrush.Dispose();
+            pathPen.Dispose();
+            backGp.Dispose();
+        }
+
         private static int r = 0;
         private static int b = 0;
         private static bool loop = false;
 
-        public static void RainbowTimerTick(object Object, EventArgs eventArgs)
+        public static void RainbowTimerTick(object state, EventArgs eventArgs)
         {
             string text = UI_Interface.HandlerNoteTitle.Text;
 

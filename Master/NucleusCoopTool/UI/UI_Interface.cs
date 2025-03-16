@@ -12,6 +12,9 @@ using Nucleus.Coop.Tools;
 using System.Drawing;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.UI;
+using Nucleus.Gaming.Coop.InputManagement.Gamepads;
+using Nucleus.Gaming.Windows;
+using System.Threading;
 
 namespace Nucleus.Coop.UI
 {
@@ -33,21 +36,24 @@ namespace Nucleus.Coop.UI
         public static bool IsFormClosing;
         public static bool RestartRequired = false;
 
-
         private static MainForm mainForm;
         public static MainForm MainForm
         {
             get => mainForm;
             set 
-            { 
+            {
+               
+
                 mainForm = value;
 
-                mainForm.StartPosition = FormStartPosition.Manual;
+                Core_Interface.SyncContext = SynchronizationContext.Current ?? new SynchronizationContext();
+
                 mainForm.Font = new Font(Theme_Settings.CustomFont, Theme_Settings.FontSize, FontStyle.Regular, GraphicsUnit.Pixel, 0);
                 mainForm.ForeColor = Theme_Settings.ControlsForeColor;
 
                 mainForm.Cursor = Theme_Settings.Default_Cursor;
 
+                mainForm.StartPosition = FormStartPosition.Manual;
                 MainWindowFunc.SetWindowSizeAndLoc(mainForm);
 
                 if (WindowRoundedCorners)
@@ -59,7 +65,7 @@ namespace Nucleus.Coop.UI
                 mainForm.ResizeBegin += MainWindowFunc.MainForm_ResizeBegin;
                 mainForm.ResizeEnd += MainWindowFunc.MainForm_ResizeEnd;
                 mainForm.FormClosing += MainWindowFunc.MainForm_FormClosing;
-                mainForm.FormClosed += MainWindowFunc.MainForm_Closed; 
+                mainForm.FormClosed += MainWindowFunc.MainForm_Closed;
             }
         }
 
@@ -209,6 +215,21 @@ namespace Nucleus.Coop.UI
                 closeButton.MouseLeave += UI_Functions.CloseButton_MouseLeave;
             }
         }
+
+        private static PictureBox toggleVirtualMouse;
+        public static PictureBox ToggleVirtualMouse
+        {
+            get => toggleVirtualMouse;
+            set
+            {
+                toggleVirtualMouse = value;
+                toggleVirtualMouse.Paint += UI_Graphics.VirtualMouseToggle_Paint;
+                toggleVirtualMouse.MouseClick += UI_Functions.VirtualMouseToggle_MouseClick;
+                CustomToolTips.SetToolTip(toggleVirtualMouse, "Left click to turn On/Off gamepad emulated mouse.\nRight click to open gamepad shotcuts settings. ", "toggleVirtualMouse", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                GamepadNavigation.OnUpdateState += ToggleVirtualMouse.Invalidate;
+            }
+        }
+
 
         private static Button donationButton;
         public static Button DonationButton
@@ -379,7 +400,7 @@ namespace Nucleus.Coop.UI
             set
             {
                 inputsTextLabel = value;
-                inputsTextLabel.Font = new Font(Theme_Settings.CustomFont, Theme_Settings.FontSize, FontStyle.Bold, GraphicsUnit.Pixel, 0);
+                inputsTextLabel.Font = new Font(Theme_Settings.CustomFont, 11.75F, FontStyle.Bold, GraphicsUnit.Pixel, 0);
                 inputsTextLabel.BackColor = Color.Transparent;
             }
         }
@@ -574,8 +595,12 @@ namespace Nucleus.Coop.UI
             {
                 gotoPrev = value;             
                 gotoPrev.FlatAppearance.MouseOverBackColor = Color.Transparent;
-                gotoPrev.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_left.png");
+                gotoPrev.FlatAppearance.MouseDownBackColor = Color.Transparent;
+                gotoPrev.Tag= "BACK";
+                gotoPrev.BackColor = Color.Transparent;
                 gotoPrev.Click += UI_Functions.GotoPrev_Click;
+                gotoPrev.EnabledChanged += UI_Functions.GotoPrevEnabledChanged;
+                gotoPrev.Paint += UI_Graphics.GotoPrevPaint;
             }
         }
 
@@ -587,8 +612,13 @@ namespace Nucleus.Coop.UI
             {
                 gotoNext = value;
                 gotoNext.FlatAppearance.MouseOverBackColor = Color.Transparent;
-                gotoNext.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_right.png");
+                gotoNext.FlatAppearance.MouseDownBackColor = Color.Transparent;
+                gotoNext.Tag = "NEXT";
+                gotoNext.BackColor = Color.Transparent;
+
                 gotoNext.Click += UI_Functions.GotoNext_Click;
+                gotoNext.EnabledChanged += UI_Functions.GotoNextEnabledChanged;
+                gotoNext.Paint += UI_Graphics.GotoNextPaint;
             }
         }
 
@@ -646,6 +676,7 @@ namespace Nucleus.Coop.UI
                 profileSettingsButton = value;
                 profileSettingsButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "profile_settings.png");
                 profileSettingsButton.Click += UI_Functions.ProfileSettingsButton_Click;
+                profileSettingsButton.Tag = profileSettingsButton.Location;
             }
         }
        
@@ -658,6 +689,7 @@ namespace Nucleus.Coop.UI
                 profileListButton = value;
                 profileListButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "profiles_list.png");
                 profileListButton.Click += UI_Functions.ProfileListButton_Click;
+                profileListButton.VisibleChanged += UI_Functions.ProfileListButton_VisibleChanged;
                 Globals.ProfilesList_btn = value;
             } 
         }
@@ -672,6 +704,8 @@ namespace Nucleus.Coop.UI
             {
                 profileButtonsPanel = value;
                 profileButtonsPanel.BackColor = Color.Transparent;
+                profileButtonsPanel.EnabledChanged += UI_Functions.ProfileButtonsPanel_StateChanged;
+                profileButtonsPanel.VisibleChanged += UI_Functions.ProfileButtonsPanel_StateChanged;
                 foreach (Control b in profileButtonsPanel.Controls)
                 {
                     if (!(b is CustomSwitch ))
@@ -683,6 +717,18 @@ namespace Nucleus.Coop.UI
             }
         }
 
+        private static Label profileButtonPanelLockPb;
+        public static Label ProfileButtonPanelLockPb
+        {
+            get => profileButtonPanelLockPb;
+            set
+            {
+                profileButtonPanelLockPb = value;
+                profileButtonPanelLockPb.Font = new Font(Theme_Settings.CustomFont, 16F,FontStyle.Bold);
+                profileButtonPanelLockPb.Text = "";            
+            }
+        }
+      
         private static HandlerNotesZoom handlerNotesZoom;
         public static HandlerNotesZoom HandlerNotesZoom 
         {

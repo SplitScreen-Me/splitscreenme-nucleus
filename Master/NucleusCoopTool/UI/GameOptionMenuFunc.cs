@@ -460,7 +460,6 @@ namespace Nucleus.Coop.UI
                                             menuCurrentGameInfo.Game.NeedsSteamEmulation)
                                         {
                                             steamLang.ComboBox.Text = menuCurrentGameInfo.Game.MetaInfo.SteamLanguage;
-
                                             steamLang.TextChanged -= SteamLangCb_TextChanged;
                                             steamLang.TextChanged += SteamLangCb_TextChanged;
                                             menuItem.Visible = true;
@@ -707,7 +706,6 @@ namespace Nucleus.Coop.UI
 
         public static void DisableProfilesMenuItem_Click(object sender, EventArgs e)
         {
-
             UI_Actions.ProfileEnabled_Change.Invoke();
         }
 

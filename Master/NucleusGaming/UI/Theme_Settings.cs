@@ -174,8 +174,6 @@ namespace Nucleus.Gaming.UI
             }
         }
 
-       
-
         private static Color backgroundGradientColor;
         public static Color BackgroundGradientColor
         {
@@ -217,8 +215,6 @@ namespace Nucleus.Gaming.UI
                 return mainWindowBackColor;
             }
         }
-
-        
 
         private static Color controlsForeColor;
         public static Color ControlsForeColor
@@ -360,7 +356,6 @@ namespace Nucleus.Gaming.UI
                 return setupScreenPlayerScreenColor;
             }
         }
-
 
         public static bool ControllerIdentification => bool.Parse(ThemeConfigFile.IniReadValue("Misc", "ControllerIdentificationOn"));
 

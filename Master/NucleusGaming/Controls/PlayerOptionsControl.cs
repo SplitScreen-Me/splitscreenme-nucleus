@@ -1,6 +1,7 @@
 ﻿using Nucleus.Gaming;
 using Nucleus.Gaming.Controls;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.UI;
 using SplitTool.Controls;
 using System;
 using System.Collections;
@@ -18,7 +19,7 @@ namespace Nucleus.Coop
         public override bool CanProceed => true;
         public override bool CanPlay => true;
         private float _scale;
-        public override string Title => "Player Options";
+        public override string Title => "Handler Options";
         private Dictionary<string, object> vals;
 
         public PlayerOptionsControl()
@@ -120,6 +121,8 @@ namespace Nucleus.Coop
                     box.Top = (cool.Height / 2) - (box.Height / 2);
                     box.Anchor = AnchorStyles.Right;
                     box.DropDownStyle = ComboBoxStyle.DropDownList;
+                    box.Cursor = Theme_Settings.Hand_Cursor;
+
                     cool.Controls.Add(box);
 
                     box.Tag = opt;
@@ -141,6 +144,8 @@ namespace Nucleus.Coop
                     box.Left = cool.Width - box.Width - border;
                     box.Top = (cool.Height / 2) - (box.Height / 2);
                     box.Anchor = AnchorStyles.Right;
+                    box.Cursor = Theme_Settings.Hand_Cursor;
+
                     cool.Controls.Add(box);
 
                     box.Tag = opt;
@@ -168,6 +173,8 @@ namespace Nucleus.Coop
                     num.Left = cool.Width - num.Width - border;
                     num.Top = (cool.Height / 2) - (num.Height / 2);
                     num.Anchor = AnchorStyles.Right;
+                    num.Cursor = Theme_Settings.Hand_Cursor;
+
                     cool.Controls.Add(num);
 
                     num.Tag = opt;
@@ -199,6 +206,7 @@ namespace Nucleus.Coop
                     box.Left = cool.Width - box.Width - border;
                     box.Top = (cool.Height / 2) - (box.Height / 2);
                     box.Anchor = AnchorStyles.Right;
+                    box.Cursor = Theme_Settings.Hand_Cursor;
 
                     cool.Controls.Add(box);
 
@@ -222,6 +230,7 @@ namespace Nucleus.Coop
                     box.Top = (cool.Height / 2) - (box.Height / 2);
                     box.Anchor = AnchorStyles.Right;
                     box.WordWrap = true;
+                    box.Cursor = Theme_Settings.Hand_Cursor;
 
                     cool.Controls.Add(box);
                     box.Tag = opt;

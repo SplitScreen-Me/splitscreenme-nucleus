@@ -250,7 +250,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controls\AddGameButton.cs">
+    <Compile Include="Controls\HubButton.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\CustomCheckBox.cs">
@@ -388,8 +388,8 @@
     <Compile Include="UI\UI_Graphics.cs" />
     <Compile Include="UI\UI_Interface.cs" />
     <Compile Include="UI\GameOptionMenuFunc.cs" />
-    <EmbeddedResource Include="Controls\AddGameButton.resx">
-      <DependentUpon>AddGameButton.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\HubButton.resx">
+      <DependentUpon>HubButton.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\CustomSwitch.resx">
       <DependentUpon>CustomSwitch.cs</DependentUpon>
@@ -514,9 +514,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Resources\xboxControllerFront.png" />
     <None Include="Resources\log1.png" />
     <None Include="Resources\search_game.png" />
-    <None Include="Resources\xboxControllerFront.png" />
     <None Include="Resources\xboxControllerTop.png" />
     <None Include="Resources\linksArrowOpen.png" />
     <None Include="Resources\linksArrow.png" />
@@ -609,12 +609,8 @@
     <Content Include="copyoutput\utils\ForceBindIP\ForceBindIP64.exe" />
     <None Include="Resources\no_image.jpg" />
     <Content Include="copyoutput\utils\LaunchUsers\PsExec.exe" />
-    <Content Include="copyoutput\utils\SDL2\x64\SDL2.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="copyoutput\utils\SDL2\x86\SDL2.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="copyoutput\utils\SDL2\x64\SDL2.dll" />
+    <Content Include="copyoutput\utils\SDL2\x86\SDL2.dll" />
     <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu.dll" />
     <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu.txt" />
     <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu64.dll" />

@@ -112,7 +112,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 totalBounds = newBounds;
 
                 ///remove all players Screens
-                List<PlayerInfo> playerData = profile.DevicesList;
+                List<PlayerInfo> playerData = profile?.DevicesList;
 
                 if (playerData != null)
                 {
@@ -698,7 +698,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     destEditBounds = RectangleF.Empty;
                 }
 
-                RectangleF p = new RectangleF(mousePos.X - (player.EditBounds.Width / 2), mousePos.Y - (player.EditBounds.Height / 2), player.SourceEditBounds.Width, player.SourceEditBounds.Height);
+                RectangleF p = new RectangleF(mousePos.X - (player.SourceEditBounds.Width / 2), mousePos.Y - (player.SourceEditBounds.Height / 2), player.SourceEditBounds.Width, player.SourceEditBounds.Height);
                 player.EditBounds = p;
 
                 parent.Invalidate(false);

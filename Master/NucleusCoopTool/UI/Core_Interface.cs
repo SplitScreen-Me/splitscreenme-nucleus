@@ -23,6 +23,8 @@ namespace Nucleus.Coop.UI
 {
     public static class Core_Interface
     {
+        public static SynchronizationContext SyncContext;
+
         public static GameManager GameManager { get; set; }
         public static IGameHandler I_GameHandler;
 
@@ -156,7 +158,7 @@ namespace Nucleus.Coop.UI
                 UI_Interface.GameList.Visible = true;
             }
 
-            if (UI_Interface.GameList.Controls.Count > 1)
+            if (GameManager.User.Games.Count >= 2)
             {
                 if (UI_Interface.SearchTextBox != null)
                 {
@@ -271,6 +273,9 @@ namespace Nucleus.Coop.UI
 
         public static void GoToStep(int step)
         {
+            //Avoid winforms to focus buttons randomly
+            UI_Interface.SetupPanel.Focus();
+
             UI_Interface.GotoPrev.Enabled = step > 0;
 
             if (step >= StepsList.Count)
@@ -360,7 +365,6 @@ namespace Nucleus.Coop.UI
                 UI_Functions.RefreshUI(true);//Sort the game in case the last played sorting filter is enabled
                 I_GameHandlerEndFunc("Stop button clicked", true);
                 GameProfile.Instance.Reset();
-                DevicesFunctions.GamepadTimer = new System.Threading.Timer(DevicesFunctions.GamepadTimer_Tick, null, 0, 500);
                 return;
             }
 
@@ -405,26 +409,28 @@ namespace Nucleus.Coop.UI
             if (canProceed || autoProceed)
             {
                 UI_Interface.SaveProfileSwitch.Visible = !GameProfile.Loaded && !Current_GameMetaInfo.DisableProfiles && !DisableGameProfiles;
+                
             }
             else
             {
                 UI_Interface.SaveProfileSwitch.Visible = false;
             }
 
-            UI_Interface.SaveProfileSwitch.Location = GameProfile.profilesPathList.Count > 0 ? new Point(UI_Interface.ProfileListButton.Right + 5, UI_Interface.SaveProfileSwitch.Location.Y) : new Point(UI_Interface.ProfileSettingsButton.Right + 5, UI_Interface.SaveProfileSwitch.Location.Y);
+            
+            //UI_Interface.SaveProfileSwitch.Location = GameProfile.profilesPathList.Count > 0 ? new Point(UI_Interface.ProfileSettingsButton.Right + 5, UI_Interface.SaveProfileSwitch.Location.Y) : new Point(UI_Interface.ProfileListButton.Right + 5, UI_Interface.SaveProfileSwitch.Location.Y);
 
-            if (UI_Interface.GotoPrev.Enabled)
-            {
-                UI_Interface.GotoPrev.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_left_mousehover.png");
-            }
-            else
-            {
-                UI_Interface.GotoPrev.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_left.png");
-            }
+            //if (UI_Interface.GotoPrev.Enabled)
+            //{
+            //    UI_Interface.GotoPrev.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_left_mousehover.png");
+            //}
+            //else
+            //{
+            //    UI_Interface.GotoPrev.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_left.png");
+            //}
 
             if (UI_Interface.MainForm.Opacity == 1.0)//If resizing the mainForm window skip that
             {
-                UI_Interface.ProfileButtonsPanel.Visible = UI_Interface.SetupPanel.Visible && CurrentStepIndex == 0;
+                UI_Interface.ProfileButtonsPanel.Enabled = UI_Interface.SetupPanel.Visible && CurrentStepIndex == 0;                            
             }
 
             if (!canProceed)
@@ -437,13 +443,13 @@ namespace Nucleus.Coop.UI
                 }
 
                 UI_Interface.GotoNext.Enabled = false;
-                UI_Interface.GotoNext.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_right.png");
-                UI_Interface.GotoPrev.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_left.png");
+                //UI_Interface.GotoNext.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_right.png");
+                //UI_Interface.GotoPrev.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_left.png");
                 return;
             }
             else
             {
-                UI_Interface.GotoNext.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_right.png");
+                UI_Interface.GotoNext.Enabled = false;
             }
 
             if (Current_GenericGameInfo?.Options?.Count == 0)
@@ -475,8 +481,7 @@ namespace Nucleus.Coop.UI
             }
             else
             {
-                UI_Interface.GotoNext.Enabled = true;
-                UI_Interface.GotoNext.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_right_mousehover.png");
+                UI_Interface.GotoNext.Enabled = true;             
             }
         }
 

@@ -25,7 +25,8 @@ namespace Nucleus.Gaming.App.Settings
             get => enabled;
             set
             {
-                enabled = value; Globals.ini.IniWriteValue("XUINav", "Enabled", value.ToString());
+                enabled = value; 
+                Globals.ini.IniWriteValue("XUINav", "Enabled", value.ToString());
             }
         }
 
@@ -35,7 +36,8 @@ namespace Nucleus.Gaming.App.Settings
             get => deadzone;
             set
             {
-                deadzone = value; Globals.ini.IniWriteValue("XUINav", "Deadzone", value.ToString());
+                deadzone = value; 
+                Globals.ini.IniWriteValue("XUINav", "Deadzone", value.ToString());
             }
         }
 

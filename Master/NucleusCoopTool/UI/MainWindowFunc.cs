@@ -201,7 +201,7 @@ namespace Nucleus.Coop.UI
             if (!UI_Interface.RestartRequired)
             {
                 Process.GetCurrentProcess().Kill();
-            }
+            }         
         }
     }
 }

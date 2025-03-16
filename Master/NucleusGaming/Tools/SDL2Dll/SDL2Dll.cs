@@ -49,7 +49,7 @@ namespace Nucleus.Gaming.Tools.SDL2Dll
                     {
                         string destInstance = $"{gameContentPath}\\Instance{i}\\{dllPath}";
                         try
-                        {
+                        {                 
                             File.Copy(Path.Combine(dllsPath, handlerInstance.garch + "\\" + dllName), Path.Combine(destInstance, dllName), true);
                         }
                         catch (Exception ex)

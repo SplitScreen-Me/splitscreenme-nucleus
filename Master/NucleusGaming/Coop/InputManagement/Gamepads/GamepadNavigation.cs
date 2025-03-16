@@ -1,5 +1,6 @@
 ﻿using Nucleus.Gaming.App.Settings;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -56,8 +57,11 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
         private static bool _Enabled;
         public static bool Enabled => _Enabled;
         private static bool EnabledRuntime;///Can on/off UI navigation later on runtime
-        private static int DefaultSpeed => 1200;//2200 v2.3.2 value
-        private static int SlowDownSpeed = 1200;//2200 v2.3.2 value
+        private static int DefaultSpeed => 2000;//2200 v2.3.2 value
+        private static int SlowDownSpeed = 2000;//2200 v2.3.2 value
+        public static Action OnUpdateState;
+        public static List<bool> ReceiveInputs =  new List<bool> {false,false,false,false};
+        private static List<bool> prevReceiveInputs = new List<bool> {false,false,false,false};
 
         public static void StopUINavigation()
         {
@@ -88,11 +92,11 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
             int x = GetCursorPos().X;///Init current cursor X
             int y = GetCursorPos().Y;///Init current cursor Y
 
-            int steps = 1;///How much pixels the cursor will move
+            int steps = 1;///How many pixels the cursor will move
             int scrollStep = 1;
             ///Deadzone => Joystick value from where the cursor will start moving
             int pollRate = 15;///How often the thread will sleep
-            int prevPressed = 0;///previous Xinput button state 
+            List<int> prevPressed = new List<int> {0,0,0,0};///previous Xinput button state 
             bool dragging = false;
             EnabledRuntime = _Enabled;
 
@@ -102,6 +106,14 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                 {
                     if (!GamepadState.Controllers[i].IsConnected)
                     {
+                        if (prevReceiveInputs[i] || ReceiveInputs[i]|| prevPressed[i] > 0)
+                        {
+                            prevPressed[i] = 0;
+                            prevReceiveInputs[i] = false;
+                            ReceiveInputs[i] = false;
+                            OnUpdateState?.Invoke();
+                        }
+
                         continue;
                     }
 
@@ -111,12 +123,11 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
 
                     int pressed = GamepadState.GetPressedButtons(i);/// Current pressed Xinput button
 
-                    if (pressed == 128 && prevPressed != pressed)//R3/R right thumb stick click.
+                    if (pressed == 128 && prevPressed[i] != pressed)//R3/R right thumb stick click.
                     {
                         SetCursorSpeed();
                         Thread.Sleep(150);
                     }
-
 
                     bool isRT = false;
                     int rt = 0;
@@ -180,13 +191,25 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                         continue;
                     }
 
+                    ReceiveInputs[i] = false;
+
                     if (canScrollUp)
                     {
                         mouse_event(MOUSEEVENTF_WHEEL, cursor.X, cursor.Y, scrollStep * ScrollUpSpeed, 0x00A1);///Mouse wheel Up //dwExtraInfo 0x00A1 == 161 so can filter out the virtual mouse created here                      
+                        ReceiveInputs[i] = true;
+                        if (pressed != prevPressed[i] || prevReceiveInputs[i] != ReceiveInputs[i])
+                        {
+                            OnUpdateState?.Invoke();
+                        }
                     }
                     else if (canScrollDown)
                     {
                         mouse_event(MOUSEEVENTF_WHEEL, cursor.X, cursor.Y, scrollStep * ScrollDownSpeed, 0x00A1);///Mouse wheel Down//dwExtraInfo 0x00A1 == 161 so can filter out the virtual mouse created here
+                        ReceiveInputs[i] = true;
+                        if (pressed != prevPressed[i] || prevReceiveInputs[i] != ReceiveInputs[i])
+                        {
+                            OnUpdateState?.Invoke();
+                        }
                     }
 
                     if (canMouveRight)
@@ -212,10 +235,17 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                     ///Set cursor position accordingly to the possibilities and values
                     if (canMouveRight || canMouveLeft || canMouveUp || canMouveDown)
                     {
+                        ReceiveInputs[i] = true;
+
+                        if (pressed != prevPressed[i] || prevReceiveInputs[i] != ReceiveInputs[i])
+                        {
+                            OnUpdateState?.Invoke();
+                        }
+
                         SetCursorPos(x, y);
                     }
 
-                    if ((pressed == LeftClick || (isRT && rt == LeftClick) || (isLT && lt == LeftClick)) && prevPressed != pressed)///Left click and release(single click) 
+                    if ((pressed == LeftClick || (isRT && rt == LeftClick) || (isLT && lt == LeftClick)) && prevPressed[i] != pressed)///Left click and release(single click) 
                     {
                         mouse_event(MOUSEEVENTF_LEFTDOWN, cursor.X, cursor.Y, 0, 0x00A1);///Left Mouse Button Down //dwExtraInfo 0x00A1 == 161 so can filter out the virtual mouse created here
                         Thread.Sleep(200);
@@ -223,7 +253,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                         dragging = false;
                     }
 
-                    if ((pressed == RightClick || (isRT &&rt == RightClick) || (isLT && lt == RightClick)) && prevPressed != pressed)///Right click and release(single click)
+                    if ((pressed == RightClick || (isRT && rt == RightClick) || (isLT && lt == RightClick)) && prevPressed[i] != pressed)///Right click and release(single click)
                     {
                         mouse_event(MOUSEEVENTF_RIGHTDOWN, cursor.X, cursor.Y, 0, 0x00A1);///Right Mouse Button Down//dwExtraInfo 0x00A1 == 161 so can filter out the virtual mouse created here
                         Thread.Sleep(200);
@@ -231,13 +261,13 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                         dragging = false;
                     }
 
-                    if ((pressed == Dragdrop || (isRT && rt == Dragdrop) || (isLT && lt == Dragdrop)) && pressed != prevPressed && !dragging)///Left click //catch/drag  
+                    if ((pressed == Dragdrop || (isRT && rt == Dragdrop) || (isLT && lt == Dragdrop)) && pressed != prevPressed[i] && !dragging)///Left click //catch/drag  
                     {
                         mouse_event(MOUSEEVENTF_LEFTDOWN, cursor.X, cursor.Y, 0, 0x00A1);//dwExtraInfo 0x00A1 == 161 so can filter out the virtual mouse created here
                         dragging = true;
                         Thread.Sleep(200);
                     }
-                    else if ((pressed == Dragdrop || (isRT && rt == Dragdrop) || (isLT && lt == Dragdrop)) && pressed != prevPressed && dragging)///Left click //release 
+                    else if ((pressed == Dragdrop || (isRT && rt == Dragdrop) || (isLT && lt == Dragdrop)) && pressed != prevPressed[i] && dragging)///Left click //release 
                     {
                         mouse_event(MOUSEEVENTF_LEFTUP, cursor.X, cursor.Y, 0, 0x00A1);//dwExtraInfo 0x00A1 == 161 so can filter out the virtual mouse created here
                         dragging = false;
@@ -249,7 +279,23 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                         Thread.Sleep(1100);
                     }
 
-                    prevPressed = pressed;
+                    if (pressed > 0)
+                    {
+                        ReceiveInputs[i] = true;
+
+                        if(prevPressed[i] != pressed)
+                        {
+                            OnUpdateState?.Invoke();
+                        }         
+                    }
+
+                    if (pressed != prevPressed[i] || prevReceiveInputs[i] != ReceiveInputs[i])
+                    {
+                        OnUpdateState?.Invoke();
+                    }
+
+                    prevReceiveInputs[i] = ReceiveInputs[i];
+                    prevPressed[i] = pressed;
                 }
 
                 Thread.Sleep(pollRate);

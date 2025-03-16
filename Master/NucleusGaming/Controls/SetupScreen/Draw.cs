@@ -13,7 +13,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 {
     internal class Draw
     {
-        private static readonly IniFile themeIni = Globals.ThemeConfigFile;
         private static string theme = Globals.ThemeFolder;
 
         private static Bitmap screenimg;
@@ -97,11 +96,11 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 //if a player is expanded don't draw the screen subBounds intersecting with its bounds
                 if (s.Type != UserScreenType.Manual && s.Type != UserScreenType.FullScreen)
                 {
-                    var boundsToDraw = s.SubScreensBounds?.Values.Where(sb => !GameProfile.Instance.DevicesList.Any(pl => pl.EditBounds.IntersectsWith(sb))).ToArray();
+                    var boundsToDraw = s.SubScreensBounds?.Values.Where(sb => !GameProfile.Instance.DevicesList.Any(pl => pl.EditBounds.IntersectsWith(sb)) && !GameProfile.GhostBounds.Any(pl => pl.Item2.IntersectsWith(sb))).ToList();
 
-                    if (boundsToDraw.Length > 0)
+                    if (boundsToDraw.Count > 0)
                     {
-                        g.DrawRectangles(positionScreenPen, boundsToDraw);
+                        g.DrawRectangles(positionScreenPen, boundsToDraw.ToArray());
                     }
                 }
 
@@ -160,7 +159,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             Rectangle gamepadRect = RectangleUtil.ScaleAndCenter(player.Image.Size, new Rectangle((int)s.X, (int)s.Y, (int)s.Width, (int)s.Height));
 
-            float height = player.EditBounds.Height / 2.8f > 0 ? (player.EditBounds.Height / 2.8f) : 1 ;
+            float height = player.EditBounds.Height / 2.8f > 0 ? (player.EditBounds.Height / 2.8f) : 1;
 
             Font fontToScale = new Font(playerCustomFont.FontFamily, height, FontStyle.Regular, GraphicsUnit.Pixel);
 
@@ -169,152 +168,160 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 g.DrawRectangle(positionPlayerScreenPen, new Rectangle((int)s.X + 1, (int)s.Y + 1, (int)s.Width, (int)s.Height));
             }
 
-            if (player.IsXInput)
-            {      
-                string str = (player.GamepadId + 1).ToString();
-
-                SizeF size = g.MeasureString(str, fontToScale);
-                PointF loc = RectangleUtil.Center(size, s);
-                loc.Y -= gamepadRect.Height * 0.10f;
-
-                if (DevicesFunctions.PollXInputGamepad(player))
-                {
-                    DevicesFunctions.polling = true;
-                    g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, flashImageAttributes);
-                }
-                else
-                {
-                    if (player.IsInputUsed)
-                        g.DrawImage(player.Image, gamepadRect);
-                }
-
-                if (controllerIdentification && player.IsInputUsed)
-                {
-                   g.DrawString(str, fontToScale, Brushes.White, loc);
-                }
-            }
-            else if (player.IsSDL2)
+            switch (player.InputType)
             {
-                string str = (player.GamepadId + 1).ToString();
-
-                SizeF size = g.MeasureString(str, fontToScale);
-                PointF loc = RectangleUtil.Center(size, s);
-                loc.Y -= gamepadRect.Height * 0.10f;
-
-                if (DevicesFunctions.PollSDLGamepad(player))
-                {
-                    DevicesFunctions.polling = true;
-                    g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, flashImageAttributes);
-                }
-                else
-                {
-                    if (player.IsInputUsed)
-                        g.DrawImage(player.Image, gamepadRect);
-                }
-
-                if (controllerIdentification && player.IsInputUsed)
-                {
-                    g.DrawString(str, fontToScale, Brushes.White, loc);
-                }
-            }
-            else if (player.IsKeyboardPlayer && !player.IsRawKeyboard && !player.IsRawMouse)
-            {
-                if (player.ShouldFlash)
-                {
-                    player.IsInputUsed = true;
-                    g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, flashImageAttributes);
-                }
-                else if (player.IsInputUsed)
-                {
-                    g.DrawImage(player.Image, gamepadRect);
-                    
-                }
-            }
-            else if ((player.IsRawKeyboard || player.IsRawMouse))
-            {
-                if (player.RawMouseDeviceHandle != IntPtr.Zero && player.RawKeyboardDeviceHandle != IntPtr.Zero)
-                {
-                    if (player.ShouldFlash)
+                case InputType.XInput:
                     {
-                        player.IsInputUsed = true;
-                        g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, flashImageAttributes);
-                    }
-                    else if (player.IsInputUsed)
-                    {
-                        g.DrawImage(player.Image, gamepadRect);
-                    }             
-                }
-                else
-                {
-                    if (player.ShouldFlash)
-                    {
-                        player.IsInputUsed = true;
-                        g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, flashImageAttributes);
-                    }
-                    else if (player.IsInputUsed)
-                    {                       
-                        g.DrawImage(player.Image, gamepadRect);
-                    }
+                        string str = (player.GamepadId + 1).ToString();
 
-                    if (player.IsInputUsed)
-                    { 
-                        float virtualheight = player.EditBounds.Height / 4f > 0 ? (player.EditBounds.Height / 4f) : 1;
-                        Font virtualfontToScale = new Font("Franklin Gothic", virtualheight, FontStyle.Regular, GraphicsUnit.Pixel);
-                        string str = "virtual";
-
-                        SizeF size = g.MeasureString(str, virtualfontToScale);
+                        SizeF size = g.MeasureString(str, fontToScale);
                         PointF loc = RectangleUtil.Center(size, s);
                         loc.Y -= gamepadRect.Height * 0.10f;
 
-                        RectangleF gradientBrushbounds = new RectangleF(loc.X, loc.Y, size.Width, size.Height);
-                        RectangleF bounds = new RectangleF(loc.X, loc.Y, size.Width, size.Height);
+                        if (player.ShouldFlash)
+                        {
+                            g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, flashImageAttributes);
+                        }
+                        else
+                        {
+                            if (player.IsInputUsed)
+                                g.DrawImage(player.Image, gamepadRect);
+                        }
 
-                        Color vcolor = Color.FromArgb(150, 0, 0, 0);
-                        Color vcolor2 = Color.FromArgb(255, 0, 0, 0);
-
-                        LinearGradientBrush lgb =
-                        new LinearGradientBrush(gradientBrushbounds, vcolor2, vcolor, 90f);
-
-                        ColorBlend topcblend = new ColorBlend(4);
-                        topcblend.Colors = new Color[3] { vcolor, vcolor2, vcolor};
-                        topcblend.Positions = new float[3] { 0f, 0.8f, 1f };
-
-                        lgb.InterpolationColors = topcblend;
-
-                        g.FillRectangle(lgb, bounds);
-                        g.DrawString(str, virtualfontToScale, Brushes.YellowGreen,loc);
-
-                        virtualfontToScale.Dispose();
-                        lgb.Dispose();
+                        if (controllerIdentification && player.IsInputUsed)
+                        {
+                            g.DrawString(str, fontToScale, Brushes.White, loc);
+                        }
+                        break;
                     }
-                }                
-            }
-            else if (player.IsDInput)
-            {
-                string str = (player.GamepadId + 1).ToString();
-                SizeF size = g.MeasureString(str, fontToScale);
-                PointF loc = RectangleUtil.Center(size, gamepadRect);
-                loc.Y -= gamepadRect.Height * 0.12f;
+                case InputType.SDL2:
+                    {
+                        string str = (player.GamepadId + 1).ToString();
 
-                if (DevicesFunctions.PollDInputGamepad(player))
-                {
-                    g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, flashImageAttributes);
-                }
-                else
-                {
-                    g.DrawImage(player.Image, gamepadRect);
-                }
+                        SizeF size = g.MeasureString(str, fontToScale);
+                        PointF loc = RectangleUtil.Center(size, s);
+                        loc.Y -= gamepadRect.Height * 0.10f;
 
-                if (controllerIdentification)
-                {
-                    g.DrawString(str, fontToScale, Brushes.White, loc);
-                }
+                        if (player.ShouldFlash)
+                        {
+                            g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, flashImageAttributes);
+                        }
+                        else
+                        {
+                            if (player.IsInputUsed)
+                                g.DrawImage(player.Image, gamepadRect);
+                        }
+
+                        if (controllerIdentification && player.IsInputUsed)
+                        {
+                            g.DrawString(str, fontToScale, Brushes.White, loc);
+                        }
+                        break;
+                    }
+                case InputType.DInput:
+                    {
+                        string str = (player.GamepadId + 1).ToString();
+                        SizeF size = g.MeasureString(str, fontToScale);
+                        PointF loc = RectangleUtil.Center(size, gamepadRect);
+                        loc.Y -= gamepadRect.Height * 0.12f;
+
+                        if (player.ShouldFlash)
+                        {
+                            g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, flashImageAttributes);
+                        }
+                        else
+                        {
+                            g.DrawImage(player.Image, gamepadRect);
+                        }
+
+                        if (controllerIdentification)
+                        {
+                            g.DrawString(str, fontToScale, Brushes.White, loc);
+                        }
+                        break;
+                    }
+                case InputType.SingleKB:
+                    {
+                        if (player.ShouldFlash)
+                        {
+                            player.IsInputUsed = true;
+                            g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, flashImageAttributes);
+                        }
+                        else if (player.IsInputUsed)
+                        {
+                            g.DrawImage(player.Image, gamepadRect);
+
+                        }
+                        break;
+                    }
+                case InputType.KB:
+                case InputType.Mouse:
+                case InputType.KBM:
+                    {
+                        if (player.RawMouseDeviceHandle != IntPtr.Zero && player.RawKeyboardDeviceHandle != IntPtr.Zero)
+                        {
+                            if (player.ShouldFlash)
+                            {
+                                player.IsInputUsed = true;
+                                g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, flashImageAttributes);
+                            }
+                            else if (player.IsInputUsed)
+                            {
+                                g.DrawImage(player.Image, gamepadRect);
+                            }
+                        }
+                        else
+                        {
+                            if (player.ShouldFlash)
+                            {
+                                player.IsInputUsed = true;
+                                g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, flashImageAttributes);
+                            }
+                            else if (player.IsInputUsed)
+                            {
+                                g.DrawImage(player.Image, gamepadRect);
+                            }
+
+                            if (player.IsInputUsed)
+                            {
+                                float virtualheight = player.EditBounds.Height / 4f > 0 ? (player.EditBounds.Height / 4f) : 1;
+                                Font virtualfontToScale = new Font("Franklin Gothic", virtualheight, FontStyle.Regular, GraphicsUnit.Pixel);
+                                string str = "virtual";
+
+                                SizeF size = g.MeasureString(str, virtualfontToScale);
+                                PointF loc = RectangleUtil.Center(size, s);
+                                loc.Y -= gamepadRect.Height * 0.10f;
+
+                                RectangleF gradientBrushbounds = new RectangleF(loc.X, loc.Y, size.Width, size.Height);
+                                RectangleF bounds = new RectangleF(loc.X, loc.Y, size.Width, size.Height);
+
+                                Color vcolor = Color.FromArgb(150, 0, 0, 0);
+                                Color vcolor2 = Color.FromArgb(255, 0, 0, 0);
+
+                                LinearGradientBrush lgb =
+                                new LinearGradientBrush(gradientBrushbounds, vcolor2, vcolor, 90f);
+
+                                ColorBlend topcblend = new ColorBlend(4);
+                                topcblend.Colors = new Color[3] { vcolor, vcolor2, vcolor };
+                                topcblend.Positions = new float[3] { 0f, 0.8f, 1f };
+
+                                lgb.InterpolationColors = topcblend;
+
+                                g.FillRectangle(lgb, bounds);
+                                g.DrawString(str, virtualfontToScale, Brushes.YellowGreen, loc);
+
+                                virtualfontToScale.Dispose();
+                                lgb.Dispose();
+                            }
+                        }
+
+                        break;
+                    }
             }
 
             g.Clip.Dispose();
             fontToScale.Dispose();
         }
-
 
         public static void GhostBounds(Graphics g)
         {
@@ -344,7 +351,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 }
             }
         }
-
 
         public static void SelectedPlayerBounds(Graphics g)
         {
@@ -390,6 +396,5 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             g.DrawString(tag, playerTextFont, Brushes.White, tagLocation.X, tagLocation.Y);
             g.Clip.Dispose();
         }
-
     }
 }

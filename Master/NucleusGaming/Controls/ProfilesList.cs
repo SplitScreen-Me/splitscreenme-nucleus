@@ -1,11 +1,7 @@
-﻿using Jint;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nucleus.Gaming.Cache;
-using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop;
-using Nucleus.Gaming.Tools.GlobalWindowMethods;
-using Nucleus.Gaming.Tools.Steam;
 using Nucleus.Gaming.UI;
 using System;
 using System.Collections.Generic;
@@ -15,9 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Windows.Controls.Primitives;
 using System.Windows.Forms;
-
 
 namespace Nucleus.Gaming.Controls
 {
@@ -308,7 +302,6 @@ namespace Nucleus.Gaming.Controls
             {
                 Visible = true;
             }
-
         }
 
         //Show profile config or user notes in handler note "zoomed" textbox
