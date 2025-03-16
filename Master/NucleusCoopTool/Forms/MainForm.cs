@@ -98,9 +98,9 @@ namespace Nucleus.Coop
             UI_Interface.SearchGameButton = btnSearch;
             UI_Interface.OpenLogButton = btn_debuglog;
 
-            
-            UI_Interface.GameListContainer = GameListContainer;
             UI_Interface.GameList = GameList;
+            UI_Interface.GameListContainer = GameListContainer;
+
             UI_Interface.SortOptionsPanel = new SortOptionsPanel();
             UI_Interface.InfoPanel = InfoPanel;
             UI_Interface.IconsContainer = Icons_Container;

@@ -553,8 +553,8 @@ namespace Nucleus.Coop
             // 
             // GameList
             // 
-            this.GameList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.GameList.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.GameList.AutoScroll = true;
             this.GameList.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
@@ -569,7 +569,7 @@ namespace Nucleus.Coop
             this.GameList.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.GameList.Size = new System.Drawing.Size(230, 572);
             this.GameList.TabIndex = 2;
-            //
+            // 
             // InfoPanel
             // 
             this.InfoPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 

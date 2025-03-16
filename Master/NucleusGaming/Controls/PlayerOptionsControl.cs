@@ -45,6 +45,8 @@ namespace Nucleus.Coop
                 AutoScroll = true,
             };
 
+            list.Cursor = Theme_Settings.Default_Cursor;
+
             List<GameOption> options = game.Game.Options;
             vals = profile.Options;
 

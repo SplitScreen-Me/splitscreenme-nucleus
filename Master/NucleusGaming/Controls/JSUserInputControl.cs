@@ -48,6 +48,7 @@ namespace Nucleus.Gaming
                     AutoScroll = true
                 };
 
+                list.Cursor = Theme_Settings.Default_Cursor;
                 Controls.Add(list);
 
                 collection = option.List;

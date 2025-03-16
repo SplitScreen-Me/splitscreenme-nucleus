@@ -43,10 +43,8 @@ namespace Nucleus.Gaming
             VerticalScroll.Visible = false;
             AutoScroll = true;
             Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            this.MouseWheel += Scrolling;
-            Cursor = Theme_Settings.Default_Cursor;
+            this.MouseWheel += Scrolling;      
         }
-
 
         private void Scrolling(object sender, MouseEventArgs e)
         {
