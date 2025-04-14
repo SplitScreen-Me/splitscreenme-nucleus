@@ -168,16 +168,14 @@ namespace Nucleus.Coop.UI
         public static void GotoPrevEnabledChanged(object sender, EventArgs e)
         {
             Button stepBtn = (Button)sender;        
-            //stepBtn.Visible = stepBtn.Enabled;
         }
 
         public static void GotoNextEnabledChanged(object sender, EventArgs e)
         {
             Button stepBtn = (Button)sender;
-            //stepBtn.Visible = stepBtn.Enabled;
         }
 
-        public static void Play_Click(object sender, EventArgs e) => Core_Interface.PlayClicked(sender);
+        public static void Play_Click(object sender, EventArgs e) => Core_Interface.PlayClicked();
         
         public static void ProfileSettingsButton_Click(object sender, EventArgs e)
         {
@@ -239,11 +237,11 @@ namespace Nucleus.Coop.UI
 
             if (GameProfile.profilesPathList.Count == 0)
             {
-                UI_Interface.SetupScreen.ProfilesList.Visible = false;
+                UI_Interface.ProfilesList.Visible = false;
                 return;
             }
 
-            UI_Interface.SetupScreen.ProfilesList.Visible = !UI_Interface.SetupScreen.ProfilesList.Visible;
+            UI_Interface.ProfilesList.Visible = !UI_Interface.ProfilesList.Visible;
         }
 
         public static void SettingsButton_Click(object sender, EventArgs e)
@@ -371,12 +369,9 @@ namespace Nucleus.Coop.UI
 
         public static void SetGameProfileButtonLoc()
         {
-            //Button listBtn = sender as Button;
-
             UI_Interface.ProfileSettingsButton.Location = UI_Interface.ProfileListButton.Visible ? (Point)UI_Interface.ProfileSettingsButton.Tag : UI_Interface.ProfileListButton.Location;           
             UI_Interface.SaveProfileSwitch.Location = new Point(UI_Interface.ProfileSettingsButton.Right + 5, UI_Interface.SaveProfileSwitch.Location.Y);
         }
-
 
         public static void SetCoverLocation(bool profileEnabled)
         {
@@ -385,14 +380,12 @@ namespace Nucleus.Coop.UI
             if (profileEnabled)
             {
                 UI_Interface.Cover.Location = UI_Interface.DefCoverLoc;
-                //UI_Interface.StepButtonsPanel.Location = new Point(UI_Interface.StepButtonsPanel.Location.X, UI_Interface.Cover.Bottom+5);
                 UI_Interface.Cover.Visible = true;
                 return;
             }
 
             UI_Interface.Cover.BringToFront();
             UI_Interface.Cover.Location = new Point(UI_Interface.Cover.Location.X, UI_Interface.ProfileButtonsPanel.Bottom - 5);
-            // UI_Interface.StepButtonsPanel.Location = new Point(UI_Interface.StepButtonsPanel.Location.X, UI_Interface.Cover.Bottom + 5);
             UI_Interface.Cover.Visible = true;
         }
 
@@ -434,9 +427,34 @@ namespace Nucleus.Coop.UI
             if(UI_Interface.SearchTextBox != null)
             {
                 UI_Interface.SearchTextBox.Visible = Core_Interface.GameManager?.User.Games.Count >= 2;
-            }
-           
+            }         
         }
 
+        public static void ResetPlayButton()
+        {
+            UI_Interface.PlayButton?.Invoke((MethodInvoker)delegate ()
+            {
+               UI_Interface.PlayButton.Tag = "START";
+               UI_Interface.PlayButton.Visible = false;
+            });
+        }
+
+        public static void ShowProfilePreview(string previewText)
+        {
+            UI_Interface.HandlerNotesZoom?.Invoke((MethodInvoker)delegate ()
+            {
+                UI_Interface.HandlerNotesZoom.Notes.Text = previewText;
+                UI_Interface.HandlerNotesZoom.Visible = true;
+                UI_Interface.HandlerNotesZoom.BringToFront();
+            });
+        }
+
+        public static void OnClickHideProfileList(object sender,MouseEventArgs e)
+        {
+            if(UI_Interface.ProfilesList != null)
+            {
+                UI_Interface.ProfilesList.Visible = false;
+            }
+        }
     }
 }

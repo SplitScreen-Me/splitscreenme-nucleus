@@ -1,4 +1,4 @@
-﻿namespace Nucleus.Gaming.Controls
+﻿namespace Nucleus.Coop.Controls
 {
     partial class ProfilesList
     {

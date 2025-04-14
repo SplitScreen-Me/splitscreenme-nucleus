@@ -60,7 +60,7 @@ public class WPF_OSD : Window
         WindowStartupLocation = WindowStartupLocation.Manual;
 
         //Important this is necessary in order to move
-        //the window on the desired screen.
+        //the window to the desired screen.
         Left = destBounds.X;
         Top = destBounds.Y;
         Width = destBounds.Width;
@@ -127,7 +127,6 @@ public class WPF_OSD : Window
                     Resize(text);
 
                     Show();
-
                    
                     IntPtr hwnd = User32Interop.FindWindow(null, Title);
 
@@ -169,7 +168,16 @@ public class WPF_OSD : Window
             Opacity = 0.0D;
             IsEnabled = false;
             Topmost = false;
-            
+            IntPtr hwnd = User32Interop.FindWindow(null, Title);
+
+            if(hwnd != IntPtr.Zero)
+            {
+                hwnd = User32Interop.FindWindow(null, Title);
+                //hide the window from Alt + Tab
+                SetWindowLong(hwnd, GWL_EX_STYLE, (GetWindowLong(hwnd, GWL_EX_STYLE) | WS_EX_TOOLWINDOW) & ~WS_EX_APPWINDOW);
+                setStyle = true;
+            }
+
             if (GenericGameHandler.Instance != null)
             {
                 //close all childs osd and re-enable the main one => hideMain = false;

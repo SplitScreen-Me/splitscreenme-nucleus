@@ -25,7 +25,6 @@ namespace Nucleus.Gaming.Coop
         private string lastPlayedAt;
         public string LastPlayedAt => GetLastPlayed();
 
-        private string lastPlayedAtFull;
         public string LastPlayedAtFull => GetLastPlayedFull();
 
         private string totalPlayTime;

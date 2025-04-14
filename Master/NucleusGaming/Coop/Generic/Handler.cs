@@ -21,6 +21,5 @@
         public string CommentCount { get; set; }
         public string CurrentVersion { get; set; }
         public string CurrentPackage { get; set; }
-
     }
 }

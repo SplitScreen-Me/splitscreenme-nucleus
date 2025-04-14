@@ -39,7 +39,7 @@ namespace Nucleus.Coop
         private FlatCombo[] controllerNicks;
         private FlatCombo[] steamIds;
         
-        public static Button _ctrlr_shorcuts;
+        public static Button Ctrlr_Shorcuts;
         private float fontSize;
         private List<Control> ctrls = new List<Control>();
         private IDictionary<string, string> audioDevices;
@@ -79,7 +79,7 @@ namespace Nucleus.Coop
             bordersPen = new Pen(Color.FromArgb(int.Parse(borderscolor[0]), int.Parse(borderscolor[1]), int.Parse(borderscolor[2])));
             BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "other_backgrounds.jpg");
 
-            _ctrlr_shorcuts = ctrlr_shorcutsBtn;
+            Ctrlr_Shorcuts = ctrlr_shorcutsBtn;
 
             Font = new Font(Theme_Settings.CustomFont, Font.Size, Font.Style, GraphicsUnit.Pixel, 0);
 

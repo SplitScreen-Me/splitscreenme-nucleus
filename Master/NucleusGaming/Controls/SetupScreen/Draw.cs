@@ -35,10 +35,9 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         private static ImageAttributes flashImageAttributes;
 
-        public static Font playerFont;
-        public static Font playerCustomFont;
-        public static Font playerTextFont;
-
+        private static Font playerTextFont;
+        public static Font PlayerCustomFont;
+        
         private static SetupScreenControl parent;
         private static UserGameInfo userGameInfo;
 
@@ -47,8 +46,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             parent = _parent;
             userGameInfo = _userGameInfo;
 
-            playerFont = new Font(Theme_Settings.CustomFont, 20.0f, FontStyle.Regular, GraphicsUnit.Point, 0);
-            playerCustomFont = new Font("Vermin Vibes 2 Soft", 12.0f, FontStyle.Regular, GraphicsUnit.Point, 0);
+            PlayerCustomFont = new Font("Vermin Vibes 2 Soft", 12.0f, FontStyle.Regular, GraphicsUnit.Point, 0);
             playerTextFont = new Font(Theme_Settings.CustomFont, 9.0f, FontStyle.Regular, GraphicsUnit.Point, 0);
      
             positionScreenPen = new Pen(Theme_Settings.SetupScreenUIScreenColor, 1);
@@ -161,7 +159,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             float height = player.EditBounds.Height / 2.8f > 0 ? (player.EditBounds.Height / 2.8f) : 1;
 
-            Font fontToScale = new Font(playerCustomFont.FontFamily, height, FontStyle.Regular, GraphicsUnit.Pixel);
+            Font fontToScale = new Font(PlayerCustomFont.FontFamily, height, FontStyle.Regular, GraphicsUnit.Pixel);
 
             if (player.ScreenIndex != -1 && player.MonitorBounds != Rectangle.Empty)
             {
@@ -354,17 +352,17 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         public static void SelectedPlayerBounds(Graphics g)
         {
-            g.FillRectangle(sizerBrush, BoundsFunctions.selectedPlayer.EditBounds);
+            g.FillRectangle(sizerBrush, BoundsFunctions.SelectedPlayer.EditBounds);
         }
 
         public static void DestinationBounds(Graphics g)
         {
-            g.DrawRectangles(destEditBoundsPen, new RectangleF[] { BoundsFunctions.destEditBounds });
+            g.DrawRectangles(destEditBoundsPen, new RectangleF[] { BoundsFunctions.DestEditBounds });
         }
 
         public static void PlayerBoundsInfo(Graphics g)
         {
-            string playerBoundsInfo = BoundsFunctions.PlayerBoundsInfoText(BoundsFunctions.selectedPlayer);
+            string playerBoundsInfo = BoundsFunctions.PlayerBoundsInfoText(BoundsFunctions.SelectedPlayer);
             SizeF boundsRect = g.MeasureString(playerBoundsInfo, playerTextFont);
             Point location = new Point(((parent.Width / 2) - (int)boundsRect.Width / 2) , ((parent.Bottom - (int)boundsRect.Height)) );  
             g.DrawString(playerBoundsInfo, playerTextFont, Brushes.White, location.X - 3, location.Y - 6 );

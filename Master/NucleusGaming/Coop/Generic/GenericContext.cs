@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -57,6 +58,9 @@ namespace Nucleus.Gaming
         public int PlayerID;
         public bool IsFullscreen;
         public UserInfo User = new UserInfo();
+        /// <summary
+        /// "DPIHandling" is deprecated since v2.3.3, keep it for old handlers using it but has no effect.
+        /// </summary>
         public DPIHandling DPIHandling = DPIHandling.True;
         public bool FakeFocus;
         public bool HookFocus;
@@ -133,47 +137,11 @@ namespace Nucleus.Gaming
 
         public string Arch => GenericGameHandler.Instance.garch;
 
-        public int Width
-        {
-            get
-            {
-                switch (DPIHandling)
-                {
-                    case DPIHandling.Scaled:
-                        return (int)((pInfo.MonitorBounds.Width * DPIManager.Scale) + 0.5);
-                    case DPIHandling.InvScaled:
-                        return (int)((pInfo.MonitorBounds.Width * (1 / DPIManager.Scale)) + 0.5);
-                    case DPIHandling.True:
-                    default:
-                        return pInfo.MonitorBounds.Width;
-                }
-            }
-        }
-
-        public int Height
-        {
-            get
-            {
-                switch (DPIHandling)
-                {
-                    case DPIHandling.Scaled:
-                        return (int)((pInfo.MonitorBounds.Height * DPIManager.Scale) + 0.5);
-                    case DPIHandling.InvScaled:
-                        return (int)((pInfo.MonitorBounds.Height * (1 / DPIManager.Scale)) + 0.5);
-                    case DPIHandling.True:
-                    default:
-                        return pInfo.MonitorBounds.Height;
-                }
-            }
-        }
+        public int Width => pInfo.MonitorBounds.Width;
+        public int Height => pInfo.MonitorBounds.Height;
 
         public int PosX => pInfo.MonitorBounds.X;
-
         public int PosY => pInfo.MonitorBounds.Y;
-
-        public int NoDPIHandlingWidth => pInfo.MonitorBounds.Width;
-
-        public int NoDPIHandlingHeight => pInfo.MonitorBounds.Height;
 
         public int MonitorWidth => pInfo.Display.Bounds.Width;
 
@@ -253,7 +221,9 @@ namespace Nucleus.Gaming
         public string RawHID => pInfo.RawHID.ToString();
 
         public bool IsKeyboardPlayer => pInfo.IsKeyboardPlayer;
+
         public int GamepadId => pInfo.GamepadId + 1;
+
         public float OrigAspectRatioDecimal => (float)profile.Screens[pInfo.PlayerID].MonitorBounds.Width / profile.Screens[pInfo.PlayerID].MonitorBounds.Height;
 
         public string OrigAspectRatio
@@ -307,7 +277,6 @@ namespace Nucleus.Gaming
                 string s = filesToSymlink[f].ToLower();
                 // make sure it's lower case
                 CmdUtil.MkLinkFile(Path.Combine(OrigRootFolder, s), Path.Combine(RootFolder, s), out int exitCode);
-                //Console.WriteLine(OrigRootFolder + s + " => Instance folder " + RootFolder + s);
             }
 
             return true;

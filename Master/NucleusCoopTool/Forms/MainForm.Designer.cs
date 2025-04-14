@@ -669,7 +669,7 @@ namespace Nucleus.Coop
             // 
             this.PlayTimePanel.AutoSize = true;
             this.PlayTimePanel.LastPlayed = null;
-            this.PlayTimePanel.Location = new System.Drawing.Point(4, 40);
+            this.PlayTimePanel.Location = new System.Drawing.Point(4, 41);
             this.PlayTimePanel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.PlayTimePanel.Name = "PlayTimePanel";
             this.PlayTimePanel.Playtime = null;
@@ -682,7 +682,7 @@ namespace Nucleus.Coop
             this.ProfileButtonsPanel.Controls.Add(this.ProfileSettings_btn);
             this.ProfileButtonsPanel.Controls.Add(this.ProfilesList_btn);
             this.ProfileButtonsPanel.Controls.Add(this.SaveProfileSwitch);
-            this.ProfileButtonsPanel.Location = new System.Drawing.Point(8, 84);
+            this.ProfileButtonsPanel.Location = new System.Drawing.Point(8, 86);
             this.ProfileButtonsPanel.Margin = new System.Windows.Forms.Padding(0);
             this.ProfileButtonsPanel.Name = "ProfileButtonsPanel";
             this.ProfileButtonsPanel.Size = new System.Drawing.Size(175, 24);

@@ -1,13 +1,9 @@
 ﻿using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Controls.SetupScreen;
-//using SlimDX.DirectInput;
-using SharpDX.DirectInput;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using Nucleus.Gaming.Coop.InputManagement.Gamepads;
@@ -176,6 +172,11 @@ namespace Nucleus.Gaming.Coop
 
         public Window RawInputWindow { get; set; }
 
+        /// <summary>
+        /// "IsMinimzed" used to sync all players window state 
+        /// if the window is not minimized by Nucleus and some other cases.
+        /// </summary>
+        public bool IsMinimized;
         public long SteamID;
 
         public uint ProtoInputInstanceHandle = 0;

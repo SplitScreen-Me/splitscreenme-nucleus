@@ -58,7 +58,7 @@ namespace SDL
                                 }
                             }
                         }
-                        catch (Exception ex)
+                        catch
                         {
                         }
                     }
@@ -144,12 +144,12 @@ namespace SDL
             return info;
         }
 
-
         public static string GetGameControllerSerial(IntPtr gamecontroller)
         {
             IntPtr serialPtr = SDL2.GameControllerGetSerial(gamecontroller);
             return Marshal.PtrToStringAnsi(serialPtr);
         }
+
         public static void ExportControllerMapping(SDL_GameController controller)
         {
             SDL_DeviceInfo info = GetSDL_DeviceInfo(controller);

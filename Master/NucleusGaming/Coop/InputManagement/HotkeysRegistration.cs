@@ -24,6 +24,10 @@ namespace Nucleus.Gaming.Coop.InputManagement
         public const int Custom_Hotkey_2 = 11;
         public const int Custom_Hotkey_3 = 12;
 
+        //Pass through input locked state       
+        private static bool[] _chkPassThrough = new bool[] { false, false, false};
+        public static bool[] ChkPassThrough => _chkPassThrough;
+
         private static int GetMod(string modifier)
         {
             int mod = 0;
@@ -101,13 +105,16 @@ namespace Nucleus.Gaming.Coop.InputManagement
                         switch (i)
                         {
                             case 0:
-                                User32Interop.RegisterHotKey(formHandle, Custom_Hotkey_1, GetMod(keys[0]), (int)Enum.Parse(typeof(Keys), keys[1]));
+                                _chkPassThrough[0] = bool.Parse(keys[0]);
+                                User32Interop.RegisterHotKey(formHandle, Custom_Hotkey_1, GetMod(keys[1]), (int)Enum.Parse(typeof(Keys), keys[2]));
                                 break;
                             case 1:
-                                User32Interop.RegisterHotKey(formHandle, Custom_Hotkey_2, GetMod(keys[0]), (int)Enum.Parse(typeof(Keys), keys[1]));
+                                _chkPassThrough[1] = bool.Parse(keys[0]);
+                                User32Interop.RegisterHotKey(formHandle, Custom_Hotkey_2, GetMod(keys[1]), (int)Enum.Parse(typeof(Keys), keys[2]));
                                 break;
                             case 2:
-                                User32Interop.RegisterHotKey(formHandle, Custom_Hotkey_3, GetMod(keys[0]), (int)Enum.Parse(typeof(Keys), keys[1]));
+                                _chkPassThrough[2] = bool.Parse(keys[0]);
+                                User32Interop.RegisterHotKey(formHandle, Custom_Hotkey_3, GetMod(keys[1]), (int)Enum.Parse(typeof(Keys), keys[2]));
                                 break;
                         }
 
@@ -136,12 +143,15 @@ namespace Nucleus.Gaming.Coop.InputManagement
                         switch (i)
                         {
                             case 0:
+                                _chkPassThrough[0] = false;
                                 User32Interop.UnregisterHotKey(formHandle, Custom_Hotkey_1);
                                 break;
                             case 1:
+                                _chkPassThrough[1] = false;
                                 User32Interop.UnregisterHotKey(formHandle, Custom_Hotkey_2);
                                 break;
                             case 2:
+                                _chkPassThrough[2] = false;
                                 User32Interop.UnregisterHotKey(formHandle, Custom_Hotkey_3);
                                 break;
                         }                                          

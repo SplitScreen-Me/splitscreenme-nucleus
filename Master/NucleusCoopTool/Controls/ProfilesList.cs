@@ -1,24 +1,33 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Nucleus.Coop.UI;
+using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
+using Nucleus.Gaming.Controls;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.UI;
+using Nucleus.Gaming.Windows;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
-namespace Nucleus.Gaming.Controls
+namespace Nucleus.Coop.Controls
 {
     public partial class ProfilesList : ControlListBox
     {
-        private float _scale;
+        private float _scale => (float)User32Util.GetDpiForWindow(this.Handle) / (float)100;
         public static ProfilesList Instance;
+
+        public static Action UIAction_OnUnload_Click;
+        public static Action<string> UIAction_OnShowPreview;
+
         public bool Locked = false;
 
         private Color foreColor;
@@ -61,6 +70,9 @@ namespace Nucleus.Gaming.Controls
 
             eventArgs = new MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0);
 
+            GameProfile.OnReset -= Update_Unload;
+            GameProfile.OnReset += Update_Unload;
+
             Instance = this;
         }
 
@@ -100,7 +112,9 @@ namespace Nucleus.Gaming.Controls
             {
                 if (e.Button == MouseButtons.Right)
                 {
-                    if (File.Exists(Application.StartupPath + "\\Profiles Launcher.exe"))
+                    string dllPath = AssemblyUtil.GetStartFolder() + "\\pl.lib.dll";
+
+                    if (File.Exists(Application.StartupPath + "\\Profiles Launcher.exe") && File.Exists(dllPath))
                     {
                         DialogResult dialogResult = System.Windows.Forms.MessageBox.Show($"Do you want to export a desktop shortcut for this handler profile?", "Export handler profile shortcut", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
@@ -111,7 +125,7 @@ namespace Nucleus.Gaming.Controls
                             string userNotes = ((string)Jprofile["Notes"] != null && (string)Jprofile["Notes"] != "") ? (string)Jprofile["Notes"] : "";
 
                             string shortcutTitle = selected.Text.StartsWith("Load profile:") ? selected.Text.Split(':')[1] : selected.Text;
-                            GameProfile.CreateShortcut(GameProfile.GameInfo.GameGuid, shortcutTitle, selected.Name, userNotes);
+                            CreateShortcut(dllPath,GameProfile.GameInfo.GameGuid, shortcutTitle, selected.Name, userNotes, GameProfile.GameInfo.ExePath);
                         }
                     }
 
@@ -136,8 +150,7 @@ namespace Nucleus.Gaming.Controls
 
             if ((selected.Text == "Unload" && selected.ForeColor == Color.Gray) || e == null)
             {
-                Globals.PlayButton.Tag = "START";
-                Globals.PlayButton.Visible = false;
+                UIAction_OnUnload_Click?.Invoke();
                 return;
             }
 
@@ -155,6 +168,17 @@ namespace Nucleus.Gaming.Controls
                 Label unloadBtn = Controls[Controls.Count - 1] as Label;
                 unloadBtn.ForeColor = Color.Orange;
             }
+        }
+
+        private static void CreateShortcut(string dllPath, string gameGUID, string shortcutId, string profileId, string description,string iconPath)
+        {
+            Assembly assembly = Assembly.LoadFrom(dllPath);
+
+            Type type = assembly.GetType("lib.Shortcuts");
+            object instance = Activator.CreateInstance(type); 
+            MethodInfo method = type.GetMethod("CreateShortcut"); 
+            object[] param = new object[] { gameGUID, shortcutId, profileId, description, iconPath };
+            method.Invoke(instance, param);
         }
 
         public void Update_ProfilesList()
@@ -234,7 +258,7 @@ namespace Nucleus.Gaming.Controls
                     Cursor = Theme_Settings.Hand_Cursor
                 };
 
-                CustomToolTips.SetToolTip(previewBtn, "Show handler profile content.", $"previewBtn{i}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                CustomToolTips.SetToolTip(previewBtn, "Show handler profile info .", $"previewBtn{i}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
                 previewBtn.Click += Profile_Preview;//view profile event 
 
                 offset += previewBtn.Width;
@@ -261,9 +285,10 @@ namespace Nucleus.Gaming.Controls
                 {
                     deleteBtn.Location = new Point(profileBtn.Right - deleteBtn.Width, profileBtn.Location.Y);
                     previewBtn.Location = new Point(deleteBtn.Left - previewBtn.Width, deleteBtn.Location.Y);
-                    previewBtn.Location = new Point(deleteBtn.Left - previewBtn.Width, deleteBtn.Location.Y);
+
                     profileBtn.Controls.Add(deleteBtn);
                     profileBtn.Controls.Add(previewBtn);
+
                     CustomToolTips.SetToolTip(profileBtn, profileBtnToolTipText, $"profileBtnToolTipText${i}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
                 }
                 else
@@ -324,9 +349,7 @@ namespace Nucleus.Gaming.Controls
             string jsonString = File.ReadAllText(GameProfile.profilesPathList[int.Parse(preview.Name) - 1]);
             JObject Jprofile = (JObject)JsonConvert.DeserializeObject(jsonString);
 
-            Globals.HandlerNotesZoom.Notes.Text = BuildPreviewText(Jprofile);
-            Globals.HandlerNotesZoom.Visible = true;
-            Globals.HandlerNotesZoom.BringToFront();
+            UIAction_OnShowPreview?.Invoke(BuildPreviewText(Jprofile));
         }
 
         private string BuildPreviewText(JObject Jprofile)
@@ -452,7 +475,7 @@ namespace Nucleus.Gaming.Controls
                 if (Controls.Count == 0)
                 {
                     Visible = false;
-                    Globals.ProfilesList_btn.Visible = false;
+                    UI_Interface.ProfileListButton.Visible = false;
                 }
 
                 Globals.MainOSD.Show(500, "Handler Profile Deleted");
@@ -484,11 +507,6 @@ namespace Nucleus.Gaming.Controls
 
             lgb.Dispose();
             graphicsPath.Dispose();
-        }
-
-        public void UpdateSize(float scale)
-        {
-            _scale = scale;
         }
     }
 }

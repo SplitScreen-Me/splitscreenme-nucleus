@@ -63,7 +63,6 @@ namespace Nucleus.Coop.UI
             }
         }
 
-
         public static void Insert_SearchFieldControls()
         {
             float scale = (float)User32Util.GetDpiForWindow(UI_Interface.MainForm.Handle) / (float)100;

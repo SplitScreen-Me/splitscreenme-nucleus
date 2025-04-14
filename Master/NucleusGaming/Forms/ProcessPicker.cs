@@ -17,9 +17,11 @@ namespace Nucleus.Gaming.Coop.Generic
             MaximizeBox = false;
             MinimizeBox = false;
 
+            GenericGameHandler.Instance?.AllRuntimeForms.Add(this);
+
             DPIManager.Register(this);
             DPIManager.AddForm(this);
-            DPIManager.Update(this);
+            DPIManager.Update(this);         
         }
 
         public void UpdateSize(float scale)

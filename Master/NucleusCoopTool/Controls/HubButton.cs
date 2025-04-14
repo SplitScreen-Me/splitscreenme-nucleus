@@ -3,13 +3,9 @@ using Nucleus.Gaming.Controls;
 using Nucleus.Gaming;
 using System;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
-using System.Drawing.Drawing2D;
-using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.UI;
 using Nucleus.Coop.UI;
-using Nucleus.Coop.Tools;
 
 namespace Nucleus.Coop.Controls
 {
@@ -83,7 +79,17 @@ namespace Nucleus.Coop.Controls
                 }
             }
 
+            MouseDoubleClick += RefreshHandlers;
             Update(mainForm.Connected);
+        }
+
+        private void RefreshHandlers(object sender, MouseEventArgs e)
+        {
+            if(e.Button == MouseButtons.Right)
+            {
+                Core_Interface.RefreshHandlers();
+                Globals.MainOSD.Show(1000, "Game Handlers Refreshed");
+            }
         }
 
         public void Update(bool connected)

@@ -31,6 +31,8 @@ namespace Nucleus.Gaming.Forms
             TopMost = true;
 
             WindowScrape.Static.HwndInterface.MakeTopMost(Handle);
+
+            GenericGameHandler.Instance?.AllRuntimeForms.Add(this);
         }
 
         private void DescLabelLinkClicked(object sender, LinkLabelLinkClickedEventArgs e)

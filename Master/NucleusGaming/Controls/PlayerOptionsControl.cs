@@ -259,7 +259,7 @@ namespace Nucleus.Coop
         private void box_TextChanged(object sender, EventArgs e)
         {
             TextBox box = (TextBox)sender;
-            ///Cache custom user values in case of user going back to "player setup screen" 
+            ///Cache custom user values in case of user going back to "setup screen" 
             ///so they are automatically re-added when coming back to options screen,
             ///reseted if an other game is selected.
             GameOption cast = box.Tag as GameOption;

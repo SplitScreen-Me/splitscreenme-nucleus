@@ -41,9 +41,7 @@ namespace Nucleus.Coop.UI
         {
             get => mainForm;
             set 
-            {
-               
-
+            {              
                 mainForm = value;
 
                 Core_Interface.SyncContext = SynchronizationContext.Current ?? new SynchronizationContext();
@@ -65,7 +63,7 @@ namespace Nucleus.Coop.UI
                 mainForm.ResizeBegin += MainWindowFunc.MainForm_ResizeBegin;
                 mainForm.ResizeEnd += MainWindowFunc.MainForm_ResizeEnd;
                 mainForm.FormClosing += MainWindowFunc.MainForm_FormClosing;
-                mainForm.FormClosed += MainWindowFunc.MainForm_Closed;
+                mainForm.FormClosed += MainWindowFunc.MainForm_Closed;               
             }
         }
 
@@ -85,8 +83,6 @@ namespace Nucleus.Coop.UI
                 var notesZoom = Runtime_Controls.BuildHandlerNotesZoom();
                 HandlerNotesZoom = notesZoom;
                 homeScreen.Controls.Add(notesZoom);
-                 
-                Globals.HandlerNotesZoom = notesZoom;
 
                 homeScreen.Paint += UI_Graphics.HomeScreen_Paint;           
             }
@@ -171,7 +167,6 @@ namespace Nucleus.Coop.UI
             }
         }
 
-        //private static PictureBox mainButtonsPanel;
         public static PictureBox MainButtonsPanelButton { get; set; }
 
         private static Button maximizeButton;
@@ -225,11 +220,10 @@ namespace Nucleus.Coop.UI
                 toggleVirtualMouse = value;
                 toggleVirtualMouse.Paint += UI_Graphics.VirtualMouseToggle_Paint;
                 toggleVirtualMouse.MouseClick += UI_Functions.VirtualMouseToggle_MouseClick;
-                CustomToolTips.SetToolTip(toggleVirtualMouse, "Left click to turn On/Off gamepad emulated mouse.\nRight click to open gamepad shotcuts settings. ", "toggleVirtualMouse", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                CustomToolTips.SetToolTip(toggleVirtualMouse, "Left click to turn On/Off gamepad emulated mouse.\nRight click to open gamepad shortcuts settings. ", "toggleVirtualMouse", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
                 GamepadNavigation.OnUpdateState += ToggleVirtualMouse.Invalidate;
             }
         }
-
 
         private static Button donationButton;
         public static Button DonationButton
@@ -271,8 +265,6 @@ namespace Nucleus.Coop.UI
                 openLogButton.Click += UI_Functions.OpenLogButton_Click;
                 openLogButton.MouseEnter += UI_Functions.OpenLogButton_MouseEnter;
                 openLogButton.MouseLeave += UI_Functions.OpenLogButton_MouseLeave;
-
-                Globals.Btn_debuglog = openLogButton;
             }
         }
  
@@ -501,8 +493,15 @@ namespace Nucleus.Coop.UI
                 setupScreen.Paint += UI_Graphics.SetupScreen_Paint;
                 setupScreen.Click += Generic_Functions.ClickAnyControl;
                 setupScreen.OnCanPlayUpdated += Core_Interface.StepCanPlay;
+                setupScreen.MouseDown += UI_Functions.OnClickHideProfileList;
+                ProfilesList  profilelist  = new ProfilesList(setupScreen);
+                setupScreen.Controls.Add(profilelist);
+                ProfilesList = profilelist;
+                profilelist.BringToFront();
             }
         }
+
+        public static ProfilesList ProfilesList;
 
         public static Label HandlerNoteTitle { get; set; }
 
@@ -566,7 +565,7 @@ namespace Nucleus.Coop.UI
                 playButton.MouseEnter += Generic_Functions.Btn_ZoomIn;
                 playButton.MouseLeave += Generic_Functions.Btn_ZoomOut;
                 playButton.Click += UI_Functions.Play_Click;
-                Globals.PlayButton = playButton;
+                GameProfile.OnReadyAutoPlayTrigger += Core_Interface.PlayClicked;
             }
         }
 
@@ -689,8 +688,7 @@ namespace Nucleus.Coop.UI
                 profileListButton = value;
                 profileListButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "profiles_list.png");
                 profileListButton.Click += UI_Functions.ProfileListButton_Click;
-                profileListButton.VisibleChanged += UI_Functions.ProfileListButton_VisibleChanged;
-                Globals.ProfilesList_btn = value;
+                profileListButton.VisibleChanged += UI_Functions.ProfileListButton_VisibleChanged;                
             } 
         }
 

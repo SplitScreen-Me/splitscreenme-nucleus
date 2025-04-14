@@ -108,8 +108,6 @@ namespace Nucleus.Coop.UI
             }
         }
 
-
-
         public static void DisposeTutorial()
         {
             UI_Interface.MainForm.Controls.Remove(UI_Interface.Tutorial);
@@ -123,7 +121,7 @@ namespace Nucleus.Coop.UI
             UI_Interface.SetupPanel.Refresh();
             UI_Interface.WindowPanel.Refresh();
             UI_Interface.InfoPanel.Refresh();
-            
+
             UI_Interface.MainForm.Invalidate(false);//Update top/bottom border colors
         }
 

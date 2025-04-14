@@ -39,6 +39,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             {
                 MessageBox.Show("ProtoInput failed to startup inject", "Error", MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
+
+                GenericGameHandler.Instance?.End(false);
             }
             else
             {
@@ -89,6 +91,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             {
                 MessageBox.Show("ProtoInput failed to runtime inject", "Error", MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
+
+                GenericGameHandler.Instance?.End(false);
             }
             else
             {

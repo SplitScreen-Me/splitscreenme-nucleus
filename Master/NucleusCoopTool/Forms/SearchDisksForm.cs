@@ -153,14 +153,14 @@ namespace Nucleus.Coop
             }
             else
             {
-                CenterToScreen();
+                //CenterToScreen();
             }
 
             DPIManager.Register(this);
             DPIManager.Update(this);
         }
 
-        public new void UpdateSize(float scale)
+        public void UpdateSize(float scale)
         {
             if (IsDisposed)
             {

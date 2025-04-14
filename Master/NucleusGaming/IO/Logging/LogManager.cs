@@ -206,8 +206,6 @@ namespace Nucleus.Gaming
                 }
             }
 
-            Windows.User32Util.ShowTaskBar();
-
             Log("High-level error log generated at content/" + file);
 
 #if RELEASE
@@ -231,10 +229,10 @@ namespace Nucleus.Gaming
 
             if (EnableBtn)
             {
-                Globals.Btn_debuglog.Parent.Invoke((MethodInvoker)delegate ()
-                {
-                    Globals.Btn_debuglog.Visible = true;
-                });
+                //Globals.Btn_debuglog.Parent.Invoke((MethodInvoker)delegate ()
+                //{
+                //    Globals.Btn_debuglog.Visible = true;
+                //});
             }
 #endif
         }

@@ -38,6 +38,7 @@ public static class WindowsMergerThread
             Dispatcher.Run();
         });
 
+        windowsMergerThread.IsBackground = true;
         windowsMergerThread.SetApartmentState(ApartmentState.STA);
         windowsMergerThread.Start();
 
@@ -331,14 +332,20 @@ public class WindowsMerger : System.Windows.Window
         {
             if (Directory.Exists(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, $@"gui\screenshots\{gameGUID}")))
             {
-                string[] imgsPath = Directory.GetFiles((System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, $@"gui\screenshots\{gameGUID}")));
+                var imgsPath = Directory.GetFiles(Path.Combine(System.Windows.Forms.Application.StartupPath, $"gui\\screenshots\\{gameGUID}")).Where(s =>
+                  s.EndsWith(".png") ||
+                  s.EndsWith(".jpeg") ||
+                  s.EndsWith(".jpg") ||
+                  s.EndsWith(".bmp") ||
+                  s.EndsWith(".gif")
+                  ).ToList();
 
-                if (imgsPath.Length > 0)
+                if (imgsPath.Count> 0)
                 {
-                    backBrush.ImageSource = new BitmapImage(new Uri(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, $@"gui\screenshots\{gameGUID}\{imgIndex}_{gameGUID}.jpeg"), UriKind.Absolute));
+                    backBrush.ImageSource = new BitmapImage(new Uri(imgsPath[imgIndex], UriKind.Absolute));
                     Background = backBrush;
 
-                    if (imgsPath.Length >= 2)
+                    if (imgsPath.Count >= 2)
                     {
                         imgIndex++;
 
@@ -368,14 +375,20 @@ public class WindowsMerger : System.Windows.Window
         {
             if (Directory.Exists(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, $@"gui\screenshots\{gameGUID}")))
             {
-                string[] imgsPath = Directory.GetFiles((System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, $@"gui\screenshots\{gameGUID}")));
+                var imgsPath = Directory.GetFiles(Path.Combine(System.Windows.Forms.Application.StartupPath, $"gui\\screenshots\\{gameGUID}")).Where(s =>
+                  s.EndsWith(".png") ||
+                  s.EndsWith(".jpeg") ||
+                  s.EndsWith(".jpg") ||
+                  s.EndsWith(".bmp") ||
+                  s.EndsWith(".gif")
+                  ).ToList();
 
-                backBrush.ImageSource = new BitmapImage(new Uri(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, $@"gui\screenshots\{gameGUID}\{imgIndex}_{gameGUID}.jpeg"), UriKind.Absolute)); //(new UriImageCache.GetImage(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, $@"gui\screenshots\{gameGUID}\{imgIndex}_{gameGUID}.jpeg"));
+                backBrush.ImageSource = new BitmapImage(new Uri(imgsPath[imgIndex], UriKind.Absolute));
                 Background = backBrush;
 
                 imgIndex++;
 
-                if (imgIndex >= imgsPath.Length)
+                if (imgIndex >= imgsPath.Count)
                 {
                     imgIndex = 0;
                 }

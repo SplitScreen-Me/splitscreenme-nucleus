@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using static Nucleus.Gaming.GameDpiAwareness;
 
 namespace Nucleus.Gaming
 {
@@ -61,7 +62,7 @@ namespace Nucleus.Gaming
         public int MaxPlayersOneMonitor;
         public int PauseBetweenStarts;
         public DPIHandling DPIHandling = DPIHandling.True;
-
+        public DpiAwarenessMode DpiAwarenessMode = DpiAwarenessMode.HighDpiAware; 
         public string StartArguments;
         public string BinariesFolder;
         public bool BinariesFolderPathFix;
@@ -399,9 +400,10 @@ namespace Nucleus.Gaming
                     $"- Another handler has this GUID (must be unique!)\n- Code is not in the right place or format\n(for example: methods using Context must be within the Game.Play function)" +
                     $"\n\n{details}";
 
-                    NucleusMessageBox.Show("Error in handler", error, false);
-
+                    NucleusMessageBox.Show("Error in handler", error, false);              
                 });
+
+                return;
             }
 
             MetaInfo.LoadGameMetaInfo(this);

@@ -6,7 +6,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
 {
     public static class GamepadState
     {
-        //Turn off native Xinput wireless controllers
+        //Turn off native Xinput wireless controllers(not working actually)
         [DllImport("XInput1_4.dll", CharSet = CharSet.Auto, EntryPoint = "#103")]
         public static extern int FnOff(int i);
 

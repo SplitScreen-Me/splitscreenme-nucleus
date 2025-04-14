@@ -28,6 +28,7 @@ public static class DInputManager
         dinput = new DirectInput();
 
         Thread di_Loop = new Thread(() => WatchDevicesList(syncContext));
+        di_Loop.IsBackground = true;
         INITIALIZED = true;
         di_Loop.Start();    
     }

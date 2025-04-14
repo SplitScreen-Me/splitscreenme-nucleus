@@ -9,6 +9,7 @@ using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 using Nucleus.Gaming.Coop.ProtoInput;
 using Nucleus.Gaming.Forms;
 using Nucleus.Gaming.Platform.PCSpecs;
+using Nucleus.Gaming.Tools;
 using Nucleus.Gaming.Tools.AudioReroute;
 using Nucleus.Gaming.Tools.BackupDatas;
 using Nucleus.Gaming.Tools.DevReorder;
@@ -40,7 +41,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text;
@@ -48,6 +48,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using WindowScrape.Constants;
+using static Nucleus.Gaming.GameDpiAwareness;
 
 namespace Nucleus.Gaming
 {
@@ -55,6 +56,7 @@ namespace Nucleus.Gaming
     {
         public List<WPFDiv> splitForms = new List<WPFDiv>();
         public List<ShortcutsReminder> shortcutsReminders = new List<ShortcutsReminder>();
+        public List<Form> AllRuntimeForms = new List<Form>();
 
         private string origExePath;
         private string UserEnvironmentRoot => Globals.UserEnvironmentRoot;
@@ -224,7 +226,9 @@ namespace Nucleus.Gaming
             {
                 StartUpdateTick(gen.HandlerInterval);
             }
-       
+
+            HotkeyListenerThread.StartHotkeyListener();
+
             return true;
         }
 
@@ -237,16 +241,16 @@ namespace Nucleus.Gaming
             catch (Exception ex)
             {
                 error = ex.Message;
+                TaskbarState.Show.Invoke();
 
                 try
-                {
+                {                   
                     RegistryUtil.RestoreRegistry("Error Restore from GenericGameHandler");
                     // try to save the exception
                     LogManager.Instance.LogExceptionFile(ex);
                 }
                 catch
                 {
-                    LogManager.Instance.LogExceptionFile(ex);
                     error = "We failed so hard we failed while trying to record the reason we failed initially. Sorry.";
                     return;
                 }
@@ -267,22 +271,7 @@ namespace Nucleus.Gaming
                 SteamFunctions.StartSteamClient();
             }
 
-            if (gen.HideTaskbar && !GameProfile.UseSplitDiv)
-            {
-                User32Util.HideTaskbar();
-            }
-
-            if (gen.ProtoInput.AutoHideTaskbar || GameProfile.UseSplitDiv)
-            {
-                if (ProtoInput.protoInput.GetTaskbarAutohide())
-                {
-                    gen.ProtoInput.AutoHideTaskbar = false; // If already hidden don't change it, and dont set it unhidden after.
-                }
-                else
-                {
-                    ProtoInput.protoInput.SetTaskbarAutohide(true);
-                }
-            }
+            TaskbarState.Hide.Invoke();
 
             garch = "x86";
 
@@ -314,37 +303,6 @@ namespace Nucleus.Gaming
             }
 
             ProcessUtil.KillRemainingProcess();
-
-            //Merge raw keyboard/mouse players into one 
-            var groupWindows = profile.DevicesList.Where(x => x.IsRawKeyboard || x.IsRawMouse).GroupBy(x => x.MonitorBounds).ToList();
-
-            foreach (var group in groupWindows)
-            {
-                if (group.Count() == 1)
-                {
-                    continue;//skip already merged k&m devices on profile load 
-                }
-              
-                var firstInGroup = group.First();
-                var secondInGroup = group.Last();
-
-                firstInGroup.IsRawKeyboard = group.Count(x => x.IsRawKeyboard) > 0;
-                firstInGroup.IsRawMouse = group.Count(x => x.IsRawMouse) > 0;
-
-                if (firstInGroup.IsRawKeyboard) firstInGroup.RawKeyboardDeviceHandle = group.First(x => x.RawKeyboardDeviceHandle != (IntPtr)(-1)).RawKeyboardDeviceHandle;
-                if (firstInGroup.IsRawMouse) firstInGroup.RawMouseDeviceHandle = group.First(x => x.RawMouseDeviceHandle != (IntPtr)(-1)).RawMouseDeviceHandle;
-
-                firstInGroup.HIDDeviceID = new string[2] { firstInGroup.HIDDeviceID[0], secondInGroup.HIDDeviceID[0] };
-
-                int insertAt = profile.DevicesList.FindIndex(toInsert => toInsert == firstInGroup);//Get index of the player so it can be re-inserted where it was.
-
-                foreach (var x in group)
-                {
-                    profile.DevicesList.Remove(x);
-                }
-
-                profile.DevicesList.Insert(insertAt, firstInGroup);//Re-insert the player where it was before its deletion  
-            }
 
             List<PlayerInfo> players = profile.DevicesList;
 
@@ -429,6 +387,13 @@ namespace Nucleus.Gaming
                 workingFolder = Path.Combine(exeFolder, gen.WorkingFolder.ToLower());
             }
 
+            Log("Trying to unlock original game files.");
+            if (!StartGameUtil.UnlockGameFiles(rootFolder))
+            {
+                End(false);
+                return string.Empty;
+            }
+
             gen.LockInputToggleKey = App_Hotkeys.LockKeyValue;
 
             RawInputManager.windows.Clear();
@@ -475,36 +440,6 @@ namespace Nucleus.Gaming
                 player.PlayerID = i;
 
                 plyrIndex = i;
-
-
-                //DPIHandling DPIHandling;
-
-                ////if (handlerInstance.context != null)
-                ////{
-                ////    DPIHandling = handlerInstance.context.DPIHandling;
-                ////}
-                ////else
-                ////{
-                //    DPIHandling = CurrentGameInfo.DPIHandling;
-                ////}
-
-                //Size mbSize;
-
-                //switch (DPIHandling)
-                //{
-                //    case DPIHandling.Scaled:
-                //        mbSize = new Size((int)((player.MonitorBounds.Width * DPIManager.Scale) + 0.5), (int)((player.MonitorBounds.Height * DPIManager.Scale) + 0.5));
-                //        break;
-                //    case DPIHandling.InvScaled:
-                //        mbSize = new Size((int)((player.MonitorBounds.Width * (1 / DPIManager.Scale)) + 0.5), (int)((player.MonitorBounds.Height * (1 / DPIManager.Scale)) + 0.5));
-                //        break;
-                //    case DPIHandling.True:
-                //    default:
-                //        mbSize = new Size(player.MonitorBounds.Width, player.MonitorBounds.Height);
-                //        break;
-                //}
-
-                //player.MonitorBounds = new Rectangle(player.MonitorBounds.Location.X, player.MonitorBounds.Location.Y, mbSize.Width, mbSize.Height);
 
                 if (!GameProfile.UseNicknames)
                 {
@@ -802,6 +737,9 @@ namespace Nucleus.Gaming
                     }
 
                     exePath = Path.Combine(linkBinFolder, userGame.Game.ExecutableName);
+
+                    SetExeDpiAwareness(exePath);
+                
                     origExePath = Path.Combine(linkBinFolder, userGame.Game.ExecutableName);
 
                     if ((i == 0 && (gen.SymlinkGame || gen.HardlinkGame)) || gen.HardcopyGame)
@@ -820,13 +758,6 @@ namespace Nucleus.Gaming
 
                     origRootFolder = rootFolder;
                     instanceExeFolder = linkBinFolder;
-
-                    Log("Trying to unlock original game files.");
-                    if (!StartGameUtil.UnlockGameFiles(rootFolder))
-                    {
-                        End(false);
-                        return string.Empty;
-                    }
 
                     if (!string.IsNullOrEmpty(gen.WorkingFolder))
                     {
@@ -1194,6 +1125,9 @@ namespace Nucleus.Gaming
                 else
                 {
                     exePath = userGame.ExePath;
+
+                    SetExeDpiAwareness(exePath);
+                    
                     origExePath = userGame.ExePath;
 
                     linkBinFolder = workingFolder;
@@ -3417,11 +3351,6 @@ namespace Nucleus.Gaming
             gen.MetaInfo.StopGameplayTimerThread();
             GamepadNavigation.StartUINavigation();
 
-            if (gen.CustomHotkeys != null)
-            {
-                 HotkeysRegistration.UnRegCustomHotkeys();
-            }
-
             GlobalWindowMethods.ResetBools();
            
             WindowsMerger.Instance?.Dispose();
@@ -3446,13 +3375,13 @@ namespace Nucleus.Gaming
 
             if (shortcutsReminders.Count > 0)
             {
-                foreach (ShortcutsReminder backgroundForm in shortcutsReminders)
+                foreach (ShortcutsReminder shortcutsReminder in shortcutsReminders)
                 {
                     try
                     {
-                        backgroundForm.Invoke(new Action(() =>
+                        shortcutsReminder.Invoke(new Action(() =>
                         {
-                            backgroundForm.Close();
+                            shortcutsReminder?.Close();
                         }));
                     }
                     catch
@@ -3460,6 +3389,24 @@ namespace Nucleus.Gaming
                 }
 
                 shortcutsReminders.Clear();
+            }
+
+            if (AllRuntimeForms.Count > 0)
+            {
+                foreach (Form runtimeForm in AllRuntimeForms)
+                {
+                    try
+                    {
+                        runtimeForm?.Invoke(new Action(() =>
+                        {
+                            runtimeForm?.Close();
+                        }));
+                    }
+                    catch
+                    { }
+                }
+
+                AllRuntimeForms.Clear();
             }
 
             LockInputRuntime.Unlock(false, gen?.ProtoInput);
@@ -3593,14 +3540,9 @@ namespace Nucleus.Gaming
                 }
             }
 
-            if (gen.ProtoInput.AutoHideTaskbar || GameProfile.UseSplitDiv)
-            {
-                ProtoInput.protoInput.SetTaskbarAutohide(false);
-            }
+            
 
-            User32Util.ShowTaskBar();
-
-            hasEnded = true;
+            //TaskbarState.SetOnStopState();
 
             GameManager.Instance.ExecuteBackup(userGame.Game);
 
@@ -3641,6 +3583,8 @@ namespace Nucleus.Gaming
             Log("All done closing operations.");
            
             Ended?.Invoke();
+
+            hasEnded = true;
         }
 
         public void Log(StreamWriter writer)

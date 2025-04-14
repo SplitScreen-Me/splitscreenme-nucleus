@@ -13,6 +13,8 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Security.Principal;
+using System.Windows.Documents;
 using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Coop
@@ -34,6 +36,9 @@ namespace Nucleus.Gaming.Coop
 
         public static GenericGameInfo Game;
 
+        public static Action OnReset;
+        public static Action OnReadyAutoPlayTrigger;
+
         public static int TotalAssignedPlayers;//K&m player will count as one only if 2 devices(keyboard & mouse) do share the same bounds.
 
         private static int totalProfilePlayers;//How many players the loaded profile counts.
@@ -50,6 +55,8 @@ namespace Nucleus.Gaming.Coop
         public static bool IsNewProfile => modeText == "New Profile";
 
         public static UserGameInfo GameInfo;
+
+        public static IGameHandler I_GameHandler;
 
         public static List<string> profilesPathList = new List<string>();
 
@@ -256,6 +263,20 @@ namespace Nucleus.Gaming.Coop
             return deviceList;       
         }
 
+        public static void InitializeHandlerStartup()
+        {
+            DevicesFunctions.DisposeGamePadTimer();
+
+            //reload the handler here so it can be edited/updated until play button get clicked
+            GameManager.Instance.AddScript(Path.GetFileNameWithoutExtension(Game.JsFileName), new bool[] { false, Game.UpdateAvailable });
+
+            var Current_GenericGameInfo = GameManager.Instance.GetGame(GameInfo.ExePath);
+            GameInfo.InitializeDefault(Current_GenericGameInfo,GameInfo.ExePath);
+
+            I_GameHandler = GameManager.Instance.MakeHandler(Current_GenericGameInfo);
+            I_GameHandler.Initialize(GameInfo,CleanClone(Instance), I_GameHandler);
+        }
+
         private void ListGameProfiles()
         {
             profilesPathList.Clear();
@@ -334,7 +355,7 @@ namespace Nucleus.Gaming.Coop
                     options.Add(opt.Key, opt.Value);
                 }
 
-                ProfilesList.Instance?.Update_Unload();
+                OnReset?.Invoke();
 
                 AssignedDevices.Clear();
                 DevicesToMerge.Clear();
@@ -352,16 +373,11 @@ namespace Nucleus.Gaming.Coop
                     screens = BoundsFunctions.Screens.ToList();
                 }
             }
-
-            //SetupScreenControl.Instance?.Invalidate(false);
         }
 
-        public virtual void InitializeDefault(UserGameInfo userGameInfo)
+        public virtual void InitializeDefault()
         {
             Instance = this;
-
-            GameInfo = userGameInfo;
-            Game = userGameInfo.Game;
 
             Reset();
 
@@ -617,23 +633,6 @@ namespace Nucleus.Gaming.Coop
 
                 return false;
             }
-        }
-
-        public static void CreateShortcut(string gameGUID, string shortcutId, string profileId, string description)
-        {
-            object shDesktop = (object)"Desktop";
-            WshShell shell = new WshShell();
-
-            string shortcutTitle = $@"\Profile_{shortcutId}_{gameGUID}.lnk";
-            string shortcutAddress = (string)shell.SpecialFolders.Item(ref shDesktop) + shortcutTitle;
-            IWshShortcut shortcut = (IWshShortcut)shell.CreateShortcut(shortcutAddress);
-            shortcut.Description = description != "" ? description : $"{gameGUID} Nucleus shortcut.";
-            shortcut.TargetPath = Application.StartupPath + "\\Profiles Launcher.exe";
-            shortcut.WorkingDirectory = Application.StartupPath;
-            shortcut.Arguments = $"\"{gameGUID}\" \"{profileId}\"";
-            UserGameInfo currentGameInfo = GameManager.Instance.User.Games.Where(c => c.GameGuid == gameGUID).FirstOrDefault();
-            shortcut.IconLocation = currentGameInfo.ExePath;
-            shortcut.Save();
         }
 
         private static string GetGameProfilesPath()
@@ -1160,7 +1159,8 @@ namespace Nucleus.Gaming.Coop
                     if (TotalAssignedPlayers == TotalProfilePlayers && Ready && AutoPlay && !Updating)
                     {
                         SetupScreenControl.Instance?.CanPlayUpdated(true, true);
-                        Globals.PlayButton.PerformClick();
+                        //Globals.PlayButton?.PerformClick();//Todo Add an "Invoke Play" action so we can defenitly get rid of the "play" button dependency in the dll
+                        OnReadyAutoPlayTrigger?.Invoke();
                         Ready = false;
                         return;
                     }
@@ -1374,12 +1374,43 @@ namespace Nucleus.Gaming.Coop
         {
             AssignedDevices.AddRange(DevicesToMerge);
 
+            //Merge raw keyboard/mouse players into one 
+            var groupWindows = AssignedDevices.Where(x => x.IsRawKeyboard || x.IsRawMouse).GroupBy(x => x.MonitorBounds).ToList();
+
+            foreach (var group in groupWindows)
+            {
+                if (group.Count() == 1)
+                {
+                    continue;//skip already merged k&m devices on profile load 
+                }
+
+                var firstInGroup = group.First();
+                var secondInGroup = group.Last();
+
+                firstInGroup.IsRawKeyboard = group.Count(x => x.IsRawKeyboard) > 0;
+                firstInGroup.IsRawMouse = group.Count(x => x.IsRawMouse) > 0;
+
+                if (firstInGroup.IsRawKeyboard) firstInGroup.RawKeyboardDeviceHandle = group.First(x => x.RawKeyboardDeviceHandle != (IntPtr)(-1)).RawKeyboardDeviceHandle;
+                if (firstInGroup.IsRawMouse) firstInGroup.RawMouseDeviceHandle = group.First(x => x.RawMouseDeviceHandle != (IntPtr)(-1)).RawMouseDeviceHandle;
+
+                firstInGroup.HIDDeviceID = new string[2] { firstInGroup.HIDDeviceID[0], secondInGroup.HIDDeviceID[0] };
+
+                int insertAt = AssignedDevices.FindIndex(toInsert => toInsert == firstInGroup);//Get index of the player so it can be re-inserted where it was.
+
+                foreach (var x in group)
+                {
+                    AssignedDevices.Remove(x);
+                }
+
+                AssignedDevices.Insert(insertAt, firstInGroup);//Re-insert the player where it was before its deletion  
+            }
+
             GameProfile nprof = new GameProfile
             {
                 deviceList = AssignedDevices,
                 screens = profile.screens,
             };
-
+     
             //Clear profile screens subBounds
             nprof.screens.AsParallel().ForAll(i => i.SubScreensBounds.Clear());
 

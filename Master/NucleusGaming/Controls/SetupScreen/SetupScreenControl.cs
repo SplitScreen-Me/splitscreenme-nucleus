@@ -17,8 +17,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         public override bool CanProceed => canProceed;
         public override bool CanPlay => false;
       
-        public ProfilesList ProfilesList;
-
         public ToolTip profileSettings_Tooltip;
 
         public override string Title => "Position Players";
@@ -45,10 +43,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             BackColor = Color.Transparent;
           
-            ProfilesList = new ProfilesList(this);
-
-            Controls.Add(ProfilesList);
-            
             DPIManager.Register(this);
             DPIManager.Update(this);
             RemoveFlicker();
@@ -88,7 +82,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             if (!scaled)
             {
-                ProfilesList.UpdateSize(scale);
                 scaled = true;
             }
 
@@ -114,7 +107,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         protected override void OnSizeChanged(EventArgs e)
         {
             base.OnSizeChanged(e);
-            BoundsFunctions.totalBounds = Rectangle.Empty;
+            BoundsFunctions.TotalBounds = Rectangle.Empty;
             Invalidate(false);
         }
 
@@ -133,7 +126,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         {
             base.OnMouseDown(e);
             BoundsFunctions.OnMouseDown(e);
-            ProfilesList.Visible = false;
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -152,8 +144,8 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         {
             base.OnPaint(e);
         
-            if (BoundsFunctions.selectedPlayer?.MonitorBounds != Rectangle.Empty &&
-                BoundsFunctions.selectedPlayer?.MonitorBounds != null)
+            if (BoundsFunctions.SelectedPlayer?.MonitorBounds != Rectangle.Empty &&
+                BoundsFunctions.SelectedPlayer?.MonitorBounds != null)
             {
                 Draw.SelectedPlayerBounds(e.Graphics);
                 Draw.PlayerBoundsInfo(e.Graphics);
@@ -169,7 +161,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                 if (GameProfile.Loaded)
                 {  
-                    if(!BoundsFunctions.dragging)
+                    if(!BoundsFunctions.Dragging)
                     {
                         GameProfile.FindProfilePlayers(player);
                     }
@@ -192,7 +184,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             e.Graphics.ResetClip();
 
-            if (BoundsFunctions.dragging && BoundsFunctions.draggingScreen != -1)
+            if (BoundsFunctions.Dragging && BoundsFunctions.DraggingScreen != -1)
             {
                 Draw.DestinationBounds(e.Graphics);
             }

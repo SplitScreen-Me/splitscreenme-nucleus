@@ -56,7 +56,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
 
         private static bool _Enabled;
         public static bool Enabled => _Enabled;
-        private static bool EnabledRuntime;///Can on/off UI navigation later on runtime
+        private static bool EnabledRuntime;///Can on/off UI navigation manually later on runtime
         private static int DefaultSpeed => 2000;//2200 v2.3.2 value
         private static int SlowDownSpeed = 2000;//2200 v2.3.2 value
         public static Action OnUpdateState;

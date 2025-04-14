@@ -20,8 +20,9 @@ using static SDL.SDL_ControllerUtils;
 
 namespace Nucleus.Gaming.Controls.SetupScreen
 {
+    //This should not rely on UI at all in the future
     public class DevicesFunctions
-    {
+    {     
         private static SynchronizationContext _syncContext;
         private static SetupScreenControl parent;
         private static UserGameInfo userGameInfo;
@@ -567,7 +568,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             if (total < playerCount)
             {
                 float newVertical = vertical + 1;
-                Draw.playerCustomFont = new Font(Draw.playerCustomFont.FontFamily, Draw.playerCustomFont.Size * 0.8f, FontStyle.Regular, GraphicsUnit.Point, 0);
+                Draw.PlayerCustomFont = new Font(Draw.PlayerCustomFont.FontFamily, Draw.PlayerCustomFont.Size * 0.8f, FontStyle.Regular, GraphicsUnit.Point, 0);
                 playerSize = (int)Math.Round(((playerHeight / 1.2f) / newVertical));
             }
 

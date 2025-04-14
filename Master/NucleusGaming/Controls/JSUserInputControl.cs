@@ -136,7 +136,7 @@ namespace Nucleus.Gaming
                 return;
             }
 
-            toSelect.BackColor = Color.DodgerBlue;
+            toSelect.Selected = true;
             toSelect.Title = $"{toSelect.Title} (Auto Selection)";
             Control_OnSelected(toSelect);
         }

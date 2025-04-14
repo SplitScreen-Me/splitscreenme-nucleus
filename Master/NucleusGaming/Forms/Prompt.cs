@@ -32,6 +32,8 @@ namespace Nucleus.Gaming.Forms
             TopMost = true;
 
             WindowScrape.Static.HwndInterface.MakeTopMost(Handle);
+
+            GenericGameHandler.Instance?.AllRuntimeForms.Add(this);
         }
 
         public Prompt(string message, bool onpaint)
@@ -52,6 +54,8 @@ namespace Nucleus.Gaming.Forms
             TopMost = true;
 
             WindowScrape.Static.HwndInterface.MakeTopMost(Handle);
+
+            GenericGameHandler.Instance?.AllRuntimeForms.Add(this);
         }
 
         public Prompt(string message, bool isOFD, string launcherFileName)
@@ -100,6 +104,8 @@ namespace Nucleus.Gaming.Forms
             }
 
             btn_Ok.PerformClick();
+
+            GenericGameHandler.Instance?.AllRuntimeForms.Add(this);        
         }
 
         private void DescLabelLinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
@@ -191,7 +197,6 @@ namespace Nucleus.Gaming.Forms
 
         private void btn_Ok_Click(object sender, EventArgs e)
         {
-
             Close();
         }
     }

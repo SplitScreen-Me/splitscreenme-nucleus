@@ -50,6 +50,7 @@ namespace Gamepads
         private static void Start_SDL_Eventsloop(SynchronizationContext syncContext)
         {
             Thread sdl_Loop = new Thread(() => SDL_Loop(syncContext));
+            sdl_Loop.IsBackground = true;
             SDL_INITIALIZED = true;
             sdl_Loop.Start();
         }

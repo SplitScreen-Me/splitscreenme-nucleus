@@ -11,6 +11,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 {
     public static class BoundsFunctions
     {
+        //This should not rely on UI at all in the future(SetupScreenControl)
         public static void Initialize(SetupScreenControl _parent, UserGameInfo _userGameInfo, GameProfile _profile)
         {
             parent = _parent;
@@ -21,29 +22,29 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         private static SetupScreenControl parent;
         private static UserGameInfo userGameInfo;
         private static GameProfile profile;
-        internal static PlayerInfo selectedPlayer;
+        public static PlayerInfo SelectedPlayer;
 
         public static UserScreen[] Screens;
 
-        internal static PointF draggingOffset;
+        private static PointF draggingOffset;
         public static Point MousePos => mousePos;
-        internal static int draggingIndex = -1;
-        internal static int draggingScreen = -1;
-       // internal static int screen.SubscreenBoundsScale;
+        private static int draggingIndex = -1;
+        public static int DraggingScreen = -1;
 
-        internal static Rectangle totalBounds;
-        internal static RectangleF sizer;
-        internal static RectangleF sizerBtnLeft;
-        internal static RectangleF sizerBtnRight;
-        internal static RectangleF sizerBtnTop;
-        internal static RectangleF sizerBtnBottom;
-        internal static RectangleF sizerBtnCenter;
+        public static Rectangle TotalBounds;
+        private static RectangleF sizer;
+        private static RectangleF sizerBtnLeft;
+        private static RectangleF sizerBtnRight;
+        private static RectangleF sizerBtnTop;
+        private static RectangleF sizerBtnBottom;
+        private static RectangleF sizerBtnCenter;
 
-        internal static RectangleF destEditBounds;
-        internal static Rectangle destMonitorBounds;
+        private  static RectangleF destEditBounds;
+        public static RectangleF DestEditBounds => destEditBounds;
+        private static Rectangle destMonitorBounds;
 
-        internal static bool dragging = false;
-        internal static bool ShowSwapTypeTip = true;
+        public static bool Dragging = false;
+        public static bool ShowSwapTypeTip = true;
 
         internal static string PlayerBoundsInfoText(PlayerInfo selectedPlayer)
         {
@@ -90,7 +91,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             if (Screens == null)
             {
                 Screens = ScreensUtil.AllScreens();
-                totalBounds = RectangleUtil.Union(Screens);
+                TotalBounds = RectangleUtil.Union(Screens);
             }
             else
             {
@@ -102,14 +103,14 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 UserScreen[] newScreens = ScreensUtil.AllScreens();
                 Rectangle newBounds = RectangleUtil.Union(newScreens);
 
-                if (newBounds.Equals(totalBounds))
+                if (newBounds.Equals(TotalBounds))
                 {
                     return;
                 }
 
                 ///Screens got updated, need to reflect in our window
                 Screens = newScreens;
-                totalBounds = newBounds;
+                TotalBounds = newBounds;
 
                 ///remove all players Screens
                 List<PlayerInfo> playerData = profile?.DevicesList;
@@ -139,14 +140,14 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 ScreensArea = new RectangleF(10.0F, 35.0F + (float)parent?.Height * 0.2f, (float)parent.Width - 20.0F, (float)parent?.Height * 0.5f);
             }
 
-            ScreensAreaScale = ScreensArea.Width / (float)totalBounds.Width;
+            ScreensAreaScale = ScreensArea.Width / (float)TotalBounds.Width;
 
-            if ((float)totalBounds.Height * ScreensAreaScale > ScreensArea.Height)
+            if ((float)TotalBounds.Height * ScreensAreaScale > ScreensArea.Height)
             {
-                ScreensAreaScale = (float)ScreensArea.Height / (float)totalBounds.Height;
+                ScreensAreaScale = (float)ScreensArea.Height / (float)TotalBounds.Height;
             }
 
-            RectangleF scaledBounds = RectangleUtil.Scale(totalBounds, ScreensAreaScale);
+            RectangleF scaledBounds = RectangleUtil.Scale(TotalBounds, ScreensAreaScale);
             scaledBounds.X = ScreensArea.X;
             scaledBounds.Y = ScreensArea.Y;
 
@@ -200,7 +201,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         {
             List<PlayerInfo> players = profile.DevicesList;
 
-            if (dragging)
+            if (Dragging)
             {
                 return;
             }
@@ -276,7 +277,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             RemovePlayer(p, p.ScreenIndex);
                         }
 
-                        dragging = true;
+                        Dragging = true;
                         draggingIndex = i;
                         //Cursor.Position = Parent.PointToScreen(new Point((int)(Parent.Location.X + r.X + r.Width / 2), (int)(Parent.Location.Y + r.Y + r.Height / 2)));
                         draggingOffset = new PointF(r.X - e.X, r.Y - e.Y);
@@ -619,16 +620,16 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             if (e.Button == MouseButtons.Left)
             {
-                if (dragging)
+                if (Dragging)
                 {
-                    dragging = false;
+                    Dragging = false;
 
                     PlayerInfo p = profile.DevicesList[draggingIndex];
 
-                    if (draggingScreen != -1)
+                    if (DraggingScreen != -1)
                     {
-                        AddPlayer(p, draggingScreen);
-                        draggingScreen = -1;
+                        AddPlayer(p, DraggingScreen);
+                        DraggingScreen = -1;
                     }
                     else
                     {
@@ -662,7 +663,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         {
             mousePos = e.Location;
 
-            if (dragging)
+            if (Dragging)
             {
                 PlayerInfo player = profile.DevicesList[draggingIndex];
 
@@ -679,11 +680,11 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 {
                     RectangleF s = screen.UIBounds;
 
-                    draggingScreen = screen.Index;
+                    DraggingScreen = screen.Index;
 
                     if (!GetFreeSpace(player))
                     {
-                        draggingScreen = -1;
+                        DraggingScreen = -1;
                     }
                     else
                     {
@@ -694,7 +695,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 }
                 else
                 {
-                    draggingScreen = -1;
+                    DraggingScreen = -1;
                     destEditBounds = RectangleF.Empty;
                 }
 
@@ -705,17 +706,17 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             }
             else
             {
-                selectedPlayer = profile.DevicesList.Where(pl => pl.ScreenIndex != -1 && pl.EditBounds.Contains(e.Location)).FirstOrDefault();
+                SelectedPlayer = profile.DevicesList.Where(pl => pl.ScreenIndex != -1 && pl.EditBounds.Contains(e.Location)).FirstOrDefault();
 
-                if (selectedPlayer != null)
+                if (SelectedPlayer != null)
                 {
-                    int maxPlayers = Screens[selectedPlayer.ScreenIndex].SubScreensBounds.Count();
+                    int maxPlayers = Screens[SelectedPlayer.ScreenIndex].SubScreensBounds.Count();
 
                     if (maxPlayers >= 4)
                     {
                         if (!GameProfile.Loaded)
                         {
-                            sizer = selectedPlayer.EditBounds;
+                            sizer = SelectedPlayer.EditBounds;
                             UpdatetSizersBounds();
                             SetCursor(e.Location);
 
@@ -792,12 +793,12 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         internal static bool GetFreeSpace(PlayerInfo player)
         {
-            if (draggingScreen == -1)
+            if (DraggingScreen == -1)
             {
                 return false;
             }
 
-            UserScreen screen = Screens[draggingScreen];
+            UserScreen screen = Screens[DraggingScreen];
             RectangleF s = screen.UIBounds;
 
             destMonitorBounds = screen.SubScreensBounds.Where(b => b.Value.Contains(mousePos)).FirstOrDefault().Key;
@@ -868,11 +869,11 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         internal static void EditPlayerBounds(MouseEventArgs e)
         {
-            if (selectedPlayer != null && !GameProfile.Loaded)
+            if (SelectedPlayer != null && !GameProfile.Loaded)
             {
                 List<PlayerInfo> players = profile.DevicesList;
 
-                PlayerInfo p = selectedPlayer;
+                PlayerInfo p = SelectedPlayer;
 
                 if (p.ScreenIndex != -1)
                 {
@@ -1217,7 +1218,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         internal static void OnMouseDoubleClick(MouseEventArgs e)
         {
-            if (dragging || GameProfile.Loaded)
+            if (Dragging || GameProfile.Loaded)
             {
                 return;
             }
@@ -1261,7 +1262,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                 }
                             }
                         }
-
                     }
                 }
 

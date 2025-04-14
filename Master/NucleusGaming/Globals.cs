@@ -25,13 +25,12 @@ namespace Nucleus.Gaming
 
         public static string NucleusInstallRoot => Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 
+        //Used so any launcher can add its own "main window" handle without worring about catching the window manually.
+        public static IntPtr MainWindowHandle;
+
         public static string UserEnvironmentRoot => Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         public static string UserDocumentsRoot = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
-        public static Button PlayButton;
-        public static HandlerNotesZoom HandlerNotesZoom;
-        public static Button Btn_debuglog;
-        public static Button ProfilesList_btn;
         public static WPF_OSD MainOSD;
     }
 }

@@ -2,16 +2,11 @@
 using Nucleus.Coop.Forms;
 using Nucleus.Coop.Tools;
 using Nucleus.Gaming;
-using Nucleus.Gaming.App.Settings;
-using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Controls;
 using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.Generic;
-using Nucleus.Gaming.Coop.InputManagement;
-using Nucleus.Gaming.Tools.GlobalWindowMethods;
 using Nucleus.Gaming.UI;
-using Nucleus.Gaming.Windows;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -31,10 +26,8 @@ namespace Nucleus.Coop
         public Action<IntPtr> RawInputAction { get; set; }
 
         private bool canResize = false;
-        private bool hotkeysCooldown = false;
 
         private System.Windows.Forms.Timer WebStatusTimer;
-        private System.Windows.Forms.Timer hotkeysCooldownTimer;//Avoid hotkeys spamming
 
         private static bool connected;
         public bool Connected
@@ -145,9 +138,6 @@ namespace Nucleus.Coop
             Core_Interface.GameManager = new GameManager();
             Core_Interface.OptionsControl = new PlayerOptionsControl();
 
-            hotkeysCooldownTimer = new System.Windows.Forms.Timer();
-            hotkeysCooldownTimer.Tick += HotkeysCooldownTimerTick;
-
             SetCommonControlsAttributes();
 
             SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
@@ -157,6 +147,8 @@ namespace Nucleus.Coop
             {
                 CreateHandle();
             }
+
+            Globals.MainWindowHandle = Handle;
 
             DPIManager.Register(this);
             DPIManager.AddForm(this);
@@ -330,111 +322,7 @@ namespace Nucleus.Coop
                 }
             }
 
-            if (hotkeysCooldown)
-            {
-                base.WndProc(ref m);
-                return;
-            }
-
-            if (m.Msg == 0x0312 && m.WParam.ToInt32() == HotkeysRegistration.Cutscenes_HotkeyID &&
-                Core_Interface.I_GameHandler != null)
-            {
-                GlobalWindowMethods.ToggleCutScenesMode();
-                HotkeyCoolDown();
-                base.WndProc(ref m);
-                return;
-            }
-
-            if (m.Msg == 0x0312 && LockInputRuntime.IsLocked)//WM_HOTKEY
-            {
-                Globals.MainOSD.Show(1600, $"Unlock Inputs First (Press {App_Hotkeys.LockInputs} Key)");
-                base.WndProc(ref m);
-                return;
-            }
-
-            if (m.Msg == 0x00FF)//WM_INPUT
-            {
-                RawInputAction(m.LParam);
-            }
-            else if (m.Msg == 0x0312)//WM_HOTKEY
-            {
-                if (Core_Interface.I_GameHandler != null)
-                {
-                    switch (m.WParam.ToInt32())
-                    {
-                        case HotkeysRegistration.TopMost_HotkeyID:
-                            GlobalWindowMethods.ShowHideWindows();
-                            break;
-
-                        case HotkeysRegistration.StopSession_HotkeyID:
-                            if ((string)btn_Play.Tag == "S T O P")
-                            {
-                                UI_Functions.Play_Click(btn_Play, null);
-                                Globals.MainOSD.Show(2000, "Session Ended");
-                            }
-                            break;
-
-                        case HotkeysRegistration.SetFocus_HotkeyID:
-                            GlobalWindowMethods.ChangeForegroundWindow();
-                            Globals.MainOSD.Show(2000, "Game Windows Unfocused");
-                            break;
-
-                        case HotkeysRegistration.ResetWindows_HotkeyID:
-                            GlobalWindowMethods.ResetingWindows = true;
-                            break;
-
-                        case HotkeysRegistration.Switch_HotkeyID:
-                            GlobalWindowMethods.SwitchLayout();
-                            break;
-
-                        case HotkeysRegistration.KillProcess_HotkeyID:
-                            User32Util.ShowTaskBar();
-                            Close();
-                            break;
-
-                        case HotkeysRegistration.Reminder_HotkeyID:
-                            foreach (ShortcutsReminder reminder in GenericGameHandler.Instance.shortcutsReminders) { reminder.Toggle(7); }
-                            break;
-
-                        case HotkeysRegistration.MergerFocusSwitch_HotkeyID:
-                            WindowsMerger.Instance?.SwitchChildFocus();
-                            break;
-
-                        case HotkeysRegistration.Custom_Hotkey_1:
-                            GenericGameHandler.Instance.CurrentGameInfo.OnCustomHotKey_1.Invoke();
-                            break;
-
-                        case HotkeysRegistration.Custom_Hotkey_2:
-                            GenericGameHandler.Instance.CurrentGameInfo.OnCustomHotKey_2.Invoke();
-                            break;
-
-                        case HotkeysRegistration.Custom_Hotkey_3:
-                            GenericGameHandler.Instance.CurrentGameInfo.OnCustomHotKey_3.Invoke();
-                            break;
-                    }
-
-                    HotkeyCoolDown();
-                }
-            }
-
             base.WndProc(ref m);
-        }
-
-        public void HotkeyCoolDown()
-        {
-            if (!hotkeysCooldown)
-            {
-                hotkeysCooldownTimer.Stop();
-                hotkeysCooldownTimer.Interval = 600; //millisecond
-                hotkeysCooldownTimer.Start();
-                hotkeysCooldown = true;
-            }
-        }
-
-        private void HotkeysCooldownTimerTick(object Object, EventArgs EventArgs)
-        {
-            hotkeysCooldown = false;
-            hotkeysCooldownTimer.Stop();
         }
 
         protected override void OnPaintBackground(PaintEventArgs e)

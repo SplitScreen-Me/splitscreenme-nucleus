@@ -1,4 +1,4 @@
-﻿namespace Nucleus.Gaming.Controls
+﻿namespace Nucleus.Gaming.Forms
 {
     partial class HotkeyListener
     {
@@ -28,10 +28,25 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            this.SuspendLayout();
+            // 
+            // HotkeyListener
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            //this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.ControlBox = true;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = true;
+            this.MinimizeBox = true;
+            this.Name = "HotkeyListener";
+            this.Opacity = 0.0D;
+            this.ShowIcon = true;
+            this.ShowInTaskbar = false;
             this.Text = "HotkeyListener";
+            this.WindowState = System.Windows.Forms.FormWindowState.Normal;
+            this.ResumeLayout(false);
+
         }
 
         #endregion

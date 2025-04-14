@@ -62,6 +62,12 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool ShowWindow(IntPtr hWnd, ShowWindowEnum flags);
 
+
+        public static bool CutsceneOn = false;
+        public static bool TopMostToggle = true;
+        public static bool ResetingWindows { get; set; }
+        private static bool canSwitchLayout = true;
+
         public static void ResetBools()
         {
             ResetingWindows = false;
@@ -69,9 +75,6 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
             CutsceneOn = false;
             canSwitchLayout = true;
         }
-
-        public static bool ResetingWindows { get; set; }
-        private static bool canSwitchLayout = true;
 
         public static void ResetWindows(ProcessData processData, int x, int y, int w, int h, int i)
         {
@@ -176,8 +179,6 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 handlerInstance.Log("ERROR - Exception in ResetWindows for instance " + (i - 1) + ", error = " + e);
             }
         }
-
-       
 
         public static void ChangeGameWindow(Process proc, List<PlayerInfo> players, int playerIndex)
         {
@@ -660,9 +661,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
         }
 
         [DllImport("user32.dll", SetLastError = true)]
-        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
-
-        
+        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);   
 
         public static void SwitchLayout()
         {
@@ -1000,7 +999,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
         }
 
         #region Cutscene mode function
-        public static bool CutsceneOn = false;
+
 
         public static void ToggleCutScenesMode()
         {
@@ -1121,7 +1120,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 CutsceneOn = false;
             }
         }
-        #endregion      
+        #endregion
 
         public static void UpdateAndRefreshGameWindows(double delayMS, bool refresh)
         {
@@ -1166,7 +1165,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                     data.Finished = false;
                     data.Status = 0;
                 }
-            
+
                 if (data.Finished)
                 {
                     if (data.Process.HasExited)
@@ -1176,7 +1175,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                     continue;
                 }
-
+            
                 if (p.SteamEmu)
                 {
                     List<int> children = ProcessUtil.GetChildrenProcesses(data.Process);
@@ -1611,8 +1610,6 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
             SetWindowText(proc.NucleusGetMainWindowHandle(), windowTitle);
         }
 
-        public static bool TopMostToggle = true;
-
         public static void ShowHideWindows()
         {
             var handlerInstance = GenericGameHandler.Instance;
@@ -1622,19 +1619,44 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 return;
             }
 
-            if (!LockInputRuntime.IsLocked)
+            if (LockInputRuntime.IsLocked)
             {
-                if (handlerInstance.profile.DevicesList.All(pl => pl.ProcessData == null))
-                {
-                    Globals.MainOSD.Show(1600, $"Can't Be Used Now");
-                    return;//return until atleast 1 player processdata is set 
-                }
+                Globals.MainOSD.Show(1600, $"Unlock Inputs First (Press {App_Hotkeys.LockInputs} key)");
+                return;
+            }
 
-                int windowsFound = 0;
+            if (handlerInstance.profile.DevicesList.All(pl => pl.ProcessData == null))
+            {
+                Globals.MainOSD.Show(1600, $"Can't Be Used Now");
+                return;//return until atleast 1 player processdata is set 
+            }
 
-                if (TopMostToggle)
-                {
-                    try
+            int windowsFound = 0;
+
+            if (TopMostToggle)
+            {
+                try
+                {                  
+                    for (int i = 0; i < handlerInstance.profile.DevicesList.Count; i++)
+                    {
+                        if (handlerInstance.profile.DevicesList[i].ProcessData != null && !handlerInstance.profile.DevicesList[i].IsMinimized)
+                        {
+                            if (handlerInstance.profile.DevicesList[i].ProcessData.HWnd != null)
+                            {
+                                IntPtr hWnd = handlerInstance.profile.DevicesList[i].ProcessData.HWnd.NativePtr;
+                                if (hWnd != IntPtr.Zero)
+                                {
+                                    User32Interop.SetWindowPos(hWnd, new IntPtr(-2), 0, 0, 0, 0,
+                                    (uint)(PositioningFlags.SWP_NOSIZE | PositioningFlags.SWP_NOMOVE));
+                                    ShowWindow(hWnd, ShowWindowEnum.Minimize);
+                                    handlerInstance.profile.DevicesList[i].IsMinimized = true;
+                                    windowsFound++;
+                                }
+                            }
+                        }
+                    }
+
+                    if (handlerInstance.profile.DevicesList.Any(pl => pl.IsMinimized))
                     {
                         foreach (WPFDiv back in GenericGameHandler.Instance.splitForms)
                         {
@@ -1644,55 +1666,54 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                             }));
                         }
 
-                        for (int i = 0; i < handlerInstance.profile.DevicesList.Count; i++)
-                        {
-                            if (handlerInstance.profile.DevicesList[i].ProcessData != null)
-                            {
-                                if (handlerInstance.profile.DevicesList[i].ProcessData.HWnd != null)
-                                {
-                                    IntPtr hWnd = handlerInstance.profile.DevicesList[i].ProcessData.HWnd.NativePtr;
-                                    if (hWnd != IntPtr.Zero)
-                                    {
-                                        User32Interop.SetWindowPos(hWnd, new IntPtr(-2), 0, 0, 0, 0,
-                                        (uint)(PositioningFlags.SWP_NOSIZE | PositioningFlags.SWP_NOMOVE));
-                                        ShowWindow(hWnd, ShowWindowEnum.Minimize);
-                                        windowsFound++;
-                                    }
-                                }
-                            }
-                        }
-
-                        if(WindowsMerger.Instance != null)
+                        if (WindowsMerger.Instance != null)
                         {
                             User32Interop.SetWindowPos(WindowsMerger.Instance.Handle, IntPtr.Zero, 0, 0, 0, 0,
                                         (uint)(PositioningFlags.SWP_NOSIZE | PositioningFlags.SWP_NOMOVE));
                             ShowWindow(WindowsMerger.Instance.Handle, ShowWindowEnum.Minimize);
                         }
                     }
-                    catch
-                    { }
+                }
+                catch
+                { }
 
-                    if (windowsFound > 0)
+                if (windowsFound > 0)
+                {
+                    TaskbarState.Show.Invoke();
+                    Globals.MainOSD.Show(1600, $"Game Windows Minimized");                 
+                    TopMostToggle = false;
+                }
+            }
+            else if (!TopMostToggle)
+            {
+                if(!handlerInstance.profile.DevicesList.Any(p => p.IsMinimized))
+                {
+                    return;
+                }
+
+                TaskbarState.Hide.Invoke();
+
+                for (int i = 0; i < handlerInstance.profile.DevicesList.Count; i++)
+                {
+                    if (handlerInstance.profile.DevicesList[i].ProcessData != null && handlerInstance.profile.DevicesList[i].IsMinimized)
                     {
-                        Globals.MainOSD.Show(1600, $"Game Windows Minimized");
-
-                        if (handlerInstance.CurrentGameInfo.HideTaskbar)
+                        if (handlerInstance.profile.DevicesList[i].ProcessData.HWnd != null)
                         {
-                            User32Util.ShowTaskBar();
-                        }
-                        else if (handlerInstance.CurrentGameInfo.ProtoInput.AutoHideTaskbar)
-                        {
-                            if (ProtoInput.protoInput.GetTaskbarAutohide())
+                            IntPtr hWnd = handlerInstance.profile.DevicesList[i].ProcessData.HWnd.NativePtr;
+                            if (hWnd != IntPtr.Zero)
                             {
-                                ProtoInput.protoInput.SetTaskbarAutohide(false);
-                                User32Util.ShowTaskBar();
+                                ShowWindow(hWnd, ShowWindowEnum.Restore);
+
+                                User32Interop.SetWindowPos(hWnd, new IntPtr(-1), 0, 0, 0, 0,
+                                    (uint)(PositioningFlags.SWP_NOSIZE | PositioningFlags.SWP_NOMOVE));
+                                handlerInstance.profile.DevicesList[i].IsMinimized = false;
+                                windowsFound++;
                             }
                         }
-
-                        TopMostToggle = false;
                     }
                 }
-                else if (!TopMostToggle)
+
+                if (handlerInstance.profile.DevicesList.Any(pl => !pl.IsMinimized))
                 {
                     foreach (WPFDiv back in GenericGameHandler.Instance.splitForms)
                     {
@@ -1702,54 +1723,19 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                         }));
                     }
 
-                    for (int i = 0; i < handlerInstance.profile.DevicesList.Count; i++)
-                    {
-                        if (handlerInstance.profile.DevicesList[i].ProcessData != null)
-                        {
-                            if (handlerInstance.profile.DevicesList[i].ProcessData.HWnd != null)
-                            {
-                                IntPtr hWnd = handlerInstance.profile.DevicesList[i].ProcessData.HWnd.NativePtr;
-                                if (hWnd != IntPtr.Zero)
-                                {
-                                    ShowWindow(hWnd, ShowWindowEnum.Restore);
-                                    User32Interop.SetWindowPos(hWnd, new IntPtr(-1), 0, 0, 0, 0,
-                                        (uint)(PositioningFlags.SWP_NOSIZE | PositioningFlags.SWP_NOMOVE));
-                                    windowsFound++;
-                                }
-                            }
-                        }
-                    }
-
                     if (WindowsMerger.Instance != null)
                     {
                         ShowWindow(WindowsMerger.Instance.Handle, ShowWindowEnum.Restore);
                         User32Interop.SetWindowPos(WindowsMerger.Instance.Handle, IntPtr.Zero, 0, 0, 0, 0,
                             (uint)(PositioningFlags.SWP_NOSIZE | PositioningFlags.SWP_NOMOVE));
                     }
-
-                    if (windowsFound > 0)
-                    {
-                        Globals.MainOSD.Show(1600, $"Game Windows Restored");
-
-                        if (handlerInstance.CurrentGameInfo.HideTaskbar)
-                        {
-                            User32Util.HideTaskbar();
-                        }
-                        else if (handlerInstance.CurrentGameInfo.ProtoInput.AutoHideTaskbar)
-                        {
-                            if (!ProtoInput.protoInput.GetTaskbarAutohide())
-                            {
-                                ProtoInput.protoInput.SetTaskbarAutohide(true);
-                            }
-                        }
-
-                        TopMostToggle = true;
-                    }
                 }
-            }
-            else
-            {
-                Globals.MainOSD.Show(1600, $"Unlock Inputs First (Press {App_Hotkeys.LockInputs} key)");
+
+                if (windowsFound > 0)
+                {
+                    Globals.MainOSD.Show(1600, $"Game Windows Restored");
+                    TopMostToggle = true;
+                }
             }
         }
 
@@ -1820,7 +1806,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
           
             if (windowToFocus == IntPtr.Zero)
             {
-                windowToFocus = User32Interop.FindWindow(null, "Nucleus Co-op");
+                windowToFocus = Globals.MainWindowHandle;
             }
 
             if (windowToFocus != IntPtr.Zero)

@@ -1,5 +1,4 @@
-﻿using Nucleus.Gaming.Controls;
-using Nucleus.Gaming.Coop;
+﻿using Nucleus.Gaming.Coop;
 using Nucleus.Gaming;
 using System;
 using System.Windows.Forms;
@@ -9,6 +8,8 @@ using Nucleus.Gaming.App.Settings;
 using System.Linq;
 using System.Drawing;
 using Nucleus.Gaming.Cache;
+using Nucleus.Coop.Controls;
+using System.Threading;
 
 namespace Nucleus.Coop.UI
 {
@@ -142,7 +143,7 @@ namespace Nucleus.Coop.UI
 
             UI_Interface.MaximizeButton.BackgroundImage = mainForm.WindowState == FormWindowState.Maximized ? ImageCache.GetImage(Globals.ThemeFolder + "title_windowed.png") : ImageCache.GetImage(Globals.ThemeFolder + "title_maximize.png");
 
-            if (UI_Interface.SetupScreen != null && Core_Interface.I_GameHandler == null)
+            if (UI_Interface.SetupScreen != null && GameProfile.I_GameHandler == null)
             {
                 GameProfile.Instance?.Reset();
 
@@ -194,14 +195,23 @@ namespace Nucleus.Coop.UI
 
             Core_Interface.I_GameHandlerEndFunc("OnFormClosed", false);
 
-            User32Util.ShowTaskBar();
-
             UI_Interface.WebView?.Dispose();
-
-            if (!UI_Interface.RestartRequired)
+         
+            System.Threading.Tasks.Task.Run(() =>
             {
-                Process.GetCurrentProcess().Kill();
-            }         
+                if (GameProfile.I_GameHandler != null)
+                {
+                    while (!GameProfile.I_GameHandler.HasEnded)
+                    {
+                        Thread.Sleep(100);
+                    }
+                }
+
+                if (!UI_Interface.RestartRequired)
+                {
+                    Process.GetCurrentProcess().Kill();
+                }
+            });
         }
     }
 }

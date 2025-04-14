@@ -21,12 +21,8 @@ namespace Nucleus.Gaming
     {
         private static GameManager instance;
 
-        private Dictionary<string, GenericGameInfo> games;
-        private Dictionary<string, GenericGameInfo> gameInfos;
-        private UserProfile user;
         private List<BackupFile> backupFiles;
         private bool isSaving;
-        private GameProfile currentProfile;
 
         private RawInputProcessor rawInputProcessor;
         //private InputInterceptor inputInterceptor;
@@ -39,11 +35,15 @@ namespace Nucleus.Gaming
         /// <summary>
         /// A dictionary containing GameInfos. The key is the game's guid
         /// </summary>
+        private Dictionary<string, GenericGameInfo> games;
         public Dictionary<string, GenericGameInfo> Games => games;
+
+        private Dictionary<string, GenericGameInfo> gameInfos;
         public Dictionary<string, GenericGameInfo> GameInfos => gameInfos;
 
         public static GameManager Instance => instance;
-
+         
+        private UserProfile user;
         public UserProfile User
         {
             get => user;
@@ -450,7 +450,7 @@ namespace Nucleus.Gaming
         {
             lock (user.Games)
             {
-                user.Games = user.Games.OrderBy(g => g.Game.GameName).ToList();
+                user.Games = user.Games.OrderBy(g => g?.Game?.GameName).ToList();
             }
 
             string userProfile = GetUserProfilePath();
@@ -483,7 +483,7 @@ namespace Nucleus.Gaming
                                 // delete invalid games
                                 for (int i = 0; i < user.Games.Count; i++)
                                 {                                
-                                    if (user.Games[i].Game == null)//no .js file(deleted manually)
+                                    if (user.Games[i].Game == null && !File.Exists(user.Games[i].ExePath))//no .js file?(deleted manually) no game executable?
                                     {
                                         user.Games.RemoveAt(i);
                                         if (i > 0) 
@@ -518,7 +518,7 @@ namespace Nucleus.Gaming
                             }
 
                             CleanGamesAssets(null);
-                            user.Games = user.Games.OrderBy(g => g.Game.GameName).ToList();
+                            user.Games = user.Games.OrderBy(g => g?.Game?.GameName).ToList();
                         }
 
                         SaveUser(userProfile);

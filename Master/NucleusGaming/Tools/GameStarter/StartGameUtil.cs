@@ -233,7 +233,7 @@ namespace Nucleus.Gaming.Tools.GameStarter
                     NucleusMessageBox.Show("File path is too long!", 
                                            $"The file path is too long.\n" +
                                            $"{entry}\n" + 
-                                           $"Limit is 256 characters and the file path is {entry.Length} characters.\n" +
+                                           $"Limit is 256 characters and the file path is {entry.Length} characters long.\n" +
                                            $"You can try moving your game at the root of your drive to reduce its length.",false);
                     return false;
                 }

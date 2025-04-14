@@ -3,21 +3,14 @@ using Nucleus.Gaming;
 using System.Collections.Generic;
 using Nucleus.Gaming.Generic.Step;
 using System.Windows.Forms;
-using Nucleus.Gaming.Coop.InputManagement;
 using Nucleus.Gaming.Windows;
 using Nucleus.Gaming.App.Settings;
 using System.IO;
-using Nucleus.Gaming.Cache;
-using System.Drawing;
 using System;
-using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 using Nucleus.Gaming.Platform.PCSpecs;
 using System.Threading;
-using Nucleus.Coop.Controls;
-using Nucleus.Coop.Forms;
 using Nucleus.Coop.Tools;
-using System.Security.Cryptography;
 
 namespace Nucleus.Coop.UI
 {
@@ -26,7 +19,6 @@ namespace Nucleus.Coop.UI
         public static SynchronizationContext SyncContext;
 
         public static GameManager GameManager { get; set; }
-        public static IGameHandler I_GameHandler;
 
         public static UserInputControl CurrentStep;
         public static int CurrentStepIndex { get; set; }
@@ -48,8 +40,13 @@ namespace Nucleus.Coop.UI
             set
             {
                 current_UserGameInfo = value;
+                
                 Current_GenericGameInfo = current_UserGameInfo.Game;
                 Current_GameMetaInfo = Current_GenericGameInfo.MetaInfo;
+
+                GameProfile.GameInfo = current_UserGameInfo;
+                GameProfile.Game = Current_GenericGameInfo;
+
                 UI_Actions.On_GameChange?.Invoke();
             }
         }
@@ -150,7 +147,7 @@ namespace Nucleus.Coop.UI
 
                 if (UI_Interface.HubButton == null)
                 {          
-                    //Add search fied controls first because the hub button location is relative to their location
+                    //Add search field controls first because the hub button location is relative to their location
                     Runtime_Controls.Insert_SearchFieldControls();
                     Runtime_Controls.Insert_HubButton();
                 }
@@ -322,7 +319,7 @@ namespace Nucleus.Coop.UI
 
                     UI_Interface.SetupPanel.Controls.Add(CurrentStep);
 
-                    UI_Interface.GotoNext.Enabled = CurrentStep.CanProceed && step != StepsList.Count - 1;
+                    UI_Interface.GotoNext.Visible = CurrentStep.CanProceed && step != StepsList.Count - 1;
 
                     if (GameProfile.AutoPlay)
                     {
@@ -344,10 +341,8 @@ namespace Nucleus.Coop.UI
             UI_Interface.GotoNext.Enabled = CurrentStep.CanProceed && step != StepsList.Count - 1;
         }
 
-        public static void PlayClicked(object sender)
-        {
-            Button playButton = sender as Button;
-
+        public static void PlayClicked()
+        {         
             if (UI_Interface.ProfileSettings.Visible)
             {
                 UI_Interface.ProfileSettings.BringToFront();
@@ -360,7 +355,7 @@ namespace Nucleus.Coop.UI
                 return;
             }
 
-            if ((string)playButton.Tag == "S T O P")
+            if ((string)UI_Interface.PlayButton.Tag == "S T O P")
             {
                 UI_Functions.RefreshUI(true);//Sort the game in case the last played sorting filter is enabled
                 I_GameHandlerEndFunc("Stop button clicked", true);
@@ -368,34 +363,19 @@ namespace Nucleus.Coop.UI
                 return;
             }
 
-            DevicesFunctions.DisposeGamePadTimer();
-
             CurrentStep?.Ended();
 
-            playButton.Tag = "S T O P";
+            UI_Interface.PlayButton.Tag = "S T O P";
 
             UI_Interface.GotoPrev.Enabled = false;
 
-            //reload the handler here so it can be edited/updated until play button get clicked
-            GameManager.Instance.AddScript(Path.GetFileNameWithoutExtension(Current_GenericGameInfo.JsFileName), new bool[] { false, Current_GenericGameInfo.UpdateAvailable });
+            GameProfile.InitializeHandlerStartup();
 
-            Current_GenericGameInfo = GameManager.Instance.GetGame(Current_UserGameInfo.ExePath);
-            Current_UserGameInfo.InitializeDefault(Current_GenericGameInfo, Current_UserGameInfo.ExePath);
-
-            I_GameHandler = GameManager.Instance.MakeHandler(Current_GenericGameInfo);
-            I_GameHandler.Initialize(Current_UserGameInfo, GameProfile.CleanClone(GameProfile.Instance), I_GameHandler);
-            I_GameHandler.Ended += Handler_Ended;
+            GameProfile.I_GameHandler.Ended += Handler_Ended;
 
             if (UI_Interface.ProfileSettings.Visible)
             {
                 UI_Interface.ProfileSettings.Visible = false;
-            }
-
-            HotkeysRegistration.RegHotkeys(UI_Interface.MainForm.Handle);
-
-            if (Current_UserGameInfo.Game.CustomHotkeys != null)
-            {
-                HotkeysRegistration.RegCustomHotkeys(Current_GenericGameInfo);
             }
 
             UI_Interface.MainForm.WindowState = FormWindowState.Minimized;
@@ -408,25 +388,12 @@ namespace Nucleus.Coop.UI
         {
             if (canProceed || autoProceed)
             {
-                UI_Interface.SaveProfileSwitch.Visible = !GameProfile.Loaded && !Current_GameMetaInfo.DisableProfiles && !DisableGameProfiles;
-                
+                UI_Interface.SaveProfileSwitch.Visible = !GameProfile.Loaded && !Current_GameMetaInfo.DisableProfiles && !DisableGameProfiles;               
             }
             else
             {
                 UI_Interface.SaveProfileSwitch.Visible = false;
             }
-
-            
-            //UI_Interface.SaveProfileSwitch.Location = GameProfile.profilesPathList.Count > 0 ? new Point(UI_Interface.ProfileSettingsButton.Right + 5, UI_Interface.SaveProfileSwitch.Location.Y) : new Point(UI_Interface.ProfileListButton.Right + 5, UI_Interface.SaveProfileSwitch.Location.Y);
-
-            //if (UI_Interface.GotoPrev.Enabled)
-            //{
-            //    UI_Interface.GotoPrev.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_left_mousehover.png");
-            //}
-            //else
-            //{
-            //    UI_Interface.GotoPrev.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_left.png");
-            //}
 
             if (UI_Interface.MainForm.Opacity == 1.0)//If resizing the mainForm window skip that
             {
@@ -443,8 +410,7 @@ namespace Nucleus.Coop.UI
                 }
 
                 UI_Interface.GotoNext.Enabled = false;
-                //UI_Interface.GotoNext.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_right.png");
-                //UI_Interface.GotoPrev.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "arrow_left.png");
+
                 return;
             }
             else
@@ -489,11 +455,11 @@ namespace Nucleus.Coop.UI
         {
             try
             {
-                if (I_GameHandler != null)
-                {
+               if(GameProfile.I_GameHandler != null)
+               {
                     Log($"{msg}, calling Handler End function");
-                    I_GameHandler.End(stopButton);
-                }
+                    GameProfile.I_GameHandler.End(stopButton);
+               }
             }
             catch { }
         }
@@ -502,13 +468,11 @@ namespace Nucleus.Coop.UI
         {
             Log("Handler ended method called");
 
-            User32Util.ShowTaskBar();
-
             UI_Interface.MainForm.Invoke((MethodInvoker)delegate ()
             {
                 if (!UI_Interface.IsFormClosing)
                 {
-                    I_GameHandler = null;
+                    GameProfile.I_GameHandler = null;
                     UI_Interface.CurrentGameListControl = null;
 
                     UI_Interface.MainForm.WindowState = FormWindowState.Normal;
@@ -516,7 +480,6 @@ namespace Nucleus.Coop.UI
                     UI_Interface.WindowPanel.Focus();
                     UI_Interface.PlayButton.Tag = "START";
                     UI_Interface.PlayButton.Visible = false;
-                    HotkeysRegistration.UnRegHotkeys();
 
                     UI_Interface.MainForm.BringToFront();
                 }
@@ -541,8 +504,8 @@ namespace Nucleus.Coop.UI
             }
             else
             {
-                Settings._ctrlr_shorcuts.Text = "Windows 8™ and up only";
-                Settings._ctrlr_shorcuts.Enabled = false;
+                Settings.Ctrlr_Shorcuts.Text = "Windows 8™ and up only";
+                Settings.Ctrlr_Shorcuts.Enabled = false;
                 return false;
             }
         }
@@ -557,6 +520,15 @@ namespace Nucleus.Coop.UI
                     writer.Close();
                 }
             }
+        }
+
+        public static void RefreshHandlers()
+        {
+            GameManager = new GameManager();
+       
+            SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
+
+            UI_Functions.RefreshUI(true);
         }
     }
 }
