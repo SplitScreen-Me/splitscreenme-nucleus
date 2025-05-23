@@ -268,7 +268,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                                 gen.ProtoInput.SendMouseWheelMessages,
                                 gen.ProtoInput.SendMouseButtonMessages,
                                 gen.ProtoInput.SendMouseMovementMessages,
-                                gen.ProtoInput.SendKeyboardButtonMessages);
+                                gen.ProtoInput.SendKeyboardButtonMessages,
+                                gen.ProtoInput.SendMouseDblClkMessages);
 
             if (gen.ProtoInput.EnableFocusMessageLoop)
             {
@@ -282,6 +283,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             }
 
             ProtoInput.protoInput.SetDrawFakeCursor(instanceHandle, gen.ProtoInput.DrawFakeCursor);
+            ProtoInput.protoInput.SetDrawFakeCursorFix(instanceHandle, gen.ProtoInput.DrawFakeCursorFix);
+            ProtoInput.protoInput.SetPutMouseInsideWindow(instanceHandle, gen.ProtoInput.PutMouseInsideWindow);
             ProtoInput.protoInput.AllowFakeCursorOutOfBounds(instanceHandle, gen.ProtoInput.AllowFakeCursorOutOfBounds, gen.ProtoInput.ExtendFakeCursorBounds);
             ProtoInput.protoInput.SetToggleFakeCursorVisibilityShortcut(instanceHandle,
                 gen.ProtoInput.EnableToggleFakeCursorVisibilityShortcut,

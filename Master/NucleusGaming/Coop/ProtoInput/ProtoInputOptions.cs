@@ -48,6 +48,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
         public bool SendMouseButtonMessages;
         public bool SendMouseMovementMessages;
         public bool SendKeyboardButtonMessages;
+        public bool SendMouseDblClkMessages;
 
         public bool EnableFocusMessageLoop;
         public int FocusLoopIntervalMilliseconds = 5;
@@ -58,11 +59,13 @@ namespace Nucleus.Gaming.Coop.ProtoInput
         public bool FocusLoop_WM_MOUSEACTIVATE;
 
         public bool DrawFakeCursor;
+        public bool DrawFakeCursorFix;
         public bool AllowFakeCursorOutOfBounds;
         public bool ExtendFakeCursorBounds;
         public bool EnableToggleFakeCursorVisibilityShortcut;
         public uint ToggleFakeCursorVisibilityShortcutVkey = 0x24; // VK_HOME
         public bool DontShowCursorWhenImageUpdated;
+        public bool PutMouseInsideWindow;
 
         public bool UseDinputRedirection;
 

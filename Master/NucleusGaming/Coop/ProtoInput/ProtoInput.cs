@@ -123,7 +123,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                                     bool sendMouseWheelMessages,
                                     bool sendMouseButtonMessages,
                                     bool sendMouseMoveMessages,
-                                    bool sendKeyboardPressMessages);
+                                    bool sendKeyboardPressMessages,
+                                    bool sendMouseDblClkMessages);
 
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void StartFocusMessageLoop(uint instanceHandle, int milliseconds,
@@ -134,6 +135,9 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetDrawFakeCursor(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetDrawFakeCursorFix(uint instanceHandle, bool enable);
 
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetExternalFreezeFakeInput(uint instanceHandle, bool enableFreeze);
@@ -156,6 +160,9 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetShowCursorWhenImageUpdated(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetPutMouseInsideWindow(uint instanceHandle, bool enable);
 
             // Both of these functions require RenameHandlesHookHookID hook
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
@@ -261,7 +268,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                                     bool sendMouseWheelMessages,
                                     bool sendMouseButtonMessages,
                                     bool sendMouseMoveMessages,
-                                    bool sendKeyboardPressMessages);
+                                    bool sendKeyboardPressMessages,
+                                    bool sendMouseDblClkMessages);
 
             [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void StartFocusMessageLoop(uint instanceHandle, int milliseconds,
@@ -272,6 +280,9 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetDrawFakeCursor(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetDrawFakeCursorFix(uint instanceHandle, bool enable);
 
             [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetExternalFreezeFakeInput(uint instanceHandle, bool enableFreeze);
@@ -336,6 +347,9 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetShowCursorWhenImageUpdated(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetPutMouseInsideWindow(uint instanceHandle, bool enable);
 
             [DllImport("ProtoInputUtilDynamic64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern uint LockInput(bool lockInput);
@@ -569,7 +583,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                                     bool sendMouseWheelMessages,
                                     bool sendMouseButtonMessages,
                                     bool sendMouseMoveMessages,
-                                    bool sendKeyboardPressMessages)
+                                    bool sendKeyboardPressMessages,
+                                    bool sendMouseDblClkMessages)
         {
             if (IntPtr.Size == 4)
             {
@@ -577,7 +592,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                                     sendMouseWheelMessages,
                                     sendMouseButtonMessages,
                                     sendMouseMoveMessages,
-                                    sendKeyboardPressMessages);
+                                    sendKeyboardPressMessages,
+                                    sendMouseDblClkMessages);
             }
             else
             {
@@ -585,7 +601,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                                     sendMouseWheelMessages,
                                     sendMouseButtonMessages,
                                     sendMouseMoveMessages,
-                                    sendKeyboardPressMessages);
+                                    sendKeyboardPressMessages,
+                                    sendMouseDblClkMessages);
             }
         }
 
@@ -625,6 +642,18 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             else
             {
                 ProtoInput64.SetDrawFakeCursor(instanceHandle, enable);
+            }
+        }
+
+        public void SetDrawFakeCursorFix(uint instanceHandle, bool enable)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.SetDrawFakeCursorFix(instanceHandle, enable);
+            }
+            else
+            {
+                ProtoInput64.SetDrawFakeCursorFix(instanceHandle, enable);
             }
         }
 
@@ -714,6 +743,18 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             else
             {
                 ProtoInput64.SetShowCursorWhenImageUpdated(instanceHandle, enable);
+            }
+        }
+
+        public void SetPutMouseInsideWindow(uint instanceHandle, bool enable)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.SetPutMouseInsideWindow(instanceHandle, enable);
+            }
+            else
+            {
+                ProtoInput64.SetPutMouseInsideWindow(instanceHandle, enable);
             }
         }
 
