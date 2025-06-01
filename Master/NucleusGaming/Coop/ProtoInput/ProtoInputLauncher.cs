@@ -256,6 +256,23 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                 ProtoInput.protoInput.EnableMessageFilter(instanceHandle, ProtoInput.ProtoMessageFilterIDs.KeyboardButtonFilterID);
             }
 
+            ProtoInput.protoInput.SetMoveWindowSettings(instanceHandle, player.MonitorBounds.X, player.MonitorBounds.Y, player.MonitorBounds.Width, player.MonitorBounds.Height);
+            if (gen.ProtoInput.MoveWindowHook)
+            {
+                ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.MoveWindowHookID);
+            }
+
+            ProtoInput.protoInput.SetAdjustWindowRectSettings(instanceHandle, player.MonitorBounds.X, player.MonitorBounds.Y, player.MonitorBounds.Width, player.MonitorBounds.Height);
+            if (gen.ProtoInput.AdjustWindowRectHook)
+            {
+                ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.AdjustWindowRectHookID);
+            }
+
+            if (gen.ProtoInput.SetRemoveBorderHook)
+            {
+                ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.RemoveBorderHookID);
+            }
+
             if (gen.ProtoInput.BlockedMessages != null)
             {
                 foreach (uint blockedMessage in gen.ProtoInput.BlockedMessages)
@@ -268,7 +285,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                                 gen.ProtoInput.SendMouseWheelMessages,
                                 gen.ProtoInput.SendMouseButtonMessages,
                                 gen.ProtoInput.SendMouseMovementMessages,
-                                gen.ProtoInput.SendKeyboardButtonMessages);
+                                gen.ProtoInput.SendKeyboardButtonMessages,
+                                gen.ProtoInput.SendMouseDblClkMessages);
 
             if (gen.ProtoInput.EnableFocusMessageLoop)
             {
@@ -282,6 +300,11 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             }
 
             ProtoInput.protoInput.SetDrawFakeCursor(instanceHandle, gen.ProtoInput.DrawFakeCursor);
+            ProtoInput.protoInput.SetPutMouseInsideWindow(instanceHandle, gen.ProtoInput.PutMouseInsideWindow);
+            ProtoInput.protoInput.SetSetWindowPosDontResize(instanceHandle, gen.ProtoInput.SetWindowPosDontResize);
+            ProtoInput.protoInput.SetSetWindowPosDontReposition(instanceHandle, gen.ProtoInput.SetWindowPosDontReposition);
+            ProtoInput.protoInput.SetMoveWindowDontResize(instanceHandle, gen.ProtoInput.MoveWindowDontResize);
+            ProtoInput.protoInput.SetMoveWindowDontReposition(instanceHandle, gen.ProtoInput.MoveWindowDontReposition);
             ProtoInput.protoInput.AllowFakeCursorOutOfBounds(instanceHandle, gen.ProtoInput.AllowFakeCursorOutOfBounds, gen.ProtoInput.ExtendFakeCursorBounds);
             ProtoInput.protoInput.SetToggleFakeCursorVisibilityShortcut(instanceHandle,
                 gen.ProtoInput.EnableToggleFakeCursorVisibilityShortcut,
