@@ -1,5 +1,4 @@
 ﻿using Jint;
-using Microsoft.Win32;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.Generic;
 using Nucleus.Gaming.Coop.ProtoInput;
@@ -10,13 +9,9 @@ using Nucleus.Gaming.Tools.NemirtingasGalaxyEmu;
 using Nucleus.Gaming.Tools.Steam;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
-using static Nucleus.Gaming.GameDpiAwareness;
-
 namespace Nucleus.Gaming
 {
     public class GenericGameInfo
@@ -40,6 +35,7 @@ namespace Nucleus.Gaming
         public string[] DirExclusions;
         public string[] BackupFiles;
         public string[] BackupFolders;
+        //public string[] PluginsData;//PluginsPath["#prefix #pluginPath1 #Class1 #Class2 #Class3" | "#prefix #pluginPath2 #Class1 #Class2 #Class3" ];
 
         public bool KeepSymLinkOnExit;
 
@@ -74,7 +70,7 @@ namespace Nucleus.Gaming
         public bool SplitDivCompatibility = true;
         public bool SetTopMostAtEnd;
         public bool Favorite;
-       
+
         public void AddOption(string name, string desc, string key, object value, object defaultValue)
         {
             Options.Add(new GameOption(name, desc, key, value, defaultValue));
@@ -141,16 +137,18 @@ namespace Nucleus.Gaming
         public bool GoldbergNoWarning = false;
         public string OrigSteamDllPath;
         public bool GoldbergNeedSteamInterface;
-        //deprecated kept for backward compatibility => use SteamlessPatch insatead
+        //deprecated kept for backward compatibility => use SteamlessPatch instead
         public bool UseSteamless = false;
         public string SteamlessArgs;
         public int SteamlessTiming = 2500;
         //
-        public string[] SteamlessPatch;//bool apply to launcher,string Steamless Args,int wait for exe pacthing finished.
+        public string[] SteamlessPatch;//bool apply to launcher,string Steamless Args,int wait for exe patching finished.
         public bool UseGoldbergNoOGSteamDlls;
         public string[] CustomSteamApiDllPath;
         public bool XboxOneControllerFix;
         public bool UseForceBindIP;
+        public bool ForceBindIPDelay;
+        public bool ForceBindIPNoDummy = false;
         public string[] XInputPlusDll;
         public string[] SDLPaths;//Relative to instanced game directory root 
         public string[] CopyCustomUtils;
@@ -237,8 +235,6 @@ namespace Nucleus.Gaming
         public bool UserProfileConfigPathNoCopy;
         public bool UserProfileSavePathNoCopy;
         public bool LauncherExeIgnoreFileCheck;
-        public bool ForceBindIPDelay;
-        public bool ForceBindIPNoDummy = false;
         public string[] CustomUserGeneralPrompts;
         public bool SaveCustomUserGeneralValues;
         public string[] CustomUserPlayerPrompts;
@@ -331,7 +327,7 @@ namespace Nucleus.Gaming
         public int LockInputToggleKey = 0x23;//End by default. Keys: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
         public bool ForceEnvironmentUse;
         public bool ForceLauncherExeIgnoreFileCheck;
-
+        public bool UseDI8CoopLvlUnlocker;
 
         // Proto Input
         public ProtoInputOptions ProtoInput = new ProtoInputOptions();
@@ -370,11 +366,19 @@ namespace Nucleus.Gaming
 
             engine.SetValue("Game", this);
             engine.SetValue("Hub", Hub);
+
             engine.Execute("var Nucleus = importNamespace('Nucleus.Gaming');");
+
+            string pluginsData = folderPath + "\\pluginsInfo.txt";
+
+            if (File.Exists(pluginsData))
+            {
+                LoadCustomAssemblies(engine,folderPath);
+            }
 
             try
             {
-                engine.Execute(js); 
+                engine.Execute(js);   
             }
             catch (Exception ex)
             {
@@ -427,6 +431,50 @@ namespace Nucleus.Gaming
 
             engine.SetValue("Game", (object)null);
         }
+
+        public bool LoadCustomAssemblies(Engine _engine,string configPath)
+        {
+            string rawPluginsData = File.ReadAllText(configPath + "\\pluginsInfo.txt");
+
+            string[] pluginsData = rawPluginsData.Split('|');
+
+            if (pluginsData != null && pluginsData.Length > 0)
+            {
+                for (int i = 0; i < pluginsData.Length; i++)
+                {
+                    try
+                    {
+                        var pluginObjects = new Dictionary<string, object>();
+                        string[] datas = pluginsData[i].Split('#');
+                        string pluginName = datas[1];//datas[0] => "MyPlugin"
+
+                        string assemblyPath = configPath + "\\" + datas[2];
+
+                        var assembly = Assembly.LoadFrom(assemblyPath);// path datas[1] => "MyLib.dll"
+
+                        for (int j = 3; j < datas.Length; j++)
+                        {
+                            var type = assembly.GetType(datas[j]);//class datas[j] => "MyLib.MyClass"
+                            if (type != null && !type.IsAbstract && !type.IsInterface)
+                            {
+                                var instance = Activator.CreateInstance(type);
+                                pluginObjects[type.Name] = instance;
+                            }
+                        }
+
+                        _engine.SetValue(pluginName, pluginObjects);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to load plugins at {pluginsData[i]} \n{ex.Message}");
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
 
         public CustomStep ShowOptionAsStep(string optionKey, bool required, string title)
         {

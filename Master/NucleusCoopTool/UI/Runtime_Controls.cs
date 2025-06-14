@@ -33,26 +33,26 @@ namespace Nucleus.Coop.UI
                 BackgroundImageLayout = ImageLayout.Stretch,
             };
 
-            mainButtonsPanel.MouseEnter += ShowMainButtonsPanel;
+            //mainButtonsPanel.MouseEnter += ShowMainButtonsPanel;
 
             return mainButtonsPanel;
         }
 
         private static System.Windows.Forms.Timer mainButtonsPanelTimer;
 
-        private static void ShowMainButtonsPanel(object sender, EventArgs e)
-        {
-            UI_Interface.MainButtonsPanel.Visible = true;
+        //private static void ShowMainButtonsPanel(object sender, EventArgs e)
+        //{
+        //    UI_Interface.MainButtonsPanel.Visible = true;
 
-            if (mainButtonsPanelTimer == null)
-            {
-                mainButtonsPanelTimer = new System.Windows.Forms.Timer();
-                mainButtonsPanelTimer.Interval = (200);//millisecond
-                mainButtonsPanelTimer.Tick += ShowMainButtonsPanelTick;
-            }
+        //    //if (mainButtonsPanelTimer == null)
+        //    //{
+        //    //    mainButtonsPanelTimer = new System.Windows.Forms.Timer();
+        //    //    mainButtonsPanelTimer.Interval = (200);//millisecond
+        //    //    mainButtonsPanelTimer.Tick += ShowMainButtonsPanelTick;
+        //    //}
 
-            mainButtonsPanelTimer.Start();
-        }
+        //    //mainButtonsPanelTimer.Start();
+        //}
 
         private static void ShowMainButtonsPanelTick(object Object, EventArgs EventArgs)
         {
@@ -70,9 +70,8 @@ namespace Nucleus.Coop.UI
             int offset = (int)((float)12 * scale);
 
             UI_Interface.SearchTextBox = new SearchTextBox();
-            UI_Interface.SearchTextBox.Location = new Point(offset, 0);
-            UI_Interface.SearchTextBox.Size = new Size((UI_Interface.GameListContainer.Width - (size * 3)) - offset, UI_Interface.GameList.Controls[0].Height / 2);
-            FormGraphicsUtil.CreateRoundedControlRegion(UI_Interface.SearchTextBox, 0, 0, UI_Interface.SearchTextBox.Width, UI_Interface.SearchTextBox.Height, 20, 20);
+            UI_Interface.SearchTextBox.Location = new Point(4 ,0);
+            UI_Interface.SearchTextBox.Size = new Size((UI_Interface.GameListContainer.Width - (size *2)) - offset, UI_Interface.GameList.Controls[0].Height / 2);
             UI_Interface.GameListContainer.Controls.Add(UI_Interface.SearchTextBox);
 
             UI_Interface.SortGamesButton = new SortGamesButton(new Size(size, size), new Point(UI_Interface.SearchTextBox.Right, (UI_Interface.SearchTextBox.Top + UI_Interface.SearchTextBox.Height / 2) - size / 2));
@@ -93,6 +92,23 @@ namespace Nucleus.Coop.UI
             UI_Interface.HubButton.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             UI_Interface.HubButton.Location = new Point(0, UI_Interface.SearchTextBox.Bottom);
 
+           // UI_Interface.GameListContainer.Controls.Add(UI_Interface.MainButtonsPanel);
+            //UI_Interface.MainButtonsPanel.Location = new Point(UI_Interface.HubButton.Left, UI_Interface.HubButton.Bottom -10);
+            //UI_Interface.MainButtonsPanel.Visible = true;
+           
+            //UI_Interface.WindowPanel.Controls.Remove(UI_Interface.MainButtonsPanel);
+            //UI_Interface.SearchGameButton = new SearchGameButton(UI_Interface.HubButton.Width, UI_Interface.HubButton.Height);
+            //UI_Interface.GameListContainer.Controls.Add(UI_Interface.SearchGameButton);
+            //UI_Interface.GameList.Height -= UI_Interface.SearchGameButton.Height;
+            //UI_Interface.SearchGameButton.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            //UI_Interface.SearchGameButton.Location = new Point(UI_Interface.HubButton.Left, UI_Interface.HubButton.Bottom);
+            ////
+            //UI_Interface.ExtractHandlerButton = new ExtractButton(UI_Interface.HubButton.Width, UI_Interface.HubButton.Height);
+            //UI_Interface.GameListContainer.Controls.Add(UI_Interface.ExtractHandlerButton);
+            //UI_Interface.GameList.Height -= UI_Interface.ExtractHandlerButton.Height;
+            //UI_Interface.ExtractHandlerButton.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            //UI_Interface.ExtractHandlerButton.Location = new Point(UI_Interface.HubButton.Left, UI_Interface.SearchGameButton.Bottom);
+            //
             UI_Interface.GameList.Top = UI_Interface.HubButton.Bottom;
         }
 

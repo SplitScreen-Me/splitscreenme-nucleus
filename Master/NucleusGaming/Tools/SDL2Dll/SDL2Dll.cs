@@ -1,6 +1,8 @@
 ﻿using Nucleus.Gaming.Coop;
 using System;
 using System.IO;
+using System.Text;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace Nucleus.Gaming.Tools.SDL2Dll
 {
@@ -20,20 +22,27 @@ namespace Nucleus.Gaming.Tools.SDL2Dll
 
             if (setupDll)
             {
-                string controllerIndex;
+                //string controllerIndex;
+                StringBuilder gpIndexes = new StringBuilder();
 
                 if (player.IsSDL2)
                 {
-                    controllerIndex = (player.GamepadId).ToString();
+                    gpIndexes.Append((player.GamepadId).ToString());
+
+                    foreach(PlayerInfo guest in player.InstanceGuests)
+                    {
+                        gpIndexes.Append(" ");
+                        gpIndexes.Append(guest.GamepadId);
+                    }
                 }
                 else
                 {
-                    controllerIndex = (-1).ToString();
+                    gpIndexes.Append("-1");
                 }
 
                 try
                 {
-                    File.WriteAllText(handlerInstance.instanceExeFolder + "\\SDL2.ini", controllerIndex);
+                    File.WriteAllText(handlerInstance.instanceExeFolder + "\\SDL2.ini", gpIndexes.ToString());
                 }  
                 catch (Exception ex)
                 {

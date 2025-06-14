@@ -204,7 +204,7 @@ namespace Nucleus.Coop.UI
                 GraphicsPath outlineGp = FormGraphicsUtil.MakeRoundedRect(inputTextBackOutline, 10, 10, true, true, true, true);
                 GraphicsPath backGp = FormGraphicsUtil.MakeRoundedRect(inputTextBack, 10, 10, false, false, false, true);
 
-                e.Graphics.DrawPath(inputTextOutlinePen, outlineGp);
+                //e.Graphics.DrawPath(inputTextOutlinePen, outlineGp);
                 e.Graphics.FillPath(inputTextFillBrush, backGp);
 
                 outlineGp.Dispose();
@@ -243,14 +243,10 @@ namespace Nucleus.Coop.UI
                                                      (gameListContainer.Right - UI_Interface.SortGamesButton.Left) + 10, UI_Interface.SearchTextBox.Height);
 
                     Color backCol = UI_Interface.SearchTextBox.BackColor;
-
                     SolidBrush sortBrush = new SolidBrush(Color.FromArgb(255, backCol.R, backCol.G, backCol.B));
-
-                    GraphicsPath backGp = FormGraphicsUtil.MakeRoundedRect(sortOptBack, 10, 10, false, true, true, false);
-
-                    e.Graphics.FillPath(sortBrush, backGp);
+                    e.Graphics.FillRectangle(sortBrush, sortOptBack);
                     sortBrush.Dispose();
-                }
+                } 
 
             }
 
@@ -401,22 +397,22 @@ namespace Nucleus.Coop.UI
                 {
                     colorMatrix = new ColorMatrix(new[]//orange
                     {
-                       new float[] {1, 0, 0, 0, 0},  // Keep Red channel unchanged
-                       new float[] {0, 1, 0, 0, 0},  // Keep Green channel unchanged
-                       new float[] {0, 0, 0, 0, 0},  // Remove Blue contribution
-                       new float[] {0, 0, 0, 1, 0},  // Alpha channel unchanged
-                       new float[] {1f, 1f, 0, 0, 1} // Boost Red & Green slightly for brightness
+                       new float[] {1, 0, 0, 0, 0},  
+                       new float[] {0, 1, 0, 0, 0},  
+                       new float[] {0, 0, 0, 0, 0},  
+                       new float[] {0, 0, 0, 1, 0},  
+                       new float[] {1f, 1f, 0, 0, 1} 
                      });
                 }
                 else
                 {
                     colorMatrix = new ColorMatrix(new[]//green
                     {
-                     new float[] {0, 0, 0, 0, 0},  // Red channel set to 0
-                     new float[] {0, 1, 0, 0, 0},  // Green channel remains unchanged
-                     new float[] {0, 0, 0, 0, 0},  // Blue channel set to 0
-                     new float[] {0, 0, 0, 1, 0},  // Alpha channel unchanged
-                     new float[] {0, 0.6f, 0, 0, 1} // Adjusting brightness in the green channel
+                     new float[] {0, 0, 0, 0, 0},  
+                     new float[] {0, 1, 0, 0, 0},  
+                     new float[] {0, 0, 0, 0, 0},  
+                     new float[] {0, 0, 0, 1, 0},  
+                     new float[] {0, 0.6f, 0, 0, 1} 
                    });
                 }
                 gpImageAttributes = new ImageAttributes();
@@ -428,11 +424,11 @@ namespace Nucleus.Coop.UI
             {
                 colorMatrix = new ColorMatrix(new[]
                 {
-                   new float[] {0.8f, 0.8f, 0.8f, 0, 0},  // Higher Red contribution
-                   new float[] {0.8f, 0.8f, 0.8f, 0, 0},  // Higher Green contribution
-                   new float[] {0.8f, 0.8f, 0.8f, 0, 0},  // Higher Blue contribution
-                   new float[] {0, 0, 0, 1, 0},          // Alpha channel unchanged
-                   new float[] {0.4f, 0.4f, 0.4f, 0, 1}  // Stronger brightness boost
+                   new float[] {0.8f, 0.8f, 0.8f, 0, 0}, 
+                   new float[] {0.8f, 0.8f, 0.8f, 0, 0},  
+                   new float[] {0.8f, 0.8f, 0.8f, 0, 0}, 
+                   new float[] {0, 0, 0, 1, 0},          
+                   new float[] {0.4f, 0.4f, 0.4f, 0, 1}
                  });
 
                 text = "OFF";

@@ -1194,18 +1194,33 @@ namespace Nucleus.Gaming.Tools.Steam
                 sl.UseShellExecute = true;
                 sl.WindowStyle = ProcessWindowStyle.Hidden;
                 sl.Arguments = steamlessArgs;
+
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
+
                 Process.Start(sl);
-                Thread.Sleep(timing);
+
+                while (!File.Exists($@"{linkBinFolder}\{executableName}.unpacked.exe") && watch.Elapsed.Milliseconds <= timing)
+                {
+                    Thread.Sleep(100);
+                }
+
+                watch.Stop();
 
                 if (File.Exists($@"{linkBinFolder}\{executableName}.unpacked.exe"))
                 {
                     File.Delete($@"{linkBinFolder}\{executableName}");
                     File.Move($@"{linkBinFolder}\{executableName}.unpacked.exe", $@"{linkBinFolder}\{executableName}");
                 }
+                else
+                {
+                    NucleusMessageBox.Show("Error", "Steamless failed at patching the executable. Please try again.", false);
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                GenericGameHandler.Instance.Log($"Error:\n{ex.Message}\n" +
+                                                $"StackTrace:/n{ex.StackTrace}");
             };
         }
 

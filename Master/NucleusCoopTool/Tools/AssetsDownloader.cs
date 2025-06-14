@@ -82,7 +82,6 @@ namespace Nucleus.Coop.Tools
                     if (currentControl != null && mainForm.SetupPanel.Visible)
                     {
                         UI_Actions.On_GameChange?.Invoke();
-                        mainForm.HomeScreen.Invalidate();
                     }
 
                     mainForm.Invalidate(false);
@@ -155,7 +154,6 @@ namespace Nucleus.Coop.Tools
                     if (currentControl != null && mainForm.SetupPanel.Visible)
                     {
                         UI_Actions.On_GameChange?.Invoke();
-                        mainForm.HomeScreen.Invalidate();
                     }
 
                     mainForm.Invalidate(false);

@@ -502,6 +502,7 @@ namespace Nucleus.Coop
             this.nucUserPassTxt.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.nucUserPassTxt.BorderColor = System.Drawing.Color.Blue;
             this.nucUserPassTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.nucUserPassTxt.Hint = null;
             this.nucUserPassTxt.Location = new System.Drawing.Point(402, 31);
             this.nucUserPassTxt.Margin = new System.Windows.Forms.Padding(2);
             this.nucUserPassTxt.MaxLength = 127;
@@ -779,6 +780,7 @@ namespace Nucleus.Coop
             // 
             this.rm_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.rm_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.rm_HKTxt.Hint = null;
             this.rm_HKTxt.Location = new System.Drawing.Point(205, 197);
             this.rm_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.rm_HKTxt.MaxLength = 1;
@@ -854,6 +856,7 @@ namespace Nucleus.Coop
             // 
             this.swl_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.swl_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.swl_HKTxt.Hint = null;
             this.swl_HKTxt.Location = new System.Drawing.Point(205, 173);
             this.swl_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.swl_HKTxt.MaxLength = 1;
@@ -907,6 +910,7 @@ namespace Nucleus.Coop
             // 
             this.csm_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.csm_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.csm_HKTxt.Hint = null;
             this.csm_HKTxt.Location = new System.Drawing.Point(205, 149);
             this.csm_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.csm_HKTxt.MaxLength = 1;
@@ -1010,6 +1014,7 @@ namespace Nucleus.Coop
             // 
             this.rw_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.rw_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.rw_HKTxt.Hint = null;
             this.rw_HKTxt.Location = new System.Drawing.Point(205, 125);
             this.rw_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.rw_HKTxt.MaxLength = 1;
@@ -1047,6 +1052,7 @@ namespace Nucleus.Coop
             // 
             this.tu_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.tu_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.tu_HKTxt.Hint = null;
             this.tu_HKTxt.Location = new System.Drawing.Point(205, 29);
             this.tu_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.tu_HKTxt.MaxLength = 1;
@@ -1134,6 +1140,7 @@ namespace Nucleus.Coop
             // 
             this.ttm_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.ttm_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.ttm_HKTxt.Hint = null;
             this.ttm_HKTxt.Location = new System.Drawing.Point(205, 101);
             this.ttm_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.ttm_HKTxt.MaxLength = 1;
@@ -1148,6 +1155,7 @@ namespace Nucleus.Coop
             // 
             this.ss_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.ss_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.ss_HKTxt.Hint = null;
             this.ss_HKTxt.Location = new System.Drawing.Point(205, 77);
             this.ss_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.ss_HKTxt.MaxLength = 1;
@@ -1214,6 +1222,7 @@ namespace Nucleus.Coop
             // 
             this.cn_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.cn_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.cn_HKTxt.Hint = null;
             this.cn_HKTxt.Location = new System.Drawing.Point(205, 53);
             this.cn_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.cn_HKTxt.MaxLength = 1;
@@ -1309,7 +1318,7 @@ namespace Nucleus.Coop
             this.gamepadsAssignMethods.SelectionColor = System.Drawing.Color.LightBlue;
             this.gamepadsAssignMethods.Size = new System.Drawing.Size(202, 19);
             this.gamepadsAssignMethods.TabIndex = 295;
-            this.gamepadsAssignMethods.Text = "Follow XInput Controller Indexes";
+            this.gamepadsAssignMethods.Text = "Follow Gamepad API Indexes";
             this.gamepadsAssignMethods.UseVisualStyleBackColor = true;
             // 
             // btnNext
@@ -3215,6 +3224,7 @@ namespace Nucleus.Coop
             this.smfw_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.smfw_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
             this.smfw_HKTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.smfw_HKTxt.Hint = null;
             this.smfw_HKTxt.Location = new System.Drawing.Point(98, 360);
             this.smfw_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.smfw_HKTxt.MaxLength = 1;
@@ -3293,6 +3303,7 @@ namespace Nucleus.Coop
             this.selectedRes.BorderColor = System.Drawing.Color.Blue;
             this.selectedRes.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.selectedRes.ForeColor = System.Drawing.SystemColors.Menu;
+            this.selectedRes.Hint = null;
             this.selectedRes.Location = new System.Drawing.Point(14, 291);
             this.selectedRes.Name = "selectedRes";
             this.selectedRes.ReadOnly = true;
@@ -3564,10 +3575,10 @@ namespace Nucleus.Coop
             this.Controls.Add(this.audioTabBtn);
             this.Controls.Add(this.playersTabBtn);
             this.Controls.Add(this.settingsTabBtn);
-            this.Controls.Add(this.settingsTab);
             this.Controls.Add(this.playersTab);
             this.Controls.Add(this.audioTab);
             this.Controls.Add(this.layoutTab);
+            this.Controls.Add(this.settingsTab);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));

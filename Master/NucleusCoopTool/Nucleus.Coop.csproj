@@ -250,6 +250,18 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\ExtractButton .cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\HandlerNotesZoom.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\HandlerNotesZoom.Designer.cs">
+      <DependentUpon>HandlerNotesZoom.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SearchGameButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Controls\HubButton.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -314,12 +326,19 @@
     <Compile Include="Controls\Tutorial.Designer.cs">
       <DependentUpon>Tutorial.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\DependenciesDownloader.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\DependenciesDownloader.Designer.cs">
+      <DependentUpon>DependenciesDownloader.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\GameList.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\GameList.Designer.cs">
       <DependentUpon>GameList.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\HandlerScanner.cs" />
     <Compile Include="Forms\Screen_Identifier.cs" />
     <Compile Include="Forms\Settings.cs">
       <SubType>Form</SubType>
@@ -395,6 +414,15 @@
     <Compile Include="UI\UI_Graphics.cs" />
     <Compile Include="UI\UI_Interface.cs" />
     <Compile Include="UI\GameOptionMenuFunc.cs" />
+    <EmbeddedResource Include="Controls\ExtractButton .resx">
+      <DependentUpon>ExtractButton .cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\HandlerNotesZoom.resx">
+      <DependentUpon>HandlerNotesZoom.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SearchGameButton.resx">
+      <DependentUpon>SearchGameButton.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Controls\HubButton.resx">
       <DependentUpon>HubButton.cs</DependentUpon>
     </EmbeddedResource>
@@ -406,6 +434,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\SearchTextBox.resx">
       <DependentUpon>SearchTextBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\DependenciesDownloader.resx">
+      <DependentUpon>DependenciesDownloader.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\DownloadPrompt.resx">
       <DependentUpon>DownloadPrompt.cs</DependentUpon>
@@ -524,6 +555,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="copyoutput\utils\DInput8CoopLvlUnlocker\Credits.txt" />
+    <Content Include="copyoutput\utils\DInput8CoopLvlUnlocker\x86\dinput8.dll" />
+    <Content Include="copyoutput\utils\DInput8CoopLvlUnlocker\x64\dinput8.dll" />
     <Content Include="Resources\xboxControllerFront.png" />
     <None Include="Resources\log1.png" />
     <None Include="Resources\search_game.png" />

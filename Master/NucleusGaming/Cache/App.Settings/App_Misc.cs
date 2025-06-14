@@ -8,6 +8,18 @@ namespace Nucleus.Gaming.App.Settings
 {
     public static class App_Misc
     {
+
+        private static bool vGMOnly;
+        public static bool VGMOnly
+        {
+            get => vGMOnly;
+            set
+            {
+                vGMOnly = value;
+                Globals.ini.IniWriteValue("Misc", "GMOnly", value.ToString());
+            }
+        }
+
         private static bool useNicksInGame;
         public static bool UseNicksInGame
         {
@@ -325,6 +337,14 @@ namespace Nucleus.Gaming.App.Settings
             blur = int.Parse(Globals.ini.IniReadValue("Dev", "Blur"));
             osdColor = Globals.ini.IniReadValue("Dev", "OSDColor");
             gamesSorting = Globals.ini.IniReadValue("Misc", "GameSortingOpt").Split(',').ToList();
+
+            string _vGMOnly = Globals.ini.IniReadValue("Misc", "VGMOnly");
+
+            if(_vGMOnly != null && _vGMOnly != "")
+            {
+                vGMOnly = bool.Parse(_vGMOnly);
+            }
+            
             return true;
         }
 

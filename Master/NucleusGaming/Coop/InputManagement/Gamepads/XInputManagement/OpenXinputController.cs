@@ -97,10 +97,10 @@ namespace Nucleus.Gaming.Coop
 
         [DllImport("openxinput1_3.dll", EntryPoint = "#108", CallingConvention = CallingConvention.StdCall)]
         public static extern uint XInputGetCapabilitiesEx(
-       uint dwReserved,   // Must be 1
-       uint dwUserIndex,  // Controller index
-       uint dwFlags,      // Device query flags
-       out CapabilitiesEx pCapabilitiesEx // Receives capabilities
+        uint dwReserved,   // Must be 1
+        uint dwUserIndex,  // Controller index
+        uint dwFlags,      // Device query flags
+        out CapabilitiesEx pCapabilitiesEx // Receives capabilities
         );
 
         public Capabilities GetCapabilities(DeviceQueryType deviceQueryType)

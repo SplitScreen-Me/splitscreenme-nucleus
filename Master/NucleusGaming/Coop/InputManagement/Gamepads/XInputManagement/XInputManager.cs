@@ -14,7 +14,6 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
     public static class XInputManager
     {
         private static System.Threading.Timer vibrationTimer;
-        private static bool vgmDevicesOnly = false;
 
         public static bool Poll(PlayerInfo player)
         {
@@ -30,7 +29,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                     return false;
                 }
 
-                if (vgmDevicesOnly)
+                if (App_Misc.VGMOnly)
                 {
                     CapabilitiesEx cap;
                     var _cap = OpenXinputController.XInputGetCapabilitiesEx((uint)1, (uint)player.GamepadId, 1, out cap);
@@ -39,13 +38,11 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                     {
                         return false;
                     }
-
-                    //JoyStickList = JoyStickList.Where(j => j.Properties.VendorId.ToString().StartsWith("202")).ToList();
                 }
 
                 if (player.XInputJoystick.GetState().Gamepad.Buttons != 0)
                 {
-                    if (App_Misc.UseXinputIndex)
+                    if (GameProfile.UseXinputIndex)
                     {
                         Vibrate(player);
                         return true;

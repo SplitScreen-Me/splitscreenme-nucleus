@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Ionic.Zip;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Cache
@@ -14,7 +16,7 @@ namespace Nucleus.Gaming.Cache
     public static class HubCache
     {
         private static string cacheFile = Path.Combine(Application.StartupPath, $"webview\\cache\\hubcache");
-        private static string thumbnailFolder = Path.Combine(Application.StartupPath, $"cache\\thumbnails\\");
+        private static string thumbnailFolder = Path.Combine(Application.StartupPath, $"webview\\cache\\thumbnails\\");
         private const string api = "https://hub.splitscreen.me/api/v1/";
 
         private static JObject cacheObject;
@@ -212,6 +214,46 @@ namespace Nucleus.Gaming.Cache
             return null;
         }
 
+        public static List<Handler> GetAllHandlers()
+        {
+            if (cacheObject == null)
+            {
+                InitCache();
+            }
+
+            List<Handler> handlers = new List<Handler>();
+
+            for (int i = 0; i < handlersArray.Count; i++)
+            {
+                Handler handler = new Handler
+                {
+                    Id = handlersArray[i]["_id"].ToString(),
+                    Owner = handlersArray[i]["owner"].ToString(),
+                    OwnerName = handlersArray[i]["ownerName"].ToString(),
+                    Description = handlersArray[i]["description"].ToString(),
+                    Title = handlersArray[i]["title"].ToString(),
+                    GameName = handlersArray[i]["gameName"].ToString(),
+                    GameDescription = handlersArray[i]["gameDescription"].ToString(),
+                    GameCover = handlersArray[i]["gameCover"].ToString(),
+                    GameId = handlersArray[i]["gameId"].ToString(),
+                    GameUrl = handlersArray[i]["gameUrl"].ToString(),
+                    CreatedAt = handlersArray[i]["createdAt"].ToString(),
+                    UpdatedAt = handlersArray[i]["updatedAt"].ToString(),
+                    Stars = handlersArray[i]["stars"].ToString(),
+                    DownloadCount = handlersArray[i]["downloadCount"].ToString(),
+                    Verified = handlersArray[i]["verified"].ToString(),
+                    Private = handlersArray[i]["private"].ToString(),
+                    CommentCount = handlersArray[i]["commentCount"].ToString(),
+                    CurrentVersion = handlersArray[i]["currentVersion"].ToString(),
+                    CurrentPackage = handlersArray[i]["currentPackage"].ToString(),
+                };
+
+                handlers.Add(handler);
+            }
+
+            return handlers;
+        }
+
         public static string GetScreenshotsUri(string id)
         {
             if (id == null) { return null; }
@@ -299,7 +341,11 @@ namespace Nucleus.Gaming.Cache
         {
             try
             {
-                if (!File.Exists(thumbnailFolder + handler.Id + ".jpeg"))
+                Regex pattern = new Regex("[\\/:*?\"<>|]");
+
+                string fileName = pattern.Replace(handler.Id.ToLower(), "");
+
+                if (!File.Exists(thumbnailFolder + fileName + ".jpeg"))
                 {
                     string _cover = $@"https://images.igdb.com/igdb/image/upload/t_micro/{handler.GameCover}.jpg";
 
@@ -315,16 +361,16 @@ namespace Nucleus.Gaming.Cache
 
                     using (Image newImage = Image.FromStream(respStream))
                     {
-                        newImage.Save(thumbnailFolder + handler.Id + ".jpeg", ImageFormat.Jpeg);
+                        newImage.Save(thumbnailFolder + fileName + ".jpeg", ImageFormat.Jpeg);
                     }
 
                     respStream.Dispose();
 
-                    return new Bitmap(thumbnailFolder + handler.Id + ".jpeg");
+                    return new Bitmap(thumbnailFolder + fileName + ".jpeg");
                 }
                 else
                 {
-                    return new Bitmap(thumbnailFolder + handler.Id + ".jpeg");
+                    return new Bitmap(thumbnailFolder + fileName + ".jpeg");
                 }
             }
             catch (Exception)

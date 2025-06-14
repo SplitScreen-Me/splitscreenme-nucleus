@@ -13,9 +13,9 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Security.Principal;
-using System.Windows.Documents;
+using System.Text;
 using System.Windows.Forms;
+
 
 namespace Nucleus.Gaming.Coop
 {
@@ -37,6 +37,7 @@ namespace Nucleus.Gaming.Coop
         public static GenericGameInfo Game;
 
         public static Action OnReset;
+        public static Action OnUseXinputIndexChanged;
         public static Action OnReadyAutoPlayTrigger;
 
         public static int TotalAssignedPlayers;//K&m player will count as one only if 2 devices(keyboard & mouse) do share the same bounds.
@@ -241,7 +242,15 @@ namespace Nucleus.Gaming.Coop
         public static bool UseXinputIndex
         {
             get => useXinputIndex;
-            set => useXinputIndex = value;
+
+            set
+            {
+                if(value != useXinputIndex)
+                {
+                    useXinputIndex = value;
+                    OnUseXinputIndexChanged?.Invoke();
+                }          
+            }
         }
 
         //Avoid "Autoplay" to be applied right after setting the option in profile settings
@@ -292,11 +301,19 @@ namespace Nucleus.Gaming.Coop
         }
 
         public virtual void Reset()
-        {
+        {            
+            SetupScreenControl setupScreen = SetupScreenControl.Instance;
+
+            if (setupScreen != null && setupScreen.IsHandleCreated)
+            {
+                setupScreen.Invoke((MethodInvoker)delegate ()
+                {
+                    setupScreen.CanPlayUpdated(false, false);
+                });
+            }
+
             bool profileDisabled = App_Misc.DisableGameProfiles;
 
-            SetupScreenControl.Instance?.CanPlayUpdated(false, false);
-            
             ProfilePlayersList.Clear();
             AllScreens.Clear();
             GhostBounds.Clear();
@@ -343,6 +360,7 @@ namespace Nucleus.Gaming.Coop
                         player.PlayerID = -1;
                         player.SteamID = 0;
                         player.Nickname = null;
+                        player.InstanceGuests.Clear();
                     }
 
                     RefreshKeyboardAndMouse();
@@ -381,6 +399,7 @@ namespace Nucleus.Gaming.Coop
 
             Reset();
 
+            Updating = false;
             RawInputProcessor.CurrentProfile = this;
 
             if (deviceList == null)
@@ -411,28 +430,27 @@ namespace Nucleus.Gaming.Coop
 
         public static void UpdateSharedSettings()
         {
-            autoDesktopScaling = App_Misc.AutoDesktopScaling;
-            useNicknames = App_Misc.UseNicksInGame;
-            useXinputIndex = App_Misc.UseXinputIndex;
+            AutoDesktopScaling = App_Misc.AutoDesktopScaling;
+            UseNicknames = App_Misc.UseNicksInGame;
+            UseXinputIndex = Game.MetaInfo.UseApiIndex && (!Game.UseDevReorder && !Game.CreateSingleDeviceFile);
             network = App_Misc.Network;
 
-            audioCustomSettings = int.Parse(App_Audio.Custom) == 1;
-            audioDefaultSettings = audioCustomSettings == false;
+            AudioCustomSettings = int.Parse(App_Audio.Custom) == 1;
+            AudioDefaultSettings = audioCustomSettings == false;
             
+            UseSplitDiv = App_Layouts.SplitDiv;
+            SplitDivColor = App_Layouts.SplitDivColor;
+            HideDesktopOnly = App_Layouts.HideOnly;
+            CustomLayout_Ver = App_Layouts.VerticalLines;
+            CustomLayout_Hor = App_Layouts.HorizontalLines;
+            CustomLayout_Max = App_Layouts.MaxPlayers;
+            Cts_MuteAudioOnly = App_Layouts.Cts_MuteAudioOnly;
+            Cts_KeepAspectRatio = App_Layouts.Cts_KeepAspectRatio;
+            Cts_Unfocus = App_Layouts.Cts_Unfocus;
 
-            useSplitDiv = App_Layouts.SplitDiv;
-            splitDivColor = App_Layouts.SplitDivColor;
-            hideDesktopOnly = App_Layouts.HideOnly;
-            customLayout_Ver = App_Layouts.VerticalLines;
-            customLayout_Hor = App_Layouts.HorizontalLines;
-            customLayout_Max = App_Layouts.MaxPlayers;
-            cts_MuteAudioOnly = App_Layouts.Cts_MuteAudioOnly;
-            cts_KeepAspectRatio = App_Layouts.Cts_KeepAspectRatio;
-            cts_Unfocus = App_Layouts.Cts_Unfocus;
-
-            enableWindowsMerger = App_Layouts.WindowsMerger;
-            enableLosslessHook = App_Layouts.LosslessHook;
-            mergerResolution = App_Layouts.WindowsMergerRes;
+            EnableWindowsMerger = App_Layouts.WindowsMerger;
+            EnableLosslessHook = App_Layouts.LosslessHook;
+            MergerResolution = App_Layouts.WindowsMergerRes;
 
             foreach(var output in App_Audio.Instances_AudioOutput)
             {
@@ -499,7 +517,17 @@ namespace Nucleus.Gaming.Coop
                 EnableLosslessHook = Jprofile["EnableLosslessHook"] != null ? (bool)Jprofile["EnableLosslessHook"]["Enabled"] : false;
                 MergerResolution = Jprofile["MergerResolution"] != null ? (string)Jprofile["MergerResolution"] : "";
 
-                UseXinputIndex = (bool)Jprofile["Use XInput Index"];
+                bool _useXinputIndex = (bool)Jprofile["Use XInput Index"];
+
+                _useXinputIndex = Game.MetaInfo.UseApiIndex;// (_useXinputIndex != Game.MetaInfo.UseApiIndex) && !_useXinputIndex ? Game.MetaInfo.UseApiIndex : _useXinputIndex;
+
+                if (_useXinputIndex != UseXinputIndex)
+                {
+                    deviceList.Clear();
+                }
+
+                UseXinputIndex = _useXinputIndex;
+
                 Network = (string)Jprofile["Network"]["Type"];
                 CustomLayout_Ver = (int)Jprofile["CustomLayout"]["Ver"];
                 CustomLayout_Hor = (int)Jprofile["CustomLayout"]["Hor"];
@@ -546,10 +574,34 @@ namespace Nucleus.Gaming.Coop
                                                   (float)JplayersInfos[i]["EditBounds"]["Width"],
                                                   (float)JplayersInfos[i]["EditBounds"]["Height"]);
 
+                    int maxGuest = 0;
+
+                    if (JplayersInfos[i]["Guests"] != null)
+                    {
+                        string[] guestsGuids = JplayersInfos[i]["Guests"]["GUIDS"].ToString().Split(',');
+
+                        foreach (string guid in guestsGuids)
+                        {
+                            if (guid == "")
+                            {
+                                continue;
+                            }
+
+                            maxGuest++;
+                            Guid _guid = new Guid();
+
+                            if (Guid.TryParse(guid, out _guid))
+                            {
+                                player.GuestsGuid.Add(_guid);
+                            }
+                        }
+
+                        player.CurrentMaxGuests = maxGuest;///changer en list ou array de guid trop compliquer avec des playerInfo
+                    }
 
                     player.IsDInput = (bool)JplayersInfos[i]["IsDInput"];
                     player.IsXInput = (bool)JplayersInfos[i]["IsXInput"];
-                    player.IsSDL2 = JplayersInfos[i]["IsSDL2"] == null  ? false : (bool)JplayersInfos[i]["IsSDL2"];
+                    player.IsSDL2 = JplayersInfos[i]["IsSDL2"] == null ? false : (bool)JplayersInfos[i]["IsSDL2"];
 
                     player.IsKeyboardPlayer = (bool)JplayersInfos[i]["IsKeyboardPlayer"];
                     player.IsRawMouse = (bool)JplayersInfos[i]["IsRawMouse"];
@@ -604,7 +656,7 @@ namespace Nucleus.Gaming.Coop
                     AudioInstances.Add((string)JaudioDevice.Name, (string)JaudioDevice.Value);
                 }
 
-                JToken JAllscreens = Jprofile["AllScreens"] as JToken; 
+                JToken JAllscreens = Jprofile["AllScreens"] as JToken;
 
                 for (int s = 0; s < JAllscreens.Count(); s++)
                 {
@@ -620,6 +672,7 @@ namespace Nucleus.Gaming.Coop
                 GetGhostBounds();
 
                 Globals.MainOSD.Show(1000, Title != "" ? $"Handler Profile \"{Title}\" Loaded" : $"Handler Profile N°{_profileToLoad} Loaded");
+                //ProfileLoaded?.Invoke();
 
                 return true;
 
@@ -778,6 +831,22 @@ namespace Nucleus.Gaming.Coop
                     new JProperty("ProcessorPriorityClass", player.PriorityClass)
                 };
 
+                StringBuilder sb = new StringBuilder();
+                int maxGuest = 0;
+                foreach (var guid in player.GuestsGuid)
+                {
+                    maxGuest++;
+                    sb.Append(guid);
+                    sb.Append(",");
+                }
+
+                player.CurrentMaxGuests = maxGuest;
+
+                JObject JInstanceGuests = new JObject
+                {
+                    new JProperty("GUIDS", sb.ToString()),
+                };
+
                 JObject JPData = new JObject(//build all individual player datas object
                                  new JProperty("PlayerID", player.PlayerID),
                                  new JProperty("Nickname", player.Nickname),
@@ -786,6 +855,7 @@ namespace Nucleus.Gaming.Coop
                                  new JProperty("IsDInput", player.IsDInput),
                                  new JProperty("IsXInput", player.IsXInput),
                                  new JProperty("IsSDL2", player.IsSDL2),
+                                 new JProperty("Guests", JInstanceGuests),
                                  new JProperty("Processor", JProcessor),
                                  new JProperty("IsKeyboardPlayer", player.IsKeyboardPlayer),
                                  new JProperty("IsRawMouse", player.IsRawMouse),
@@ -854,7 +924,7 @@ namespace Nucleus.Gaming.Coop
 
             modeText = $"Profile n°{profileToSave}";
 
-            updating = true;
+            Updating = true;
 
             Globals.MainOSD.Show(1500, Title != "" ? $"Handler Profile \"{Title}\" Updated" : $"Handler Profile N°{profileToSave} Updated");
         }
@@ -1013,6 +1083,19 @@ namespace Nucleus.Gaming.Coop
                     new JProperty("ProcessorPriorityClass", players[i].PriorityClass)
                 };
 
+                StringBuilder sb = new StringBuilder();
+
+                foreach (PlayerInfo guest in players[i].InstanceGuests)
+                {
+                    sb.Append(guest.GamepadGuid);
+                    sb.Append(",");
+                }
+
+                JObject JInstanceGuests = new JObject
+                {
+                    new JProperty("GUIDS", sb.ToString()),
+                };
+
                 JObject JPData = new JObject(//build all individual player datas object
                                  new JProperty("PlayerID", players[i].PlayerID),
                                  new JProperty("Nickname", players[i].Nickname),
@@ -1021,6 +1104,7 @@ namespace Nucleus.Gaming.Coop
                                  new JProperty("IsDInput", players[i].IsDInput),
                                  new JProperty("IsXInput", players[i].IsXInput),
                                  new JProperty("IsSDL2", players[i].IsSDL2),
+                                 new JProperty("Guests", JInstanceGuests),
                                  new JProperty("Processor", JProcessor),
                                  new JProperty("IsKeyboardPlayer", players[i].IsKeyboardPlayer),
                                  new JProperty("IsRawMouse", players[i].IsRawMouse),
@@ -1144,7 +1228,7 @@ namespace Nucleus.Gaming.Coop
                     scr.Item1.Type = UserScreenType.FullScreen;
                     return;
                 }
-
+          
                 if (Instance.DevicesList.All(lpp => lpp.MonitorBounds != TranslateBounds(profilePlayer, scr.Item1).Item1) &&
                     ProfilePlayersList.FindIndex(pp => pp == profilePlayer) == AssignedDevices.Count)//avoid to add player in the same bounds                                                                                                                           // ProfilePlayersList.FindIndex(pp => pp == profilePlayer) == AssignedDevices.Count)//make sure to insert player like saved in the game profile
                 {
@@ -1155,16 +1239,23 @@ namespace Nucleus.Gaming.Coop
                     TotalAssignedPlayers++;
 
                     SetupScreenControl.Instance?.Invalidate();
-
-                    if (TotalAssignedPlayers == TotalProfilePlayers && Ready && AutoPlay && !Updating)
-                    {
-                        SetupScreenControl.Instance?.CanPlayUpdated(true, true);
-                        //Globals.PlayButton?.PerformClick();//Todo Add an "Invoke Play" action so we can defenitly get rid of the "play" button dependency in the dll
-                        OnReadyAutoPlayTrigger?.Invoke();
-                        Ready = false;
-                        return;
-                    }
                 }
+
+                return;
+            }
+
+            if (!FindPlayersInstanceGuests())
+            {
+                SetupScreenControl.Instance?.CanPlayUpdated(false, false);
+                return;
+            }
+
+            if (TotalAssignedPlayers == TotalProfilePlayers && Ready && AutoPlay && !Updating)
+            {
+                SetupScreenControl.Instance?.CanPlayUpdated(true, true);
+                OnReadyAutoPlayTrigger?.Invoke();
+                Ready = false;
+                return;
             }
 
             if (TotalAssignedPlayers == TotalProfilePlayers)
@@ -1172,7 +1263,7 @@ namespace Nucleus.Gaming.Coop
                 if (Ready && (!AutoPlay || Updating))
                 {
                     SetupScreenControl.Instance?.CanPlayUpdated(true, true);
-                    Updating = false;
+                    //Updating = false;
                     return;
                 }
             }
@@ -1200,14 +1291,120 @@ namespace Nucleus.Gaming.Coop
             var translatedBounds = TranslateBounds(profilePlayer, screen);
 
             player.EditBounds = translatedBounds.Item2;
-
             player.MonitorBounds = translatedBounds.Item1;
 
+            player.GuestsGuid = profilePlayer.GuestsGuid;
+            player.CurrentMaxGuests = profilePlayer.CurrentMaxGuests;
             player.ScreenIndex = screenIndex;
             player.Nickname = profilePlayer.Nickname;
             player.PlayerID = profilePlayer.PlayerID;
             player.SteamID = profilePlayer.SteamID;
             player.IsInputUsed = true;
+        }
+     
+        private static bool FindPlayersInstanceGuests()
+        {
+            for (int i = 0; i < AssignedDevices.Count(); i++)
+            {
+                PlayerInfo player = AssignedDevices[i];
+
+                if(player.InstanceGuests.Count == player.CurrentMaxGuests || player.CurrentMaxGuests == 0)
+                {
+                    continue;
+                }
+
+                List<PlayerInfo> gamepadsOnly = Instance.deviceList.Where(pl => pl.IsDInput || pl.IsXInput || pl.IsSDL2).ToList();
+                List<PlayerInfo> foundGuests = new List<PlayerInfo>();
+
+                if (!Game.MetaInfo.UseApiIndex)
+                {
+                    if (!Game.MetaInfo.UseApiIndexForGuests)
+                    {
+                        foreach (Guid guestGuid in player.GuestsGuid)
+                        {
+                            for (int j = 0; j < gamepadsOnly.Count; j++)
+                            {
+                                PlayerInfo guest = gamepadsOnly[j];
+
+                                if (player.InstanceGuests.Any(ig => ig == guest))
+                                {
+                                    continue;
+                                }
+
+                                if (guest.GamepadGuid == guestGuid)
+                                {
+                                    player.InstanceGuests.Add(guest);
+                                }
+
+                                if (player.InstanceGuests.Count == player.CurrentMaxGuests)
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int j = 0; j < gamepadsOnly.Count; j++)
+                        {
+                            PlayerInfo guest = gamepadsOnly[j];
+
+                            if (ProfilePlayersList.Any(pp => pp.GamepadGuid == guest.GamepadGuid))
+                            {
+                                continue;
+                            }
+                            if (AssignedDevices.Any(pp => pp == guest))
+                            {
+                                continue;
+                            }
+
+                            if (AssignedDevices.Any(pp => pp.InstanceGuests.Any(ig => ig.GamepadId == guest.GamepadId)))
+                            {
+                                continue;
+                            }
+
+                            if (player.InstanceGuests.Any(ig => ig == guest))
+                            {
+                                continue;
+                            }
+
+                            player.InstanceGuests.Add(guest);
+
+                            if (player.InstanceGuests.Count == player.CurrentMaxGuests)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    for (int j = 0; j < gamepadsOnly.Count; j++)
+                    {
+                        PlayerInfo guest = gamepadsOnly[j];
+
+                        if (AssignedDevices.Any(pp => pp.GamepadId == guest.GamepadId || pp.InstanceGuests.Any( ig => ig.GamepadId == guest.GamepadId)))
+                        {
+                            continue;
+                        }
+
+                        if (player.InstanceGuests.Any(ig => ig.GamepadId == guest.GamepadId))
+                        {
+                            continue;
+                        }
+
+                        player.InstanceGuests.Add(guest);
+
+                        if (player.InstanceGuests.Count == player.CurrentMaxGuests)
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            bool tek = AssignedDevices.All(p => p.InstanceGuests.Count == p.CurrentMaxGuests);
+            return tek;
         }
 
         private static PlayerInfo FindProfilePlayerInput(PlayerInfo player)
@@ -1233,9 +1430,9 @@ namespace Nucleus.Gaming.Coop
             }
 
             //DInput/XInput/SDL2 using GamepadGuid(do not follow gamepad api indexes)
-            if (player.IsXInput || player.IsDInput || player.IsSDL2 && !skipGuid && !useXinputIndex)
+            if ((player.IsXInput || player.IsDInput || player.IsSDL2) && !skipGuid && !useXinputIndex)
             {
-                profilePlayer = ProfilePlayersList.Where(pl => (pl.IsDInput || pl.IsXInput || pl.IsSDL2) && (pl.GamepadGuid == player.GamepadGuid)).FirstOrDefault();
+                profilePlayer = ProfilePlayersList.Where(pl => (pl.IsDInput || pl.IsXInput || pl.IsSDL2) && (pl.GamepadGuid == player.GamepadGuid)).FirstOrDefault();     
             }
 
             //single k&m 
@@ -1461,6 +1658,12 @@ namespace Nucleus.Gaming.Coop
 
             player.Nickname = getIdFromProfile ? ProfilePlayersList[playerIndex].Nickname :
                              PlayersIdentityCache.GetNicknameAt(playerIndex);
+
+            if(getIdFromProfile)//updated in the og host has not been found
+            {
+                player.CurrentMaxGuests = ProfilePlayersList[playerIndex].CurrentMaxGuests;
+                player.GuestsGuid = ProfilePlayersList[playerIndex].GuestsGuid;
+            }
 
             string steamID = string.Empty;
 

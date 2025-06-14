@@ -28,7 +28,7 @@ namespace Nucleus.Coop.UI
         {
             On_GameChange += ChangeGame;
             On_GameChange += SetPlayTime;           
-            On_GameChange += GameAssets.GetGameAssets;
+           // On_GameChange += GameAssets.GetGameAssets;
             DevicesFunctions.OnAssignedDeviceDisconnect += DeviceDisconnected_CallBack;
             ProfileEnabled_Change += SetProfileState;
         }
@@ -65,7 +65,7 @@ namespace Nucleus.Coop.UI
             {
                 CleanGameContent.CleanContentFolder(currentGame, false);
             }
-
+          
             UI_Interface.SaveProfileSwitch.RadioChecked = currentGame.MetaInfo.SaveProfile;
 
             UI_Interface.CoverFrame.BackColor = Color.Transparent;
@@ -131,6 +131,8 @@ namespace Nucleus.Coop.UI
 
                 if(ProfilesList.UIAction_OnUnload_Click == null)
                 {
+                    ProfilesList.UIAction_OnUnload_Click -= UI_Functions.ResetPlayButton;
+                    ProfilesList.UIAction_OnShowPreview -= UI_Functions.ShowProfilePreview;
                     ProfilesList.UIAction_OnUnload_Click += UI_Functions.ResetPlayButton;
                     ProfilesList.UIAction_OnShowPreview += UI_Functions.ShowProfilePreview;
                 }
@@ -186,6 +188,8 @@ namespace Nucleus.Coop.UI
             UI_Interface.GotoNext.Visible = currentGame.Options?.Count > 0;
             UI_Interface.GotoPrev.Visible = currentGame.Options?.Count > 0;
             Core_Interface.GoToStep(0);
+
+            GameAssets.GetGameAssets();
         }
 
         private static void SetPlayTime()

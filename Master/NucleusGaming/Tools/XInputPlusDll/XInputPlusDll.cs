@@ -84,12 +84,32 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
 
                     if (player.IsController)
                     {
-                        if (handlerInstance.CurrentGameInfo.PlayersPerInstance > 1)
+                        if (handlerInstance.CurrentGameInfo.PlayersPerInstance > 1 && handlerInstance.profile.DevicesList.Any(pl => pl.InstanceGuests.Count > 0 ))
+                        {
+                            #region New multiple player per instance with UI assignation support
+
+                            //instance host
+                            textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "Controller1" + "=", SearchType.StartsWith) + "|Controller1" + "=" + (player.GamepadId + 1));
+
+                            if (player.InstanceGuests.Count > 0)
+                            {
+                                //guest
+                                for (int x = 0; x < player.InstanceGuests.Count; x++)
+                                {
+                                    int guestControllerIndex = player.InstanceGuests[x].GamepadId + 1;
+
+                                    textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "Controller" + (x + 2)  + "=", SearchType.StartsWith) + "|Controller" + (x + 2) + "=" + (guestControllerIndex));
+                                }
+                            }
+                            #endregion
+                        }
+                        else if (handlerInstance.CurrentGameInfo.PlayersPerInstance > 1)//the old way
                         {
                             for (int x = 1; x <= handlerInstance.CurrentGameInfo.PlayersPerInstance; x++)
                             {
                                 textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "Controller" + x + "=", SearchType.StartsWith) + "|Controller" + x + "=" + (x + handlerInstance.plyrIndex));
                             }
+
                             handlerInstance.plyrIndex += handlerInstance.CurrentGameInfo.PlayersPerInstance;
                         }
                         else

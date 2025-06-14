@@ -1,4 +1,5 @@
 ﻿using Nucleus.Gaming.Coop;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace Nucleus.Gaming
@@ -26,6 +27,16 @@ namespace Nucleus.Gaming
             for (int i = 0; i < rects.Length; i++)
             {
                 r = Rectangle.Union(r, rects[i]);
+            }
+            return r;
+        }
+
+        public static RectangleF Union(params RectangleF[] rects)
+        {
+            RectangleF r = new RectangleF();
+            for (int i = 0; i < rects.Length; i++)
+            {
+                r = RectangleF.Union(r, rects[i]);
             }
             return r;
         }
@@ -182,6 +193,60 @@ namespace Nucleus.Gaming
 
             }
             return pc;
+        }
+
+
+        public  static List<RectangleF> SubtractSurfaceF(RectangleF a, RectangleF b)
+        {
+            List<RectangleF> result = new List<RectangleF>();
+
+            RectangleF intersect = RectangleF.Intersect(a, b);
+            if (intersect.IsEmpty) return new List<RectangleF> { a };
+
+            // Top
+            if (intersect.Top > a.Top)
+                result.Add(new RectangleF(a.Left, a.Top, a.Width, intersect.Top - a.Top));
+
+            // Bottom
+            if (intersect.Bottom < a.Bottom)
+                result.Add(new RectangleF(a.Left, intersect.Bottom, a.Width, a.Bottom - intersect.Bottom));
+
+            // Left
+            if (intersect.Left > a.Left)
+                result.Add(new RectangleF(a.Left, intersect.Top, intersect.Left - a.Left, intersect.Height));
+
+            // Right
+            if (intersect.Right < a.Right)
+                result.Add(new RectangleF(intersect.Right, intersect.Top, a.Right - intersect.Right, intersect.Height));
+
+            return result;
+        }
+
+
+        public static List<Rectangle> SubtractSurface(Rectangle a, Rectangle b)
+        {
+            List<Rectangle> result = new List<Rectangle>();
+
+            Rectangle intersect = Rectangle.Intersect(a, b);
+            if (intersect.IsEmpty) return new List<Rectangle> { a };
+
+            // Top
+            if (intersect.Top > a.Top)
+                result.Add(new Rectangle(a.Left, a.Top, a.Width, intersect.Top - a.Top));
+
+            // Bottom
+            if (intersect.Bottom < a.Bottom)
+                result.Add(new Rectangle(a.Left, intersect.Bottom, a.Width, a.Bottom - intersect.Bottom));
+
+            // Left
+            if (intersect.Left > a.Left)
+                result.Add(new Rectangle(a.Left, intersect.Top, intersect.Left - a.Left, intersect.Height));
+
+            // Right
+            if (intersect.Right < a.Right)
+                result.Add(new Rectangle(intersect.Right, intersect.Top, a.Right - intersect.Right, intersect.Height));
+
+            return result;
         }
 
         /// <summary>

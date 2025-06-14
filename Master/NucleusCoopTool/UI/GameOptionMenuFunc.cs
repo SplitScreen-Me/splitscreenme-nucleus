@@ -41,9 +41,8 @@ namespace Nucleus.Coop.UI
                 if (c is Label)
                 {
                     if (c.Text == "No games")
-                    {
-                        gameOptionMenu.Items["gameNameMenuItem"].Text = "No game selected...";
-                        for (int i = 1; i < gameOptionMenu.Items.Count; i++)
+                    {                    
+                        for (int i = 0; i < gameOptionMenu.Items.Count; i++)
                         {
                             gameOptionMenu.Items[i].Visible = false;
                         }
@@ -81,6 +80,7 @@ namespace Nucleus.Coop.UI
                 gameOptionMenu.Items["gameNameMenuItem"].ImageAlign = ContentAlignment.MiddleCenter;
                 gameOptionMenu.Items["gameNameMenuItem"].ImageScaling = ToolStripItemImageScaling.SizeToFit;
                 gameOptionMenu.Items["gameNameMenuItem"].Image = menuCurrentGameInfo.Icon;
+                
 
                 //Set always visible items click event manually
                 gameOptionMenu.Items["removeGameMenuItem"].Click -= RemoveGameMenuItem_Click;
@@ -106,9 +106,8 @@ namespace Nucleus.Coop.UI
                 //
 
                 if (string.IsNullOrEmpty(menuCurrentGameInfo?.GameGuid) || menuCurrentGameInfo == null)
-                {
-                    gameOptionMenu.Items["gameNameMenuItem"].Text = "No game selected...";
-                    for (int i = 1; i < gameOptionMenu.Items.Count; i++)
+                {                  
+                    for (int i = 0; i < gameOptionMenu.Items.Count; i++)
                     {
                         gameOptionMenu.Items[i].Visible = false;
                     }
@@ -154,6 +153,52 @@ namespace Nucleus.Coop.UI
                             }
                         }
 
+                        if (i == gameOptionMenu.Items.IndexOf(gameOptionMenu.Items["useAPIIndexMenuItem"]))
+                        {
+                            gameOptionMenu.Items[i].Visible = menuCurrentGameInfo.Game.MetaInfo.DisableProfiles ? false :
+                                ((menuCurrentGameInfo.Game.Hook.XInputEnabled && !menuCurrentGameInfo.Game.Hook.XInputReroute && !menuCurrentGameInfo.Game.ProtoInput.DinputDeviceHook) ||
+                                (menuCurrentGameInfo.Game.ProtoInput.XinputHook || menuCurrentGameInfo.Game.Hook.SDL2Enabled)) &&
+                                (!menuCurrentGameInfo.Game.UseDevReorder && !menuCurrentGameInfo.Game.CreateSingleDeviceFile) &&
+                                !menuCurrentGameInfo.Game.Hook.DInputEnabled;
+
+                            if (menuCurrentGameInfo.Game.MetaInfo.UseApiIndex)
+                            {
+                                gameOptionMenu.Items[i].Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
+                            }
+                            else
+                            {
+                                gameOptionMenu.Items[i].Image = ImageCache.GetImage(Globals.ThemeFolder + "unlocked.png");
+                            }
+
+                            gameOptionMenu.Items[i].Click -= UseAPIIndexMenuItem_Click;
+                            gameOptionMenu.Items[i].Click += UseAPIIndexMenuItem_Click;
+                        }
+
+                        if (i == gameOptionMenu.Items.IndexOf(gameOptionMenu.Items["useGamepadAPIIndexForGuestsMenuItem"]))
+                        {
+                            gameOptionMenu.Items[i].Visible = menuCurrentGameInfo.Game.MetaInfo.DisableProfiles ? false :
+                                ((menuCurrentGameInfo.Game.Hook.XInputEnabled && !menuCurrentGameInfo.Game.Hook.XInputReroute && !menuCurrentGameInfo.Game.ProtoInput.DinputDeviceHook) ||
+                                (menuCurrentGameInfo.Game.ProtoInput.XinputHook || menuCurrentGameInfo.Game.Hook.SDL2Enabled)) &&
+                                (!menuCurrentGameInfo.Game.UseDevReorder && !menuCurrentGameInfo.Game.CreateSingleDeviceFile) &&
+                                menuCurrentGameInfo.Game.PlayersPerInstance > 0 &&
+                                !menuCurrentGameInfo.Game.Hook.DInputEnabled;
+
+                            if (menuCurrentGameInfo.Game.MetaInfo.UseApiIndexForGuests)
+                            {
+                                gameOptionMenu.Items[i].Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
+                            }
+                            else
+                            {
+                                gameOptionMenu.Items[i].Image = ImageCache.GetImage(Globals.ThemeFolder + "unlocked.png");
+                            }
+
+                            gameOptionMenu.Items[i].Click -= UseApiIndexForGuestsMenuItem_Click;
+                            gameOptionMenu.Items[i].Click += UseApiIndexForGuestsMenuItem_Click;
+                           
+                            //gameOptionMenu.Items[i].Visible = !menuCurrentGameInfo.Game.MetaInfo.UseApiIndex &&
+                            //    !menuCurrentGameInfo.Game.MetaInfo.DisableProfiles;
+                        }
+
                         if (i == gameOptionMenu.Items.IndexOf(gameOptionMenu.Items["openUserProfConfigMenuItem"]))
                         {
                             (gameOptionMenu.Items["openUserProfConfigMenuItem"] as ToolStripMenuItem).DropDownItems.Clear();
@@ -168,9 +213,22 @@ namespace Nucleus.Coop.UI
                                 foreach (string profileConfigPath in configsPath)
                                 {
                                     string nucPrefix = "";
-                                    if (Directory.GetParent(profileConfigPath).Name == "NucleusCoop")
+                                    try
                                     {
-                                        nucPrefix = "Nucleus: ";
+                                        if (Directory.GetParent(profileConfigPath).Name == "NucleusCoop")
+                                        {
+                                            nucPrefix = "Nucleus: ";
+                                        }
+                                    }
+                                    catch
+                                    {
+                                        if(Globals.IsOneDriveEnabled)
+                                        {
+                                            (gameOptionMenu.Items["openUserProfConfigMenuItem"] as ToolStripMenuItem).DropDownItems.Add("/!\\ OneDrive /!\\", null, null);
+                                            continue;
+                                        }
+
+                                        continue;
                                     }
 
                                     (gameOptionMenu.Items["openUserProfConfigMenuItem"] as ToolStripMenuItem).DropDownItems.Add(nucPrefix + Path.GetFileName(profileConfigPath.TrimEnd('\\')), null, UserProfileOpenSubmenuItem_Click);
@@ -199,12 +257,24 @@ namespace Nucleus.Coop.UI
                                 foreach (string profileSavePath in savesPath)
                                 {
                                     string nucPrefix = "";
-                                    if (Directory.GetParent(profileSavePath).Name == "NucleusCoop")
+                                    try
                                     {
-                                        nucPrefix = "Nucleus: ";
+                                        if (Directory.GetParent(profileSavePath).Name == "NucleusCoop")
+                                        {
+                                            nucPrefix = "Nucleus: ";
+                                        }
+                                    }
+                                    catch
+                                    {
+                                        if (Globals.IsOneDriveEnabled)
+                                        {
+                                            (gameOptionMenu.Items["openUserProfSaveMenuItem"] as ToolStripMenuItem).DropDownItems.Add("/!\\ OneDrive /!\\", null, null);
+                                            continue;
+                                        }
+
+                                        continue;
                                     }
 
-                                    Console.WriteLine(nucPrefix + Path.GetFileName(profileSavePath.TrimEnd('\\')));
                                     (gameOptionMenu.Items["openUserProfSaveMenuItem"] as ToolStripMenuItem).DropDownItems.Add(nucPrefix + Path.GetFileName(profileSavePath.TrimEnd('\\')), null, UserProfileOpenSubmenuItem_Click);
                                     (gameOptionMenu.Items["deleteUserProfSaveMenuItem"] as ToolStripMenuItem).DropDownItems.Add(nucPrefix + Path.GetFileName(profileSavePath.TrimEnd('\\')), null, UserProfileDeleteSubmenuItem_Click);
                                 }
@@ -231,10 +301,22 @@ namespace Nucleus.Coop.UI
                                 foreach (string profilePath in profileDocConfigPath)
                                 {
                                     string nucPrefix = "";
-
-                                    if (Directory.GetParent(Directory.GetParent(profilePath).ToString()).Name == "NucleusCoop")
+                                    try
                                     {
-                                        nucPrefix = "Nucleus: ";
+                                        if (Directory.GetParent(Directory.GetParent(profilePath).ToString()).Name == "NucleusCoop")
+                                        {
+                                            nucPrefix = "Nucleus: ";
+                                        }
+                                    }
+                                    catch
+                                    {
+                                        if (Globals.IsOneDriveEnabled)
+                                        {
+                                            (gameOptionMenu.Items["openDocumentConfMenuItem"] as ToolStripMenuItem).DropDownItems.Add("/!\\ OneDrive /!\\", null, null);
+                                            continue;
+                                        }
+
+                                        continue;
                                     }
 
                                     (gameOptionMenu.Items["openDocumentConfMenuItem"] as ToolStripMenuItem).DropDownItems.Add(nucPrefix + Directory.GetParent(profilePath).Name, null, DocOpenSubmenuItem_Click);
@@ -263,9 +345,23 @@ namespace Nucleus.Coop.UI
                                 foreach (string profilePath in profileDocSavePath)
                                 {
                                     string nucPrefix = "";
-                                    if (Directory.GetParent(Directory.GetParent(profilePath).ToString()).Name == "NucleusCoop")
+
+                                    try
                                     {
-                                        nucPrefix = "Nucleus: ";
+                                        if (Directory.GetParent(Directory.GetParent(profilePath).ToString()).Name == "NucleusCoop")
+                                        {
+                                            nucPrefix = "Nucleus: ";
+                                        }
+                                    }
+                                    catch
+                                    {
+                                        if (Globals.IsOneDriveEnabled)
+                                        {
+                                            (gameOptionMenu.Items["openDocumentSaveMenuItem"] as ToolStripMenuItem).DropDownItems.Add("/!\\ OneDrive /!\\", null, null);
+                                            continue;
+                                        }
+
+                                        continue;
                                     }
 
                                     (gameOptionMenu.Items["openDocumentSaveMenuItem"] as ToolStripMenuItem).DropDownItems.Add(nucPrefix + Directory.GetParent(profilePath).Name, null, DocOpenSubmenuItem_Click);
@@ -285,7 +381,7 @@ namespace Nucleus.Coop.UI
                             gameOptionMenu.Items["deleteDocumentSaveMenuItem"].Visible = false;
                         }
 
-                        if (i == gameOptionMenu.Items.IndexOf(gameOptionMenu.Items["openBackupFolderMenuItem"]))
+                        if (i == gameOptionMenu.Items.IndexOf(gameOptionMenu.Items["openBackupFolderMenuItem"]) /*&& !Globals.IsOneDriveEnabled*/)
                         {
                             (gameOptionMenu.Items["openBackupFolderMenuItem"] as ToolStripMenuItem).DropDownItems.Clear();
                             (gameOptionMenu.Items["deleteBackupFolderMenuItem"] as ToolStripMenuItem).DropDownItems.Clear();
@@ -435,7 +531,9 @@ namespace Nucleus.Coop.UI
 
                     foreach (ToolStripMenuItem menuItem in gameOptionMenu.Items.OfType<ToolStripMenuItem>())
                     {
-                        if (menuItem != gameOptionMenu.Items["disableProfilesMenuItem"] && menuItem != gameOptionMenu.Items["keepInstancesFolderMenuItem"] && menuItem != gameOptionMenu.Items["gameNameMenuItem"] && menuItem != gameOptionMenu.Items["disableHandlerUpdateMenuItem"])
+                        if (menuItem != gameOptionMenu.Items["disableProfilesMenuItem"] && menuItem != gameOptionMenu.Items["useAPIIndexMenuItem"] && 
+                            menuItem != gameOptionMenu.Items["keepInstancesFolderMenuItem"] && menuItem != gameOptionMenu.Items["gameNameMenuItem"] && 
+                            menuItem != gameOptionMenu.Items["disableHandlerUpdateMenuItem"] && menuItem != gameOptionMenu.Items["useGamepadAPIIndexForGuestsMenuItem"])
                         {
                             menuItem.DisplayStyle = ToolStripItemDisplayStyle.Text;
                         }
@@ -479,9 +577,7 @@ namespace Nucleus.Coop.UI
             }
             else
             {
-                gameOptionMenu.Items["gameNameMenuItem"].Text = "No game selected...";
-
-                for (int i = 1; i < gameOptionMenu.Items.Count; i++)
+                for (int i = 0; i < gameOptionMenu.Items.Count; i++)
                 {
                     gameOptionMenu.Items[i].Visible = false;
                 }
@@ -722,6 +818,68 @@ namespace Nucleus.Coop.UI
             {
                 menuCurrentGameInfo.Game.MetaInfo.KeepSymLink = true;
                 instancesFolderMenuItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
+            }
+        }
+
+        public static void UseAPIIndexMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem useAPIIndexMenuItem = sender as ToolStripMenuItem;
+
+            if (menuCurrentGameInfo.Game.MetaInfo.UseApiIndex)
+            {
+                menuCurrentGameInfo.Game.MetaInfo.UseApiIndex = false;
+                menuCurrentGameInfo.Game.MetaInfo.UseApiIndexForGuests = false;
+                useAPIIndexMenuItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "unlocked.png");
+            }
+            else
+            {
+                menuCurrentGameInfo.Game.MetaInfo.UseApiIndex = true;
+                useAPIIndexMenuItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
+            }
+
+            if (Core_Interface.CurrentMenuUserGameInfo == Core_Interface.Current_UserGameInfo)
+            {
+                if (GameProfile.Loaded)
+                {
+                    GameProfile.Instance?.Reset();
+                }
+
+                if (Core_Interface.StepsList != null)
+                {
+                    Core_Interface.GoToStep(0);
+                }
+
+                GameProfile.UseXinputIndex = menuCurrentGameInfo.Game.MetaInfo.UseApiIndex;
+            }
+        }
+
+        public static void UseApiIndexForGuestsMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem useGamepadAPIIndexForGuestsMenuItem = sender as ToolStripMenuItem;
+
+            if (menuCurrentGameInfo.Game.MetaInfo.UseApiIndexForGuests)
+            {
+                menuCurrentGameInfo.Game.MetaInfo.UseApiIndexForGuests = false;
+                useGamepadAPIIndexForGuestsMenuItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "unlocked.png");
+            }
+            else
+            {
+                menuCurrentGameInfo.Game.MetaInfo.UseApiIndexForGuests = true;
+                useGamepadAPIIndexForGuestsMenuItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
+            }
+
+            if (Core_Interface.CurrentMenuUserGameInfo == Core_Interface.Current_UserGameInfo)
+            {
+                if (GameProfile.Loaded)
+                {
+                    GameProfile.Instance?.Reset();
+                }
+
+                if (Core_Interface.StepsList != null)
+                {
+                    Core_Interface.GoToStep(0);
+                }
+                //GameProfile.UseXinputIndex = menuCurrentGameInfo.Game.MetaInfo.UseApiIndex;
             }
         }
 

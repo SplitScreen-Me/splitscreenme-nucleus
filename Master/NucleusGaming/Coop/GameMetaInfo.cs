@@ -1,6 +1,7 @@
 ﻿using Jint.Native;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Nucleus.Gaming.App.Settings;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -107,6 +108,37 @@ namespace Nucleus.Gaming.Coop
             }
         }
 
+        private bool useApiIndex;
+        public bool UseApiIndex
+        {
+            get => useApiIndex;
+            set
+            {
+                useApiIndex = value;
+
+                if(useApiIndex)
+                {
+                    useApiIndexForGuests = true;
+                }
+
+                SaveGameMetaInfo();
+            }
+        }
+
+        private bool useApiIndexForGuests;
+        public bool UseApiIndexForGuests
+        {
+            get => useApiIndexForGuests;
+            set
+            {
+                useApiIndexForGuests = value;
+                if (gen.PlayersPerInstance > 0)
+                {
+                    SaveGameMetaInfo();
+                }
+            }
+        }
+
         private string steamLanguage;
         public string SteamLanguage
         {
@@ -117,7 +149,7 @@ namespace Nucleus.Gaming.Coop
                 SaveGameMetaInfo();
             }
         }
-        
+
         public void LoadGameMetaInfo(GenericGameInfo genericGameInfo)
         {
             try
@@ -147,6 +179,8 @@ namespace Nucleus.Gaming.Coop
                         favorite = JMetaInfo[gameGuid]["Favorite"] != null && (bool)JMetaInfo[gameGuid]["Favorite"];
                         firstLaunch = JMetaInfo[gameGuid]["FirstLaunch"] == null || (bool)JMetaInfo[gameGuid]["FirstLaunch"];
                         checkUpdate = JMetaInfo[gameGuid]["CheckUpdate"] == null || (bool)JMetaInfo[gameGuid]["CheckUpdate"];
+                        useApiIndex = JMetaInfo[gameGuid]["UseApiIndex"] == null ? App_Misc.UseXinputIndex : (bool)JMetaInfo[gameGuid]["UseApiIndex"];                       
+                        useApiIndexForGuests = JMetaInfo[gameGuid]["UseApiIndexForGuests"] == null ? useApiIndex : (bool)JMetaInfo[gameGuid]["UseApiIndexForGuests"];                                            
                         steamLanguage = (string)JMetaInfo[gameGuid]["SteamLanguage"] ?? "App Setting";
                         return;
                     }
@@ -160,6 +194,8 @@ namespace Nucleus.Gaming.Coop
                     favorite = false;
                     firstLaunch = true;
                     checkUpdate = true;
+                    useApiIndex = App_Misc.UseXinputIndex;
+                    useApiIndexForGuests = useApiIndex;
                     steamLanguage = "App Setting";
                 }
 
@@ -203,6 +239,8 @@ namespace Nucleus.Gaming.Coop
                         JMetaInfo[gameGuid]["Favorite"] = favorite;
                         JMetaInfo[gameGuid]["FirstLaunch"] = firstLaunch;
                         JMetaInfo[gameGuid]["CheckUpdate"] = checkUpdate;
+                        JMetaInfo[gameGuid]["UseApiIndex"] = useApiIndex;
+                        JMetaInfo[gameGuid]["UseApiIndexForGuests"] = useApiIndexForGuests;
                         JMetaInfo[gameGuid]["SteamLanguage"] = steamLanguage;
                     }
                     else
@@ -217,6 +255,8 @@ namespace Nucleus.Gaming.Coop
                                                             new JProperty("Favorite", favorite),
                                                             new JProperty("FirstLaunch", firstLaunch),
                                                             new JProperty("CheckUpdate", checkUpdate),
+                                                            new JProperty("UseApiIndex", useApiIndex),
+                                                            new JProperty("UseApiIndexForGuests", useApiIndexForGuests),
                                                             new JProperty("SteamLanguage", steamLanguage)
                                                             ));
                         JMetaInfo.Add(gameMeta);
@@ -233,6 +273,8 @@ namespace Nucleus.Gaming.Coop
                                                    new JProperty("Favorite", favorite),
                                                    new JProperty("FirstLaunch", firstLaunch),
                                                    new JProperty("CheckUpdate", checkUpdate),
+                                                   new JProperty("UseApiIndex", useApiIndex),
+                                                    new JProperty("UseApiIndexForGuests", useApiIndexForGuests),
                                                    new JProperty("SteamLanguage", steamLanguage)
                                                    );
 

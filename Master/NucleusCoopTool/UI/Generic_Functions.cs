@@ -5,6 +5,7 @@ using Nucleus.Gaming.App.Settings;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Nucleus.Coop.UI
@@ -121,8 +122,8 @@ namespace Nucleus.Coop.UI
             UI_Interface.SetupPanel.Refresh();
             UI_Interface.WindowPanel.Refresh();
             UI_Interface.InfoPanel.Refresh();
-
-            UI_Interface.MainForm.Invalidate(false);//Update top/bottom border colors
+            UI_Interface.HomeScreen.Refresh();
+            UI_Interface.MainForm.Refresh();
         }
 
         public static void SizeAndScaleTuto()
@@ -191,6 +192,7 @@ namespace Nucleus.Coop.UI
             UI_Functions.RefreshUI(true);
             UI_Interface.MainForm.Invalidate(true);
             UI_Interface.WebView.BringToFront();
+            Core_Interface.Current_UserGameInfo = null;
         }
 
         public static void WebviewDisposed(object sender, EventArgs e)

@@ -42,9 +42,11 @@ namespace Nucleus.Gaming.Coop
             set
             {
                 uiBounds = value;
-                Type = UserScreenType.FullScreen;
+                UpdateSubBounds(type);
             }
         }
+
+        public RectangleF PrevUIBounds;
 
         private UserScreenType type;
         public UserScreenType Type

@@ -73,9 +73,14 @@ namespace Nucleus.Coop.Tools
                     UI_Graphics.GameBorderGradientTop = Theme_Settings.DefaultBorderGradientColor;
                     UI_Graphics.GameBorderGradientBottom = Theme_Settings.DefaultBorderGradientColor;
                 }
+
+                Generic_Functions.RefreshAll();
+
             });
 
-            UI_Interface.MainForm.Refresh();
+            //UI_Interface.MainForm.Refresh();
+
+            
         }
     }
 }

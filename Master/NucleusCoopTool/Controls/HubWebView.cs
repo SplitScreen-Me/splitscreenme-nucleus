@@ -204,10 +204,10 @@ namespace Nucleus.Coop.Forms
         {
             try
             {               
-                CoreWebView2Environment environment;
+                CoreWebView2Environment environment;            
                 CoreWebView2EnvironmentOptions environmentOptions = new CoreWebView2EnvironmentOptions();
                 environmentOptions.AreBrowserExtensionsEnabled = true;
-
+               
                 webView.CreationProperties = new CoreWebView2CreationProperties();
                 webView.CreationProperties.UserDataFolder = cacheDirectory;
 

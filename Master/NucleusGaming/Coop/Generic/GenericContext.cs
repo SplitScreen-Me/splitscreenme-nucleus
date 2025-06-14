@@ -1079,7 +1079,6 @@ namespace Nucleus.Gaming
         //https://stackoverflow.com/questions/11689337/net-file-writealllines-leaves-empty-line-at-the-end-of-file //v.2.3.2
         public bool WriteTextFile(string path, params string[] lines)
         {
-
             if (File.Exists(path))
             {
                 File.Delete(path);

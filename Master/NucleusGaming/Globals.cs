@@ -9,7 +9,7 @@ namespace Nucleus.Gaming
 {
     public static class Globals
     {
-        public const string Version = "2.3.3";
+        public const string Version = "2.4.0";
 
         public static readonly IniFile ini = new IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));
 
@@ -30,6 +30,7 @@ namespace Nucleus.Gaming
 
         public static string UserEnvironmentRoot => Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         public static string UserDocumentsRoot = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        public static bool IsOneDriveEnabled = UserDocumentsRoot.Contains("OneDrive");
 
         public static WPF_OSD MainOSD;
     }

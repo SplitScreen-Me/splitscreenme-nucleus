@@ -420,7 +420,7 @@ namespace Nucleus.Coop
 
         public void RadioSelected()
         {
-            isSelected = true;
+            isSelected = true && !GenericGameHandler.IsRunning;//lazy fix so it doesn't highlight if clicked if a handler is running
         }
 
         public void RadioUnselected()
@@ -449,17 +449,16 @@ namespace Nucleus.Coop
 
             Color color = isSelected ? radioSelectedBackColor : Color.Transparent;
 
-            LinearGradientBrush lgb =
-            new LinearGradientBrush(gradientBrushbounds, Color.Transparent, color, 57f);
+            using (LinearGradientBrush lgb = new LinearGradientBrush(gradientBrushbounds, Color.Transparent, color, 57f))
+            {
+                ColorBlend topcblend = new ColorBlend(3);
+                topcblend.Colors = new Color[3] { color, color, Color.Transparent };
+                topcblend.Positions = new float[3] { 0f, 0.5f, 1.0f };
 
-            ColorBlend topcblend = new ColorBlend(3);
-            topcblend.Colors = new Color[3] { color, color, Color.Transparent };
-            topcblend.Positions = new float[3] { 0f, 0.5f, 1.0f };
-
-            lgb.InterpolationColors = topcblend;
-            lgb.SetBlendTriangularShape(.5f, 1.0f);
-            e.Graphics.FillRectangle(lgb, bounds);
-            lgb.Dispose();
+                lgb.InterpolationColors = topcblend;
+                lgb.SetBlendTriangularShape(.5f, 1.0f);
+                e.Graphics.FillRectangle(lgb, bounds);
+            }
 
             Size oulineRect = HandlerUpdate.Visible ? maxSize : minSize;
 
@@ -474,20 +473,21 @@ namespace Nucleus.Coop
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             e.Graphics.CompositingQuality = CompositingQuality.HighQuality;
 
-            GraphicsPath backGp = FormGraphicsUtil.MakeRoundedRect(inputTextBack, 10, 10, true, false, false, true);
-            GraphicsPath outlineGp = FormGraphicsUtil.MakeRoundedRect(inputTextBackOutline, 10, 10, true, false, false, true);
-            
-            SolidBrush fillBrush = new SolidBrush(Color.FromArgb(50, 20, 20, 20));
-            Pen outlinePen = new Pen(Color.FromArgb(15, 255, 255, 255));
+            using (GraphicsPath backGp = FormGraphicsUtil.MakeRoundedRect(inputTextBack, 8, 8, true, false, false, true))
+            {
+                using (SolidBrush fillBrush = new SolidBrush(Color.FromArgb(50, 20, 20, 20)))
+                {
+                    e.Graphics.FillPath(fillBrush, backGp);
+                }
+            }
 
-            e.Graphics.FillPath(fillBrush, backGp);
-            fillBrush.Dispose();
-            backGp.Dispose();
-
-            e.Graphics.DrawPath(outlinePen, outlineGp);
-            outlinePen.Dispose();
-            outlineGp.Dispose();    
+            using (GraphicsPath outlineGp = FormGraphicsUtil.MakeRoundedRect(inputTextBackOutline, 8, 8, true, false, false, true))
+            {
+                using (Pen outlinePen = new Pen(Color.FromArgb(15, 255, 255, 255)))
+                {
+                    e.Graphics.DrawPath(outlinePen, outlineGp);
+                }
+            }
         }
-       
     }
 }

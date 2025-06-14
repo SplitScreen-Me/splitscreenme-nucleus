@@ -154,6 +154,24 @@ namespace Nucleus.Coop
                 icons.Add(iconKB2);
             }
 
+            //if(game.PlayersPerInstance > 0)
+            //{
+            //    Bitmap bmp = ImageCache.GetImage(Globals.ThemeFolder + "2horizontal.png");
+            //    float ratio = (float)bmp.Width / (float)bmp.Height;
+            //    Size size = new Size((int)(mainForm.Icons_Container.Height  + 5), mainForm.Icons_Container.Height);
+
+            //    PictureBox iconNativeSP = new PictureBox
+            //    {
+            //        Name = "icon7",
+            //        Size = size,
+            //        SizeMode = PictureBoxSizeMode.StretchImage,
+            //        Image = bmp
+            //    };
+
+            //    CustomToolTips.SetToolTip(iconNativeSP, @"Supports native splitscreen", "icon7", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+            //    icons.Add(iconNativeSP);
+            //}
+
             return icons.ToArray();
         }
 

@@ -1,8 +1,10 @@
-Nucleus Co-op - version 2.2.2
+GameNucleus Co-op - version 2.3.2
 
 Nucleus Co-op is a free and open source tool for Windows that allows split-screen play on many games that do not initially support it, the app purpose is to make it as easy as possible for the average user to play games locally using only one PC and one game copy.
 
 https://github.com/SplitScreen-Me/splitscreenme-nucleus
+
+https://www.splitscreen.me/docs/faq
 
 This is a new and improved official version of the Nucleus Co-op application and is part of the SplitScreen.Me github organization, it includes the following:
 
@@ -72,8 +74,9 @@ Game.RenameAndOrMoveFiles = [ "1|before.dat|after.dat" ];//Specify files to eith
 Game.DeleteFiles = [ "1|delete.dis" ];			//Specify files to be deleted from instanced folder | can accept relative path from root | optional first parameter to specify a specific instance to apply to, omit to do them all.
 Game.RunLauncherAndExe = false;				//When using Game.LauncherExe, should ExecutableName also be launched?
 Game.ForceLauncherExeIgnoreFileCheck = false;           //Forces LauncherExeIgnoreFileCheck when game isn't symlinked.
-Game.BackupFiles = ["file1.txt", "file2.txt"];
-Game.BackupFolders = ["folder1", "folder2"];  
+Game.BackupFiles = ["file1.txt", "file2.txt"];          //Back up files from the instances folders to Nucleus Co-op environment folder on handler stop, they will be restored on subsequent runs. Works per player/nickname. 
+Game.BackupFolders = ["folder1", "folder2"];            //Back up folders from the instances folders to Nucleus Co-op environment folder on handler stop, they will be restored on subsequent runs. Works per player/nickname. 
+Game.BinariesFolderPathFix = true;                      //Fixes binaries folder path not being correctly parsed if the binaries folder name exists multiple times in the binaries folder full path.
 
 #################### Nucleus Co-op Environment ####################
 
@@ -177,6 +180,9 @@ Game.PlayerSteamIDs = ["76561198134585131","76561198134585132"]; //A list of ste
 Game.GoldbergExperimentalRename = false;		//Set to true to have Goldberg Experimental rename instanced steam_api(64).dll to cracksteam_api(64).dll.
 Game.GoldbergWriteSteamIDAndAccount = false;		//Force Goldberg to write account_name.txt and user_steam_id.txt | Requires Game.UseGoldberg;
 Game.GoldbergNoWarning = true;                          //Nucleus will not prompt if the Goldberg dlls are missing if the handler supports different platforms.
+Game.UseHandlerSteamIds = true;                         //Player Steam ids from a handler will have priority over the default or customized settings player Steam ids.
+Game.UseGoldbergNoOGSteamDlls = true;                   //Use this instead of Game.UseGoldberg if the main game files do not have any steam_api dlls.
+Game.CustomSteamApiDllPath = ["steam_api64.dll", "steam_api.dll"]; //Specify the path from the root of the instance folder where you want goldberg to apply, use this with Game.UseGoldbergNoOGSteamDlls.
 
 #################### Smart Steam Emulator ###################
 
@@ -189,18 +195,18 @@ Game.UseNemirtingasEpicEmu = false;			//Automatically set up Nemirtinga's Epic E
 Game.EpicEmuArgs = false;				//When using Nemirtinga's Epic Emulator, use pre-defined parameters -AUTH_LOGIN=unused -AUTH_PASSWORD=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb -AUTH_TYPE=exchangecode -epicapp=CrabTest -epicenv=Prod -EpicPortal -epicusername=\"" + <Player Nickname here> + "\" -epicuserid=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA -epiclocale=en"
 Game.AltEpicEmuArgs = false;                            //Optional. When using Nemirtinga's Epic Emulator, use pre-defined parameters + Set NickName as epic id, only to use with games that do not use epic id to start or connect(Set clever save names if the game use the epic id to name saves ex: Tiny Tina's Assault On Dragon Keep)" -AUTH_LOGIN=unused -AUTH_PASSWORD=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb -AUTH_TYPE=exchangecode -epicapp=CrabTest -epicenv=Prod -EpicPortal -epicusername=" + <Player Nickname here> + " -epicuserid="+ <Player Nickname here> + "-epiclocale=" + EpicLang".
 
-NemirtingasEpicEmu.json edition from a handler example:
+NemirtingasEpicEmu.json edition example:
 
     //If you don't need to edit a line do not add it here, the emu will automatically write it with default parameters. More info here: https://gitlab.com/Nemirtingas/nemirtingas_epic_emu/-/blob/master/README.md
-    // Available debug parameters,  should be "off" by default. Only required to debug the nermintingas eos emulator.
-    // TRACE: Very verbose, will log DEBUG + All functions enter
-    // DEBUG: Very verbose, will log INFO  + Debug infos like function parameters
-    // INFO : verbose     , will log WARN  + some informations about code execution and TODOs
-    // WARN : not verbose , will log ERR   + some warnings about code execution
-    // ERR  : not verbose , will log FATAL + errors about code execution
-    // FATAL: not verbose , will log only Fatal errors like unimplemented steam_api versions
-    // OFF  : no logs     , saves cpu usage when running the debug versions 
-    // In case of using custom start arguments => -epicusername == same username as in the.json => -epicuserid == same epicid as in the.json >
+    //Available debug parameters,  should be "off" by default. Only required to debug the nermintingas eos emulator.
+    //TRACE: Very verbose, will log DEBUG + All functions enter
+    //DEBUG: Very verbose, will log INFO  + Debug infos like function parameters
+    //INFO : verbose     , will log WARN  + some informations about code execution and TODOs
+    //WARN : not verbose , will log ERR   + some warnings about code execution
+    //ERR  : not verbose , will log FATAL + errors about code execution
+    //FATAL: not verbose , will log only Fatal errors like unimplemented steam_api versions
+    //OFF  : no logs     , saves cpu usage when running the debug versions 
+    //In case of using custom start arguments => -epicusername == same username as in the.json => -epicuserid == same epicid as in the.json >
 	
     var jsonPath = Context.GetFolder(Nucleus.Folder.InstancedGameFolder) + "\\nepice_settings\\NemirtingasEpicEmu.json";// + "\\NemirtingasEpicEmus.json" for stable older epic emu version.
     var params = [
@@ -209,14 +215,14 @@ NemirtingasEpicEmu.json edition from a handler example:
     '  "disable_online_networking": false,',
     '  "enable_lan": true,',
     '  "enable_overlay": true,',
-    //'  "epicid": "3808a45790894253344fec21026bbf80",', //better to let the emu automaticaly add this line.
+    //'  "epicid": "3808a45790894253344fec21026bbf80",', //better to let the emu automatically add this line.
     '  "language":' + '"' + Context.EpicLang + '"' + ',',
     '  "log_level": "off",',
-    //'  "productuserid": "ab65359ffde1b5cc41e81afee8e32c33",', //better to let the emu automaticaly add this line.
+    //'  "productuserid": "ab65359ffde1b5cc41e81afee8e32c33",', //better to let the emu automatically add this line.
     '  "savepath": "appdata",',
     '  "signaling_servers": [],',
     '  "unlock_dlcs": true,',
-    '  "username": ' + '"' + Context.Nickname + '"', //must always be added if you edit the json and must be the last line else the emulator will reset all parameters(there is no coma at the end of this line in the json).
+    '  "username": ' + '"' + Context.Nickname + '"', //must always be added if you edit the json and must be the last line else the emulator will reset all parameters (there is no coma at the end of this line in the json).
     '}'
     ] ;
     Context.WriteTextFile(jsonPath,params);	
@@ -225,7 +231,7 @@ NemirtingasEpicEmu.json edition from a handler example:
 
 Game.UseNemirtingasGalaxyEmu = false;			//Automatically set up Nemirtinga's Galaxy Emulator in Nucleus.
 
-NemirtingasGalxyEmu.json edition from a handler example:
+NemirtingasGalxyEmu.json edition example:
 
     var idg = Context.PlayerID + 6;
 
@@ -244,9 +250,7 @@ NemirtingasGalxyEmu.json edition from a handler example:
 
 #################### Additional Tools ####################
 
-Game.UseSteamless = true;                               //Use atom0s' Steamless app to remove Steam Stub DRM from a protected executable.
-Game.SteamlessArgs = "--quiet --keepbind";              //Use this when using Game.UseSteamless = true; always, the command line version of Steamless allows for different launch arguments to be used.
-Game.SteamlessTiming = 2500;                            //The time in milliseconds to give Steamless to patch the game .exe. 2500 is the default value and will be applied even if the timing line has not been added in a handler.
+Game.SteamlessPatch = ["false", "--quiet --keepbind", "2500"]; //Use atom0s' Steamless app to remove Steam Stub DRM from a protected executable. string[patch launcher(only), steamless arguments, patch timing].
 Game.UseSteamStubDRMPatcher = false;			//Use UberPsyX's Steam Stub DRM Patcher to remove Steam Stub DRM from a protected executable.
 Game.SteamStubDRMPatcherArch = "64";			//Force Steam Stub DRM Patcher to use either the x64 or x86 dll | Values: "64" or "86".
 Game.UseEACBypass = false;				//Replace any EasyAntiCheat_(x86)(x64).dll with a bypass dll.
@@ -298,8 +302,24 @@ Game.PauseCMDBatchAfter = 10;				//Wait for X number of seconds before proceedin
 Game.CMDBatchClose ["cmd1", "cmd2"];			//Run command lines upon exiting Nucleus.
 Game.CMDStartArgsInside = false;			//When using CMDLaunch, should the game's starting arguments be inside the same quotations as the game path?
 Game.ForceGameArch = "x86" (or "x64");			//Force Nucleus to treat the game as 32 or 64-bit architecture.
-Game.SplitDivCompatibility = false;                     //Explicitly disable splitscreen divisons if the game is known to be imcompatible with it.(Does not require to be true for compatible game)Default = true.
-DisablePathCheck=True                                   //Add it to the Nucleus .ini to disable the unsafe installation path warnings.
+Game.SplitDivCompatibility = false;                     //Explicitly disable splitscreen divisons if the game is known to be imcompatible with it. Does not require to be true for compatible games. Default = true.
+Game.CustomHotkeys = ["Ctrl|K","Alt|F5","Ctrl|X"]       //All available keys that can be passed after Alt, Ctrl and Shift.
+
+  Game.OnCustomHotKey_1 = function () {
+  var outPut = Context.GetFolder(Nucleus.Folder.InstancedGameFolder) + "\\OnCustomHotKey_1.txt";
+  var data = ["Created with custom hotkey 1"];
+  Context.WriteTextFile(outPut, data);
+  }
+  Game.OnCustomHotKey_2 = function () {
+  var outPut = Context.GetFolder(Nucleus.Folder.InstancedGameFolder) + "\\OnCustomHotKey_2.txt";
+  var data = ["Created with custom hotkey 2"];
+  Context.WriteTextFile(outPut, data);
+  }
+  Game.OnCustomHotKey_3 = function () {
+  var outPut = Context.GetFolder(Nucleus.Folder.InstancedGameFolder) + "\\OnCustomHotKey_3.txt";
+  var data = ["Created with custom hotkey 3"];
+  Context.WriteTextFile(outPut, data);
+  }
 
 ~ Custom prompts - Prompt user for input, which can be then used in handlers logic
 
@@ -371,8 +391,9 @@ Context.ReplacePartialLinesInTextFile(string path, string[] lineNumRegPtrnAndNew
 Context.RemoveLineInTextFile(string path, int lineNum)						//Removes a given line number completely.
 Context.RemoveLineInTextFile(string path, string txtInLine, SearchType type)			//Removes a given line number completely.
 Context.FindLineNumberInTextFile(string path, string searchValue, SearchType type)		//Returns a line number (int), utilizes a newly created enum SearchType.
-	Each of the above methods, also have an overload method so you can specify a kind of encoding to use (enter string of encoding as last parameter, e.g. "utf-8", "utf-16", "us-ascii").
-	- SearchTypes include: "Contains", "Full" and "StartsWith", use like so: Nucleus.SearchType.StartsWith.
+Each of the above methods, also have an overload method so you can specify a kind of encoding to use (enter string of encoding as last parameter, e.g. "utf-8", "utf-16", "us-ascii").
+- SearchTypes include: "Contains", "Full" and "StartsWith", use like so: Nucleus.SearchType.StartsWith.
+
 Context.CreateRegKey(string baseKey, string sKey, string subKey)				//Create a registry key for current user, baseKey can either be "HKEY_LOCAL_MACHINE" or "HKEY_CURRENT_USER".
 Context.DeleteRegKey(string baseKey, string sKey, string subKey)				//Delete a registry key for current user, baseKey can either be "HKEY_LOCAL_MACHINE" or "HKEY_CURRENT_USER".
 Context.EditRegKey(string baseKey, string sKey, string name, object data, RegType type)	//Edit a registry key for current user, baseKey can either be "HKEY_LOCAL_MACHINE" or "HKEY_CURRENT_USER".
@@ -394,49 +415,43 @@ Context.OrigAspectRatio										//Player monitor's aspect ratio (e.g. 16:9).
 Context.OrigAspectRatioDecimal									//Player monitor's aspect ratio in decimal (e.g. 1.777777).
 Context.AspectRatio										//Player's aspect ratio (e.g. 16:9).
 Context.AspectRatioDecimal									//Player's aspect ratio in decimal (e.g. 1777777).
-Context.FindFiles(string rootFolder, string fileName)						//Return a string array of filenames (and their paths) found that match a pattern you specify.
+Context.FindFiles(string rootFolder, string fileName)						//Returns a string array of filenames (and their paths) found that match a pattern you specify.
 Context.CreatedDate(string file, int year, int month, int day)					//Change the creation date of a file.
 Context.ModifiedDate(string file, int year, int month, int day)					//Change the last modified date of a file.
 Context.RunAdditionalFiles(string[] filePaths, bool changeWorkingDir, string customText, int secondsToPauseInbetween, bool showFilePath, bool runAsAdmin, bool promptBetween,bool confirm)	//Specify additional files to run before launching game. By default will run each additional file once but can specify to run during specific player's instances by prefixing the filepath with #|. Replace # with player number. Can also specify to run files for each player by prefixing filepath with "all|". "bool confirm" will only run the file after clicking "Ok" in the prompt.
-Context.ReadRegKey(string baseKey, string sKey, string subKey)					//Return the value of a provided key as a string.
-Context.HandlerGUID
+Context.ReadRegKey(string baseKey, string sKey, string subKey)					//Returns the value of a provided key as a string.
+Context.HandlerGUID                                                                             //Returns Game.GUID.
 Context.StartArguments = "";                                                                    //Adds whatever you put into the field as starting parameters for the game's executable in context. For example, in most cases '-windowed' will force windowed mode. Parameters can be chained.
 Context.ProceedSymlink();                                                                       //To use with Game.SymlinkFiles = ["file"]; Can now symlink files inside "Game.Play = function() {}".
 Context.HideDesktop();                                                                          //Same as "Game.HideDesktop = true;" but usable inside "Game.Play = function() {}".
 Context.HideTaskBar();                                                                          //Same as "Game.HideTaskbar = true;" but usable inside "Game.Play = function() {}".
 Context.Wait(int milliseconds);                                                                 //Time to wait between two functions inside "Game.Play = function() {}".
-
-Context.NumberOfPlayers
-
-Context.CopyScriptFolder 
-Context.HexEdit
-Context.PatchFileFindAll 
-Context.MoveFolder 
-
-Context.CopyScriptFolder(string DestinationPath)
-Context.RandomInt(int min, int max)
-Context.RandomString(int size, bool lowerCase = false)
-
-Context.ConvertToInt()
-Context.ConvertToString()
-Context.ConvertToBytes()
-Context.GCD(int a, int b)
-Context.Arch
-Context.PosX
-Context.PosY
-Context.MonitorWidth
-Context.MonitorHeight
-Context.Log()
-Context.ProcessID
-Context.HasKeyboardPlayer
-                     
-Context.StartProcess(string exePath);                                                           
+Context.NumberOfPlayers                                                                         //Returns the amount of players (players to proceed). 
+Context.HexEdit(string fileToEdit, string address, byte[] newBytes)                             //Hex edit the file specified at fileToEdit (must be the full path, it's not relative to any Nucleus folder, can be anywhere).
+Context.PatchFileFindAll(string originalFile, string patchedFileDestination, byte[] patchFind, byte[] patchReplace) //Replace all patchFind bytes found in the file stream by patchReplace bytes (must be full paths, it's not relative to any Nucleus folder).                                                                       
+Context.MoveFolder(string sourceDirName, string destDirName)                                    //Move a folder to another location (both instanced game folder relative).
+Context.CopyScriptFolder(string DestinationPath)                                                //Copy the whole handler folder inside Nucleus handlers folder to a specific path you choose, destination can be anywhere.
+Context.RandomInt(int min, int max)                                                             //Generate a random int between min and max (min/max included).
+Context.RandomString(int size, bool lowerCase = false)                                          //Generate a random string of the specified lenght.                                                                
+Context.ConvertToInt(value)                                                                     //Convert a string, float, long to an integer.
+Context.ConvertToString(object str)                                                             //Convert the object param (float, int, long, etc.) to a string.
+Context.ConvertToBytes(value)                                                                   //Convert an int, float or string to a byte array.
+Context.GCD(int a, int b)                                                                       //Returns the greatest common divisor (GCD), int.
+Context.Arch                                                                                    //Returns the game default architecture (x86/x64) or the Game.ForceGameArch value (string).
+Context.PosX                                                                                    //Returns current processed player X window location (int). 
+Context.PosY                                                                                    //Returns current processed player Y window location (int). 
+Context.MonitorWidth                                                                            //Returns current processed player Monitor Width (int). 
+Context.MonitorHeight                                                                           //Returns current processed player Monitor Height (int). 
+Context.Log(value)                                                                              //Write custom message to debug-log.txt => Context.Log(string msg); Context.Log(string msg, string val); Context.Log(string msg, int val); Context.Log(string msg, double val); Context.Log(string msg, string[] vals);
+Context.ProcessID                                                                               //Returns current processed player attached process id (int). 
+Context.HasKeyboardPlayer                                                                       //True if the current setup has at least one k&m player (bool).              
+Context.StartProcess(string exePath, string startArgs, bool asAdmin);                           //Start the exe at exePath.                                                         
 Context.EditTextFile(string filePath, string[] refLines, string[] newLines, string encoder);    //refLines are partial or full strings to look for. NewLines are new strings (full strings) that will replace refLines. Adding "Delete" as newLine will delete the corresponding reflLine from the file. Should work with any type of text files (xml, ini, txt). 
 Context.PlayerSteamID                                                                           //Can get players steam ids from Game.Play.
 Context.FindFilePartialName (string sourceFolder, string[] partialNames);                       //Find files in "sourceFolder" using partial file name. Useful if a full file name is not predictable but has some static patterns. 
 Context.GetFileName(string fullFilePath);                                                       //Get the name of a file from its full path;
-Context.BackupFiles = ["file1.txt", "file2.txt"];                                               //Back ups files on Nucleus close. They will be restored on subsequent runs.
-Context.BackupFolders = ["folder1", "folder2"];                                                 //Back ups folders on Nucleus close. They will be restored on subsequent runs.
+Context.BackupFiles = ["file1.txt", "file2.txt"];                                               //Back ups files on handler stop. They will be restored on subsequent runs.
+Context.BackupFolders = ["folder1", "folder2"];                                                 //Back ups folders on handler stop. They will be restored on subsequent runs.
 Context.ToUpperCase                                                                             //Convert string to uppercase. 
 Context.ToLowerCase                                                                             //Convert string to lowercase. 
 Context.CopyFolder(string sourcePath,string destinationPath)                                    //Copy a full folder, example => Context.CopyFolder(Context.GetFolder(Nucleus.Folder.InstancedGameFolder) +"\\Engine", Context.GetFolder(Nucleus.Folder.InstancedGameFolder) + "\\Citadel\\Engine");
@@ -454,6 +469,13 @@ Example :
    var deleteFromZip =  ["folder\\sub1.txt","folder\\sub2.txt","2.txt","folder\\"];
 
    Context.EditZipFile(zipSourcePath ,zipPassword ,zipDestinationPath , addToZip, deleteFromZip);
+
+Context.SearchSubFolder(string parentDirectory, string searchPattern);                           //Returns the full path of the found directory matching the search pattern.
+Context.SearchSubFolders(string parentDirectory, string searchPattern);                          //Returns an array of all found directories matching the search pattern
+Context.NoDPIHandlingWidth                                                                       //Returns game window size with no DPI calculation.
+Context.NoDPIHandlingHeight                                                                      //Returns game window size with no DPI calculation.
+Context.SteamLang                                                                                //Returns user Steam language settings choice.
+Context.PlayerGameFilesBackupFolder                                                              //Returns C:\Users\UserName\NucleusCoop\_Game Files Backup_\GameGUID\PlayerNickname\.
 
 #################### Other useful lines ####################
 
@@ -480,26 +502,94 @@ Player.SID
 Player.Adapter
 Player.UserProfile
 
-Known Issues: --------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Known Issues:
 
-- Force feedback does not work with Nucleus custom dlls.
+- Force feedback does not work with the classic Nucleus xinput custom dlls.
 - PreventWindowDeactivation will prevent mouse and keyboard input on instances using this hook (and may have other adverse effects).
-- Status Window may cause Nucleus to crash every now and then.
 
-Changelog: -----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Changelog: 
 
-v2.2.2 - January xx, 2024
+v2.3.2 - November 12, 2024
 
- -Fixed an issue with the unsecured path check preventing handler startup if a game is installed in the default Steam installation path: Program Files (x86)\Steam\steamapps\common\.
- -Disabled using xinput indexes by default for gamepad auto assignment (broke controller support in some handlers that rely on device id). Now the user will have to press a button on each gamepad for the controller icons to show in every handler, same as the multiple keyboards/mice icons work.
- -Improved Context.StartProcess().
- -Fixed automatic Steam language detection (deprecated code). Added Latam language option in Nucleus settings too.
- -Added the updated macstyle theme by V.
+-Fixed audio routing feature not working on Windows 10.
+-Fixed osd messages not disappearing for some users.
+-Fixed a bug where handler data was not correctly refreshed after a handler update and the game was selected.
+-Added Context.PlayerGameFilesBackupFolder returns C:\Users\UserName\NucleusCoop\_Game Files Backup_\GameGUID\PlayerNickname\.
+-Added Game.UseGoldbergNoOGSteamDlls = true; and Game.CustomSteamApiDllPath = ["steam_api64.dll", "steam_api.dll"];
+-Fixed Context.WriteTextFile adding an extra empty string at the end of the file, making some files unusable by games in some cases.
+-Fixed a silent crash when the app can't get the OS version.
+-Added a check to settings and profile settings to not allow duplicated Player Steam Ids.
+-The Player Steam Ids will now be assigned dynamically while on the setup screen like the nicknames.
+-The default Player Steam Ids will now populate the text fields in the players tab in Nucleus Co-op settings.
+-Many scaling fixes in settings and profile settings.
+-Many UI changes in settings and profile settings.
+-Fixed custom cursors scaling at +100 scaling factor.
+-Fixed more typos.
+
+v2.3.1 - October 22, 2024
+
+-Fixed a graphic glitch when the webview opens (missing bit on the left for a second).
+-The downloader will now open external links in the user's browser.
+-Fixed the osd not disappearing for some users when a handler uses `Game.ToggleUnfocusOnInputLock`.
+-Fixed the game content folder not deleting on Ctrl+Q.
+-Fixed clickable link error in a handler options page.
+-Adjusted some graphics details to make the UI a bit smoother when selecting a game.
+-Fixed error when using custom scaling factors.
+-Fixed backup folders game options menu not showing.
+-Fixed Nucleus game backgrounds stretching.
+
+v2.3.0 - October 15, 2024
+
+ -Added a Webview in place of the downloader so we can now browse and download handlers directly from the hub website. Could require https://developer.microsoft.com/en-us/microsoft-edge/webview2/consumer/?form=MA13LH if using non default Windows "debloated versions".
+ -Disabled using xinput indexes by default for gamepad assignment (broke controller support in some handlers that rely on device id). Now the user will have to press a button on each gamepad for the controller icons to show in every handler, same as the multiple keyboards/mice icons work.
+ -Fixed Automatic Steam language detection (deprecated code).
  -Fixed gamepad UI navigation virtual mouse icon appearing on the setup screen.
- -Fixed Nucleus window location being restored on non available screen area (disconnected screen).
- -Improved automatic nicknames swapping in settings and profiles settings.
- -Changed Microsoft Visual C++ 2015 - 2022 Redistributable redirection link from "fr" version to "en".
- -Fixed more typos.
+ -Fixed Nucleus Co-op windows location being restored on non available screen area (disconnected screens or Windows screen layout has changed).
+ -Fixed high cpu usage if there are no gamepads connected.
+ -Fixed bug where hotkey fields were detected as empty so hotkeys were not customizable.
+ -Nucleus Co-op will now warn users if their documents path is in the OneDrive environment (not tested).
+ -Nucleus Co-op will now offer the user to download Microsoft Visual C++ Redistributable directly instead of just redirecting to the Microsoft dedicated download page.
+ -Right clicking on a game in the list will now open the option menu without selecting the game.
+ -Added "Open Backup Folder" and "Delete Backup Folder" to the game options menu (per player).
+ -Added a game options menu entry to access game assets directly from the UI.  
+ -Now the KeepSymlink option is hidden in the game options menu when `KeepSymlinkOnExit` is enabled in the handler.  
+ -Now hotkeys will be registered on handler startup and unregistered on stop, so they can't interfere with other software shortcuts. 
+ -Now if a `Steam` game based handler is downloaded (ONLY STEAM GAMES AND NOT ALL) Nucleus will directly open the search exe window at the exe root folder for an easier selection and addition.
+ -Improved automatic nickname swapping and populating in Nucleus profiles settings.
+ -Favorites game button will now only update the list if at least one game is set as favorite instead of showing an empty list.
+ -Removed click sound.
+ -Now the profile list is scrollable.
+ -Removed the 20 max profiles limit.
+ -Removed broken auto search game function (might come back).
+ -Added a prompt after handler download so the user can choose to download the game assets (cover and backgrounds) right away.
+ -The game manager will now delete game assets if the game exe is not present anymore or if the handler has been manually removed from the handler directory.
+ -The game manager will now delete the game from the user profile if the `.js file` has been manually deleted.
+ -Now Nucleus deletes the game content folder and not only the instances folders.
+ -It's not possible to add the same game twice anymore (same exe path).
+ -Added a function to clean old app logs.
+ -Now Nucleus Co-op will try to kill remaining game processes before trying to delete the game content folder (on game selection).
+ -Added an option to game profile to disable gamepad navigation on handler startup. 
+ -Added a popup so user can restart Nucleus Co-op as admin if the handler requires admin rights.
+ -Added a "shortcuts reminder" toggleable with `Alt+R` for keyboard and `guide button` for controller (long press), a window showing Nucleus gamepad shortcuts and keyboard hotkeys will show.
+ -Added a new window merger so we can now use Lossless Scaling with Nucleus Co-op.
+ -Updated `BackupFile(string filePaths, bool overwrite)` function, now it supports multiple files and works per player too.
+ -Fixed a bug where `KeepSymlinkOnExit` was ignored and instances content deleted.
+ -Changed steamless lines to => `Game.SteamlessPatch = ["false", "--quiet --keepbind", "2500"];`  string[patch launcher(only), steamless arguments, patch timing] so now even launchers can be patched.
+ -Fixed a bug where game files were re-symlinked even if the game option "keep instances content folder" was enabled and files existed.
+ -Updated `Game.BackupFiles;`  `Game.BackupFolders;` `Context.BackupFiles;`  `Context.BackupFolders;`, so they work per player.
+ -Added `Context.SearchSubFolder(string parentDirectory,  string searchPattern);` return the full path of the found directory matching the search pattern. 
+ -Added `Context.SearchSubFolders(string parentDirectory,  string searchPattern);` return an array of all found directories matching the search pattern.
+ -Added `Context.NoDPIHandlingWidth` and `Context.NoDPIHandlingHeight`, returns game window size with no DPI calculation.
+ -Added `Context.SteamLang` returns user steam language settings choice.
+ -Added path length check to the unlock og game files function, throws an error if the path length is too long.
+ -Fixed audio routing for Windows10/11 version 21h2 and up.
+ -Now a clickable link can be added to a handler UI option description (one per option).
+ -Added `Game.BinariesFolderPathFix` (boolean), fixes binaries folder path not being correctly parsed if the binaries folder name exists multiple times in the binaries folder full path.
+ -Added clickable link to all custom handler prompts and RunAdditionalFile prompts (one per window).
+ -Added `Game.UseHandlerSteamIds` so player Steam ids from a handler will have priority over the default or customized settings player Steam ids.
+ -And more. For the complete changelog check the Nucleus Co-op releases github page: https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases
 
 v2.2.1 - January 06, 2024
 
@@ -1068,17 +1158,19 @@ v0.9.4a - August 6, 2019
 v0.9a - August 1, 2019
 - Initial release
 
-Credits: -----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Credits:
+
 Official Nucleus Co-op 2.0 and Up: Mikou27/nene27.
 Original Nucleus Co-op Project: Lucas Assis (lucasassislar).
 Nucleus Co-op Alpha 8 Mod : ZeroFox.
 Proto Input, USS, multiple keyboards/mice & hooks: Ilyaki.
-Website & handler API: r-mach.
+Website & handler hub API: r-mach.
 Handlers development, Nucleus Co-op general testing, feedback and improvement: Talos91, PoundlandBacon, Pizzo, Maxine, Zensuu and many more.
 Nucleus Co-op 2.0+ UI assets creation: Maxine, Mikou27, PoundlandBacon.
 
 Additional credits to all the original developers of the third party utilities Nucleus Co-op uses:
-Mr_Goldberg (Goldberg Emulator), syahmixp (SmartSteamEmu), atom0s (Steamless), EJocys (x360ce), 0dd14 Lab (Xinput Plus), r1ch (ForceBindIP), HaYDeN (Flawless Widescreen), briankendall (devreorder), VerGreeneyes (DirectXWrapper), wizark952 (dinput8 blocker), Nemirtingas (Epic\Galaxy Emulator & OpenXinput), Josivan88 (SplitCalculator).
+Mr_Goldberg (Goldberg Emulator), syahmixp (SmartSteamEmu), atom0s (Steamless), EJocys (x360ce), 0dd14 Lab (Xinput Plus), r1ch (ForceBindIP), HaYDeN (Flawless Widescreen), briankendall (devreorder), VerGreeneyes (DirectXWrapper), wizark952 (dinput8 blocker), Nemirtingas (Epic\Galaxy Emulator & OpenXinput), Dark Reader extension (https://github.com/darkreader/darkreader?tab=readme-ov-file), Josivan88 (SplitCalculator).
 
 Special thanks to the SplitScreenDreams discord community, this wouldn't have been possible without all your contributions.
  

@@ -1,4 +1,5 @@
-﻿using Nucleus.Gaming.Coop;
+﻿using Nucleus.Gaming;
+using Nucleus.Gaming.Coop;
 using System.Diagnostics;
 using System.Reflection;
 using System.Security.Principal;
@@ -19,6 +20,15 @@ namespace Nucleus.Coop.Tools
                                          gamePath.StartsWith(@"C:\Windows\");
             bool skip = false;
 
+            if (Globals.IsOneDriveEnabled && (userGameInfo.Game.UseNucleusEnvironment || userGameInfo.Game.TransferNucleusUserAccountProfiles || userGameInfo.Game.BackupFolders?.Length > 0))
+            {
+                message = $@"This handler can't run if your default Documents path is in OneDrive -> {Globals.UserDocumentsRoot}";
+
+                MessageBox.Show(message, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                
+                return false;
+            }
+
             if ((userGameInfo.Game.LaunchAsDifferentUsers || userGameInfo.Game.LaunchAsDifferentUsersAlt) && imcompatibleGamePath)
             {
                 message = $@"This game handler does not support the current {userGameInfo.GameGuid} installation path." + "\n\n" +
@@ -32,7 +42,7 @@ namespace Nucleus.Coop.Tools
 
                 return false;
             }
-
+           
             if ((userGameInfo.Game.RequiresAdmin || userGameInfo.Game.LaunchAsDifferentUsersAlt || userGameInfo.Game.LaunchAsDifferentUsers || userGameInfo.Game.ChangeIPPerInstanceAlt) && !principal.IsInRole(WindowsBuiltInRole.Administrator) ||
                ((userGameInfo.Game.LaunchAsDifferentUsersAlt || userGameInfo.Game.LaunchAsDifferentUsers || userGameInfo.Game.ChangeIPPerInstanceAlt) && (Program.ForcedBadPath && principal.IsInRole(WindowsBuiltInRole.Administrator))))
             {
@@ -68,10 +78,8 @@ namespace Nucleus.Coop.Tools
                 
                 return false;
             }
-            else
-            {
-                return true;
-            }
+         
+            return true;        
         }
 
 

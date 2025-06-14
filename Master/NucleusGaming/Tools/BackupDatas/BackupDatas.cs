@@ -148,8 +148,8 @@ namespace Nucleus.Gaming.Tools.BackupDatas
 
                                         if (File.Exists(sourceFile))
                                         {
-                                            Log($"Copy{sourceFile}");
-                                            Log($"at{destPath}\\{fileDest}\\{fileName}");
+                                            Log($"Copy {sourceFile}");
+                                            Log($"at {destPath}\\{fileDest}\\{fileName}");
                                             File.Copy(sourceFile, $"{destPath}\\{fileDest}\\{fileName}", true);
                                         }
                                     }

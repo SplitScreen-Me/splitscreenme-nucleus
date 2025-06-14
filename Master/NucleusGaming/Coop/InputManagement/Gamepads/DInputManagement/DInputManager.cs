@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.InputManagement.Gamepads;
@@ -63,7 +64,7 @@ public static class DInputManager
 
         while (INITIALIZED)
         {
-            List<DeviceInstance> watchList = dinput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly).ToList();
+           var watchList = dinput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly);
 
             // Check for newly connected devices
             foreach (var device in watchList)
@@ -106,9 +107,9 @@ public static class DInputManager
                 devicesList.Remove(device);
             }
 
-            var disconnectedJoystick = d_joysticksList.Where(dj => dj.Status == JoystickStatus.Disconnected).ToList();
+            var disconnectedJoystick = d_joysticksList.Where(dj => dj.Status == JoystickStatus.Disconnected);
 
-            if (disconnectedJoystick.Count > 0)
+            if (disconnectedJoystick.Count() > 0)
             {
                 foreach (D_Joystick joy in disconnectedJoystick)
                 {
@@ -117,13 +118,13 @@ public static class DInputManager
                 }
             }
 
-            Thread.Sleep(200);
+            Thread.Sleep(500);
         }
     }
 
     private static void InitJoystickList()
     {
-        List<DeviceInstance> devices = dinput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly).ToList();
+        var devices = dinput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly);
 
         foreach (var device in devices)
         {
@@ -187,6 +188,14 @@ public static class DInputManager
 
         try
         {
+            if (App_Misc.VGMOnly)
+            {
+                if (!player.DInputJoystick.VendorId.StartsWith("202"))
+                {
+                   return false;
+                }
+            }
+
             if ((bool)player.DInputJoystick?.State.Buttons.Any(b => b == true))
             {
                 return true;

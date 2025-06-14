@@ -248,7 +248,8 @@ namespace Nucleus.Coop.UI
             set 
             {
                 mainButtonsPanel = value;
-            } 
+                mainButtonsPanel.Visible = true;
+            }      
         }
 
         private static Button openLogButton;
@@ -392,7 +393,7 @@ namespace Nucleus.Coop.UI
             set
             {
                 inputsTextLabel = value;
-                inputsTextLabel.Font = new Font(Theme_Settings.CustomFont, 11.75F, FontStyle.Bold, GraphicsUnit.Pixel, 0);
+                inputsTextLabel.Font = new Font(Theme_Settings.CustomFont, 9.75F, FontStyle.Bold, GraphicsUnit.Pixel, 0);
                 inputsTextLabel.BackColor = Color.Transparent;
             }
         }

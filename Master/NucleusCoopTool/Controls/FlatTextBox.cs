@@ -13,9 +13,9 @@ public class FlatTextBox : TextBox
     const uint RDW_FRAME = 0x400;
     [DllImport("user32.dll")]
     static extern IntPtr GetWindowDC(IntPtr hWnd);
-    
+
     [DllImport("user32.dll")]
-    
+
     static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
     [DllImport("user32.dll")]
     static extern bool RedrawWindow(IntPtr hWnd, IntPtr lprc, IntPtr hrgn, uint flags);
@@ -40,7 +40,7 @@ public class FlatTextBox : TextBox
                 RDW_FRAME | RDW_IUPDATENOW | RDW_INVALIDATE);
         }
     }
-    
+
     protected override void WndProc(ref Message m)
     {
         base.WndProc(ref m);
@@ -50,23 +50,23 @@ public class FlatTextBox : TextBox
             var hdc = GetWindowDC(this.Handle);
             using (var g = Graphics.FromHdcInternal(hdc))
             using (var p = new Pen(BorderColor))
-                g.DrawRectangle(p, new Rectangle(0, 0, Width - 1, Height - 1));
+                g.DrawRectangle(p, new Rectangle(0, 0, Width - 3, Height - 3));
             ReleaseDC(this.Handle, hdc);
         }
 
-        if (m.Msg == 0xf && hintFont != null)
-        {
-            if (!this.Focused && string.IsNullOrEmpty(this.Text)
-                && !string.IsNullOrEmpty(this.Hint))
-            {
-                using (var g = this.CreateGraphics())
-                {
-                    TextRenderer.DrawText(g, this.Hint, hintFont ,
-                        this.DisplayRectangle, SystemColors.GrayText, this.BackColor,
-                        TextFormatFlags.Top | TextFormatFlags.Left);
-                }
-            }
-        }
+        //if (m.Msg == 0xf && hintFont != null)
+        //{
+        //    if (!this.Focused && string.IsNullOrEmpty(this.Text)
+        //        && !string.IsNullOrEmpty(this.Hint))
+        //    {
+        //        using (var g = this.CreateGraphics())
+        //        {
+        //            TextRenderer.DrawText(g, this.Hint, hintFont ,
+        //                this.DisplayRectangle, SystemColors.GrayText, this.BackColor,
+        //                TextFormatFlags.Top | TextFormatFlags.Left);
+        //        }
+        //    }
+        //}
     }
 
     protected override void OnSizeChanged(EventArgs e)
@@ -75,7 +75,7 @@ public class FlatTextBox : TextBox
         RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, RDW_FRAME | RDW_IUPDATENOW | RDW_INVALIDATE);
 
         float scale = (float)User32Util.GetDpiForWindow(this.Handle) / (float)100;
-        hintFont = new Font(Font.FontFamily, Font.Size - (scale > 1.0F ? (2 * scale) : 0F), Font.Style, GraphicsUnit.Pixel);
+        //hintFont = new Font(Font.FontFamily, Font.Size - (scale > 1.0F ? (2 * scale) : 0F), Font.Style, GraphicsUnit.Point);
     }
 
 }

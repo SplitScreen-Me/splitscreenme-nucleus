@@ -13,22 +13,18 @@ namespace Nucleus.Coop.Tools
         {
             try
             {
-                if (App_Misc.TextEditorPath != "Default")
+                if (App_Misc.TextEditorPath != "Default" && File.Exists(App_Misc.TextEditorPath))
                 {
-                    Process.Start(Application.StartupPath);
                     Process.Start($"{App_Misc.TextEditorPath}", Path.Combine(Application.StartupPath, "debug-log.txt"));
                 }
                 else
                 {
                     Process.Start(Application.StartupPath);
-                    Process.Start("notepad++.exe", Path.Combine(Application.StartupPath, "debug-log.txt"));
+                    Process.Start("notepad.exe", Path.Combine(Application.StartupPath, "debug-log.txt"));
                 }
-
             }
             catch (Exception)
             {
-                Process.Start(Application.StartupPath);
-                Process.Start("notepad.exe", Path.Combine(Application.StartupPath, "debug-log.txt"));
             }
         }
     }

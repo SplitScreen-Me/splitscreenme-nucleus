@@ -61,7 +61,7 @@ namespace Nucleus.Coop
 
         public MainForm(string[] args)
         {
-            if (args.Length != 0)
+            if (args != null && args.Length != 0)
             {
                 startArgs = args;
             }
@@ -229,7 +229,9 @@ namespace Nucleus.Coop
                 }
             }
 
-            UI_Interface.HomeScreen.Focus();    
+            UI_Interface.HomeScreen.Focus();
+
+            //Core_Interface.TriggerSearchTool();
         }
 
         private void WebStatusTimerTick(object Object, EventArgs EventArgs)

@@ -70,11 +70,13 @@ namespace Nucleus.Coop.Controls
             foreach (Control control in Controls)
             {
                 control.Click += Generic_Functions.ClickAnyControl;
+                control.MouseDoubleClick += RefreshHandlers;
                 if (control.HasChildren)
                 {
                     foreach (Control child in control.Controls)
                     {
                         child.Click += Generic_Functions.ClickAnyControl;
+                        child.MouseDoubleClick += RefreshHandlers;
                     }
                 }
             }

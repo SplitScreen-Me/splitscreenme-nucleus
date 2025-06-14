@@ -18,7 +18,6 @@ namespace Gamepads
         public static bool SDL_INITIALIZED { get; private set; }
         public static List<SDL_GameController> SDL2DevicesList = new List<SDL_GameController>();
         public static int JoystickCount => SDL2.NumJoysticks();
-        private static bool vgmDevicesOnly = false;
 
         /// <summary>
         /// Use to filter out VGMaster virtual x360 controllers
@@ -178,7 +177,10 @@ namespace Gamepads
 
             foreach (SDL_GameController disconnected in toRemove)
             {
-                SDL2DevicesList.Remove(disconnected);
+                if (SDL2DevicesList.Contains(disconnected)) 
+                {
+                    SDL2DevicesList.Remove(disconnected);
+                }              
             }
         }
 
@@ -264,26 +266,16 @@ namespace Gamepads
         {
             try
             {
-                if (!SDLManager.IsConnected(player.SDL2Joystick))
+                if (!IsConnected(player.SDL2Joystick))
                 {
                     return false;
                 }
 
                 SDL_DeviceInfo info = SDL_ControllerUtils.GetSDL_DeviceInfo(player.SDL2Joystick);
 
-                if (vgmDevicesOnly)
+                if (QueryControllerStateAny(player.SDL2Joystick))
                 {
-                    if (!info.VENDORID.StartsWith("202"))
-                    {
-                        return false;
-                    }
-
-                    // JoyStickList = JoyStickList.Where(j => j.Properties.VendorId.ToString().StartsWith("202")).ToList();
-                }
-
-                if (SDLManager.QueryControllerStateAny(player.SDL2Joystick))
-                {
-                    if (App_Misc.UseXinputIndex && !player.Vibrate)
+                    if (GameProfile.UseXinputIndex && !player.Vibrate)
                     {
                         SendRumble(player.SDL2Joystick);
                         player.Vibrate = true;
@@ -297,6 +289,14 @@ namespace Gamepads
                     for (int i = 0; i < DInputManager.D_JoysticksList.Count; i++)
                     {
                         joystick = DInputManager.D_JoysticksList[i];
+
+                        if (App_Misc.VGMOnly)
+                        {
+                            if (!joystick.VendorId.StartsWith("202"))
+                            {
+                                continue;
+                            }
+                        }
 
                         if (joystick.State.Buttons.Any(b => b == true))
                         {

@@ -142,21 +142,6 @@ namespace Nucleus.Coop.UI
             }
 
             UI_Interface.MaximizeButton.BackgroundImage = mainForm.WindowState == FormWindowState.Maximized ? ImageCache.GetImage(Globals.ThemeFolder + "title_windowed.png") : ImageCache.GetImage(Globals.ThemeFolder + "title_maximize.png");
-
-            if (UI_Interface.SetupScreen != null && GameProfile.I_GameHandler == null)
-            {
-                GameProfile.Instance?.Reset();
-
-                if (Core_Interface.StepsList != null)
-                {
-                    Core_Interface.GoToStep(0);
-                }
-
-                if (ProfilesList.Instance != null)
-                {
-                    ProfilesList.Instance.Locked = false;
-                }
-            }
         }
 
         public static void MainForm_ResizeBegin(object sender, EventArgs e)

@@ -673,7 +673,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 return;
             }
 
-            List<PlayerInfo> players = profile.DevicesList.OrderBy(c => c.ScreenPriority).ThenBy(c => c.MonitorBounds.Y).ThenBy(c => c.MonitorBounds.X).ToList();
+            List<PlayerInfo> players = profile.DevicesList;
             bool adjust = GameProfile.UseSplitDiv;
 
             var screens = ScreensUtil.AllScreens();
@@ -695,7 +695,6 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
             for (int i = 0; i < players.Count; i++)
             {
-
                 PlayerInfo p = players[i];
 
                 ProcessData data = p.ProcessData;
@@ -726,6 +725,8 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                 if (p.Owner.Type == UserScreenType.DualHorizontal)
                 {
+                    Globals.MainOSD.Show(1600, $"Switching Layouts");
+
                     foreach (UserScreen screen in screens)
                     {                        
                         if (screen.DisplayIndex == p.Owner.DisplayIndex)
@@ -758,10 +759,11 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                             p.Owner.Type = UserScreenType.DualVertical;
                         }
-                    }
+                    }                
                 }
                 else if (p.Owner.Type == UserScreenType.DualVertical)
                 {
+                    Globals.MainOSD.Show(1600, $"Switching Layouts");
                     foreach (UserScreen screen in ScreensUtil.AllScreens())
                     {
                         //Console.WriteLine(p.Owner.MonitorBounds + " " + screen.MonitorBounds);
@@ -795,9 +797,10 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                                 p.MonitorBounds = Win;
                             }
 
-                            p.Owner.Type = UserScreenType.DualHorizontal;
+                            p.Owner.Type = UserScreenType.DualHorizontal;                       
                         }
                     }
+             
                 }
 
                 //else if (p.Owner.Type == UserScreenType.FourPlayers && !switchingLayout)
@@ -995,12 +998,10 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
             //    }
             //}
 
-            //Globals.MainOSD.Settings(1600, $"Switching Layouts");
+           
         }
 
         #region Cutscene mode function
-
-
         public static void ToggleCutScenesMode()
         {
             var handlerInstance = GenericGameHandler.Instance;

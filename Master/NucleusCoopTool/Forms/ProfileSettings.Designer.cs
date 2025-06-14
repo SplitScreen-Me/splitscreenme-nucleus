@@ -65,20 +65,20 @@ namespace Nucleus.Coop
             this.AudioInstance1 = new FlatCombo();
             this.label37 = new System.Windows.Forms.Label();
             this.label36 = new System.Windows.Forms.Label();
-            this.audioCustomSettingsRadio = new CustomRadio();
-            this.audioDefaultSettingsRadio = new CustomRadio();
+            this.audioCustomSettingsRadio = new Nucleus.Coop.Controls.CustomRadio();
+            this.audioDefaultSettingsRadio = new Nucleus.Coop.Controls.CustomRadio();
             this.audioRefresh = new System.Windows.Forms.Button();
             this.sharedTab = new System.Windows.Forms.Panel();
-            this.stopUINav = new CustomCheckBox();
+            this.stopUINav = new Nucleus.Coop.Controls.CustomCheckBox();
             this.titleLabel = new System.Windows.Forms.Label();
             this.profileTitle = new FlatTextBox();
             this.warningLabel = new System.Windows.Forms.Label();
-            this.scaleOptionCbx = new CustomCheckBox();
-            this.useNicksCheck = new CustomCheckBox();
+            this.scaleOptionCbx = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.useNicksCheck = new Nucleus.Coop.Controls.CustomCheckBox();
             this.label72 = new System.Windows.Forms.Label();
             this.notes_text = new FlatTextBox();
             this.cmb_Network = new FlatCombo();
-            this.autoPlay = new CustomCheckBox();
+            this.autoPlay = new Nucleus.Coop.Controls.CustomCheckBox();
             this.label6 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.WIndowsSetupTiming_Label = new System.Windows.Forms.Label();
@@ -230,20 +230,20 @@ namespace Nucleus.Coop
             this.mergerResSelectorLabel = new System.Windows.Forms.Label();
             this.label39 = new System.Windows.Forms.Label();
             this.mergerSettingsLabel = new System.Windows.Forms.Label();
-            this.losslessHook = new CustomCheckBox();
+            this.losslessHook = new Nucleus.Coop.Controls.CustomCheckBox();
             this.selectedRes = new FlatTextBox();
             this.screen_panel = new System.Windows.Forms.Panel();
-            this.enable_WMerger = new CustomCheckBox();
-            this.hideDesktop = new CustomCheckBox();
+            this.enable_WMerger = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.hideDesktop = new Nucleus.Coop.Controls.CustomCheckBox();
             this.label71 = new System.Windows.Forms.Label();
             this.cts_Panel = new System.Windows.Forms.Panel();
-            this.cts_unfocus = new CustomCheckBox();
-            this.cts_kar = new CustomCheckBox();
-            this.cts_Mute = new CustomCheckBox();
+            this.cts_unfocus = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.cts_kar = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.cts_Mute = new Nucleus.Coop.Controls.CustomCheckBox();
             this.SplitColors = new FlatCombo();
             this.numMaxPlyrs = new Nucleus.Gaming.Controls.CustomNumericUpDown();
             this.numUpDownVer = new Nucleus.Gaming.Controls.CustomNumericUpDown();
-            this.splitDiv = new CustomCheckBox();
+            this.splitDiv = new Nucleus.Coop.Controls.CustomCheckBox();
             this.label49 = new System.Windows.Forms.Label();
             this.layoutSizer = new System.Windows.Forms.Panel();
             this.label29 = new System.Windows.Forms.Label();
@@ -943,6 +943,7 @@ namespace Nucleus.Coop
             this.profileTitle.BorderColor = System.Drawing.Color.Blue;
             this.profileTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.profileTitle.ForeColor = System.Drawing.Color.White;
+            this.profileTitle.Hint = null;
             this.profileTitle.Location = new System.Drawing.Point(319, 115);
             this.profileTitle.MaximumSize = new System.Drawing.Size(341, 81);
             this.profileTitle.MaxLength = 35;
@@ -1013,6 +1014,7 @@ namespace Nucleus.Coop
             this.notes_text.BorderColor = System.Drawing.Color.Blue;
             this.notes_text.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.notes_text.ForeColor = System.Drawing.Color.White;
+            this.notes_text.Hint = null;
             this.notes_text.Location = new System.Drawing.Point(321, 178);
             this.notes_text.MaximumSize = new System.Drawing.Size(341, 81);
             this.notes_text.Multiline = true;
@@ -1087,6 +1089,7 @@ namespace Nucleus.Coop
             // WindowsSetupTiming_TextBox
             // 
             this.WindowsSetupTiming_TextBox.BorderColor = System.Drawing.Color.Blue;
+            this.WindowsSetupTiming_TextBox.Hint = null;
             this.WindowsSetupTiming_TextBox.Location = new System.Drawing.Point(38, 305);
             this.WindowsSetupTiming_TextBox.Margin = new System.Windows.Forms.Padding(0);
             this.WindowsSetupTiming_TextBox.MaxLength = 5;
@@ -1099,6 +1102,7 @@ namespace Nucleus.Coop
             // pauseBetweenInstanceLaunch_TxtBox
             // 
             this.pauseBetweenInstanceLaunch_TxtBox.BorderColor = System.Drawing.Color.Blue;
+            this.pauseBetweenInstanceLaunch_TxtBox.Hint = null;
             this.pauseBetweenInstanceLaunch_TxtBox.Location = new System.Drawing.Point(38, 255);
             this.pauseBetweenInstanceLaunch_TxtBox.Margin = new System.Windows.Forms.Padding(0);
             this.pauseBetweenInstanceLaunch_TxtBox.MaxLength = 3;
@@ -1303,6 +1307,7 @@ namespace Nucleus.Coop
             this.Affinity4.BorderColor = System.Drawing.Color.Blue;
             this.Affinity4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Affinity4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity4.Hint = null;
             this.Affinity4.Location = new System.Drawing.Point(185, 76);
             this.Affinity4.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity4.MaxLength = 100;
@@ -1972,6 +1977,7 @@ namespace Nucleus.Coop
             this.Affinity1.BorderColor = System.Drawing.Color.Blue;
             this.Affinity1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Affinity1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity1.Hint = null;
             this.Affinity1.Location = new System.Drawing.Point(185, 10);
             this.Affinity1.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity1.MaxLength = 100;
@@ -1985,6 +1991,7 @@ namespace Nucleus.Coop
             this.Affinity2.BorderColor = System.Drawing.Color.Blue;
             this.Affinity2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Affinity2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity2.Hint = null;
             this.Affinity2.Location = new System.Drawing.Point(185, 32);
             this.Affinity2.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity2.MaxLength = 100;
@@ -1998,6 +2005,7 @@ namespace Nucleus.Coop
             this.Affinity3.BorderColor = System.Drawing.Color.Blue;
             this.Affinity3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Affinity3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity3.Hint = null;
             this.Affinity3.Location = new System.Drawing.Point(185, 54);
             this.Affinity3.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity3.MaxLength = 100;
@@ -2011,6 +2019,7 @@ namespace Nucleus.Coop
             this.Affinity5.BorderColor = System.Drawing.Color.Blue;
             this.Affinity5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Affinity5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity5.Hint = null;
             this.Affinity5.Location = new System.Drawing.Point(185, 98);
             this.Affinity5.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity5.MaxLength = 100;
@@ -2024,6 +2033,7 @@ namespace Nucleus.Coop
             this.Affinity6.BorderColor = System.Drawing.Color.Blue;
             this.Affinity6.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Affinity6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity6.Hint = null;
             this.Affinity6.Location = new System.Drawing.Point(185, 120);
             this.Affinity6.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity6.MaxLength = 100;
@@ -2037,6 +2047,7 @@ namespace Nucleus.Coop
             this.Affinity7.BorderColor = System.Drawing.Color.Blue;
             this.Affinity7.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Affinity7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity7.Hint = null;
             this.Affinity7.Location = new System.Drawing.Point(185, 142);
             this.Affinity7.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity7.MaxLength = 100;
@@ -2050,6 +2061,7 @@ namespace Nucleus.Coop
             this.Affinity8.BorderColor = System.Drawing.Color.Blue;
             this.Affinity8.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Affinity8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity8.Hint = null;
             this.Affinity8.Location = new System.Drawing.Point(185, 164);
             this.Affinity8.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity8.MaxLength = 100;
@@ -2062,6 +2074,7 @@ namespace Nucleus.Coop
             this.Affinity9.BackColor = System.Drawing.Color.White;
             this.Affinity9.BorderColor = System.Drawing.Color.Blue;
             this.Affinity9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity9.Hint = null;
             this.Affinity9.Location = new System.Drawing.Point(548, 10);
             this.Affinity9.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity9.MaxLength = 100;
@@ -2074,6 +2087,7 @@ namespace Nucleus.Coop
             this.Affinity10.BackColor = System.Drawing.Color.White;
             this.Affinity10.BorderColor = System.Drawing.Color.Blue;
             this.Affinity10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity10.Hint = null;
             this.Affinity10.Location = new System.Drawing.Point(548, 32);
             this.Affinity10.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity10.MaxLength = 100;
@@ -2086,6 +2100,7 @@ namespace Nucleus.Coop
             this.Affinity11.BackColor = System.Drawing.Color.White;
             this.Affinity11.BorderColor = System.Drawing.Color.Blue;
             this.Affinity11.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity11.Hint = null;
             this.Affinity11.Location = new System.Drawing.Point(548, 54);
             this.Affinity11.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity11.MaxLength = 100;
@@ -2098,6 +2113,7 @@ namespace Nucleus.Coop
             this.Affinity12.BackColor = System.Drawing.Color.White;
             this.Affinity12.BorderColor = System.Drawing.Color.Blue;
             this.Affinity12.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity12.Hint = null;
             this.Affinity12.Location = new System.Drawing.Point(548, 76);
             this.Affinity12.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity12.MaxLength = 100;
@@ -2110,6 +2126,7 @@ namespace Nucleus.Coop
             this.Affinity13.BackColor = System.Drawing.Color.White;
             this.Affinity13.BorderColor = System.Drawing.Color.Blue;
             this.Affinity13.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity13.Hint = null;
             this.Affinity13.Location = new System.Drawing.Point(548, 98);
             this.Affinity13.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity13.MaxLength = 100;
@@ -2122,6 +2139,7 @@ namespace Nucleus.Coop
             this.Affinity14.BackColor = System.Drawing.Color.White;
             this.Affinity14.BorderColor = System.Drawing.Color.Blue;
             this.Affinity14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity14.Hint = null;
             this.Affinity14.Location = new System.Drawing.Point(548, 120);
             this.Affinity14.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity14.MaxLength = 100;
@@ -2134,6 +2152,7 @@ namespace Nucleus.Coop
             this.Affinity15.BackColor = System.Drawing.Color.White;
             this.Affinity15.BorderColor = System.Drawing.Color.Blue;
             this.Affinity15.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity15.Hint = null;
             this.Affinity15.Location = new System.Drawing.Point(548, 142);
             this.Affinity15.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity15.MaxLength = 100;
@@ -2146,6 +2165,7 @@ namespace Nucleus.Coop
             this.Affinity16.BackColor = System.Drawing.Color.White;
             this.Affinity16.BorderColor = System.Drawing.Color.Blue;
             this.Affinity16.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity16.Hint = null;
             this.Affinity16.Location = new System.Drawing.Point(548, 164);
             this.Affinity16.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity16.MaxLength = 100;
@@ -2501,6 +2521,7 @@ namespace Nucleus.Coop
             this.Affinity32.BackColor = System.Drawing.Color.White;
             this.Affinity32.BorderColor = System.Drawing.Color.Blue;
             this.Affinity32.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity32.Hint = null;
             this.Affinity32.Location = new System.Drawing.Point(548, 164);
             this.Affinity32.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity32.MaxLength = 100;
@@ -2513,6 +2534,7 @@ namespace Nucleus.Coop
             this.Affinity31.BackColor = System.Drawing.Color.White;
             this.Affinity31.BorderColor = System.Drawing.Color.Blue;
             this.Affinity31.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity31.Hint = null;
             this.Affinity31.Location = new System.Drawing.Point(548, 142);
             this.Affinity31.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity31.MaxLength = 100;
@@ -2525,6 +2547,7 @@ namespace Nucleus.Coop
             this.Affinity30.BackColor = System.Drawing.Color.White;
             this.Affinity30.BorderColor = System.Drawing.Color.Blue;
             this.Affinity30.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity30.Hint = null;
             this.Affinity30.Location = new System.Drawing.Point(548, 120);
             this.Affinity30.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity30.MaxLength = 100;
@@ -2537,6 +2560,7 @@ namespace Nucleus.Coop
             this.Affinity29.BackColor = System.Drawing.Color.White;
             this.Affinity29.BorderColor = System.Drawing.Color.Blue;
             this.Affinity29.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity29.Hint = null;
             this.Affinity29.Location = new System.Drawing.Point(548, 98);
             this.Affinity29.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity29.MaxLength = 100;
@@ -2549,6 +2573,7 @@ namespace Nucleus.Coop
             this.Affinity28.BackColor = System.Drawing.Color.White;
             this.Affinity28.BorderColor = System.Drawing.Color.Blue;
             this.Affinity28.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity28.Hint = null;
             this.Affinity28.Location = new System.Drawing.Point(548, 76);
             this.Affinity28.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity28.MaxLength = 100;
@@ -2561,6 +2586,7 @@ namespace Nucleus.Coop
             this.Affinity27.BackColor = System.Drawing.Color.White;
             this.Affinity27.BorderColor = System.Drawing.Color.Blue;
             this.Affinity27.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity27.Hint = null;
             this.Affinity27.Location = new System.Drawing.Point(548, 54);
             this.Affinity27.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity27.MaxLength = 100;
@@ -2573,6 +2599,7 @@ namespace Nucleus.Coop
             this.Affinity26.BackColor = System.Drawing.Color.White;
             this.Affinity26.BorderColor = System.Drawing.Color.Blue;
             this.Affinity26.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity26.Hint = null;
             this.Affinity26.Location = new System.Drawing.Point(548, 32);
             this.Affinity26.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity26.MaxLength = 100;
@@ -2585,6 +2612,7 @@ namespace Nucleus.Coop
             this.Affinity25.BackColor = System.Drawing.Color.White;
             this.Affinity25.BorderColor = System.Drawing.Color.Blue;
             this.Affinity25.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity25.Hint = null;
             this.Affinity25.Location = new System.Drawing.Point(548, 10);
             this.Affinity25.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity25.MaxLength = 100;
@@ -2598,6 +2626,7 @@ namespace Nucleus.Coop
             this.Affinity24.BorderColor = System.Drawing.Color.Blue;
             this.Affinity24.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Affinity24.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity24.Hint = null;
             this.Affinity24.Location = new System.Drawing.Point(185, 164);
             this.Affinity24.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity24.MaxLength = 100;
@@ -2611,6 +2640,7 @@ namespace Nucleus.Coop
             this.Affinity23.BorderColor = System.Drawing.Color.Blue;
             this.Affinity23.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Affinity23.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity23.Hint = null;
             this.Affinity23.Location = new System.Drawing.Point(185, 142);
             this.Affinity23.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity23.MaxLength = 100;
@@ -2624,6 +2654,7 @@ namespace Nucleus.Coop
             this.Affinity22.BorderColor = System.Drawing.Color.Blue;
             this.Affinity22.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Affinity22.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity22.Hint = null;
             this.Affinity22.Location = new System.Drawing.Point(185, 120);
             this.Affinity22.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity22.MaxLength = 100;
@@ -2637,6 +2668,7 @@ namespace Nucleus.Coop
             this.Affinity21.BorderColor = System.Drawing.Color.Blue;
             this.Affinity21.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Affinity21.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity21.Hint = null;
             this.Affinity21.Location = new System.Drawing.Point(185, 98);
             this.Affinity21.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity21.MaxLength = 100;
@@ -2650,6 +2682,7 @@ namespace Nucleus.Coop
             this.Affinity20.BorderColor = System.Drawing.Color.Blue;
             this.Affinity20.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Affinity20.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity20.Hint = null;
             this.Affinity20.Location = new System.Drawing.Point(185, 76);
             this.Affinity20.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity20.MaxLength = 100;
@@ -2663,6 +2696,7 @@ namespace Nucleus.Coop
             this.Affinity19.BorderColor = System.Drawing.Color.Blue;
             this.Affinity19.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Affinity19.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity19.Hint = null;
             this.Affinity19.Location = new System.Drawing.Point(185, 54);
             this.Affinity19.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity19.MaxLength = 100;
@@ -2676,6 +2710,7 @@ namespace Nucleus.Coop
             this.Affinity18.BorderColor = System.Drawing.Color.Blue;
             this.Affinity18.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Affinity18.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity18.Hint = null;
             this.Affinity18.Location = new System.Drawing.Point(185, 32);
             this.Affinity18.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity18.MaxLength = 100;
@@ -2689,6 +2724,7 @@ namespace Nucleus.Coop
             this.Affinity17.BorderColor = System.Drawing.Color.Blue;
             this.Affinity17.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.Affinity17.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.Affinity17.Hint = null;
             this.Affinity17.Location = new System.Drawing.Point(185, 10);
             this.Affinity17.Margin = new System.Windows.Forms.Padding(2);
             this.Affinity17.MaxLength = 100;
@@ -3199,6 +3235,7 @@ namespace Nucleus.Coop
             this.selectedRes.BorderColor = System.Drawing.Color.Blue;
             this.selectedRes.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.selectedRes.ForeColor = System.Drawing.SystemColors.Menu;
+            this.selectedRes.Hint = null;
             this.selectedRes.Location = new System.Drawing.Point(13, 297);
             this.selectedRes.Name = "selectedRes";
             this.selectedRes.ReadOnly = true;
@@ -4973,11 +5010,11 @@ namespace Nucleus.Coop
             this.Controls.Add(this.playersTabBtn);
             this.Controls.Add(this.sharedTabBtn);
             this.Controls.Add(this.modeLabel);
+            this.Controls.Add(this.playersTab);
+            this.Controls.Add(this.audioTab);
             this.Controls.Add(this.sharedTab);
             this.Controls.Add(this.processorTab);
             this.Controls.Add(this.layoutTab);
-            this.Controls.Add(this.playersTab);
-            this.Controls.Add(this.audioTab);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));

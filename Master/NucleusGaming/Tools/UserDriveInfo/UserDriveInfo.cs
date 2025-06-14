@@ -10,12 +10,12 @@ namespace Nucleus.Gaming.Tools.UserDriveInfo
 {
     public static class UserDriveInfo
     {
-        public static DriveInfo[] UserDrives => DriveInfo.GetDrives();
-
         public static bool IsExFat(string fullPath,bool startupCheck)//Addd the check for Nucleus install too just in case(Check on startup).
         {
             try
             {
+                DriveInfo[] UserDrives = DriveInfo.GetDrives();
+
                 string driveName = fullPath[0].ToString();
 
                 foreach (DriveInfo drive in UserDrives)

@@ -21,6 +21,7 @@ namespace Nucleus.Coop.Controls
         public FlatTextBox SearchText { get; private set; }
 
         public Action<bool> Toggle_Visiblility;
+        private Font hintFont;
 
         //always a square 
         private PictureBox imageBox;
@@ -38,6 +39,8 @@ namespace Nucleus.Coop.Controls
             Click += Focus_TextBox;
             ControlAdded += Control_Added;
             VisibleChanged += On_VisibleChanged;
+            MouseDown += SearchText_MouseDown;
+
             CreateControls();
 
             DPIManager.Register(this);
@@ -52,23 +55,49 @@ namespace Nucleus.Coop.Controls
             imageBox.SizeMode = PictureBoxSizeMode.StretchImage;
             imageBox.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             imageBox.Margin = new Padding(0, 0, 0, 0);
-            imageBox.BackColor = Color.FromArgb(255, 31, 34, 35); 
+            imageBox.BackColor = Color.FromArgb(255, 31, 34, 35);
+            imageBox.MouseDown += SearchText_MouseDown;
             SearchText = new FlatTextBox();
             Controls.Add(SearchText);
 
             SearchText.Font = Font;
-            SearchText.ForeColor = Color.White;
-            SearchText.BackColor = Color.FromArgb(255, 31, 34, 35);
+            SearchText.ForeColor = Color.Gray;
+            SearchText.BackColor =  Color.FromArgb(255, 31, 34, 35);
             SearchText.BorderStyle = BorderStyle.None;
             SearchText.Hint = "Search By Name";
+            SearchText.Text = SearchText.Hint;
+            SearchText.Font = new Font(SearchText.Font.FontFamily,  8f , SearchText.Font.Style);
+            SearchText.MouseDown += SearchText_MouseDown;
+            SearchText.LostFocus += SearchText_LostFocus;
+            SearchText.TextChanged += SearchText_TextChanged;
+        }
+
+
+        private void SearchText_TextChanged(object sender, EventArgs e)
+        {
+            FlatTextBox textbox = sender as FlatTextBox;
+            if(textbox.Text == textbox.Hint)
+            SearchText.ForeColor = Color.Gray;
+        }
+
+        private void SearchText_LostFocus(object sender,EventArgs e)
+        {
+            SearchText.ForeColor = Color.Gray;
+            SearchText.Text = SearchText.Hint;
+        }
+
+        private void SearchText_MouseDown(object sender ,MouseEventArgs e)
+        {
+            SearchText.ForeColor = Color.White;
+            SearchText.Text = "";
         }
 
         private void SearchText_Resize(object sender, EventArgs e)
-        {
-            imageBox.Size = new Size(Height, Height);
-            imageBox.Location = new Point(0, 0);
-            SearchText.Size = new Size((Width - imageBox.Width) - 40, 20);
-            SearchText.Location = new Point(imageBox.Right + 10, imageBox.Height/2 - SearchText.Height/2);
+        { 
+            imageBox.Size = new Size(Height - 3 , Height -3);
+            imageBox.Location = new Point(2, 1);
+            SearchText.Size =  new Size((Width - imageBox.Width) - 20, Height);
+            SearchText.Location = new Point(imageBox.Right + 10,5);
         }
 
         public void UpdateSize(float scale)
@@ -79,7 +108,7 @@ namespace Nucleus.Coop.Controls
                 return;
             }
 
-            SearchText.Font = new Font(SearchText.Font.FontFamily, 9 * scale, SearchText.Font.Style);
+            SearchText.Font = new Font(SearchText.Font.FontFamily, 8f * scale, SearchText.Font.Style);
         }
 
         private void Focus_TextBox(object sender, EventArgs e)

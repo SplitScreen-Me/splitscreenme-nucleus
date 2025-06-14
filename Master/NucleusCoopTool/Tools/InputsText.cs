@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop;
@@ -35,7 +36,7 @@ namespace Nucleus.Coop.Tools
             {
                 if (GameProfile.TotalAssignedPlayers > GameProfile.TotalProfilePlayers)
                 {
-                    msg = $"There Is Too Much Players!";
+                    msg = $"There Are Too Many Players! {GameProfile.TotalAssignedPlayers}";
                     color = notEnoughPlayers;
                 }
                 else if ((GameProfile.TotalProfilePlayers - GameProfile.TotalAssignedPlayers) > 0)
@@ -44,6 +45,12 @@ namespace Nucleus.Coop.Tools
                     string sc = GameProfile.AllScreens.Count() > 1 ? "Screens" : "Screen";
                     msg = $"{GameProfile.GamepadCount} {st}, {GameProfile.KeyboardCount} K&M And {GameProfile.AllScreens.Count()} {sc}, Were Used Last Time.";
                     color = notEnoughPlayers;
+                }
+                else if (GameProfile.AssignedDevices.Any( p => p.InstanceGuests.Count < p.CurrentMaxGuests))
+                {
+                    string pressBtn = Core_Interface.Current_GameMetaInfo.UseApiIndexForGuests ? " Connect More Controllers." : " Press A Button On Each Controllers.";
+                    msg = $"Awaiting Guest Controllers!{pressBtn}";
+                    color = Color.Orange;
                 }
                 else if (GameProfile.TotalProfilePlayers == GameProfile.TotalAssignedPlayers)
                 {
@@ -62,7 +69,7 @@ namespace Nucleus.Coop.Tools
                 }
                 else if (!GameProfile.Game.SupportsMultipleKeyboardsAndMice && !GameProfile.Game.SupportsKeyboard)
                 {
-                    if (DevicesFunctions.UseGamepadApiIndex || profileDisabled)
+                    if (GameProfile.UseXinputIndex || profileDisabled)
                     {
                         msg = $"Drop The Gamepads {screenText}. {stepTxt}";
                     }
@@ -73,7 +80,7 @@ namespace Nucleus.Coop.Tools
                 }
                 else
                 {
-                    if (DevicesFunctions.UseGamepadApiIndex || profileDisabled)
+                    if (GameProfile.UseXinputIndex || profileDisabled)
                     {
                         msg = $"Drop The Gamepads Or Keyboard\\Mouse {screenText}. {stepTxt}";
                     }

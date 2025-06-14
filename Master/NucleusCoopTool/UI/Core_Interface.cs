@@ -11,6 +11,9 @@ using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 using Nucleus.Gaming.Platform.PCSpecs;
 using System.Threading;
 using Nucleus.Coop.Tools;
+using System.Linq;
+using System.Drawing;
+using Nucleus.Coop.Forms;
 
 namespace Nucleus.Coop.UI
 {
@@ -40,14 +43,17 @@ namespace Nucleus.Coop.UI
             set
             {
                 current_UserGameInfo = value;
-                
-                Current_GenericGameInfo = current_UserGameInfo.Game;
-                Current_GameMetaInfo = Current_GenericGameInfo.MetaInfo;
 
-                GameProfile.GameInfo = current_UserGameInfo;
-                GameProfile.Game = Current_GenericGameInfo;
+                if (value != null)
+                {
+                    Current_GenericGameInfo = current_UserGameInfo.Game;
+                    Current_GameMetaInfo = Current_GenericGameInfo.MetaInfo;
 
-                UI_Actions.On_GameChange?.Invoke();
+                    GameProfile.GameInfo = current_UserGameInfo;
+                    GameProfile.Game = Current_GenericGameInfo;
+
+                    UI_Actions.On_GameChange?.Invoke();
+                }
             }
         }
 
@@ -68,8 +74,38 @@ namespace Nucleus.Coop.UI
             }
         }
 
-        public static void RefreshGames(object sender,object e)
+        private static string prevSearchText = "";
+
+        private static bool ProcessSearch(object obj)
         {
+            if (obj is FlatTextBox search0)
+            {
+                if(search0.Text == "start htool")
+                {
+                    TriggerSearchTool();
+                    return false;
+                }
+
+                if (search0.Text.StartsWith(" ")) { search0.Text = ""; return false; }
+                if (prevSearchText == search0.Hint && search0.Text == "") { return false; }
+                if (prevSearchText == "" && search0.Text == "") { return false; }
+                if (search0.Text == search0.Hint && prevSearchText == "") { return false; }
+                if (prevSearchText != "" && search0.Text == search0.Hint) { SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions); return false; }
+                prevSearchText = search0.Text;
+                return true;
+            }
+
+            //not the search control
+            return true;
+        }
+
+        public static void RefreshGames(object sender,object e)
+        {       
+            if(!ProcessSearch(sender))//avoid to update the list when it's not necessary
+            {
+                return;
+            }
+
             UI_Interface.GameList.Visible = false;///smoother transition
 
             lock (GameControlsInfo)
@@ -109,20 +145,36 @@ namespace Nucleus.Coop.UI
                 }
                 else
                 {
+
                     for (int i = 0; i < games.Count; i++)
                     {
                         UserGameInfo game = games[i];
 
                         if (sender is FlatTextBox search)
                         {
-                            if (search.Text == "")
+                            List<string> splittedName = game.Game.GameName.ToLower().Split(' ').ToList();
+                            List<string> splittedSearch = search.Text.ToLower().Split(' ').ToList();
+
+                            bool found = (game.Game.GameName.ToLower().Contains(search.Text.ToLower()) && search.Text.Length > 1) || game.Game.GameName.ToLower().StartsWith(search.Text.ToLower());
+
+                            if (!found)
+                            {
+                                found = splittedName.Any(s => s.StartsWith(search.Text.ToLower())) && search.Text.Length > 1;
+
+                                if (!found)
+                                {
+                                    found = splittedName.Any(s => s.StartsWith(search.Text.ToLower()));
+                                }
+                            }
+
+                            if (!found)
+                            {
+                                continue;
+                            }
+                            else if (search.Text == "" || search.Text == search.Hint)
                             {
                                 SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
                                 break;
-                            }
-                            else if (!game.Game.GameName.ToLower().StartsWith(search.Text.ToLower()))
-                            {
-                                continue;
                             }
                         }
 
@@ -360,19 +412,18 @@ namespace Nucleus.Coop.UI
                 UI_Functions.RefreshUI(true);//Sort the game in case the last played sorting filter is enabled
                 I_GameHandlerEndFunc("Stop button clicked", true);
                 GameProfile.Instance.Reset();
+               
                 return;
             }
 
             CurrentStep?.Ended();
-
-            UI_Interface.PlayButton.Tag = "S T O P";
 
             UI_Interface.GotoPrev.Enabled = false;
 
             GameProfile.InitializeHandlerStartup();
 
             GameProfile.I_GameHandler.Ended += Handler_Ended;
-
+            
             if (UI_Interface.ProfileSettings.Visible)
             {
                 UI_Interface.ProfileSettings.Visible = false;
@@ -382,6 +433,9 @@ namespace Nucleus.Coop.UI
 
             UI_Interface.CurrentGameListControl = null;
             UI_Functions.RefreshUI(true);
+            UI_Functions.DisableGameSelection();
+
+            UI_Interface.PlayButton.Tag = "S T O P";
         }
 
         public static void StepCanPlay(UserControl obj, bool canProceed, bool autoProceed)
@@ -413,10 +467,6 @@ namespace Nucleus.Coop.UI
 
                 return;
             }
-            else
-            {
-                UI_Interface.GotoNext.Enabled = false;
-            }
 
             if (Current_GenericGameInfo?.Options?.Count == 0)
             {
@@ -442,8 +492,9 @@ namespace Nucleus.Coop.UI
             }
 
             if (autoProceed)
-            {
+            {           
                 GoToStep(CurrentStepIndex + 1);
+                UI_Interface.GotoNext.Enabled = false;
             }
             else
             {
@@ -469,7 +520,7 @@ namespace Nucleus.Coop.UI
             Log("Handler ended method called");
 
             UI_Interface.MainForm.Invoke((MethodInvoker)delegate ()
-            {
+            {     
                 if (!UI_Interface.IsFormClosing)
                 {
                     GameProfile.I_GameHandler = null;
@@ -482,6 +533,10 @@ namespace Nucleus.Coop.UI
                     UI_Interface.PlayButton.Visible = false;
 
                     UI_Interface.MainForm.BringToFront();
+
+                    //UI_Functions.RefreshUI(false);                 
+                    SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);//refresh game list controls again
+                    UI_Functions.EnableGameSelection();
                 }
             });
         }
@@ -506,6 +561,11 @@ namespace Nucleus.Coop.UI
             {
                 Settings.Ctrlr_Shorcuts.Text = "Windows 8™ and up only";
                 Settings.Ctrlr_Shorcuts.Enabled = false;
+                if(UI_Interface.ToggleVirtualMouse != null)
+                {
+                    UI_Interface.ToggleVirtualMouse.Visible = false;
+                }
+
                 return false;
             }
         }
@@ -529,6 +589,12 @@ namespace Nucleus.Coop.UI
             SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
 
             UI_Functions.RefreshUI(true);
+        }
+
+        public static void TriggerSearchTool()
+        {
+            HandlerScanner handlerScanner = new HandlerScanner();
+            handlerScanner.Initialize();
         }
     }
 }

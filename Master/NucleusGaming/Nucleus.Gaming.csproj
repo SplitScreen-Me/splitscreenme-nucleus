@@ -137,12 +137,6 @@
     <Compile Include="Controls\HorizontalControlListBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\HandlerNotesZoom.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\HandlerNotesZoom.Designer.cs">
-      <DependentUpon>HandlerNotesZoom.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\TransparentRichTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -430,6 +424,7 @@
     <Compile Include="Tools\AudioReroute\AudioReroute.cs" />
     <Compile Include="Tools\BackupDatas\BackupDatas.cs" />
     <Compile Include="Tools\DevReorder\DevReorder.cs" />
+    <Compile Include="Tools\DInput8CoopLvlUnlocker\DInput8CoopLvlUnlocker.cs" />
     <Compile Include="Tools\DInputBlocker\DInputBlocker.cs" />
     <Compile Include="Tools\DirectX9Wrapper\DirectX9Wrapper.cs" />
     <Compile Include="Tools\DllsInjector\DllsInjector.cs" />
@@ -507,9 +502,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\CustomNumericUpDown.resx">
       <DependentUpon>CustomNumericUpDown.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\HandlerNotesZoom.resx">
-      <DependentUpon>HandlerNotesZoom.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\HotkeyListener.resx">
       <DependentUpon>HotkeyListener.cs</DependentUpon>

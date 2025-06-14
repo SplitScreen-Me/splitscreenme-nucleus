@@ -3,18 +3,13 @@ using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.InputManagement;
 using Nucleus.Gaming.Coop.InputManagement.Gamepads;
-using Nucleus.Gaming.Windows.Interop;
 using SDL;
-using SharpDX.XInput;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Numerics;
-using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
-using System.Windows.Markup;
 using static Nucleus.Gaming.Coop.OpenXinputController.NativeOpenXinput;
 using static SDL.SDL_ControllerUtils;
 
@@ -30,49 +25,42 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         private static int testDinputPlayers = -1;// 16;
         private static int testXinputPlayers = -1;// 16;
+        private static int testSDL2Players = -1;
 
         public static System.Threading.Timer GamepadTimer;
         private static System.Threading.Timer PollingTimer;
 
         internal static float playerSize;
-        internal static RectangleF playersArea;
-
+       
         internal static bool insideGamepadTick = false;
         public static bool isDisconnected;
-        private static bool vgmDevicesOnly = false;
+
         public static Action<SynchronizationContext, string> OnAssignedDeviceDisconnect;
-
-        private static bool useGamepadApiIndex;
-        public static bool UseGamepadApiIndex
-        {
-            get => useGamepadApiIndex;
-            set
-            {
-                useGamepadApiIndex = value;
-
-                if (profile != null)
-                {
-                    profile.Reset();
-                    profile.DevicesList.Clear();
-                }
-            }
-        }
 
         public static void Initialize(SetupScreenControl _parent, UserGameInfo _userGameInfo, GameProfile _profile)
         {
             parent = _parent;
             userGameInfo = _userGameInfo;
             profile = _profile;
-            useGamepadApiIndex = App_Misc.UseXinputIndex;
 
             _syncContext = SynchronizationContext.Current ?? new SynchronizationContext();
 
             UpdateDevices();
+
             DInputManager.Init(_syncContext);
             SDLManager.InitSDL(_syncContext);
 
             GamepadTimer = new System.Threading.Timer(GamepadTimer_Tick, null, 0, 300);
             PollingTimer = new System.Threading.Timer(PollingTimer_Tick, null, 0, 150);
+
+            GameProfile.OnUseXinputIndexChanged -= UpdateUseGamepadApiIndex;
+            GameProfile.OnUseXinputIndexChanged += UpdateUseGamepadApiIndex;
+        }
+
+        private static void UpdateUseGamepadApiIndex()
+        {           
+            profile?.DevicesList.Clear();
+            UpdateDevices();
         }
 
         /// <summary>
@@ -97,7 +85,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         public static void GamepadTimer_Tick(object state)
         {
-            if (insideGamepadTick || profile == null)
+            if (insideGamepadTick || profile == null || GamepadTimer == null)
             {
                 return;
             }
@@ -120,6 +108,14 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     {
                         D_Joystick joystick = DInputManager.D_JoysticksList[i];
 
+                        if (App_Misc.VGMOnly)
+                        {
+                            if (!joystick.VendorId.ToString().StartsWith("202"))
+                            {
+                                continue;
+                            }
+                        }
+
                         if (CheckAssignedGamepads(i, joystick.InstanceGuid))
                         {
                             continue;
@@ -127,21 +123,12 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                         PlayerInfo player = new PlayerInfo();
 
-                        if (vgmDevicesOnly)
-                        {
-                            if (!joystick.VendorId.ToString().StartsWith("202"))
-                            {
-                                joystick.Dispose();
-                                continue;
-                            }
-                        }
-
                         if (joystick.InterfacePath.ToUpper().Contains("IG_") && !g.Hook.XInputReroute && g.Hook.XInputEnabled)
                         {
                             joystick.Dispose();
                             continue;
                         }
-
+                     
                         player.DInputJoystick = joystick;
                         player.GamepadProductGuid = joystick.ProductGuid;
                         player.GamepadGuid = joystick.InstanceGuid;
@@ -171,7 +158,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     int numControllers = g.ProtoInput.UseOpenXinput ? 32 : 4;//TODO: Big bug here!!if g.ProtoInput.UseOpenXinput is true the ui gamepads won't appears until screen is refreshed (why?)
                     for (int i = 0; i < numControllers; i++)
                     {
-                        OpenXinputController c = new OpenXinputController(g.ProtoInput.UseOpenXinput, i);
+                        OpenXinputController c = new OpenXinputController(true, i);//
 
                         if (!c.IsConnected)
                         {
@@ -179,15 +166,10 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         }
                         else
                         {
-                            if (CheckAssignedGamepads(i, c))
-                            {
-                                continue;
-                            }
-
-                            if (vgmDevicesOnly)
+                            if (App_Misc.VGMOnly)
                             {
                                 CapabilitiesEx cap;
-                                var _cap = OpenXinputController.XInputGetCapabilitiesEx((uint)1, (uint)i, 1, out cap);
+                                OpenXinputController.XInputGetCapabilitiesEx((uint)1, (uint)i, 1, out cap);
 
                                 if (!cap.VendorId.ToString().StartsWith("202"))
                                 {
@@ -195,6 +177,11 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                 }
                             }
 
+                            if (CheckAssignedGamepads(i, c))
+                            {
+                                continue;
+                            }
+           
                             //new gamepad
                             PlayerInfo player = new PlayerInfo
                             {
@@ -204,7 +191,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                 IsXInput = true,
                             };
 
-                            if (useGamepadApiIndex)
+                            if (GameProfile.UseXinputIndex)
                             {
                                 string guid = player.GamepadId + 1 >= 10 ? $"00000000-0000-0000-0000-2000000000{player.GamepadId + 1}" : $"00000000-0000-0000-0000-20000000000{player.GamepadId + 1}";
                                 player.GamepadGuid = new Guid(guid);
@@ -238,7 +225,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                         SDL_DeviceInfo devInfo = GetSDL_DeviceInfo(controller);
 
-                        if (vgmDevicesOnly)
+                        if (App_Misc.VGMOnly)
                         {
                             int vid = SDL2.JoystickGetDeviceVendor(i);
 
@@ -254,7 +241,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         player.SDL2Joystick = controller;
                         player.GamepadId = SDL2.SDL_GameControllerGetPlayerIndex(player.SDL2Joystick);
 
-                        if (useGamepadApiIndex)
+                        if (GameProfile.UseXinputIndex)
                         {
                             string guid = player.GamepadId + 1 >= 10 ? $"00000000-0000-0000-0000-2000000000{player.GamepadId + 1}" : $"00000000-0000-0000-0000-20000000000{player.GamepadId + 1}";
                             player.GamepadGuid = new Guid(guid);
@@ -299,6 +286,10 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 {
                     PlayerInfo player = profile?.DevicesList[i];
 
+                    if(player == null) { continue;}
+
+                    if (!player.IsController){ continue; }
+
                     switch (player.InputType)
                     {
                         case InputType.DInput:
@@ -326,6 +317,16 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             for (int j = 0; j < profile.DevicesList.Count; j++)
             {
                 PlayerInfo player = profile.DevicesList[j];
+
+                if (!player.IsController)
+                {
+                    continue;
+                }
+
+                if (player.IsFake)
+                {
+                    return true;
+                }
 
                 switch (player.InputType)
                 {
@@ -387,6 +388,16 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             for (int j = 0; j < profile.DevicesList.Count; j++)
             {
                 PlayerInfo player = profile.DevicesList[j];
+
+                if(!player.IsController)
+                {
+                    continue;
+                }
+
+                if(player.IsFake)
+                {
+                    return true;
+                }
 
                 switch (player.InputType)
                 {
@@ -456,6 +467,15 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 OnAssignedDeviceDisconnect?.Invoke(_syncContext, lostData);
             }
 
+            var isGuestOf = GameProfile.AssignedDevices.Where(ad => ad.InstanceGuests.Contains(player)).FirstOrDefault();
+
+            if (isGuestOf != null)
+            {
+                lostData = $"{isGuestOf.Nickname} guest {player.GamepadId}|{player.InputType.ToString()}";
+                isGuestOf.InstanceGuests.Remove(player);
+                OnAssignedDeviceDisconnect?.Invoke(_syncContext, lostData);
+            }
+
             profile.DevicesList.Remove(player);
         }
 
@@ -485,7 +505,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 parent.canProceed = playerData.Count(c => c.ScreenIndex != -1) >= 1;
             }
 
-            if (playerData.Count == 0)
+            if (playerData.Count == 0 || playerData.All(pl => !pl.IsRawKeyboard && !pl.IsRawMouse && !pl.IsKeyboardPlayer))
             {
                 if (userGameInfo.Game.SupportsKeyboard)
                 {
@@ -511,6 +531,10 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 {
                     for (int i = 0; i < testDinputPlayers; i++)
                     {
+                        if (i >= userGameInfo.Game.MaxPlayers)
+                        {
+                            break;
+                        }
                         ///new gamepad
                         PlayerInfo player = new PlayerInfo
                         {
@@ -530,6 +554,11 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 {
                     for (int i = 0; i < testXinputPlayers; i++)
                     {
+                        if (i >= userGameInfo.Game.MaxPlayers)
+                        {
+                            break;
+                        }
+
                         PlayerInfo player = new PlayerInfo
                         {
                             GamepadGuid = new Guid(),
@@ -545,49 +574,45 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         playerData.Add(player);
                     }
                 }
-            }
 
-            BoundsFunctions.UpdateScreens();
-
-            float playersWidth = parent.Width * 0.65f;
-
-            float playerCount = playerData.Count;
-            float playerWidth = playersWidth * 0.9f;
-            float playerHeight = parent.Height * 0.2f;
-
-            playersArea = new RectangleF(10, 0, playersWidth, playerHeight);
-
-            float playersAreaScale = playersArea.Width * playersArea.Height;
-            float maxArea = playersAreaScale / playerCount;
-            playerSize = (float)(Math.Sqrt(maxArea) - 0.5F);///force the round down
-                                                            ///see if the size can fit it or we need to make some further adjustments
-            float horizontal = (playersWidth / playerSize) - 0.5F;
-            float vertical = (int)Math.Round((playerHeight / playerSize) - 0.5);
-            float total = vertical * horizontal;
-
-            if (total < playerCount)
-            {
-                float newVertical = vertical + 1;
-                Draw.PlayerCustomFont = new Font(Draw.PlayerCustomFont.FontFamily, Draw.PlayerCustomFont.Size * 0.8f, FontStyle.Regular, GraphicsUnit.Point, 0);
-                playerSize = (int)Math.Round(((playerHeight / 1.2f) / newVertical));
-            }
-
-            //var sortedList = playerData.OrderBy(p => p.InputType).ToList();
-
-            for (int i = 0; i < playerData.Count; i++)
-            {
-                PlayerInfo info = playerData[i];
-
-                if (info.ScreenIndex == -1)
+                if (testSDL2Players != -1)
                 {
-                    info.EditBounds = BoundsFunctions.GetDefaultBounds(i);
-                    info.SourceEditBounds = info.EditBounds;
-                    info.DisplayIndex = -1;
+                    for (int i = 0; i < testSDL2Players; i++)
+                    {
+
+                        if(i >= userGameInfo.Game.MaxPlayers)
+                        {
+                            break;
+                        }
+
+                        PlayerInfo player = new PlayerInfo
+                        {
+                            GamepadGuid = new Guid(),
+                            GamepadName = "SDL2" + i,
+                            IsSDL2 = true,
+                            IsController = true,
+                            GamepadId = i,
+                            IsFake = true,
+                            IsInputUsed = true,
+                            HIDDeviceID = new string[] { "Not required", "Not required" }
+                        };
+
+                        playerData.Add(player);
+                    }
                 }
             }
 
-            parent.CanPlayUpdated(parent.canProceed, false);
-            parent.Invalidate(false);
+            BoundsFunctions.SetPlayerArea();
+
+            if (parent != null && parent.IsHandleCreated)
+            {
+                parent?.Invoke((MethodInvoker)delegate ()
+                {
+                    parent.CanPlayUpdated(parent.canProceed, false);
+                    parent.Invalidate(false);
+                });
+            }
+            
         }
     }
 }

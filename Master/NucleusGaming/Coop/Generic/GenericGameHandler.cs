@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using Jint.Native;
+using Microsoft.Win32;
 using Nucleus.Coop.Forms;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Coop;
@@ -13,6 +14,7 @@ using Nucleus.Gaming.Tools;
 using Nucleus.Gaming.Tools.AudioReroute;
 using Nucleus.Gaming.Tools.BackupDatas;
 using Nucleus.Gaming.Tools.DevReorder;
+using Nucleus.Gaming.Tools.DInput8CoopLvlUnlocker;
 using Nucleus.Gaming.Tools.DInputBlocker;
 using Nucleus.Gaming.Tools.DirectX9Wrapper;
 using Nucleus.Gaming.Tools.DllsInjector;
@@ -54,13 +56,12 @@ namespace Nucleus.Gaming
 {
     public class GenericGameHandler : IGameHandler, ILogNode
     {
+        public  static bool IsRunning = false;
         public List<WPFDiv> splitForms = new List<WPFDiv>();
         public List<ShortcutsReminder> shortcutsReminders = new List<ShortcutsReminder>();
         public List<Form> AllRuntimeForms = new List<Form>();
 
         private string origExePath;
-        private string UserEnvironmentRoot => Globals.UserEnvironmentRoot;
-        private string DocumentsRoot => Globals.UserDocumentsRoot;
         private string NucleusFolderPath => Globals.NucleusInstallRoot;
         public string exePath;
         public string instanceExeFolder;
@@ -156,7 +157,7 @@ namespace Nucleus.Gaming
 
             List<PlayerInfo> players = profile.DevicesList;
 
-            gen = game.Game as GenericGameInfo;
+            gen = game.Game;
             // see if we have any save game to backup
             if (gen == null)
             {
@@ -261,11 +262,11 @@ namespace Nucleus.Gaming
         {
             if (!App_Misc.IgnoreInputLockReminder)
             {
-                MessageBox.Show("Some handlers will require you to press the End key to lock input. Remember to unlock input by pressing End again when you finish playing. You can disable this message in the Settings. ", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information,MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly,false);
-            }    
+                MessageBox.Show("Some handlers will require you to press the End key to lock input. Remember to unlock input by pressing End again when you finish playing. You can disable this message in the Settings. ", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly, false);
+            }
 
             if (GameProfile.Stop_UINav) { GamepadNavigation.StopUINavigation(); }
-                     
+
             if (gen.NeedSteamClient)
             {
                 SteamFunctions.StartSteamClient();
@@ -299,6 +300,12 @@ namespace Nucleus.Gaming
             {
                 Log("--------------------- START ---------------------");
                 Log(string.Format("Game: {0}, Arch: {1}, Executable: {2}, Launcher: {3}, SteamID: {4}, Handler: {5}, Content Folder: {6}", gen.GameName, garch, gen.ExecutableName, gen.LauncherExe, gen.SteamID, gen.JsFileName, gen.GUID));
+                
+                if (Globals.IsOneDriveEnabled)
+                {
+                    Log($@"/!\  USER DOCUMENTS PATH IS IN ONEDRIVE  /!\  -> {Globals.UserDocumentsRoot} ");
+                }
+                
                 MachineSpecs.GetPCspecs();
             }
 
@@ -402,7 +409,7 @@ namespace Nucleus.Gaming
             numPlayers = players.Count;
 
             Log(string.Format("Number of players: {0}", numPlayers));
-           
+
             if (isDebug)
             {
                 Log("Nucleus Co-op version: " + Globals.Version);
@@ -433,6 +440,7 @@ namespace Nucleus.Gaming
                     return string.Empty;
                 }
 
+                IsRunning = true;
                 Log($"********** Setting up player {i + 1} **********");
 
                 PlayerInfo player = players[i];
@@ -739,7 +747,7 @@ namespace Nucleus.Gaming
                     exePath = Path.Combine(linkBinFolder, userGame.Game.ExecutableName);
 
                     SetExeDpiAwareness(exePath);
-                
+
                     origExePath = Path.Combine(linkBinFolder, userGame.Game.ExecutableName);
 
                     if ((i == 0 && (gen.SymlinkGame || gen.HardlinkGame)) || gen.HardcopyGame)
@@ -1127,7 +1135,7 @@ namespace Nucleus.Gaming
                     exePath = userGame.ExePath;
 
                     SetExeDpiAwareness(exePath);
-                    
+
                     origExePath = userGame.ExePath;
 
                     linkBinFolder = workingFolder;
@@ -1169,7 +1177,7 @@ namespace Nucleus.Gaming
                     }
                 }
 
-                if (i == 0)
+                if (i == 0 /*&& !Globals.IsOneDriveEnabled*/)
                 {
                     BackupDatas.StartBackupsRestoration();
                 }
@@ -1375,6 +1383,11 @@ namespace Nucleus.Gaming
                     setupDll = false;
                 }
 
+                if (gen.UseDI8CoopLvlUnlocker)
+                {
+                    DInput8CoopLvlUnlocker.SetupDInput8CoopLvlUnlocker(player, i, setupDll);
+                }
+
                 //backward compat for existing handlers using UseSteamless(old way of applying steamless)
                 if (gen.UseSteamless)
                 {
@@ -1390,7 +1403,8 @@ namespace Nucleus.Gaming
                         Thread.Sleep(int.Parse(gen.SteamlessPatch[2]) + 2000);
                     }
                     else//patch game exe
-                    {                        
+                    {
+
                         Log($"Apply Steamless patch for {gen.ExecutableName} Timing: {gen.SteamlessPatch[2]}ms");
                         SteamFunctions.SteamlessProc(linkBinFolder, gen.ExecutableName, gen.SteamlessPatch[1], int.Parse(gen.SteamlessPatch[2]));
                         Thread.Sleep(int.Parse(gen.SteamlessPatch[2]) + 2000);
@@ -1405,6 +1419,7 @@ namespace Nucleus.Gaming
                 if (gen.GamePlayBeforeGameSetup && !gen.GamePlayAfterLaunch)
                 {
                     gen.PrePlay(player);
+                    ProtoInputLauncher.SetProtoControllersIndex(player, gen);
                 }
 
                 if (gen.HexEditExeAddress?.Length > 0)
@@ -1516,6 +1531,7 @@ namespace Nucleus.Gaming
                 if (!gen.GamePlayBeforeGameSetup && !gen.GamePlayAfterLaunch)
                 {
                     gen.PrePlay(player);
+                    ProtoInputLauncher.SetProtoControllersIndex(player, gen);
                 }
 
                 if (gen.AltEpicEmuArgs)
@@ -1676,7 +1692,7 @@ namespace Nucleus.Gaming
 
                             uint sguOutPID = StartGameUtil.StartGame(exePath, startArgs,
                                 gen.HookInit, gen.HookInitDelay, gen.RenameNotKillMutex, mu, gen.SetWindowHookStart, isDebug, NucleusFolderPath, gen.BlockRawInput, gen.UseNucleusEnvironment, player.Nickname, startupHooksEnabled, gen.CreateSingleDeviceFile, player.RawHID, player.MonitorBounds.Width, player.MonitorBounds.Height, player.MonitorBounds.X
-                                , player.MonitorBounds.Y, DocumentsRoot, useDocs);
+                                , player.MonitorBounds.Y, Globals.UserDocumentsRoot, useDocs);
 
                             try
                             {
@@ -1709,18 +1725,18 @@ namespace Nucleus.Gaming
 
                                 if (gen.UseNucleusEnvironment)
                                 {
-                                    cmd.StartInfo.EnvironmentVariables["APPDATA"] = UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\AppData\Roaming";
-                                    cmd.StartInfo.EnvironmentVariables["LOCALAPPDATA"] = UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\AppData\Local";
-                                    cmd.StartInfo.EnvironmentVariables["USERPROFILE"] = UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}";
+                                    cmd.StartInfo.EnvironmentVariables["APPDATA"] = Globals.UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\AppData\Roaming";
+                                    cmd.StartInfo.EnvironmentVariables["LOCALAPPDATA"] = Globals.UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\AppData\Local";
+                                    cmd.StartInfo.EnvironmentVariables["USERPROFILE"] = Globals.UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}";
                                     cmd.StartInfo.EnvironmentVariables["HOMEPATH"] = Environment.GetEnvironmentVariable("homepath") + $@"\NucleusCoop\{player.Nickname}";
 
-                                    Directory.CreateDirectory(UserEnvironmentRoot + $@"\NucleusCoop");
-                                    Directory.CreateDirectory(UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}");
-                                    Directory.CreateDirectory(UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\Documents");
-                                    Directory.CreateDirectory(UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\AppData\Roaming");
-                                    Directory.CreateDirectory(UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\AppData\Local");
+                                    Directory.CreateDirectory(Globals.UserEnvironmentRoot + $@"\NucleusCoop");
+                                    Directory.CreateDirectory(Globals.UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}");
+                                    Directory.CreateDirectory(Globals.UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\Documents");
+                                    Directory.CreateDirectory(Globals.UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\AppData\Roaming");
+                                    Directory.CreateDirectory(Globals.UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\AppData\Local");
 
-                                    Directory.CreateDirectory(Path.GetDirectoryName(DocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents");
+                                    Directory.CreateDirectory(Path.GetDirectoryName(Globals.UserDocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents");
 
                                     if (gen.DocumentsConfigPath?.Length > 0 || gen.DocumentsSavePath?.Length > 0)
                                     {
@@ -1733,7 +1749,7 @@ namespace Nucleus.Gaming
 
                                         if (key.GetValue("Personal").ToString() != "%USERPROFILE%\\Documents")
                                         {
-                                            key.SetValue("Personal", Path.GetDirectoryName(DocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents", (RegistryValueKind)(int)RegType.ExpandString);
+                                            key.SetValue("Personal", Path.GetDirectoryName(Globals.UserDocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents", (RegistryValueKind)(int)RegType.ExpandString);
                                         }
                                     }
 
@@ -1742,10 +1758,10 @@ namespace Nucleus.Gaming
                                 {
                                     cmd.StartInfo.EnvironmentVariables["APPDATA"] = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                                     cmd.StartInfo.EnvironmentVariables["LOCALAPPDATA"] = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                                    cmd.StartInfo.EnvironmentVariables["USERPROFILE"] = UserEnvironmentRoot;
+                                    cmd.StartInfo.EnvironmentVariables["USERPROFILE"] = Globals.UserEnvironmentRoot;
                                     cmd.StartInfo.EnvironmentVariables["HOMEPATH"] = Environment.GetEnvironmentVariable("homepath");
 
-                                    Directory.CreateDirectory(UserEnvironmentRoot);
+                                    Directory.CreateDirectory(Globals.UserEnvironmentRoot);
                                     Directory.CreateDirectory(Globals.UserDocumentsRoot);
                                     Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
                                     Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
@@ -1775,10 +1791,10 @@ namespace Nucleus.Gaming
 
                                     envVars["APPDATA"] = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData); //$@"C:\Users\{username}\AppData\Roaming";
                                     envVars["LOCALAPPDATA"] = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData); //$@"C:\Users\{username}\AppData\Local";
-                                    envVars["USERPROFILE"] = UserEnvironmentRoot; //$@"C:\Users\{username}\";
+                                    envVars["USERPROFILE"] = Globals.UserEnvironmentRoot; //$@"C:\Users\{username}\";
                                     envVars["HOMEPATH"] = Environment.GetEnvironmentVariable("homepath"); //$@"\Users\{username}\";
 
-                                    Directory.CreateDirectory(UserEnvironmentRoot); //$@"C:\Users\{username}");
+                                    Directory.CreateDirectory(Globals.UserEnvironmentRoot); //$@"C:\Users\{username}");
                                     Directory.CreateDirectory(Globals.UserDocumentsRoot);//$@"C:\Users\{username}\Documents");
                                     Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));//$@"C:\Users\{username}\AppData\Roaming");
                                     Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));//$@"C:\Users\{username}\AppData\Local");
@@ -1826,21 +1842,13 @@ namespace Nucleus.Gaming
                                 }
 
                             }
-                            else if (gen.CMDLaunch /*&& i >= 1*/ || (gen.UseForceBindIP && i > 0))
+                            else if (gen.CMDLaunch || (gen.UseForceBindIP && i > 0))
                             {
+                                string scriptPath = Path.GetTempFileName().Replace(".tmp", ".cmd");
+                                StringBuilder scriptContent = new StringBuilder();
+                                string test = Globals.UserEnvironmentRoot.Replace("koumi", "Mickàél");
+
                                 string[] cmdOps = gen.CMDOptions;
-                                Process cmd = new Process();
-                                cmd.StartInfo.FileName = "cmd.exe";
-                                cmd.StartInfo.RedirectStandardInput = true;
-                                cmd.StartInfo.RedirectStandardOutput = true;
-                                cmd.StartInfo.UseShellExecute = false;
-
-                                if (gen.UseForceBindIP)
-                                {
-                                    cmd.StartInfo.WorkingDirectory = Path.GetDirectoryName(exePath);
-                                }
-
-                                cmd.Start();
 
                                 if (gen.CMDLaunch)
                                 {
@@ -1858,103 +1866,102 @@ namespace Nucleus.Gaming
                                             Log("ERROR - getting current user's username, defaulting to using environment's username");
                                         }
 
-                                        cmd.StandardInput.WriteLine($@"set APPDATA={UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Roaming");
-                                        cmd.StandardInput.WriteLine($@"set LOCALAPPDATA={UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Local");
-                                        cmd.StandardInput.WriteLine($@"set USERPROFILE={UserEnvironmentRoot}\NucleusCoop\{player.Nickname}");
-                                        cmd.StandardInput.WriteLine($@"set HOMEPATH=\Users\{username}\NucleusCoop\{player.Nickname}");
+                                        scriptContent.AppendLine("@echo off");
+                                        scriptContent.AppendLine("chcp 65001 >nul"); // UTF-8
 
-                                        //Some games will crash if the directories don't exist
-                                        Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop");
-                                        Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Roaming");
-                                        Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Local");
-                                        Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop\{player.Nickname}");
-                                        Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\Documents");
-                                        Directory.CreateDirectory(Path.GetDirectoryName(DocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents");
+                                        scriptContent.AppendLine($"set APPDATA={Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}\\AppData\\Roaming");
+                                        scriptContent.AppendLine($"set LOCALAPPDATA={Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}\\AppData\\Local");
+                                        scriptContent.AppendLine($"set USERPROFILE={Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}");
+                                        scriptContent.AppendLine($"set HOMEPATH=\\Users\\{username}\\NucleusCoop\\{player.Nickname}");
+
+                                        Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop");
+                                        Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}");
+                                        Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Roaming");
+                                        Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Local");
+                                        Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\Documents");
+                                        Directory.CreateDirectory(Path.GetDirectoryName(Globals.UserDocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents");
 
                                         if (gen.DocumentsConfigPath?.Length > 0 || gen.DocumentsSavePath?.Length > 0)
                                         {
-                                            if (!File.Exists(Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\User Shell Folders.reg")))
+                                            string backupPath = Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\User Shell Folders.reg");
+                                            if (!File.Exists(backupPath))
                                             {
-                                                RegistryUtil.ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\User Shell Folders.reg"));
+                                                RegistryUtil.ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", backupPath);
                                             }
 
                                             RegistryKey dkey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);
-                                            dkey.SetValue("Personal", Path.GetDirectoryName(DocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents", (RegistryValueKind)(int)RegType.ExpandString);
+                                            dkey.SetValue("Personal", Path.GetDirectoryName(Globals.UserDocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents", (RegistryValueKind)(int)RegType.ExpandString);
                                         }
                                     }
 
                                     if (gen.CMDBatchBefore?.Length > 0 || gen.CMDBatchAfter?.Length > 0)
                                     {
-                                        cmd.StandardInput.WriteLine($@"set NUCLEUS_EXE=" + Path.GetFileName(exePath));
-                                        cmd.StandardInput.WriteLine($@"set NUCLEUS_INST_EXE_FOLDER=" + Path.GetDirectoryName(exePath));
-                                        cmd.StandardInput.WriteLine($@"set NUCLEUS_INST_FOLDER=" + linkFolder);
-                                        cmd.StandardInput.WriteLine($@"set NUCLEUS_FOLDER=" + NucleusFolderPath);
-                                        cmd.StandardInput.WriteLine($@"set NUCLEUS_ORIG_EXE_FOLDER=" + exeFolder);
-                                        cmd.StandardInput.WriteLine($@"set NUCLEUS_ORIG_FOLDER=" + exeFolder.Substring(0, (exeFolder.Length - gen.BinariesFolder.Length)));
+                                        scriptContent.AppendLine($"set NUCLEUS_EXE={Path.GetFileName(exePath)}");
+                                        scriptContent.AppendLine($"set NUCLEUS_INST_EXE_FOLDER={Path.GetDirectoryName(exePath)}");
+                                        scriptContent.AppendLine($"set NUCLEUS_INST_FOLDR={linkFolder}");
+                                        scriptContent.AppendLine($"set NUCLEUS_FOLDER={NucleusFolderPath}");
+                                        scriptContent.AppendLine($"set NUCLEUS_ORIG_EXE_FOLDER={exeFolder}");
+                                        scriptContent.AppendLine($"set NUCLEUS_ORIG_FOLDER={exeFolder.Substring(0, (exeFolder.Length - gen.BinariesFolder.Length))}");
                                     }
 
                                     if (gen.CMDBatchBefore?.Length > 0)
                                     {
-                                        for (int x = 0; x < gen.CMDBatchBefore.Length; x++)
+                                        foreach (var line in gen.CMDBatchBefore)
                                         {
-                                            if (!gen.CMDBatchBefore[x].Contains("|"))
+                                            if (!line.Contains("|"))
                                             {
-                                                Log("Running command line: " + gen.CMDBatchBefore[x]);
-                                                cmd.StandardInput.WriteLine(gen.CMDBatchBefore[x]);
+                                                Log("Running command line: " + line);
+                                                scriptContent.AppendLine(line);
                                             }
                                             else
                                             {
-                                                string[] clineSplit = gen.CMDBatchBefore[x].Split('|');
+                                                var clineSplit = line.Split('|');
                                                 if (clineSplit[0] == i.ToString())
                                                 {
                                                     Log("Running command line: " + clineSplit[1]);
-                                                    cmd.StandardInput.WriteLine(clineSplit[1]);
+                                                    scriptContent.AppendLine(clineSplit[1]);
                                                 }
                                             }
                                         }
                                     }
 
-                                    string cmdLine = "\"" + exePath + "\" " + startArgs;
-
+                                    string cmdLine = $"\"{exePath}\" {startArgs}";
                                     if (!gen.CMDStartArgsInside)
-                                    {
-                                        cmdLine = "\"" + exePath + " " + startArgs + "\"";
-                                    }
+                                        cmdLine = $"\"{exePath} {startArgs}\"";
 
                                     if (cmdOps?.Length > 0 && i < cmdOps.Length)
                                     {
-                                        cmdLine = cmdOps[i] + " \"" + exePath + "\" " + startArgs;
+                                        cmdLine = $"{cmdOps[i]} \"{exePath}\" {startArgs}";
                                         if (!gen.CMDStartArgsInside)
-                                        {
-                                            cmdLine = cmdOps[i] + " \"" + exePath + " " + startArgs + "\"";
-                                        }
+                                            cmdLine = $"{cmdOps[i]} \"{exePath} {startArgs}\"";
                                     }
 
                                     if (gen.PauseCMDBatchBefore > 0)
                                     {
-                                        Log(string.Format("Pausing for {0} seconds", gen.PauseCMDBatchBefore));
+                                        Log($"Pausing for {gen.PauseCMDBatchBefore} seconds");                                      
+                                        scriptContent.AppendLine($" timeout / t {gen.PauseCMDBatchBefore} / nobreak > nul");
                                         Thread.Sleep(TimeSpan.FromSeconds(gen.PauseCMDBatchBefore));
                                     }
 
-                                    Log(string.Format("Launching game via command prompt with the following line: {0}", cmdLine));
-                                    cmd.StandardInput.WriteLine(cmdLine);
+                                    Log("Launching game via command prompt with the following line: " + cmdLine);
+                                    scriptContent.AppendLine(cmdLine);
 
                                     if (gen.CMDBatchAfter?.Length > 0)
                                     {
-                                        for (int x = 0; x < gen.CMDBatchAfter.Length; x++)
+                                        foreach (var line in gen.CMDBatchAfter)
                                         {
-                                            if (!gen.CMDBatchAfter[x].Contains("|"))
+                                            if (!line.Contains("|"))
                                             {
-                                                Log("Running command line: " + gen.CMDBatchAfter[x]);
-                                                cmd.StandardInput.WriteLine(gen.CMDBatchAfter[x]);
+                                                Log("Running command line: " + line);
+                                                scriptContent.AppendLine(line);
                                             }
                                             else
                                             {
-                                                string[] clineSplit = gen.CMDBatchAfter[x].Split('|');
+                                                var clineSplit = line.Split('|');
                                                 if (clineSplit[0] == i.ToString())
                                                 {
                                                     Log("Running command line: " + clineSplit[1]);
-                                                    cmd.StandardInput.WriteLine(clineSplit[1]);
+                                                    scriptContent.AppendLine(clineSplit[1]);
                                                 }
                                             }
                                         }
@@ -1962,79 +1969,74 @@ namespace Nucleus.Gaming
 
                                     if (gen.PauseCMDBatchAfter > 0)
                                     {
-                                        Log(string.Format("Pausing for {0} seconds", gen.PauseCMDBatchAfter));
+                                        Log($"Pausing for {gen.PauseCMDBatchAfter} seconds");
+                                        scriptContent.AppendLine($" timeout / t {gen.PauseCMDBatchAfter} / nobreak > nul");
                                         Thread.Sleep(TimeSpan.FromSeconds(gen.PauseCMDBatchAfter));
                                     }
                                 }
                                 else
                                 {
-                                    string forceBindexe = string.Empty;
-
-                                    if (gameIs64)
-                                    {
-                                        forceBindexe = "ForceBindIP64.exe";
-                                    }
-                                    else //if (Is64Bit(exePath) == false)
-                                    {
-                                        forceBindexe = "ForceBindIP.exe";
-                                    }
+                                    string forceBindexe = gameIs64 ? "ForceBindIP64.exe" : "ForceBindIP.exe";
 
                                     if (gen.UseNucleusEnvironment)
                                     {
-                                        Log("Setting up Nucleus environment");
-                                        //var username = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile).Replace(@"C:\Users\", "");
                                         string username = WindowsIdentity.GetCurrent().Name.Split('\\')[1];
-                                        cmd.StandardInput.WriteLine($@"set APPDATA={UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Roaming");
-                                        cmd.StandardInput.WriteLine($@"set LOCALAPPDATA={UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Local");
-                                        cmd.StandardInput.WriteLine($@"set USERPROFILE={UserEnvironmentRoot}\NucleusCoop\{player.Nickname}");
-                                        cmd.StandardInput.WriteLine($@"set HOMEPATH=\Users\{username}\NucleusCoop\{player.Nickname}");
+
+                                        scriptContent.AppendLine("@echo off");
+                                        scriptContent.AppendLine("chcp 65001 >nul");
+
+                                        scriptContent.AppendLine($"set APPDATA={Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}\\AppData\\Roaming");
+                                        scriptContent.AppendLine($"set LOCALAPPDATA={Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}\\AppData\\Local");
+                                        scriptContent.AppendLine($"set USERPROFILE={Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}");
+                                        scriptContent.AppendLine($"set HOMEPATH=\\Users\\{Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}");
 
                                         //Some games will crash if the directories don't exist
-                                        Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop");
-                                        Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Roaming");
-                                        Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Local");
-                                        Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop\{player.Nickname}");
-                                        Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\Documents");
-                                        Directory.CreateDirectory(Path.GetDirectoryName(DocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents");
+                                        Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop");
+                                        Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Roaming");
+                                        Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Local");
+                                        Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}");
+                                        Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\Documents");
+                                        Directory.CreateDirectory(Path.GetDirectoryName(Globals.UserDocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents");
 
                                         if (gen.DocumentsConfigPath?.Length > 0 || gen.DocumentsSavePath?.Length > 0)
                                         {
-                                            if (!File.Exists(Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\User Shell Folders.reg")))
+                                            string backupPath = Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\User Shell Folders.reg");
+                                            if (!File.Exists(backupPath))
                                             {
-                                                RegistryUtil.ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\User Shell Folders.reg"));
+                                                RegistryUtil.ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", backupPath);
                                             }
 
                                             RegistryKey dkey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);
-                                            dkey.SetValue("Personal", Path.GetDirectoryName(DocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents", (RegistryValueKind)(int)RegType.ExpandString);
+                                            dkey.SetValue("Personal", Path.GetDirectoryName(Globals.UserDocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents", (RegistryValueKind)(int)RegType.ExpandString);
                                         }
-                                    }
 
-                                    if (gen.CMDBatchBefore?.Length > 0 || gen.CMDBatchAfter?.Length > 0)
-                                    {
-                                        cmd.StandardInput.WriteLine($@"set NUCLEUS_EXE=" + Path.GetFileName(exePath));
-                                        cmd.StandardInput.WriteLine($@"set NUCLEUS_INST_EXE_FOLDER=" + Path.GetDirectoryName(exePath));
-                                        cmd.StandardInput.WriteLine($@"set NUCLEUS_INST_FOLDER=" + linkFolder);
-                                        cmd.StandardInput.WriteLine($@"set NUCLEUS_FOLDER=" + NucleusFolderPath);
-                                        cmd.StandardInput.WriteLine($@"set NUCLEUS_ORIG_EXE_FOLDER=" + exeFolder);
-                                        cmd.StandardInput.WriteLine($@"set NUCLEUS_ORIG_FOLDER=" + exeFolder.Substring(0, (exeFolder.Length - gen.BinariesFolder.Length)));
+                                        if (gen.CMDBatchBefore?.Length > 0 || gen.CMDBatchAfter?.Length > 0)
+                                        {
+                                            scriptContent.AppendLine($@"set NUCLEUS_EXE=" + Path.GetFileName(exePath));
+                                            scriptContent.AppendLine($@"set NUCLEUS_INST_EXE_FOLDER=" + Path.GetDirectoryName(exePath));
+                                            scriptContent.AppendLine($@"set NUCLEUS_INST_FOLDER=" + linkFolder);
+                                            scriptContent.AppendLine($@"set NUCLEUS_FOLDER=" + NucleusFolderPath);
+                                            scriptContent.AppendLine($@"set NUCLEUS_ORIG_EXE_FOLDER=" + exeFolder);
+                                            scriptContent.AppendLine($@"set NUCLEUS_ORIG_FOLDER=" + exeFolder.Substring(0, (exeFolder.Length - gen.BinariesFolder.Length)));
+                                        }
                                     }
 
                                     if (gen.CMDBatchBefore?.Length > 0)
                                     {
-                                        for (int x = 0; x < gen.CMDBatchBefore.Length; x++)
+                                        foreach (var line in gen.CMDBatchBefore)
                                         {
-                                            if (!gen.CMDBatchBefore[x].Contains("|"))
+                                            if (!line.Contains("|"))
                                             {
-                                                Log("Running command line: " + gen.CMDBatchBefore[x]);
-                                                cmd.StandardInput.WriteLine(gen.CMDBatchBefore[x]);
+                                                Log("Running command line: " + line);
+                                                scriptContent.AppendLine(line);
                                             }
                                             else
                                             {
-                                                string[] clineSplit = gen.CMDBatchBefore[x].Split('|');
+                                                var clineSplit = line.Split('|');
                                                 if (clineSplit[0] == i.ToString())
                                                 {
                                                     Log("Running command line: " + clineSplit[1]);
-                                                    cmd.StandardInput.WriteLine(clineSplit[1]);
+                                                    scriptContent.AppendLine(clineSplit[1]);
                                                 }
                                             }
                                         }
@@ -2042,60 +2044,69 @@ namespace Nucleus.Gaming
 
                                     if (gen.PauseCMDBatchBefore > 0)
                                     {
-                                        Log(string.Format("Pausing for {0} seconds", gen.PauseCMDBatchBefore));
+                                        Log($"Pausing for {gen.PauseCMDBatchBefore} seconds");
                                         Thread.Sleep(TimeSpan.FromSeconds(gen.PauseCMDBatchBefore));
                                     }
 
-                                    string iParam = string.Empty;
+                                    string iParam = gen.ForceBindIPDelay ? "-i " : "";
+                                    string dummy = gen.ForceBindIPNoDummy ? "" : " dummy";
 
-                                    if (gen.ForceBindIPDelay)
-                                    {
-                                        iParam = "-i ";
-                                    }
+                                    string forceBindPath = Path.Combine(GameManager.Instance.GetUtilsPath(), "ForceBindIP", forceBindexe);
+                                    string ip = "127.0.0." + (i + 2);
 
-                                    string dummy = " dummy";
+                                    string cmdLine = $"\"{forceBindPath}\" {iParam}{ip} \"{exePath}\"{dummy} {startArgs}";
 
-                                    if (gen.ForceBindIPNoDummy)
-                                    {
-                                        dummy = string.Empty;
-                                    }
-
-                                    string cmdLine = "\"" + Path.Combine(GameManager.Instance.GetUtilsPath(), "ForceBindIP\\" + forceBindexe) + "\" " + iParam + "127.0.0." + (i + 2) + " \"" + exePath + "\"" + dummy + startArgs;
-
-                                    Log(string.Format("Launching game using ForceBindIP command line argument: {0}", cmdLine));
-                                    cmd.StandardInput.WriteLine(cmdLine);
+                                    Log("Launching game using ForceBindIP command line argument: " + cmdLine);
+                                    scriptContent.AppendLine(cmdLine);
 
                                     if (gen.CMDBatchAfter?.Length > 0)
                                     {
-                                        for (int x = 0; x < gen.CMDBatchAfter.Length; x++)
+                                        foreach (var line in gen.CMDBatchAfter)
                                         {
-                                            if (!gen.CMDBatchAfter[x].Contains("|"))
+                                            if (!line.Contains("|"))
                                             {
-                                                Log("Running command line: " + gen.CMDBatchAfter[x]);
-                                                cmd.StandardInput.WriteLine(gen.CMDBatchAfter[x]);
+                                                Log("Running command line: " + line);
+                                                scriptContent.AppendLine(line);
                                             }
                                             else
                                             {
-                                                string[] clineSplit = gen.CMDBatchAfter[x].Split('|');
+                                                var clineSplit = line.Split('|');
                                                 if (clineSplit[0] == i.ToString())
                                                 {
                                                     Log("Running command line: " + clineSplit[1]);
-                                                    cmd.StandardInput.WriteLine(clineSplit[1]);
+                                                    scriptContent.AppendLine(clineSplit[1]);
                                                 }
                                             }
                                         }
                                     }
                                 }
 
-                                proc = null;
-                                cmd.StandardInput.Flush();
-                                cmd.StandardInput.Close();
+                                File.WriteAllText(scriptPath, scriptContent.ToString(), new UTF8Encoding(true));
+                                Thread.Sleep(100);
+
+                                Process cmd = new Process();
+                                cmd.StartInfo.FileName = "cmd.exe";
+                                cmd.StartInfo.Arguments = $"/c \"{scriptPath}\"";
+                                cmd.StartInfo.RedirectStandardInput = true;
+                                cmd.StartInfo.RedirectStandardOutput = true;
+                                cmd.StartInfo.RedirectStandardError = true;
+                                cmd.StartInfo.UseShellExecute = false;
+                                cmd.StartInfo.CreateNoWindow = true;
+
+                                if (gen.UseForceBindIP)
+                                {
+                                    cmd.StartInfo.WorkingDirectory = Path.GetDirectoryName(exePath);
+                                }
+
+                                cmd.Start();
+                                cmd.WaitForExit();
 
                                 if (gen.PauseCMDBatchAfter > 0)
                                 {
-                                    Log(string.Format("Pausing for {0} seconds", gen.PauseCMDBatchAfter));
+                                    Log($"Pausing for {gen.PauseCMDBatchAfter} seconds");
                                     Thread.Sleep(TimeSpan.FromSeconds(gen.PauseCMDBatchAfter));
                                 }
+
                             }
                             else
                             {
@@ -2163,6 +2174,7 @@ namespace Nucleus.Gaming
                 if (gen.GamePlayAfterLaunch && !gen.GamePlayBeforeGameSetup)
                 {
                     gen.PrePlay(player);
+                    ProtoInputLauncher.SetProtoControllersIndex(player, gen);
                 }
 
                 if (gen.LaunchAsDifferentUsers || gen.LaunchAsDifferentUsersAlt)
@@ -2424,6 +2436,11 @@ namespace Nucleus.Gaming
 
                     if (proc == null || gen.ForceProcessPick)
                     {
+                        if(gen.UseForceBindIP)
+                        {
+                            Thread.Sleep(5000);
+                        }
+
                         proc = ProcessPickerRuntime.LaunchProcessPick(player);
                     }
 
@@ -2466,8 +2483,7 @@ namespace Nucleus.Gaming
                         }
                     }
                 }
-
-                
+              
                 Log(string.Format("Process details; Name: {0}, ID: {1}, MainWindowtitle: {2}, NucleusGetMainWindowHandle(): {3}", proc.ProcessName, proc.Id, proc.MainWindowTitle, proc.NucleusGetMainWindowHandle()));
 
                 if (gen.WriteToProcessMemory?.Length > 0)
@@ -2994,21 +3010,15 @@ namespace Nucleus.Gaming
                 gen.ProtoInput.OnInputUnlocked?.Invoke();
             }
 
-            if (gen.SetTopMostAtEnd)
+            if (gen.SetTopMostAtEnd && (!gen.PromptBetweenInstances && !gen.NotTopMost))
             {
-                if (!gen.PromptBetweenInstances)
+                for (int i = 0; i < players.Count; i++)
                 {
-                    if (!gen.NotTopMost)
-                    {
-                        for (int i = 0; i < players.Count; i++)
-                        {
-                            PlayerInfo p = players[i];
-                            ProcessData data = p.ProcessData;
+                    PlayerInfo p = players[i];
+                    ProcessData data = p.ProcessData;
 
-                            Log("Set game window to top most");
-                            data.HWnd.TopMost = true;
-                        }
-                    }
+                    Log("Set game window to top most");
+                    data.HWnd.TopMost = true;
                 }
             }
 
@@ -3503,15 +3513,13 @@ namespace Nucleus.Gaming
 
             Thread.Sleep(1000);
 
-            List<PlayerInfo> data = profile.DevicesList;
-
             if (!earlyExit)
             {
-                folderUsers = Directory.GetDirectories(Path.GetDirectoryName(UserEnvironmentRoot));
+                folderUsers = Directory.GetDirectories(Path.GetDirectoryName(Globals.UserEnvironmentRoot));
 
                 if (gen.TransferNucleusUserAccountProfiles)
                 {
-                    NucleusUsers.TransferNucleusUserAccountProfiles(data);
+                    NucleusUsers.TransferNucleusUserAccountProfiles(profile.DevicesList);
                 }
 
                 if (!App_Misc.KeepAccounts)
@@ -3540,10 +3548,6 @@ namespace Nucleus.Gaming
                 }
             }
 
-            
-
-            //TaskbarState.SetOnStopState();
-
             GameManager.Instance.ExecuteBackup(userGame.Game);
 
             LogManager.UnregisterForLogCallback(this);
@@ -3561,8 +3565,11 @@ namespace Nucleus.Gaming
 
             RawInputManager.EndSplitScreen();
 
-            BackupDatas.ProceedBackup();
-
+            //if(!Globals.IsOneDriveEnabled)
+            {
+                BackupDatas.ProceedBackup();
+            }
+            
             // delete symlink folder and users accounts 
 #if RELEASE
             if (!gen.SymlinkGame && !gen.HardlinkGame && !gen.HardcopyGame)
@@ -3585,6 +3592,7 @@ namespace Nucleus.Gaming
             Ended?.Invoke();
 
             hasEnded = true;
+            IsRunning = false;
         }
 
         public void Log(StreamWriter writer)

@@ -19,7 +19,7 @@ namespace Nucleus.Gaming
     /// </summary>
     public class GameManager
     {
-        private static GameManager instance;
+        public static GameManager Instance { get; private set; }
 
         private List<BackupFile> backupFiles;
         private bool isSaving;
@@ -41,8 +41,6 @@ namespace Nucleus.Gaming
         private Dictionary<string, GenericGameInfo> gameInfos;
         public Dictionary<string, GenericGameInfo> GameInfos => gameInfos;
 
-        public static GameManager Instance => instance;
-         
         private UserProfile user;
         public UserProfile User
         {
@@ -52,7 +50,7 @@ namespace Nucleus.Gaming
 
         public GameManager()
         {
-            instance = this;
+            Instance = this;
             games = new Dictionary<string, GenericGameInfo>();
             gameInfos = new Dictionary<string, GenericGameInfo>();
 

@@ -199,7 +199,7 @@ namespace Nucleus.Coop.Controls
 
             if (titleFont == null)
             {
-                titleFont = new Font(Theme_Settings.CustomFont,12F, FontStyle.Bold, GraphicsUnit.Pixel, 0);
+                titleFont = new Font(Theme_Settings.CustomFont,10F, FontStyle.Bold, GraphicsUnit.Pixel, 0);
                 previewFont = new Font(Theme_Settings.CustomFont, 10F, FontStyle.Bold, GraphicsUnit.Pixel, 0);
             }
 
@@ -367,8 +367,9 @@ namespace Nucleus.Coop.Controls
                 sb.Append($"{Jprofile["Notes"]}\n\n");
             }
 
+
             sb.Append($"Players Count: {Jprofile["Player(s)"]}\n\n");
-            sb.Append($"Gamepads Used: {Jprofile["Controller(s)"]}\n");
+            sb.Append($"Gamepads Used: {Jprofile["Controller(s)"]}\n");         
             sb.Append($"Keyboard/Mouse Combo Used: {Jprofile["K&M"]}\n\n");
             sb.Append($"Use Xinput Indexes: {Jprofile["Use XInput Index"]}\n");
             sb.Append($"AutoPlay: {Jprofile["AutoPlay"]["Enabled"]}\n");
@@ -410,6 +411,8 @@ namespace Nucleus.Coop.Controls
 
             sb.Append($"Players Info:\n");
 
+            int totalGuests = 0;
+
             for (int i = 0; i < Jprofile["Data"].Count(); i++)
             {
                 var playerDatas = Jprofile["Data"][i];
@@ -430,9 +433,30 @@ namespace Nucleus.Coop.Controls
                     sb.Append($" -Device Type: Keyboard/Mouse\n");
                 }
 
+               bool validGuestField = playerDatas["Guests"] != null;
+
+                if(validGuestField)
+                {
+                    int playerGuests = playerDatas["Guests"]["GUIDS"].ToString().Split(',').Length -1;
+                    if(playerGuests >= 1)
+                    {
+                        sb.Append($" -Guest Players: {playerGuests}\n");
+                        totalGuests += playerGuests;
+                    }
+                    
+                }
+                
                 sb.Append($" -Screen Index: {playerDatas["ScreenIndex"]}\n");
+               
                 if (i == Jprofile["Data"].Count() - 1)
-                    sb.Append($"------------------------");
+                {                  
+                    sb.Append($"------------------------\n");
+                }          
+            }
+
+            if (totalGuests >= 1)
+            {
+                sb.Append($" -Total Guests: {totalGuests}\n");
             }
 
             string preview = sb.ToString();

@@ -18,7 +18,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         public override bool CanPlay => false;
       
         public ToolTip profileSettings_Tooltip;
-
+        private bool ended = false;
         public override string Title => "Position Players";
 
         private UserGameInfo userGameInfo;
@@ -63,11 +63,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             }
 
             profileDisabled = App_Misc.DisableGameProfiles || game.Game.MetaInfo.DisableProfiles;
-
-            if (game.Game.UseDevReorder || game.Game.CreateSingleDeviceFile)
-            {
-                DevicesFunctions.UseGamepadApiIndex = false;
-            }
+            ended = false;
         }
 
         public void UpdateSize(float scale)
@@ -102,12 +98,13 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         {
             base.Ended();         
             DevicesFunctions.DisposeGamePadTimer();
+            ended = true;
         }
 
         protected override void OnSizeChanged(EventArgs e)
         {
             base.OnSizeChanged(e);
-            BoundsFunctions.TotalBounds = Rectangle.Empty;
+            BoundsFunctions.UpdateUIBounds();
             Invalidate(false);
         }
 
@@ -142,13 +139,15 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            
+
             base.OnPaint(e);
-        
-            if (BoundsFunctions.SelectedPlayer?.MonitorBounds != Rectangle.Empty &&
-                BoundsFunctions.SelectedPlayer?.MonitorBounds != null)
+
+            if (BoundsFunctions.BufferedSurface != Rectangle.Empty)
             {
-                Draw.SelectedPlayerBounds(e.Graphics);
-                Draw.PlayerBoundsInfo(e.Graphics);
+                //e.Graphics.FillRectangle(Brushes.Gray, BoundsFunctions.BufferedSurface);
+                //e.Graphics.FillRectangle(Brushes.Gray, BoundsFunctions.DestEditBounds);
+                //e.Graphics.FillRectangle(Brushes.Blue, new RectangleF((BoundsFunctions.DestEditBounds.X + (BoundsFunctions.DestEditBounds.Width / 2) )- 10, (BoundsFunctions.DestEditBounds.Y + (BoundsFunctions.DestEditBounds.Height / 2)) -10, 20, 20));
             }
 
             Draw.UIScreens(e.Graphics);
@@ -160,29 +159,46 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 PlayerInfo player = profile.DevicesList[i];
 
                 if (GameProfile.Loaded)
-                {  
-                    if(!BoundsFunctions.Dragging)
+                {
+                    if (!BoundsFunctions.Dragging)
                     {
                         GameProfile.FindProfilePlayers(player);
                     }
-                    
+
                     Draw.GhostBounds(e.Graphics);
                 }
 
-                Draw.UIDevices(e.Graphics, player);
+                e.Graphics.ResetClip();
+
+                if (!ended)
+                {
+                    Draw.UIDevices(e.Graphics, player);
+                }
 
                 if (GameProfile.AssignedDevices.Contains(player))
                 {
                     GameProfile.UpdateProfilePlayerIdentity(player);
 
-                    if (!player.EditBounds.IntersectsWith(BoundsFunctions.ActiveSizer))
+                    if (BoundsFunctions.ShowGuestRemovelText != null && !BoundsFunctions.Dragging && !GameProfile.Loaded)
+                    {
+                        Draw.DrawGuestRemovalText(e.Graphics, BoundsFunctions.ShowGuestRemovelText);
+                    }
+
+                    if (!player.EditBounds.IntersectsWith(BoundsFunctions.ActiveSizer) && player.EditBounds!= player.SourceEditBounds)
                     {
                         Draw.PlayerTag(e.Graphics, player);
                     }
                 }
             }
 
-            e.Graphics.ResetClip();
+            e.Graphics.ResetClip();          
+
+            if (BoundsFunctions.SelectedPlayer?.MonitorBounds != Rectangle.Empty &&
+               BoundsFunctions.SelectedPlayer?.MonitorBounds != null)
+            {
+                //Draw.SelectedPlayerBounds(e.Graphics);
+                Draw.PlayerBoundsInfo(e.Graphics);
+            }
 
             if (BoundsFunctions.Dragging && BoundsFunctions.DraggingScreen != -1)
             {

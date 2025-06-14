@@ -199,7 +199,7 @@ namespace Nucleus.Gaming
                 {
                     MouseEventArgs arg = e as MouseEventArgs;
 
-                    if (arg.Button == MouseButtons.Right)
+                    if (arg?.Button == MouseButtons.Right)
                     {
                         return;
                     }

@@ -101,6 +101,48 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             }
         }
 
+        public static void SetProtoControllersIndex(PlayerInfo player, GenericGameInfo game)
+        {
+            if (game.ProtoInput.MultipleProtoControllers)
+            {      
+                player.ProtoController1 = player.GamepadId + 1;
+
+                if (player.InstanceGuests.Count > 0)
+                {
+                    for (int i = 0; i < player.InstanceGuests.Count; i++)
+                    {
+                        int guestIndex = player.InstanceGuests[i].GamepadId + 1;
+
+                        switch (i)
+                        {
+                            case 0:
+                                player.ProtoController2 = guestIndex;
+                                break;
+                            case 1:
+                                player.ProtoController3 = guestIndex;
+                                break;
+                            case 2:
+                                player.ProtoController4 = guestIndex;
+                                break;
+                        }
+                    }
+                }
+                else
+                {
+                    player.ProtoController2 = player.GamepadId + 1;
+                    player.ProtoController3 = player.GamepadId + 1;
+                    player.ProtoController4 = player.GamepadId + 1;
+                }         
+            }
+            else
+            {
+                player.ProtoController1 = player.GamepadId + 1;
+                player.ProtoController2 = 0;
+                player.ProtoController3 = 0;
+                player.ProtoController4 = 0;
+            }
+        }
+
         private static void SetupInstance(uint instanceHandle, int instanceIndex, GenericGameInfo gen, PlayerInfo player, int mouseHandle, int keyboardHandle, int controllerIndex, int controllerIndex2, int controllerIndex3, int controllerIndex4)
         {
             Debug.WriteLine("Setting up ProtoInput instance " + instanceIndex);

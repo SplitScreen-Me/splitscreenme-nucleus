@@ -23,6 +23,9 @@ namespace Nucleus.Gaming.Coop
         public Rectangle OwnerDisplay;
         public RectangleF OwnerUIBounds;
         public int OwnerType;
+        public int CurrentMaxGuests = 0;
+
+        public bool WaitGuests => InstanceGuests.Count < CurrentMaxGuests;
         //
 
         public InputType InputType;
@@ -39,6 +42,13 @@ namespace Nucleus.Gaming.Coop
         public string SID;
         public string Adapter;
         public string UserProfile;
+        public List<PlayerInfo> InstanceGuests = new List<PlayerInfo>();
+        public List<Guid> GuestsGuid = new List<Guid>();
+
+        /// <summary>
+        /// If the player is instance guest 
+        /// </summary>
+        public RectangleF GuestBounds;
 
         public bool SteamEmu;
         public bool GotLauncher;
@@ -149,7 +159,6 @@ namespace Nucleus.Gaming.Coop
                 }
             }
         }
-
 
         public Bitmap Image;
         public bool IsFake;
