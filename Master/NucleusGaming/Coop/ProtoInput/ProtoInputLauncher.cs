@@ -211,7 +211,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             }
 
             ProtoInput.protoInput.SetSetWindowPosSettings(instanceHandle, player.MonitorBounds.X, player.MonitorBounds.Y, player.MonitorBounds.Width, player.MonitorBounds.Height);
-            if (gen.ProtoInput.SetWindowPosHook)
+            if (gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontResize || gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontReposition || gen.ProtoInput.SetWindowPosHook != 0)
             {
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.SetWindowPosHookID);
             }
@@ -257,7 +257,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             }
 
             ProtoInput.protoInput.SetMoveWindowSettings(instanceHandle, player.MonitorBounds.X, player.MonitorBounds.Y, player.MonitorBounds.Width, player.MonitorBounds.Height);
-            if (gen.ProtoInput.MoveWindowHook)
+            if (gen.ProtoInput.MoveWindowHook == MoveWindowHook.DontResize || gen.ProtoInput.MoveWindowHook == MoveWindowHook.DontReposition || gen.ProtoInput.MoveWindowHook != 0)
             {
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.MoveWindowHookID);
             }
@@ -300,12 +300,13 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             }
 
             ProtoInput.protoInput.SetDrawFakeCursor(instanceHandle, gen.ProtoInput.DrawFakeCursor);
-            ProtoInput.protoInput.SetPutMouseInsideWindow(instanceHandle, gen.ProtoInput.PutMouseInsideWindow);
-            ProtoInput.protoInput.SetSetWindowPosDontResize(instanceHandle, gen.ProtoInput.SetWindowPosDontResize);
-            ProtoInput.protoInput.SetSetWindowPosDontReposition(instanceHandle, gen.ProtoInput.SetWindowPosDontReposition);
-            ProtoInput.protoInput.SetMoveWindowDontResize(instanceHandle, gen.ProtoInput.MoveWindowDontResize);
-            ProtoInput.protoInput.SetMoveWindowDontReposition(instanceHandle, gen.ProtoInput.MoveWindowDontReposition);
-            ProtoInput.protoInput.SetPutMouseInsideWindow(instanceHandle, gen.ProtoInput.PutMouseInsideWindow);
+            ProtoInput.protoInput.SetSetWindowPosDontResize(instanceHandle, gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontResize);
+            ProtoInput.protoInput.SetSetWindowPosDontReposition(instanceHandle, gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontReposition);
+            ProtoInput.protoInput.SetMoveWindowDontResize(instanceHandle, gen.ProtoInput.MoveWindowHook == MoveWindowHook.DontResize);
+            ProtoInput.protoInput.SetMoveWindowDontReposition(instanceHandle, gen.ProtoInput.MoveWindowHook == MoveWindowHook.DontReposition);
+            ProtoInput.protoInput.SetPutMouseInsideWindow(instanceHandle, gen.ProtoInput.PutMouseInsideWindow == PutMouseInsideWindow.IgnoreTopLeft || gen.ProtoInput.PutMouseInsideWindow == PutMouseInsideWindow.IgnoreBottomRight || gen.ProtoInput.PutMouseInsideWindow != 0);
+            ProtoInput.protoInput.SetDefaultTopLeftMouseBounds(instanceHandle, gen.ProtoInput.PutMouseInsideWindow == PutMouseInsideWindow.IgnoreTopLeft);
+            ProtoInput.protoInput.SetDefaultBottomRightMouseBounds(instanceHandle, gen.ProtoInput.PutMouseInsideWindow == PutMouseInsideWindow.IgnoreBottomRight);
             ProtoInput.protoInput.AllowFakeCursorOutOfBounds(instanceHandle, gen.ProtoInput.AllowFakeCursorOutOfBounds, gen.ProtoInput.ExtendFakeCursorBounds);
             ProtoInput.protoInput.SetToggleFakeCursorVisibilityShortcut(instanceHandle,
                 gen.ProtoInput.EnableToggleFakeCursorVisibilityShortcut,

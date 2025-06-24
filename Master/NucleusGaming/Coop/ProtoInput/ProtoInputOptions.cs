@@ -24,16 +24,12 @@ namespace Nucleus.Gaming.Coop.ProtoInput
         public bool RenameHandlesHook;
         public bool XinputHook;
         public bool DinputDeviceHook;
-        public bool SetWindowPosHook;
-        public bool SetWindowPosDontResize;
-        public bool SetWindowPosDontReposition;
+        public SetWindowPosHook SetWindowPosHook;
         public bool BlockRawInputHook;
         public bool FindWindowHook;
         public bool CreateSingleHIDHook;
         public bool SetWindowStyleHook;
-        public bool MoveWindowHook;
-        public bool MoveWindowDontResize;
-        public bool MoveWindowDontReposition;
+        public MoveWindowHook MoveWindowHook;
         public bool AdjustWindowRectHook;
         public bool SetRemoveBorderHook;
 
@@ -71,7 +67,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
         public bool EnableToggleFakeCursorVisibilityShortcut;
         public uint ToggleFakeCursorVisibilityShortcutVkey = 0x24; // VK_HOME
         public bool DontShowCursorWhenImageUpdated;
-        public bool PutMouseInsideWindow;
+        public PutMouseInsideWindow PutMouseInsideWindow;
 
         public bool UseDinputRedirection;
 

@@ -167,6 +167,12 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetPutMouseInsideWindow(uint instanceHandle, bool enable);
 
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetDefaultTopLeftMouseBounds(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetDefaultBottomRightMouseBounds(uint instanceHandle, bool enable);
+
             // Both of these functions require RenameHandlesHookHookID hook
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void AddHandleToRename(uint instanceHandle, string name);
@@ -374,6 +380,12 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetPutMouseInsideWindow(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetDefaultTopLeftMouseBounds(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetDefaultBottomRightMouseBounds(uint instanceHandle, bool enable);
 
             [DllImport("ProtoInputUtilDynamic64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern uint LockInput(bool lockInput);
@@ -779,6 +791,30 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             else
             {
                 ProtoInput64.SetPutMouseInsideWindow(instanceHandle, enable);
+            }
+        }
+
+        public void SetDefaultTopLeftMouseBounds(uint instanceHandle, bool enable)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.SetDefaultTopLeftMouseBounds(instanceHandle, enable);
+            }
+            else
+            {
+                ProtoInput64.SetDefaultTopLeftMouseBounds(instanceHandle, enable);
+            }
+        }
+
+        public void SetDefaultBottomRightMouseBounds(uint instanceHandle, bool enable)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.SetDefaultBottomRightMouseBounds(instanceHandle, enable);
+            }
+            else
+            {
+                ProtoInput64.SetDefaultBottomRightMouseBounds(instanceHandle, enable);
             }
         }
 
