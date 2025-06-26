@@ -483,8 +483,14 @@ namespace Nucleus.Coop
 
         public static void CheckAppUpdate()
         {
-            if (File.Exists(Path.Combine(Application.StartupPath, "Updater.exe")))
-                Process.Start(Path.Combine(Application.StartupPath, "Updater.exe"));
+            try
+            {
+                if (File.Exists(Path.Combine(Application.StartupPath, "Updater.exe")))
+                    Process.Start(Path.Combine(Application.StartupPath, "Updater.exe"));
+            }
+            catch
+            { 
+            }
         }
 
         public static void CheckDebugLogSize()
