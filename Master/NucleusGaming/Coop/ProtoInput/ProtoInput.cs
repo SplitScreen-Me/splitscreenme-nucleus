@@ -29,6 +29,9 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             public uint FindWindowHookID = (uint)ProtoHookIDs.FindWindowHookID;
             public uint CreateSingleHIDHookID = (uint)ProtoHookIDs.CreateSingleHIDHookID;
             public uint WindowStyleHookID = (uint)ProtoHookIDs.WindowStyleHookID;
+            public uint MoveWindowHookID = (uint)ProtoHookIDs.MoveWindowHookID;
+            public uint AdjustWindowRectHookID = (uint)ProtoHookIDs.AdjustWindowRectHookID;
+            public uint RemoveBorderHookID = (uint)ProtoHookIDs.RemoveBorderHookID;
 
             public uint RawInputFilterID = (uint)ProtoMessageFilterIDs.RawInputFilterID;
             public uint MouseMoveFilterID = (uint)ProtoMessageFilterIDs.MouseMoveFilterID;
@@ -62,7 +65,10 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             BlockRawInputHookID,
             FindWindowHookID,
             CreateSingleHIDHookID,
-            WindowStyleHookID
+            WindowStyleHookID,
+            MoveWindowHookID,
+            AdjustWindowRectHookID,
+            RemoveBorderHookID
         };
 
         public enum ProtoMessageFilterIDs : uint
@@ -123,7 +129,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                                     bool sendMouseWheelMessages,
                                     bool sendMouseButtonMessages,
                                     bool sendMouseMoveMessages,
-                                    bool sendKeyboardPressMessages);
+                                    bool sendKeyboardPressMessages,
+                                    bool sendMouseDblClkMessages);
 
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void StartFocusMessageLoop(uint instanceHandle, int milliseconds,
@@ -160,6 +167,19 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetShowCursorWhenImageUpdated(uint instanceHandle, bool enable);
 
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetPutMouseInsideWindow(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetDefaultTopLeftMouseBounds(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetDefaultBottomRightMouseBounds(uint instanceHandle, bool enable);
+
+            // This MUST be called before calling InstallHook on the RemoveBorderhook
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetDontWaitWindowBorder(uint instanceHandle, bool enable);
+
             // Both of these functions require RenameHandlesHookHookID hook
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void AddHandleToRename(uint instanceHandle, string name);
@@ -186,6 +206,12 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetSetWindowPosSettings(uint instanceHandle, int posx, int posy, int width, int height);
+
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetSetWindowPosDontResize(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetSetWindowPosDontReposition(uint instanceHandle, bool enable);
 
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetCreateSingleHIDName(uint instanceHandle, string name);
@@ -216,6 +242,18 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             [DllImport("ProtoInputUtilDynamic32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void GetTaskbarVisibility(out bool autoHide, out bool alwaysOnTop);
+
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetMoveWindowSettings(uint instanceHandle, int posx, int posy, int width, int height);
+
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetMoveWindowDontResize(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetMoveWindowDontReposition(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetAdjustWindowRectSettings(uint instanceHandle, int posx, int posy, int width, int height);
         }
 
         private static class ProtoInput64
@@ -264,7 +302,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                                     bool sendMouseWheelMessages,
                                     bool sendMouseButtonMessages,
                                     bool sendMouseMoveMessages,
-                                    bool sendKeyboardPressMessages);
+                                    bool sendKeyboardPressMessages,
+                                    bool sendMouseDblClkMessages);
 
             [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void StartFocusMessageLoop(uint instanceHandle, int milliseconds,
@@ -326,6 +365,12 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             public static extern void SetSetWindowPosSettings(uint instanceHandle, int posx, int posy, int width, int height);
 
             [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetSetWindowPosDontResize(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetSetWindowPosDontReposition(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetCreateSingleHIDName(uint instanceHandle, string name);
 
             [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
@@ -343,6 +388,19 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetShowCursorWhenImageUpdated(uint instanceHandle, bool enable);
 
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetPutMouseInsideWindow(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetDefaultTopLeftMouseBounds(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetDefaultBottomRightMouseBounds(uint instanceHandle, bool enable);
+
+            // This MUST be called before calling InstallHook on the RemoveBorderhook
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetDontWaitWindowBorder(uint instanceHandle, bool enable);
+
             [DllImport("ProtoInputUtilDynamic64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern uint LockInput(bool lockInput);
 
@@ -357,6 +415,18 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             [DllImport("ProtoInputUtilDynamic64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void GetTaskbarVisibility(out bool autoHide, out bool alwaysOnTop);
+
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetMoveWindowSettings(uint instanceHandle, int posx, int posy, int width, int height);
+
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetMoveWindowDontResize(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetMoveWindowDontReposition(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetAdjustWindowRectSettings(uint instanceHandle, int posx, int posy, int width, int height);
         }
 
         public uint LockInput(bool lockInput)
@@ -575,7 +645,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                                     bool sendMouseWheelMessages,
                                     bool sendMouseButtonMessages,
                                     bool sendMouseMoveMessages,
-                                    bool sendKeyboardPressMessages)
+                                    bool sendKeyboardPressMessages,
+                                    bool sendMouseDblClkMessages)
         {
             if (IntPtr.Size == 4)
             {
@@ -583,7 +654,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                                     sendMouseWheelMessages,
                                     sendMouseButtonMessages,
                                     sendMouseMoveMessages,
-                                    sendKeyboardPressMessages);
+                                    sendKeyboardPressMessages,
+                                    sendMouseDblClkMessages);
             }
             else
             {
@@ -591,7 +663,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                                     sendMouseWheelMessages,
                                     sendMouseButtonMessages,
                                     sendMouseMoveMessages,
-                                    sendKeyboardPressMessages);
+                                    sendKeyboardPressMessages,
+                                    sendMouseDblClkMessages);
             }
         }
 
@@ -734,6 +807,54 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             }
         }
 
+        public void SetPutMouseInsideWindow(uint instanceHandle, bool enable)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.SetPutMouseInsideWindow(instanceHandle, enable);
+            }
+            else
+            {
+                ProtoInput64.SetPutMouseInsideWindow(instanceHandle, enable);
+            }
+        }
+
+        public void SetDefaultTopLeftMouseBounds(uint instanceHandle, bool enable)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.SetDefaultTopLeftMouseBounds(instanceHandle, enable);
+            }
+            else
+            {
+                ProtoInput64.SetDefaultTopLeftMouseBounds(instanceHandle, enable);
+            }
+        }
+
+        public void SetDefaultBottomRightMouseBounds(uint instanceHandle, bool enable)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.SetDefaultBottomRightMouseBounds(instanceHandle, enable);
+            }
+            else
+            {
+                ProtoInput64.SetDefaultBottomRightMouseBounds(instanceHandle, enable);
+            }
+        }
+
+        public void SetDontWaitWindowBorder(uint instanceHandle, bool enable)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.SetDontWaitWindowBorder(instanceHandle, enable);
+            }
+            else
+            {
+                ProtoInput64.SetDontWaitWindowBorder(instanceHandle, enable);
+            }
+        }
+
         /// <summary>
         /// Require RenameHandlesHookHookID hook
         /// </summary>
@@ -848,6 +969,30 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             }
         }
 
+        public void SetSetWindowPosDontResize(uint instanceHandle, bool enable)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.SetSetWindowPosDontResize(instanceHandle, enable);
+            }
+            else
+            {
+                ProtoInput64.SetSetWindowPosDontResize(instanceHandle, enable);
+            }
+        }
+
+        public void SetSetWindowPosDontReposition(uint instanceHandle, bool enable)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.SetSetWindowPosDontReposition(instanceHandle, enable);
+            }
+            else
+            {
+                ProtoInput64.SetSetWindowPosDontReposition(instanceHandle, enable);
+            }
+        }
+
         public void SetCreateSingleHIDName(uint instanceHandle, string name)
         {
             if (IntPtr.Size == 4)
@@ -935,5 +1080,54 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                 ProtoInput64.SetTaskbarVisibility(autohide, false);
             }
         }
+
+        public void SetMoveWindowSettings(uint instanceHandle, int posx, int posy, int width, int height)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.SetMoveWindowSettings(instanceHandle, posx, posy, width, height);
+            }
+            else
+            {
+                ProtoInput64.SetMoveWindowSettings(instanceHandle, posx, posy, width, height);
+            }
+        }
+
+        public void SetMoveWindowDontResize(uint instanceHandle, bool enable)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.SetMoveWindowDontResize(instanceHandle, enable);
+            }
+            else
+            {
+                ProtoInput64.SetMoveWindowDontResize(instanceHandle, enable);
+            }
+        }
+
+        public void SetMoveWindowDontReposition(uint instanceHandle, bool enable)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.SetMoveWindowDontReposition(instanceHandle, enable);
+            }
+            else
+            {
+                ProtoInput64.SetMoveWindowDontReposition(instanceHandle, enable);
+            }
+        }
+
+        public void SetAdjustWindowRectSettings(uint instanceHandle, int posx, int posy, int width, int height)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.SetAdjustWindowRectSettings(instanceHandle, posx, posy, width, height);
+            }
+            else
+            {
+                ProtoInput64.SetAdjustWindowRectSettings(instanceHandle, posx, posy, width, height);
+            }
+        }
+
     }
 }
