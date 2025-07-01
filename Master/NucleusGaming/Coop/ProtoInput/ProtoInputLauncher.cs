@@ -304,14 +304,11 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                                       gen.ProtoInput.FocusLoop_WM_MOUSEACTIVATE);
             }
 
-            ProtoInput.protoInput.SetDrawFakeCursor(instanceHandle, gen.ProtoInput.DrawFakeCursor);
-
+            ProtoInput.protoInput.SetDrawFakeCursorFix(instanceHandle, gen.ProtoInput.DrawFakeCursor == DrawFakeCursor.Fix);
+            ProtoInput.protoInput.SetDrawFakeCursor(instanceHandle, gen.ProtoInput.DrawFakeCursor == DrawFakeCursor.Fix || gen.ProtoInput.DrawFakeCursor != 0);
             ProtoInput.protoInput.SetDefaultTopLeftMouseBounds(instanceHandle, gen.ProtoInput.PutMouseInsideWindow == PutMouseInsideWindow.IgnoreTopLeft);
             ProtoInput.protoInput.SetDefaultBottomRightMouseBounds(instanceHandle, gen.ProtoInput.PutMouseInsideWindow == PutMouseInsideWindow.IgnoreBottomRight);
             ProtoInput.protoInput.SetPutMouseInsideWindow(instanceHandle, gen.ProtoInput.PutMouseInsideWindow == PutMouseInsideWindow.IgnoreTopLeft || gen.ProtoInput.PutMouseInsideWindow == PutMouseInsideWindow.IgnoreBottomRight || gen.ProtoInput.PutMouseInsideWindow != 0);
-
-            ProtoInput.protoInput.SetDrawFakeCursorFix(instanceHandle, gen.ProtoInput.DrawFakeCursorFix);
-
             ProtoInput.protoInput.AllowFakeCursorOutOfBounds(instanceHandle, gen.ProtoInput.AllowFakeCursorOutOfBounds, gen.ProtoInput.ExtendFakeCursorBounds);
             ProtoInput.protoInput.SetToggleFakeCursorVisibilityShortcut(instanceHandle,
                 gen.ProtoInput.EnableToggleFakeCursorVisibilityShortcut,
