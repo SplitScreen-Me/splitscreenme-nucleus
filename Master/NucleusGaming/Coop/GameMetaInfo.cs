@@ -15,7 +15,12 @@ namespace Nucleus.Gaming.Coop
     public class GameMetaInfo
     {
         private readonly string nucleusEnvironment = $@"{Globals.UserEnvironmentRoot}\NucleusCoop";
-        private readonly string metaInfoJson = "metaInfo.json";
+#if DEBUG
+ private readonly string metaInfoJson = "metaInfo_DEBUG.json";
+#else
+ private readonly string metaInfoJson = "metaInfo.json";
+#endif
+
 
         private ulong intervale = 20000;//milliseconds
         private bool stopped;
@@ -48,7 +53,7 @@ namespace Nucleus.Gaming.Coop
             get => saveProfile;
             set
             {
-                saveProfile = value;
+                saveProfile = value;         
                 SaveGameMetaInfo();
             }
         }
@@ -115,11 +120,7 @@ namespace Nucleus.Gaming.Coop
             set
             {
                 useApiIndex = value;
-
-                if(useApiIndex)
-                {
-                    useApiIndexForGuests = true;
-                }
+                useApiIndexForGuests = value;
 
                 SaveGameMetaInfo();
             }
@@ -136,6 +137,17 @@ namespace Nucleus.Gaming.Coop
                 {
                     SaveGameMetaInfo();
                 }
+            }
+        }
+
+        private bool profileAssignGamepadByButonPress;
+        public bool ProfileAssignGamepadByButonPress
+        {
+            get => profileAssignGamepadByButonPress;
+            set
+            {
+                profileAssignGamepadByButonPress = value;
+                SaveGameMetaInfo();
             }
         }
 
@@ -180,7 +192,8 @@ namespace Nucleus.Gaming.Coop
                         firstLaunch = JMetaInfo[gameGuid]["FirstLaunch"] == null || (bool)JMetaInfo[gameGuid]["FirstLaunch"];
                         checkUpdate = JMetaInfo[gameGuid]["CheckUpdate"] == null || (bool)JMetaInfo[gameGuid]["CheckUpdate"];
                         useApiIndex = JMetaInfo[gameGuid]["UseApiIndex"] == null ? App_Misc.UseXinputIndex : (bool)JMetaInfo[gameGuid]["UseApiIndex"];                       
-                        useApiIndexForGuests = JMetaInfo[gameGuid]["UseApiIndexForGuests"] == null ? useApiIndex : (bool)JMetaInfo[gameGuid]["UseApiIndexForGuests"];                                            
+                        useApiIndexForGuests = JMetaInfo[gameGuid]["UseApiIndexForGuests"] == null ? useApiIndex : (bool)JMetaInfo[gameGuid]["UseApiIndexForGuests"];
+                        profileAssignGamepadByButonPress = JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"] == null ? App_Misc.ProfileAssignGamepadByButonPress : (bool)JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"];
                         steamLanguage = (string)JMetaInfo[gameGuid]["SteamLanguage"] ?? "App Setting";
                         return;
                     }
@@ -196,6 +209,7 @@ namespace Nucleus.Gaming.Coop
                     checkUpdate = true;
                     useApiIndex = App_Misc.UseXinputIndex;
                     useApiIndexForGuests = useApiIndex;
+                    profileAssignGamepadByButonPress = App_Misc.ProfileAssignGamepadByButonPress;
                     steamLanguage = "App Setting";
                 }
 
@@ -241,6 +255,7 @@ namespace Nucleus.Gaming.Coop
                         JMetaInfo[gameGuid]["CheckUpdate"] = checkUpdate;
                         JMetaInfo[gameGuid]["UseApiIndex"] = useApiIndex;
                         JMetaInfo[gameGuid]["UseApiIndexForGuests"] = useApiIndexForGuests;
+                        JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"] = profileAssignGamepadByButonPress;
                         JMetaInfo[gameGuid]["SteamLanguage"] = steamLanguage;
                     }
                     else
@@ -257,6 +272,7 @@ namespace Nucleus.Gaming.Coop
                                                             new JProperty("CheckUpdate", checkUpdate),
                                                             new JProperty("UseApiIndex", useApiIndex),
                                                             new JProperty("UseApiIndexForGuests", useApiIndexForGuests),
+                                                            new JProperty("ProfileAssignGamepadByButonPress", profileAssignGamepadByButonPress),
                                                             new JProperty("SteamLanguage", steamLanguage)
                                                             ));
                         JMetaInfo.Add(gameMeta);
@@ -274,7 +290,8 @@ namespace Nucleus.Gaming.Coop
                                                    new JProperty("FirstLaunch", firstLaunch),
                                                    new JProperty("CheckUpdate", checkUpdate),
                                                    new JProperty("UseApiIndex", useApiIndex),
-                                                    new JProperty("UseApiIndexForGuests", useApiIndexForGuests),
+                                                   new JProperty("UseApiIndexForGuests", useApiIndexForGuests),
+                                                   new JProperty("ProfileAssignGamepadByButonPress", profileAssignGamepadByButonPress),
                                                    new JProperty("SteamLanguage", steamLanguage)
                                                    );
 

@@ -53,29 +53,12 @@ public class FlatTextBox : TextBox
                 g.DrawRectangle(p, new Rectangle(0, 0, Width - 3, Height - 3));
             ReleaseDC(this.Handle, hdc);
         }
-
-        //if (m.Msg == 0xf && hintFont != null)
-        //{
-        //    if (!this.Focused && string.IsNullOrEmpty(this.Text)
-        //        && !string.IsNullOrEmpty(this.Hint))
-        //    {
-        //        using (var g = this.CreateGraphics())
-        //        {
-        //            TextRenderer.DrawText(g, this.Hint, hintFont ,
-        //                this.DisplayRectangle, SystemColors.GrayText, this.BackColor,
-        //                TextFormatFlags.Top | TextFormatFlags.Left);
-        //        }
-        //    }
-        //}
     }
 
     protected override void OnSizeChanged(EventArgs e)
     {
         base.OnSizeChanged(e);
         RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, RDW_FRAME | RDW_IUPDATENOW | RDW_INVALIDATE);
-
-        float scale = (float)User32Util.GetDpiForWindow(this.Handle) / (float)100;
-        //hintFont = new Font(Font.FontFamily, Font.Size - (scale > 1.0F ? (2 * scale) : 0F), Font.Style, GraphicsUnit.Point);
     }
 
 }

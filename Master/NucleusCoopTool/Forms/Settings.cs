@@ -292,10 +292,11 @@ namespace Nucleus.Coop
             numMaxPlyrs.Value = App_Layouts.MaxPlayers;
 
             disableGameProfiles.Checked = App_Misc.DisableGameProfiles;
+            assignGpdByBtnPress.Checked = App_Misc.ProfileAssignGamepadByButonPress;
+            assignGpdByBtnPress.Visible = !disableGameProfiles.Checked;
             gamepadsAssignMethods.Checked = App_Misc.UseXinputIndex;
             gamepadsAssignMethods.Visible = !disableGameProfiles.Checked;
 
-            //DevicesFunctions.UseGamepadApiIndex = gamepadsAssignMethods.Checked;
             GameProfile.UseXinputIndex = gamepadsAssignMethods.Checked;
             ///network setting
             RefreshCmbNetwork();
@@ -501,7 +502,8 @@ namespace Nucleus.Coop
    
             audioRefresh.Location = new Point((audioTab.Width / 2) - (audioRefresh.Width / 2), audioRefresh.Location.Y);
             audioWarningLabel.Location = new Point(audioTab.Width / 2 - audioWarningLabel.Width / 2, audioWarningLabel.Location.Y);
-            gamepadsAssignMethods.Location = new Point((page1.Location.X + label7.Location.X) + 2, (page1.Top - 5) - gamepadsAssignMethods.Height);
+            gamepadsAssignMethods.Location = new Point((page1.Location.X + label7.Location.X) + 2, (page1.Top) - gamepadsAssignMethods.Height* 3);
+            assignGpdByBtnPress.Location = new Point(gamepadsAssignMethods.Location.X, gamepadsAssignMethods.Bottom + 2);
             refreshScreenDatasButton.Location = new Point(mergerResSelectorLabel.Right, refreshScreenDatasButton.Location.Y);
 
             int tabButtonsY = settingsTabBtn.Location.Y - 1;
@@ -530,12 +532,17 @@ namespace Nucleus.Coop
             CustomToolTips.SetToolTip(hideDesktop, "Will only show the splitscreen division window without adjusting the game windows size and offset.", "hideDesktop", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
             CustomToolTips.SetToolTip(disableGameProfiles, "Disables profiles, Nucleus will use the global settings instead.", "disableGameProfiles", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
             CustomToolTips.SetToolTip(gamepadsAssignMethods, "Some handlers doesn't support this option and will automatically disable it. If enabled, profiles\n" +
-                                                             "will not save the gamepads hardware ids but use API indexes instead \n" +
+                                                             "will not save the gamepads hardware ids but use API indexes instead\n" +
                                                              "(switching modes could prevent some profiles to load properly).\n" +
                                                              "Note: Nucleus will return to home screen.", "gamepadsAssignMethods" , new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+
+            CustomToolTips.SetToolTip(assignGpdByBtnPress, "With this option enabled, the profile will assign gamepads based on button press,\n " +
+                                                           "rather than retrieving the previously assigned ones.\n" +
+                                                           "Note: Using this option alongside custom nicknames will streamline the setup process.", "assignGpdByBtnPress", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+           
             CustomToolTips.SetToolTip(enable_WMerger, "Game windows will be merged to a single window\n" +
                                                        "so Lossless Scaling can be used with Nucleus.\n " +
-                                                       "Note that there's no multiple monitor support yet.", "enable_WMerger", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                                                       "Note: Multiple monitor support is not yet available.", "enable_WMerger", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
 
             CustomToolTips.SetToolTip(losslessHook, "Lossless will not stop upscaling if an other window get the focus, useful\n" +
                                                     "if game windows requires real focus to receive inputs.", "losslessHook", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
@@ -728,12 +735,12 @@ namespace Nucleus.Coop
             App_Layouts.WindowsMerger = enable_WMerger.Checked;
 
 
-            if (GameProfile.UseXinputIndex != gamepadsAssignMethods.Checked )
+            if (GameProfile.UseXinputIndex != gamepadsAssignMethods.Checked)
             {               
-                App_Misc.UseXinputIndex = gamepadsAssignMethods.Checked;
-                //GameProfile.UseXinputIndex = gamepadsAssignMethods.Checked;
-                //UI_Functions.RefreshUI(true);                    
+                App_Misc.UseXinputIndex = gamepadsAssignMethods.Checked;               
             }
+
+            App_Misc.ProfileAssignGamepadByButonPress = assignGpdByBtnPress.Checked;
 
             if (disableGameProfiles.Checked != App_Misc.DisableGameProfiles)
             {
@@ -1412,6 +1419,26 @@ namespace Nucleus.Coop
         public void SetVisible()
         {
             Visible = true;
+        }
+
+        private void DisableGameProfiles_CheckedChanged(object sender, EventArgs e)
+        {
+            gamepadsAssignMethods.Visible = !disableGameProfiles.Checked;
+            assignGpdByBtnPress.Visible = !disableGameProfiles.Checked;
+        }
+
+        private void GamepadsAssignMethods_CheckedChanged(object sender, EventArgs e)
+        {
+            var ckb = sender as CustomCheckBox;
+            if(ckb.Checked)
+            assignGpdByBtnPress.Checked = false;
+        }
+
+        private void AssignGpdByBtnPress_CheckedChanged(object sender, EventArgs e)
+        {
+            var ckb = sender as CustomCheckBox;
+            if (ckb.Checked)
+                gamepadsAssignMethods.Checked = false;
         }
     }
 }

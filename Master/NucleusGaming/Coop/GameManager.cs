@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using Jint.Parser;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.InputManagement;
@@ -143,7 +144,26 @@ namespace Nucleus.Gaming
             string fileName = Path.GetFileName(exePath).ToLower();
             string dir = Path.GetDirectoryName(exePath);
 
-            IEnumerable<GenericGameInfo> possibilities = Games.Values.Where(c => c.ExecutableName.ToLower() == fileName);
+            List<GenericGameInfo> possibilities = new List<GenericGameInfo>();
+
+            //a workaround so we can choose dfferent game executables.
+            foreach (var gen in Games.Values)
+            {
+                if(gen.ExecutableNames != null)
+                {
+                    if(gen.ExecutableNames.Any(exe => exe.ToLower() == fileName))
+                    {
+                        possibilities.Add(gen);
+                    }
+                }
+            }
+
+            if(possibilities.Count == 0)
+            {
+                possibilities = Games.Values.Where(c => c.ExecutableName.ToLower() == fileName).ToList();
+            }
+
+            //IEnumerable<GenericGameInfo> 
             List<GenericGameInfo> games = new List<GenericGameInfo>();
 
             foreach (GenericGameInfo game in possibilities)
@@ -295,33 +315,71 @@ namespace Nucleus.Gaming
         /// <returns></returns>
         public bool IsGameAlreadyInUserProfile(string exeName, string handlerTitle)
         {
+            // Bellow commented is for new Game.ExecutableNames option (2.4.1) , must finish the implementation
+            //once a handler using it can be downloaded for proper debugging.
+            //if (exeNames != null)
+            //{
+            //    foreach (string _exeName in exeNames)
+            //    {
+            //        string lower = _exeName.ToLower();
+
+            //        if (User.Games.Any(c => c.ExePath.Split('\\').Last().ToLower() == lower))
+            //        {
+            //            DirectoryInfo jsFolder = new DirectoryInfo(GetJsScriptsPath());
+            //            FileInfo f = new FileInfo(Path.Combine(jsFolder.FullName, handlerTitle + ".js"));
+
+            //            using (Stream str = f.OpenRead())
+            //            {
+            //                string ext = Path.GetFileNameWithoutExtension(f.Name);
+            //                string pathBlock = Path.Combine(f.Directory.FullName, ext);
+
+            //                GenericGameInfo newHandler = new GenericGameInfo(f.Name, pathBlock, str, new bool[] { false, false });
+
+            //                bool foundGame = games.Where(g => g.Value.GameName == newHandler.GameName).Count() > 0;
+
+            //                if (foundGame)
+            //                {
+            //                    return true;
+            //                }
+            //                else
+            //                {
+            //                    //found games sharing the same exe name but not game name, not the same => game can be added.
+            //                    return false;
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+            //else
+            //{
             string lower = exeName.ToLower();
 
-            if (User.Games.Any(c => c.ExePath.Split('\\').Last().ToLower() == lower))
-            {
-                DirectoryInfo jsFolder = new DirectoryInfo(GetJsScriptsPath());
-                FileInfo f = new FileInfo(Path.Combine(jsFolder.FullName, handlerTitle + ".js"));
-
-                using (Stream str = f.OpenRead())
+                if (User.Games.Any(c => c.ExePath.Split('\\').Last().ToLower() == lower))
                 {
-                    string ext = Path.GetFileNameWithoutExtension(f.Name);
-                    string pathBlock = Path.Combine(f.Directory.FullName, ext);
+                    DirectoryInfo jsFolder = new DirectoryInfo(GetJsScriptsPath());
+                    FileInfo f = new FileInfo(Path.Combine(jsFolder.FullName, handlerTitle + ".js"));
 
-                    GenericGameInfo newHandler = new GenericGameInfo(f.Name, pathBlock, str, new bool[] { false, false });
-
-                    bool foundGame = games.Where(g => g.Value.GameName == newHandler.GameName).Count() > 0;
-
-                    if (foundGame)
+                    using (Stream str = f.OpenRead())
                     {
-                        return true;
-                    }
-                    else
-                    {
-                        //found games sharing the same exe name but not game name, not the same => game can be added.
-                        return false;
+                        string ext = Path.GetFileNameWithoutExtension(f.Name);
+                        string pathBlock = Path.Combine(f.Directory.FullName, ext);
+
+                        GenericGameInfo newHandler = new GenericGameInfo(f.Name, pathBlock, str, new bool[] { false, false });
+
+                        bool foundGame = games.Where(g => g.Value.GameName == newHandler.GameName).Count() > 0;
+
+                        if (foundGame)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            //found games sharing the same exe name but not game name, not the same => game can be added.
+                            return false;
+                        }
                     }
                 }
-            }
+            //}
 
             return false;
         }
@@ -501,6 +559,14 @@ namespace Nucleus.Gaming
                                             if (i > 0) { i--; }
                                         }
 
+                                        //A workaround so more than one exe can be selected to add a game to the app.
+                                        //set it here so it's not null because a few functions requires it early. 
+                                        if (user.Games[i].Game.ExecutableNames != null)
+                                        {
+                                            var fileName = new FileInfo(user.Games[i].ExePath).Name;
+                                            user.Games[i].Game.ExecutableName = fileName;
+                                        }
+
                                         //Check for handler update here so we check only for added games
                                         if (user.Games[i].Game.MetaInfo.CheckUpdate)
                                         {
@@ -618,7 +684,7 @@ namespace Nucleus.Gaming
                         {
                             gameInfos.Remove(info.GUID);
                         }
-
+                       
                         gameInfos.Add(info.GUID, info);
                     }
                 }
@@ -734,6 +800,21 @@ namespace Nucleus.Gaming
                     if (gameInfos.Any(c => c.Value.GUID == info.GUID))
                     {
                         gameInfos.Remove(info.GUID);
+                    }
+
+                    //A workaround so more than one exe can be selected to add a game to the app.
+                    //re-set it here because the GenericGameInfo is fresh and it's not set anymore. 
+                    if (info.ExecutableNames != null)
+                    {
+                        foreach (var exe in info.ExecutableNames)
+                        {
+                            var match = User.Games.Where(g => g.ExePath.Split('\\').Last() == exe).FirstOrDefault();
+                            if (match != null)
+                            {
+                                var fileName = new FileInfo(exe).Name;
+                                info.ExecutableName = fileName;
+                            }
+                        }
                     }
 
                     gameInfos.Add(info.GUID, info);

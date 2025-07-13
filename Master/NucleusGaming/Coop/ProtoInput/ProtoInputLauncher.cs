@@ -103,6 +103,12 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
         public static void SetProtoControllersIndex(PlayerInfo player, GenericGameInfo game)
         {
+            if(game.UseManualProtoControllersSetup)
+            {
+                GenericGameHandler.Instance?.Log("Force manual ProtoInput controller setup from Game.Play function.");
+                return;
+            }
+
             if (game.ProtoInput.MultipleProtoControllers)
             {      
                 player.ProtoController1 = player.GamepadId + 1;

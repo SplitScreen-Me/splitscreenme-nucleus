@@ -1,10 +1,12 @@
-GameNucleus Co-op - version 2.3.2
+Nucleus Co-op - version 2.4.0
 
 Nucleus Co-op is a free and open source tool for Windows that allows split-screen play on many games that do not initially support it, the app purpose is to make it as easy as possible for the average user to play games locally using only one PC and one game copy.
 
 https://github.com/SplitScreen-Me/splitscreenme-nucleus
 
 https://www.splitscreen.me/docs/faq
+
+https://patreon.com/nucleus_coop
 
 This is a new and improved official version of the Nucleus Co-op application and is part of the SplitScreen.Me github organization, it includes the following:
 
@@ -21,7 +23,7 @@ Game.GUID = "Game Name";                                //The name of the folder
 Game.GameName = "Game Name";                            //Title of the game that will be shown in Nucleus.
 Game.LauncherTitle = "Launcher Window Title";           //The name of the launcher's window title. Some games need to go through a launcher to open. This is needed or else the application will lose the game's window.
 Game.MaxPlayersOneMonitor = 4;                          //This is just info. It will not limit the players number.
-Game.MaxPlayers = 16;                                   //This is just the max players info that shows under the handler name in Nucleus UI. Usually we write the max number of players the game supports. (PC, should support 16 max connected input devices).
+Game.MaxPlayers = 16;                                   //This is just the max players info that shows under the handler name in Nucleus UI. Usually we write the max number of players the game supports (PC should support 16 max connected input devices). 
 
 #################### Mutex ####################
 
@@ -146,6 +148,12 @@ Game.IgnoreWindowBordercheck = false;			//Ignore logic at end to check if any ga
 Game.DontRemoveBorders = false;				//Prevents Nucleus from removing game window borders.
 Game.SetTopMostAtEnd = true;                            //Set the game windows to top most at the very end.
 Game.ToggleUnfocusOnInputsLock = true;                  //Automatically unfocus the game windows (gives the focus to the Nucleus window). Works with "Game.LockInputAtStart = true;" too.
+Game.DpiAwarenessMode = DpiAwarenessMode.HighDpiAware;
+Nucleus.DpiAwarenessMode.HighDpiAware                       //→ The application handles DPI scaling itself (default).
+Nucleus.DpiAwarenessMode.DpiUnaware                         //→ Disables all DPI scaling.
+Nucleus.DpiAwarenessMode.DpiAware                           //→ Enables DPI compatibility.
+Nucleus.DpiAwarenessMode.GdiDpiScaling_DpiUnaware           //→ Windows applies software-based DPI scaling.
+Nucleus.DpiAwarenessMode.GdiDpiScaling_DpiUnaware_GdiScale  //→ Forces GDI-based scaling.
 
 #################### Input ####################
 
@@ -164,6 +172,9 @@ Game.Hook.EnableMKBInput = false;			//Enable Mouse/Keyboard input for instances 
 Game.UseDInputBlocker = false;				//Setup wizark952's dinput blocker (block dinput for the game).
 Game.XInputPlusNoIni = false;				//Do not copy XInputPlus' ini when using Game.XInputPlusDll.
 Game.XInputPlusOldDll = false;				//When using Game.XInputPlusDll, you can specify to use the previous version instead of latest (needed for some games).
+Game.Hook.SDL2Enabled = true;                           //Enables SDL2 gamepads in the Nucleus setup screen and all the related runtime setup afterwards.
+Game.SDLPaths = ["x86","x64"];                          //An array of strings to specify the sdl2 dll(s) paths if the sdl2 dll is not placed besides the game executable (or whatever initializes sdl2 in the game).
+Game.UseDI8CoopLvlUnlock = true;                        //Can help splitting cursor in some games. 
 
 #################### Goldberg Emulator ####################
 
@@ -303,7 +314,7 @@ Game.CMDBatchClose ["cmd1", "cmd2"];			//Run command lines upon exiting Nucleus.
 Game.CMDStartArgsInside = false;			//When using CMDLaunch, should the game's starting arguments be inside the same quotations as the game path?
 Game.ForceGameArch = "x86" (or "x64");			//Force Nucleus to treat the game as 32 or 64-bit architecture.
 Game.SplitDivCompatibility = false;                     //Explicitly disable splitscreen divisons if the game is known to be imcompatible with it. Does not require to be true for compatible games. Default = true.
-Game.CustomHotkeys = ["Ctrl|K","Alt|F5","Ctrl|X"]       //All available keys that can be passed after Alt, Ctrl and Shift.
+Game.CustomHotkeys = ["True|Ctrl|K", "False|Alt|F5", "True|Shift|X"];     //"True" allows hotkey to pass-through input locked state else "False";
 
   Game.OnCustomHotKey_1 = function () {
   var outPut = Context.GetFolder(Nucleus.Folder.InstancedGameFolder) + "\\OnCustomHotKey_1.txt";
@@ -336,7 +347,7 @@ Game.SaveCustomUserInstanceValues = false;
 Game.SaveAndEditCustomUserInstanceValues = false;
 Access the user input values via Context.CustomUser(General/Player/Instance)Values[index]
 
-2. Support for multiple mice and keyboards (These are deprecated, see the new Proto Input guide: https://www.splitscreen.me/docs/proto)
+2. Support for multiple mice and keyboards (these are deprecated, see the new Proto Input guide: https://www.splitscreen.me/docs/proto):
 
 Game.SupportsMultipleKeyboardsAndMice = true;
 Game.SendNormalMouseInput = true;
@@ -363,7 +374,7 @@ Game.HookReRegisterRawInputMouse = true;
 Game.HookReRegisterRawInputKeyboard = true;
 Game.UpdateFakeMouseWithInternalInput = false;
 
-3. New methods to be used in game handlers -
+3. New methods to be used in game handlers:
 
 #################### Path variables ####################
 
@@ -472,8 +483,8 @@ Example :
 
 Context.SearchSubFolder(string parentDirectory, string searchPattern);                           //Returns the full path of the found directory matching the search pattern.
 Context.SearchSubFolders(string parentDirectory, string searchPattern);                          //Returns an array of all found directories matching the search pattern
-Context.NoDPIHandlingWidth                                                                       //Returns game window size with no DPI calculation.
-Context.NoDPIHandlingHeight                                                                      //Returns game window size with no DPI calculation.
+Context.NoDPIHandlingWidth                                                                       //Returns game window size with no DPI calculation.(Deprecated)
+Context.NoDPIHandlingHeight                                                                      //Returns game window size with no DPI calculation.(Deprecated)
 Context.SteamLang                                                                                //Returns user Steam language settings choice.
 Context.PlayerGameFilesBackupFolder                                                              //Returns C:\Users\UserName\NucleusCoop\_Game Files Backup_\GameGUID\PlayerNickname\.
 
@@ -486,7 +497,7 @@ var OneFolderUP = System.IO.Path.Combine(Path goes here, ".."); // The variable 
 var TwoFolderUP = System.IO.Path.Combine(Path goes here, "..", ".."); // The variable TwoFolderUP will return a folder UP of the specified path. Example: var OneFolderUP = System.IO.Path.Combine(Game.Folder, "..", "..");
 var OneFolderUP = System.IO.Directory.GetParent("SourceDirectory"); // The variable OneFolderUP will return a folder UP of the specified path ("SourceDirectory").
 
-4. CMD Launch Environment Variables (used with CMDBatchBefore and CMDBatchAfter)
+4. CMD Launch Environment Variables (used with CMDBatchBefore and CMDBatchAfter):
 %NUCLEUS_EXE% 			= Exe filename (e.g. Halo.exe).
 %NUCLEUS_INST_EXE_FOLDER% 	= Path the instance exe resides in (e.g. C:\Nucleus\content\Halo\Instance0\Binaries).
 %NUCLEUS_INST_FOLDER% 		= Path of the instance folder (e.g. C:\Nucleus\content\Halo\Instance0\).
@@ -494,7 +505,7 @@ var OneFolderUP = System.IO.Directory.GetParent("SourceDirectory"); // The varia
 %NUCLEUS_ORIG_EXE_FOLDER%	= Path the original exe resides in (e.g. C:\Program Files\Halo\Binaries).
 %NUCLEUS_ORIG_FOLDER%		= Path of the "root" original folder (e.g. C:\Proggram Files\Halo).
 
-5. New Player variables
+5. New Player variables:
 Player.Nickname
 Player.HIDDeviceID
 Player.RawHID
@@ -504,12 +515,43 @@ Player.UserProfile
 
 --------------------------------------------------------------------------------------
 Known Issues:
-
 - Force feedback does not work with the classic Nucleus xinput custom dlls.
 - PreventWindowDeactivation will prevent mouse and keyboard input on instances using this hook (and may have other adverse effects).
-
 --------------------------------------------------------------------------------------
 Changelog: 
+
+v2.4.0 - xxxx, 2025
+
+-New native SDL2 support.
+-New dependencies downloader (Microsoft Visual C++ 2015 - 2022 Redistributable, Microsoft WebView2 Runtime).
+-Added game search and sorting functions.
+-New multiple players per instance UI assignation support (Xinput/Proto Xinput, SDL2).
+-Added per game "use api index" option in the game options menu, bypasses the general setting. There is a similar option for guest controllers only for handlers with multiple players per instance support.
+-New Nucleus_Launcher.exe, a helper to check for .Net framework download and installation.
+-The Nucleus Co-op window can now be resized/maximized/minimized without resetting the current setup.
+-Fixed the backup function not working if a Nucleus player nickname is equal to the Windows user name.
+-Modified backup function so it does not return an error if a file does not exist but skip it instead, better logging too.
+-All Nucleus prompts and process pickers will now close automatically on session end, whether manually or due to an error.
+-Fixed an UI bug where it was not possible to select the same game after ending a session in some cases.
+-Fixed player being deleted if a controller is unplugged during very early handler setup in some cases.
+-Added Messenils Direct Input co-oplevel unlocker (helps splitting mouse cursor in some games).
+-Added a new hotkey listener to Nucleus.Gaming.dll, so hotkeys processing no longer relies on the Nucleus window (mainly for further development purposes).
+-Added exFat format check for game path and Nucleus installation path.
+-Added new option Game.DpiAwarenessMode as a successor to DPIHandling that is now deprecated. DpiAwarenessMode.HighDpiAware is now the default and should fix most instances scaling issues at display scales higher than 100%.
+-Moved the "Unlock original game files" function so it executes earlier (some files were copied before its execution).
+-Added a new "pass-through locked inputs state" flag to Game.CustomHotkeys.
+-It's now possible to use a shorten link in all handler prompts (only one per prompt).
+-It's now possible to use a shorten link in the handler notes (only one).
+-Added per game Steam language option in game options menu.
+-Fixed handlers using ForceBindIP not starting if there are special characters in the Windows username.
+-Improved "Toggle Top Most" hotkey for better windows minimize/restore syncing (game windows, merger window, etc).
+-Fixed DirectInput gamepads not being detected correctly after being turned off/on.
+-Improved detection (connection/disconnection) for all gamepad apis. This fixes many UI inconsistencies and backend bugs.
+-Game screenshots (backgrounds) can now be in .png, .jpeg, .jpg, .bmp, or .gif formats and can have random names, allowing you to simply drag and drop them into the Nucleus game screenshots directory.
+-Game covers can now be in .png, .jpeg, .jpg, .bmp, or .gif formats but still need to be named using the Game.GUID value from the handler.
+-More OneDrive checks.
+-Fixed updater calling function silent crash on startup.
+-More QOL improvements on the setup screen and many bug fixes.
 
 v2.3.2 - November 12, 2024
 
@@ -1157,11 +1199,10 @@ v0.9.4a - August 6, 2019
 
 v0.9a - August 1, 2019
 - Initial release
-
 --------------------------------------------------------------------------------------
 Credits:
 
-Official Nucleus Co-op 2.0 and Up: Mikou27/nene27.
+Official Nucleus Co-op 2.0 and Up: Mikou27.
 Original Nucleus Co-op Project: Lucas Assis (lucasassislar).
 Nucleus Co-op Alpha 8 Mod : ZeroFox.
 Proto Input, USS, multiple keyboards/mice & hooks: Ilyaki.

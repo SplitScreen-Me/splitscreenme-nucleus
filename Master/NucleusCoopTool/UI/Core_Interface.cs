@@ -533,9 +533,8 @@ namespace Nucleus.Coop.UI
                     UI_Interface.PlayButton.Visible = false;
 
                     UI_Interface.MainForm.BringToFront();
-
-                    //UI_Functions.RefreshUI(false);                 
-                    SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);//refresh game list controls again
+                
+                    SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);//refresh game list controls again so we have fresh datas for all
                     UI_Functions.EnableGameSelection();
                 }
             });

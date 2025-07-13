@@ -284,6 +284,17 @@ namespace Nucleus.Gaming.App.Settings
             }
         }
 
+        private static bool profileAssignGamepadByButonPress;
+        public static bool ProfileAssignGamepadByButonPress
+        {
+            get => profileAssignGamepadByButonPress;
+            set
+            {
+                profileAssignGamepadByButonPress = value;
+                Globals.ini.IniWriteValue("Dev", "ProfileAssignGamepadByButonPress", value.ToString());
+            }
+        }
+
         private static int blur;
         public static int Blur
         {
@@ -333,7 +344,10 @@ namespace Nucleus.Gaming.App.Settings
             showFavoriteOnly = bool.Parse(Globals.ini.IniReadValue("Dev", "ShowFavoriteOnly"));
             disablePathCheck = bool.Parse(Globals.ini.IniReadValue("Dev", "DisablePathCheck"));
             textEditorPath = Globals.ini.IniReadValue("Dev", "TextEditorPath");
+
             useXinputIndex = bool.Parse(Globals.ini.IniReadValue("Dev", "UseXinputIndex"));
+            profileAssignGamepadByButonPress = bool.Parse(Globals.ini.IniReadValue("Dev", "ProfileAssignGamepadByButonPress"));
+
             blur = int.Parse(Globals.ini.IniReadValue("Dev", "Blur"));
             osdColor = Globals.ini.IniReadValue("Dev", "OSDColor");
             gamesSorting = Globals.ini.IniReadValue("Misc", "GameSortingOpt").Split(',').ToList();

@@ -189,7 +189,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         public static void UIDevices(Graphics g, PlayerInfo player)
         {           
-            //Don't draw this player, will draw with its guests
+            //Don't draw this player, will draw with its guests instead
             if (GameProfile.Instance.DevicesList.Any(pl => pl.InstanceGuests.Contains(player)))
             {
                 return;
@@ -292,13 +292,15 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         }
                         else
                         {
-                            g.DrawImage(player.Image, gamepadRect);
+                            if (player.IsInputUsed)
+                                g.DrawImage(player.Image, gamepadRect);
                         }
                        
-                        if (controllerIdentification)
+                        if (controllerIdentification && player.IsInputUsed)
                         {
                             g.DrawString(str, fontToScale, Brushes.White, loc);
                         }
+
                         break;
                     }
                 case InputType.SingleKB:
@@ -347,7 +349,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             {
                                 try
                                 {
-                                    //float virtualheight = player.EditBounds.Height / 4.5F > 0 ? (player.EditBounds.Height / 4.5F) : 1;
                                     Font virtualfontToScale = new Font("Franklin Gothic", 12.75F, FontStyle.Regular, GraphicsUnit.Pixel);
                                     string str = "virtual";
 
@@ -370,7 +371,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                         lgb.InterpolationColors = topcblend;
 
                                         g.FillRectangle(lgb, bounds);
-                                        //DrawString(string s, Font font, Brush brush, RectangleF layoutRectangle)
                                         g.DrawString(str, virtualfontToScale, Brushes.YellowGreen, loc);
 
                                         virtualfontToScale.Dispose();
@@ -472,7 +472,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                 if (guest != null)
                 {
-                    if (controllerIdentification /*&& guest.IsInputUsed*/)
+                    if (controllerIdentification)
                     {
                         float height = sub.Height;
                         fontToScale = new Font(PlayerCustomFont.FontFamily, height, FontStyle.Regular, GraphicsUnit.Pixel);
@@ -491,7 +491,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         private static void DrawGamepadShape(Graphics g,RectangleF sub,SolidBrush pollingBrush)
         {
             //Draw gamepad shape (quit primitive)
-
             GraphicsState state = g.Save();
 
             Brush brush = pollingBrush != null ? pollingBrush : Brushes.DarkGreen;
@@ -507,10 +506,8 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             g.TranslateTransform(lcenterX, lcenterY);
             g.RotateTransform(langle);
             g.FillEllipse(brush, -lwidth / 2, -lheight / 2, lwidth, lheight);
-            //g.DrawEllipse(outline, -lwidth / 2, -lheight / 2, lwidth, lheight);
             g.Restore(state);
-            //
-
+            
             //right
             float rangle = 70f;
             float rcenterX = sub.Right - (sub.Width / 3.9F);
@@ -521,9 +518,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             g.TranslateTransform(rcenterX, rcenterY);
             g.RotateTransform(rangle);
             g.FillEllipse(brush, -rwidth / 2, -rheight / 2, rwidth, rheight);
-            //g.DrawEllipse(outline, -rwidth / 2, -rheight / 2, rwidth, rheight);
             g.Restore(state);
-            //
 
             //middle
             float mangle = 0f; 
@@ -535,10 +530,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             g.TranslateTransform(mcenterX, mcenterY);
             g.RotateTransform(mangle);
             g.FillRectangle(brush, -mwidth / 2, -mheight / 2, mwidth, mheight);
-            //g.DrawLine(outline, -mwidth / 2, -mheight / 2, (mheight/2) -3, -mheight / 2);
-            //g.DrawLine(outline, -mwidth / 2, mheight/2, (mheight / 2) - 3, mheight/2);
-            g.Restore(state);
-            //    
+            g.Restore(state);    
         }
 
         public static void DrawGuestRemovalText(Graphics g, PlayerInfo guest)
@@ -613,21 +605,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             string playerBoundsInfo = BoundsFunctions.PlayerBoundsInfoText(BoundsFunctions.SelectedPlayer);
             SizeF boundsRect = g.MeasureString(playerBoundsInfo, playerTextFont);
             Point location = new Point(((parent.Width / 2) - (int)boundsRect.Width / 2) , ((parent.Bottom - (int)boundsRect.Height)) );
-
-            RectangleF backRect = new RectangleF(location.X - 5, location.Y - 5, boundsRect.Width + 4, boundsRect.Height + 4);
-
-            using (GraphicsPath backGp = FormGraphicsUtil.MakeRoundedRect(backRect, 10, 10, true, true, true, true))
-            {
-                g.FillPath(tagBrush, backGp);
-            }
-
-           // g.FillRectangles(tagBrush, new RectangleF[] {new RectangleF(location.X - 5 ,location.Y - 5 ,boundsRect.Width + 4,boundsRect.Height  +4 ) });
             g.DrawString(playerBoundsInfo, playerTextFont, Brushes.GreenYellow, location.X - 3, location.Y - 6 );
-            
-            //g.FillRectangles(sizerBrush, new RectangleF[] { BoundsFunctions.sizerBtnLeft });
-            //g.FillRectangles(sizerBrush, new RectangleF[] { BoundsFunctions.sizerBtnRight });
-            //g.FillRectangles(sizerBrush, new RectangleF[] { BoundsFunctions.sizerBtnTop });
-            //g.FillRectangles(sizerBrush, new RectangleF[] { BoundsFunctions.sizerBtnBottom });
         }
 
         public static void PlayerTag(Graphics g, PlayerInfo player)
@@ -647,7 +625,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             g.Clip = new Region(tagBack);
 
             g.FillRectangle(tagBrush, tagBack);
-            g.DrawRectangle(positionScreenPen, tagBorder);
+            g.DrawRectangle(positionPlayerScreenPen, tagBorder);
             g.DrawString(tag, playerTextFont, Brushes.White, tagLocation.X, tagLocation.Y);
             g.Clip.Dispose();
         }

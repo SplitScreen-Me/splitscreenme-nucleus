@@ -84,7 +84,7 @@ namespace Nucleus.Coop
             UI_Interface.ToggleVirtualMouse = VirtualMouseToggle;
             UI_Interface.SocialMenuButton = btn_Links;
             UI_Interface.MainButtonsPanel = MainButtonsPanel;
-            UI_Interface.InputsTextLabel = InputsTextLabel;
+            UI_Interface.InputsTextLabel = new MultiColorLabel(WindowPanel, new Point(WindowPanel.Width/ 2 , WindowPanel.Bottom -3 ));
             UI_Interface.DwldAssetsButton = btn_downloadAssets;
             UI_Interface.TutorialButton = Tutorial_btn;
             UI_Interface.ExtractHandlerButton = btn_Extract;
@@ -168,7 +168,7 @@ namespace Nucleus.Coop
             {
                 foreach (Control button in UI_Interface.WindowPanel.Controls)
                 {
-                    if (button != InputsTextLabel)
+                    if (button != InputsTextLabel )
                     {
                         button.Font = new Font(Theme_Settings.CustomFont, mainButtonFrameFont, button.Font.Style, GraphicsUnit.Pixel, 0);
                     }
@@ -194,6 +194,10 @@ namespace Nucleus.Coop
         {
             foreach (Control control in Generic_Functions.ListAllFormControls(this))
             {
+                if(control.GetType() != typeof(DoubleBufferPanel))
+                {
+                    continue;
+                }
                 if (control.Name != "HandlerNoteTitle" && control.Name != "HandlerNotes" && control.Name != "Warning")
                 {
                     if (!(control is TransparentRichTextBox) && control != InputsTextLabel && control != btn_Next && control != btn_Prev && control != ProfileButtonPanelLockPb)
@@ -230,8 +234,6 @@ namespace Nucleus.Coop
             }
 
             UI_Interface.HomeScreen.Focus();
-
-            //Core_Interface.TriggerSearchTool();
         }
 
         private void WebStatusTimerTick(object Object, EventArgs EventArgs)

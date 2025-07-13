@@ -143,13 +143,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             base.OnPaint(e);
 
-            if (BoundsFunctions.BufferedSurface != Rectangle.Empty)
-            {
-                //e.Graphics.FillRectangle(Brushes.Gray, BoundsFunctions.BufferedSurface);
-                //e.Graphics.FillRectangle(Brushes.Gray, BoundsFunctions.DestEditBounds);
-                //e.Graphics.FillRectangle(Brushes.Blue, new RectangleF((BoundsFunctions.DestEditBounds.X + (BoundsFunctions.DestEditBounds.Width / 2) )- 10, (BoundsFunctions.DestEditBounds.Y + (BoundsFunctions.DestEditBounds.Height / 2)) -10, 20, 20));
-            }
-
             Draw.UIScreens(e.Graphics);
 
             e.Graphics.ResetClip();
@@ -196,7 +189,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             if (BoundsFunctions.SelectedPlayer?.MonitorBounds != Rectangle.Empty &&
                BoundsFunctions.SelectedPlayer?.MonitorBounds != null)
             {
-                //Draw.SelectedPlayerBounds(e.Graphics);
                 Draw.PlayerBoundsInfo(e.Graphics);
             }
 

@@ -35,7 +35,6 @@ namespace Nucleus.Gaming
         public string[] DirExclusions;
         public string[] BackupFiles;
         public string[] BackupFolders;
-        //public string[] PluginsData;//PluginsPath["#prefix #pluginPath1 #Class1 #Class2 #Class3" | "#prefix #pluginPath2 #Class1 #Class2 #Class3" ];
 
         public bool KeepSymLinkOnExit;
 
@@ -50,6 +49,7 @@ namespace Nucleus.Gaming
         public bool KeyboardPlayerFirst;
 
         public string[] ExecutableContext;
+        public string[] ExecutableNames;
         public string ExecutableName;
         public string SteamID;
         public string GUID;
@@ -328,6 +328,7 @@ namespace Nucleus.Gaming
         public bool ForceEnvironmentUse;
         public bool ForceLauncherExeIgnoreFileCheck;
         public bool UseDI8CoopLvlUnlocker;
+        public bool UseManualProtoControllersSetup = false;
 
         // Proto Input
         public ProtoInputOptions ProtoInput = new ProtoInputOptions();

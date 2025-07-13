@@ -121,7 +121,7 @@
     <value>17, 17</value>
   </metadata>
   <metadata name="GameOptionMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>110, 16</value>
+    <value>103, 18</value>
   </metadata>
   <metadata name="socialLinksMenu.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>286, 12</value>

@@ -149,8 +149,13 @@ namespace Nucleus.Gaming.Cache
             return SearchByIdOnline(handlerId);
         }
 
-        private static Handler SearchByIdOnline(string handlerId)
+        public static Handler SearchByIdOnline(string handlerId)
         {
+            if (cacheObject == null)
+            {
+                InitCache();
+            }
+
             string uri = api + "handler/" + handlerId;
 
             string hubResp = Get(uri);

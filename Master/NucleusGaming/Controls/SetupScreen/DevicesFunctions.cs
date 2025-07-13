@@ -51,7 +51,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             SDLManager.InitSDL(_syncContext);
 
             GamepadTimer = new System.Threading.Timer(GamepadTimer_Tick, null, 0, 300);
-            PollingTimer = new System.Threading.Timer(PollingTimer_Tick, null, 0, 150);
+            PollingTimer = new System.Threading.Timer(PollingTimer_Tick, null, 0, 300);
 
             GameProfile.OnUseXinputIndexChanged -= UpdateUseGamepadApiIndex;
             GameProfile.OnUseXinputIndexChanged += UpdateUseGamepadApiIndex;
@@ -128,7 +128,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             joystick.Dispose();
                             continue;
                         }
-                     
+
                         player.DInputJoystick = joystick;
                         player.GamepadProductGuid = joystick.ProductGuid;
                         player.GamepadGuid = joystick.InstanceGuid;
@@ -140,8 +140,8 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         string fhid = player.RawHID.Substring(start, end - start).Replace('#', '\\').ToUpper();
 
                         player.HIDDeviceID = new string[] { fhid, "" };
+                        player.IsInputUsed = !userGameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress;
 
-                        player.IsInputUsed = true;
                         player.GamepadId = i;
                         player.IsDInput = true;
 

@@ -199,6 +199,11 @@ namespace Nucleus.Coop.Forms
             string exeName = null;
             int found = 0;
 
+            //might be testable by extracting a handler.
+            //Bellow commented is for new Game.ExecutableNames option (2.4.1), must finish the implementation
+            //once a handler using it can be downloaded for proper debugging.(Must be implemented in HubWebview too).
+            //string exeNamesString = null;
+
             foreach (string line in File.ReadAllLines(Path.Combine(scriptTempFolder, "handler.js")))
             {
                 if (line.ToLower().StartsWith("game.executablename"))
@@ -208,6 +213,13 @@ namespace Nucleus.Coop.Forms
                     exeName = line.Substring(start + 1, (end - start) - 1);
                     found++;
                 }
+                //else if (line.ToLower().StartsWith("game.executablenames"))
+                //{
+                //    int start = line.IndexOf("[");
+                //    int end = line.LastIndexOf("]");   
+                //    exeNamesString = pattern.Replace(line.Substring(start + 1, (end - start) - 1), "");
+                //    found++;
+                //}
                 else if (line.ToLower().StartsWith("game.gamename"))
                 {
                     int start = line.IndexOf("\"");
@@ -215,7 +227,7 @@ namespace Nucleus.Coop.Forms
                     frmHandleTitle = pattern.Replace(line.Substring(start + 1, (end - start) - 1), "");
                     found++;
                 }
-
+                
                 if (found == 2)
                 {
                     break;
@@ -285,7 +297,14 @@ namespace Nucleus.Coop.Forms
 
             File.Delete(Path.Combine(scriptFolder, zipFile));
 
-            if (GameManager.Instance.IsGameAlreadyInUserProfile(exeName, frmHandleTitle))
+            //string[] exeNamesArray = null;
+
+            //if(exeNamesString != null)
+            //{
+            //    exeNamesArray = exeNamesString.Split(',');
+            //}
+
+            if (GameManager.Instance.IsGameAlreadyInUserProfile(exeName, /*exeNamesArray ,*/frmHandleTitle))
             {
                 GameManager.Instance.AddScript(frmHandleTitle, new bool[] { false, false });    
                 return;

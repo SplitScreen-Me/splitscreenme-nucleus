@@ -164,7 +164,7 @@ namespace Nucleus.Coop.Controls
 
             if (GameProfile.Instance.LoadGameProfile(int.Parse(selected.Name)))//GameProfile auto reset on load
             {
-                Controls[int.Parse(selected.Name) - 1].ForeColor = Color.LightGreen;
+                Controls[int.Parse(selected.Name) - 1].ForeColor = Color.GreenYellow;
                 Label unloadBtn = Controls[Controls.Count - 1] as Label;
                 unloadBtn.ForeColor = Color.Orange;
             }
@@ -417,7 +417,6 @@ namespace Nucleus.Coop.Controls
             {
                 var playerDatas = Jprofile["Data"][i];
 
-                //sb.Append($"\n");
                 sb.Append($"------------------------\n");
                 sb.Append($" -Nickname: {playerDatas["Nickname"]}\n");
                 sb.Append($" -Index: {(int)playerDatas["PlayerID"] + 1}\n");
@@ -433,25 +432,29 @@ namespace Nucleus.Coop.Controls
                     sb.Append($" -Device Type: Keyboard/Mouse\n");
                 }
 
-               bool validGuestField = playerDatas["Guests"] != null;
+                bool validGuestField = playerDatas["Guests"] != null;
 
-                if(validGuestField)
+                if (validGuestField)
                 {
-                    int playerGuests = playerDatas["Guests"]["GUIDS"].ToString().Split(',').Length -1;
-                    if(playerGuests >= 1)
+                    var parseGuestCount = playerDatas["Guests"]["GUIDS"].ToString();
+
+                    if (parseGuestCount != "")
                     {
-                        sb.Append($" -Guest Players: {playerGuests}\n");
-                        totalGuests += playerGuests;
+                        int playerGuests = parseGuestCount.Split(',').Length;
+                        if (playerGuests >= 1)
+                        {
+                            sb.Append($" -Guest Players: {playerGuests}\n");
+                            totalGuests += playerGuests;
+                        }
                     }
-                    
                 }
-                
+
                 sb.Append($" -Screen Index: {playerDatas["ScreenIndex"]}\n");
-               
+
                 if (i == Jprofile["Data"].Count() - 1)
-                {                  
+                {
                     sb.Append($"------------------------\n");
-                }          
+                }
             }
 
             if (totalGuests >= 1)

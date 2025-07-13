@@ -63,7 +63,7 @@ namespace Nucleus.Coop.UI
                 mainForm.ResizeBegin += MainWindowFunc.MainForm_ResizeBegin;
                 mainForm.ResizeEnd += MainWindowFunc.MainForm_ResizeEnd;
                 mainForm.FormClosing += MainWindowFunc.MainForm_FormClosing;
-                mainForm.FormClosed += MainWindowFunc.MainForm_Closed;               
+                mainForm.FormClosed += MainWindowFunc.MainForm_Closed;              
             }
         }
 
@@ -84,7 +84,7 @@ namespace Nucleus.Coop.UI
                 HandlerNotesZoom = notesZoom;
                 homeScreen.Controls.Add(notesZoom);
 
-                homeScreen.Paint += UI_Graphics.HomeScreen_Paint;           
+                homeScreen.Paint += UI_Graphics.HomeScreen_Paint;
             }
         }
 
@@ -386,15 +386,13 @@ namespace Nucleus.Coop.UI
             }
         }
 
-        private static Label inputsTextLabel;
-        public static Label InputsTextLabel
+        private static MultiColorLabel inputsTextLabel;
+        public static MultiColorLabel InputsTextLabel
         { 
             get => inputsTextLabel;
             set
             {
                 inputsTextLabel = value;
-                inputsTextLabel.Font = new Font(Theme_Settings.CustomFont, 9.75F, FontStyle.Bold, GraphicsUnit.Pixel, 0);
-                inputsTextLabel.BackColor = Color.Transparent;
             }
         }
 
@@ -749,15 +747,17 @@ namespace Nucleus.Coop.UI
                 versionTxt.ForeColor = Color.LightSteelBlue;
                 versionTxt.Text = "DEBUG " + "v" + Globals.Version;
 #else
-            if (bool.Parse(Globals.ThemeConfigFile.IniReadValue("Misc", "HideVersion")) == false)
-            {
-                versionTxt.Text = Globals.Version;
-                versionTxt.ForeColor = MainForm.ForeColor;
-            }
-            else
-            {
-                versionTxt.Text = "";
-            }
+             
+                if (bool.Parse(Globals.ThemeConfigFile.IniReadValue("Misc", "HideVersion")) == false)
+                {
+                    versionTxt.Text = "v" + Globals.Version;
+                    versionTxt.ForeColor = MainForm.ForeColor;
+                    //versionTxt.ForeColor = Color.Gold;
+                }
+                else
+                {
+                    versionTxt.Text = "";
+                }
 #endif
             }
         }

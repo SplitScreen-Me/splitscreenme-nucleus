@@ -382,7 +382,7 @@ namespace Nucleus.Coop
                 ServicePointManager.DefaultConnectionLimit = 9999;
 
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://hub.splitscreen.me/");
-                request.Timeout = 4000;
+                request.Timeout = 6000;
                 request.Method = "HEAD";
 
                 using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())

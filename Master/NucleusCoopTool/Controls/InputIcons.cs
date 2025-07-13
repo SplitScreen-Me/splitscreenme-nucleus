@@ -33,7 +33,7 @@ namespace Nucleus.Coop
                     SizeMode = PictureBoxSizeMode.StretchImage,
                 };
 
-                CustomToolTips.SetToolTip(icon1, "Supports xinput gamepads (e.g. X360).", "icon1", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                CustomToolTips.SetToolTip(icon1, "Supports XInput gamepads (e.g. X360).", "icon1", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
                 icons.Add(icon1);
 
                 Bitmap bmp2 = ImageCache.GetImage(Globals.ThemeFolder + "dinput_icon.png");
@@ -48,7 +48,7 @@ namespace Nucleus.Coop
                     SizeMode = PictureBoxSizeMode.StretchImage,
                 };
 
-                CustomToolTips.SetToolTip(icon2, "Supports dinput gamepads (e.g. Ps3).", "icon2", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                CustomToolTips.SetToolTip(icon2, "Supports DirectInput gamepads (e.g. Ps3).", "icon2", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
                 icons.Add(icon2);
             }
 
@@ -66,7 +66,7 @@ namespace Nucleus.Coop
                     SizeMode = PictureBoxSizeMode.StretchImage,                   
                 };
 
-                CustomToolTips.SetToolTip(icon, "Supports xinput gamepads (e.g. X360).", "icon1", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                CustomToolTips.SetToolTip(icon, "Supports XInput gamepads (e.g. X360).", "icon1", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
                 icons.Add(icon);
             }
 
@@ -85,7 +85,7 @@ namespace Nucleus.Coop
                 };
 
 
-                CustomToolTips.SetToolTip(icon, "Supports dinput gamepads (e.g. Ps3).", "icon2", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                CustomToolTips.SetToolTip(icon, "Supports DirectInput gamepads (e.g. Ps3).", "icon2", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
                 icons.Add(icon);
             }
             else if ((game.Hook.DInputEnabled || game.Hook.XInputReroute || game.ProtoInput.DinputDeviceHook) && (!game.Hook.XInputEnabled || !game.ProtoInput.XinputHook))
@@ -102,7 +102,7 @@ namespace Nucleus.Coop
                     Image = bmp
                 };
 
-                CustomToolTips.SetToolTip(icon, "Supports dinput gamepads (e.g. Ps3).", "icon3", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                CustomToolTips.SetToolTip(icon, "Supports DirectInput gamepads (e.g. Ps3).", "icon3", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
                 icons.Add(icon);
             }
 
@@ -153,25 +153,6 @@ namespace Nucleus.Coop
                 CustomToolTips.SetToolTip(iconKB2, @"Supports multiple keyboards/mice.", "iconKB2", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
                 icons.Add(iconKB2);
             }
-
-            //if(game.PlayersPerInstance > 0)
-            //{
-            //    Bitmap bmp = ImageCache.GetImage(Globals.ThemeFolder + "2horizontal.png");
-            //    float ratio = (float)bmp.Width / (float)bmp.Height;
-            //    Size size = new Size((int)(mainForm.Icons_Container.Height  + 5), mainForm.Icons_Container.Height);
-
-            //    PictureBox iconNativeSP = new PictureBox
-            //    {
-            //        Name = "icon7",
-            //        Size = size,
-            //        SizeMode = PictureBoxSizeMode.StretchImage,
-            //        Image = bmp
-            //    };
-
-            //    CustomToolTips.SetToolTip(iconNativeSP, @"Supports native splitscreen", "icon7", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
-            //    icons.Add(iconNativeSP);
-            //}
-
             return icons.ToArray();
         }
 

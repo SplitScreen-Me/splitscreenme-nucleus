@@ -31,6 +31,8 @@ namespace Nucleus.Gaming.Coop
         /// </summary>       
         public List<PlayerInfo> DevicesList => GetDevicesList();
         private List<PlayerInfo> deviceList;
+        private static PlayerInfo awaitedProfilePlayer;
+        public static PlayerInfo AwaitedProfilePlayer => awaitedProfilePlayer;
 
         public static GameProfile Instance;
 
@@ -66,6 +68,11 @@ namespace Nucleus.Gaming.Coop
         private static bool showError = false;
 
         public static bool Loaded => totalProfilePlayers > 0;
+
+        public static bool AssignControllerOnButtonPress = true;
+
+        private static bool gotAllGuestsOnce;
+        public static bool GotAllGuest => gotAllGuestsOnce;
 
         private static int hWndInterval;
         public static int HWndInterval
@@ -322,6 +329,7 @@ namespace Nucleus.Gaming.Coop
 
             showError = false;
             autoPlay = false;
+            gotAllGuestsOnce = false;
 
             UpdateSharedSettings();
 
@@ -361,6 +369,11 @@ namespace Nucleus.Gaming.Coop
                         player.SteamID = 0;
                         player.Nickname = null;
                         player.InstanceGuests.Clear();
+                        player.CurrentMaxGuests = 0;
+                        if(GameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress && (player.IsXInput || player.IsSDL2 ||player.IsDInput))
+                        {
+                            player.IsInputUsed = false;
+                        }
                     }
 
                     RefreshKeyboardAndMouse();
@@ -519,7 +532,7 @@ namespace Nucleus.Gaming.Coop
 
                 bool _useXinputIndex = (bool)Jprofile["Use XInput Index"];
 
-                _useXinputIndex = Game.MetaInfo.UseApiIndex;// (_useXinputIndex != Game.MetaInfo.UseApiIndex) && !_useXinputIndex ? Game.MetaInfo.UseApiIndex : _useXinputIndex;
+                _useXinputIndex = Game.MetaInfo.UseApiIndex;
 
                 if (_useXinputIndex != UseXinputIndex)
                 {
@@ -596,7 +609,7 @@ namespace Nucleus.Gaming.Coop
                             }
                         }
 
-                        player.CurrentMaxGuests = maxGuest;///changer en list ou array de guid trop compliquer avec des playerInfo
+                        player.CurrentMaxGuests = maxGuest;
                     }
 
                     player.IsDInput = (bool)JplayersInfos[i]["IsDInput"];
@@ -672,7 +685,6 @@ namespace Nucleus.Gaming.Coop
                 GetGhostBounds();
 
                 Globals.MainOSD.Show(1000, Title != "" ? $"Handler Profile \"{Title}\" Loaded" : $"Handler Profile N°{_profileToLoad} Loaded");
-                //ProfileLoaded?.Invoke();
 
                 return true;
 
@@ -1187,7 +1199,21 @@ namespace Nucleus.Gaming.Coop
         {
             if (AssignedDevices.Contains(player))
             {
-                return;
+                if (GameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress && AssignedDevices.Count == ProfilePlayersList.Count)
+                {
+                    var getFirstAwaiting = AssignedDevices.Where(ap => ap.InstanceGuests.Count != ap.CurrentMaxGuests);
+
+                    if (getFirstAwaiting != null && getFirstAwaiting.Count() > 0)
+                    {
+                        awaitedProfilePlayer = getFirstAwaiting.First();
+                        return;
+                    }
+                }
+                else if (TotalAssignedPlayers < TotalProfilePlayers)
+                {
+                    awaitedProfilePlayer = ProfilePlayersList[TotalAssignedPlayers];
+                    return;
+                }            
             }
 
             if (showError)
@@ -1208,6 +1234,8 @@ namespace Nucleus.Gaming.Coop
 
             if (TotalAssignedPlayers < TotalProfilePlayers)
             {
+                awaitedProfilePlayer = ProfilePlayersList[TotalAssignedPlayers];
+
                 GroupKeyboardAndMouse();
 
                 PlayerInfo profilePlayer = FindProfilePlayerInput(player);
@@ -1228,7 +1256,7 @@ namespace Nucleus.Gaming.Coop
                     scr.Item1.Type = UserScreenType.FullScreen;
                     return;
                 }
-          
+                              
                 if (Instance.DevicesList.All(lpp => lpp.MonitorBounds != TranslateBounds(profilePlayer, scr.Item1).Item1) &&
                     ProfilePlayersList.FindIndex(pp => pp == profilePlayer) == AssignedDevices.Count)//avoid to add player in the same bounds                                                                                                                           // ProfilePlayersList.FindIndex(pp => pp == profilePlayer) == AssignedDevices.Count)//make sure to insert player like saved in the game profile
                 {
@@ -1249,6 +1277,10 @@ namespace Nucleus.Gaming.Coop
                 SetupScreenControl.Instance?.CanPlayUpdated(false, false);
                 return;
             }
+            else//So in case of mistake(user want to switch some guest controllers) they don't get automatically reassigned.
+            {
+                gotAllGuestsOnce = true;
+            }
 
             if (TotalAssignedPlayers == TotalProfilePlayers && Ready && AutoPlay && !Updating)
             {
@@ -1263,7 +1295,6 @@ namespace Nucleus.Gaming.Coop
                 if (Ready && (!AutoPlay || Updating))
                 {
                     SetupScreenControl.Instance?.CanPlayUpdated(true, true);
-                    //Updating = false;
                     return;
                 }
             }
@@ -1301,45 +1332,56 @@ namespace Nucleus.Gaming.Coop
             player.SteamID = profilePlayer.SteamID;
             player.IsInputUsed = true;
         }
-     
+
         private static bool FindPlayersInstanceGuests()
         {
-            for (int i = 0; i < AssignedDevices.Count(); i++)
+            List<PlayerInfo> gamepadsOnly = Instance.deviceList.Where(pl => pl.IsDInput || pl.IsXInput || pl.IsSDL2).ToList();
+            List<PlayerInfo> foundGuests = new List<PlayerInfo>();
+
+            if (!gotAllGuestsOnce)
             {
-                PlayerInfo player = AssignedDevices[i];
-
-                if(player.InstanceGuests.Count == player.CurrentMaxGuests || player.CurrentMaxGuests == 0)
+                if (GameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress && awaitedProfilePlayer != null)
                 {
-                    continue;
-                }
+                    bool foundAllGuests = false;
 
-                List<PlayerInfo> gamepadsOnly = Instance.deviceList.Where(pl => pl.IsDInput || pl.IsXInput || pl.IsSDL2).ToList();
-                List<PlayerInfo> foundGuests = new List<PlayerInfo>();
-
-                if (!Game.MetaInfo.UseApiIndex)
-                {
                     if (!Game.MetaInfo.UseApiIndexForGuests)
                     {
-                        foreach (Guid guestGuid in player.GuestsGuid)
+                        foreach (Guid guestGuid in awaitedProfilePlayer.GuestsGuid)
                         {
                             for (int j = 0; j < gamepadsOnly.Count; j++)
                             {
+                                if (awaitedProfilePlayer.InstanceGuests.Count == awaitedProfilePlayer.CurrentMaxGuests)
+                                {
+                                    foundAllGuests = true;
+                                    break;
+                                }
+
                                 PlayerInfo guest = gamepadsOnly[j];
 
-                                if (player.InstanceGuests.Any(ig => ig == guest))
+                                if (AssignedDevices.Any(ad => ad == guest))
                                 {
                                     continue;
                                 }
 
-                                if (guest.GamepadGuid == guestGuid)
+                                if (AssignedDevices.Any(ad => ad.InstanceGuests.Any(gst => gst == guest)))
                                 {
-                                    player.InstanceGuests.Add(guest);
+                                    continue;
                                 }
 
-                                if (player.InstanceGuests.Count == player.CurrentMaxGuests)
+                                if (awaitedProfilePlayer.InstanceGuests.Any(ig => ig == guest))
                                 {
-                                    break;
+                                    continue;
                                 }
+
+                                if (guest.IsInputUsed)
+                                {
+                                    awaitedProfilePlayer.InstanceGuests.Add(guest);
+                                }
+                            }
+
+                            if (foundAllGuests)
+                            {
+                                break;
                             }
                         }
                     }
@@ -1347,12 +1389,19 @@ namespace Nucleus.Gaming.Coop
                     {
                         for (int j = 0; j < gamepadsOnly.Count; j++)
                         {
+                            if (awaitedProfilePlayer.InstanceGuests.Count == awaitedProfilePlayer.CurrentMaxGuests)
+                            {
+                                foundAllGuests = true;
+                                break;
+                            }
+
                             PlayerInfo guest = gamepadsOnly[j];
 
                             if (ProfilePlayersList.Any(pp => pp.GamepadGuid == guest.GamepadGuid))
                             {
                                 continue;
                             }
+
                             if (AssignedDevices.Any(pp => pp == guest))
                             {
                                 continue;
@@ -1363,55 +1412,122 @@ namespace Nucleus.Gaming.Coop
                                 continue;
                             }
 
-                            if (player.InstanceGuests.Any(ig => ig == guest))
+                            if (awaitedProfilePlayer.InstanceGuests.Any(ig => ig == guest))
                             {
                                 continue;
                             }
 
-                            player.InstanceGuests.Add(guest);
-
-                            if (player.InstanceGuests.Count == player.CurrentMaxGuests)
-                            {
-                                break;
-                            }
+                            awaitedProfilePlayer.InstanceGuests.Add(guest);
                         }
                     }
                 }
                 else
                 {
-                    for (int j = 0; j < gamepadsOnly.Count; j++)
+                    for (int i = 0; i < AssignedDevices.Count(); i++)
                     {
-                        PlayerInfo guest = gamepadsOnly[j];
+                        PlayerInfo player = AssignedDevices[i];
 
-                        if (AssignedDevices.Any(pp => pp.GamepadId == guest.GamepadId || pp.InstanceGuests.Any( ig => ig.GamepadId == guest.GamepadId)))
+                        if (player.InstanceGuests.Count == player.CurrentMaxGuests || player.CurrentMaxGuests == 0)
                         {
                             continue;
                         }
 
-                        if (player.InstanceGuests.Any(ig => ig.GamepadId == guest.GamepadId))
+                        if (!Game.MetaInfo.UseApiIndex)
                         {
-                            continue;
+                            if (!Game.MetaInfo.UseApiIndexForGuests)
+                            {
+                                foreach (Guid guestGuid in player.GuestsGuid)
+                                {
+                                    for (int j = 0; j < gamepadsOnly.Count; j++)
+                                    {
+                                        PlayerInfo guest = gamepadsOnly[j];
+
+                                        if (player.InstanceGuests.Any(ig => ig == guest))
+                                        {
+                                            continue;
+                                        }
+
+                                        if (guest.GamepadGuid == guestGuid)
+                                        {
+                                            player.InstanceGuests.Add(guest);
+                                        }
+
+                                        if (player.InstanceGuests.Count == player.CurrentMaxGuests)
+                                        {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                for (int j = 0; j < gamepadsOnly.Count; j++)
+                                {
+                                    PlayerInfo guest = gamepadsOnly[j];
+
+                                    if (ProfilePlayersList.Any(pp => pp.GamepadGuid == guest.GamepadGuid))
+                                    {
+                                        continue;
+                                    }
+
+                                    if (AssignedDevices.Any(pp => pp == guest))
+                                    {
+                                        continue;
+                                    }
+
+                                    if (AssignedDevices.Any(pp => pp.InstanceGuests.Any(ig => ig.GamepadId == guest.GamepadId)))
+                                    {
+                                        continue;
+                                    }
+
+                                    if (player.InstanceGuests.Any(ig => ig == guest))
+                                    {
+                                        continue;
+                                    }
+
+                                    player.InstanceGuests.Add(guest);
+
+                                    if (player.InstanceGuests.Count == player.CurrentMaxGuests)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
                         }
-
-                        player.InstanceGuests.Add(guest);
-
-                        if (player.InstanceGuests.Count == player.CurrentMaxGuests)
+                        else
                         {
-                            break;
+                            for (int j = 0; j < gamepadsOnly.Count; j++)
+                            {
+                                PlayerInfo guest = gamepadsOnly[j];
+
+                                if (AssignedDevices.Any(pp => pp.GamepadId == guest.GamepadId || pp.InstanceGuests.Any(ig => ig.GamepadId == guest.GamepadId)))
+                                {
+                                    continue;
+                                }
+
+                                if (player.InstanceGuests.Any(ig => ig.GamepadId == guest.GamepadId))
+                                {
+                                    continue;
+                                }
+
+                                player.InstanceGuests.Add(guest);
+
+                                if (player.InstanceGuests.Count == player.CurrentMaxGuests)
+                                {
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
             }
 
-            bool tek = AssignedDevices.All(p => p.InstanceGuests.Count == p.CurrentMaxGuests);
-            return tek;
+            return AssignedDevices.All(p => p.InstanceGuests.Count == p.CurrentMaxGuests);
         }
 
         private static PlayerInfo FindProfilePlayerInput(PlayerInfo player)
         {
             PlayerInfo profilePlayer = null;
-
-            var screens = Instance.screens;
 
             bool skipGuid = false;
 
@@ -1432,7 +1548,16 @@ namespace Nucleus.Gaming.Coop
             //DInput/XInput/SDL2 using GamepadGuid(do not follow gamepad api indexes)
             if ((player.IsXInput || player.IsDInput || player.IsSDL2) && !skipGuid && !useXinputIndex)
             {
-                profilePlayer = ProfilePlayersList.Where(pl => (pl.IsDInput || pl.IsXInput || pl.IsSDL2) && (pl.GamepadGuid == player.GamepadGuid)).FirstOrDefault();     
+                if(!GameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress)
+                {
+                    profilePlayer = ProfilePlayersList.Where(pl => (pl.IsDInput || pl.IsXInput || pl.IsSDL2) && (pl.GamepadGuid == player.GamepadGuid)).FirstOrDefault();
+                }
+                else if(player.IsInputUsed && (awaitedProfilePlayer.IsXInput || awaitedProfilePlayer.IsSDL2 || awaitedProfilePlayer.IsDInput))
+                {
+                    profilePlayer = awaitedProfilePlayer;
+                    SetProfilePlayerScreenLayout();
+                    return profilePlayer;
+                }      
             }
 
             //single k&m 
@@ -1450,6 +1575,15 @@ namespace Nucleus.Gaming.Coop
                 (pl.HIDDeviceID.Contains(player.HIDDeviceID[0]) && pl.HIDDeviceID.Contains(player.HIDDeviceID[1]))).FirstOrDefault();
             }
 
+            SetProfilePlayerScreenLayout();
+
+            return profilePlayer;
+        }
+
+        private static void SetProfilePlayerScreenLayout()
+        {
+            var screens = Instance.screens;
+
             for (int i = 0; i < screens.Count(); i++)
             {
                 UserScreen anyScr = screens[i];
@@ -1459,8 +1593,6 @@ namespace Nucleus.Gaming.Coop
                     anyScr.Type = (UserScreenType)ProfilePlayersList.Where(pp => pp.ScreenIndex == i).FirstOrDefault().OwnerType;
                 }
             }
-
-            return profilePlayer;
         }
 
         private static void GroupKeyboardAndMouse()
@@ -1498,7 +1630,7 @@ namespace Nucleus.Gaming.Coop
 
                         Instance.DevicesList.Remove(secondInGroup);
                         p = firstInGroup;
-                        p.IsInputUsed = true;///needed else device is invisible and can't be moved
+                        p.IsInputUsed = true;//needed else device is invisible and can't be moved
 
                         break;
                     }
@@ -1510,7 +1642,7 @@ namespace Nucleus.Gaming.Coop
         {
             DevicesList.RemoveAll(p => p.IsRawMouse || p.IsRawKeyboard);
 
-            if (Game.SupportsMultipleKeyboardsAndMice)///Raw mice/keyboards
+            if (Game.SupportsMultipleKeyboardsAndMice)//Raw mice/keyboards
             {
                 DevicesList.AddRange(RawInputManager.GetDeviceInputInfos());
             }
@@ -1633,7 +1765,7 @@ namespace Nucleus.Gaming.Coop
                 }
             }
 
-            //Remove any screens not containing players based on the above cleanup 
+            //Remove any screens not containing players, based on the above cleanup 
             nprof.Screens.RemoveAll(s => s.SubScreensBounds.Count() == 0);
 
             Dictionary<string, object> noptions = new Dictionary<string, object>();
@@ -1659,7 +1791,7 @@ namespace Nucleus.Gaming.Coop
             player.Nickname = getIdFromProfile ? ProfilePlayersList[playerIndex].Nickname :
                              PlayersIdentityCache.GetNicknameAt(playerIndex);
 
-            if(getIdFromProfile)//updated in the og host has not been found
+            if(getIdFromProfile)//updated if the og host has not been found
             {
                 player.CurrentMaxGuests = ProfilePlayersList[playerIndex].CurrentMaxGuests;
                 player.GuestsGuid = ProfilePlayersList[playerIndex].GuestsGuid;

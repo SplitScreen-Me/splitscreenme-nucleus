@@ -10,11 +10,8 @@ using System.Windows.Forms;
 
 namespace Nucleus.Coop.Tools
 {
-    public static class GetCoverMainColor
+    public static class GetImageMainColor
     {
-
-        private static int _width;
-        private static int _height;
 
         public static Color ParseColor(Bitmap image)
         {
@@ -29,32 +26,35 @@ namespace Nucleus.Coop.Tools
             Marshal.Copy(bits.Scan0, source, 0, source.Length);
             image.UnlockBits(bits);
 
-            _width = image.Width;
-            _height = image.Height;
-            // Process color
             return ProcessColor(source);
         }
 
         private static Color ProcessColor(int[] source)
         {
-            int bottomRedTotal = 0, bottomGreenTotal = 0, bottomBlueTotal = 0, bottomCount = 0;
-
-            int bottomStart = source.Length - _width * 10;
+            int redTotal = 0, greenTotal = 0, blueTotal = 0, count = 0;
 
             for (int i = 0; i < source.Length; i++)
             {
-                bottomRedTotal += (source[i] & 0xff0000) >> 16;
-                bottomGreenTotal += (source[i] & 0x00ff00) >> 8;
-                bottomBlueTotal += (source[i] & 0x0000ff);
-                bottomCount++;
+                int pixel = source[i];
+                int alpha = (pixel >> 24) & 0xff;
+
+                if (alpha == 0) continue;
+
+                redTotal += (pixel >> 16) & 0xff;
+                greenTotal += (pixel >> 8) & 0xff;
+                blueTotal += pixel & 0xff;
+                count++;
             }
 
+            if (count == 0)
+                return Color.White;
+
             return Color.FromArgb(
-                Math.Min(255, bottomRedTotal / bottomCount),
-                Math.Min(255, bottomGreenTotal / bottomCount),
-                Math.Min(255, bottomBlueTotal / bottomCount));
+                redTotal / count,
+                greenTotal / count,
+                blueTotal / count);
         }
-               
-        
+
+
     }
 }

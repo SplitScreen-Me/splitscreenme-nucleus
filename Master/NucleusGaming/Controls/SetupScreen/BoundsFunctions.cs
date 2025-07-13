@@ -101,7 +101,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             float val2 = (fwidth != 0 ? ((width / fwidth) / ratio) : ((width / fheight) / ratio));
 
             var spb = selectedPlayer.MonitorBounds;
-            return $"Resolution: {spb.Width} X {spb.Height}  Aspect Ratio: {val1} : {val2}  Top: {spb.Top}  Bottom: {spb.Bottom}  Left: {spb.Left}  Right: {spb.Right}";
+            return $"{selectedPlayer.Nickname} | Resolution: {spb.Width} X {spb.Height}  Aspect Ratio: {val1} : {val2}  Top: {spb.Top}  Bottom: {spb.Bottom}  Left: {spb.Left}  Right: {spb.Right}";
         }
 
         public static void ScreensWatcher_Tick(object state)
@@ -251,11 +251,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             }
             else
             {
-                //for (int i = 0; i < Screens.Length; i++)
-                //{
-                //    Screens[i].PlayerOnScreen = 0;
-                //}
-
                 UserScreen[] newScreens = ScreensUtil.AllScreens();
                 Rectangle newBounds = RectangleUtil.Union(newScreens);
 
@@ -447,26 +442,14 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             return;
                         }
 
+                        Dragging = true;
+
                         if (p.ScreenIndex != -1)
                         {
                             RemovePlayer(p, p.ScreenIndex);
                         }
 
-                        Dragging = true;
                         draggingIndex = i;
-
-                        draggingOffset = new PointF(r.X - e.X, r.Y - e.Y);
-
-                        RectangleF newBounds = GetDefaultBounds(draggingIndex);
-
-                        profile.DevicesList[draggingIndex].EditBounds = newBounds;
-
-                        if (draggingOffset.X < -newBounds.Width ||
-                            draggingOffset.Y < -newBounds.Height)
-                        {
-                            draggingOffset = new Point(0, 0);
-                        }
-     
                         break;
                     }
                 }
@@ -1054,7 +1037,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 parent.Invalidate(false);
             }
 
-            if (player.ScreenIndex == screenIndex)
+            if (player.ScreenIndex == screenIndex && !Dragging)
             {
                 player.EditBounds = GetDefaultBounds(playerIndex);
                 player.Owner = null;
@@ -1215,7 +1198,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         destMonitorBounds = free;
                         player.EditBounds = freemb;
                         
-                        //Console.WriteLine($"Can fit at: {free.X},{free.Y} in free area {free.Width}x{free.Height}"); parent.Invalidate();
                         return true;
                     }
                 }
@@ -1288,14 +1270,28 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                     if (instanceOwner.IsController)
                                     {
                                         var instanceOwnerGuests = instanceOwner.InstanceGuests.Where(ig => ig.GamepadId != -1).ToList();
+
                                         if (!instanceOwner.InstanceGuests.Contains(player) &&
                                             !GameProfile.AssignedDevices.Any(pl => pl.InstanceGuests.Contains(player)) &&
-                                            instanceOwnerGuests.Count < userGameInfo.Game.PlayersPerInstance - 1 /*&&*/
+                                            instanceOwnerGuests.Count < userGameInfo.Game.PlayersPerInstance - 1/*&&*/
                                             /*!( GameProfile.AssignedDevices.Count == userGameInfo.Game.MaxPlayers)*/)
                                         {
-                                            canAddGuest = true;
-                                            instanceHost = instanceOwner;
-                                            DestEditBounds = instanceOwner.EditBounds;
+                                            if (GameProfile.Loaded)
+                                            {
+                                                //so we can't add more guests than expected by the profile
+                                                if (instanceOwner.InstanceGuests.Count != instanceOwner.CurrentMaxGuests)
+                                                {
+                                                    canAddGuest = true;
+                                                    instanceHost = instanceOwner;
+                                                    DestEditBounds = instanceOwner.EditBounds;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                canAddGuest = true;
+                                                instanceHost = instanceOwner;
+                                                DestEditBounds = instanceOwner.EditBounds;
+                                            }
                                         }
                                     }
                                 }
@@ -1488,7 +1484,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             }
 
             var playersInDiv = profile.DevicesList.Where(pl => (pl != player) && pl.MonitorBounds.IntersectsWith(destMonitorBounds)).ToList();
-
 
             if (player.IsRawMouse && !(player.IsRawMouse && player.IsRawKeyboard) ? playersInDiv.All(x => x.IsRawKeyboard && !x.IsRawMouse) :
                 player.IsRawKeyboard && !(player.IsRawMouse && player.IsRawKeyboard) ? playersInDiv.All(x => x.IsRawMouse && !x.IsRawKeyboard) :

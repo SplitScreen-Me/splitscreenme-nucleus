@@ -2,6 +2,7 @@
 using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Cache;
+using Nucleus.Gaming.Controls;
 using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.InputManagement.Gamepads;
@@ -193,42 +194,22 @@ namespace Nucleus.Coop.UI
                 inputTextOutlinePen = new Pen(Color.FromArgb(180, 100, 100, 100));
                 inputTextFillBrush = new SolidBrush(Color.FromArgb(20, 20, 20, 20));
             }
-
-            if (UI_Interface.InputsTextLabel.Text != "")
-            {
-                Rectangle inputTextBack = new Rectangle(UI_Interface.InputsTextLabel.Location.X - 5, UI_Interface.InputsTextLabel.Location.Y - 3, UI_Interface.InputsTextLabel.Width + 10, UI_Interface.InputsTextLabel.Height + 6);
-                Rectangle inputTextBackOutline = new Rectangle(UI_Interface.InputsTextLabel.Location.X - 6, UI_Interface.InputsTextLabel.Location.Y - 4, UI_Interface.InputsTextLabel.Width + 12, UI_Interface.InputsTextLabel.Height + 8);
-
-                e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-
-                GraphicsPath outlineGp = FormGraphicsUtil.MakeRoundedRect(inputTextBackOutline, 10, 10, true, true, true, true);
-                GraphicsPath backGp = FormGraphicsUtil.MakeRoundedRect(inputTextBack, 10, 10, false, false, false, true);
-
-                //e.Graphics.DrawPath(inputTextOutlinePen, outlineGp);
-                e.Graphics.FillPath(inputTextFillBrush, backGp);
-
-                outlineGp.Dispose();
-                backGp.Dispose();
-            }
         }
 
         public static void SetupPanel_Paint(object sender, PaintEventArgs e)
         {
             if (GameProfile.Instance == null)
             {
-                UI_Interface.InputsTextLabel.Text = "";
+                UI_Interface.InputsTextLabel.SetText(new (string, Color)[]{});
                 return;
             }
 
-            var prevText = UI_Interface.InputsTextLabel.Text;
-            var inputText = Core_Interface.CurrentStepIndex == 0 ? InputsText.GetInputText(Core_Interface.DisableGameProfiles) : (Core_Interface.CurrentStep?.Title, UI_Interface.InputsTextLabel.ForeColor = Theme_Settings.ControlsForeColor);
-
-            if (prevText != inputText.Item1)
-            {
-                UI_Interface.InputsTextLabel.Text = inputText.Item1;
-                UI_Interface.InputsTextLabel.ForeColor = inputText.Item2;
-                UI_Interface.WindowPanel.Invalidate(false);
-            }
+            var inputText = Core_Interface.CurrentStepIndex == 0 ? InputsText.GetInputText() : new (string, Color)[] {( Core_Interface.CurrentStep?.Title, Theme_Settings.ControlsForeColor)};
+            
+           if (!UI_Interface.InputsTextLabel.Content.SequenceEqual(inputText))
+           {
+                UI_Interface.InputsTextLabel.SetText(inputText);
+           }
         }
 
         public static void GameListContainer_Paint(object sender, PaintEventArgs e)
@@ -531,7 +512,7 @@ namespace Nucleus.Coop.UI
 
             Color backCol = Theme_Settings.InfoPanelBackColor;
 
-            SolidBrush  textBrush = blinking ?new SolidBrush(Color.White) : new SolidBrush(Color.FromArgb(255, Theme_Settings.SelectedBackColor.R, Theme_Settings.SelectedBackColor.G, Theme_Settings.SelectedBackColor.B)); ;
+            SolidBrush  textBrush = blinking ? new SolidBrush(Color.White) : new SolidBrush(Color.FromArgb(255, Theme_Settings.SelectedBackColor.R, Theme_Settings.SelectedBackColor.G, Theme_Settings.SelectedBackColor.B));
  
             SolidBrush sortBrush = new SolidBrush(Color.FromArgb(90, backCol.R, backCol.G, backCol.B));
             GraphicsPath backGp = FormGraphicsUtil.MakeRoundedRect(bounds, 20, 20, false, true, true, false);
@@ -591,6 +572,121 @@ namespace Nucleus.Coop.UI
                 }
 
                 UI_Interface.HandlerNoteTitle.ForeColor = Color.FromArgb(r, r, 255, b);
+            }
+        }
+
+        public static Timer BlinkInputTimer => blinkInputTimer;
+        private static Timer blinkInputTimer;
+        private static int blinkInputStep = 0;
+        private static bool blinkInputShowTooltip;
+        private static ImageAttributes blinkImageAttributes;
+
+        public static void StartBlinkInputIcons()
+        {   
+            if (blinkInputTimer == null)
+            {
+               if(blinkImageAttributes == null)
+               {
+                    ColorMatrix colorMatrix = new ColorMatrix(new[]{
+                    new float[] {1, 0, 0, 0, 0},  
+                    new float[] {0, 0, 0, 0, 0},  
+                    new float[] {0, 0, 0, 0, 0},  
+                    new float[] {0, 0, 0, 1, 0},  
+                    new float[] {0, 0, 0, 0, 1} 
+                    });
+
+                    blinkImageAttributes = new ImageAttributes();
+                    blinkImageAttributes.SetColorMatrix(colorMatrix);
+                }                   
+             
+                blinkInputTimer = new Timer();
+                blinkInputTimer.Interval = 500; // Blink every 500 milliseconds
+                blinkInputTimer.Tick += blinkInputTimer_Tick;
+                blinkInputTimer.Start();
+
+                UI_Actions.On_GameChange -= StopBlinkInputIcons;
+                UI_Actions.On_GameChange += StopBlinkInputIcons;
+            }   
+        }
+
+        private static void blinkInputTimer_Tick(object obj, EventArgs e)
+        {
+            var ic = UI_Interface.IconsContainer;
+
+            if (ic != null)
+            {
+                bool combineToolTipsText = ic.Controls.Count >= 2;
+                StringBuilder sb = new StringBuilder();
+
+                foreach (PictureBox pic in ic.Controls)
+                {                   
+                    if (blinkInputStep == 1)
+                    {
+                        pic.Invalidate();
+                    }
+                    else
+                    {
+                        var g = pic.CreateGraphics();
+                        g.DrawImage(pic.Image, pic.ClientRectangle, 0, 0, pic.Image.Width, pic.Image.Height, GraphicsUnit.Pixel, blinkImageAttributes);
+                        g.Dispose();
+
+                        var tooltip = CustomToolTips.GetControlToolTip(pic.Name);
+
+                        if (!combineToolTipsText)
+                        {
+                            if (tooltip != null && !blinkInputShowTooltip)
+                            {
+                                var text = tooltip.GetToolTip(pic);
+
+                                if (text != "")
+                                {
+                                    tooltip.Show("Supported inputs:" + "\n" + text.Replace("Supports ", "-") /*+ "\n" + " "*/, pic, new Point(pic.Parent.ClientRectangle.Left,pic.Parent.ClientRectangle.Bottom),5000);                        
+                                }
+                            }
+                        }
+                        else
+                        {
+                            var text = tooltip.GetToolTip(pic);
+                            if (text != "")
+                            {
+                                sb.Append(text.Replace("Supports ","-") + "\n");
+                            }              
+                        }
+                    }            
+                }
+
+                if (sb.ToString() != "" && !blinkInputShowTooltip)
+                {
+                    var firstPb = ic.Controls[0];
+                    var tooltip = CustomToolTips.GetControlToolTip(firstPb.Name);
+
+                    if (tooltip != null && !blinkInputShowTooltip)
+                    {
+                        tooltip.Show("Supported inputs:" + "\n" + sb.ToString() /*+ "\n" + " "*/, firstPb, firstPb.Parent.ClientRectangle.Left, firstPb.Parent.ClientRectangle.Bottom, 5000);
+                    }
+                }
+
+                blinkInputStep = blinkInputStep == 0 ? 1 : 0;
+                blinkInputShowTooltip = true;
+            }
+        }
+
+        public static void StopBlinkInputIcons()
+        {
+            blinkInputTimer?.Stop();
+            blinkInputTimer?.Dispose();
+            blinkInputTimer = null;
+            blinkInputStep = 0;
+            blinkInputShowTooltip = false;
+
+            var ic = UI_Interface.IconsContainer;
+
+            if (ic != null)
+            {
+                foreach (PictureBox pic in ic.Controls)
+                {
+                    pic.Invalidate();
+                }
             }
         }
     }

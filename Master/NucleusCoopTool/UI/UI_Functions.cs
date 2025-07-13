@@ -19,7 +19,7 @@ using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 namespace Nucleus.Coop.UI
 {
     public static class UI_Functions
-    {       
+    {
         private const int WM_NCLBUTTONDOWN = 0xA1;
         private const int HT_CAPTION = 0x2;
 
@@ -41,12 +41,12 @@ namespace Nucleus.Coop.UI
             UI_Interface.MaximizeButton.BackgroundImage = UI_Interface.MainForm.WindowState == FormWindowState.Maximized ? ImageCache.GetImage(Globals.ThemeFolder + "title_windowed.png") : ImageCache.GetImage(Globals.ThemeFolder + "title_maximize.png");
         }
 
-        public static void MaximizeButton_MouseEnter(object sender, EventArgs e) => 
-            UI_Interface.MaximizeButton.BackgroundImage = UI_Interface.MaximizeButton.BackgroundImage = UI_Interface.MainForm.WindowState == FormWindowState.Maximized ? 
+        public static void MaximizeButton_MouseEnter(object sender, EventArgs e) =>
+            UI_Interface.MaximizeButton.BackgroundImage = UI_Interface.MaximizeButton.BackgroundImage = UI_Interface.MainForm.WindowState == FormWindowState.Maximized ?
             ImageCache.GetImage(Globals.ThemeFolder + "title_windowed_mousehover.png") : ImageCache.GetImage(Globals.ThemeFolder + "title_maximize_mousehover.png");
 
-        public static void MaximizeButton_MouseLeave(object sender, EventArgs e) => 
-            UI_Interface.MaximizeButton.BackgroundImage = UI_Interface.MainForm.WindowState == FormWindowState.Maximized ? 
+        public static void MaximizeButton_MouseLeave(object sender, EventArgs e) =>
+            UI_Interface.MaximizeButton.BackgroundImage = UI_Interface.MainForm.WindowState == FormWindowState.Maximized ?
             ImageCache.GetImage(Globals.ThemeFolder + "title_windowed.png") : ImageCache.GetImage(Globals.ThemeFolder + "title_maximize.png");
 
         public static void VirtualMouseToggle_MouseClick(object sender, MouseEventArgs e)
@@ -65,7 +65,7 @@ namespace Nucleus.Coop.UI
             }
         }
 
-        public static void ExtractHandlerButton_Click(object sender, EventArgs e)=> ExtractHandler.Extract();
+        public static void ExtractHandlerButton_Click(object sender, EventArgs e) => ExtractHandler.Extract();
         public static void ExtractHandlerButton_MouseEnter(object sender, EventArgs e) => UI_Interface.ExtractHandlerButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "extract_nc_mousehover.png");
         public static void ExtractHandlerButton_MouseLeave(object sender, EventArgs e) => UI_Interface.ExtractHandlerButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "extract_nc.png");
 
@@ -89,7 +89,7 @@ namespace Nucleus.Coop.UI
 
 
         public static void DisableGameSelection()
-        {    
+        {
             UI_Interface.GameList.SelectedChanged -= GameList_SelectedChanged;
         }
 
@@ -159,7 +159,7 @@ namespace Nucleus.Coop.UI
         public static void TutorialButton_MouseEnter(object sender, EventArgs e) =>
             UI_Interface.TutorialButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "instruction_opened.png");
 
-        public static void TutorialButton_MouseLeave(object sender, EventArgs e) => 
+        public static void TutorialButton_MouseLeave(object sender, EventArgs e) =>
             UI_Interface.TutorialButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "instruction_closed.png");
 
         public static void GotoPrev_Click(object sender, EventArgs e) => Core_Interface.GotoPrevStep();
@@ -168,7 +168,7 @@ namespace Nucleus.Coop.UI
 
         public static void GotoPrevEnabledChanged(object sender, EventArgs e)
         {
-            Button stepBtn = (Button)sender;        
+            Button stepBtn = (Button)sender;
         }
 
         public static void GotoNextEnabledChanged(object sender, EventArgs e)
@@ -177,7 +177,7 @@ namespace Nucleus.Coop.UI
         }
 
         public static void Play_Click(object sender, EventArgs e) => Core_Interface.PlayClicked();
-        
+
         public static void ProfileSettingsButton_Click(object sender, EventArgs e)
         {
             if (UI_Interface.Settings.Visible)
@@ -199,13 +199,13 @@ namespace Nucleus.Coop.UI
         }
 
         public static void SettingsButton_MouseEnter(object sender, EventArgs e)
-        { 
-            if (UI_Interface.ProfileSettings.Visible) 
-            { 
-                return; 
-            } 
-            
-            UI_Interface.SettingsButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_settings_mousehover.png"); 
+        {
+            if (UI_Interface.ProfileSettings.Visible)
+            {
+                return;
+            }
+
+            UI_Interface.SettingsButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_settings_mousehover.png");
         }
 
         public static void SettingsButton_MouseLeave(object sender, EventArgs e) => UI_Interface.SettingsButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_settings.png");
@@ -276,9 +276,10 @@ namespace Nucleus.Coop.UI
             if (!UI_Interface.HandlerNotesZoom.Visible)
             {
                 UI_Interface.HandlerNotesZoom.Warning.Visible = Core_Interface.Current_GenericGameInfo.MetaInfo.FirstLaunch;
-                UI_Interface.HandlerNotesZoom.TextBox.Text = UI_Interface.HandlerNotes.Text;
+                UI_Interface.HandlerNotesZoom.TextBox.Text = Core_Interface.Current_GenericGameInfo.Description;
                 UI_Interface.HandlerNotesZoom.Visible = true;
                 UI_Interface.HandlerNotesZoom.BringToFront();
+                HighlightNotesText.Highlight(UI_Interface.HandlerNotesZoom.TextBox);
             }
             else
             {
@@ -288,7 +289,7 @@ namespace Nucleus.Coop.UI
 
         public static void HandlerNotes_TextChanged(object sender, EventArgs e)
         {
-            if( UI_Interface.HandlerNotesZoom == null)
+            if (UI_Interface.HandlerNotesZoom == null)
             {
                 return;
             }
@@ -297,16 +298,18 @@ namespace Nucleus.Coop.UI
             {
                 UI_Interface.HandlerNotesZoom.Warning.Visible = true;
                 UI_Interface.HandlerNotesZoom.Warning.Text = "⚠ Important! Launch the game out of Nucleus before launching the handler for the first time. ⚠";
-                UI_Interface.HandlerNotesZoom.Notes.Text = UI_Interface.HandlerNotes.Text;
+                UI_Interface.HandlerNotesZoom.Notes.Text = Core_Interface.Current_GenericGameInfo.Description;
                 UI_Interface.HandlerNotesZoom.Notes.Rtf = UI_Interface.HandlerNotes.Rtf;
                 UI_Interface.HandlerNotesZoom.Notes.Font = UI_Interface.HandlerNotesZoom.DefaultNotesFont;//Update the font after setting rtf
+                HighlightNotesText.Highlight(UI_Interface.HandlerNotesZoom.TextBox);
             }
             else
             {
-                UI_Interface.HandlerNotesZoom.Notes.Text = UI_Interface.HandlerNotes.Text;
+                UI_Interface.HandlerNotesZoom.Notes.Text = Core_Interface.Current_GenericGameInfo.Description;
                 UI_Interface.HandlerNotesZoom.Notes.Rtf = UI_Interface.HandlerNotes.Rtf;
                 UI_Interface.HandlerNotesZoom.Notes.Font = UI_Interface.HandlerNotesZoom.DefaultNotesFont;//Upate the font after setting rtf
                 UI_Interface.HandlerNotesZoom.Warning.Visible = false;
+                HighlightNotesText.Highlight(UI_Interface.HandlerNotesZoom.TextBox);
             }
         }
 
@@ -317,7 +320,7 @@ namespace Nucleus.Coop.UI
 
             GenericGameInfo gameInfo = gameControl.GameInfo;
 
-            Handler handler = HubCache.SearchById(gameInfo.HandlerId);
+            Handler handler = HubCache.SearchByIdOnline(gameInfo.HandlerId);
 
             if (handler == null)
             {
@@ -372,7 +375,7 @@ namespace Nucleus.Coop.UI
 
         public static void SetGameProfileButtonLoc()
         {
-            UI_Interface.ProfileSettingsButton.Location = UI_Interface.ProfileListButton.Visible ? (Point)UI_Interface.ProfileSettingsButton.Tag : UI_Interface.ProfileListButton.Location;           
+            UI_Interface.ProfileSettingsButton.Location = UI_Interface.ProfileListButton.Visible ? (Point)UI_Interface.ProfileSettingsButton.Tag : UI_Interface.ProfileListButton.Location;
             UI_Interface.SaveProfileSwitch.Location = new Point(UI_Interface.ProfileSettingsButton.Right + 5, UI_Interface.SaveProfileSwitch.Location.Y);
         }
 
@@ -392,7 +395,7 @@ namespace Nucleus.Coop.UI
             UI_Interface.Cover.Visible = true;
         }
 
-        public static void ProfileButtonsPanel_StateChanged(object sender,EventArgs e)
+        public static void ProfileButtonsPanel_StateChanged(object sender, EventArgs e)
         {
             SetProfileButtonPanelLockPbState();
         }
@@ -407,7 +410,7 @@ namespace Nucleus.Coop.UI
         {
             if (refreshAll)
             {
-                UI_Interface.InputsTextLabel.Text = "";
+                UI_Interface.InputsTextLabel.SetText(new (string, Color)[] {});
                 Core_Interface.Current_GenericGameInfo = null;
                 UI_Interface.ProfileButtonsPanel.Visible = false;
                 UI_Interface.GotoNext.Enabled = false;
@@ -427,18 +430,18 @@ namespace Nucleus.Coop.UI
             UI_Interface.WindowPanel.Focus();
             UI_Interface.BigLogo.Refresh();
 
-            if(UI_Interface.SearchTextBox != null)
+            if (UI_Interface.SearchTextBox != null)
             {
                 UI_Interface.SearchTextBox.Visible = Core_Interface.GameManager?.User.Games.Count >= 2;
-            }         
+            }
         }
 
         public static void ResetPlayButton()
         {
             UI_Interface.PlayButton?.Invoke((MethodInvoker)delegate ()
             {
-               UI_Interface.PlayButton.Tag = "START";
-               UI_Interface.PlayButton.Visible = false;
+                UI_Interface.PlayButton.Tag = "START";
+                UI_Interface.PlayButton.Visible = false;
             });
         }
 
@@ -453,9 +456,9 @@ namespace Nucleus.Coop.UI
             });
         }
 
-        public static void OnClickHideProfileList(object sender,MouseEventArgs e)
+        public static void OnClickHideProfileList(object sender, MouseEventArgs e)
         {
-            if(UI_Interface.ProfilesList != null)
+            if (UI_Interface.ProfilesList != null)
             {
                 UI_Interface.ProfilesList.Visible = false;
             }

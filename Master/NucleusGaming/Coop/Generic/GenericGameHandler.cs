@@ -1177,7 +1177,7 @@ namespace Nucleus.Gaming
                     }
                 }
 
-                if (i == 0 /*&& !Globals.IsOneDriveEnabled*/)
+                if (i == 0)
                 {
                     BackupDatas.StartBackupsRestoration();
                 }
@@ -2785,7 +2785,14 @@ namespace Nucleus.Gaming
                                 {
                                     Log($"Attempting to switch audio endpoint for process {players[pi].ProcessData.Process.ProcessName} pid ({players[pi].ProcessID}) to DeviceID {GameProfile.AudioInstances["AudioInstance" + (pi + 1)]}");
                                     Thread.Sleep(1000);
-                                    AudioReroute.SwitchProcessTo(GameProfile.AudioInstances["AudioInstance" + (pi + 1)], AudioReroute.ERole.ERole_enum_count, AudioReroute.EDataFlow.eRender, (uint)players[pi].ProcessID);
+                                    try
+                                    {
+                                        AudioReroute.SwitchProcessTo(GameProfile.AudioInstances["AudioInstance" + (pi + 1)], AudioReroute.ERole.ERole_enum_count, AudioReroute.EDataFlow.eRender, (uint)players[pi].ProcessID);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Log(ex.StackTrace + "\n" + ex.Message);
+                                    }
                                 }
                             }
                         }
@@ -3565,10 +3572,7 @@ namespace Nucleus.Gaming
 
             RawInputManager.EndSplitScreen();
 
-            //if(!Globals.IsOneDriveEnabled)
-            {
-                BackupDatas.ProceedBackup();
-            }
+            BackupDatas.ProceedBackup();            
             
             // delete symlink folder and users accounts 
 #if RELEASE

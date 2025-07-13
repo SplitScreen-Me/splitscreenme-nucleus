@@ -10,7 +10,7 @@ namespace Nucleus.Gaming.Controls
     {
         private static ConcurrentDictionary<string, CustomToolTip> tooltipList = new ConcurrentDictionary<string, CustomToolTip>();
 
-        private class CustomToolTip : ToolTip
+        public class CustomToolTip : ToolTip
         {
             public string Id;
         }
@@ -40,6 +40,12 @@ namespace Nucleus.Gaming.Controls
             tooltip.Draw += Tooltip_Draw;
             tooltip.SetToolTip(control, text);
             tooltipList.TryAdd(id, tooltip);
+        }
+
+
+        public static CustomToolTip GetControlToolTip(string toolTipName)
+        {
+           return tooltipList.TryGetValue(toolTipName, out CustomToolTip tooltip) ? tooltip : null;
         }
 
         private static void Tooltip_Draw(object sender, DrawToolTipEventArgs e)

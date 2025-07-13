@@ -19,7 +19,7 @@ namespace Nucleus.Coop
         public override bool CanProceed => true;
         public override bool CanPlay => true;
         private float _scale;
-        public override string Title => "Handler Options";
+        public override string Title => "Options";
         private Dictionary<string, object> vals;
 
         public PlayerOptionsControl()

@@ -75,12 +75,7 @@ namespace Nucleus.Coop.Tools
                 }
 
                 Generic_Functions.RefreshAll();
-
-            });
-
-            //UI_Interface.MainForm.Refresh();
-
-            
+            });   
         }
     }
 }

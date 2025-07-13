@@ -97,6 +97,7 @@ namespace Nucleus.Coop
             this.cmb_Network = new FlatCombo();
             this.label32 = new System.Windows.Forms.Label();
             this.playersTab = new System.Windows.Forms.Panel();
+            this.assignGpdByBtnPress = new Nucleus.Coop.Controls.CustomCheckBox();
             this.gamepadsAssignMethods = new Nucleus.Coop.Controls.CustomCheckBox();
             this.btnNext = new System.Windows.Forms.Button();
             this.page1 = new System.Windows.Forms.Panel();
@@ -464,6 +465,7 @@ namespace Nucleus.Coop
             this.disableGameProfiles.Tag = "";
             this.disableGameProfiles.Text = "Disable Game Profiles";
             this.disableGameProfiles.UseVisualStyleBackColor = false;
+            this.disableGameProfiles.CheckedChanged += new System.EventHandler(this.DisableGameProfiles_CheckedChanged);
             // 
             // keepAccountsCheck
             // 
@@ -1298,6 +1300,7 @@ namespace Nucleus.Coop
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.playersTab.BackColor = System.Drawing.Color.PaleGreen;
+            this.playersTab.Controls.Add(this.assignGpdByBtnPress);
             this.playersTab.Controls.Add(this.gamepadsAssignMethods);
             this.playersTab.Controls.Add(this.btnNext);
             this.playersTab.Controls.Add(this.page1);
@@ -1307,19 +1310,35 @@ namespace Nucleus.Coop
             this.playersTab.Size = new System.Drawing.Size(675, 391);
             this.playersTab.TabIndex = 132;
             // 
+            // assignGpdByBtnPress
+            // 
+            this.assignGpdByBtnPress.BackColor = System.Drawing.Color.DimGray;
+            this.assignGpdByBtnPress.BorderColor = System.Drawing.Color.Blue;
+            this.assignGpdByBtnPress.CheckColor = System.Drawing.Color.Blue;
+            this.assignGpdByBtnPress.ForeColor = System.Drawing.Color.White;
+            this.assignGpdByBtnPress.Location = new System.Drawing.Point(16, 42);
+            this.assignGpdByBtnPress.Name = "assignGpdByBtnPress";
+            this.assignGpdByBtnPress.SelectionColor = System.Drawing.Color.LightBlue;
+            this.assignGpdByBtnPress.Size = new System.Drawing.Size(229, 19);
+            this.assignGpdByBtnPress.TabIndex = 296;
+            this.assignGpdByBtnPress.Text = "Assign Gamepads On Button Press";
+            this.assignGpdByBtnPress.UseVisualStyleBackColor = true;
+            this.assignGpdByBtnPress.CheckedChanged += new System.EventHandler(this.AssignGpdByBtnPress_CheckedChanged);
+            // 
             // gamepadsAssignMethods
             // 
             this.gamepadsAssignMethods.BackColor = System.Drawing.Color.DimGray;
             this.gamepadsAssignMethods.BorderColor = System.Drawing.Color.Blue;
             this.gamepadsAssignMethods.CheckColor = System.Drawing.Color.Blue;
             this.gamepadsAssignMethods.ForeColor = System.Drawing.Color.White;
-            this.gamepadsAssignMethods.Location = new System.Drawing.Point(16, 34);
+            this.gamepadsAssignMethods.Location = new System.Drawing.Point(16, 17);
             this.gamepadsAssignMethods.Name = "gamepadsAssignMethods";
             this.gamepadsAssignMethods.SelectionColor = System.Drawing.Color.LightBlue;
-            this.gamepadsAssignMethods.Size = new System.Drawing.Size(202, 19);
+            this.gamepadsAssignMethods.Size = new System.Drawing.Size(229, 19);
             this.gamepadsAssignMethods.TabIndex = 295;
-            this.gamepadsAssignMethods.Text = "Follow Gamepad API Indexes";
+            this.gamepadsAssignMethods.Text = "Assign Gamepads By Index";
             this.gamepadsAssignMethods.UseVisualStyleBackColor = true;
+            this.gamepadsAssignMethods.CheckedChanged += new System.EventHandler(this.GamepadsAssignMethods_CheckedChanged);
             // 
             // btnNext
             // 
@@ -3851,5 +3870,6 @@ namespace Nucleus.Coop
         private FlatTextBox smfw_HKTxt;
         private Label DivLabel;
         private Label label5;
+        private CustomCheckBox assignGpdByBtnPress;
     }
 }

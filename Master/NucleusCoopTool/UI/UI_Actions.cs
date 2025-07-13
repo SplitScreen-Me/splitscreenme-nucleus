@@ -28,7 +28,6 @@ namespace Nucleus.Coop.UI
         {
             On_GameChange += ChangeGame;
             On_GameChange += SetPlayTime;           
-           // On_GameChange += GameAssets.GetGameAssets;
             DevicesFunctions.OnAssignedDeviceDisconnect += DeviceDisconnected_CallBack;
             ProfileEnabled_Change += SetProfileState;
         }
@@ -166,6 +165,9 @@ namespace Nucleus.Coop.UI
             {
                 UI_Interface.HandlerNotes.ResetText();
                 UI_Interface.HandlerNotes.Text = currentGame.Description;
+               
+                HighlightNotesText.Highlight(UI_Interface.HandlerNotes);
+
                 UI_Interface.HandlerNotesContainer.Visible = true;
 
                 if (currentGame.MetaInfo.FirstLaunch && !UI_Interface.DisableForcedNote)

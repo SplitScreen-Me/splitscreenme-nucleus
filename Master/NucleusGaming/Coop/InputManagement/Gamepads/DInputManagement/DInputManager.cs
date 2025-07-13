@@ -67,8 +67,10 @@ public static class DInputManager
            var watchList = dinput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly);
 
             // Check for newly connected devices
-            foreach (var device in watchList)
+            for(int i = 0; i < watchList.Count; i++)
             {
+                var device = watchList[i];
+
                 if (dinput.IsDeviceAttached(device.InstanceGuid))
                 {
                     if (d_joysticksList.All(d => d.InstanceGuid != device.InstanceGuid))
@@ -88,8 +90,9 @@ public static class DInputManager
             // Check for disconnected devices
             var deviceToRemove = new List<DeviceInstance>();
 
-            foreach (var device in devicesList)
+            for (int i = 0; i < devicesList.Count; i++)
             {
+                var device = devicesList[i];
                 if (!dinput.IsDeviceAttached(device.InstanceGuid))
                 {
                     deviceToRemove.Add(device);
@@ -102,17 +105,18 @@ public static class DInputManager
                 }
             }
 
-            foreach (var device in deviceToRemove)
+            for (int i = 0; i < deviceToRemove.Count; i++)
             {
-                devicesList.Remove(device);
+                devicesList.Remove(deviceToRemove[i]);
             }
 
-            var disconnectedJoystick = d_joysticksList.Where(dj => dj.Status == JoystickStatus.Disconnected);
+            var disconnectedJoystick = d_joysticksList.Where(dj => dj.Status == JoystickStatus.Disconnected).ToList();
 
             if (disconnectedJoystick.Count() > 0)
             {
-                foreach (D_Joystick joy in disconnectedJoystick)
+                for (int i = 0; i < disconnectedJoystick.Count(); i++)
                 {
+                    D_Joystick joy = disconnectedJoystick[i];
                     joy.Dispose();
                     d_joysticksList.Remove(joy);
                 }
@@ -126,10 +130,10 @@ public static class DInputManager
     {
         var devices = dinput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly);
 
-        foreach (var device in devices)
+        for (int i = 0; i < devices.Count; i++)
         {
-            devicesList.Add(device);
-            d_joysticksList.Add(MakeNewJoystick(device));
+            devicesList.Add(devices[i]);
+            d_joysticksList.Add(MakeNewJoystick(devices[i]));
         }
     }
 
@@ -198,6 +202,7 @@ public static class DInputManager
 
             if ((bool)player.DInputJoystick?.State.Buttons.Any(b => b == true))
             {
+                player.IsInputUsed = true; 
                 return true;
             }
         }

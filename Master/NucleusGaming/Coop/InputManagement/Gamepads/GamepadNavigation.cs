@@ -102,6 +102,11 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
 
             while (true)
             {
+                while (GamepadState.Controllers.All(c => !c.IsConnected))
+                {
+                    Thread.Sleep(1500);
+                }
+
                 for (int i = 0; i < GamepadState.Controllers.Length; i++)
                 {
                     if (!GamepadState.Controllers[i].IsConnected)

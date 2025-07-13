@@ -92,6 +92,11 @@ namespace Nucleus.Coop.Forms
 
                     if (!string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(version))
                     {
+                        if(handlersVersion.Keys.Contains(id.ToLower()))
+                        {
+                            continue;
+                        }
+
                         handlersVersion.Add(id.ToLower(), version.ToLower());
                     }
                 }
@@ -931,7 +936,7 @@ namespace Nucleus.Coop.Forms
             });
         }
 
-        public  void Download(Handler handler, string zipFileName)
+        public void Download(Handler handler, string zipFileName)
         {
             try
             {
@@ -951,7 +956,7 @@ namespace Nucleus.Coop.Forms
             }
         }
 
-        private  void BeginDownload()
+        private void BeginDownload()
         {
             using (WebClient wc = new WebClient())
             {

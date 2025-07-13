@@ -1191,7 +1191,7 @@ namespace Nucleus.Gaming.Tools.Steam
 
                 ProcessStartInfo sl = new ProcessStartInfo(steamlessExePath);
                 sl.WorkingDirectory = linkBinFolder;
-                sl.UseShellExecute = true;
+                sl.UseShellExecute = false;//was true until 2.3.3, must check if it fix some patching issues.
                 sl.WindowStyle = ProcessWindowStyle.Hidden;
                 sl.Arguments = steamlessArgs;
 
@@ -1202,19 +1202,27 @@ namespace Nucleus.Gaming.Tools.Steam
 
                 while (!File.Exists($@"{linkBinFolder}\{executableName}.unpacked.exe") && watch.Elapsed.Milliseconds <= timing)
                 {
-                    Thread.Sleep(100);
+                    Thread.Sleep(1000);
                 }
 
                 watch.Stop();
 
                 if (File.Exists($@"{linkBinFolder}\{executableName}.unpacked.exe"))
                 {
+                    GenericGameHandler.Instance.Log($"Steamless patch applied successfully.");
+
                     File.Delete($@"{linkBinFolder}\{executableName}");
                     File.Move($@"{linkBinFolder}\{executableName}.unpacked.exe", $@"{linkBinFolder}\{executableName}");
+
+                    if (File.Exists($@"{linkBinFolder}\{executableName}.exe"))
+                    {
+                        GenericGameHandler.Instance.Log($"Original executable successfully replaced by the Steamless patched version.");
+                    }
                 }
                 else
                 {
                     NucleusMessageBox.Show("Error", "Steamless failed at patching the executable. Please try again.", false);
+                    GenericGameHandler.Instance.End(false);
                 }
             }
             catch (Exception ex)

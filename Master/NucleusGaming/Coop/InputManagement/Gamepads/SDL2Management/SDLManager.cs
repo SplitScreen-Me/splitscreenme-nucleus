@@ -155,8 +155,6 @@ namespace Gamepads
                 if(!SDL2DevicesList.Contains(controller))
                 {
                     SDL2DevicesList.Add(controller);
-                    //LogDeviceInfo(controller);
-                    //SortDeviceByInstanceId();
                 }             
             }    
         }
@@ -175,38 +173,17 @@ namespace Gamepads
                 }
             }
 
-            foreach (SDL_GameController disconnected in toRemove)
+            for (int i = 0; i < toRemove.Count; i++)
             {
-                if (SDL2DevicesList.Contains(disconnected)) 
+                SDL_GameController disconnected = toRemove[i];
+
+                if (SDL2DevicesList.Contains(disconnected))
                 {
                     SDL2DevicesList.Remove(disconnected);
-                }              
+                }
             }
         }
 
-        private static void SortDeviceByInstanceId()
-        {
-            Dictionary<int, SDL_GameController> tempList = new Dictionary<int, SDL_GameController>();
-
-
-            for (int i = 0; i < SDL2DevicesList.Count; i++)
-            {
-                SDL_GameController controller = SDL2DevicesList[i];
-                SDL_ControllerUtils.SDL_DeviceInfo info = SDL_ControllerUtils.GetSDL_DeviceInfo(controller);
-                tempList.Add(info.JOYSTICKID, controller);
-            }
-
-            var test = tempList.OrderBy(k => k.Key);
-
-            SDL2DevicesList.Clear();
-
-            foreach (var kvp in test)
-            {
-                SDL2DevicesList.Add(kvp.Value);
-                Console.WriteLine($"Clé : {kvp.Key}, Valeur : {kvp.Value}");
-            }
-            SDL.SDL2.GameControllerUpdate();
-        }
 
         public static bool IsConnected(SDL_GameController controller)
         {
