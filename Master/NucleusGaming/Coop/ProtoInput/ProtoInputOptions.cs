@@ -61,8 +61,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
         public bool FocusLoop_WM_SETFOCUS;
         public bool FocusLoop_WM_MOUSEACTIVATE;
 
-        public bool DrawFakeCursor;
-        public bool DrawFakeCursorFix;
+        public DrawFakeCursor DrawFakeCursor;
         public bool AllowFakeCursorOutOfBounds;
         public bool ExtendFakeCursorBounds;
         public bool EnableToggleFakeCursorVisibilityShortcut;
