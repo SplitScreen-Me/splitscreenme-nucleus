@@ -3,4 +3,4 @@
 	url = https://github.com/lucasassislar/x360ce
 [submodule "Submodules/ProtoInput"]
 	path = Submodules/ProtoInput
-	url = https://github.com/ilyaki/protoinput
+	url = https://github.com/SplitScreen-Me/splitscreenme-protoInput
