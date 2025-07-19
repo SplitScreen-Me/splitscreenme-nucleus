@@ -299,13 +299,14 @@ namespace Nucleus.Gaming
             if (isDebug)
             {
                 Log("--------------------- START ---------------------");
-                Log(string.Format("Game: {0}, Arch: {1}, Executable: {2}, Launcher: {3}, SteamID: {4}, Handler: {5}, Content Folder: {6}", gen.GameName, garch, gen.ExecutableName, gen.LauncherExe, gen.SteamID, gen.JsFileName, gen.GUID));
-                
+                Log($"-Installation location: {Globals.NucleusInstallRoot}");
                 if (Globals.IsOneDriveEnabled)
                 {
                     Log($@"/!\  USER DOCUMENTS PATH IS IN ONEDRIVE  /!\  -> {Globals.UserDocumentsRoot} ");
-                }
-                
+                }   
+                Log($"-Version: v{Globals.Version}");
+                Log(string.Format("Game: {0}, Arch: {1}, Executable: {2}, Launcher: {3}, SteamID: {4}, Handler: {5}, Content Folder: {6}", gen.GameName, garch, gen.ExecutableName, gen.LauncherExe, gen.SteamID, gen.JsFileName, gen.GUID));
+                        
                 MachineSpecs.GetPCspecs();
             }
 
@@ -411,10 +412,8 @@ namespace Nucleus.Gaming
             Log(string.Format("Number of players: {0}", numPlayers));
 
             if (isDebug)
-            {
-                Log("Nucleus Co-op version: " + Globals.Version);
-
-                Log("########## START OF HANDLER ##########");
+            {     
+                Log("\n########## START OF HANDLER ##########");
                 string line;
 
                 StreamReader file = new StreamReader(Path.Combine(GameManager.Instance.GetJsScriptsPath(), gen.JsFileName));
@@ -425,7 +424,7 @@ namespace Nucleus.Gaming
 
                 file.Close();
 
-                Log("########## END OF HANDLER ##########");
+                Log("\n########## END OF HANDLER ##########");
             }
 
             if (App_Misc.NucleusAccountPassword != "12345" && App_Misc.NucleusAccountPassword != "")
