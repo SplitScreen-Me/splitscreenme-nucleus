@@ -299,15 +299,17 @@ namespace Nucleus.Gaming
             if (isDebug)
             {
                 Log("--------------------- START ---------------------");
-                Log($"-Installation location: {Globals.NucleusInstallRoot}");
+                Log($"-Install location: {Globals.NucleusInstallRoot}");
                 if (Globals.IsOneDriveEnabled)
                 {
                     Log($@"/!\  USER DOCUMENTS PATH IS IN ONEDRIVE  /!\  -> {Globals.UserDocumentsRoot} ");
                 }   
-                Log($"-Version: v{Globals.Version}");
-                Log(string.Format("Game: {0}, Arch: {1}, Executable: {2}, Launcher: {3}, SteamID: {4}, Handler: {5}, Content Folder: {6}", gen.GameName, garch, gen.ExecutableName, gen.LauncherExe, gen.SteamID, gen.JsFileName, gen.GUID));
-                        
+                
+                Log($"-Version: {Globals.Version}");
+                
                 MachineSpecs.GetPCspecs();
+                Log(string.Format("-Game: {0}, Arch: {1}, Executable: {2}, Launcher: {3}, SteamID: {4}, Handler: {5}, Content Folder: {6}", gen.GameName, garch, gen.ExecutableName, gen.LauncherExe, gen.SteamID, gen.JsFileName, gen.GUID));
+                Log(string.Format("-Number of players: {0}", profile.DevicesList.Count) + "\n");
             }
 
             ProcessUtil.KillRemainingProcess();
@@ -370,7 +372,7 @@ namespace Nucleus.Gaming
 
             UserScreen[] all = profile.Screens.ToArray();
 
-            Log(string.Format("Display - DPIHandling: {0}, DPI Scale: {1}", gen.DPIHandling, DPIManager.Scale));
+            Log(string.Format("Display - DPIHandling: {0}, DPI Scale: {1}", gen.DPIHandling, DPIManager.Scale +"\n"));
             for (int x = 0; x < all.Length; x++)
             {
                 Log(string.Format("Monitor {0} - Resolution: {1}", x, all[x].MonitorBounds.Width + "x" + all[x].MonitorBounds.Height));
@@ -395,7 +397,7 @@ namespace Nucleus.Gaming
                 workingFolder = Path.Combine(exeFolder, gen.WorkingFolder.ToLower());
             }
 
-            Log("Trying to unlock original game files.");
+            Log("Trying to unlock original game files." + "\n");
             if (!StartGameUtil.UnlockGameFiles(rootFolder))
             {
                 End(false);
@@ -409,11 +411,9 @@ namespace Nucleus.Gaming
 
             numPlayers = players.Count;
 
-            Log(string.Format("Number of players: {0}", numPlayers));
-
             if (isDebug)
             {     
-                Log("\n########## START OF HANDLER ##########");
+                Log("########## START OF HANDLER ##########" + "\n");
                 string line;
 
                 StreamReader file = new StreamReader(Path.Combine(GameManager.Instance.GetJsScriptsPath(), gen.JsFileName));
@@ -424,7 +424,7 @@ namespace Nucleus.Gaming
 
                 file.Close();
 
-                Log("\n########## END OF HANDLER ##########");
+                Log("########## END OF HANDLER ##########" + "\n");
             }
 
             if (App_Misc.NucleusAccountPassword != "12345" && App_Misc.NucleusAccountPassword != "")
@@ -440,7 +440,7 @@ namespace Nucleus.Gaming
                 }
 
                 IsRunning = true;
-                Log($"********** Setting up player {i + 1} **********");
+                Log($"********** Setting up player {i + 1} **********" + "\n");
 
                 PlayerInfo player = players[i];
 
