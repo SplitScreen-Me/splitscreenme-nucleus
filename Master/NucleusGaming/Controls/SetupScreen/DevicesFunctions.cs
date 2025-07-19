@@ -51,7 +51,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             SDLManager.InitSDL(_syncContext);
 
             GamepadTimer = new System.Threading.Timer(GamepadTimer_Tick, null, 0, 300);
-            PollingTimer = new System.Threading.Timer(PollingTimer_Tick, null, 0, 300);
+            PollingTimer = new System.Threading.Timer(PollingTimer_Tick, null, 0, 150);
 
             GameProfile.OnUseXinputIndexChanged -= UpdateUseGamepadApiIndex;
             GameProfile.OnUseXinputIndexChanged += UpdateUseGamepadApiIndex;
