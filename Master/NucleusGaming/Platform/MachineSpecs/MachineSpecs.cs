@@ -14,7 +14,7 @@ namespace Nucleus.Gaming.Platform.PCSpecs
         {
             var handlerInstance = GenericGameHandler.Instance;
 
-            string pcSpecs = "PC Info - ";
+            string pcSpecs = "-Machine Info - ";
 
             object name;
 

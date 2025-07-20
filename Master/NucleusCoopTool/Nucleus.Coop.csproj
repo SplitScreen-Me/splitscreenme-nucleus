@@ -557,6 +557,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="copyoutput\SDL2.dll" />
     <Content Include="copyoutput\utils\DInput8CoopLvlUnlocker\Credits.txt" />
     <Content Include="copyoutput\utils\DInput8CoopLvlUnlocker\x86\dinput8.dll" />
     <Content Include="copyoutput\utils\DInput8CoopLvlUnlocker\x64\dinput8.dll" />
@@ -578,8 +579,6 @@
     <Content Include="copyoutput\utils\devreorder\DeviceLister.exe" />
     <Content Include="copyoutput\utils\devreorder\x64\dinput8.dll" />
     <Content Include="copyoutput\utils\devreorder\x86\dinput8.dll" />
-    <Content Include="copyoutput\utils\dinput8.blocker\x64\dinput8.dll" />
-    <Content Include="copyoutput\utils\dinput8.blocker\x86\dinput8.dll" />
     <Content Include="copyoutput\utils\DirectXWrapper\d3d9.dll" />
     <Content Include="copyoutput\utils\Do NOT change file or folder names.txt" />
     <Content Include="copyoutput\utils\EAC Bypass\EasyAntiCheat_x64.dll" />
@@ -655,8 +654,6 @@
     <Content Include="copyoutput\utils\ForceBindIP\ForceBindIP64.exe" />
     <None Include="Resources\no_image.jpg" />
     <Content Include="copyoutput\utils\LaunchUsers\PsExec.exe" />
-    <Content Include="copyoutput\utils\SDL2\x64\SDL2.dll" />
-    <Content Include="copyoutput\utils\SDL2\x86\SDL2.dll" />
     <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu.dll" />
     <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu.txt" />
     <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu64.dll" />
