@@ -144,7 +144,7 @@ namespace Nucleus.Gaming
             string fileName = Path.GetFileName(exePath).ToLower();
             string dir = Path.GetDirectoryName(exePath);
 
-            List<GenericGameInfo> possibilities = new List<GenericGameInfo>();
+            IEnumerable<GenericGameInfo> possibilities = new List<GenericGameInfo>();
 
             //a workaround so we can choose dfferent game executables.
             foreach (var gen in Games.Values)
@@ -153,14 +153,20 @@ namespace Nucleus.Gaming
                 {
                     if(gen.ExecutableNames.Any(exe => exe.ToLower() == fileName))
                     {
-                        possibilities.Add(gen);
+                        possibilities.Append(gen);
                     }
                 }
             }
 
-            if(possibilities.Count == 0)
+            if(possibilities.Count() == 0)
             {
-                possibilities = Games.Values.Where(c => c.ExecutableName.ToLower() == fileName).ToList();
+                var getPossiblities = Games.Values.Where(c => c.ExecutableName?.ToLower() == fileName);
+
+                if(getPossiblities != null)
+                {
+                    possibilities = getPossiblities;
+                }
+                
             }
 
             //IEnumerable<GenericGameInfo> 

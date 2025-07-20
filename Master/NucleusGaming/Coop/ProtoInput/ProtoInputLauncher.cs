@@ -39,7 +39,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             {
                 MessageBox.Show("ProtoInput failed to startup inject", "Error", MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
-                
+
                 GenericGameHandler.Instance?.End(false);
             }
             else
@@ -265,7 +265,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             ProtoInput.protoInput.SetSetWindowPosDontResize(instanceHandle, gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontResize);
             ProtoInput.protoInput.SetSetWindowPosDontReposition(instanceHandle, gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontReposition);
             ProtoInput.protoInput.SetSetWindowPosSettings(instanceHandle, player.MonitorBounds.X, player.MonitorBounds.Y, player.MonitorBounds.Width, player.MonitorBounds.Height);
-            
+          
             if(gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontResize || gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontReposition || gen.ProtoInput.SetWindowPosHook != 0)
             {
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.SetWindowPosHookID);
@@ -314,7 +314,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             ProtoInput.protoInput.SetMoveWindowDontResize(instanceHandle, gen.ProtoInput.MoveWindowHook == MoveWindowHook.DontResize);
             ProtoInput.protoInput.SetMoveWindowDontReposition(instanceHandle, gen.ProtoInput.MoveWindowHook == MoveWindowHook.DontReposition);
             ProtoInput.protoInput.SetMoveWindowSettings(instanceHandle, player.MonitorBounds.X, player.MonitorBounds.Y, player.MonitorBounds.Width, player.MonitorBounds.Height);
-            
+         
             if (gen.ProtoInput.MoveWindowHook == MoveWindowHook.DontResize || gen.ProtoInput.MoveWindowHook == MoveWindowHook.DontReposition || gen.ProtoInput.MoveWindowHook != 0)
             {
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.MoveWindowHookID);
@@ -328,7 +328,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             }
 
             ProtoInput.protoInput.SetDontWaitWindowBorder(instanceHandle, gen.ProtoInput.SetRemoveBorderHook == SetRemoveBorderHook.DontWait);
-            
+           
             if (gen.ProtoInput.SetRemoveBorderHook == SetRemoveBorderHook.DontWait || gen.ProtoInput.SetRemoveBorderHook != 0)
             {
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.RemoveBorderHookID);
