@@ -24,11 +24,14 @@ namespace Nucleus.Gaming.Coop.ProtoInput
         public bool RenameHandlesHook;
         public bool XinputHook;
         public bool DinputDeviceHook;
-        public bool SetWindowPosHook;
+        public SetWindowPosHook SetWindowPosHook;
         public bool BlockRawInputHook;
         public bool FindWindowHook;
         public bool CreateSingleHIDHook;
         public bool SetWindowStyleHook;
+        public MoveWindowHook MoveWindowHook;
+        public bool AdjustWindowRectHook;
+        public SetRemoveBorderHook SetRemoveBorderHook;
 
         public bool RawInputFilter;
         public bool MouseMoveFilter;
@@ -48,6 +51,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
         public bool SendMouseButtonMessages;
         public bool SendMouseMovementMessages;
         public bool SendKeyboardButtonMessages;
+        public bool SendMouseDblClkMessages;
 
         public bool EnableFocusMessageLoop;
         public int FocusLoopIntervalMilliseconds = 5;
@@ -57,12 +61,13 @@ namespace Nucleus.Gaming.Coop.ProtoInput
         public bool FocusLoop_WM_SETFOCUS;
         public bool FocusLoop_WM_MOUSEACTIVATE;
 
-        public bool DrawFakeCursor;
+        public DrawFakeCursor DrawFakeCursor;
         public bool AllowFakeCursorOutOfBounds;
         public bool ExtendFakeCursorBounds;
         public bool EnableToggleFakeCursorVisibilityShortcut;
         public uint ToggleFakeCursorVisibilityShortcutVkey = 0x24; // VK_HOME
         public bool DontShowCursorWhenImageUpdated;
+        public PutMouseInsideWindow PutMouseInsideWindow;
 
         public bool UseDinputRedirection;
 

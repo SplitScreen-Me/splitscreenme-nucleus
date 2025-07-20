@@ -172,6 +172,7 @@
       <DependentUpon>CustomComboBox.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\CustomToolTips.cs" />
+    <Compile Include="Coop\ProtoInput\ProtoInputEnumsOptions.cs" />
     <Compile Include="Forms\HotkeyListener.cs" />
     <Compile Include="Forms\HotkeyListener.Designer.cs">
       <DependentUpon>HotkeyListener.cs</DependentUpon>
