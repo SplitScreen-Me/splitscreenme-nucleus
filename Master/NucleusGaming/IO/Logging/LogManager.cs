@@ -101,7 +101,8 @@ namespace Nucleus.Gaming
         public void LogExceptionFile(Exception ex)
         {
             Log("ERROR - " + ex.Message + " | Stacktrace: " + ex.StackTrace);
-            string version = "Nucleus v " + Globals.Version;
+           
+            string version = "Nucleus version: " + Globals.Version;
             string local = GetAppDataPath();
             DateTime now = DateTime.Now;
             string file = string.Format("{0}{1}{2}_{3}{4}{5}", now.Day.ToString("00"), now.Month.ToString("00"), now.Year.ToString("0000"), now.Hour.ToString("00"), now.Minute.ToString("00"), now.Second.ToString("00")) + ".log";
@@ -123,7 +124,7 @@ namespace Nucleus.Gaming
             }
 #if RELEASE
 
-            string error = $"{version}\n\nNucleus failed setting up the handler. An attempt to clean up will be made.\n\n[Type]\n\n{ex.GetType().Name}\n\n[Message]\n\n{ex.Message}\n\n{help}";
+            string error = $"-{version}\n-Install location: {Globals.NucleusInstallRoot}\n-OneDrive: {Globals.IsOneDriveEnabled} \n\nNucleus failed setting up the handler. An attempt to clean up will be made.\n\n[Type]\n\n{ex.GetType().Name}\n\n[Message]\n\n{ex.Message}\n\n{help}";
 #else
 
             string error = $"{version}\n\nNucleus failed setting up the handler. An attempt to clean up will be made.\n\n[Type]\n\n{ex.GetType().Name}\n\n[Message]\n\n{ex.Message}\n{help}\n\n[Stacktrace]\n\n{ex.StackTrace}";

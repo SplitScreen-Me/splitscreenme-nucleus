@@ -1191,7 +1191,7 @@ namespace Nucleus.Gaming.Tools.Steam
 
                 ProcessStartInfo sl = new ProcessStartInfo(steamlessExePath);
                 sl.WorkingDirectory = linkBinFolder;
-                sl.UseShellExecute = false;//was true until 2.3.3, must check if it fix some patching issues.
+                sl.UseShellExecute = true;
                 sl.WindowStyle = ProcessWindowStyle.Hidden;
                 sl.Arguments = steamlessArgs;
 

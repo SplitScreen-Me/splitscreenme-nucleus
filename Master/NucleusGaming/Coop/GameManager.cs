@@ -215,12 +215,20 @@ namespace Nucleus.Gaming
             // search for the same exe on the user profile
             if (Instance.User.Games.Any(c => c.ExePath.ToLower() == lower))
             {
-                DialogResult dialogResult = MessageBox.Show("This game's executable is already in your library. \nRemove the game from your library if you need to re-add it.\n" + exePath, "Already exists", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                //try to clean old user profile for this gameentries, most likely happens if user deleted the js file manually
+                var inUserProfile = Instance.User.Games.Where(c => c.ExePath.ToLower() == lower).ToList();
                 
-                if (dialogResult == DialogResult.OK)
+                for (int i = 0; i < inUserProfile.Count; i++)
                 {
-                    return null;
+                    var toDelete = inUserProfile[i]; 
+                    Instance.User.Games.Remove(inUserProfile[i]);
                 }
+                //DialogResult dialogResult = MessageBox.Show("This game's executable is already in your library. \nRemove the game from your library if you need to re-add it or restart Nucleus if you previouly deleted the handler (.js file) manually.\n" + exePath, "Already exists", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                //if (dialogResult == DialogResult.OK)
+                //{
+                //    return null;
+                //}
             }
 
             LogManager.Log("Found game: {0}, full path: {1}", game.GameName, exePath);
