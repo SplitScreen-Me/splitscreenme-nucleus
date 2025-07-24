@@ -558,7 +558,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="copyoutput\SDL2.dll" />
-    <Content Include="copyoutput\utils\DInput8CoopLvlUnlocker\Credits.txt" />
     <Content Include="copyoutput\utils\DInput8CoopLvlUnlocker\x86\dinput8.dll" />
     <Content Include="copyoutput\utils\DInput8CoopLvlUnlocker\x64\dinput8.dll" />
     <Content Include="Resources\xboxControllerFront.png" />

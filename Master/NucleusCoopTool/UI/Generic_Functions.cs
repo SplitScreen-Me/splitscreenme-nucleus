@@ -228,6 +228,8 @@ namespace Nucleus.Coop.UI
                 UI_Interface.BigLogo.Visible = true;
                 UI_Interface.BigLogo.Refresh();
             }
+
+            UI_Interface.BigLogo.Focus();
         }
 
         public static void SaveNucleusWindowPosAndLoc()

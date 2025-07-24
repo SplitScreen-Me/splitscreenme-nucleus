@@ -192,6 +192,8 @@ namespace Nucleus.Coop.UI
             Core_Interface.GoToStep(0);
 
             GameAssets.GetGameAssets();
+
+            UI_Interface.SetupScreen.Focus();
         }
 
         private static void SetPlayTime()
