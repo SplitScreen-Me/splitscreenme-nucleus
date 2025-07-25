@@ -520,7 +520,3 @@ Game.ProtoInput.OnInputUnlocked = function()
 		ProtoInput.SetRawInputBypass(player.ProtoInputInstanceHandle, true);
 	}
 }
-
-
-    ← Previous
-    Next →
