@@ -289,7 +289,7 @@ namespace Nucleus.Coop.Controls
                     profileBtn.Controls.Add(deleteBtn);
                     profileBtn.Controls.Add(previewBtn);
 
-                    CustomToolTips.SetToolTip(profileBtn, profileBtnToolTipText, $"profileBtnToolTipText${i}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                    CustomToolTips.SetToolTip(profileBtn, profileBtnToolTipText, $"{profileBtnToolTipText} {i}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
                 }
                 else
                 {
