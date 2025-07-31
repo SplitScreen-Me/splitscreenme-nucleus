@@ -164,10 +164,7 @@ namespace Nucleus.Coop.UI
             if (currentGame.Description?.Length > 0)
             {
                 UI_Interface.HandlerNotes.ResetText();
-                UI_Interface.HandlerNotes.Text = currentGame.Description;
-               
-                HighlightNotesText.Highlight(UI_Interface.HandlerNotes);
-
+                UI_Interface.HandlerNotes.Text = currentGame.Description;             
                 UI_Interface.HandlerNotesContainer.Visible = true;
 
                 if (currentGame.MetaInfo.FirstLaunch && !UI_Interface.DisableForcedNote)

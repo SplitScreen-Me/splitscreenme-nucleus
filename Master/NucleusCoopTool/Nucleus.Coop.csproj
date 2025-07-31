@@ -396,7 +396,6 @@
     <Compile Include="Tools\GetCoverMainColor.cs" />
     <Compile Include="Tools\GetGameDetails.cs" />
     <Compile Include="Tools\GetGameIcon.cs" />
-    <Compile Include="Tools\HighLightNotesText.cs" />
     <Compile Include="Tools\InputsText.cs" />
     <Compile Include="Tools\OpenDebugLog.cs" />
     <Compile Include="Tools\OpenGameContentFolder.cs" />
