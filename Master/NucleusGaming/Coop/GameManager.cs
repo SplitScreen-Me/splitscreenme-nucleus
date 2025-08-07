@@ -553,7 +553,7 @@ namespace Nucleus.Gaming
                                 // delete invalid games
                                 for (int i = 0; i < user.Games.Count; i++)
                                 {                                
-                                    if (user.Games[i].Game == null && !File.Exists(user.Games[i].ExePath))//no .js file?(deleted manually) no game executable?
+                                    if (user.Games[i].Game == null || !File.Exists(user.Games[i].ExePath))//no .js file?(deleted manually) no game executable?
                                     {
                                         user.Games.RemoveAt(i);
                                         if (i > 0) 
