@@ -60,6 +60,9 @@ If you would like to learn all about contributing to this project, whether it's 
 - [Subscribe to the official Nucleus Co-op subreddit](https://www.reddit.com/r/nucleuscoop/)
 - [Join the official Nucleus Co-op Discord server](https://discord.gg/QDUt8HpCvr)
 
+# 🧡 Patreon supporters
+- [All-time Patreon supporters list](https://github.com/SplitScreen-Me/splitscreenme-patreon/tree/main)
+  
 # 📄 Credits
 - Original Nucleus Co-op Project: [Lucas Assis (lucasassislar)](https://github.com/lucasassislar)  
 - Nucleus Co-op Alpha 8 Mod : [ZeroFox](https://github.com/ZeroFox5866)  
@@ -67,7 +70,7 @@ If you would like to learn all about contributing to this project, whether it's 
 - Official Nucleus Co-op 2.0 and Up: [Mikou27](https://github.com/Mikou27) 
 - Website & handler API: [r-mach](https://github.com/r-mach)  
 - Handlers development, Nucleus Co-op general testing, feedback and improvement: [Talos91](https://github.com/Talos910), [PoundlandBacon](https://github.com/PoundlandBacon), [Pizzo](https://github.com/Bizzo499), [maxine64](https://github.com/Maxine202) and many more.
-  
+
 Additional credits to all original developers of the third party utilities Nucleus Co-op uses:
 - Mr_Goldberg ([Goldberg Emulator](https://gitlab.com/Mr_Goldberg/goldberg_emulator))
 - syahmixp ([SmartSteamEmu](https://github.com/MAXBURAOT/SmartSteamEmu))
@@ -84,3 +87,4 @@ Additional credits to all original developers of the third party utilities Nucle
 - darkreader ([Dark Reader extension](https://github.com/darkreader/darkreader?tab=readme-ov-file)) 
   
 Special thanks to the SplitScreenDreams discord community, this wouldn't have been possible without all their contributions.
+
