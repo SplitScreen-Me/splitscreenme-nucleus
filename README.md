@@ -52,13 +52,13 @@ If you would like to learn all about contributing to this project, whether it's 
 
 # 🔎 Website & FAQ
 
-- [Official website](https://www.splitscreen.me/docs/what-is-splitscreen-me/)
-- [Nucleus Co-op FAQ](https://www.splitscreen.me/docs/faq)
+- [Official website](https://www.splitscreen.me/docs/what-is-splitscreen-me/).
+- [Nucleus Co-op FAQ](https://www.splitscreen.me/docs/faq).
   
 #  👥 Social
 
-- [Subscribe to the official Nucleus Co-op subreddit](https://www.reddit.com/r/nucleuscoop/)
-- [Join the official Nucleus Co-op Discord server](https://discord.gg/QDUt8HpCvr)
+- [Subscribe to the official Nucleus Co-op subreddit](https://www.reddit.com/r/nucleuscoop/).
+- [Join the official Nucleus Co-op Discord server](https://discord.gg/QDUt8HpCvr).
 
 # 🧡 Patreon supporters
 - [All time Patreon supporters list](https://github.com/SplitScreen-Me/splitscreenme-patreon/tree/main).
