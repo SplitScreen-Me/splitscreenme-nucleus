@@ -1,6 +1,7 @@
 ﻿using Ionic.Zip;
 using Microsoft.Win32;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Tools;
 using Nucleus.Gaming.Tools.NemirtingasEpicEmu;
 using Nucleus.Gaming.Tools.NemirtingasGalaxyEmu;
 using Nucleus.Gaming.Tools.Network;
@@ -12,6 +13,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -57,6 +59,9 @@ namespace Nucleus.Gaming
         public int PlayerID;
         public bool IsFullscreen;
         public UserInfo User = new UserInfo();
+        /// <summary
+        /// "DPIHandling" is deprecated since v2.3.3, keep it for old handlers using it but has no effect.
+        /// </summary>
         public DPIHandling DPIHandling = DPIHandling.True;
         public bool FakeFocus;
         public bool HookFocus;
@@ -133,47 +138,11 @@ namespace Nucleus.Gaming
 
         public string Arch => GenericGameHandler.Instance.garch;
 
-        public int Width
-        {
-            get
-            {
-                switch (DPIHandling)
-                {
-                    case DPIHandling.Scaled:
-                        return (int)((pInfo.MonitorBounds.Width * DPIManager.Scale) + 0.5);
-                    case DPIHandling.InvScaled:
-                        return (int)((pInfo.MonitorBounds.Width * (1 / DPIManager.Scale)) + 0.5);
-                    case DPIHandling.True:
-                    default:
-                        return pInfo.MonitorBounds.Width;
-                }
-            }
-        }
-
-        public int Height
-        {
-            get
-            {
-                switch (DPIHandling)
-                {
-                    case DPIHandling.Scaled:
-                        return (int)((pInfo.MonitorBounds.Height * DPIManager.Scale) + 0.5);
-                    case DPIHandling.InvScaled:
-                        return (int)((pInfo.MonitorBounds.Height * (1 / DPIManager.Scale)) + 0.5);
-                    case DPIHandling.True:
-                    default:
-                        return pInfo.MonitorBounds.Height;
-                }
-            }
-        }
+        public int Width => pInfo.MonitorBounds.Width;
+        public int Height => pInfo.MonitorBounds.Height;
 
         public int PosX => pInfo.MonitorBounds.X;
-
         public int PosY => pInfo.MonitorBounds.Y;
-
-        public int NoDPIHandlingWidth => pInfo.MonitorBounds.Width;
-
-        public int NoDPIHandlingHeight => pInfo.MonitorBounds.Height;
 
         public int MonitorWidth => pInfo.Display.Bounds.Width;
 
@@ -191,6 +160,7 @@ namespace Nucleus.Gaming
         private GameProfile profile;
         private PlayerInfo pInfo;
         private GenericGameHandler parent;
+
         public GenericContext(GameProfile prof, PlayerInfo info, GenericGameHandler handler, bool hasKeyboard)
         {
             profile = prof;
@@ -249,17 +219,20 @@ namespace Nucleus.Gaming
         public string x360ceGamepadGuid => "IG_" + pInfo.GamepadGuid.ToString().Replace("-", string.Empty);
 
         public string GamepadGuid => pInfo.GamepadGuid.ToString();
+        public string RawHID => pInfo.RawHID.ToString();
 
         public bool IsKeyboardPlayer => pInfo.IsKeyboardPlayer;
+
         public int GamepadId => pInfo.GamepadId + 1;
-        public float OrigAspectRatioDecimal => (float)profile.Screens[pInfo.PlayerID].display.Width / profile.Screens[pInfo.PlayerID].display.Height;
+
+        public float OrigAspectRatioDecimal => (float)profile.Screens[pInfo.PlayerID].MonitorBounds.Width / profile.Screens[pInfo.PlayerID].MonitorBounds.Height;
 
         public string OrigAspectRatio
         {
             get
             {
-                int width = profile.Screens[pInfo.PlayerID].display.Width;
-                int height = profile.Screens[pInfo.PlayerID].display.Height;
+                int width = profile.Screens[pInfo.PlayerID].MonitorBounds.Width;
+                int height = profile.Screens[pInfo.PlayerID].MonitorBounds.Height;
                 int gcd = GCD(width, height);
                 return string.Format("{0}:{1}", width / gcd, height / gcd);
             }
@@ -305,7 +278,6 @@ namespace Nucleus.Gaming
                 string s = filesToSymlink[f].ToLower();
                 // make sure it's lower case
                 CmdUtil.MkLinkFile(Path.Combine(OrigRootFolder, s), Path.Combine(RootFolder, s), out int exitCode);
-                //Console.WriteLine(OrigRootFolder + s + " => Instance folder " + RootFolder + s);
             }
 
             return true;
@@ -407,12 +379,14 @@ namespace Nucleus.Gaming
 
         public string UserProfileConfigPath
         {
-            get; set;
+            get; 
+            set;
         }
 
         public string UserProfileSavePath
         {
-            get; set;
+            get; 
+            set;
         }
 
         public string DocumentsConfigPath
@@ -551,7 +525,8 @@ namespace Nucleus.Gaming
                 return;
             }
 
-            User32Util.HideTaskbar();
+            parent.CurrentGameInfo.HideTaskbar = true;
+            TaskbarState.Hide();
         }
 
         public bool BackupFile(string[] filePaths, bool overwrite)
@@ -1106,7 +1081,6 @@ namespace Nucleus.Gaming
         //https://stackoverflow.com/questions/11689337/net-file-writealllines-leaves-empty-line-at-the-end-of-file //v.2.3.2
         public bool WriteTextFile(string path, params string[] lines)
         {
-
             if (File.Exists(path))
             {
                 File.Delete(path);

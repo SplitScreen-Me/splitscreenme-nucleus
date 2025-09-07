@@ -20,12 +20,16 @@ namespace Nucleus.Gaming.App.Settings
                 App_Layouts.LoadSettings();
                 App_Audio.LoadSettings();
             }
-            catch
+            catch(Exception ex)
             {
                 MessageBox.Show("Nucleus is unable to load its settings.\n" +
                                 "Do not edit settings.ini manually.\n" +
                                 "Try re-extracting Nucleus with 7-Zip.\n" +
-                                "If the issue persists ask for support on our Discord server.", "Error loading Nucleus settings!", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly, false);
+                                "If the issue persists ask for support on our Discord server.", "Error loading Nucleus settings!" +
+                                $"Error: " +
+                                $"{ex.Message} \n" +
+                                $"StackTrace:\n" +
+                                $"{ex.StackTrace}", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly, false);
                 return false;
             }
 

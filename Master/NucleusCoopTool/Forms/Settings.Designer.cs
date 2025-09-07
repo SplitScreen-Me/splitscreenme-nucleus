@@ -43,8 +43,8 @@ namespace Nucleus.Coop
             this.settingsTabBtn = new System.Windows.Forms.Button();
             this.settingsTab = new System.Windows.Forms.Panel();
             this.btn_Gb_Update = new System.Windows.Forms.Button();
-            this.disableGameProfiles = new Controls.CustomCheckBox();
-            this.keepAccountsCheck = new CustomCheckBox();
+            this.disableGameProfiles = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.keepAccountsCheck = new Nucleus.Coop.Controls.CustomCheckBox();
             this.ctrlr_shorcutsBtn = new System.Windows.Forms.Button();
             this.nucUserPassTxt = new FlatTextBox();
             this.password_Label = new System.Windows.Forms.Label();
@@ -52,10 +52,10 @@ namespace Nucleus.Coop
             this.themeCbx = new FlatCombo();
             this.cmb_EpicLang = new FlatCombo();
             this.label1 = new System.Windows.Forms.Label();
-            this.ignoreInputLockReminderCheckbox = new CustomCheckBox();
+            this.ignoreInputLockReminderCheckbox = new Nucleus.Coop.Controls.CustomCheckBox();
             this.cmb_Lang = new FlatCombo();
             this.label2 = new System.Windows.Forms.Label();
-            this.debugLogCheck = new CustomCheckBox();
+            this.debugLogCheck = new Nucleus.Coop.Controls.CustomCheckBox();
             this.hotkeyBox = new System.Windows.Forms.GroupBox();
             this.rm_Cmb = new FlatCombo();
             this.plus8 = new System.Windows.Forms.Label();
@@ -92,12 +92,13 @@ namespace Nucleus.Coop
             this.plus3 = new System.Windows.Forms.Label();
             this.plus2 = new System.Windows.Forms.Label();
             this.cn_HKTxt = new FlatTextBox();
-            this.scaleOptionCbx = new CustomCheckBox();
-            this.useNicksCheck = new CustomCheckBox();
+            this.scaleOptionCbx = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.useNicksCheck = new Nucleus.Coop.Controls.CustomCheckBox();
             this.cmb_Network = new FlatCombo();
             this.label32 = new System.Windows.Forms.Label();
             this.playersTab = new System.Windows.Forms.Panel();
-            this.gamepadsAssignMethods = new CustomCheckBox();
+            this.assignGpdByBtnPress = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.gamepadsAssignMethods = new Nucleus.Coop.Controls.CustomCheckBox();
             this.btnNext = new System.Windows.Forms.Button();
             this.page1 = new System.Windows.Forms.Panel();
             this.label48 = new System.Windows.Forms.Label();
@@ -229,8 +230,8 @@ namespace Nucleus.Coop
             this.AudioInstance1 = new FlatCombo();
             this.label37 = new System.Windows.Forms.Label();
             this.label36 = new System.Windows.Forms.Label();
-            this.audioCustomSettingsRadio = new CustomRadio();
-            this.audioDefaultSettingsRadio = new CustomRadio();
+            this.audioCustomSettingsRadio = new Nucleus.Coop.Controls.CustomRadio();
+            this.audioDefaultSettingsRadio = new Nucleus.Coop.Controls.CustomRadio();
             this.audioRefresh = new System.Windows.Forms.Button();
             this.layoutTab = new System.Windows.Forms.Panel();
             this.label5 = new System.Windows.Forms.Label();
@@ -243,11 +244,11 @@ namespace Nucleus.Coop
             this.mergerResSelectorLabel = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.mergerSettingsLabel = new System.Windows.Forms.Label();
-            this.losslessHook = new CustomCheckBox();
+            this.losslessHook = new Nucleus.Coop.Controls.CustomCheckBox();
             this.selectedRes = new FlatTextBox();
             this.screen_panel = new System.Windows.Forms.Panel();
-            this.enable_WMerger = new CustomCheckBox();
-            this.hideDesktop = new CustomCheckBox();
+            this.enable_WMerger = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.hideDesktop = new Nucleus.Coop.Controls.CustomCheckBox();
             this.numMaxPlyrs = new Nucleus.Gaming.Controls.CustomNumericUpDown();
             this.numUpDownVer = new Nucleus.Gaming.Controls.CustomNumericUpDown();
             this.label29 = new System.Windows.Forms.Label();
@@ -256,11 +257,11 @@ namespace Nucleus.Coop
             this.numUpDownHor = new Nucleus.Gaming.Controls.CustomNumericUpDown();
             this.cutsceneLabel = new System.Windows.Forms.Label();
             this.cts_Panel = new System.Windows.Forms.Panel();
-            this.cts_unfocus = new CustomCheckBox();
-            this.cts_kar = new CustomCheckBox();
-            this.cts_Mute = new CustomCheckBox();
+            this.cts_unfocus = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.cts_kar = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.cts_Mute = new Nucleus.Coop.Controls.CustomCheckBox();
             this.SplitColors = new FlatCombo();
-            this.splitDiv = new CustomCheckBox();
+            this.splitDiv = new Nucleus.Coop.Controls.CustomCheckBox();
             this.label49 = new System.Windows.Forms.Label();
             this.layoutSizer = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.closeBtnPicture)).BeginInit();
@@ -455,15 +456,16 @@ namespace Nucleus.Coop
             this.disableGameProfiles.CheckState = System.Windows.Forms.CheckState.Checked;
             this.disableGameProfiles.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.disableGameProfiles.ForeColor = System.Drawing.Color.White;
-            this.disableGameProfiles.Location = new System.Drawing.Point(14, 316);
+            this.disableGameProfiles.Location = new System.Drawing.Point(14, 317);
             this.disableGameProfiles.Margin = new System.Windows.Forms.Padding(2);
             this.disableGameProfiles.Name = "disableGameProfiles";
             this.disableGameProfiles.SelectionColor = System.Drawing.Color.LightBlue;
-            this.disableGameProfiles.Size = new System.Drawing.Size(129, 17);
+            this.disableGameProfiles.Size = new System.Drawing.Size(148, 17);
             this.disableGameProfiles.TabIndex = 167;
             this.disableGameProfiles.Tag = "";
             this.disableGameProfiles.Text = "Disable Game Profiles";
             this.disableGameProfiles.UseVisualStyleBackColor = false;
+            this.disableGameProfiles.CheckedChanged += new System.EventHandler(this.DisableGameProfiles_CheckedChanged);
             // 
             // keepAccountsCheck
             // 
@@ -472,7 +474,7 @@ namespace Nucleus.Coop
             this.keepAccountsCheck.CheckColor = System.Drawing.Color.Blue;
             this.keepAccountsCheck.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.keepAccountsCheck.ForeColor = System.Drawing.Color.White;
-            this.keepAccountsCheck.Location = new System.Drawing.Point(14, 274);
+            this.keepAccountsCheck.Location = new System.Drawing.Point(14, 275);
             this.keepAccountsCheck.Margin = new System.Windows.Forms.Padding(2);
             this.keepAccountsCheck.Name = "keepAccountsCheck";
             this.keepAccountsCheck.SelectionColor = System.Drawing.Color.LightBlue;
@@ -502,6 +504,7 @@ namespace Nucleus.Coop
             this.nucUserPassTxt.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.nucUserPassTxt.BorderColor = System.Drawing.Color.Blue;
             this.nucUserPassTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.nucUserPassTxt.Hint = null;
             this.nucUserPassTxt.Location = new System.Drawing.Point(402, 31);
             this.nucUserPassTxt.Margin = new System.Windows.Forms.Padding(2);
             this.nucUserPassTxt.MaxLength = 127;
@@ -609,7 +612,7 @@ namespace Nucleus.Coop
             this.ignoreInputLockReminderCheckbox.BorderColor = System.Drawing.Color.Blue;
             this.ignoreInputLockReminderCheckbox.CheckColor = System.Drawing.Color.Blue;
             this.ignoreInputLockReminderCheckbox.ForeColor = System.Drawing.Color.White;
-            this.ignoreInputLockReminderCheckbox.Location = new System.Drawing.Point(14, 250);
+            this.ignoreInputLockReminderCheckbox.Location = new System.Drawing.Point(14, 252);
             this.ignoreInputLockReminderCheckbox.Margin = new System.Windows.Forms.Padding(2);
             this.ignoreInputLockReminderCheckbox.Name = "ignoreInputLockReminderCheckbox";
             this.ignoreInputLockReminderCheckbox.SelectionColor = System.Drawing.Color.LightBlue;
@@ -679,7 +682,7 @@ namespace Nucleus.Coop
             this.debugLogCheck.BorderColor = System.Drawing.Color.Blue;
             this.debugLogCheck.CheckColor = System.Drawing.Color.Blue;
             this.debugLogCheck.ForeColor = System.Drawing.Color.White;
-            this.debugLogCheck.Location = new System.Drawing.Point(14, 228);
+            this.debugLogCheck.Location = new System.Drawing.Point(14, 229);
             this.debugLogCheck.Margin = new System.Windows.Forms.Padding(2);
             this.debugLogCheck.Name = "debugLogCheck";
             this.debugLogCheck.SelectionColor = System.Drawing.Color.LightBlue;
@@ -779,6 +782,7 @@ namespace Nucleus.Coop
             // 
             this.rm_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.rm_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.rm_HKTxt.Hint = null;
             this.rm_HKTxt.Location = new System.Drawing.Point(205, 197);
             this.rm_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.rm_HKTxt.MaxLength = 1;
@@ -854,6 +858,7 @@ namespace Nucleus.Coop
             // 
             this.swl_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.swl_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.swl_HKTxt.Hint = null;
             this.swl_HKTxt.Location = new System.Drawing.Point(205, 173);
             this.swl_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.swl_HKTxt.MaxLength = 1;
@@ -907,6 +912,7 @@ namespace Nucleus.Coop
             // 
             this.csm_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.csm_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.csm_HKTxt.Hint = null;
             this.csm_HKTxt.Location = new System.Drawing.Point(205, 149);
             this.csm_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.csm_HKTxt.MaxLength = 1;
@@ -1010,6 +1016,7 @@ namespace Nucleus.Coop
             // 
             this.rw_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.rw_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.rw_HKTxt.Hint = null;
             this.rw_HKTxt.Location = new System.Drawing.Point(205, 125);
             this.rw_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.rw_HKTxt.MaxLength = 1;
@@ -1047,6 +1054,7 @@ namespace Nucleus.Coop
             // 
             this.tu_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.tu_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.tu_HKTxt.Hint = null;
             this.tu_HKTxt.Location = new System.Drawing.Point(205, 29);
             this.tu_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.tu_HKTxt.MaxLength = 1;
@@ -1134,6 +1142,7 @@ namespace Nucleus.Coop
             // 
             this.ttm_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.ttm_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.ttm_HKTxt.Hint = null;
             this.ttm_HKTxt.Location = new System.Drawing.Point(205, 101);
             this.ttm_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.ttm_HKTxt.MaxLength = 1;
@@ -1148,6 +1157,7 @@ namespace Nucleus.Coop
             // 
             this.ss_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.ss_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.ss_HKTxt.Hint = null;
             this.ss_HKTxt.Location = new System.Drawing.Point(205, 77);
             this.ss_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.ss_HKTxt.MaxLength = 1;
@@ -1214,6 +1224,7 @@ namespace Nucleus.Coop
             // 
             this.cn_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.cn_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.cn_HKTxt.Hint = null;
             this.cn_HKTxt.Location = new System.Drawing.Point(205, 53);
             this.cn_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.cn_HKTxt.MaxLength = 1;
@@ -1233,7 +1244,7 @@ namespace Nucleus.Coop
             this.scaleOptionCbx.CheckState = System.Windows.Forms.CheckState.Checked;
             this.scaleOptionCbx.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.scaleOptionCbx.ForeColor = System.Drawing.Color.White;
-            this.scaleOptionCbx.Location = new System.Drawing.Point(14, 295);
+            this.scaleOptionCbx.Location = new System.Drawing.Point(14, 296);
             this.scaleOptionCbx.Margin = new System.Windows.Forms.Padding(2);
             this.scaleOptionCbx.Name = "scaleOptionCbx";
             this.scaleOptionCbx.SelectionColor = System.Drawing.Color.LightBlue;
@@ -1289,6 +1300,7 @@ namespace Nucleus.Coop
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.playersTab.BackColor = System.Drawing.Color.PaleGreen;
+            this.playersTab.Controls.Add(this.assignGpdByBtnPress);
             this.playersTab.Controls.Add(this.gamepadsAssignMethods);
             this.playersTab.Controls.Add(this.btnNext);
             this.playersTab.Controls.Add(this.page1);
@@ -1298,19 +1310,35 @@ namespace Nucleus.Coop
             this.playersTab.Size = new System.Drawing.Size(675, 391);
             this.playersTab.TabIndex = 132;
             // 
+            // assignGpdByBtnPress
+            // 
+            this.assignGpdByBtnPress.BackColor = System.Drawing.Color.DimGray;
+            this.assignGpdByBtnPress.BorderColor = System.Drawing.Color.Blue;
+            this.assignGpdByBtnPress.CheckColor = System.Drawing.Color.Blue;
+            this.assignGpdByBtnPress.ForeColor = System.Drawing.Color.White;
+            this.assignGpdByBtnPress.Location = new System.Drawing.Point(16, 42);
+            this.assignGpdByBtnPress.Name = "assignGpdByBtnPress";
+            this.assignGpdByBtnPress.SelectionColor = System.Drawing.Color.LightBlue;
+            this.assignGpdByBtnPress.Size = new System.Drawing.Size(229, 19);
+            this.assignGpdByBtnPress.TabIndex = 296;
+            this.assignGpdByBtnPress.Text = "Assign Gamepads On Button Press";
+            this.assignGpdByBtnPress.UseVisualStyleBackColor = true;
+            this.assignGpdByBtnPress.CheckedChanged += new System.EventHandler(this.AssignGpdByBtnPress_CheckedChanged);
+            // 
             // gamepadsAssignMethods
             // 
             this.gamepadsAssignMethods.BackColor = System.Drawing.Color.DimGray;
             this.gamepadsAssignMethods.BorderColor = System.Drawing.Color.Blue;
             this.gamepadsAssignMethods.CheckColor = System.Drawing.Color.Blue;
             this.gamepadsAssignMethods.ForeColor = System.Drawing.Color.White;
-            this.gamepadsAssignMethods.Location = new System.Drawing.Point(16, 34);
+            this.gamepadsAssignMethods.Location = new System.Drawing.Point(16, 17);
             this.gamepadsAssignMethods.Name = "gamepadsAssignMethods";
             this.gamepadsAssignMethods.SelectionColor = System.Drawing.Color.LightBlue;
-            this.gamepadsAssignMethods.Size = new System.Drawing.Size(202, 19);
+            this.gamepadsAssignMethods.Size = new System.Drawing.Size(229, 19);
             this.gamepadsAssignMethods.TabIndex = 295;
-            this.gamepadsAssignMethods.Text = "Follow XInput Controller Indexes";
+            this.gamepadsAssignMethods.Text = "Assign Gamepads By Index";
             this.gamepadsAssignMethods.UseVisualStyleBackColor = true;
+            this.gamepadsAssignMethods.CheckedChanged += new System.EventHandler(this.GamepadsAssignMethods_CheckedChanged);
             // 
             // btnNext
             // 
@@ -3215,6 +3243,7 @@ namespace Nucleus.Coop
             this.smfw_HKTxt.BorderColor = System.Drawing.Color.Blue;
             this.smfw_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
             this.smfw_HKTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.smfw_HKTxt.Hint = null;
             this.smfw_HKTxt.Location = new System.Drawing.Point(98, 360);
             this.smfw_HKTxt.Margin = new System.Windows.Forms.Padding(2);
             this.smfw_HKTxt.MaxLength = 1;
@@ -3293,6 +3322,7 @@ namespace Nucleus.Coop
             this.selectedRes.BorderColor = System.Drawing.Color.Blue;
             this.selectedRes.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.selectedRes.ForeColor = System.Drawing.SystemColors.Menu;
+            this.selectedRes.Hint = null;
             this.selectedRes.Location = new System.Drawing.Point(14, 291);
             this.selectedRes.Name = "selectedRes";
             this.selectedRes.ReadOnly = true;
@@ -3564,10 +3594,10 @@ namespace Nucleus.Coop
             this.Controls.Add(this.audioTabBtn);
             this.Controls.Add(this.playersTabBtn);
             this.Controls.Add(this.settingsTabBtn);
-            this.Controls.Add(this.layoutTab);
-            this.Controls.Add(this.settingsTab);
             this.Controls.Add(this.playersTab);
             this.Controls.Add(this.audioTab);
+            this.Controls.Add(this.layoutTab);
+            this.Controls.Add(this.settingsTab);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -3840,5 +3870,6 @@ namespace Nucleus.Coop
         private FlatTextBox smfw_HKTxt;
         private Label DivLabel;
         private Label label5;
+        private CustomCheckBox assignGpdByBtnPress;
     }
 }

@@ -12,6 +12,8 @@ namespace Nucleus.Gaming
         {
             InitializeComponent();
             BackgroundImage = Image.FromFile(Globals.ThemeFolder + "other_backgrounds.jpg");
+
+            GenericGameHandler.Instance?.AllRuntimeForms.Add(this);
         }
 
         private void button1_Click(object sender, EventArgs e)

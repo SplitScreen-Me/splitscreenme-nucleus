@@ -43,7 +43,7 @@ namespace Nucleus.Coop.Forms
             enabled_chk.Cursor = Theme_Settings.Hand_Cursor;
 
             refreshTimer.Tick += RefreshTimerTick;
-            refreshTimer.Interval = 500;
+            refreshTimer.Interval = 200;
             refreshTimer.Start();
 
             BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "xinput_background.jpg");

@@ -1,11 +1,14 @@
 ﻿using Newtonsoft.Json.Linq;
+using Nucleus.Coop.UI;
 using Nucleus.Gaming;
+using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop;
 using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using System.Windows.Input;
 
 namespace Nucleus.Coop.Tools
 {
@@ -20,70 +23,86 @@ namespace Nucleus.Coop.Tools
             defaultForeColor = Color.FromArgb(int.Parse(rgb_font[0]), int.Parse(rgb_font[1]), int.Parse(rgb_font[2]));
         }
 
-        public static (string, Color) GetInputText(bool profileDisabled)
+        public static (string, Color)[] GetInputText()
         {
-            Color color = defaultForeColor;
-
-            string msg = string.Empty;
-
-            if(GameProfile.Instance.DevicesList.Count == 0)
+            var msg = new (string, Color)[] { };
+      
+            if (GameProfile.Instance.DevicesList.Count == 0)
             {
-                msg = "Waiting For Compatible Devices...";
-                color = notEnoughPlayers;
+                msg = new (string, Color)[] { ("Awaiting handler compatible devices...", notEnoughPlayers) };
+                if (UI_Graphics.BlinkInputTimer == null)
+                UI_Graphics.StartBlinkInputIcons();
+                
             }
             else if (GameProfile.Loaded)
             {
                 if (GameProfile.TotalAssignedPlayers > GameProfile.TotalProfilePlayers)
                 {
-                    msg = $"There Is Too Much Players!";
-                    color = notEnoughPlayers;
+                    //msg = $"There are too many players! {GameProfile.TotalAssignedPlayers}";
+                    msg = new (string, Color)[] { ($"There are too many players! {GameProfile.TotalAssignedPlayers}", notEnoughPlayers) };
+                    //color = notEnoughPlayers;
                 }
                 else if ((GameProfile.TotalProfilePlayers - GameProfile.TotalAssignedPlayers) > 0)
                 {
-                    string st = GameProfile.GamepadCount > 1 ? "Controllers" : "Controller";
-                    string sc = GameProfile.AllScreens.Count() > 1 ? "Screens" : "Screen";
-                    msg = $"{GameProfile.GamepadCount} {st}, {GameProfile.KeyboardCount} K&M And {GameProfile.AllScreens.Count()} {sc}, Were Used Last Time.";
-                    color = notEnoughPlayers;
+                    if (GameProfile.AwaitedProfilePlayer != null)
+                    {
+                        var inputType = GameProfile.AwaitedProfilePlayer.IsKeyboardPlayer || GameProfile.AwaitedProfilePlayer.IsRawKeyboard || GameProfile.AwaitedProfilePlayer.IsRawMouse ? ("k&&m.", "Press a key/button on") : ("gamepad.", GameProfile.UseXinputIndex ? "Connect the" : "Press a button on");
+                        msg = new (string, Color)[] { (inputType.Item2, defaultForeColor), ($"{GameProfile.AwaitedProfilePlayer.Nickname}'s", Color.DodgerBlue), ($"{inputType.Item1}", defaultForeColor) };
+                    }
+                }
+                else if (GameProfile.AssignedDevices.Any(p => p.InstanceGuests.Count < p.CurrentMaxGuests))
+                {
+                    if (GameProfile.AwaitedProfilePlayer != null)
+                    {
+                        msg = new (string, Color)[] { ($"Press a button", Color.YellowGreen),($"on each gamepad to add as guest for", defaultForeColor) , ($"{GameProfile.AwaitedProfilePlayer.Nickname}.", Color.DodgerBlue) };
+                    }
                 }
                 else if (GameProfile.TotalProfilePlayers == GameProfile.TotalAssignedPlayers)
                 {
-                    msg = $"Profile Ready!";
+                    msg = new (string, Color)[] { ($"Profile ready!", defaultForeColor) };
                 }
             }
             else
             {
-                string screenText = GameProfile.Instance.Screens.Count > 1 ? "On The Desired Screens" : "On The Screen";
+                Color stepTextColor = GetImageMainColor.ParseColor(ImageCache.GetImage(Globals.ThemeFolder + "play.png"));
+                string stepTxt = GameProfile.Game.Options.Count > 0 ? "NEXT" : "▶PLAY";
+                string screenText = GameProfile.Instance.Screens.Count > 1 ? "on the desired screens" : "on the screen";
 
                 if (GameProfile.Game.SupportsMultipleKeyboardsAndMice)
                 {
-                    msg = $"Press A Key\\Button On Each Device And Drop Them {screenText}.";
+                    msg = new (string, Color)[] { ($"Press a key or button", Color.YellowGreen),($"on each device and drop them {screenText}.", defaultForeColor), ("Click", defaultForeColor), (stepTxt, stepTextColor), ("when ready.", defaultForeColor) };
 
                 }
                 else if (!GameProfile.Game.SupportsMultipleKeyboardsAndMice && !GameProfile.Game.SupportsKeyboard)
                 {
-                    if (DevicesFunctions.UseGamepadApiIndex || profileDisabled)
+                    if (GameProfile.UseXinputIndex)
                     {
-                        msg = $"Drop The Gamepads {screenText}.";
+                        msg = new (string, Color)[] { ($"Drop the gamepads {screenText}.", defaultForeColor), ("Click", defaultForeColor), (stepTxt, stepTextColor), ("when ready.", defaultForeColor) };
                     }
                     else
                     {
-                        msg = $"Press A Button On Each Gamepad And Drop Them {screenText}.";
+                        msg = new (string, Color)[] { ($"Press a button", Color.YellowGreen),($"on each gamepad and drop them {screenText}.", defaultForeColor), ("Click", defaultForeColor), (stepTxt, stepTextColor), ("when ready.", defaultForeColor) };
                     }
                 }
                 else
                 {
-                    if (DevicesFunctions.UseGamepadApiIndex || profileDisabled)
+                    if (GameProfile.UseXinputIndex)
                     {
-                        msg = $"Drop The Gamepads Or Keyboard\\Mouse {screenText}.";
+                        msg = new (string, Color)[] { ($"Drop the gamepads or keyboard\\mouse {screenText}.", defaultForeColor), ("Click", defaultForeColor), (stepTxt, stepTextColor), ("when ready.", defaultForeColor) };
                     }
                     else
                     {
-                        msg = $"Press A Button On Each Gamepad And Drop The Devices {screenText}.";
+                        msg = new (string, Color)[] { ($"Press a button", Color.YellowGreen),($"on each gamepad and drop the devices {screenText}.", defaultForeColor), ("Click", defaultForeColor), (stepTxt, stepTextColor), ("when ready.", defaultForeColor) };
                     }
                 }
             }
 
-            return (msg, color);
+            if (GameProfile.Instance.DevicesList.Count > 0 && UI_Graphics.BlinkInputTimer != null)
+            {
+                UI_Graphics.StopBlinkInputIcons();
+            }
+
+            return msg;
         }
     }
 }

@@ -24,6 +24,8 @@
     </TargetFrameworkProfile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -88,13 +90,20 @@
       <HintPath>..\packages\SharpDX.XInput.4.2.0\lib\net45\SharpDX.XInput.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Management" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime, Version=4.1.1.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.4.3.1\lib\net462\System.Runtime.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
@@ -113,7 +122,7 @@
     <Compile Include="Cache\App.Settings\App_Hotkeys.cs" />
     <Compile Include="Cache\App.Settings\App_Misc.cs" />
     <Compile Include="Cache\App.Settings\App_Settings_Loader.cs" />
-    <Compile Include="Controls\BufferedClientAreaPanel.cs">
+    <Compile Include="Controls\DoubleBufferPanel.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\BufferedFlowLayoutPanel.cs">
@@ -127,12 +136,6 @@
     </Compile>
     <Compile Include="Controls\HorizontalControlListBox.cs">
       <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\HandlerNotesZoom.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\HandlerNotesZoom.Designer.cs">
-      <DependentUpon>HandlerNotesZoom.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\TransparentRichTextBox.cs">
       <SubType>Component</SubType>
@@ -169,10 +172,9 @@
       <DependentUpon>CustomComboBox.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\CustomToolTips.cs" />
-    <Compile Include="Controls\HotkeyListener.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Controls\HotkeyListener.Designer.cs">
+    <Compile Include="Coop\ProtoInput\ProtoInputEnumsOptions.cs" />
+    <Compile Include="Forms\HotkeyListener.cs" />
+    <Compile Include="Forms\HotkeyListener.Designer.cs">
       <DependentUpon>HotkeyListener.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\ICanProceed.cs" />
@@ -195,12 +197,6 @@
     <Compile Include="Controls\TextMessageBox.Designer.cs">
       <DependentUpon>TextMessageBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ProfilesList.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\ProfilesList.Designer.cs">
-      <DependentUpon>ProfilesList.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\CustomNumericUpDown.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -212,15 +208,45 @@
     <Compile Include="Coop\BasicTypes\Ref.cs" />
     <Compile Include="Coop\Generic\async.cs" />
     <Compile Include="Coop\Generic\HttpClient.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\DInputManagement\D_JoystickStatus.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\DInputManagement\DInputManager.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\DInputManagement\D_Joystick.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\GamepadButtons.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\GamepadNavigation.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\GamepadState.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\InputTypesEnum.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL2Utils\SDL_ControllerUtils.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Audio.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_BlendMode.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Clipboard.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Error.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Events.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_GameController.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_GL.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Joystick.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Keyboard.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Keycode.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Loader.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Log.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Mouse.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Pixels.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Rect.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Render.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_rwops.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Scancode.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Surface.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_SysWM.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Touch.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Version.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Video.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDLManager.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\XInputManagement\XInputManager.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\XInputManagement\X_Joystick.cs" />
     <Compile Include="Coop\InputManagement\HotkeysRegistration.cs" />
     <Compile Include="Coop\InputManagement\Osk.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\GamepadShortcuts.cs" />
     <Compile Include="Coop\InputManagement\RawInputDeviceName.cs" />
-    <Compile Include="Coop\InputManagement\VirtualInputs.cs" />
-    <Compile Include="Coop\ProfilePlayer.cs" />
     <Compile Include="Coop\GameMetaInfo.cs" />
     <Compile Include="Coop\ProtoInput\ProtoInputEnumsOptions.cs" />
     <Compile Include="DPI\ThreadDPIContext.cs" />
@@ -232,10 +258,10 @@
     </Compile>
     <Compile Include="Forms\NucleusMessageBox\NucleusMessageBox.cs" />
     <Compile Include="Forms\ShortcutsReminder\ReminderFormThread.cs" />
-    <Compile Include="Coop\Generic\ProcessPicker.cs">
+    <Compile Include="Forms\ProcessPicker.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Coop\Generic\ProcessPicker.Designer.cs">
+    <Compile Include="Forms\ProcessPicker.Designer.cs">
       <DependentUpon>ProcessPicker.cs</DependentUpon>
     </Compile>
     <Compile Include="Coop\Generic\Hub.cs" />
@@ -276,7 +302,7 @@
     <Compile Include="Coop\InputManagement\Structs\RID_DEVICE_INFO_MOUSE.cs" />
     <Compile Include="Coop\InputManagement\Structs\WM_MOUSEMOVE_wParam.cs" />
     <Compile Include="Coop\InputManagement\WinApi.cs" />
-    <Compile Include="Coop\InputManagement\Gamepads\OpenXinputController.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\XInputManagement\OpenXinputController.cs" />
     <Compile Include="Coop\ProtoInput\GetMainWindow.cs" />
     <Compile Include="Coop\ProtoInput\ProtoInput.cs" />
     <Compile Include="Coop\ProtoInput\ProtoInputLauncher.cs" />
@@ -400,9 +426,14 @@
     <Compile Include="Tools\AudioReroute\AudioReroute.cs" />
     <Compile Include="Tools\BackupDatas\BackupDatas.cs" />
     <Compile Include="Tools\DevReorder\DevReorder.cs" />
+    <Compile Include="Tools\DInput8CoopLvlUnlocker\DInput8CoopLvlUnlocker.cs" />
     <Compile Include="Tools\DInputBlocker\DInputBlocker.cs" />
     <Compile Include="Tools\DirectX9Wrapper\DirectX9Wrapper.cs" />
     <Compile Include="Tools\DllsInjector\DllsInjector.cs" />
+    <Compile Include="Tools\Hdpi\GameDpiAwareness.cs" />
+    <Compile Include="Tools\SDL2Dll\SDL2Dll.cs" />
+    <Compile Include="Tools\TaskbarState.cs" />
+    <Compile Include="Tools\UserDriveInfo\UserDriveInfo.cs" />
     <Compile Include="Tools\EACBypass\EACBypass.cs" />
     <Compile Include="Tools\CleanGameContent\CleanGameContent.cs" />
     <Compile Include="Tools\NucleusUsers\NucleusUsers.cs" />
@@ -474,14 +505,11 @@
     <EmbeddedResource Include="Controls\CustomNumericUpDown.resx">
       <DependentUpon>CustomNumericUpDown.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\HandlerNotesZoom.resx">
-      <DependentUpon>HandlerNotesZoom.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\HotkeyListener.resx">
+      <DependentUpon>HotkeyListener.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\PictureButton.resx">
       <DependentUpon>PictureButton.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\ProfilesList.resx">
-      <DependentUpon>ProfilesList.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\TextMessageBox.resx">
       <DependentUpon>TextMessageBox.cs</DependentUpon>
@@ -489,7 +517,7 @@
     <EmbeddedResource Include="Controls\JSUserInputControl.resx">
       <DependentUpon>JSUserInputControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Coop\Generic\ProcessPicker.resx">
+    <EmbeddedResource Include="Forms\ProcessPicker.resx">
       <DependentUpon>ProcessPicker.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -535,9 +563,7 @@
     <None Include="GamingKey.snk" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Util\Extensions\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="Resources\ncoop.ini" />
   </ItemGroup>

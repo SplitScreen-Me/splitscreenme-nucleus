@@ -99,6 +99,7 @@ namespace Nucleus.Gaming.Tools.BackupDatas
 
                             if (!Directory.Exists(destPath))
                             {
+                                Log($"Create player backup directory {destPath}");
                                 Directory.CreateDirectory(destPath);
                             }
 
@@ -106,7 +107,19 @@ namespace Nucleus.Gaming.Tools.BackupDatas
                             {
                                 string sourcePath = $"{instances[i]}\\{sourceFolder}";
 
+                                if(!Directory.Exists(sourcePath) && !File.Exists(sourcePath))
+                                {
+                                    Log($"No file or directory to backup at => {sourcePath}");
+                                    Log($"/!\\ {sourcePath} not found and ignored /!\\");
+                                    continue;
+                                }
+
                                 string[] sourceFiles = Directory.GetFileSystemEntries(sourcePath, "*", SearchOption.AllDirectories);
+
+                                if (sourceFiles.Length == 0)
+                                {
+                                    Log($"No files to backup found in {sourcePath}");
+                                }
 
                                 foreach (string sourceFile in sourceFiles)
                                 {
@@ -119,16 +132,24 @@ namespace Nucleus.Gaming.Tools.BackupDatas
 
                                         if (!Directory.Exists($"{destPath}\\{fileDest}"))
                                         {
+                                            Log($"Create directory {destPath}\\{fileDest}");
                                             Directory.CreateDirectory($"{destPath}\\{fileDest}");
+                                        }
+                                        else
+                                        {
+                                            Log($"{destPath}\\{fileDest} exists...");
                                         }
 
                                         if (File.Exists($"{destPath}\\{fileDest}\\{fileName}"))
                                         {
+                                            Log($"Delete previous copy of {destPath}\\{fileDest}\\{fileName}");
                                             File.Delete($"{destPath}\\{fileDest}\\{fileName}");
                                         }
 
                                         if (File.Exists(sourceFile))
                                         {
+                                            Log($"Copy {sourceFile}");
+                                            Log($"at {destPath}\\{fileDest}\\{fileName}");
                                             File.Copy(sourceFile, $"{destPath}\\{fileDest}\\{fileName}", true);
                                         }
                                     }
@@ -137,7 +158,7 @@ namespace Nucleus.Gaming.Tools.BackupDatas
                         }
                     }
 
-                    Log($"Folders backup successful");
+                    Log($"Folders backup finished");
                 }
             }
             catch (Exception ex)
@@ -165,6 +186,7 @@ namespace Nucleus.Gaming.Tools.BackupDatas
 
                     if (!Directory.Exists(sourceContent))
                     {
+                        Log($"No backed up datas to restore.");
                         return;
                     }
 
@@ -189,7 +211,7 @@ namespace Nucleus.Gaming.Tools.BackupDatas
                                     if (File.Exists(sourceFile))
                                     {
                                         string fileName = sourceFile.Split('\\').Last();
-                                        string filePath = sourceFile.Substring(sourceFile.IndexOf(player.Nickname));
+                                        string filePath = sourceFile.Substring(sourceFile.LastIndexOf(player.Nickname));//Using "LastIndexOf" in case player and Windows user name are the same.
                                         string destPath = filePath.Remove(filePath.IndexOf(player.Nickname), player.Nickname.Length);
 
                                         string destDirectoryBuild = $"{destInstance}{destPath}";
@@ -197,6 +219,7 @@ namespace Nucleus.Gaming.Tools.BackupDatas
 
                                         if (!Directory.Exists(destDirectory))
                                         {
+                                            Log($"Creare directory {destDirectory}");
                                             Directory.CreateDirectory(destDirectory);
                                         }
 
@@ -204,18 +227,27 @@ namespace Nucleus.Gaming.Tools.BackupDatas
 
                                         if (File.Exists(fileCopy))
                                         {
+                                            Log($"Delete previous copy of {fileCopy}");
                                             File.Delete(fileCopy);
                                         }
 
+                                        Log($"Restore{sourceFile} at {fileCopy} for player {player.Nickname}");
                                         File.Copy(sourceFile, fileCopy);
                                     }
                                 }
                             }
-
+                        }
+                        else 
+                        {
+                            Log($"Directory {sourceFolder} not found");
                         }
                     }
 
-                    Log("Folders restoration successful");
+                    Log("Folders restoration finished");
+                }
+                else
+                {
+                    Log($"Directory {gameContentPath} not found");
                 }
             }
             catch (Exception ex)
@@ -240,14 +272,14 @@ namespace Nucleus.Gaming.Tools.BackupDatas
                 }
             }
 
-            if (handlerInstance.context != null)
+            if (handlerInstance.Context != null)
             {
-                if (handlerInstance.context.BackupFiles != null)
+                if (handlerInstance.Context.BackupFiles != null)
                 {
                     //Context.FilesToBackup
-                    if (handlerInstance.context.BackupFiles.Length > 0)
+                    if (handlerInstance.Context.BackupFiles.Length > 0)
                     {
-                        StartFilesBackup(handlerInstance.context.BackupFiles);
+                        StartFilesBackup(handlerInstance.Context.BackupFiles);
                     }
                 }
             }
@@ -261,14 +293,14 @@ namespace Nucleus.Gaming.Tools.BackupDatas
                 }
             }
 
-            if (handlerInstance.context != null)
+            if (handlerInstance.Context != null)
             {
-                if (handlerInstance.context.BackupFolders != null)
+                if (handlerInstance.Context.BackupFolders != null)
                 {
                     //Context.BackupFolders
-                    if (handlerInstance.context.BackupFolders.Length > 0)
+                    if (handlerInstance.Context.BackupFolders.Length > 0)
                     {
-                        StartFoldersBackup(handlerInstance.context.BackupFolders);
+                        StartFoldersBackup(handlerInstance.Context.BackupFolders);
                     }
                 }
             }

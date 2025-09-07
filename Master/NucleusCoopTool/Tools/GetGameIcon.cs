@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Nucleus.Coop.UI;
 
 namespace Nucleus.Coop.Tools
 {
@@ -16,18 +17,18 @@ namespace Nucleus.Coop.Tools
 
         public static void GetIcon(object state)
         {
-            MainForm mainForm = MainForm.Instance;
+            MainForm mainForm = UI_Interface.MainForm;
 
             UserGameInfo game = (UserGameInfo)state;
             Bitmap bmp;
 
             if(game.Icon != null)
             {
-                lock (mainForm.controls)
+                lock (Core_Interface.GameControlsInfo)
                 {   
-                    if (mainForm.controls.ContainsKey(game))
+                    if (Core_Interface.GameControlsInfo.ContainsKey(game))
                     {
-                        GameControl control = mainForm.controls[game];
+                        GameControl control = Core_Interface.GameControlsInfo[game];
                         control.Image = game.Icon;
                     }
                 }
@@ -71,11 +72,11 @@ namespace Nucleus.Coop.Tools
 
             game.Icon = bmp;
 
-            lock (mainForm.controls)
+            lock (Core_Interface.GameControlsInfo)
             {
-                if (mainForm.controls.ContainsKey(game))
+                if (Core_Interface.GameControlsInfo.ContainsKey(game))
                 {
-                    GameControl control = mainForm.controls[game];
+                    GameControl control = Core_Interface.GameControlsInfo[game];
                     control.Image = game.Icon;
                 }
             }

@@ -6,6 +6,7 @@ using SharpDX.XInput;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -13,6 +14,10 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
 {
     public static class GamepadShortcuts
     {
+        private const int WM_CLOSE = 0x0010;
+
+        [DllImport("user32.dll")]
+        private static extern bool PostMessage(IntPtr hWnd, int msg, IntPtr wParam, IntPtr lParam);
         //TODO: Add a button panel so we can shut down Nucleus and the pc with gamepads
         private static int SetFocus;
         private static int Close;
@@ -110,16 +115,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                         }
                         else if (button == Close || rt == Close || lt == Close)///Close nucleus
                         {
-                            GenericGameHandler.Instance?.End(false);
-
-                            //User32Util.ShowTaskBar();
-
-                            Thread.Sleep(5000);
-
-                            if (GenericGameHandler.Instance.hasEnded)
-                            {
-                                Process.GetCurrentProcess().Kill();
-                            }
+                            PostMessage(Globals.MainWindowHandle, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
                         }
                         else if ((button == LockInputs || rt == LockInputs || lt == LockInputs) && GameProfile.Saved)///Lock k&m inputs
                         {
@@ -142,9 +138,9 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                                 Globals.MainOSD.Show(1000, "Inputs Unlocked");
                             }
                         }
-                        else if (button == ReleaseCursor || rt == LockInputs || lt == LockInputs)///Try to release the cursor from game window by alt+tab inputs
+                        else if (button == ReleaseCursor || rt == ReleaseCursor || lt == ReleaseCursor)///Try to release the cursor from game window by alt+tab inputs
                         {
-                            //Todo Try by pausing focus loop instead so we can release the cursor from it's current window(but what for protoinput hooks?)
+                            //Todo Try by pausing focus loop instead so we can release the cursor from its current window(but what for protoinput hooks?)
                             SendKeys.SendWait("%+{TAB}");
                             Thread.Sleep(500);
                         }
@@ -160,7 +156,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
 
                     if (Pressed == 1024)//Guide button
                     {
-                        Thread.Sleep(500);//good enough to check for long press here
+                        Thread.Sleep(900);//good enough to check for long press here
 
                         if (GamepadState.GetPressedButtons(i) == 1024)//good enough to check for long press here
                         {

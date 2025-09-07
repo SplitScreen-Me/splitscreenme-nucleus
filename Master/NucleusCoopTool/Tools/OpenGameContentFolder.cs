@@ -8,14 +8,11 @@ namespace Nucleus.Coop.Tools
 {
     internal class OpenGameContentFolder
     {
-        public static void OpenDataFolder(UserGameInfo currentGameInfo)
+        public static void OpenContentFolder(UserGameInfo currentGameInfo)
         {
-            GameManager gameManager = GameManager.Instance;
-            string path = Path.Combine(gameManager.GetAppContentPath(), currentGameInfo.Game.GUID);
-
-            if (Directory.Exists(path))
+            if (Directory.Exists(currentGameInfo.Game.Content_Folder))
             {
-                Process.Start(path);
+                Process.Start(currentGameInfo.Game.Content_Folder);
             }
             else
             {

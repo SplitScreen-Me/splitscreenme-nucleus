@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nucleus.Coop.Controls;
+using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Cache;
@@ -27,10 +28,9 @@ using System.Windows.Forms;
 namespace Nucleus.Coop
 {
 
-    public partial class ProfileSettings : BaseForm, IDynamicSized
+    public partial class ProfileSettings : Form, IDynamicSized
     {
-
-        private MainForm mainForm;
+        private MainForm mainForm => UI_Interface.MainForm;
         private static ProfileSettings profileSettings;
 
         private string currentNickname;
@@ -74,15 +74,15 @@ namespace Nucleus.Coop
 
         public ProfileSettings()
         {
-            mainForm = MainForm.Instance;
-            fontSize = float.Parse(mainForm.themeIni.IniReadValue("Font", "SettingsFontSize"));
+
+            fontSize = float.Parse(Globals.ThemeConfigFile.IniReadValue("Font", "SettingsFontSize"));
             profileSettings = this;
 
             InitializeComponent();
 
             Cursor = Theme_Settings.Default_Cursor;
 
-            var borderscolor = mainForm.themeIni.IniReadValue("Colors", "ProfileSettingsBorder").Split(',');
+            var borderscolor = Globals.ThemeConfigFile.IniReadValue("Colors", "ProfileSettingsBorder").Split(',');
             selectionColor = Theme_Settings.SelectedBackColor;
             bordersPen = new Pen(Color.FromArgb(int.Parse(borderscolor[0]), int.Parse(borderscolor[1]), int.Parse(borderscolor[2])));
 
@@ -95,7 +95,7 @@ namespace Nucleus.Coop
                 if (c is CustomCheckBox || c is Label || c is CustomRadio)
                 {
                     if (c.Name != "audioWarningLabel" && c.Name != "warningLabel" && c.Name != "modeLabel")
-                        c.Font = new Font(mainForm.customFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
+                        c.Font = new Font(Theme_Settings.CustomFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
 
                     if (c is CustomCheckBox checkbox)
                     {
@@ -117,7 +117,7 @@ namespace Nucleus.Coop
                 if (c is FlatCombo || c is FlatTextBox || c is GroupBox)
                 {
                     if (c.Name != "notes_text" && c.Name != "profileTitle")
-                        c.Font = new Font(mainForm.customFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
+                        c.Font = new Font(Theme_Settings.CustomFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
                    
                     if (c is FlatCombo fCB)
                     {
@@ -139,7 +139,7 @@ namespace Nucleus.Coop
 
                 if (c is CustomNumericUpDown num)
                 {
-                    num.Font = new Font(mainForm.customFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
+                    num.Font = new Font(Theme_Settings.CustomFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
                     num.UpdownBackColor = Color.FromArgb(selectionColor.R, selectionColor.G, selectionColor.B);
                 }
 
@@ -181,24 +181,24 @@ namespace Nucleus.Coop
                 }
             }
 
-            ForeColor = Color.FromArgb(int.Parse(mainForm.rgb_font[0]), int.Parse(mainForm.rgb_font[1]), int.Parse(mainForm.rgb_font[2]));
+            ForeColor = Theme_Settings.ControlsForeColor;
 
-            audioBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "audio.png");
-            playersBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "players.png");
-            sharedBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "shared.png");
-            processorBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "processor.png");
-            layoutBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "layout.png");
-            closeBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "title_close.png");
-            audioRefresh.BackgroundImage = ImageCache.GetImage(mainForm.theme + "refresh.png");
-            profile_info_btn.BackgroundImage = ImageCache.GetImage(mainForm.theme + "profile_info.png");
-            btnNext.BackgroundImage = ImageCache.GetImage(mainForm.theme + "page1.png");
-            btnProcessorNext.BackgroundImage = ImageCache.GetImage(mainForm.theme + "page1.png");
-            refreshScreenDatasButton.BackgroundImage = ImageCache.GetImage(mainForm.theme + "refresh.png");
+            audioBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "audio.png");
+            playersBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "players.png");
+            sharedBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "shared.png");
+            processorBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "processor.png");
+            layoutBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "layout.png");
+            closeBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close.png");
+            audioRefresh.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "refresh.png");
+            profile_info_btn.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "profile_info.png");
+            btnNext.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "page1.png");
+            btnProcessorNext.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "page1.png");
+            refreshScreenDatasButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "refresh.png");
 
             audioBtnPicture.Click += AudioTabBtn_Click;
 
-            btnNext.BackColor = mainForm.buttonsBackColor;
-            btnProcessorNext.BackColor = mainForm.buttonsBackColor;
+            btnNext.BackColor = Theme_Settings.ButtonsBackColor;
+            btnProcessorNext.BackColor = Theme_Settings.ButtonsBackColor;
 
             audioRefresh.BackColor = Color.Transparent;
 
@@ -375,7 +375,7 @@ namespace Nucleus.Coop
             DPIManager.Update(this);
         }
 
-        public new void UpdateSize(float scale)
+        public void UpdateSize(float scale)
         {
             if (IsDisposed)
             {
@@ -446,7 +446,7 @@ namespace Nucleus.Coop
 
         private void GetPlayersNickNameAndIds()
         {
-            List<ProfilePlayer> playersList = GameProfile.ProfilePlayersList;
+            List<PlayerInfo> playersList = GameProfile.ProfilePlayersList;
 
             for (int i = 0; i < Globals.NucleusMaxPlayers; i++)
             {
@@ -455,7 +455,7 @@ namespace Nucleus.Coop
 
                 if (i < playersList.Count)
                 {
-                    ProfilePlayer player = playersList[i];
+                   PlayerInfo player = playersList[i];
 
                     sidField.Items.Clear();
                     sidField.Items.AddRange(PlayersIdentityCache.PlayersSteamId.Where(sid => sid != "").ToArray());
@@ -546,7 +546,7 @@ namespace Nucleus.Coop
 
             for (int i = 0; i < Globals.NucleusMaxPlayers; i++)
             {
-                ProfilePlayer player = null;
+                PlayerInfo player = null;
 
                 if (i < GameProfile.ProfilePlayersList.Count)
                 {
@@ -663,14 +663,14 @@ namespace Nucleus.Coop
                 //Create profile players for new game profile
                 for (int i = 0; i < GameProfile.Game.MaxPlayers; i++)
                 {
-                    ProfilePlayer player = new ProfilePlayer();
+                    PlayerInfo player = new PlayerInfo();
                     GameProfile.ProfilePlayersList.Add(player);
                 }
             }
 
             for (int i = 0; i < GameProfile.ProfilePlayersList.Count; i++)
             {
-                ProfilePlayer player = GameProfile.ProfilePlayersList[i];
+                PlayerInfo  player = GameProfile.ProfilePlayersList[i];
 
                 if(i >= Globals.NucleusMaxPlayers)//in case the handler supports more than the Nucleus max player value
                 {
@@ -1071,22 +1071,22 @@ namespace Nucleus.Coop
 
         private void CloseBtnPicture_MouseEnter(object sender, EventArgs e)
         {
-            closeBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "title_close_mousehover.png");
+            closeBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close_mousehover.png");
         }
 
         private void CloseBtnPicture_MouseLeave(object sender, EventArgs e)
         {
-            closeBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "title_close.png");
+            closeBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close.png");
         }
 
         private void Profile_info_btn_MouseEnter(object sender, EventArgs e)
         {
-            profile_info_btn.BackgroundImage = ImageCache.GetImage(mainForm.theme + "profile_info_mousehover.png");
+            profile_info_btn.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "profile_info_mousehover.png");
         }
 
         private void Profile_info_btn_MouseLeave(object sender, EventArgs e)
         {
-            profile_info_btn.BackgroundImage = ImageCache.GetImage(mainForm.theme + "profile_info.png");
+            profile_info_btn.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "profile_info.png");
         }
 
         private void Profile_info_btn_Click(object sender, EventArgs e)

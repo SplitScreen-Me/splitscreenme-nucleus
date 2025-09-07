@@ -89,8 +89,8 @@ namespace Nucleus.Gaming.Tools.FlawlessWidescreen
                     List<string> otextChanges = new List<string>();
                     string oscriptPath = Path.Combine(fwGameFolder, "Dependencies\\Scripts\\" + handlerInstance.CurrentGameInfo.FlawlessWidescreen + ".lua");
 
-                    otextChanges.Add(handlerInstance.context.FindLineNumberInTextFile(oscriptPath, "Process_WindowName = ", SearchType.StartsWith) + "|Process_WindowName = \"Removed\"");
-                    handlerInstance.context.ReplaceLinesInTextFile(oscriptPath, otextChanges.ToArray());
+                    otextChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(oscriptPath, "Process_WindowName = ", SearchType.StartsWith) + "|Process_WindowName = \"Removed\"");
+                    handlerInstance.Context.ReplaceLinesInTextFile(oscriptPath, otextChanges.ToArray());
                 }
 
                 string newFwGameFolder = fwGameFolder + " - Nucleus Instance " + (i + 1);
@@ -128,8 +128,8 @@ namespace Nucleus.Gaming.Tools.FlawlessWidescreen
                 List<string> textChanges = new List<string>();
                 string scriptPath = Path.Combine(newFwGameFolder, "Dependencies\\Scripts\\" + handlerInstance.CurrentGameInfo.FlawlessWidescreen + " - Nucleus Instance " + (i + 1) + ".lua");
 
-                textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(scriptPath, "Process_WindowName = ", SearchType.StartsWith) + "|Process_WindowName = \"" + "Nucleus Instance " + (i + 1) + "(" + handlerInstance.CurrentGameInfo.Hook.ForceFocusWindowName.Replace("®", "%R") + ")\"");
-                handlerInstance.context.ReplaceLinesInTextFile(scriptPath, textChanges.ToArray());
+                textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(scriptPath, "Process_WindowName = ", SearchType.StartsWith) + "|Process_WindowName = \"" + "Nucleus Instance " + (i + 1) + "(" + handlerInstance.CurrentGameInfo.Hook.ForceFocusWindowName.Replace("®", "%R") + ")\"");
+                handlerInstance.Context.ReplaceLinesInTextFile(scriptPath, textChanges.ToArray());
 
                 string path = Path.Combine(utilFolder, "Plugins\\FWS_Plugins.fws");
                 path = Environment.ExpandEnvironmentVariables(path);

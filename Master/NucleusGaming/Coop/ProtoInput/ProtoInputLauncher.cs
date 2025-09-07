@@ -39,6 +39,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             {
                 MessageBox.Show("ProtoInput failed to startup inject", "Error", MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
+
+                GenericGameHandler.Instance?.End(false);
             }
             else
             {
@@ -89,11 +91,61 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             {
                 MessageBox.Show("ProtoInput failed to runtime inject", "Error", MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
+
+                GenericGameHandler.Instance?.End(false);
             }
             else
             {
                 SetupInstance(instanceHandle, instanceIndex, gen, player, mouseHandle, keyboardHandle,
                     controllerIndex, controllerIndex2, controllerIndex3, controllerIndex4);
+            }
+        }
+
+        public static void SetProtoControllersIndex(PlayerInfo player, GenericGameInfo game)
+        {
+            if(game.UseManualProtoControllersSetup)
+            {
+                GenericGameHandler.Instance?.Log("Force manual ProtoInput controller setup from Game.Play function.");
+                return;
+            }
+
+            if (game.ProtoInput.MultipleProtoControllers)
+            {
+                player.ProtoController1 = player.GamepadId + 1;
+
+                if (player.InstanceGuests.Count > 0)
+                {
+                    for (int i = 0; i < player.InstanceGuests.Count; i++)
+                    {
+                        int guestIndex = player.InstanceGuests[i].GamepadId + 1;
+
+                        switch (i)
+                        {
+                            case 0:
+                                player.ProtoController2 = guestIndex;
+                                break;
+                            case 1:
+                                player.ProtoController3 = guestIndex;
+                                break;
+                            case 2:
+                                player.ProtoController4 = guestIndex;
+                                break;
+                        }
+                    }
+                }
+                else
+                {
+                    player.ProtoController2 = player.GamepadId + 1;
+                    player.ProtoController3 = player.GamepadId + 1;
+                    player.ProtoController4 = player.GamepadId + 1;
+                }
+            }
+            else
+            {
+                player.ProtoController1 = player.GamepadId + 1;
+                player.ProtoController2 = 0;
+                player.ProtoController3 = 0;
+                player.ProtoController4 = 0;
             }
         }
 
@@ -213,6 +265,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             ProtoInput.protoInput.SetSetWindowPosDontResize(instanceHandle, gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontResize);
             ProtoInput.protoInput.SetSetWindowPosDontReposition(instanceHandle, gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontReposition);
             ProtoInput.protoInput.SetSetWindowPosSettings(instanceHandle, player.MonitorBounds.X, player.MonitorBounds.Y, player.MonitorBounds.Width, player.MonitorBounds.Height);
+          
             if (gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontResize || gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontReposition || gen.ProtoInput.SetWindowPosHook != 0)
             {
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.SetWindowPosHookID);
@@ -261,18 +314,21 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             ProtoInput.protoInput.SetMoveWindowDontResize(instanceHandle, gen.ProtoInput.MoveWindowHook == MoveWindowHook.DontResize);
             ProtoInput.protoInput.SetMoveWindowDontReposition(instanceHandle, gen.ProtoInput.MoveWindowHook == MoveWindowHook.DontReposition);
             ProtoInput.protoInput.SetMoveWindowSettings(instanceHandle, player.MonitorBounds.X, player.MonitorBounds.Y, player.MonitorBounds.Width, player.MonitorBounds.Height);
+
             if (gen.ProtoInput.MoveWindowHook == MoveWindowHook.DontResize || gen.ProtoInput.MoveWindowHook == MoveWindowHook.DontReposition || gen.ProtoInput.MoveWindowHook != 0)
             {
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.MoveWindowHookID);
             }
 
             ProtoInput.protoInput.SetAdjustWindowRectSettings(instanceHandle, player.MonitorBounds.X, player.MonitorBounds.Y, player.MonitorBounds.Width, player.MonitorBounds.Height);
+
             if (gen.ProtoInput.AdjustWindowRectHook)
             {
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.AdjustWindowRectHookID);
             }
 
             ProtoInput.protoInput.SetDontWaitWindowBorder(instanceHandle, gen.ProtoInput.SetRemoveBorderHook == SetRemoveBorderHook.DontWait);
+
             if (gen.ProtoInput.SetRemoveBorderHook == SetRemoveBorderHook.DontWait || gen.ProtoInput.SetRemoveBorderHook != 0)
             {
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.RemoveBorderHookID);

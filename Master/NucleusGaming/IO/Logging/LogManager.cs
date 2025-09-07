@@ -101,7 +101,8 @@ namespace Nucleus.Gaming
         public void LogExceptionFile(Exception ex)
         {
             Log("ERROR - " + ex.Message + " | Stacktrace: " + ex.StackTrace);
-            string version = "Nucleus v " + Globals.Version;
+           
+            string version = "Nucleus version: " + Globals.Version;
             string local = GetAppDataPath();
             DateTime now = DateTime.Now;
             string file = string.Format("{0}{1}{2}_{3}{4}{5}", now.Day.ToString("00"), now.Month.ToString("00"), now.Year.ToString("0000"), now.Hour.ToString("00"), now.Minute.ToString("00"), now.Second.ToString("00")) + ".log";
@@ -123,15 +124,15 @@ namespace Nucleus.Gaming
             }
 #if RELEASE
 
-            string error = $"{version}\n\nNucleus has crashed unexpectedly. An attempt to clean up will be made.\n\n[Type]\n\n{ex.GetType().Name}\n\n[Message]\n\n{ex.Message}\n\n{help}";
+            string error = $"-{version}\n-Install location: {Globals.NucleusInstallRoot}\n-OneDrive: {Globals.IsOneDriveEnabled} \n\nNucleus failed setting up the handler. An attempt to clean up will be made.\n\n[Type]\n\n{ex.GetType().Name}\n\n[Message]\n\n{ex.Message}\n\n{help}";
 #else
 
-            string error = $"{version}\n\nNucleus has crashed unexpectedly. An attempt to clean up will be made.\n\n[Type]\n\n{ex.GetType().Name}\n\n[Message]\n\n{ex.Message}\n{help}\n\n[Stacktrace]\n\n{ex.StackTrace}";
+            string error = $"{version}\n\nNucleus failed setting up the handler. An attempt to clean up will be made.\n\n[Type]\n\n{ex.GetType().Name}\n\n[Message]\n\n{ex.Message}\n{help}\n\n[Stacktrace]\n\n{ex.StackTrace}";
 #endif
 
             NucleusMessageBox.Show("Something went wrong :(", error, true);
 
-            Log("Attempting shut-down procedures in order to clean-up");
+            Log("Attempting clean-up procedures...");
 
             string[] regFiles = Directory.GetFiles(Path.Combine(Globals.NucleusInstallRoot, "utils\\backup"), "*.reg", SearchOption.AllDirectories);
             if (regFiles.Length > 0)
@@ -206,8 +207,6 @@ namespace Nucleus.Gaming
                 }
             }
 
-            Windows.User32Util.ShowTaskBar();
-
             Log("High-level error log generated at content/" + file);
 
 #if RELEASE
@@ -231,10 +230,10 @@ namespace Nucleus.Gaming
 
             if (EnableBtn)
             {
-                Globals.Btn_debuglog.Parent.Invoke((MethodInvoker)delegate ()
-                {
-                    Globals.Btn_debuglog.Visible = true;
-                });
+                //Globals.Btn_debuglog.Parent.Invoke((MethodInvoker)delegate ()
+                //{
+                //    Globals.Btn_debuglog.Visible = true;
+                //});
             }
 #endif
         }

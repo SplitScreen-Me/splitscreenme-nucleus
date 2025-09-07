@@ -1,12 +1,13 @@
-﻿using Nucleus.Gaming.Controls.SetupScreen;
-//using SlimDX.DirectInput;
-using SharpDX.DirectInput;
+﻿using Nucleus.Gaming.Cache;
+using Nucleus.Gaming.Controls.SetupScreen;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
+using Nucleus.Gaming.Coop.InputManagement.Gamepads;
+using SDL;
 
 namespace Nucleus.Gaming.Coop
 {
@@ -18,6 +19,16 @@ namespace Nucleus.Gaming.Coop
         private Rectangle monitorBounds;
         private Rectangle defaultMonitorBounds;
 
+        //Only to use for "profile players"
+        public Rectangle OwnerDisplay;
+        public RectangleF OwnerUIBounds;
+        public int OwnerType;
+        public int CurrentMaxGuests = 0;
+
+        public bool WaitGuests => InstanceGuests.Count < CurrentMaxGuests;
+        //
+
+        public InputType InputType;
         private object tag;
 
         public string IdealProcessor = "*";
@@ -31,16 +42,127 @@ namespace Nucleus.Gaming.Coop
         public string SID;
         public string Adapter;
         public string UserProfile;
+        public List<PlayerInfo> InstanceGuests = new List<PlayerInfo>();
+        public List<Guid> GuestsGuid = new List<Guid>();
+
+        /// <summary>
+        /// If the player is instance guest 
+        /// </summary>
+        public RectangleF GuestBounds;
 
         public bool SteamEmu;
         public bool GotLauncher;
         public bool GotGame;
-        public bool IsKeyboardPlayer;
-        public bool IsXInput;
-        public bool IsDInput;
+        public bool Polling;
+        private bool isRawMouse;
+        public bool IsRawMouse
+        {
+            get => isRawMouse;
+            set
+            {
+                isRawMouse = value;
+                if (value && !IsRawKeyboard)
+                {
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "proto_mouse.png");
+                    InputType = InputType.Mouse;
+                }
+                else if (isRawMouse && isRawKeyboard)//merged profile k&b player
+                {
+                    InputType = InputType.KBM;
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "keyboard.png");
+                }
+            }
+        }
+
+        private bool isRawKeyboard;
+        public bool IsRawKeyboard
+        {
+            get => isRawKeyboard;
+            set
+            {
+                isRawKeyboard = value;
+                if(value && !isRawMouse)
+                {
+                    InputType = InputType.KB;
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "proto_keyboard.png");
+                }
+                else if (isRawMouse && isRawKeyboard)//merged profile k&b player
+                {
+                    InputType = InputType.KBM;
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "keyboard.png");
+                }
+            }
+        }
+
+        private bool isKeyboardPlayer;
+        public bool IsKeyboardPlayer
+        {
+            get => isKeyboardPlayer;
+            set
+            {
+                isKeyboardPlayer = value;
+                if(value && !isRawMouse && !isRawKeyboard)
+                {
+                    InputType = InputType.SingleKB;
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "keyboard.png");
+                }               
+            }
+        }
+
+        private bool isXinput;
+        public bool IsXInput
+        {
+            get => isXinput;                        
+            set
+            {
+                isXinput = value;
+                IsController = value;
+
+                if(value)
+                {
+                    InputType = InputType.XInput;
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "xinput.png");
+                }    
+            }
+        }
+
+        private bool isSDL2;
+        public bool IsSDL2
+        {
+            get => isSDL2;
+            set
+            {
+                isSDL2 = value;
+                IsController = value;
+
+                if (value)
+                {
+                    InputType = InputType.SDL2;
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "xinput.png");
+                }
+            }
+        }
+
+        private bool isDInput;
+        public bool IsDInput
+        {
+            get => isDInput;
+            set
+            {
+                isDInput = value;
+                IsController = value;
+
+                if (value)
+                {
+                    InputType = InputType.DInput;
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "dinput.png");
+                }
+            }
+        }
+
+        public Bitmap Image;
         public bool IsFake;
-        public bool IsRawMouse;
-        public bool IsRawKeyboard;
+              
         public bool IsInputUsed;
         public bool IsController;//Good to do not have to loop both Xinput & DInput  
         public bool Vibrate;
@@ -50,20 +172,27 @@ namespace Nucleus.Gaming.Coop
 
         public Display Display;
         public UserScreen Owner;
-        public Joystick DInputJoystick;
+        
+        public D_Joystick DInputJoystick;
         public OpenXinputController XInputJoystick;
+        public SDL_GameController SDL2Joystick;
+        
         private ProcessData processData;
 
-        public Window RawInputWindow
-        { get; set; }
+        public Window RawInputWindow { get; set; }
 
-        public long SteamID = -1;
+        /// <summary>
+        /// "IsMinimzed" used to sync all players window state 
+        /// if the window is not minimized by Nucleus and some other cases.
+        /// </summary>
+        public bool IsMinimized;
+        public long SteamID;
 
         public uint ProtoInputInstanceHandle = 0;
 
         public int CurrentLayout = 0;
         public int ScreenPriority;
-        public int GamepadId;
+        public int GamepadId = -1;
         public int GamepadMask;
         public int DisplayIndex = -1;
         private int screenIndex = -1;
@@ -144,17 +273,17 @@ namespace Nucleus.Gaming.Coop
         private Stopwatch flashStopwatch = new Stopwatch();
         private Task flashTask = null;
 
-        public void FlashIcon()
+        public virtual void FlashIcon()
         {
             if (ShouldFlash && flashStopwatch != null && flashStopwatch.IsRunning && flashStopwatch.ElapsedMilliseconds <= 250)
             {
-                return;
+                return; 
             }
 
             if (!ShouldFlash)
             {
                 ShouldFlash = true;
-                SetupScreenControl.InvalidateFlash();
+                SetupScreenControl.InvalidateFlash(new Rectangle((int)editBounds.X, (int)editBounds.Y, (int)editBounds.Width, (int)editBounds.Height));
             }
 
             flashStopwatch.Restart();
@@ -171,7 +300,7 @@ namespace Nucleus.Gaming.Coop
                     flashTask = null;
 
                     ShouldFlash = false;
-                    SetupScreenControl.InvalidateFlash();
+                    SetupScreenControl.InvalidateFlash(new Rectangle((int)editBounds.X, (int)editBounds.Y, (int)editBounds.Width, (int)editBounds.Height));
                 });
 
                 flashTask.Start();

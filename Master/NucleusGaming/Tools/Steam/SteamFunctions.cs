@@ -89,7 +89,11 @@ namespace Nucleus.Gaming.Tools.Steam
         {
             string lang;
 
-            if (App_Misc.SteamLang != "" && App_Misc.SteamLang != "Automatic")
+            if(game.MetaInfo.SteamLanguage != null && game.MetaInfo.SteamLanguage != "App Setting")
+            {
+                lang = game.MetaInfo.SteamLanguage;
+            }
+            else if (App_Misc.SteamLang != "" && App_Misc.SteamLang != "Automatic")
             {
                 lang = App_Misc.SteamLang.ToLower();
             }
@@ -178,7 +182,7 @@ namespace Nucleus.Gaming.Tools.Steam
 
                 //swalloing the launch arguments for the game here as we will be launching steamclient loader
                 handlerInstance.CurrentGameInfo.StartArguments = string.Empty;
-                handlerInstance.context.StartArguments = string.Empty;
+                handlerInstance.Context.StartArguments = string.Empty;
 
                 string settingsFolder = exeFolder + "\\settings";
                 if (handlerInstance.CurrentGameInfo.GoldbergNoLocalSave)
@@ -469,7 +473,7 @@ namespace Nucleus.Gaming.Tools.Steam
 
                 //swalloing the launch arguments for the game here as we will be launching steamclient loader
                 handlerInstance.CurrentGameInfo.StartArguments = string.Empty;
-                handlerInstance.context.StartArguments = string.Empty;
+                handlerInstance.Context.StartArguments = string.Empty;
 
                 string settingsFolder = exeFolder + "\\settings";
                 if (handlerInstance.CurrentGameInfo.GoldbergNoLocalSave)
@@ -953,7 +957,7 @@ namespace Nucleus.Gaming.Tools.Steam
             emu.IniWriteValue("Launcher", "SteamClientPath64", Path.Combine(steamEmu, "SmartSteamEmu64.dll"));
             emu.IniWriteValue("Launcher", "InjectDll", "1");
 
-            emu.IniWriteValue("SmartSteamEmu", "AppId", handlerInstance.context.SteamID);
+            emu.IniWriteValue("SmartSteamEmu", "AppId", handlerInstance.Context.SteamID);
             emu.IniWriteValue("SmartSteamEmu", "SteamIdGeneration", "Manual");
 
             long steamID = player.SteamID;
@@ -1054,7 +1058,7 @@ namespace Nucleus.Gaming.Tools.Steam
 
             if (!handlerInstance.CurrentGameInfo.ThirdPartyLaunch)
             {
-                if (handlerInstance.context.KillMutex?.Length > 0)
+                if (handlerInstance.Context.KillMutex?.Length > 0)
                 {
                     // to kill the mutexes we need to orphanize the process
                     while (!ProcessUtil.RunOrphanProcess(emuExe, handlerInstance.CurrentGameInfo.UseNucleusEnvironment, player.Nickname))
@@ -1182,26 +1186,59 @@ namespace Nucleus.Gaming.Tools.Steam
             try
             {
                 string steamlessExePath = Path.Combine($@"{Directory.GetCurrentDirectory()}\utils\Steamless\Steamless.CLI.exe");
-
                 string steamlessArgs = $@"{args} {linkBinFolder} \ {executableName}";
+                var batch = Path.Combine(linkBinFolder, "steamless.bat");
+                string content = $"{steamlessExePath} {steamlessArgs} \"{executableName}\"";
 
-                ProcessStartInfo sl = new ProcessStartInfo(steamlessExePath);
-                sl.WorkingDirectory = linkBinFolder;
-                sl.UseShellExecute = true;
-                sl.WindowStyle = ProcessWindowStyle.Hidden;
-                sl.Arguments = steamlessArgs;
-                Process.Start(sl);
-                Thread.Sleep(timing);
+                File.WriteAllText(batch, content);
+
+                ProcessStartInfo proc = new ProcessStartInfo();
+
+                proc.FileName = batch;
+                proc.UseShellExecute = false;
+                proc.WorkingDirectory = Path.GetDirectoryName(batch);
+                proc.CreateNoWindow = true;
+
+                Process.Start(proc);
+
+                Stopwatch watch = new Stopwatch();
+                watch.Start();
+
+                while (!File.Exists($@"{linkBinFolder}\{executableName}.unpacked.exe") && watch.Elapsed.Seconds <= timing / 1000)
+                {
+                    Thread.Sleep(1000);
+                }
+
+                watch.Stop();
 
                 if (File.Exists($@"{linkBinFolder}\{executableName}.unpacked.exe"))
                 {
+                    GenericGameHandler.Instance.Log($"Steamless patch applied successfully.");
+
                     File.Delete($@"{linkBinFolder}\{executableName}");
                     File.Move($@"{linkBinFolder}\{executableName}.unpacked.exe", $@"{linkBinFolder}\{executableName}");
+
+                    if (File.Exists($@"{linkBinFolder}\{executableName}.exe"))
+                    {
+                        GenericGameHandler.Instance.Log($"Original executable successfully replaced by the Steamless patched version.");
+                    }
                 }
+                else
+                {
+                    NucleusMessageBox.Show("Error", "Steamless failed at patching the executable. Please try again.", false);
+                    GenericGameHandler.Instance.End(false);
+                }
+
+                if (File.Exists(batch))
+                {
+                    File.Delete(batch);
+                }
+
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                GenericGameHandler.Instance.Log($"Error:\n{ex.Message}\n" +
+                                                $"StackTrace:/n{ex.StackTrace}");
             };
         }
 

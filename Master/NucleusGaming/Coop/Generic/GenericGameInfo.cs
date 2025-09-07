@@ -1,5 +1,4 @@
 ﻿using Jint;
-using Microsoft.Win32;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.Generic;
 using Nucleus.Gaming.Coop.ProtoInput;
@@ -13,7 +12,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-
 namespace Nucleus.Gaming
 {
     public class GenericGameInfo
@@ -25,9 +23,10 @@ namespace Nucleus.Gaming
 
         public GameHookInfo Hook = new GameHookInfo();
         public List<GameOption> Options = new List<GameOption>();
+        private List<string> profilesPath = new List<string>();
 
-        public SaveType SaveType;
-        public string SavePath;
+        public SaveType SaveType;//Not used but could be present in some handlers
+        public string SavePath;//Not used but could be present in some handlers
         public bool UpdateAvailable;
         public string[] DirSymlinkExclusions;
         public string[] FileSymlinkExclusions;
@@ -50,6 +49,7 @@ namespace Nucleus.Gaming
         public bool KeyboardPlayerFirst;
 
         public string[] ExecutableContext;
+        public string[] ExecutableNames;
         public string ExecutableName;
         public string SteamID;
         public string GUID;
@@ -58,7 +58,7 @@ namespace Nucleus.Gaming
         public int MaxPlayersOneMonitor;
         public int PauseBetweenStarts;
         public DPIHandling DPIHandling = DPIHandling.True;
-
+        public DpiAwarenessMode DpiAwarenessMode = DpiAwarenessMode.HighDpiAware; 
         public string StartArguments;
         public string BinariesFolder;
         public bool BinariesFolderPathFix;
@@ -70,7 +70,7 @@ namespace Nucleus.Gaming
         public bool SplitDivCompatibility = true;
         public bool SetTopMostAtEnd;
         public bool Favorite;
-       
+
         public void AddOption(string name, string desc, string key, object value, object defaultValue)
         {
             Options.Add(new GameOption(name, desc, key, value, defaultValue));
@@ -137,17 +137,20 @@ namespace Nucleus.Gaming
         public bool GoldbergNoWarning = false;
         public string OrigSteamDllPath;
         public bool GoldbergNeedSteamInterface;
-        //deprecated kept for backward compatibility => use SteamlessPatch insatead
+        //deprecated kept for backward compatibility => use SteamlessPatch instead
         public bool UseSteamless = false;
         public string SteamlessArgs;
         public int SteamlessTiming = 2500;
         //
-        public string[] SteamlessPatch;//bool apply to launcher,string Steamless Args,int wait for exe pacthing finished.
+        public string[] SteamlessPatch;//bool apply to launcher,string Steamless Args,int wait for exe patching finished.
         public bool UseGoldbergNoOGSteamDlls;
         public string[] CustomSteamApiDllPath;
         public bool XboxOneControllerFix;
         public bool UseForceBindIP;
+        public bool ForceBindIPDelay;
+        public bool ForceBindIPNoDummy = false;
         public string[] XInputPlusDll;
+        public string[] SDLPaths;//Relative to instanced game directory root 
         public string[] CopyCustomUtils;
         public int PlayersPerInstance;
         public bool UseDevReorder;
@@ -232,8 +235,6 @@ namespace Nucleus.Gaming
         public bool UserProfileConfigPathNoCopy;
         public bool UserProfileSavePathNoCopy;
         public bool LauncherExeIgnoreFileCheck;
-        public bool ForceBindIPDelay;
-        public bool ForceBindIPNoDummy = false;
         public string[] CustomUserGeneralPrompts;
         public bool SaveCustomUserGeneralValues;
         public string[] CustomUserPlayerPrompts;
@@ -326,7 +327,8 @@ namespace Nucleus.Gaming
         public int LockInputToggleKey = 0x23;//End by default. Keys: https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
         public bool ForceEnvironmentUse;
         public bool ForceLauncherExeIgnoreFileCheck;
-
+        public bool UseDI8CoopLvlUnlocker;
+        public bool UseManualProtoControllersSetup = false;
 
         // Proto Input
         public ProtoInputOptions ProtoInput = new ProtoInputOptions();
@@ -365,11 +367,19 @@ namespace Nucleus.Gaming
 
             engine.SetValue("Game", this);
             engine.SetValue("Hub", Hub);
+
             engine.Execute("var Nucleus = importNamespace('Nucleus.Gaming');");
+
+            string pluginsData = folderPath + "\\pluginsInfo.txt";
+
+            if (File.Exists(pluginsData))
+            {
+                LoadCustomAssemblies(engine,folderPath);
+            }
 
             try
             {
-                engine.Execute(js); 
+                engine.Execute(js);   
             }
             catch (Exception ex)
             {
@@ -395,12 +405,13 @@ namespace Nucleus.Gaming
                     $"- Another handler has this GUID (must be unique!)\n- Code is not in the right place or format\n(for example: methods using Context must be within the Game.Play function)" +
                     $"\n\n{details}";
 
-                    NucleusMessageBox.Show("Error in handler", error, false);
-
+                    NucleusMessageBox.Show("Error in handler", error, false);              
                 });
+
+                return;
             }
 
-            MetaInfo.LoadGameMetaInfo(GUID);
+            MetaInfo.LoadGameMetaInfo(this);
 
             if (MetaInfo.CheckUpdate)
             {
@@ -421,6 +432,50 @@ namespace Nucleus.Gaming
 
             engine.SetValue("Game", (object)null);
         }
+
+        public bool LoadCustomAssemblies(Engine _engine,string configPath)
+        {
+            string rawPluginsData = File.ReadAllText(configPath + "\\pluginsInfo.txt");
+
+            string[] pluginsData = rawPluginsData.Split('|');
+
+            if (pluginsData != null && pluginsData.Length > 0)
+            {
+                for (int i = 0; i < pluginsData.Length; i++)
+                {
+                    try
+                    {
+                        var pluginObjects = new Dictionary<string, object>();
+                        string[] datas = pluginsData[i].Split('#');
+                        string pluginName = datas[1];//datas[0] => "MyPlugin"
+
+                        string assemblyPath = configPath + "\\" + datas[2];
+
+                        var assembly = Assembly.LoadFrom(assemblyPath);// path datas[1] => "MyLib.dll"
+
+                        for (int j = 3; j < datas.Length; j++)
+                        {
+                            var type = assembly.GetType(datas[j]);//class datas[j] => "MyLib.MyClass"
+                            if (type != null && !type.IsAbstract && !type.IsInterface)
+                            {
+                                var instance = Activator.CreateInstance(type);
+                                pluginObjects[type.Name] = instance;
+                            }
+                        }
+
+                        _engine.SetValue(pluginName, pluginObjects);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to load plugins at {pluginsData[i]} \n{ex.Message}");
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
 
         public CustomStep ShowOptionAsStep(string optionKey, bool required, string title)
         {
@@ -453,7 +508,7 @@ namespace Nucleus.Gaming
         {
             var handlerInstance = GenericGameHandler.Instance;
 
-            engine.SetValue("Context", handlerInstance.context);
+            engine.SetValue("Context", handlerInstance.Context);
             engine.SetValue("Handler", handlerInstance);
             engine.SetValue("Player", player);
             engine.SetValue("Game", this);
@@ -518,6 +573,212 @@ namespace Nucleus.Gaming
             }
 
             return context;
+        }
+
+
+        public List<string> Profiles_ConfigPath => GetProfConfigPath();
+        private List<string> GetProfConfigPath()
+        {
+            UpdateProfilesPath();
+
+            List<string> playersProfilePath = new List<string>();
+
+            if (UserProfileConfigPath?.Length > 0)
+            {
+                if (profilesPath.Count > 0)
+                {
+                    try
+                    {
+                        foreach (string profilePath in profilesPath)
+                        {
+                            string currPath = Path.Combine(profilePath, UserProfileConfigPath);
+                            if (Directory.Exists(currPath))
+                            {
+                                playersProfilePath.Add(profilePath);
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        return playersProfilePath;
+                    }
+                }
+
+                return playersProfilePath;
+            }
+
+            return playersProfilePath;
+        }
+
+        public List<string> Profiles_SavePath => GetProfSavePath();
+        private List<string> GetProfSavePath()
+        {
+            UpdateProfilesPath();
+
+            List<string> playersProfilePath = new List<string>();
+
+            if (UserProfileSavePath?.Length > 0)
+            {
+                if (profilesPath.Count > 0)
+                {
+                    try
+                    {
+                        foreach (string profilePath in profilesPath)
+                        {
+                            string currPath = Path.Combine(profilePath, UserProfileSavePath);
+                            if (Directory.Exists(currPath))
+                            {
+                                playersProfilePath.Add(profilePath);
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        return playersProfilePath;
+                    }
+                }
+
+                return playersProfilePath;
+            }
+
+            return playersProfilePath;
+        }
+
+
+        public List<string> Profiles_Documents_ConfigPath => GetProfDocConfigPath();
+        private List<string> GetProfDocConfigPath()
+        {
+            UpdateProfilesPath();
+
+            List<string> playersProfilePath = new List<string>();
+
+            if (DocumentsConfigPath?.Length > 0)
+            {
+                if (profilesPath.Count > 0)
+                {
+                    try
+                    {
+                        foreach (string profilePath in profilesPath)
+                        {
+                            string currPath = Path.Combine(profilePath, DocumentsConfigPath);
+                            if (Directory.Exists(currPath))
+                            {
+                                playersProfilePath.Add(profilePath);
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        return playersProfilePath;
+                    }
+                }
+
+                return playersProfilePath;
+            }
+
+            return playersProfilePath;
+        }
+
+        public List<string> Profiles_Documents_SavePath => GetProfDocSavePath();
+        private List<string> GetProfDocSavePath()
+        {
+            UpdateProfilesPath();
+
+            List<string> playersProfilePath = new List<string>();
+
+            if (DocumentsSavePath?.Length > 0)
+            {
+                if (profilesPath.Count > 0)
+                {
+                    try
+                    {
+                        foreach (string profilePath in profilesPath)
+                        {
+                            string currPath = Path.Combine(profilePath, DocumentsSavePath);
+                            if (Directory.Exists(currPath))
+                            {
+                                playersProfilePath.Add(profilePath);
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        return playersProfilePath;
+                    }
+                }
+
+                return playersProfilePath;
+            }
+
+            return playersProfilePath;
+        }
+
+        public List<string> Players_BackupPath => GetPlayersBackupPath();
+        private List<string> GetPlayersBackupPath()
+        {
+            List<string> playersBackupPath = new List<string>();
+
+            string backupsPath = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\_Game Files Backup_\{GUID}";
+
+            if (Directory.Exists(backupsPath))
+            {
+                return Directory.GetDirectories(backupsPath, "*", SearchOption.TopDirectoryOnly).ToList();
+            }
+
+            return playersBackupPath;
+        }
+
+
+        public string Content_Folder => GetContentDir();
+        private string GetContentDir()
+        {
+            GameManager gameManager = GameManager.Instance;
+            string path = Path.Combine(gameManager.GetAppContentPath(), GUID);
+
+            if (Directory.Exists(path))
+            {
+                return path;
+            }
+
+            return string.Empty;
+        }
+
+        private void UpdateProfilesPath()
+        {
+            profilesPath.Clear();
+            profilesPath.Add(Environment.GetEnvironmentVariable("userprofile"));
+            profilesPath.Add(Globals.UserDocumentsRoot);
+
+            if (UseNucleusEnvironment)
+            {
+                string targetDirectory = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\";
+
+                if (Directory.Exists(targetDirectory))
+                {
+                    string[] subdirectoryEntries = Directory.GetDirectories(targetDirectory, "*", SearchOption.TopDirectoryOnly);
+                    foreach (string subdirectory in subdirectoryEntries)
+                    {
+                        profilesPath.Add(subdirectory);
+                        if ($@"{Path.GetDirectoryName(Globals.UserDocumentsRoot)}\NucleusCoop\" == targetDirectory)
+                        {
+                            profilesPath.Add(subdirectory + "\\Documents");
+                        }
+                    }
+                }
+
+                if ($@"{Path.GetDirectoryName(Globals.UserDocumentsRoot)}\NucleusCoop\" != targetDirectory)
+                {
+                    targetDirectory = $@"{Path.GetDirectoryName(Globals.UserDocumentsRoot)}\NucleusCoop\";
+                    if (Directory.Exists(targetDirectory))
+                    {
+                        string[] subdirectoryEntries = Directory.GetDirectories(targetDirectory, "*", SearchOption.TopDirectoryOnly);
+                        foreach (string subdirectory in subdirectoryEntries)
+                        {
+                            profilesPath.Add(subdirectory + "\\Documents");
+                        }
+                    }
+                }
+            }
         }
 
         public string EpicLang => NemirtingasEpicEmu.GetEpicLanguage();

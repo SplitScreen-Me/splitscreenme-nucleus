@@ -42,11 +42,9 @@ namespace Nucleus.Gaming
             HorizontalScroll.Maximum = 0;
             VerticalScroll.Visible = false;
             AutoScroll = true;
-            //DoubleBuffered = true;
             Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            this.MouseWheel += Scrolling;
+            this.MouseWheel += Scrolling;      
         }
-
 
         private void Scrolling(object sender, MouseEventArgs e)
         {
@@ -201,7 +199,7 @@ namespace Nucleus.Gaming
                 {
                     MouseEventArgs arg = e as MouseEventArgs;
 
-                    if (arg.Button == MouseButtons.Right)
+                    if (arg?.Button == MouseButtons.Right)
                     {
                         return;
                     }
@@ -240,12 +238,25 @@ namespace Nucleus.Gaming
 
             SelectedControl = parent;
 
-            if(SelectedControl is CoolListControl coolListControl)
+            if (SelectedControl is CoolListControl coolListControl)
             {
-                if(coolListControl.ImageUrl != null)
+                coolListControl.Selected = true;
+
+                if (coolListControl.ImageUrl != null)
                 {
-                    coolListControl.BackColor = Theme_Settings.SelectedBackColor;
-                }          
+                    foreach (Control con in Controls)
+                    {
+                        if (con is CoolListControl _coolListControl)
+                        {
+                            if (con != SelectedControl)
+                            {
+                                _coolListControl.Selected = false;
+                            }
+
+                            con.Invalidate();
+                        }
+                    }
+                }
             }
 
             if (SelectedControl is GameControl gameControl)

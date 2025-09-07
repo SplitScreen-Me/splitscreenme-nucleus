@@ -1,5 +1,6 @@
 ﻿using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Generic.Step;
+using Nucleus.Gaming.UI;
 using SplitTool.Controls;
 using System.Collections;
 using System.Collections.Generic;
@@ -47,6 +48,7 @@ namespace Nucleus.Gaming
                     AutoScroll = true
                 };
 
+                list.Cursor = Theme_Settings.Default_Cursor;
                 Controls.Add(list);
 
                 collection = option.List;
@@ -67,6 +69,7 @@ namespace Nucleus.Gaming
                     };
 
                     control.OnSelected += Control_OnSelected;
+                    control.Cursor = Theme_Settings.Hand_Cursor;
 
                     IDictionary<string, object> value = (IDictionary<string, object>)val;
                     string name = value["Name"].ToString();
@@ -90,9 +93,7 @@ namespace Nucleus.Gaming
                         if (!string.IsNullOrEmpty(imageUrl))
                         {
                             control.ImageUrl = imageUrl;
-
-                            //Image img = Content.LoadImage(imageUrl);
-                            
+ 
                             PictureBox box = new PictureBox
                             {
                                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
@@ -103,6 +104,7 @@ namespace Nucleus.Gaming
                             box.Location = new Point(list.Width - box.Width - 10, 10);
                             box.SizeMode = PictureBoxSizeMode.Zoom;
                             box.Image = Content.LoadImage(imageUrl);
+                      
                             control.Controls.Add(box);
                         }
                         else
@@ -134,7 +136,7 @@ namespace Nucleus.Gaming
                 return;
             }
 
-            toSelect.BackColor = Color.DodgerBlue;
+            toSelect.Selected = true;
             toSelect.Title = $"{toSelect.Title} (Auto Selection)";
             Control_OnSelected(toSelect);
         }

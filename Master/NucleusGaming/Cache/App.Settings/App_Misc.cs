@@ -8,6 +8,18 @@ namespace Nucleus.Gaming.App.Settings
 {
     public static class App_Misc
     {
+
+        private static bool vGMOnly;
+        public static bool VGMOnly
+        {
+            get => vGMOnly;
+            set
+            {
+                vGMOnly = value;
+                Globals.ini.IniWriteValue("Misc", "GMOnly", value.ToString());
+            }
+        }
+
         private static bool useNicksInGame;
         public static bool UseNicksInGame
         {
@@ -223,7 +235,8 @@ namespace Nucleus.Gaming.App.Settings
             get => theme;
             set
             {
-                theme = value; Globals.ini.IniWriteValue("Theme", "Theme", value);
+                theme = value;
+                Globals.ini.IniWriteValue("Theme", "Theme", value);
             }
         }
 
@@ -268,6 +281,17 @@ namespace Nucleus.Gaming.App.Settings
             {
                 useXinputIndex = value;
                 Globals.ini.IniWriteValue("Dev", "UseXinputIndex", value.ToString());
+            }
+        }
+
+        private static bool profileAssignGamepadByButonPress;
+        public static bool ProfileAssignGamepadByButonPress
+        {
+            get => profileAssignGamepadByButonPress;
+            set
+            {
+                profileAssignGamepadByButonPress = value;
+                Globals.ini.IniWriteValue("Dev", "ProfileAssignGamepadByButonPress", value.ToString());
             }
         }
 
@@ -320,11 +344,49 @@ namespace Nucleus.Gaming.App.Settings
             showFavoriteOnly = bool.Parse(Globals.ini.IniReadValue("Dev", "ShowFavoriteOnly"));
             disablePathCheck = bool.Parse(Globals.ini.IniReadValue("Dev", "DisablePathCheck"));
             textEditorPath = Globals.ini.IniReadValue("Dev", "TextEditorPath");
-            useXinputIndex = bool.Parse(Globals.ini.IniReadValue("Dev", "UseXinputIndex"));
-            blur =  int.Parse(Globals.ini.IniReadValue("Dev", "Blur"));
-            osdColor = Globals.ini.IniReadValue("Dev", "OSDColor");
 
+            useXinputIndex = bool.Parse(Globals.ini.IniReadValue("Dev", "UseXinputIndex"));
+            profileAssignGamepadByButonPress = bool.Parse(Globals.ini.IniReadValue("Dev", "ProfileAssignGamepadByButonPress"));
+
+            blur = int.Parse(Globals.ini.IniReadValue("Dev", "Blur"));
+            osdColor = Globals.ini.IniReadValue("Dev", "OSDColor");
+            gamesSorting = Globals.ini.IniReadValue("Misc", "GameSortingOpt").Split(',').ToList();
+
+            string _vGMOnly = Globals.ini.IniReadValue("Misc", "VGMOnly");
+
+            if(_vGMOnly != null && _vGMOnly != "")
+            {
+                vGMOnly = bool.Parse(_vGMOnly);
+            }
+            
             return true;
+        }
+
+
+        private static List<string> gamesSorting;
+        public static List<string> GamesSorting
+        {
+            get => gamesSorting;
+            set
+            {
+                gamesSorting = value;
+
+                string result = string.Empty;
+
+                for (int i = 0; i < value.Count; i++)
+                {
+                    if (i == 0)
+                    {
+                        result += value[i];
+                    }
+                    else
+                    {
+                        result += "," + value[i];
+                    }
+                }
+
+                Globals.ini.IniWriteValue("Misc", "GameSortingOpt", result);
+            }
         }
 
     }

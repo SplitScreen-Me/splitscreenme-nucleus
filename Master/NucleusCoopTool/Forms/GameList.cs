@@ -1,5 +1,6 @@
 ﻿using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
+using Nucleus.Gaming.UI;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -8,7 +9,7 @@ using System.Windows.Forms;
 
 namespace Nucleus.Coop.Forms
 {
-    public partial class GameList : BaseForm
+    public partial class GameList : Form
     {
         protected override CreateParams CreateParams
         {
@@ -27,12 +28,10 @@ namespace Nucleus.Coop.Forms
 
         public GameList(List<GenericGameInfo> games)
         {
-            string[] rgb_MouseOverColor = Globals.ThemeConfigFile.IniReadValue("Colors", "MouseOver").Split(',');
-
             InitializeComponent();
 
             BackgroundImage = Image.FromFile(Globals.ThemeFolder + "other_backgrounds.jpg");
-            btnOk.FlatAppearance.MouseOverBackColor = Color.FromArgb(int.Parse(rgb_MouseOverColor[0]), int.Parse(rgb_MouseOverColor[1]), int.Parse(rgb_MouseOverColor[2]), int.Parse(rgb_MouseOverColor[3])); ;
+            btnOk.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
 
             GameManager manager = GameManager.Instance;
 

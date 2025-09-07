@@ -46,7 +46,7 @@ namespace Nucleus.Gaming.Tools.HexEdit
                     Log(string.Format("Temporarily renaming original file {0} to {1}", fullFileName, Path.GetFileNameWithoutExtension(fullFileName) + "-TEMP" + Path.GetExtension(filePath)));
                     File.Move(fullPath, Path.Combine(Path.GetDirectoryName(fullPath), Path.GetFileNameWithoutExtension(fullPath) + "-TEMP" + Path.GetExtension(filePath)));
                     Log(string.Format("Created patched executable {0} where the text string '{1}' has been replaced with '{2}'", fullFileName, strToSearch, replacedStr));
-                    handlerInstance.context.PatchFile(fullPath.Substring(0, fullPath.Length - 4) + "-TEMP" + Path.GetExtension(filePath), fullPath, splitValues[1], splitValues[2]);
+                    handlerInstance.Context.PatchFile(fullPath.Substring(0, fullPath.Length - 4) + "-TEMP" + Path.GetExtension(filePath), fullPath, splitValues[1], splitValues[2]);
                     Log(string.Format("Deleting temporary file {0}", Path.GetFileNameWithoutExtension(fullFileName) + "-TEMP" + Path.GetExtension(filePath)));
                     File.Delete(Path.Combine(Path.GetDirectoryName(fullPath), Path.GetFileNameWithoutExtension(fullPath) + "-TEMP" + Path.GetExtension(filePath)));
                 }
@@ -55,7 +55,7 @@ namespace Nucleus.Gaming.Tools.HexEdit
                     Log(string.Format("Renaming original file {0} to {1}", fullFileName, Path.GetFileNameWithoutExtension(fullFileName) + "-ORIG" + Path.GetExtension(filePath)));
                     File.Move(fullPath, Path.Combine(Path.GetDirectoryName(fullPath), Path.GetFileNameWithoutExtension(fullPath) + "-ORIG" + Path.GetExtension(filePath)));
                     Log(string.Format("Created patched file {0} where the text string '{1}' has been replaced with '{2}'", fullFileName, strToSearch, replacedStr));
-                    handlerInstance.context.PatchFile(fullPath.Substring(0, fullPath.Length - 4) + "-ORIG" + Path.GetExtension(filePath), fullPath, splitValues[1], splitValues[2]);
+                    handlerInstance.Context.PatchFile(fullPath.Substring(0, fullPath.Length - 4) + "-ORIG" + Path.GetExtension(filePath), fullPath, splitValues[1], splitValues[2]);
                 }
             }
             else
@@ -94,7 +94,7 @@ namespace Nucleus.Gaming.Tools.HexEdit
                         Log(string.Format("Temporarily renaming original file {0} to {1}", fullFileName, Path.GetFileNameWithoutExtension(fullFileName) + "-TEMP" + Path.GetExtension(filePath)));
                         File.Move(fullPath, Path.Combine(Path.GetDirectoryName(fullPath), Path.GetFileNameWithoutExtension(fullPath) + "-TEMP" + Path.GetExtension(filePath)));
                         Log(string.Format("Created patched executable {0} where the text string '{1}' has been replaced with '{2}'", fullFileName, strToSearch, replacedStr));
-                        handlerInstance.context.PatchFile(fullPath.Substring(0, fullPath.Length - 4) + "-TEMP" + Path.GetExtension(filePath), fullPath, splitValues[1], splitValues[2]);
+                        handlerInstance.Context.PatchFile(fullPath.Substring(0, fullPath.Length - 4) + "-TEMP" + Path.GetExtension(filePath), fullPath, splitValues[1], splitValues[2]);
                         Log(string.Format("Deleting temporary file {0}", Path.GetFileNameWithoutExtension(fullFileName) + "-TEMP" + Path.GetExtension(filePath)));
                         File.Delete(Path.Combine(Path.GetDirectoryName(fullPath), Path.GetFileNameWithoutExtension(fullPath) + "-TEMP" + Path.GetExtension(filePath)));
                     }
@@ -103,7 +103,7 @@ namespace Nucleus.Gaming.Tools.HexEdit
                         Log(string.Format("Renaming original file {0} to {1}", fullFileName, Path.GetFileNameWithoutExtension(fullFileName) + "-ORIG" + Path.GetExtension(filePath)));
                         File.Move(fullPath, Path.Combine(Path.GetDirectoryName(fullPath), Path.GetFileNameWithoutExtension(fullPath) + "-ORIG" + Path.GetExtension(filePath)));
                         Log(string.Format("Created patched file {0} where the text string '{1}' has been replaced with '{2}'", fullFileName, strToSearch, replacedStr));
-                        handlerInstance.context.PatchFile(fullPath.Substring(0, fullPath.Length - 4) + "-ORIG" + Path.GetExtension(filePath), fullPath, splitValues[1], splitValues[2]);
+                        handlerInstance.Context.PatchFile(fullPath.Substring(0, fullPath.Length - 4) + "-ORIG" + Path.GetExtension(filePath), fullPath, splitValues[1], splitValues[2]);
                     }
                 }
                 else
@@ -134,7 +134,7 @@ namespace Nucleus.Gaming.Tools.HexEdit
                     Log(string.Format("Temporarily renaming original executable {0} to {1}", handlerInstance.CurrentGameInfo.ExecutableName, Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.ExecutableName) + "-TEMP.exe"));
                     File.Move(handlerInstance.exePath, Path.Combine(Path.GetDirectoryName(handlerInstance.exePath), Path.GetFileNameWithoutExtension(handlerInstance.exePath) + "-TEMP.exe"));
                     Log(string.Format("Created patched executable {0} where the text string '{1}' has been replaced with '{2}'", handlerInstance.CurrentGameInfo.ExecutableName, splitValues[0], splitValues[1]));
-                    handlerInstance.context.PatchFile(handlerInstance.exePath.Substring(0, handlerInstance.exePath.Length - 4) + "-TEMP.exe", handlerInstance.exePath, splitValues[0], splitValues[1]);
+                    handlerInstance.Context.PatchFile(handlerInstance.exePath.Substring(0, handlerInstance.exePath.Length - 4) + "-TEMP.exe", handlerInstance.exePath, splitValues[0], splitValues[1]);
                     Log(string.Format("Deleting temporary executable {0}", Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.ExecutableName) + "-TEMP.exe"));
                     File.Delete(Path.Combine(Path.GetDirectoryName(handlerInstance.exePath), Path.GetFileNameWithoutExtension(handlerInstance.exePath) + "-TEMP.exe"));
                 }
@@ -158,7 +158,7 @@ namespace Nucleus.Gaming.Tools.HexEdit
                     Log(string.Format("Renaming original executable {0} to {1}", handlerInstance.CurrentGameInfo.ExecutableName, Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.ExecutableName) + "-ORIG.exe"));
                     File.Move(handlerInstance.exePath, Path.Combine(Path.GetDirectoryName(handlerInstance.exePath), Path.GetFileNameWithoutExtension(handlerInstance.exePath) + "-ORIG.exe"));
                     Log(string.Format("Created patched executable {0} where {1} has been replaced with {2}", handlerInstance.CurrentGameInfo.ExecutableName, splitValues[0], splitValues[1]));
-                    handlerInstance.context.PatchFile(handlerInstance.exePath.Substring(0, handlerInstance.exePath.Length - 4) + "-ORIG.exe", handlerInstance.exePath, splitValues[0], splitValues[1]);
+                    handlerInstance.Context.PatchFile(handlerInstance.exePath.Substring(0, handlerInstance.exePath.Length - 4) + "-ORIG.exe", handlerInstance.exePath, splitValues[0], splitValues[1]);
                 }
                 else
                 {
@@ -197,7 +197,7 @@ namespace Nucleus.Gaming.Tools.HexEdit
                         Log(string.Format("Temporarily renaming original executable {0} to {1}", handlerInstance.CurrentGameInfo.ExecutableName, Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.ExecutableName) + "-TEMP.exe"));
                         File.Move(handlerInstance.exePath, Path.Combine(Path.GetDirectoryName(handlerInstance.exePath), Path.GetFileNameWithoutExtension(handlerInstance.exePath) + "-TEMP.exe"));
                         Log(string.Format("Created patched executable {0} where the text string '{1}' has been replaced with '{2}'", handlerInstance.CurrentGameInfo.ExecutableName, splitValues[0], splitValues[1]));
-                        handlerInstance.context.PatchFile(handlerInstance.exePath.Substring(0, handlerInstance.exePath.Length - 4) + "-TEMP.exe", handlerInstance.exePath, splitValues[0], splitValues[1]);
+                        handlerInstance.Context.PatchFile(handlerInstance.exePath.Substring(0, handlerInstance.exePath.Length - 4) + "-TEMP.exe", handlerInstance.exePath, splitValues[0], splitValues[1]);
                         Log(string.Format("Deleting temporary executable {0}", Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.ExecutableName) + "-TEMP.exe"));
                         File.Delete(Path.Combine(Path.GetDirectoryName(handlerInstance.exePath), Path.GetFileNameWithoutExtension(handlerInstance.exePath) + "-TEMP.exe"));
                     }
@@ -214,7 +214,7 @@ namespace Nucleus.Gaming.Tools.HexEdit
                         Log(string.Format("Renaming original executable {0} to {1}", handlerInstance.CurrentGameInfo.ExecutableName, Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.ExecutableName) + "-ORIG.exe"));
                         File.Move(handlerInstance.exePath, Path.Combine(Path.GetDirectoryName(handlerInstance.exePath), Path.GetFileNameWithoutExtension(handlerInstance.exePath) + "-ORIG.exe"));
                         Log(string.Format("Created patched executable {0} where the text string '{1}' has been replaced with '{2}'", handlerInstance.CurrentGameInfo.ExecutableName, splitValues[0], splitValues[1]));
-                        handlerInstance.context.PatchFile(handlerInstance.exePath.Substring(0, handlerInstance.exePath.Length - 4) + "-ORIG.exe", handlerInstance.exePath, splitValues[0], splitValues[1]);
+                        handlerInstance.Context.PatchFile(handlerInstance.exePath.Substring(0, handlerInstance.exePath.Length - 4) + "-ORIG.exe", handlerInstance.exePath, splitValues[0], splitValues[1]);
                     }
                     else
                     {

@@ -1,10 +1,12 @@
 ﻿using NAudio.CoreAudioApi;
 using Nucleus.Coop.Controls;
+using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Controls;
 using Nucleus.Gaming.Controls.SetupScreen;
+using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Tools.MonitorsDpiScaling;
 using Nucleus.Gaming.Tools.Steam;
 using Nucleus.Gaming.UI;
@@ -23,14 +25,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 
-
 namespace Nucleus.Coop
 {
-
     public partial class Settings : Form, IDynamicSized
     {
-        private MainForm mainForm;
-
         private string prevTheme;
         private string currentNickname;
         private string currentSteamId;
@@ -42,7 +40,7 @@ namespace Nucleus.Coop
         private FlatCombo[] controllerNicks;
         private FlatCombo[] steamIds;
         
-        public static Button _ctrlr_shorcuts;
+        public static Button Ctrlr_Shorcuts;
         private float fontSize;
         private List<Control> ctrls = new List<Control>();
         private IDictionary<string, string> audioDevices;
@@ -70,7 +68,6 @@ namespace Nucleus.Coop
         public Settings()
         {
             fontSize = float.Parse(Globals.ThemeConfigFile.IniReadValue("Font", "SettingsFontSize"));
-            mainForm = MainForm.Instance;
 
             InitializeComponent();
 
@@ -83,7 +80,9 @@ namespace Nucleus.Coop
             bordersPen = new Pen(Color.FromArgb(int.Parse(borderscolor[0]), int.Parse(borderscolor[1]), int.Parse(borderscolor[2])));
             BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "other_backgrounds.jpg");
 
-            _ctrlr_shorcuts = ctrlr_shorcutsBtn;
+            Ctrlr_Shorcuts = ctrlr_shorcutsBtn;
+
+            Font = new Font(Theme_Settings.CustomFont, Font.Size, Font.Style, GraphicsUnit.Pixel, 0);
 
             Controlscollect();
 
@@ -99,7 +98,7 @@ namespace Nucleus.Coop
                 {
                     if (c.Name != "audioWarningLabel" && c.Name != "warningLabel")
                     {
-                        c.Font = new Font(mainForm.customFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
+                        c.Font = new Font(Theme_Settings.CustomFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
                     }
 
                     if(c is CustomCheckBox checkbox)
@@ -121,7 +120,7 @@ namespace Nucleus.Coop
 
                 if (c is FlatCombo || c is FlatTextBox || c is GroupBox)
                 {
-                    c.Font = new Font(mainForm.customFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
+                    c.Font = new Font(Theme_Settings.CustomFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
 
                     if(c is FlatCombo fCB)
                     {                   
@@ -143,7 +142,7 @@ namespace Nucleus.Coop
 
                 if (c is CustomNumericUpDown num)
                 {
-                    num.Font = new Font(mainForm.customFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
+                    num.Font = new Font(Theme_Settings.CustomFont, fontSize, c.Font.Style, GraphicsUnit.Pixel, 0);
                     num.UpdownBackColor = Color.FromArgb(selectionColor.R, selectionColor.G, selectionColor.B);
                 }
 
@@ -180,26 +179,28 @@ namespace Nucleus.Coop
 
                 if (c.Parent.Name == "hotkeyBox")
                 {
-                    c.Font = new Font(mainForm.customFont, fontSize, FontStyle.Bold, GraphicsUnit.Pixel, 0);
+                    c.Font = new Font(Theme_Settings.CustomFont, fontSize, FontStyle.Bold, GraphicsUnit.Pixel, 0);
                 }
+
+                c.Font = new Font(Theme_Settings.CustomFont,c.Font.Size, c.Font.Style, GraphicsUnit.Pixel, 0);
 
             }
 
-            ForeColor = Color.FromArgb(int.Parse(mainForm.rgb_font[0]), int.Parse(mainForm.rgb_font[1]), int.Parse(mainForm.rgb_font[2]));
+            ForeColor = Theme_Settings.ControlsForeColor;
 
             ctrlr_shorcutsBtn.BackColor = Color.FromArgb(255, 31, 34, 35);
             ctrlr_shorcutsBtn.FlatAppearance.MouseOverBackColor = ctrlr_shorcutsBtn.BackColor;
             btn_Gb_Update.BackColor = Color.FromArgb(255, 31, 34, 35);
             btn_Gb_Update.FlatAppearance.MouseOverBackColor = btn_Gb_Update.BackColor;
 
-            audioBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "audio.png");
-            playersBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "players.png");
-            settingsBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "shared.png");
-            layoutBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "layout.png");
-            closeBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "title_close.png");
-            audioRefresh.BackgroundImage = ImageCache.GetImage(mainForm.theme + "refresh.png");
-            btnNext.BackgroundImage = ImageCache.GetImage(mainForm.theme + "page1.png");
-            refreshScreenDatasButton.BackgroundImage = ImageCache.GetImage(mainForm.theme + "refresh.png");
+            audioBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "audio.png");
+            playersBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "players.png");
+            settingsBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "shared.png");
+            layoutBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "layout.png");
+            closeBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close.png");
+            audioRefresh.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "refresh.png");
+            btnNext.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "page1.png");
+            refreshScreenDatasButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "refresh.png");
 
             plus1.ForeColor = ForeColor;
             plus2.ForeColor = ForeColor;
@@ -236,7 +237,7 @@ namespace Nucleus.Coop
             page1.BringToFront();
 
             btnNext.Parent = playersTab;
-            btnNext.BackColor = mainForm.buttonsBackColor;
+            btnNext.BackColor = Theme_Settings.ButtonsBackColor;
             btnNext.FlatAppearance.MouseOverBackColor = Color.Transparent;
             btnNext.Location = new Point(page1.Right - btnNext.Width, (page1.Top - btnNext.Height) - 5);
            
@@ -291,11 +292,12 @@ namespace Nucleus.Coop
             numMaxPlyrs.Value = App_Layouts.MaxPlayers;
 
             disableGameProfiles.Checked = App_Misc.DisableGameProfiles;
+            assignGpdByBtnPress.Checked = App_Misc.ProfileAssignGamepadByButonPress;
+            assignGpdByBtnPress.Visible = !disableGameProfiles.Checked;
             gamepadsAssignMethods.Checked = App_Misc.UseXinputIndex;
             gamepadsAssignMethods.Visible = !disableGameProfiles.Checked;
 
-            DevicesFunctions.UseGamepadApiIndex = gamepadsAssignMethods.Checked;
-
+            GameProfile.UseXinputIndex = gamepadsAssignMethods.Checked;
             ///network setting
             RefreshCmbNetwork();
 
@@ -327,7 +329,7 @@ namespace Nucleus.Coop
                     _path[last]
                 });
 
-                string[] themeName = mainForm.theme.Split('\\');
+                string[] themeName = Globals.ThemeFolder.Split('\\');
                 if (_path[last] != themeName[themeName.Length - 2])
                 {
                     continue;
@@ -337,7 +339,7 @@ namespace Nucleus.Coop
                 prevTheme = _path[last];
             }
 
-            ///epiclangs setting
+            ///epic lang setting
             cmb_EpicLang.SelectedItem = App_Misc.EpicLang;
 
             useNicksCheck.Checked = App_Misc.UseNicksInGame;
@@ -500,7 +502,8 @@ namespace Nucleus.Coop
    
             audioRefresh.Location = new Point((audioTab.Width / 2) - (audioRefresh.Width / 2), audioRefresh.Location.Y);
             audioWarningLabel.Location = new Point(audioTab.Width / 2 - audioWarningLabel.Width / 2, audioWarningLabel.Location.Y);
-            gamepadsAssignMethods.Location = new Point((page1.Location.X + label7.Location.X) + 2, (page1.Top - 5) - gamepadsAssignMethods.Height);
+            gamepadsAssignMethods.Location = new Point((page1.Location.X + label7.Location.X) + 2, (page1.Top) - gamepadsAssignMethods.Height* 3);
+            assignGpdByBtnPress.Location = new Point(gamepadsAssignMethods.Location.X, gamepadsAssignMethods.Bottom + 2);
             refreshScreenDatasButton.Location = new Point(mergerResSelectorLabel.Right, refreshScreenDatasButton.Location.Y);
 
             int tabButtonsY = settingsTabBtn.Location.Y - 1;
@@ -528,13 +531,18 @@ namespace Nucleus.Coop
             CustomToolTips.SetToolTip(splitDiv, "May not work for all games", "splitDiv", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
             CustomToolTips.SetToolTip(hideDesktop, "Will only show the splitscreen division window without adjusting the game windows size and offset.", "hideDesktop", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
             CustomToolTips.SetToolTip(disableGameProfiles, "Disables profiles, Nucleus will use the global settings instead.", "disableGameProfiles", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
-            CustomToolTips.SetToolTip(gamepadsAssignMethods, "Can break controller support in some handlers. If enabled profiles\n" +
-                                                             "will not save per player gamepad but use XInput indexes instead \n" +
+            CustomToolTips.SetToolTip(gamepadsAssignMethods, "Some handlers doesn't support this option and will automatically disable it. If enabled, profiles\n" +
+                                                             "will not save the gamepads hardware ids but use API indexes instead\n" +
                                                              "(switching modes could prevent some profiles to load properly).\n" +
                                                              "Note: Nucleus will return to home screen.", "gamepadsAssignMethods" , new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+
+            CustomToolTips.SetToolTip(assignGpdByBtnPress, "With this option enabled, the profile will assign gamepads based on button press,\n " +
+                                                           "rather than retrieving the previously assigned ones.\n" +
+                                                           "Note: Using this option alongside custom nicknames will streamline the setup process.", "assignGpdByBtnPress", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+           
             CustomToolTips.SetToolTip(enable_WMerger, "Game windows will be merged to a single window\n" +
                                                        "so Lossless Scaling can be used with Nucleus.\n " +
-                                                       "Note that there's no multiple monitor support yet.", "enable_WMerger", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                                                       "Note: Multiple monitor support is not yet available.", "enable_WMerger", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
 
             CustomToolTips.SetToolTip(losslessHook, "Lossless will not stop upscaling if an other window get the focus, useful\n" +
                                                     "if game windows requires real focus to receive inputs.", "losslessHook", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
@@ -726,14 +734,13 @@ namespace Nucleus.Coop
             App_Layouts.Cts_Unfocus = cts_unfocus.Checked;
             App_Layouts.WindowsMerger = enable_WMerger.Checked;
 
-            if (SetupScreenControl.Instance != null)
-            {
-                if (DevicesFunctions.UseGamepadApiIndex != gamepadsAssignMethods.Checked)
-                {
-                    DevicesFunctions.UseGamepadApiIndex = gamepadsAssignMethods.Checked;
-                    mainForm.RefreshUI(true);
-                }
+
+            if (GameProfile.UseXinputIndex != gamepadsAssignMethods.Checked)
+            {               
+                App_Misc.UseXinputIndex = gamepadsAssignMethods.Checked;               
             }
+
+            App_Misc.ProfileAssignGamepadByButonPress = assignGpdByBtnPress.Checked;
 
             if (disableGameProfiles.Checked != App_Misc.DisableGameProfiles)
             {
@@ -745,13 +752,13 @@ namespace Nucleus.Coop
             if (themeCbx.SelectedItem.ToString() != prevTheme)
             {
                 App_Misc.Theme = themeCbx.SelectedItem.ToString();
-                mainForm.restartRequired = true;
+                UI_Interface.RestartRequired = true;
                 needToRestart = true;
             }
 
-            if (mainForm.Xinput_S_Setup.Visible)
+            if (UI_Interface.Xinput_S_Setup.Visible)
             {
-                mainForm.Xinput_S_Setup.Visible = false;
+                UI_Interface.Xinput_S_Setup.Visible = false;
             }
 
             #region take a picture of the hotkeys
@@ -803,7 +810,7 @@ namespace Nucleus.Coop
             }
 
             App_Misc.SettingsLocation = Location.X + "X" + Location.Y;
-            mainForm.BringToFront();
+            UI_Interface.MainForm.BringToFront();
             Visible = false;
         }
 
@@ -929,23 +936,23 @@ namespace Nucleus.Coop
 
         private void CloseBtnPicture_MouseEnter(object sender, EventArgs e)
         {
-            closeBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "title_close_mousehover.png");
+            closeBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close_mousehover.png");
         }
 
         private void CloseBtnPicture_MouseLeave(object sender, EventArgs e)
         {
-            closeBtnPicture.BackgroundImage = ImageCache.GetImage(mainForm.theme + "title_close.png");
+            closeBtnPicture.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close.png");
         }
 
         private void Ctrlr_shorcuts_Click(object sender, EventArgs e)
         {
-            if (mainForm.Xinput_S_Setup.Visible)
+            if (UI_Interface.Xinput_S_Setup.Visible)
             {
-                mainForm.Xinput_S_Setup.BringToFront();
+                UI_Interface.Xinput_S_Setup.BringToFront();
                 return;
             }
 
-            mainForm.Xinput_S_Setup.Show();
+            UI_Interface.Xinput_S_Setup.Show();
         }
 
         private void KeepAccountsCheck_Click(object sender, EventArgs e)
@@ -1367,7 +1374,7 @@ namespace Nucleus.Coop
                 debugLogCheck.Checked = App_Misc.DebugLog;
             }
 
-            mainForm.DisableGameProfiles = disableGameProfiles.Checked;
+            Core_Interface.DisableGameProfiles = disableGameProfiles.Checked;
         }
 
         private const int WM_NCLBUTTONDOWN = 0xA1;
@@ -1412,6 +1419,26 @@ namespace Nucleus.Coop
         public void SetVisible()
         {
             Visible = true;
+        }
+
+        private void DisableGameProfiles_CheckedChanged(object sender, EventArgs e)
+        {
+            gamepadsAssignMethods.Visible = !disableGameProfiles.Checked;
+            assignGpdByBtnPress.Visible = !disableGameProfiles.Checked;
+        }
+
+        private void GamepadsAssignMethods_CheckedChanged(object sender, EventArgs e)
+        {
+            var ckb = sender as CustomCheckBox;
+            if(ckb.Checked)
+            assignGpdByBtnPress.Checked = false;
+        }
+
+        private void AssignGpdByBtnPress_CheckedChanged(object sender, EventArgs e)
+        {
+            var ckb = sender as CustomCheckBox;
+            if (ckb.Checked)
+                gamepadsAssignMethods.Checked = false;
         }
     }
 }

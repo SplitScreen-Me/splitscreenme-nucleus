@@ -1,6 +1,9 @@
 ﻿using Nucleus.Coop.Forms;
+using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Tools.UserDriveInfo;
+using SharpDX.XInput;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +15,7 @@ namespace Nucleus.Coop.Tools
     {
         public static void Search( string exeName, GenericGameInfo genericGameInfo)
         {
-            MainForm mainForm = MainForm.Instance;
+            MainForm mainForm = UI_Interface.MainForm;
 
             try
             {
@@ -25,7 +28,7 @@ namespace Nucleus.Coop.Tools
                         result = GameManager.Instance.AutoSearchGameInstallPath(genericGameInfo);
                     }
                 }
-
+     
                 using (System.Windows.Forms.OpenFileDialog open = new System.Windows.Forms.OpenFileDialog())
                 {
                     open.InitialDirectory = result;
@@ -44,6 +47,11 @@ namespace Nucleus.Coop.Tools
                     if (open.ShowDialog() == DialogResult.OK)
                     {
                         string path = open.FileName;
+
+                        if (UserDriveInfo.IsExFat(path,false))
+                        {
+                            return;
+                        }
 
                         List<GenericGameInfo> info = GameManager.Instance.GetGames(path);
 
@@ -70,7 +78,7 @@ namespace Nucleus.Coop.Tools
                                 }
                             }
 
-                            mainForm.RefreshUI(true);
+                            UI_Functions.RefreshUI(true);
                         }
                         else if (info.Count == 1)
                         {
@@ -80,7 +88,7 @@ namespace Nucleus.Coop.Tools
 
                             if (info[0].HandlerId != null && info[0].HandlerId != "")
                             {
-                                if (mainForm.gameContextMenuStrip != null && mainForm.Connected)
+                                if (mainForm.GameOptionMenu != null && mainForm.Connected)
                                 {
                                     MessageBox.Show(string.Format("The game {0} has been added!", game.Game.GameName), "Nucleus - Game added");
                                     DialogResult dialogResult = System.Windows.Forms.MessageBox.Show("Do you want to download game cover and screenshots?", "Download game assets?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -92,7 +100,7 @@ namespace Nucleus.Coop.Tools
                                 }
                             }
 
-                            mainForm.RefreshUI(true);
+                            UI_Functions.RefreshUI(true);
                         }
                         else
                         {

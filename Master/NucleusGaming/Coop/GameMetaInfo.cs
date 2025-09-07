@@ -1,20 +1,37 @@
-﻿using Newtonsoft.Json;
+﻿using Jint.Native;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Nucleus.Gaming.App.Settings;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Coop
 {
     public class GameMetaInfo
     {
         private readonly string nucleusEnvironment = $@"{Globals.UserEnvironmentRoot}\NucleusCoop";
-        private readonly string metaInfoJson = "metaInfo.json";
-        private string guid;
+#if DEBUG
+ private readonly string metaInfoJson = "metaInfo_DEBUG.json";
+#else
+ private readonly string metaInfoJson = "metaInfo.json";
+#endif
+
+
+        private ulong intervale = 20000;//milliseconds
+        private bool stopped;
+
+        private GenericGameInfo gen;
+        private string gameGuid;
 
         private string lastPlayedAt;
         public string LastPlayedAt => GetLastPlayed();
+
+        public string LastPlayedAtFull => GetLastPlayedFull();
 
         private string totalPlayTime;
         public string TotalPlayTime => FormatPlayTime();
@@ -36,7 +53,7 @@ namespace Nucleus.Gaming.Coop
             get => saveProfile;
             set
             {
-                saveProfile = value;
+                saveProfile = value;         
                 SaveGameMetaInfo();
             }
         }
@@ -96,11 +113,62 @@ namespace Nucleus.Gaming.Coop
             }
         }
 
-        public void LoadGameMetaInfo(string gameGuid)
+        private bool useApiIndex;
+        public bool UseApiIndex
+        {
+            get => useApiIndex;
+            set
+            {
+                useApiIndex = value;
+                useApiIndexForGuests = value;
+
+                SaveGameMetaInfo();
+            }
+        }
+
+        private bool useApiIndexForGuests;
+        public bool UseApiIndexForGuests
+        {
+            get => useApiIndexForGuests;
+            set
+            {
+                useApiIndexForGuests = value;
+                if (gen.PlayersPerInstance > 0)
+                {
+                    SaveGameMetaInfo();
+                }
+            }
+        }
+
+        private bool profileAssignGamepadByButonPress;
+        public bool ProfileAssignGamepadByButonPress
+        {
+            get => profileAssignGamepadByButonPress;
+            set
+            {
+                profileAssignGamepadByButonPress = value;
+                SaveGameMetaInfo();
+            }
+        }
+
+        private string steamLanguage;
+        public string SteamLanguage
+        {
+            get => steamLanguage;
+            set
+            {
+                steamLanguage = value;
+                SaveGameMetaInfo();
+            }
+        }
+
+        public void LoadGameMetaInfo(GenericGameInfo genericGameInfo)
         {
             try
             {
-                guid = gameGuid;
+                gen = genericGameInfo;
+
+                gameGuid = genericGameInfo.GUID;
 
                 string path = $"{nucleusEnvironment}\\{metaInfoJson}";
 
@@ -123,6 +191,10 @@ namespace Nucleus.Gaming.Coop
                         favorite = JMetaInfo[gameGuid]["Favorite"] != null && (bool)JMetaInfo[gameGuid]["Favorite"];
                         firstLaunch = JMetaInfo[gameGuid]["FirstLaunch"] == null || (bool)JMetaInfo[gameGuid]["FirstLaunch"];
                         checkUpdate = JMetaInfo[gameGuid]["CheckUpdate"] == null || (bool)JMetaInfo[gameGuid]["CheckUpdate"];
+                        useApiIndex = JMetaInfo[gameGuid]["UseApiIndex"] == null ? App_Misc.UseXinputIndex : (bool)JMetaInfo[gameGuid]["UseApiIndex"];                       
+                        useApiIndexForGuests = JMetaInfo[gameGuid]["UseApiIndexForGuests"] == null ? useApiIndex : (bool)JMetaInfo[gameGuid]["UseApiIndexForGuests"];
+                        profileAssignGamepadByButonPress = JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"] == null ? App_Misc.ProfileAssignGamepadByButonPress : (bool)JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"];
+                        steamLanguage = (string)JMetaInfo[gameGuid]["SteamLanguage"] ?? "App Setting";
                         return;
                     }
 
@@ -135,8 +207,13 @@ namespace Nucleus.Gaming.Coop
                     favorite = false;
                     firstLaunch = true;
                     checkUpdate = true;
-
+                    useApiIndex = App_Misc.UseXinputIndex;
+                    useApiIndexForGuests = useApiIndex;
+                    profileAssignGamepadByButonPress = App_Misc.ProfileAssignGamepadByButonPress;
+                    steamLanguage = "App Setting";
                 }
+
+                SaveGameMetaInfo();
             }
             catch 
             {
@@ -163,24 +240,28 @@ namespace Nucleus.Gaming.Coop
 
                     JMetaInfo = (JObject)JsonConvert.DeserializeObject(jsonString);
 
-                    bool hasMetaInfo = JMetaInfo[guid] != null;
+                    bool hasMetaInfo = JMetaInfo[gameGuid] != null;
 
                     if (hasMetaInfo)
                     {
-                        JMetaInfo[guid]["TotalPlayTime"] = totalPlayTime;
-                        JMetaInfo[guid]["LastPlayedAt"] = lastPlayedAt;
-                        JMetaInfo[guid]["IconPath"] = iconPath;
-                        JMetaInfo[guid]["SaveProfile"] = saveProfile;
-                        JMetaInfo[guid]["DisableProfiles"] = disableProfiles;
-                        JMetaInfo[guid]["KeepSymLink"] = keepSymLink;
-                        JMetaInfo[guid]["Favorite"] = favorite;
-                        JMetaInfo[guid]["FirstLaunch"] = firstLaunch;
-                        JMetaInfo[guid]["CheckUpdate"] = checkUpdate;
+                        JMetaInfo[gameGuid]["TotalPlayTime"] = totalPlayTime;
+                        JMetaInfo[gameGuid]["LastPlayedAt"] = lastPlayedAt;
+                        JMetaInfo[gameGuid]["IconPath"] = iconPath;
+                        JMetaInfo[gameGuid]["SaveProfile"] = saveProfile;
+                        JMetaInfo[gameGuid]["DisableProfiles"] = disableProfiles;
+                        JMetaInfo[gameGuid]["KeepSymLink"] = keepSymLink;
+                        JMetaInfo[gameGuid]["Favorite"] = favorite;
+                        JMetaInfo[gameGuid]["FirstLaunch"] = firstLaunch;
+                        JMetaInfo[gameGuid]["CheckUpdate"] = checkUpdate;
+                        JMetaInfo[gameGuid]["UseApiIndex"] = useApiIndex;
+                        JMetaInfo[gameGuid]["UseApiIndexForGuests"] = useApiIndexForGuests;
+                        JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"] = profileAssignGamepadByButonPress;
+                        JMetaInfo[gameGuid]["SteamLanguage"] = steamLanguage;
                     }
                     else
                     {
                         //new game metaInfo
-                        JProperty gameMeta = new JProperty(guid, new JObject(new JProperty("TotalPlayTime", totalPlayTime),
+                        JProperty gameMeta = new JProperty(gameGuid, new JObject(new JProperty("TotalPlayTime", totalPlayTime),
                                                             new JProperty("LastPlayedAt", lastPlayedAt),
                                                             new JProperty("IconPath", iconPath),
                                                             new JProperty("SaveProfile", saveProfile),
@@ -188,7 +269,11 @@ namespace Nucleus.Gaming.Coop
                                                             new JProperty("KeepSymLink", keepSymLink),
                                                             new JProperty("Favorite", favorite),
                                                             new JProperty("FirstLaunch", firstLaunch),
-                                                            new JProperty("CheckUpdate", checkUpdate)
+                                                            new JProperty("CheckUpdate", checkUpdate),
+                                                            new JProperty("UseApiIndex", useApiIndex),
+                                                            new JProperty("UseApiIndexForGuests", useApiIndexForGuests),
+                                                            new JProperty("ProfileAssignGamepadByButonPress", profileAssignGamepadByButonPress),
+                                                            new JProperty("SteamLanguage", steamLanguage)
                                                             ));
                         JMetaInfo.Add(gameMeta);
                     }
@@ -203,13 +288,14 @@ namespace Nucleus.Gaming.Coop
                                                    new JProperty("KeepSymLink", keepSymLink),
                                                    new JProperty("Favorite", favorite),
                                                    new JProperty("FirstLaunch", firstLaunch),
-                                                   new JProperty("CheckUpdate", checkUpdate)
+                                                   new JProperty("CheckUpdate", checkUpdate),
+                                                   new JProperty("UseApiIndex", useApiIndex),
+                                                   new JProperty("UseApiIndexForGuests", useApiIndexForGuests),
+                                                   new JProperty("ProfileAssignGamepadByButonPress", profileAssignGamepadByButonPress),
+                                                   new JProperty("SteamLanguage", steamLanguage)
                                                    );
 
-                    JMetaInfo = new JObject
-                    (
-                       new JProperty(guid, gameMeta)
-                    );
+                    JMetaInfo = new JObject(new JProperty(gameGuid, gameMeta));
                 }
 
                 using (FileStream stream = new FileStream(path, FileMode.Create))
@@ -255,12 +341,19 @@ namespace Nucleus.Gaming.Coop
                 return "...";
             }
 
-            return lastPlayedAt.Split(' ')[0];//dispaly the date only
+            return lastPlayedAt.Split(' ')[0];//display the date only
         }
 
-        private ulong intervale = 20000;//mmilliseconds
+        private string GetLastPlayedFull()
+        {
+            if (lastPlayedAt == null)
+            {
+                return "...";
+            }
 
-        private bool stopped;
+            return lastPlayedAt;//returns the full datetime
+        }
+
 
         public void StopGameplayTimerThread()
         {

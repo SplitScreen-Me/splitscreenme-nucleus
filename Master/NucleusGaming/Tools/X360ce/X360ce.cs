@@ -148,24 +148,24 @@ namespace Nucleus.Gaming.Tools.X360ce
                 {
                     for (int x = 1; x <= handlerInstance.CurrentGameInfo.PlayersPerInstance; x++)
                     {
-                        textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "PAD" + x + "=", SearchType.StartsWith) + "|PAD" + x + "=IG_" + players[x].GamepadGuid.ToString().Replace("-", string.Empty));
+                        textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "PAD" + x + "=", SearchType.StartsWith) + "|PAD" + x + "=IG_" + players[x].GamepadGuid.ToString().Replace("-", string.Empty));
                     }
                     for (int x = handlerInstance.CurrentGameInfo.PlayersPerInstance + 1; x <= 4; x++)
                     {
-                        textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "PAD" + x + "=", SearchType.StartsWith) + "|PAD" + x + "=IG_" + players[x].GamepadGuid.ToString().Replace("-", string.Empty));
+                        textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "PAD" + x + "=", SearchType.StartsWith) + "|PAD" + x + "=IG_" + players[x].GamepadGuid.ToString().Replace("-", string.Empty));
                     }
 
                     handlerInstance.plyrIndex += handlerInstance.CurrentGameInfo.PlayersPerInstance;
                 }
                 else
                 {
-                    textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "PAD1=", SearchType.StartsWith) + "|PAD1=" + handlerInstance.context.x360ceGamepadGuid);
-                    textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "PAD2=", SearchType.StartsWith) + "|PAD2=");
-                    textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "PAD3=", SearchType.StartsWith) + "|PAD3=");
-                    textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "PAD4=", SearchType.StartsWith) + "|PAD4=");
+                    textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "PAD1=", SearchType.StartsWith) + "|PAD1=" + handlerInstance.Context.x360ceGamepadGuid);
+                    textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "PAD2=", SearchType.StartsWith) + "|PAD2=");
+                    textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "PAD3=", SearchType.StartsWith) + "|PAD3=");
+                    textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "PAD4=", SearchType.StartsWith) + "|PAD4=");
                 }
 
-                handlerInstance.context.ReplaceLinesInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), textChanges.ToArray());
+                handlerInstance.Context.ReplaceLinesInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), textChanges.ToArray());
             }
 
             if (handlerInstance.CurrentGameInfo.XboxOneControllerFix)
@@ -174,7 +174,7 @@ namespace Nucleus.Gaming.Tools.X360ce
                 handlerInstance.Log("Implementing Xbox One controller fix");
 
                 textChanges.Clear();
-                textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "HookMode=1", SearchType.Full) + "|" +
+                textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "HookMode=1", SearchType.Full) + "|" +
                     "HookLL=0\n" +
                     "HookCOM=1\n" +
                     "HookSA=0\n" +
@@ -185,7 +185,7 @@ namespace Nucleus.Gaming.Tools.X360ce
                     "HookMode=0\n"
                 );
 
-                handlerInstance.context.ReplaceLinesInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), textChanges.ToArray());
+                handlerInstance.Context.ReplaceLinesInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), textChanges.ToArray());
             }
 
             if (File.Exists(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini")) && !handlerInstance.CurrentGameInfo.SymlinkGame && !handlerInstance.CurrentGameInfo.HardlinkGame && !handlerInstance.CurrentGameInfo.HardcopyGame)

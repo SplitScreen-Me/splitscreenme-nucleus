@@ -91,9 +91,9 @@ namespace Nucleus.Coop.Forms
             this.reminderPict = new System.Windows.Forms.PictureBox();
             this.shortcutReminderLabel = new System.Windows.Forms.Label();
             this.ShortcutsReminderContainer = new System.Windows.Forms.GroupBox();
-            this.gamepadTopFront = new BufferedClientAreaPanel();
             this.radioButtonXbox = new Nucleus.Coop.Controls.CustomRadio();
             this.radioButtonPs = new Nucleus.Coop.Controls.CustomRadio();
+            this.gamepadTopFront = new DoubleBufferPanel();
             this.enabled_chk = new Nucleus.Coop.Controls.CustomCheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.slave7)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.slave6)).BeginInit();
@@ -396,11 +396,15 @@ namespace Nucleus.Coop.Forms
             this.shortContainer.Controls.Add(this.plus9);
             this.shortContainer.Controls.Add(this.slave9);
             this.shortContainer.Controls.Add(this.label_9);
+            this.shortContainer.Controls.Add(this.switch10);
             this.shortContainer.Controls.Add(this.switch8);
+            this.shortContainer.Controls.Add(this.plus10);
             this.shortContainer.Controls.Add(this.plus8);
             this.shortContainer.Controls.Add(this.slave8);
+            this.shortContainer.Controls.Add(this.slave10);
             this.shortContainer.Controls.Add(this.switch2);
             this.shortContainer.Controls.Add(this.switch7);
+            this.shortContainer.Controls.Add(this.label_10);
             this.shortContainer.Controls.Add(this.switch6);
             this.shortContainer.Controls.Add(this.switch3);
             this.shortContainer.Controls.Add(this.switch4);
@@ -432,7 +436,7 @@ namespace Nucleus.Coop.Forms
             this.shortContainer.ForeColor = System.Drawing.Color.White;
             this.shortContainer.Location = new System.Drawing.Point(240, 5);
             this.shortContainer.Name = "shortContainer";
-            this.shortContainer.Size = new System.Drawing.Size(208, 368);
+            this.shortContainer.Size = new System.Drawing.Size(208, 404);
             this.shortContainer.TabIndex = 89;
             this.shortContainer.TabStop = false;
             this.shortContainer.Text = "Shortcuts";
@@ -588,12 +592,8 @@ namespace Nucleus.Coop.Forms
             this.UINavContainer.Controls.Add(this.plus11);
             this.UINavContainer.Controls.Add(this.slave11);
             this.UINavContainer.Controls.Add(this.label_11);
-            this.UINavContainer.Controls.Add(this.switch10);
-            this.UINavContainer.Controls.Add(this.plus10);
             this.UINavContainer.Controls.Add(this.label_15);
-            this.UINavContainer.Controls.Add(this.slave10);
             this.UINavContainer.Controls.Add(this.switch15);
-            this.UINavContainer.Controls.Add(this.label_10);
             this.UINavContainer.Controls.Add(this.label_14);
             this.UINavContainer.Controls.Add(this.switch14);
             this.UINavContainer.Controls.Add(this.label_13);
@@ -602,9 +602,9 @@ namespace Nucleus.Coop.Forms
             this.UINavContainer.Controls.Add(this.switch12);
             this.UINavContainer.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel, ((byte)(0)));
             this.UINavContainer.ForeColor = System.Drawing.Color.White;
-            this.UINavContainer.Location = new System.Drawing.Point(12, 139);
+            this.UINavContainer.Location = new System.Drawing.Point(12, 105);
             this.UINavContainer.Name = "UINavContainer";
-            this.UINavContainer.Size = new System.Drawing.Size(211, 234);
+            this.UINavContainer.Size = new System.Drawing.Size(211, 209);
             this.UINavContainer.TabIndex = 90;
             this.UINavContainer.TabStop = false;
             this.UINavContainer.Text = "UI Navigation Settings";
@@ -612,7 +612,7 @@ namespace Nucleus.Coop.Forms
             // switch11
             // 
             this.switch11.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.switch11.Location = new System.Drawing.Point(101, 54);
+            this.switch11.Location = new System.Drawing.Point(101, 23);
             this.switch11.Margin = new System.Windows.Forms.Padding(0);
             this.switch11.Name = "switch11";
             this.switch11.Size = new System.Drawing.Size(35, 35);
@@ -623,7 +623,7 @@ namespace Nucleus.Coop.Forms
             // 
             this.plus11.AutoSize = true;
             this.plus11.ForeColor = System.Drawing.Color.White;
-            this.plus11.Location = new System.Drawing.Point(142, 64);
+            this.plus11.Location = new System.Drawing.Point(142, 33);
             this.plus11.Margin = new System.Windows.Forms.Padding(0);
             this.plus11.Name = "plus11";
             this.plus11.Size = new System.Drawing.Size(14, 15);
@@ -633,7 +633,7 @@ namespace Nucleus.Coop.Forms
             // 
             // slave11
             // 
-            this.slave11.Location = new System.Drawing.Point(162, 54);
+            this.slave11.Location = new System.Drawing.Point(162, 23);
             this.slave11.Margin = new System.Windows.Forms.Padding(0);
             this.slave11.Name = "slave11";
             this.slave11.Size = new System.Drawing.Size(35, 35);
@@ -643,7 +643,7 @@ namespace Nucleus.Coop.Forms
             // label_11
             // 
             this.label_11.AutoSize = true;
-            this.label_11.Location = new System.Drawing.Point(10, 64);
+            this.label_11.Location = new System.Drawing.Point(10, 33);
             this.label_11.Margin = new System.Windows.Forms.Padding(0);
             this.label_11.Name = "label_11";
             this.label_11.Size = new System.Drawing.Size(85, 15);
@@ -654,7 +654,7 @@ namespace Nucleus.Coop.Forms
             // switch10
             // 
             this.switch10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F);
-            this.switch10.Location = new System.Drawing.Point(101, 16);
+            this.switch10.Location = new System.Drawing.Point(99, 359);
             this.switch10.Margin = new System.Windows.Forms.Padding(0);
             this.switch10.Name = "switch10";
             this.switch10.Size = new System.Drawing.Size(35, 35);
@@ -665,7 +665,7 @@ namespace Nucleus.Coop.Forms
             // 
             this.plus10.AutoSize = true;
             this.plus10.ForeColor = System.Drawing.Color.White;
-            this.plus10.Location = new System.Drawing.Point(142, 26);
+            this.plus10.Location = new System.Drawing.Point(139, 369);
             this.plus10.Margin = new System.Windows.Forms.Padding(0);
             this.plus10.Name = "plus10";
             this.plus10.Size = new System.Drawing.Size(14, 15);
@@ -676,7 +676,7 @@ namespace Nucleus.Coop.Forms
             // label_15
             // 
             this.label_15.AutoSize = true;
-            this.label_15.Location = new System.Drawing.Point(27, 209);
+            this.label_15.Location = new System.Drawing.Point(27, 178);
             this.label_15.Margin = new System.Windows.Forms.Padding(0);
             this.label_15.Name = "label_15";
             this.label_15.Size = new System.Drawing.Size(67, 15);
@@ -686,7 +686,7 @@ namespace Nucleus.Coop.Forms
             // 
             // slave10
             // 
-            this.slave10.Location = new System.Drawing.Point(162, 16);
+            this.slave10.Location = new System.Drawing.Point(158, 359);
             this.slave10.Margin = new System.Windows.Forms.Padding(0);
             this.slave10.Name = "slave10";
             this.slave10.Size = new System.Drawing.Size(35, 35);
@@ -697,7 +697,7 @@ namespace Nucleus.Coop.Forms
             // 
             this.switch15.BackColor = System.Drawing.Color.Black;
             this.switch15.ForeColor = System.Drawing.Color.White;
-            this.switch15.Location = new System.Drawing.Point(101, 207);
+            this.switch15.Location = new System.Drawing.Point(101, 176);
             this.switch15.Margin = new System.Windows.Forms.Padding(0);
             this.switch15.MaxLength = 5;
             this.switch15.Name = "switch15";
@@ -707,7 +707,7 @@ namespace Nucleus.Coop.Forms
             // label_10
             // 
             this.label_10.AutoSize = true;
-            this.label_10.Location = new System.Drawing.Point(3, 22);
+            this.label_10.Location = new System.Drawing.Point(0, 365);
             this.label_10.Margin = new System.Windows.Forms.Padding(0);
             this.label_10.Name = "label_10";
             this.label_10.Size = new System.Drawing.Size(93, 15);
@@ -718,7 +718,7 @@ namespace Nucleus.Coop.Forms
             // label_14
             // 
             this.label_14.AutoSize = true;
-            this.label_14.Location = new System.Drawing.Point(36, 179);
+            this.label_14.Location = new System.Drawing.Point(36, 148);
             this.label_14.Margin = new System.Windows.Forms.Padding(0);
             this.label_14.Name = "label_14";
             this.label_14.Size = new System.Drawing.Size(59, 15);
@@ -728,7 +728,7 @@ namespace Nucleus.Coop.Forms
             // 
             // switch14
             // 
-            this.switch14.Location = new System.Drawing.Point(101, 167);
+            this.switch14.Location = new System.Drawing.Point(101, 136);
             this.switch14.Margin = new System.Windows.Forms.Padding(0);
             this.switch14.Name = "switch14";
             this.switch14.Size = new System.Drawing.Size(35, 35);
@@ -738,7 +738,7 @@ namespace Nucleus.Coop.Forms
             // label_13
             // 
             this.label_13.AutoSize = true;
-            this.label_13.Location = new System.Drawing.Point(27, 142);
+            this.label_13.Location = new System.Drawing.Point(27, 111);
             this.label_13.Margin = new System.Windows.Forms.Padding(0);
             this.label_13.Name = "label_13";
             this.label_13.Size = new System.Drawing.Size(68, 15);
@@ -748,7 +748,7 @@ namespace Nucleus.Coop.Forms
             // 
             // switch13
             // 
-            this.switch13.Location = new System.Drawing.Point(101, 130);
+            this.switch13.Location = new System.Drawing.Point(101, 99);
             this.switch13.Margin = new System.Windows.Forms.Padding(0);
             this.switch13.Name = "switch13";
             this.switch13.Size = new System.Drawing.Size(35, 35);
@@ -758,7 +758,7 @@ namespace Nucleus.Coop.Forms
             // label_12
             // 
             this.label_12.AutoSize = true;
-            this.label_12.Location = new System.Drawing.Point(5, 103);
+            this.label_12.Location = new System.Drawing.Point(5, 72);
             this.label_12.Margin = new System.Windows.Forms.Padding(0);
             this.label_12.Name = "label_12";
             this.label_12.Size = new System.Drawing.Size(91, 15);
@@ -768,7 +768,7 @@ namespace Nucleus.Coop.Forms
             // 
             // switch12
             // 
-            this.switch12.Location = new System.Drawing.Point(101, 92);
+            this.switch12.Location = new System.Drawing.Point(101, 61);
             this.switch12.Margin = new System.Windows.Forms.Padding(0);
             this.switch12.Name = "switch12";
             this.switch12.Size = new System.Drawing.Size(35, 35);
@@ -839,16 +839,6 @@ namespace Nucleus.Coop.Forms
             this.ShortcutsReminderContainer.TabStop = false;
             this.ShortcutsReminderContainer.Text = "Reminder";
             // 
-            // gamepadTopFront
-            // 
-            this.gamepadTopFront.BackColor = System.Drawing.Color.Transparent;
-            this.gamepadTopFront.Location = new System.Drawing.Point(454, 75);
-            this.gamepadTopFront.Name = "gamepadTopFront";
-            this.gamepadTopFront.Size = new System.Drawing.Size(228, 229);
-            this.gamepadTopFront.TabIndex = 93;
-            this.gamepadTopFront.Paint += new System.Windows.Forms.PaintEventHandler(this.GamepadTopFront_Paint);
-            this.gamepadTopFront.MouseDown += new System.Windows.Forms.MouseEventHandler(this.GamepadTopFront_MouseDown);
-            // 
             // radioButtonXbox
             // 
             this.radioButtonXbox.AutoSize = true;
@@ -887,6 +877,16 @@ namespace Nucleus.Coop.Forms
             this.radioButtonPs.UseVisualStyleBackColor = false;
             this.radioButtonPs.CheckedChanged += new System.EventHandler(this.RadioButtonPs_CheckedChanged);
             // 
+            // gamepadTopFront
+            // 
+            this.gamepadTopFront.BackColor = System.Drawing.Color.Transparent;
+            this.gamepadTopFront.Location = new System.Drawing.Point(454, 75);
+            this.gamepadTopFront.Name = "gamepadTopFront";
+            this.gamepadTopFront.Size = new System.Drawing.Size(228, 229);
+            this.gamepadTopFront.TabIndex = 93;
+            this.gamepadTopFront.Paint += new System.Windows.Forms.PaintEventHandler(this.GamepadTopFront_Paint);
+            this.gamepadTopFront.MouseDown += new System.Windows.Forms.MouseEventHandler(this.GamepadTopFront_MouseDown);
+            // 
             // enabled_chk
             // 
             this.enabled_chk.AutoSize = true;
@@ -904,6 +904,7 @@ namespace Nucleus.Coop.Forms
             this.enabled_chk.TabIndex = 92;
             this.enabled_chk.Text = "Enable Gamepad UI Navigation";
             this.enabled_chk.UseVisualStyleBackColor = false;
+            this.enabled_chk.Visible = false;
             this.enabled_chk.CheckedChanged += new System.EventHandler(this.Enabled_chk_CheckedChanged);
             // 
             // XInputShortcutsSetup
@@ -911,21 +912,23 @@ namespace Nucleus.Coop.Forms
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.ClientSize = new System.Drawing.Size(693, 381);
+            this.ClientSize = new System.Drawing.Size(693, 421);
             this.Controls.Add(this.ShortcutsReminderContainer);
             this.Controls.Add(this.warning);
             this.Controls.Add(this.groupBoxType);
             this.Controls.Add(this.Close);
             this.Controls.Add(this.gamepadTopFront);
-            this.Controls.Add(this.enabled_chk);
             this.Controls.Add(this.UINavContainer);
             this.Controls.Add(this.shortContainer);
+            this.Controls.Add(this.enabled_chk);
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "XInputShortcutsSetup";
+            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Gamepad Shortcuts Setup";
+            this.TopMost = true;
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.XInputShortcutsSetup_MouseDown);
             ((System.ComponentModel.ISupportInitialize)(this.slave7)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.slave6)).EndInit();
@@ -1024,7 +1027,7 @@ namespace Nucleus.Coop.Forms
         private System.Windows.Forms.Label plus11;
         private System.Windows.Forms.PictureBox slave11;
         private System.Windows.Forms.Label label_11;
-        private BufferedClientAreaPanel gamepadTopFront;
+        private DoubleBufferPanel gamepadTopFront;
         private CustomRadio radioButtonXbox;
         private CustomRadio radioButtonPs;
         private System.Windows.Forms.GroupBox groupBoxType;

@@ -1,4 +1,6 @@
-﻿using Nucleus.Gaming;
+﻿using Nucleus.Coop.Tools;
+using Nucleus.Coop.UI;
+using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.UI;
 using Nucleus.Gaming.Windows.Interop;
@@ -14,7 +16,7 @@ using System.Windows.Forms;
 
 namespace Nucleus.Coop
 {
-    public partial class SearchDisksForm : BaseForm, IDynamicSized
+    public partial class SearchDisksForm : Form, IDynamicSized
     {
         public struct SearchDriveInfo
         {
@@ -84,31 +86,31 @@ namespace Nucleus.Coop
             default_Cursor = Theme_Settings.Default_Cursor;
             hand_Cursor = Theme_Settings.Hand_Cursor;
 
-            fontSize = float.Parse(mainForm.themeIni.IniReadValue("Font", "AutoSearchFontSize"));
-            ForeColor = Color.FromArgb(int.Parse(mainForm.rgb_font[0]), int.Parse(mainForm.rgb_font[1]), int.Parse(mainForm.rgb_font[2]));
+            fontSize = float.Parse(Globals.ThemeConfigFile.IniReadValue("Font", "AutoSearchFontSize"));
+            ForeColor = Theme_Settings.ControlsForeColor;
 
             BackgroundImage = Image.FromFile(Globals.ThemeFolder + "other_backgrounds.jpg");
-            closeBtn.BackgroundImage = ImageCache.GetImage(mainForm.theme + "title_close.png");
+            closeBtn.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close.png");
 
-            btn_addSelection.BackColor = mainForm.buttonsBackColor;
-            btn_customPath.BackColor = mainForm.buttonsBackColor;
-            btnSearch.BackColor = mainForm.buttonsBackColor;
-            btn_delPath.BackColor = mainForm.buttonsBackColor;
-            btn_selectAll.BackColor = mainForm.buttonsBackColor;
-            btn_deselectAll.BackColor = mainForm.buttonsBackColor;
+            btn_addSelection.BackColor = Theme_Settings.ButtonsBackColor;
+            btn_customPath.BackColor = Theme_Settings.ButtonsBackColor;
+            btnSearch.BackColor = Theme_Settings.ButtonsBackColor;
+            btn_delPath.BackColor = Theme_Settings.ButtonsBackColor;
+            btn_selectAll.BackColor = Theme_Settings.ButtonsBackColor;
+            btn_deselectAll.BackColor = Theme_Settings.ButtonsBackColor;
 
-            btn_addSelection.FlatAppearance.MouseOverBackColor = mainForm.MouseOverBackColor;
-            btn_customPath.FlatAppearance.MouseOverBackColor = mainForm.MouseOverBackColor;
-            btnSearch.FlatAppearance.MouseOverBackColor = mainForm.MouseOverBackColor;
-            btn_delPath.FlatAppearance.MouseOverBackColor = mainForm.MouseOverBackColor;
-            btn_selectAll.FlatAppearance.MouseOverBackColor = mainForm.MouseOverBackColor;
-            btn_deselectAll.FlatAppearance.MouseOverBackColor = mainForm.MouseOverBackColor;
+            btn_addSelection.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
+            btn_customPath.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
+            btnSearch.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
+            btn_delPath.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
+            btn_selectAll.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
+            btn_deselectAll.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
 
             controlscollect();
 
             foreach (Control control in ctrls)
             {
-                control.Font = new Font(mainForm.customFont, fontSize, FontStyle.Regular, GraphicsUnit.Pixel, 0);
+                control.Font = new Font(Theme_Settings.CustomFont, fontSize, FontStyle.Regular, GraphicsUnit.Pixel, 0);
 
                 if (control.Name != "panel1")
                 {
@@ -151,14 +153,14 @@ namespace Nucleus.Coop
             }
             else
             {
-                CenterToScreen();
+                //CenterToScreen();
             }
 
             DPIManager.Register(this);
             DPIManager.Update(this);
         }
 
-        public new void UpdateSize(float scale)
+        public void UpdateSize(float scale)
         {
             if (IsDisposed)
             {
@@ -200,12 +202,12 @@ namespace Nucleus.Coop
             {
                 if (c.GetType() == typeof(CheckedListBox))
                 {
-                    c.Font = new Font(mainForm.customFont, c.Font.Size, FontStyle.Regular, GraphicsUnit.Point, 0);
+                    c.Font = new Font(Theme_Settings.CustomFont, c.Font.Size, FontStyle.Regular, GraphicsUnit.Point, 0);
                 }
 
                 if (c.GetType() == typeof(TextBox))
                 {
-                    c.Font = new Font(mainForm.customFont, textBoxFontSize, FontStyle.Regular, GraphicsUnit.Point, 0);
+                    c.Font = new Font(Theme_Settings.CustomFont, textBoxFontSize, FontStyle.Regular, GraphicsUnit.Point, 0);
                 }
             }
 
@@ -619,7 +621,7 @@ namespace Nucleus.Coop
                 }
 
                 MessageBox.Show(string.Format("{0}/{1} selected games added!", numAdded, checkboxFoundGames.CheckedItems.Count), "Games added");
-                mainForm.RefreshGames();
+                SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
             }
 
             btnSearch.Enabled = true;
@@ -695,12 +697,12 @@ namespace Nucleus.Coop
 
         private void closeBtn_MouseEnter(object sender, EventArgs e)
         {
-            closeBtn.BackgroundImage = ImageCache.GetImage(mainForm.theme + "title_close_mousehover.png");
+            closeBtn.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close_mousehover.png");
         }
 
         private void closeBtn_MouseLeave(object sender, EventArgs e)
         {
-            closeBtn.BackgroundImage = ImageCache.GetImage(mainForm.theme + "title_close.png");
+            closeBtn.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close.png");
         }
 
         private const int WM_NCLBUTTONDOWN = 0xA1;

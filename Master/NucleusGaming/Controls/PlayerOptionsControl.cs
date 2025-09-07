@@ -1,6 +1,7 @@
 ﻿using Nucleus.Gaming;
 using Nucleus.Gaming.Controls;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.UI;
 using SplitTool.Controls;
 using System;
 using System.Collections;
@@ -18,7 +19,7 @@ namespace Nucleus.Coop
         public override bool CanProceed => true;
         public override bool CanPlay => true;
         private float _scale;
-        public override string Title => "Player Options";
+        public override string Title => "Options";
         private Dictionary<string, object> vals;
 
         public PlayerOptionsControl()
@@ -43,6 +44,8 @@ namespace Nucleus.Coop
                 Size = Size,
                 AutoScroll = true,
             };
+
+            list.Cursor = Theme_Settings.Default_Cursor;
 
             List<GameOption> options = game.Game.Options;
             vals = profile.Options;
@@ -120,6 +123,8 @@ namespace Nucleus.Coop
                     box.Top = (cool.Height / 2) - (box.Height / 2);
                     box.Anchor = AnchorStyles.Right;
                     box.DropDownStyle = ComboBoxStyle.DropDownList;
+                    box.Cursor = Theme_Settings.Hand_Cursor;
+
                     cool.Controls.Add(box);
 
                     box.Tag = opt;
@@ -141,6 +146,8 @@ namespace Nucleus.Coop
                     box.Left = cool.Width - box.Width - border;
                     box.Top = (cool.Height / 2) - (box.Height / 2);
                     box.Anchor = AnchorStyles.Right;
+                    box.Cursor = Theme_Settings.Hand_Cursor;
+
                     cool.Controls.Add(box);
 
                     box.Tag = opt;
@@ -168,6 +175,8 @@ namespace Nucleus.Coop
                     num.Left = cool.Width - num.Width - border;
                     num.Top = (cool.Height / 2) - (num.Height / 2);
                     num.Anchor = AnchorStyles.Right;
+                    num.Cursor = Theme_Settings.Hand_Cursor;
+
                     cool.Controls.Add(num);
 
                     num.Tag = opt;
@@ -199,6 +208,7 @@ namespace Nucleus.Coop
                     box.Left = cool.Width - box.Width - border;
                     box.Top = (cool.Height / 2) - (box.Height / 2);
                     box.Anchor = AnchorStyles.Right;
+                    box.Cursor = Theme_Settings.Hand_Cursor;
 
                     cool.Controls.Add(box);
 
@@ -222,6 +232,7 @@ namespace Nucleus.Coop
                     box.Top = (cool.Height / 2) - (box.Height / 2);
                     box.Anchor = AnchorStyles.Right;
                     box.WordWrap = true;
+                    box.Cursor = Theme_Settings.Hand_Cursor;
 
                     cool.Controls.Add(box);
                     box.Tag = opt;
@@ -248,7 +259,7 @@ namespace Nucleus.Coop
         private void box_TextChanged(object sender, EventArgs e)
         {
             TextBox box = (TextBox)sender;
-            ///Cache custom user values in case of user going back to "player setup screen" 
+            ///Cache custom user values in case of user going back to "setup screen" 
             ///so they are automatically re-added when coming back to options screen,
             ///reseted if an other game is selected.
             GameOption cast = box.Tag as GameOption;
