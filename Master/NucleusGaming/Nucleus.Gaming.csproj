@@ -248,6 +248,7 @@
     <Compile Include="Coop\InputManagement\Gamepads\GamepadShortcuts.cs" />
     <Compile Include="Coop\InputManagement\RawInputDeviceName.cs" />
     <Compile Include="Coop\GameMetaInfo.cs" />
+    <Compile Include="Coop\ProtoInput\ProtoInputEnumsOptions.cs" />
     <Compile Include="DPI\ThreadDPIContext.cs" />
     <Compile Include="Forms\NucleusMessageBox\CustomMessageBox.cs">
       <SubType>Form</SubType>

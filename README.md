@@ -23,7 +23,7 @@ This repo is a new and improved official version of the Nucleus Co-op applicatio
 - New player and input order processing.
 - New player nickname assignation.
 - New optional splitscreen divisions setting (visually similar to native splitscreen games).
-- Massive increase to the amount of compatible games, 650+ as of now.
+- Massive increase to the amount of compatible games, 750+ as of now.
 - A lot more options for game handlers customization.
 - Many quality of life improvements and ton of bug fixes.
 - And so much more!
@@ -45,21 +45,24 @@ Note that Nucleus does not add multiplayer or co-op to single player games, the 
 
 # ⚒ Installation:
 1. Download latest [release](https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases). 
-2. Extract the .zip archive to a non-restrictive folder, that all users have access to (i.e. do NOT extract to Program Files, Desktop, or your Documents folder, to name a few). The root folder that contains the majority of your games is a good choice (e.g. C:\). DO NOT place Nucleus Co-op inside a folder containing the files for a game you wish to play.
+2. [Installation Guide](https://www.splitscreen.me/docs/installation).
 
 # 🤝 How can you contribute?
-If you would like to learn all about contributing to this project, whether it's bug reporting or working on the codebase, check out the [Nucleus Coop Contributing Guide](CONTRIBUTING.md)!
+If you would like to learn all about contributing to this project, whether it's bug reporting or working on the codebase, check out the [Nucleus Co-op Contributing Guide](CONTRIBUTING.md)!
 
 # 🔎 Website & FAQ
 
-- [Official website](https://www.splitscreen.me/docs/what-is-splitscreen-me/)
-- [Nucleus Co-op FAQ](https://www.splitscreen.me/docs/faq)
+- [Official website](https://www.splitscreen.me/docs/what-is-splitscreen-me/).
+- [Nucleus Co-op FAQ](https://www.splitscreen.me/docs/faq).
   
 #  👥 Social
 
-- [Subscribe to the official Nucleus Co-op subreddit](https://www.reddit.com/r/nucleuscoop/)
-- [Join the official Nucleus Co-op Discord server](https://discord.gg/QDUt8HpCvr)
+- [Subscribe to the official Nucleus Co-op subreddit](https://www.reddit.com/r/nucleuscoop/).
+- [Join the official Nucleus Co-op Discord server](https://discord.gg/QDUt8HpCvr).
 
+# 🧡 Patreon supporters
+- [All time Patreon supporters list](https://github.com/SplitScreen-Me/splitscreenme-patreon/tree/main).
+  
 # 📄 Credits
 - Original Nucleus Co-op Project: [Lucas Assis (lucasassislar)](https://github.com/lucasassislar)  
 - Nucleus Co-op Alpha 8 Mod : [ZeroFox](https://github.com/ZeroFox5866)  
@@ -67,7 +70,7 @@ If you would like to learn all about contributing to this project, whether it's 
 - Official Nucleus Co-op 2.0 and Up: [Mikou27](https://github.com/Mikou27) 
 - Website & handler API: [r-mach](https://github.com/r-mach)  
 - Handlers development, Nucleus Co-op general testing, feedback and improvement: [Talos91](https://github.com/Talos910), [PoundlandBacon](https://github.com/PoundlandBacon), [Pizzo](https://github.com/Bizzo499), [maxine64](https://github.com/Maxine202) and many more.
-  
+
 Additional credits to all original developers of the third party utilities Nucleus Co-op uses:
 - Mr_Goldberg ([Goldberg Emulator](https://gitlab.com/Mr_Goldberg/goldberg_emulator))
 - syahmixp ([SmartSteamEmu](https://github.com/MAXBURAOT/SmartSteamEmu))
@@ -84,3 +87,4 @@ Additional credits to all original developers of the third party utilities Nucle
 - darkreader ([Dark Reader extension](https://github.com/darkreader/darkreader?tab=readme-ov-file)) 
   
 Special thanks to the SplitScreenDreams discord community, this wouldn't have been possible without all their contributions.
+

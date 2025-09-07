@@ -404,7 +404,7 @@ namespace Nucleus.Coop
                     Process.Start(Path.Combine(Application.StartupPath, "Updater.exe"));
             }
             catch 
-            {           
+            {
             }
         }
 
