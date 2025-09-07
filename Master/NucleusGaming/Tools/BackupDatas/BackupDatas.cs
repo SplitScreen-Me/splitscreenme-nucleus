@@ -272,14 +272,14 @@ namespace Nucleus.Gaming.Tools.BackupDatas
                 }
             }
 
-            if (handlerInstance.context != null)
+            if (handlerInstance.Context != null)
             {
-                if (handlerInstance.context.BackupFiles != null)
+                if (handlerInstance.Context.BackupFiles != null)
                 {
                     //Context.FilesToBackup
-                    if (handlerInstance.context.BackupFiles.Length > 0)
+                    if (handlerInstance.Context.BackupFiles.Length > 0)
                     {
-                        StartFilesBackup(handlerInstance.context.BackupFiles);
+                        StartFilesBackup(handlerInstance.Context.BackupFiles);
                     }
                 }
             }
@@ -293,14 +293,14 @@ namespace Nucleus.Gaming.Tools.BackupDatas
                 }
             }
 
-            if (handlerInstance.context != null)
+            if (handlerInstance.Context != null)
             {
-                if (handlerInstance.context.BackupFolders != null)
+                if (handlerInstance.Context.BackupFolders != null)
                 {
                     //Context.BackupFolders
-                    if (handlerInstance.context.BackupFolders.Length > 0)
+                    if (handlerInstance.Context.BackupFolders.Length > 0)
                     {
-                        StartFoldersBackup(handlerInstance.context.BackupFolders);
+                        StartFoldersBackup(handlerInstance.Context.BackupFolders);
                     }
                 }
             }

@@ -11,18 +11,18 @@ namespace Nucleus.Gaming.Forms
         {
             var handlerInstance = GenericGameHandler.Instance;
 
-            if (handlerInstance.context.CustomUserGeneralValues == null || handlerInstance.context.CustomUserGeneralValues?.Length < 1)
+            if (handlerInstance.Context.CustomUserGeneralValues == null || handlerInstance.Context.CustomUserGeneralValues?.Length < 1)
             {
-                handlerInstance.context.CustomUserGeneralValues = new string[handlerInstance.CurrentGameInfo.CustomUserGeneralPrompts.Length];
+                handlerInstance.Context.CustomUserGeneralValues = new string[handlerInstance.CurrentGameInfo.CustomUserGeneralPrompts.Length];
             }
             if (customValue == null || customValue?.Length < 1)
             {
                 customValue = new string[handlerInstance.CurrentGameInfo.CustomUserGeneralPrompts.Length];
             }
 
-            for (int c = 0; c < handlerInstance.context.CustomUserGeneralValues.Length; c++)
+            for (int c = 0; c < handlerInstance.Context.CustomUserGeneralValues.Length; c++)
             {
-                handlerInstance.context.CustomUserGeneralValues[c] = null;
+                handlerInstance.Context.CustomUserGeneralValues[c] = null;
             }
 
             string valueFile = Path.Combine(GameManager.Instance.GetJsScriptsPath(), Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.JsFileName) + "\\custom_gen_values.txt");
@@ -42,7 +42,7 @@ namespace Nucleus.Gaming.Forms
                     {
                         handlerInstance.Log(string.Format("Custom value {0}: {1}", counter, line));
                         customValue[counter] = line;
-                        handlerInstance.context.CustomUserGeneralValues[counter] = line;
+                        handlerInstance.Context.CustomUserGeneralValues[counter] = line;
                         counter++;
                     }
 
@@ -91,7 +91,7 @@ namespace Nucleus.Gaming.Forms
                     prompt.ShowDialog();
                     if (customValue[d]?.Length > 0)
                     {
-                        handlerInstance.context.CustomUserGeneralValues[d] = customValue[d];
+                        handlerInstance.Context.CustomUserGeneralValues[d] = customValue[d];
                         handlerInstance.Log("User entered: " + customValue[d]);
                         if (!containsValue)
                         {
@@ -101,7 +101,7 @@ namespace Nucleus.Gaming.Forms
                     else
                     {
                         handlerInstance.Log("User did not enter a value for this prompt");
-                        handlerInstance.context.CustomUserGeneralValues[d] = null;
+                        handlerInstance.Context.CustomUserGeneralValues[d] = null;
                     }
                 }
 
@@ -123,9 +123,9 @@ namespace Nucleus.Gaming.Forms
         {
             var handlerInstance = GenericGameHandler.Instance;
 
-            if (handlerInstance.context.CustomUserPlayerValues == null || handlerInstance.context.CustomUserPlayerValues?.Length < 1)
+            if (handlerInstance.Context.CustomUserPlayerValues == null || handlerInstance.Context.CustomUserPlayerValues?.Length < 1)
             {
-                handlerInstance.context.CustomUserPlayerValues = new string[handlerInstance.CurrentGameInfo.CustomUserPlayerPrompts.Length];
+                handlerInstance.Context.CustomUserPlayerValues = new string[handlerInstance.CurrentGameInfo.CustomUserPlayerPrompts.Length];
             }
             if (customValue == null || customValue?.Length < 1)
             {
@@ -149,7 +149,7 @@ namespace Nucleus.Gaming.Forms
                     {
                         handlerInstance.Log(string.Format("Custom value {0}: {1}", counter, line));
                         customValue[counter] = line;
-                        handlerInstance.context.CustomUserPlayerValues[counter] = line;
+                        handlerInstance.Context.CustomUserPlayerValues[counter] = line;
                         counter++;
                     }
 
@@ -190,7 +190,7 @@ namespace Nucleus.Gaming.Forms
                     }
                     Forms.CustomPrompt prompt = new Forms.CustomPrompt(handlerInstance.CurrentGameInfo.CustomUserPlayerPrompts[d], prevAnswer, d);
                     prompt.ShowDialog();
-                    handlerInstance.context.CustomUserPlayerValues[d] = customValue[d];
+                    handlerInstance.Context.CustomUserPlayerValues[d] = customValue[d];
                     handlerInstance.Log("User entered: " + customValue[d]);
                 }
 
@@ -208,9 +208,9 @@ namespace Nucleus.Gaming.Forms
         {
             var handlerInstance = GenericGameHandler.Instance;
 
-            if (handlerInstance.context.CustomUserInstanceValues == null || handlerInstance.context.CustomUserInstanceValues?.Length < 1)
+            if (handlerInstance.Context.CustomUserInstanceValues == null || handlerInstance.Context.CustomUserInstanceValues?.Length < 1)
             {
-                handlerInstance.context.CustomUserInstanceValues = new string[handlerInstance.CurrentGameInfo.CustomUserInstancePrompts.Length];
+                handlerInstance.Context.CustomUserInstanceValues = new string[handlerInstance.CurrentGameInfo.CustomUserInstancePrompts.Length];
             }
             if (customValue == null || customValue?.Length < 1)
             {
@@ -234,7 +234,7 @@ namespace Nucleus.Gaming.Forms
                     {
                         handlerInstance.Log(string.Format("Custom value {0}: {1}", counter, line));
                         customValue[counter] = line;
-                        handlerInstance.context.CustomUserInstanceValues[counter] = line;
+                        handlerInstance.Context.CustomUserInstanceValues[counter] = line;
                         counter++;
                     }
 
@@ -274,7 +274,7 @@ namespace Nucleus.Gaming.Forms
                     }
                     Forms.CustomPrompt prompt = new Forms.CustomPrompt(handlerInstance.CurrentGameInfo.CustomUserInstancePrompts[d], prevAnswer, d);
                     prompt.ShowDialog();
-                    handlerInstance.context.CustomUserInstanceValues[d] = customValue[d];
+                    handlerInstance.Context.CustomUserInstanceValues[d] = customValue[d];
                     handlerInstance.Log("User entered: " + customValue[d]);
                 }
 

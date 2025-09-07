@@ -508,7 +508,7 @@ namespace Nucleus.Gaming
         {
             var handlerInstance = GenericGameHandler.Instance;
 
-            engine.SetValue("Context", handlerInstance.context);
+            engine.SetValue("Context", handlerInstance.Context);
             engine.SetValue("Handler", handlerInstance);
             engine.SetValue("Player", player);
             engine.SetValue("Game", this);

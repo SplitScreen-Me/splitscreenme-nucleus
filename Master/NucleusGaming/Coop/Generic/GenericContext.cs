@@ -1,6 +1,7 @@
 ﻿using Ionic.Zip;
 using Microsoft.Win32;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Tools;
 using Nucleus.Gaming.Tools.NemirtingasEpicEmu;
 using Nucleus.Gaming.Tools.NemirtingasGalaxyEmu;
 using Nucleus.Gaming.Tools.Network;
@@ -524,7 +525,8 @@ namespace Nucleus.Gaming
                 return;
             }
 
-            User32Util.HideTaskbar();
+            parent.CurrentGameInfo.HideTaskbar = true;
+            TaskbarState.Hide();
         }
 
         public bool BackupFile(string[] filePaths, bool overwrite)

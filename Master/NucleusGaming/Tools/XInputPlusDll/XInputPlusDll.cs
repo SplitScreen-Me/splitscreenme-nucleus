@@ -77,10 +77,10 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                     if (handlerInstance.CurrentGameInfo.XInputPlusDll.ToList().Any(val => val.StartsWith("dinput") == true)) //(xinputDll.ToLower().StartsWith("dinput"))
                     {
                         handlerInstance.Log("A Dinput dll has been detected, also enabling X2Dinput in XInputPlus.ini");
-                        textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "EnableX2Dinput=", SearchType.StartsWith) + "|EnableX2Dinput=True");
+                        textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "EnableX2Dinput=", SearchType.StartsWith) + "|EnableX2Dinput=True");
                     }
 
-                    textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "FileVersion=", SearchType.StartsWith) + "|FileVersion=" + handlerInstance.garch);
+                    textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "FileVersion=", SearchType.StartsWith) + "|FileVersion=" + handlerInstance.garch);
 
                     if (player.IsController)
                     {
@@ -89,7 +89,7 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                             #region New multiple player per instance with UI assignation support
 
                             //instance host
-                            textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "Controller1" + "=", SearchType.StartsWith) + "|Controller1" + "=" + (player.GamepadId + 1));
+                            textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "Controller1" + "=", SearchType.StartsWith) + "|Controller1" + "=" + (player.GamepadId + 1));
 
                             if (player.InstanceGuests.Count > 0)
                             {
@@ -98,7 +98,7 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                                 {
                                     int guestControllerIndex = player.InstanceGuests[x].GamepadId + 1;
 
-                                    textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "Controller" + (x + 2)  + "=", SearchType.StartsWith) + "|Controller" + (x + 2) + "=" + (guestControllerIndex));
+                                    textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "Controller" + (x + 2)  + "=", SearchType.StartsWith) + "|Controller" + (x + 2) + "=" + (guestControllerIndex));
                                 }
                             }
                             #endregion
@@ -107,14 +107,14 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                         {
                             for (int x = 1; x <= handlerInstance.CurrentGameInfo.PlayersPerInstance; x++)
                             {
-                                textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "Controller" + x + "=", SearchType.StartsWith) + "|Controller" + x + "=" + (x + handlerInstance.plyrIndex));
+                                textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "Controller" + x + "=", SearchType.StartsWith) + "|Controller" + x + "=" + (x + handlerInstance.plyrIndex));
                             }
 
                             handlerInstance.plyrIndex += handlerInstance.CurrentGameInfo.PlayersPerInstance;
                         }
                         else
                         {
-                            textChanges.Add(handlerInstance.context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "Controller1=", SearchType.StartsWith) + "|Controller1=" + (player.GamepadId + 1));
+                            textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "Controller1=", SearchType.StartsWith) + "|Controller1=" + (player.GamepadId + 1));
                         }
                     }
                     else
@@ -123,7 +123,7 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                         handlerInstance.kbi = 0;
                     }
 
-                    handlerInstance.context.ReplaceLinesInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), textChanges.ToArray());
+                    handlerInstance.Context.ReplaceLinesInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), textChanges.ToArray());
                 }
             }
 
@@ -161,7 +161,7 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                     }
                 }
 
-                if (handlerInstance.context.Hook.XInputNames == null)
+                if (handlerInstance.Context.Hook.XInputNames == null)
                 {
                     string ogFile = Path.Combine(handlerInstance.instanceExeFolder, "xinput1_3.dll");
                     FileUtil.FileCheck(ogFile);
@@ -174,7 +174,7 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                 }
                 else
                 {
-                    string[] xinputs = handlerInstance.context.Hook.XInputNames;
+                    string[] xinputs = handlerInstance.Context.Hook.XInputNames;
 
                     for (int z = 0; z < xinputs.Length; z++)
                     {
@@ -231,12 +231,12 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
             int rw;
             int rh;
 
-            if (handlerInstance.context.Hook.WindowX > 0 && handlerInstance.context.Hook.WindowY > 0)
+            if (handlerInstance.Context.Hook.WindowX > 0 && handlerInstance.Context.Hook.WindowY > 0)
             {
-                wx = handlerInstance.context.Hook.WindowX;
-                wy = handlerInstance.context.Hook.WindowY;
-                x360.IniWriteValue("Options", "WindowX", handlerInstance.context.Hook.WindowX.ToString(CultureInfo.InvariantCulture));
-                x360.IniWriteValue("Options", "WindowY", handlerInstance.context.Hook.WindowY.ToString(CultureInfo.InvariantCulture));
+                wx = handlerInstance.Context.Hook.WindowX;
+                wy = handlerInstance.Context.Hook.WindowY;
+                x360.IniWriteValue("Options", "WindowX", handlerInstance.Context.Hook.WindowX.ToString(CultureInfo.InvariantCulture));
+                x360.IniWriteValue("Options", "WindowY", handlerInstance.Context.Hook.WindowY.ToString(CultureInfo.InvariantCulture));
             }
             else
             {
@@ -246,42 +246,42 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                 x360.IniWriteValue("Options", "WindowY", playerBounds.Y.ToString(CultureInfo.InvariantCulture));
             }
 
-            if (handlerInstance.context.Hook.ResWidth > 0 && handlerInstance.context.Hook.ResHeight > 0)
+            if (handlerInstance.Context.Hook.ResWidth > 0 && handlerInstance.Context.Hook.ResHeight > 0)
             {
-                rw = handlerInstance.context.Hook.ResWidth;
-                rh = handlerInstance.context.Hook.ResHeight;
-                x360.IniWriteValue("Options", "ResWidth", handlerInstance.context.Hook.ResWidth.ToString(CultureInfo.InvariantCulture));
-                x360.IniWriteValue("Options", "ResHeight", handlerInstance.context.Hook.ResHeight.ToString(CultureInfo.InvariantCulture));
+                rw = handlerInstance.Context.Hook.ResWidth;
+                rh = handlerInstance.Context.Hook.ResHeight;
+                x360.IniWriteValue("Options", "ResWidth", handlerInstance.Context.Hook.ResWidth.ToString(CultureInfo.InvariantCulture));
+                x360.IniWriteValue("Options", "ResHeight", handlerInstance.Context.Hook.ResHeight.ToString(CultureInfo.InvariantCulture));
             }
             else
             {
-                rw = handlerInstance.context.Width;
-                rh = handlerInstance.context.Height;
-                x360.IniWriteValue("Options", "ResWidth", handlerInstance.context.Width.ToString(CultureInfo.InvariantCulture));
-                x360.IniWriteValue("Options", "ResHeight", handlerInstance.context.Height.ToString(CultureInfo.InvariantCulture));
+                rw = handlerInstance.Context.Width;
+                rh = handlerInstance.Context.Height;
+                x360.IniWriteValue("Options", "ResWidth", handlerInstance.Context.Width.ToString(CultureInfo.InvariantCulture));
+                x360.IniWriteValue("Options", "ResHeight", handlerInstance.Context.Height.ToString(CultureInfo.InvariantCulture));
             }
 
             if (!handlerInstance.CurrentGameInfo.Hook.UseAlpha8CustomDll)
             {
-                if (handlerInstance.context.Hook.FixResolution)
+                if (handlerInstance.Context.Hook.FixResolution)
                 {
                     handlerInstance.Log(string.Format("Custom DLL will be doing the resizing with values width:{0}, height:{1}", rw, rh));
                     handlerInstance.dllResize = true;
                 }
-                if (handlerInstance.context.Hook.FixPosition)
+                if (handlerInstance.Context.Hook.FixPosition)
                 {
                     handlerInstance.Log(string.Format("Custom DLL will be doing the repositioning with values x:{0}, y:{1}", wx, wy));
                     handlerInstance.dllRepos = true;
                 }
-                x360.IniWriteValue("Options", "FixResolution", handlerInstance.context.Hook.FixResolution.ToString(CultureInfo.InvariantCulture));
-                x360.IniWriteValue("Options", "FixPosition", handlerInstance.context.Hook.FixPosition.ToString(CultureInfo.InvariantCulture));
-                x360.IniWriteValue("Options", "ClipMouse", player.IsKeyboardPlayer.ToString(CultureInfo.InvariantCulture)); //context.Hook.ClipMouse
+                x360.IniWriteValue("Options", "FixResolution", handlerInstance.Context.Hook.FixResolution.ToString(CultureInfo.InvariantCulture));
+                x360.IniWriteValue("Options", "FixPosition", handlerInstance.Context.Hook.FixPosition.ToString(CultureInfo.InvariantCulture));
+                x360.IniWriteValue("Options", "ClipMouse", player.IsKeyboardPlayer.ToString(CultureInfo.InvariantCulture)); //Context.Hook.ClipMouse
             }
 
-            x360.IniWriteValue("Options", "RerouteInput", handlerInstance.context.Hook.XInputReroute.ToString(CultureInfo.InvariantCulture));
+            x360.IniWriteValue("Options", "RerouteInput", handlerInstance.Context.Hook.XInputReroute.ToString(CultureInfo.InvariantCulture));
             x360.IniWriteValue("Options", "RerouteJoystickTemplate", JoystickDatabase.GetID(player.GamepadProductGuid.ToString()).ToString(CultureInfo.InvariantCulture));
 
-            if (handlerInstance.context.Hook.EnableMKBInput || player.IsKeyboardPlayer)
+            if (handlerInstance.Context.Hook.EnableMKBInput || player.IsKeyboardPlayer)
             {
                 handlerInstance.Log("Enabling MKB");
                 x360.IniWriteValue("Options", "EnableMKBInput", "True".ToString(CultureInfo.InvariantCulture));
@@ -293,16 +293,16 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
 
             x360.IniWriteValue("Options", "IsKeyboardPlayer", player.IsKeyboardPlayer.ToString(CultureInfo.InvariantCulture));
             // windows events
-            x360.IniWriteValue("Options", "BlockInputEvents", handlerInstance.context.Hook.BlockInputEvents.ToString(CultureInfo.InvariantCulture));
-            x360.IniWriteValue("Options", "BlockMouseEvents", handlerInstance.context.Hook.BlockMouseEvents.ToString(CultureInfo.InvariantCulture));
-            x360.IniWriteValue("Options", "BlockKeyboardEvents", handlerInstance.context.Hook.BlockKeyboardEvents.ToString(CultureInfo.InvariantCulture));
+            x360.IniWriteValue("Options", "BlockInputEvents", handlerInstance.Context.Hook.BlockInputEvents.ToString(CultureInfo.InvariantCulture));
+            x360.IniWriteValue("Options", "BlockMouseEvents", handlerInstance.Context.Hook.BlockMouseEvents.ToString(CultureInfo.InvariantCulture));
+            x360.IniWriteValue("Options", "BlockKeyboardEvents", handlerInstance.Context.Hook.BlockKeyboardEvents.ToString(CultureInfo.InvariantCulture));
             // xinput
-            x360.IniWriteValue("Options", "XInputEnabled", handlerInstance.context.Hook.XInputEnabled.ToString(CultureInfo.InvariantCulture));
+            x360.IniWriteValue("Options", "XInputEnabled", handlerInstance.Context.Hook.XInputEnabled.ToString(CultureInfo.InvariantCulture));
             x360.IniWriteValue("Options", "XInputPlayerID", player.GamepadId.ToString(CultureInfo.InvariantCulture));
             // dinput
-            x360.IniWriteValue("Options", "DInputEnabled", handlerInstance.context.Hook.DInputEnabled.ToString(CultureInfo.InvariantCulture));
+            x360.IniWriteValue("Options", "DInputEnabled", handlerInstance.Context.Hook.DInputEnabled.ToString(CultureInfo.InvariantCulture));
             x360.IniWriteValue("Options", "DInputGuid", player.GamepadGuid.ToString().ToUpper());
-            x360.IniWriteValue("Options", "DInputForceDisable", handlerInstance.context.Hook.DInputForceDisable.ToString());
+            x360.IniWriteValue("Options", "DInputForceDisable", handlerInstance.Context.Hook.DInputForceDisable.ToString());
 
             handlerInstance.Log("Custom DLL setup complete");
         }

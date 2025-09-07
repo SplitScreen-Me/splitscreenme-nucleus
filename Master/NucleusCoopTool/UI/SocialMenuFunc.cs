@@ -1,5 +1,6 @@
 ﻿using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
+using Nucleus.Gaming.Forms;
 using Nucleus.Gaming.UI;
 using System;
 using System.Collections.Generic;
@@ -116,18 +117,6 @@ namespace Nucleus.Coop.UI
             UI_Interface.SocialMenuButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_dropdown_closed.png");
         }
 
-        private static void Btn_SplitCalculator_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                Process.Start((Path.Combine(Application.StartupPath, @"utils\SplitCalculator\SplitCalculator.exe")));
-            }
-            catch (Exception)
-            {
-                MessageBox.Show(@"SplitCalculator.exe has not been found in the utils\SplitCalculator folder. Try again with a fresh Nucleus Co-op installation.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
         private static void Link_faq_Click(object sender, EventArgs e) => Process.Start(Links.NC_Faq);
 
         private static void FAQToolStripMenuItem_Click(object sender, EventArgs e) => Process.Start(Links.NC_Faq);
@@ -140,11 +129,20 @@ namespace Nucleus.Coop.UI
         {
             try
             {
-                Process.Start((Path.Combine(Application.StartupPath, @"utils\SplitCalculator\SplitCalculator.exe")));
+                if (Process.GetProcessesByName("SplitCalculator").Length >= 1)
+                {
+                    return;
+                }
+
+                Process.Start(Path.Combine(Application.StartupPath, @"utils\SplitCalculator\SplitCalculator.exe"));
             }
             catch (Exception)
             {
-                MessageBox.Show(@"SplitCalculator.exe has not been found in the utils\SplitCalculator folder. Try again with a fresh Nucleus Co-op installation.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                NucleusMessageBox.Show("Error",
+                                       $"SplitCalculator.exe has not been found or is blocked by Windows SmartScreen, " +
+                                       $"you can try to start it manually at " +
+                                       $"\"{Globals.NucleusInstallRoot}\\utils\\SplitCalculator\\SplitCalculator.exe\" " +
+                                       $"or try again with a fresh Nucleus Co-op installation.", true);
             }
         }
 

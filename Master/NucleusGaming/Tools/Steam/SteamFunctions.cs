@@ -182,7 +182,7 @@ namespace Nucleus.Gaming.Tools.Steam
 
                 //swalloing the launch arguments for the game here as we will be launching steamclient loader
                 handlerInstance.CurrentGameInfo.StartArguments = string.Empty;
-                handlerInstance.context.StartArguments = string.Empty;
+                handlerInstance.Context.StartArguments = string.Empty;
 
                 string settingsFolder = exeFolder + "\\settings";
                 if (handlerInstance.CurrentGameInfo.GoldbergNoLocalSave)
@@ -473,7 +473,7 @@ namespace Nucleus.Gaming.Tools.Steam
 
                 //swalloing the launch arguments for the game here as we will be launching steamclient loader
                 handlerInstance.CurrentGameInfo.StartArguments = string.Empty;
-                handlerInstance.context.StartArguments = string.Empty;
+                handlerInstance.Context.StartArguments = string.Empty;
 
                 string settingsFolder = exeFolder + "\\settings";
                 if (handlerInstance.CurrentGameInfo.GoldbergNoLocalSave)
@@ -957,7 +957,7 @@ namespace Nucleus.Gaming.Tools.Steam
             emu.IniWriteValue("Launcher", "SteamClientPath64", Path.Combine(steamEmu, "SmartSteamEmu64.dll"));
             emu.IniWriteValue("Launcher", "InjectDll", "1");
 
-            emu.IniWriteValue("SmartSteamEmu", "AppId", handlerInstance.context.SteamID);
+            emu.IniWriteValue("SmartSteamEmu", "AppId", handlerInstance.Context.SteamID);
             emu.IniWriteValue("SmartSteamEmu", "SteamIdGeneration", "Manual");
 
             long steamID = player.SteamID;
@@ -1058,7 +1058,7 @@ namespace Nucleus.Gaming.Tools.Steam
 
             if (!handlerInstance.CurrentGameInfo.ThirdPartyLaunch)
             {
-                if (handlerInstance.context.KillMutex?.Length > 0)
+                if (handlerInstance.Context.KillMutex?.Length > 0)
                 {
                     // to kill the mutexes we need to orphanize the process
                     while (!ProcessUtil.RunOrphanProcess(emuExe, handlerInstance.CurrentGameInfo.UseNucleusEnvironment, player.Nickname))
@@ -1186,21 +1186,25 @@ namespace Nucleus.Gaming.Tools.Steam
             try
             {
                 string steamlessExePath = Path.Combine($@"{Directory.GetCurrentDirectory()}\utils\Steamless\Steamless.CLI.exe");
-
                 string steamlessArgs = $@"{args} {linkBinFolder} \ {executableName}";
+                var batch = Path.Combine(linkBinFolder, "steamless.bat");
+                string content = $"{steamlessExePath} {steamlessArgs} \"{executableName}\"";
 
-                ProcessStartInfo sl = new ProcessStartInfo(steamlessExePath);
-                sl.WorkingDirectory = linkBinFolder;
-                sl.UseShellExecute = true;
-                sl.WindowStyle = ProcessWindowStyle.Hidden;
-                sl.Arguments = steamlessArgs;
+                File.WriteAllText(batch, content);
+
+                ProcessStartInfo proc = new ProcessStartInfo();
+
+                proc.FileName = batch;
+                proc.UseShellExecute = false;
+                proc.WorkingDirectory = Path.GetDirectoryName(batch);
+                proc.CreateNoWindow = true;
+
+                Process.Start(proc);
 
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
 
-                Process.Start(sl);
-
-                while (!File.Exists($@"{linkBinFolder}\{executableName}.unpacked.exe") && watch.Elapsed.Milliseconds <= timing)
+                while (!File.Exists($@"{linkBinFolder}\{executableName}.unpacked.exe") && watch.Elapsed.Seconds <= timing / 1000)
                 {
                     Thread.Sleep(1000);
                 }
@@ -1224,6 +1228,12 @@ namespace Nucleus.Gaming.Tools.Steam
                     NucleusMessageBox.Show("Error", "Steamless failed at patching the executable. Please try again.", false);
                     GenericGameHandler.Instance.End(false);
                 }
+
+                if (File.Exists(batch))
+                {
+                    File.Delete(batch);
+                }
+
             }
             catch (Exception ex)
             {

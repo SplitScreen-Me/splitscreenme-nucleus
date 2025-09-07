@@ -10,7 +10,7 @@ namespace Nucleus.Gaming.Tools
         private static GenericGameInfo genericGameInfo = GenericGameHandler.Instance?.CurrentGameInfo;
 
         private static bool userTaskbarAutoHide;
-        private static  ProtoInputOptions protoInputOpt;
+        private static ProtoInputOptions protoInputOpt;
         private static ProtoInput protoInput;
 
         public static Action Hide => ToggleHide;
@@ -18,19 +18,19 @@ namespace Nucleus.Gaming.Tools
 
         private static void ToggleHide()
         {
-            if(genericGameInfo == null)
+            if (genericGameInfo == null)
             {
                 return;
             }
 
-            if(protoInput == null)
+            if (protoInput == null)
             {
                 protoInput = ProtoInput.protoInput;
                 protoInputOpt = genericGameInfo.ProtoInput;
                 userTaskbarAutoHide = protoInput.GetTaskbarAutohide();
                 GenericGameHandler.Instance.Ended += OnEndedCallback;
             }
-            
+
             if (genericGameInfo.HideTaskbar && !GameProfile.UseSplitDiv && !userTaskbarAutoHide)
             {
                 User32Util.HideTaskbar();
@@ -43,7 +43,7 @@ namespace Nucleus.Gaming.Tools
                 }
                 else
                 {
-                   protoInput?.SetTaskbarAutohide(true);
+                    protoInput?.SetTaskbarAutohide(true);
                 }
             }
         }
@@ -72,7 +72,7 @@ namespace Nucleus.Gaming.Tools
             {
                 protoInput.SetTaskbarAutohide(false);
             }
-        
+
             protoInput = null;
         }
     }
