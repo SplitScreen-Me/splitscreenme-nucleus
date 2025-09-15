@@ -20,7 +20,14 @@ namespace Nucleus.Coop.Tools
                                          gamePath.StartsWith(@"C:\Windows\");
             bool skip = false;
 
-            if (Globals.IsOneDriveEnabled && (userGameInfo.Game.UseNucleusEnvironment || userGameInfo.Game.TransferNucleusUserAccountProfiles || userGameInfo.Game.BackupFolders?.Length > 0))
+            bool useUserProfileSavePath = userGameInfo.Game.UserProfileSavePath != null ? userGameInfo.Game.UserProfileSavePath.StartsWith("Documents") : false;
+            bool useUserProfileConfigPath = userGameInfo.Game.UserProfileConfigPath != null ? userGameInfo.Game.UserProfileConfigPath.StartsWith("Documents") : false;
+            bool useDocumentsSavePath = userGameInfo.Game.DocumentsSavePath != null ? userGameInfo.Game.DocumentsSavePath.StartsWith("Documents") : false;
+            bool useDocumentsConfigPath = userGameInfo.Game.DocumentsConfigPath != null ? userGameInfo.Game.DocumentsConfigPath.StartsWith("Documents") : false;
+
+            bool useUserDocuments = useUserProfileSavePath || useUserProfileConfigPath || useDocumentsSavePath || useDocumentsConfigPath;
+
+            if (Globals.IsOneDriveEnabled && userGameInfo.Game.UseNucleusEnvironment && useUserDocuments)
             {
                 message = $@"This handler can't run if your default Documents path is in OneDrive -> {Globals.UserDocumentsRoot}";
 

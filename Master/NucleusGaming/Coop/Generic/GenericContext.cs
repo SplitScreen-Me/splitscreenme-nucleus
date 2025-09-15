@@ -2342,7 +2342,7 @@ namespace Nucleus.Gaming
 
         public void Wait(int wait)
         {
-            Log(string.Format("Pausing for " + (double)wait / (double)1000 + " seconds"));
+            Log("Pausing for " + (double)wait / (double)1000 + " seconds");
             Thread.Sleep(wait);
         }
 

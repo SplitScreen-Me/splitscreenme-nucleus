@@ -135,93 +135,88 @@ namespace Nucleus.Coop
                 }
             }
             catch 
-            { 
-            
-            
+            {  
             }
         }
-        
+
         public static void CheckUserEnvironment()
         {
             System.Threading.Tasks.Task.Run(() =>
             {
                 try
                 {
-                    if (!Globals.IsOneDriveEnabled)
+                    RegistryKey dkey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);
+                    string mydocPath = dkey.GetValue("Personal").ToString();
+
+                    if (mydocPath.Contains("NucleusCoop"))
                     {
-                        RegistryKey dkey = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", true);
-                        string mydocPath = dkey.GetValue("Personal").ToString();
+                        string[] environmentRegFileBackup = Directory.GetFiles(Path.Combine(Globals.NucleusInstallRoot, "utils\\backup"), "*.reg", SearchOption.AllDirectories);
 
-                        if (mydocPath.Contains("NucleusCoop"))
+                        if (environmentRegFileBackup.Length > 0)
                         {
-                            string[] environmentRegFileBackup = Directory.GetFiles(Path.Combine(Globals.NucleusInstallRoot, "utils\\backup"), "*.reg", SearchOption.AllDirectories);
-
-                            if (environmentRegFileBackup.Length > 0)
+                            foreach (string environmentRegFilePathBackup in environmentRegFileBackup)
                             {
-                                foreach (string environmentRegFilePathBackup in environmentRegFileBackup)
+                                if (environmentRegFilePathBackup.Contains("User Shell Folders"))
                                 {
-                                    if (environmentRegFilePathBackup.Contains("User Shell Folders"))
+                                    Process regproc = new Process();
+
+                                    try
                                     {
-                                        Process regproc = new Process();
+                                        regproc.StartInfo.FileName = "reg.exe";
+                                        regproc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                                        regproc.StartInfo.CreateNoWindow = true;
+                                        regproc.StartInfo.UseShellExecute = false;
 
-                                        try
-                                        {
-                                            regproc.StartInfo.FileName = "reg.exe";
-                                            regproc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                                            regproc.StartInfo.CreateNoWindow = true;
-                                            regproc.StartInfo.UseShellExecute = false;
+                                        string command = "import \"" + environmentRegFilePathBackup + "\"";
+                                        regproc.StartInfo.Arguments = command;
+                                        regproc.Start();
 
-                                            string command = "import \"" + environmentRegFilePathBackup + "\"";
-                                            regproc.StartInfo.Arguments = command;
-                                            regproc.Start();
+                                        regproc.WaitForExit();
 
-                                            regproc.WaitForExit();
-
-                                        }
-                                        catch (Exception)
-                                        {
-                                            regproc.Dispose();
-                                        }
+                                    }
+                                    catch (Exception)
+                                    {
+                                        regproc.Dispose();
                                     }
                                 }
-                                //Console.WriteLine("Registry has been restored");
                             }
+                            //Console.WriteLine("Registry has been restored");
                         }
-                        else if (!File.Exists(Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg")))
+                    }
+                    else if (!File.Exists(Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg")))
+                    {
+                        ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg"));
+                    }
+                    else
+                    {
+                        if (!Directory.Exists(Path.Combine(Application.StartupPath, @"utils\backup\Temp")))
                         {
-                            ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg"));
+                            Directory.CreateDirectory((Path.Combine(Application.StartupPath, @"utils\backup\Temp")));
+                        }
+
+                        ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Application.StartupPath, @"utils\backup\Temp\User Shell Folders.reg"));
+
+                        FileStream currentEnvPathBackup = new FileStream(Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg"), FileMode.Open);
+                        FileStream TempEnvPathBackup = new FileStream(Path.Combine(Application.StartupPath, @"utils\backup\Temp\User Shell Folders.reg"), FileMode.Open);
+
+                        if (currentEnvPathBackup.Length == TempEnvPathBackup.Length)
+                        {
+                            TempEnvPathBackup.Dispose();
+                            currentEnvPathBackup.Dispose();
+
+                            File.Delete(Path.Combine(Application.StartupPath, @"utils\backup\Temp\User Shell Folders.reg"));
+                            Directory.Delete(Path.Combine(Application.StartupPath, @"utils\backup\Temp"));
+                            //Console.WriteLine("Registry backup is up-to-date");
                         }
                         else
                         {
-                            if (!Directory.Exists(Path.Combine(Application.StartupPath, @"utils\backup\Temp")))
-                            {
-                                Directory.CreateDirectory((Path.Combine(Application.StartupPath, @"utils\backup\Temp")));
-                            }
-
-                            ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Application.StartupPath, @"utils\backup\Temp\User Shell Folders.reg"));
-
-                            FileStream currentEnvPathBackup = new FileStream(Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg"), FileMode.Open);
-                            FileStream TempEnvPathBackup = new FileStream(Path.Combine(Application.StartupPath, @"utils\backup\Temp\User Shell Folders.reg"), FileMode.Open);
-
-                            if (currentEnvPathBackup.Length == TempEnvPathBackup.Length)
-                            {
-                                TempEnvPathBackup.Dispose();
-                                currentEnvPathBackup.Dispose();
-
-                                File.Delete(Path.Combine(Application.StartupPath, @"utils\backup\Temp\User Shell Folders.reg"));
-                                Directory.Delete(Path.Combine(Application.StartupPath, @"utils\backup\Temp"));
-                                //Console.WriteLine("Registry backup is up-to-date");
-                            }
-                            else
-                            {
-                                TempEnvPathBackup.Dispose();
-                                currentEnvPathBackup.Dispose();
-                                File.Delete(Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg"));
-                                File.Move(Path.Combine(Application.StartupPath, @"utils\backup\Temp\User Shell Folders.reg"), Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg"));
-                                File.Delete(Path.Combine(Application.StartupPath, @"utils\backup\Temp\User Shell Folders.reg"));
-                                Directory.Delete(Path.Combine(Application.StartupPath, @"utils\backup\Temp"));
-                                //Console.WriteLine("Registry has been updated");
-                            }
+                            TempEnvPathBackup.Dispose();
+                            currentEnvPathBackup.Dispose();
+                            File.Delete(Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg"));
+                            File.Move(Path.Combine(Application.StartupPath, @"utils\backup\Temp\User Shell Folders.reg"), Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg"));
+                            File.Delete(Path.Combine(Application.StartupPath, @"utils\backup\Temp\User Shell Folders.reg"));
+                            Directory.Delete(Path.Combine(Application.StartupPath, @"utils\backup\Temp"));
+                            //Console.WriteLine("Registry has been updated");
                         }
                     }
                 }
@@ -229,7 +224,7 @@ namespace Nucleus.Coop
                 {
                     MessageBox.Show(ex.Message, "Error while checking the user environment.", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-                
+
             });
         }
 
@@ -257,22 +252,17 @@ namespace Nucleus.Coop
 
             if (Globals.IsOneDriveEnabled)
             {
-                string message = "Using OneDrive as default documents path will break most handlers because Nucleus can't access its storage." +
+                string message = "Using OneDrive as default documents path will break many handlers because Nucleus can't access its storage." +
                                  "To change your documents path log out from the OneDrive app and right click your Documents folder in file explorer, go to properties, " +
                                  "select path or location and set it to the default Windows."; /*one when done delete \"User Shell Folders.reg\" from \"utils\\backup\" if the file exists.";*/
 
                 MessageBox.Show(message, "OneDrive must be disabled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                if(File.Exists(Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg")))
-                {
-                    File.Delete(Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg"));
-                }
             }
 
             if (problematic)
             {
-                string message = "Nucleus Co-Op should not be installed here.\n\n" +
-                                "Do NOT install in any of these folders:\n" +
+                string message = "Nucleus Co-op should not be installed here.\n\n" +
+                                "Do NOT install it in any of these folders:\n" +
                                 "- A folder containing any game files\n" +
                                 "- C:\\Program Files or C:\\Program Files (x86)\n" +
                                 "- C:\\Users (including Documents, Desktop, or Downloads)\n" +
@@ -358,7 +348,15 @@ namespace Nucleus.Coop
             string directDownloadLinkX64 = "https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/6e1e9052-dcb3-41e3-9aec-a7880afb75b2/MicrosoftEdgeWebView2RuntimeInstallerX64.exe";
             string x64FileName = "MicrosoftEdgeWebView2RuntimeInstallerX64.exe";
 
-            string webViewVer = CoreWebView2Environment.GetAvailableBrowserVersionString(null);
+            string webViewVer = null;
+
+            try
+            {
+                webViewVer = CoreWebView2Environment.GetAvailableBrowserVersionString(null);
+            }
+            catch(WebView2RuntimeNotFoundException)
+            {         
+            }
 
             if (webViewVer == null)
             {

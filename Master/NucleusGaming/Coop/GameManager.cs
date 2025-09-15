@@ -100,7 +100,29 @@ namespace Nucleus.Gaming
             string fileName = Path.GetFileName(exePath).ToLower();
             string dir = Path.GetDirectoryName(exePath);
 
-            IEnumerable<GenericGameInfo> possibilities = Games.Values.Where(c => string.Equals(c.ExecutableName.ToLower(), fileName, StringComparison.OrdinalIgnoreCase));
+            List<GenericGameInfo> possibilities = new List<GenericGameInfo>();
+
+            //a workaround so we can choose different game executables.
+            foreach (var gen in Games.Values)
+            {
+                if (gen.ExecutableNames != null)
+                {
+                    if (gen.ExecutableNames.Any(exe => exe.ToLower() == fileName))
+                    {
+                        possibilities.Add(gen);
+                    }
+                }
+            }
+
+            if (possibilities.Count() == 0)
+            {
+                var getPossiblities = Games.Values.Where(c => c.ExecutableName?.ToLower() == fileName).ToList();
+
+                if (getPossiblities != null)
+                {
+                    possibilities = getPossiblities;
+                }
+            }
 
             foreach (GenericGameInfo game in possibilities)
             {
@@ -144,32 +166,30 @@ namespace Nucleus.Gaming
             string fileName = Path.GetFileName(exePath).ToLower();
             string dir = Path.GetDirectoryName(exePath);
 
-            IEnumerable<GenericGameInfo> possibilities = new List<GenericGameInfo>();
+            List<GenericGameInfo> possibilities = new List<GenericGameInfo>();
 
-            //a workaround so we can choose dfferent game executables.
+            //a workaround so we can choose different game executables.
             foreach (var gen in Games.Values)
             {
                 if(gen.ExecutableNames != null)
                 {
                     if(gen.ExecutableNames.Any(exe => exe.ToLower() == fileName))
                     {
-                        possibilities.Append(gen);
+                        possibilities.Add(gen);
                     }
                 }
             }
 
             if(possibilities.Count() == 0)
             {
-                var getPossiblities = Games.Values.Where(c => c.ExecutableName?.ToLower() == fileName);
+                var getPossiblities = Games.Values.Where(c => c.ExecutableName?.ToLower() == fileName).ToList();
 
                 if(getPossiblities != null)
                 {
                     possibilities = getPossiblities;
-                }
-                
+                }             
             }
 
-            //IEnumerable<GenericGameInfo> 
             List<GenericGameInfo> games = new List<GenericGameInfo>();
 
             foreach (GenericGameInfo game in possibilities)
@@ -215,7 +235,7 @@ namespace Nucleus.Gaming
             // search for the same exe on the user profile
             if (Instance.User.Games.Any(c => c.ExePath.ToLower() == lower))
             {
-                //try to clean old user profile for this gameentries, most likely happens if user deleted the js file manually
+                //try to clean old user profile for this game entries, most likely happens if user deleted the js file manually
                 var inUserProfile = Instance.User.Games.Where(c => c.ExePath.ToLower() == lower).ToList();
                 
                 for (int i = 0; i < inUserProfile.Count; i++)

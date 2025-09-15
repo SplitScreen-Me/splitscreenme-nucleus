@@ -354,7 +354,7 @@
     <Compile Include="Forms\ShortcutsReminder\ShortcutsReminder.Designer.cs">
       <DependentUpon>ShortcutsReminder.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\WindowMeger.cs" />
+    <Compile Include="Forms\WindowMerger.cs" />
     <Compile Include="Forms\WPFDiv.cs" />
     <Compile Include="Forms\WPF_OSD.cs" />
     <Compile Include="Globals.cs" />

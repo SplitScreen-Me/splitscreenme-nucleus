@@ -15,6 +15,7 @@ using System.IO;
 using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Coop.InputManagement.Gamepads;
+using System.Text.RegularExpressions;
 
 namespace Nucleus.Coop.UI
 {
@@ -458,6 +459,108 @@ namespace Nucleus.Coop.UI
             if (UI_Interface.ProfilesList != null)
             {
                 UI_Interface.ProfilesList.Visible = false;
+            }
+        }
+
+        public static void ExtrtactHandlerDragDrop(object sender, DragEventArgs e)
+        {
+            try
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                foreach (string file in files)
+                {
+                    if (File.Exists(file))
+                    {
+                        var info = new FileInfo(file);
+
+                        if (info.Extension == ".js")
+                        {
+                            var handlersDir = GameManager.Instance.GetJsScriptsPath();
+
+                            if (File.Exists(Path.Combine(handlersDir, info.Name)))
+                            {
+                                DialogResult ovdialogResult = MessageBox.Show("A handler with the name " + (info.Name) + " already exists. Do you wish to overwrite it?", "Handler already exists", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                                if (ovdialogResult != DialogResult.Yes)
+                                {
+                                    return;
+                                }
+                            }
+
+                            Regex pattern = new Regex("[\\/:*?\"<>|]");
+                            string exeName = null;
+                            int found = 0;
+
+                            foreach (string line in File.ReadAllLines(file))
+                            {
+                                if (line.ToLower().StartsWith("game.executablename"))
+                                {
+                                    int start = line.IndexOf("\"");
+                                    int end = line.LastIndexOf("\"");
+                                    exeName = line.Substring(start + 1, (end - start) - 1);
+                                    found++;
+                                }
+                                else if (line.ToLower().StartsWith("game.gamename"))
+                                {
+                                    int start = line.IndexOf("\"");
+                                    int end = line.LastIndexOf("\"");
+                                    found++;
+                                }
+
+                                if (found == 2)
+                                {
+                                    break;
+                                }
+                            }
+
+                            if (found == 0)
+                            {
+                                MessageBox.Show("The file is missing important variables or is not a Nucleus handler.", "Not suppoerted file.", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                                return;
+                            }
+
+                            var handlerName = info.Name.Replace(".js", "");
+                            if (GameManager.Instance.IsGameAlreadyInUserProfile(exeName, handlerName))
+                            {
+                                GameManager.Instance.AddScript(handlerName, new bool[] { false, false });
+                                Core_Interface.RefreshHandlers();
+                                return;
+                            }
+                            
+                            if(File.Exists(Path.Combine(handlersDir, info.Name)))
+                            {
+                                File.Delete(Path.Combine(handlersDir, info.Name));
+                            }
+
+                            File.Move(file, Path.Combine(handlersDir, info.Name));
+
+                            GenericGameInfo genericGameInfo = GameManager.Instance.AddScript(handlerName, new bool[] { false, false });
+                            SearchGame.Search(exeName, genericGameInfo);
+
+                            return;
+                        }
+
+                        if (info.Extension != ".zip" && info.Extension != ".nc")
+                        {
+                            MessageBox.Show("The file is in an unsupported format or is not a valid Nucleus handler archive(.zip, .nc) or file (.js).", "Not a valid handler archive or file", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                            return;
+                        }
+
+                        var prompt = new DownloadPrompt(null, file, false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "An error occured.", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+            }
+        }
+
+        public static void ExtrtactHandlerDragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
             }
         }
     }

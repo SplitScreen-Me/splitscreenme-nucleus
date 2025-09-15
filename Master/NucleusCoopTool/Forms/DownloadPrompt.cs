@@ -96,6 +96,8 @@ namespace Nucleus.Coop.Forms
             }
             catch (Exception)
             {
+
+
             }
         }
 
@@ -115,7 +117,7 @@ namespace Nucleus.Coop.Forms
                     // Param2 = Path to save
                     Path.Combine(scriptFolder, zipFile)
                 );
-                
+
                 wc.DownloadFileCompleted += new AsyncCompletedEventHandler(wc_DownloadFileCompleted);
             }
         }
@@ -153,172 +155,226 @@ namespace Nucleus.Coop.Forms
 
         private void ExtractHandler()
         {
-            label1.Text = "Extracting:";
-
-            ZipFile zip = new ZipFile(Path.Combine(scriptFolder, zipFile));
-            zip.ExtractProgress += ExtractProgress;
-            numEntries = zip.Entries.Count;
-
-            List<string> handlerFolders = new List<string>();
-
-            string scriptTempFolder = scriptFolder + "\\temp";
-
-            if (!Directory.Exists(scriptTempFolder))
+            try
             {
-                Directory.CreateDirectory(scriptTempFolder);
-            }
+                label1.Text = "Extracting:";
 
-            foreach (ZipEntry ze in zip)
-            {
-                if (ze.IsDirectory)
+                ZipFile zip = new ZipFile(Path.Combine(scriptFolder, zipFile));
+                zip.ExtractProgress += ExtractProgress;
+                numEntries = zip.Entries.Count;
+
+                List<string> handlerFolders = new List<string>();
+
+                string scriptTempFolder = scriptFolder + "\\temp";
+
+                if (!Directory.Exists(scriptTempFolder))
                 {
-                    int count = 0;
-                    foreach (char c in ze.FileName)
+                    Directory.CreateDirectory(scriptTempFolder);
+                }
+
+                foreach (ZipEntry ze in zip)
+                {
+                    if (ze.IsDirectory)
                     {
-                        if (c == '/')
+                        int count = 0;
+                        foreach (char c in ze.FileName)
                         {
-                            count++;
+                            if (c == '/')
+                            {
+                                count++;
+                            }
                         }
-                    }
 
-                    if (count == 1)
+                        if (count == 1)
+                        {
+                            handlerFolders.Add(ze.FileName.TrimEnd('/'));
+                        }
+
+                        ze.Extract(scriptTempFolder, ExtractExistingFileAction.OverwriteSilently);
+                    }
+                    else
                     {
-                        handlerFolders.Add(ze.FileName.TrimEnd('/'));
+                        ze.Extract(scriptTempFolder, ExtractExistingFileAction.OverwriteSilently);
                     }
-
-                    ze.Extract(scriptTempFolder, ExtractExistingFileAction.OverwriteSilently);
                 }
-                else
+
+                Regex pattern = new Regex("[\\/:*?\"<>|]");
+                string frmHandleTitle = pattern.Replace(zipFile, "");
+                string exeName = null;
+                int found = 0;
+
+                //might be testable by extracting a handler.
+                //Bellow commented is for new Game.ExecutableNames option (2.4.1), must finish the implementation
+                //once a handler using it can be downloaded for proper debugging.(Must be implemented in HubWebview too).
+                //string exeNamesString = null;
+
+
+                string filePath = Path.Combine(scriptTempFolder, "handler.js");
+                string fileName = "";
+                //string promptText = "Downloading and extraction";
+                //bool dontDeleteZip = false;
+
+                if (File.Exists(filePath))
                 {
-                    ze.Extract(scriptTempFolder, ExtractExistingFileAction.OverwriteSilently);
+                    fileName = new FileInfo(filePath).Name;
                 }
-            }
-
-            Regex pattern = new Regex("[\\/:*?\"<>|]");
-            string frmHandleTitle = pattern.Replace(zipFile, "");
-            string exeName = null;
-            int found = 0;
-
-            //might be testable by extracting a handler.
-            //Bellow commented is for new Game.ExecutableNames option (2.4.1), must finish the implementation
-            //once a handler using it can be downloaded for proper debugging.(Must be implemented in HubWebview too).
-            //string exeNamesString = null;
-
-            foreach (string line in File.ReadAllLines(Path.Combine(scriptTempFolder, "handler.js")))
-            {
-                if (line.ToLower().StartsWith("game.executablename"))
+                else if (File.Exists(zipFile))//DragAndDrop
                 {
-                    int start = line.IndexOf("\"");
-                    int end = line.LastIndexOf("\"");
-                    exeName = line.Substring(start + 1, (end - start) - 1);
-                    found++;
+                    filePath = zipFile;
+
+                    fileName = new FileInfo(zipFile).Name.Replace(".zip", ".js");
+                    //frmHandleTitle = pattern.Replace(fileName, "");
+                    //promptText = "Extraction";
+                    //dontDeleteZip = true;
                 }
-                //else if (line.ToLower().StartsWith("game.executablenames"))
-                //{
-                //    int start = line.IndexOf("[");
-                //    int end = line.LastIndexOf("]");   
-                //    exeNamesString = pattern.Replace(line.Substring(start + 1, (end - start) - 1), "");
-                //    found++;
-                //}
-                else if (line.ToLower().StartsWith("game.gamename"))
-                {
-                    int start = line.IndexOf("\"");
-                    int end = line.LastIndexOf("\"");
-                    frmHandleTitle = pattern.Replace(line.Substring(start + 1, (end - start) - 1), "");
-                    found++;
-                }
-                
-                if (found == 2)
-                {
-                    break;
-                }
-            }
 
-            if (File.Exists(Path.Combine(scriptFolder, frmHandleTitle + ".js")))
-            {
-                DialogResult ovdialogResult = overwriteWithoutAsking ? DialogResult.Yes : MessageBox.Show("A handler with the name " + (frmHandleTitle + ".js") + " already exists. Do you wish to overwrite it?", "Handler already exists", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                if (ovdialogResult != DialogResult.Yes)
+                if (!File.Exists(Path.Combine(scriptTempFolder, fileName)))
                 {
-                    zip.Dispose();
-                    Directory.Delete(scriptTempFolder, true);
-                    File.Delete(Path.Combine(scriptFolder, zipFile));
-                    Close();
-
+                    MessageBox.Show("Something went wrong during the extraction. Make sure to use a valid Nucleus handler archive.", "An error occured.", MessageBoxButtons.OK, MessageBoxIcon.Hand);
                     return;
                 }
-            }
 
-            if (Directory.Exists(Path.Combine(scriptFolder, frmHandleTitle)))
-            {
-                Directory.Delete(Path.Combine(scriptFolder, frmHandleTitle), true);
-            }
-
-            if (File.Exists(Path.Combine(scriptFolder, frmHandleTitle + ".js")))
-            {
-                File.Delete(Path.Combine(scriptFolder, frmHandleTitle + ".js"));
-            }
-
-            File.Move(Path.Combine(scriptTempFolder, "handler.js"), Path.Combine(scriptFolder, frmHandleTitle + ".js"));
-
-            if (handlerFolders.Count > 0)
-            {
-                string gameFolder = Path.Combine(scriptFolder, frmHandleTitle);
-
-                Directory.CreateDirectory(gameFolder);
-
-                foreach (string hFolder in handlerFolders)
+                foreach (string line in File.ReadAllLines(Path.Combine(scriptTempFolder, fileName)))
                 {
-                    string newFolder = Path.Combine(scriptTempFolder, hFolder);
-
-                    foreach (string dir in Directory.GetDirectories(newFolder, "*", SearchOption.AllDirectories))
+                    if (line.ToLower().StartsWith("game.executablename"))
                     {
-                        Directory.CreateDirectory(Path.Combine(gameFolder, dir.Substring(newFolder.Length + 1)));
+                        int start = line.IndexOf("\"");
+                        int end = line.LastIndexOf("\"");
+                        exeName = line.Substring(start + 1, (end - start) - 1);
+                        found++;
+                    }
+                    //else if (line.ToLower().StartsWith("game.executablenames"))
+                    //{
+                    //    int start = line.IndexOf("[");
+                    //    int end = line.LastIndexOf("]");   
+                    //    exeNamesString = pattern.Replace(line.Substring(start + 1, (end - start) - 1), "");
+                    //    found++;
+                    //}
+                    else if (line.ToLower().StartsWith("game.gamename"))
+                    {
+                        int start = line.IndexOf("\"");
+                        int end = line.LastIndexOf("\"");
+                        frmHandleTitle = pattern.Replace(line.Substring(start + 1, (end - start) - 1), "");
+                        found++;
                     }
 
-                    foreach (string file_name in Directory.GetFiles(newFolder, "*", SearchOption.AllDirectories))
+                    if (found == 2)
                     {
-                        File.Move(file_name, Path.Combine(gameFolder, file_name.Substring(newFolder.Length + 1)));
+                        break;
                     }
+                }
 
-                    Directory.Delete(newFolder, true);
+                string fullZipPath = Path.Combine(scriptFolder, zipFile);
+                //if (fileName == "handler.js")
+                {
+                    if (File.Exists(Path.Combine(scriptFolder, frmHandleTitle + ".js")))
+                    {
+                        DialogResult ovdialogResult = overwriteWithoutAsking ? DialogResult.Yes : MessageBox.Show("A handler with the name " + (frmHandleTitle + ".js") + " already exists. Do you wish to overwrite it?", "Handler already exists", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                        if (ovdialogResult != DialogResult.Yes)
+                        {
+                            zip.Dispose();
+                            Directory.Delete(scriptTempFolder, true);
+
+                            if (fullZipPath.Contains("handlers"))
+                            {
+                                File.Delete(fullZipPath);
+                            }
+
+                            Close();
+
+                            return;
+                        }
+                    }
+                }
+
+                if (Directory.Exists(Path.Combine(scriptFolder, frmHandleTitle)))
+                {
+                    Directory.Delete(Path.Combine(scriptFolder, frmHandleTitle), true);
+                }
+
+                if (File.Exists(Path.Combine(scriptFolder, frmHandleTitle + ".js")))
+                {
+                    File.Delete(Path.Combine(scriptFolder, frmHandleTitle + ".js"));
+                }
+
+                File.Move(Path.Combine(scriptTempFolder, fileName), Path.Combine(scriptFolder, frmHandleTitle + ".js"));
+
+                if (handlerFolders.Count > 0)
+                {
+                    string gameFolder = Path.Combine(scriptFolder, frmHandleTitle);
+
+                    Directory.CreateDirectory(gameFolder);
+
+                    foreach (string hFolder in handlerFolders)
+                    {
+                        string newFolder = Path.Combine(scriptTempFolder, hFolder);
+
+                        foreach (string dir in Directory.GetDirectories(newFolder, "*", SearchOption.AllDirectories))
+                        {
+                            Directory.CreateDirectory(Path.Combine(gameFolder, dir.Substring(newFolder.Length + 1)));
+                        }
+
+                        foreach (string file_name in Directory.GetFiles(newFolder, "*", SearchOption.AllDirectories))
+                        {
+                            File.Move(file_name, Path.Combine(gameFolder, file_name.Substring(newFolder.Length + 1)));
+                        }
+
+                        Directory.Delete(newFolder, true);
+                    }
+                }
+
+                if (Directory.Exists(scriptTempFolder))
+                {
+                    Directory.Delete(scriptTempFolder, true);
+                }
+
+                while (!zipExtractFinished)
+                {
+                    Application.DoEvents();
+                }
+
+                zip.Dispose();
+                lbl_Handler.Text = "";
+                label1.Text = "Finished!";
+
+                if (fullZipPath.Contains("handlers"))
+                {
+                    File.Delete(fullZipPath);
+                }
+
+                //string[] exeNamesArray = null;
+
+                //if(exeNamesString != null)
+                //{
+                //    exeNamesArray = exeNamesString.Split(',');
+                //}
+
+                if (GameManager.Instance.IsGameAlreadyInUserProfile(exeName, /*exeNamesArray ,*/frmHandleTitle))
+                {
+                    GameManager.Instance.AddScript(frmHandleTitle, new bool[] { false, false });
+                    return;
+                }
+
+                DialogResult dialogResult = MessageBox.Show(
+                    $"Downloading and extraction of " + frmHandleTitle +
+                    " handler is complete. Would you like to add this game to Nucleus now? You will need to select the game executable to add it.",
+                    "Download finished! Add to Nucleus?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (dialogResult == DialogResult.Yes)
+                {
+                    GenericGameInfo genericGameInfo = GameManager.Instance.AddScript(frmHandleTitle, new bool[] { false, false });
+                    SearchGame.Search(exeName, genericGameInfo);
                 }
             }
-
-            Directory.Delete(scriptTempFolder, true);
-
-            while (!zipExtractFinished)
+            catch
             {
-                Application.DoEvents();
-            }
 
-            zip.Dispose();
-            lbl_Handler.Text = "";
-            label1.Text = "Finished!";
+                if (Directory.Exists(scriptFolder + "\\temp"))
+                {
+                    Directory.Delete(scriptFolder + "\\temp", true);
+                }
 
-            File.Delete(Path.Combine(scriptFolder, zipFile));
-
-            //string[] exeNamesArray = null;
-
-            //if(exeNamesString != null)
-            //{
-            //    exeNamesArray = exeNamesString.Split(',');
-            //}
-
-            if (GameManager.Instance.IsGameAlreadyInUserProfile(exeName, /*exeNamesArray ,*/frmHandleTitle))
-            {
-                GameManager.Instance.AddScript(frmHandleTitle, new bool[] { false, false });    
-                return;
-            }
-
-            DialogResult dialogResult = MessageBox.Show(
-                "Downloading and extraction of " + frmHandleTitle +
-                " handler is complete. Would you like to add this game to Nucleus now? You will need to select the game executable to add it.",
-                "Download finished! Add to Nucleus?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-            if (dialogResult == DialogResult.Yes)
-            {
-                GenericGameInfo genericGameInfo = GameManager.Instance.AddScript(frmHandleTitle, new bool[] { false, false });
-                SearchGame.Search(exeName, genericGameInfo);
+                MessageBox.Show("Something went wrong during the extraction. Make sure to use a valid Nucleus handler archive.", "An error occured.", MessageBoxButtons.OK, MessageBoxIcon.Hand);
             }
         }
     }

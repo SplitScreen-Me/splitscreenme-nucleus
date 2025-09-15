@@ -477,30 +477,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="copyoutput\Settings.ini" />
-    <None Include="copyoutput\utils\devreorder\devreorder.ini" />
-    <None Include="copyoutput\utils\FlawlessWidescreen\x64\data\about_track.xm" />
-    <None Include="copyoutput\utils\FlawlessWidescreen\x64\PluginCache\FWS_Plugins\GlobalDependencies\Scripts\StandardBase.lua" />
-    <None Include="copyoutput\utils\FlawlessWidescreen\x64\PluginCache\FWS_Plugins\GlobalDependencies\Scripts\StandardTheme.lua" />
-    <None Include="copyoutput\utils\FlawlessWidescreen\x64\Plugins\FWS_Plugins.fws" />
-    <None Include="copyoutput\utils\FlawlessWidescreen\x86\data\about_track.xm" />
-    <None Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu.ini" />
-    <None Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu\Common\218620\inventory.bin" />
-    <None Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu\Common\218620\item_schema.bin" />
-    <None Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu\Common\620\items.bin" />
-    <None Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu\Common\730\items.bin" />
-    <None Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu\Plugins\SSEFirewall.ini" />
-    <None Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu\Plugins\SSEOverlay\Language.ini" />
-    <None Include="copyoutput\utils\x360ce\x360ce.ini" />
-    <None Include="copyoutput\utils\XInputPlus\old\XInputPlus.ini" />
-    <None Include="copyoutput\utils\XInputPlus\old\XInputPlus_Default.ini" />
-    <None Include="copyoutput\utils\XInputPlus\x64\Dinput.dl_" />
-    <None Include="copyoutput\utils\XInputPlus\x64\Dinput8.dl_" />
-    <None Include="copyoutput\utils\XInputPlus\x64\xinput1_3.dl_" />
-    <None Include="copyoutput\utils\XInputPlus\x86\Dinput.dl_" />
-    <None Include="copyoutput\utils\XInputPlus\x86\Dinput8.dl_" />
-    <None Include="copyoutput\utils\XInputPlus\x86\xinput1_3.dl_" />
-    <None Include="copyoutput\utils\XInputPlus\XInputPlus.ini" />
-    <None Include="copyoutput\utils\XInputPlus\XInputPlus_Default.ini" />
     <None Include="gui\theme\default\theme.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -557,8 +533,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="copyoutput\SDL2.dll" />
-    <Content Include="copyoutput\utils\DInput8CoopLvlUnlocker\x86\dinput8.dll" />
-    <Content Include="copyoutput\utils\DInput8CoopLvlUnlocker\x64\dinput8.dll" />
     <Content Include="Resources\xboxControllerFront.png" />
     <None Include="Resources\log1.png" />
     <None Include="Resources\search_game.png" />
@@ -570,138 +544,7 @@
     <None Include="Resources\maximize_button.png" />
     <None Include="Resources\minimize_button.png" />
     <Content Include="copyoutput\openxinput1_3.dll" />
-    <AdditionalFiles Include="copyoutput\utils\backup\dummy.txt" />
-    <Content Include="copyoutput\utils\Credits.txt" />
-    <Content Include="copyoutput\utils\Custom utils go in User folder.txt" />
-    <Content Include="copyoutput\utils\devcon\devcon.exe" />
-    <Content Include="copyoutput\utils\devreorder\DeviceLister.exe" />
-    <Content Include="copyoutput\utils\devreorder\x64\dinput8.dll" />
-    <Content Include="copyoutput\utils\devreorder\x86\dinput8.dll" />
-    <Content Include="copyoutput\utils\DirectXWrapper\d3d9.dll" />
-    <Content Include="copyoutput\utils\Do NOT change file or folder names.txt" />
-    <Content Include="copyoutput\utils\EAC Bypass\EasyAntiCheat_x64.dll" />
-    <Content Include="copyoutput\utils\EAC Bypass\EasyAntiCheat_x86.dll" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\bass.dll" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\BeaEngine.dll" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\about_1.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\about_2.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\about_3.jpg" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\b-execstep.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\b-nextstep.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\b-prevstep.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\donate_button.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\largeicon_default.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\Logo.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\lv-critical.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\lv-debug.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\lv-error.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\lv-information.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\lv-warning.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\tc-status.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\tv-avail.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\tv-downloading.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\tv-installed.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\tv-missingdep.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\tv-module.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\data\tv-plugin.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\FASM.dll" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\fasm_wrapper.exe" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\FlawlessWidescreen.exe" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\libcurl.dll" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\licences\BeaEngine.txt" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\licences\FASM.txt" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\licences\FlawlessWidescreen.txt" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\licences\libcurl.txt" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\licences\Summary.txt" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\RepositoryCache\FWS_MasterRepo.xml" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x64\settings.xml" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\bass.dll" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\BeaEngine.dll" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\about_1.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\about_2.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\about_3.jpg" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\b-execstep.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\b-nextstep.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\b-prevstep.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\donate_button.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\largeicon_default.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\Logo.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\lv-critical.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\lv-debug.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\lv-error.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\lv-information.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\lv-warning.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\tc-status.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\tv-avail.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\tv-downloading.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\tv-installed.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\tv-missingdep.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\tv-module.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\data\tv-plugin.png" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\FASM.dll" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\FlawlessWidescreen.exe" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\libcurl.dll" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\licences\BeaEngine.txt" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\licences\FASM.txt" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\licences\FlawlessWidescreen.txt" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\licences\libcurl.txt" />
-    <Content Include="copyoutput\utils\FlawlessWidescreen\x86\licences\Summary.txt" />
-    <Content Include="copyoutput\utils\ForceBindIP\BindIP.dll" />
-    <Content Include="copyoutput\utils\ForceBindIP\BindIP64.dll" />
-    <Content Include="copyoutput\utils\ForceBindIP\ForceBindIP.exe" />
-    <Content Include="copyoutput\utils\ForceBindIP\ForceBindIP64.exe" />
     <None Include="Resources\no_image.jpg" />
-    <Content Include="copyoutput\utils\LaunchUsers\PsExec.exe" />
-    <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu.dll" />
-    <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu.txt" />
-    <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu64.dll" />
-    <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu\Common\avatar.png" />
-    <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu\Common\Readme.txt" />
-    <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu\Plugins\SSEFirewall.dll" />
-    <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu\Plugins\SSEFirewall64.dll" />
-    <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu\Plugins\SSEOverlay\message.wav" />
-    <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu\Plugins\SSEOverlay\screenshot.wav" />
-    <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu\Plugins\x64\SSEOverlay.dll" />
-    <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamEmu\Plugins\x86\SSEOverlay.dll" />
-    <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamLoader.exe" />
-    <Content Include="copyoutput\utils\SmartSteamEmu\SmartSteamLoader_x64.exe" />
-    <Content Include="copyoutput\utils\SplitCalculator\SplitCalculator.exe" />
-    <Content Include="copyoutput\utils\Steam Stub DRM Patcher\x64\winmm.dll" />
-    <Content Include="copyoutput\utils\Steam Stub DRM Patcher\x86\winmm.dll" />
-    <Content Include="copyoutput\utils\Steamless\Plugins\ExamplePlugin.dll" />
-    <Content Include="copyoutput\utils\Steamless\Plugins\SharpDisasm.dll" />
-    <Content Include="copyoutput\utils\Steamless\Plugins\Steamless.API.dll" />
-    <Content Include="copyoutput\utils\Steamless\Plugins\Steamless.Unpacker.Variant10.x86.dll" />
-    <Content Include="copyoutput\utils\Steamless\Plugins\Steamless.Unpacker.Variant20.x86.dll" />
-    <Content Include="copyoutput\utils\Steamless\Plugins\Steamless.Unpacker.Variant21.x86.dll" />
-    <Content Include="copyoutput\utils\Steamless\Plugins\Steamless.Unpacker.Variant30.x64.dll" />
-    <Content Include="copyoutput\utils\Steamless\Plugins\Steamless.Unpacker.Variant30.x86.dll" />
-    <Content Include="copyoutput\utils\Steamless\Plugins\Steamless.Unpacker.Variant31.x64.dll" />
-    <Content Include="copyoutput\utils\Steamless\Plugins\Steamless.Unpacker.Variant31.x86.dll" />
-    <Content Include="copyoutput\utils\Steamless\Steamless.CLI.exe" />
-    <Content Include="copyoutput\utils\x360ce\dinput8.dll" />
-    <Content Include="copyoutput\utils\x360ce\dinput8_x64.dll" />
-    <Content Include="copyoutput\utils\x360ce\x360ce.exe" />
-    <Content Include="copyoutput\utils\x360ce\x360ce_x64.exe" />
-    <Content Include="copyoutput\utils\x360ce\xinput1_3.dll" />
-    <Content Include="copyoutput\utils\x360ce\xinput1_3_x64.dll" />
-    <Content Include="copyoutput\utils\XInputPlus\DI8dotNET.dll" />
-    <Content Include="copyoutput\utils\XInputPlus\ja\XInputPlus.resources.dll" />
-    <Content Include="copyoutput\utils\XInputPlus\Loader\ja\XInputPlusLoader.resources.dll" />
-    <Content Include="copyoutput\utils\XInputPlus\Loader\XInputPlusInjector.dll" />
-    <Content Include="copyoutput\utils\XInputPlus\Loader\XInputPlusInjector64.dll" />
-    <Content Include="copyoutput\utils\XInputPlus\Loader\XInputPlusLoader.exe" />
-    <Content Include="copyoutput\utils\XInputPlus\old\DI8dotNET.dll" />
-    <Content Include="copyoutput\utils\XInputPlus\old\ReadMe_en.txt" />
-    <Content Include="copyoutput\utils\XInputPlus\old\XInputPlus.exe" />
-    <Content Include="copyoutput\utils\XInputPlus\old\ìXÉVùÜù=.txt" />
-    <Content Include="copyoutput\utils\XInputPlus\old\òKé+é¿ô¦é¦é¡é+é¦éó.txt" />
-    <Content Include="copyoutput\utils\XInputPlus\ReadMe_en.txt" />
-    <Content Include="copyoutput\utils\XInputPlus\winmm\Readme.txt" />
-    <Content Include="copyoutput\utils\XInputPlus\winmm\Winmm.dll" />
-    <Content Include="copyoutput\utils\XInputPlus\XInputPlus.exe" />
-    <Content Include="copyoutput\utils\XInputPlus\ìXÉVùÜù=.txt" />
-    <Content Include="copyoutput\utils\XInputPlus\òKé+é¿ô¦é¦é¡é+é¦éó.txt" />
     <Content Include="gui\icons\default.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1139,12 +982,7 @@
     <None Include="Resources\extract_nc.png" />
     <Content Include="Resources\icon.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="copyoutput\utils\FlawlessWidescreen\x64\PluginCache\FWS_Plugins\Modules\" />
-    <Folder Include="copyoutput\utils\GoldbergEmu\" />
-    <Folder Include="copyoutput\utils\NemirtingasEpicEmu\" />
-    <Folder Include="copyoutput\utils\User\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>echo.&gt;Built.flag
