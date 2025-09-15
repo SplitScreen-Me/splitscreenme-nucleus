@@ -1186,7 +1186,7 @@ namespace Nucleus.Gaming.Tools.Steam
             try
             {
                 string steamlessExePath = Path.Combine($@"{Directory.GetCurrentDirectory()}\utils\Steamless\Steamless.CLI.exe");
-                string steamlessArgs = $@"{args} {linkBinFolder} \ {executableName}";
+                string steamlessArgs = $@"{args} {linkBinFolder}\{executableName}";
                 var batch = Path.Combine(linkBinFolder, "steamless.bat");
                 string content = $"{steamlessExePath} {steamlessArgs} \"{executableName}\"";
 
@@ -1198,24 +1198,18 @@ namespace Nucleus.Gaming.Tools.Steam
                 proc.UseShellExecute = false;
                 proc.WorkingDirectory = Path.GetDirectoryName(batch);
                 proc.CreateNoWindow = true;
-
                 Process.Start(proc);
 
-                Stopwatch watch = new Stopwatch();
-                watch.Start();
-
-                while (!File.Exists($@"{linkBinFolder}\{executableName}.unpacked.exe") && watch.Elapsed.Seconds <= timing / 1000)
-                {
-                    Thread.Sleep(1000);
-                }
-
-                watch.Stop();
+                GenericGameHandler.Instance.Log($"Starting Steamless. Pausing setup for {timing}ms");
+                
+                Thread.Sleep(timing);
 
                 if (File.Exists($@"{linkBinFolder}\{executableName}.unpacked.exe"))
                 {
                     GenericGameHandler.Instance.Log($"Steamless patch applied successfully.");
 
                     File.Delete($@"{linkBinFolder}\{executableName}");
+                    Thread.Sleep(200);
                     File.Move($@"{linkBinFolder}\{executableName}.unpacked.exe", $@"{linkBinFolder}\{executableName}");
 
                     if (File.Exists($@"{linkBinFolder}\{executableName}.exe"))
@@ -1225,15 +1219,55 @@ namespace Nucleus.Gaming.Tools.Steam
                 }
                 else
                 {
-                    NucleusMessageBox.Show("Error", "Steamless failed at patching the executable. Please try again.", false);
-                    GenericGameHandler.Instance.End(false);
+                    GenericGameHandler.Instance.Log("Steamless failed at patching the executable (batch)");
+                    SteamlessProcLegacy(linkBinFolder, executableName, args, timing);
                 }
 
                 if (File.Exists(batch))
                 {
                     File.Delete(batch);
                 }
+            }
+            catch (Exception ex)
+            {
+                GenericGameHandler.Instance.Log($"Error:\n{ex.Message}\n" +
+                                                $"StackTrace:/n{ex.StackTrace}");
+            };
+        }
 
+        private static void SteamlessProcLegacy(string linkBinFolder, string executableName, string args, int timing)
+        {
+            try
+            {
+                string steamlessExePath = Path.Combine($@"{Directory.GetCurrentDirectory()}\utils\Steamless\Steamless.CLI.exe");
+
+                string steamlessArgs = $@"{args} {linkBinFolder}\{executableName}";
+
+                ProcessStartInfo sl = new ProcessStartInfo(steamlessExePath);
+                sl.WorkingDirectory = linkBinFolder;
+                sl.UseShellExecute = true;
+                sl.WindowStyle = ProcessWindowStyle.Hidden;
+                sl.Arguments = steamlessArgs;           
+                Process.Start(sl);
+
+                GenericGameHandler.Instance.Log($"Starting Steamless. Pausing setup for {timing}ms");
+                
+                Thread.Sleep(timing);
+
+                if (File.Exists($@"{linkBinFolder}\{executableName}.unpacked.exe"))
+                {
+                    GenericGameHandler.Instance.Log($"Steamless patch applied successfully.");
+
+                    File.Delete($@"{linkBinFolder}\{executableName}");
+                    Thread.Sleep(200);
+                    File.Move($@"{linkBinFolder}\{executableName}.unpacked.exe", $@"{linkBinFolder}\{executableName}");
+
+                    GenericGameHandler.Instance.Log($"Original executable successfully replaced by the Steamless patched version.");             
+                }
+                else
+                {
+                    GenericGameHandler.Instance.Log("Steamless failed at patching the executable");
+                }
             }
             catch (Exception ex)
             {

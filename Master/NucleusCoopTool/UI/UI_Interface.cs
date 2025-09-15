@@ -84,6 +84,9 @@ namespace Nucleus.Coop.UI
                 HandlerNotesZoom = notesZoom;
                 homeScreen.Controls.Add(notesZoom);
 
+                homeScreen.AllowDrop = true;
+                homeScreen.DragEnter += UI_Functions.ExtrtactHandlerDragEnter;
+                homeScreen.DragDrop += UI_Functions.ExtrtactHandlerDragDrop;
                 homeScreen.Paint += UI_Graphics.HomeScreen_Paint;
             }
         }
@@ -543,6 +546,7 @@ namespace Nucleus.Coop.UI
             set
             {
                 saveProfileSwitch = value;
+                saveProfileSwitch.Visible = false;
                 saveProfileSwitch.TickCursor = Theme_Settings.Hand_Cursor;
                 saveProfileSwitch.Click += UI_Functions.SaveProfileSwitch_Click;
             }       

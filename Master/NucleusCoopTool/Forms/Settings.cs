@@ -531,7 +531,7 @@ namespace Nucleus.Coop
             CustomToolTips.SetToolTip(splitDiv, "May not work for all games", "splitDiv", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
             CustomToolTips.SetToolTip(hideDesktop, "Will only show the splitscreen division window without adjusting the game windows size and offset.", "hideDesktop", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
             CustomToolTips.SetToolTip(disableGameProfiles, "Disables profiles, Nucleus will use the global settings instead.", "disableGameProfiles", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
-            CustomToolTips.SetToolTip(gamepadsAssignMethods, "Some handlers doesn't support this option and will automatically disable it. If enabled, profiles\n" +
+            CustomToolTips.SetToolTip(gamepadsAssignMethods, "Some handlers don't support this option and will automatically disable it. If enabled, profiles\n" +
                                                              "will not save the gamepads hardware ids but use API indexes instead\n" +
                                                              "(switching modes could prevent some profiles to load properly).\n" +
                                                              "Note: Nucleus will return to home screen.", "gamepadsAssignMethods" , new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });

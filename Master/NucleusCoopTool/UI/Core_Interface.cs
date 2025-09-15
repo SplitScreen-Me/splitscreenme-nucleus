@@ -86,6 +86,7 @@ namespace Nucleus.Coop.UI
                     return false;
                 }
 
+                if (search0.Text == search0.Hint) { return false; }
                 if (search0.Text.StartsWith(" ")) { search0.Text = ""; return false; }
                 if (prevSearchText == search0.Hint && search0.Text == "") { return false; }
                 if (prevSearchText == "" && search0.Text == "") { return false; }
@@ -155,7 +156,8 @@ namespace Nucleus.Coop.UI
                             List<string> splittedName = game.Game.GameName.ToLower().Split(' ').ToList();
                             List<string> splittedSearch = search.Text.ToLower().Split(' ').ToList();
 
-                            bool found = (game.Game.GameName.ToLower().Contains(search.Text.ToLower()) && search.Text.Length > 1) || game.Game.GameName.ToLower().StartsWith(search.Text.ToLower());
+                            bool found = (game.Game.GameName.ToLower().Contains(search.Text.ToLower()) && search.Text.Length > 1) || 
+                                          game.Game.GameName.ToLower().StartsWith(search.Text.ToLower());
 
                             if (!found)
                             {
