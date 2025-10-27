@@ -21,3 +21,5 @@ void installGetKeyboardStateHook();
 void installMessageFilterHooks();
 
 void installXInputHooks();
+
+void installGetCursorInfoHook(); //new

@@ -69,6 +69,7 @@ namespace Nucleus.Gaming.Tools.DllsInjector
                     handlerInstance.CurrentGameInfo.HookReRegisterRawInputKeyboard,
                     handlerInstance.CurrentGameInfo.InjectHookXinput,
                     handlerInstance.CurrentGameInfo.InjectDinputToXinputTranslation,
+                    handlerInstance.CurrentGameInfo.GetCursorInfoHook,
 
                     windowNull ? "" : (window.HookPipe?.pipeNameWrite ?? ""),
                     windowNull ? "" : (window.HookPipe?.pipeNameRead ?? ""),

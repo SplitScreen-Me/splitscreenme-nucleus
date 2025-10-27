@@ -404,6 +404,7 @@ namespace Nucleus.Inject
             bool.TryParse(args[i++], out bool reRegisterRawInputKeyboard);
             bool.TryParse(args[i++], out bool hookXinput);
             bool.TryParse(args[i++], out bool dinputToXinputTranslation);
+            bool.TryParse(args[i++], out bool GetCursorInfoHook);
 
             string writePipeName = args[i++];
             string readPipeName = args[i++];
@@ -467,6 +468,7 @@ namespace Nucleus.Inject
             dataToSend[index++] = Bool_1_0(reRegisterRawInputKeyboard);
             dataToSend[index++] = Bool_1_0(hookXinput);
             dataToSend[index++] = Bool_1_0(dinputToXinputTranslation);
+            dataToSend[index++] = Bool_1_0(GetCursorInfoHook);
 
             dataToSend[index++] = (byte)(logPathLength >> 24);
             dataToSend[index++] = (byte)(logPathLength >> 16);

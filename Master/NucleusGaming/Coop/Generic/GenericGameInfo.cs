@@ -249,6 +249,7 @@ namespace Nucleus.Gaming
         public bool EnableWindows;
         public string[] WindowStyleEndChanges;
         public string[] ExtWindowStyleEndChanges;
+        public bool GetCursorInfoHook;
         public bool UseDInputBlocker;
         public bool IgnoreThirdPartyPrompt;
         public string ExecutableToLaunch;

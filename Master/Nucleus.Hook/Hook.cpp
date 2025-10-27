@@ -160,6 +160,7 @@ void __stdcall NativeInjectionEntryPoint(REMOTE_ENTRY_INFO* inRemoteInfo)
 	Globals::options.reRegisterRawInputKeyboard = NEXTBOOL;
 	Globals::options.HookXInput = NEXTBOOL;
 	Globals::options.DinputToXinputTranslation = NEXTBOOL;
+	Globals::options.GetCursorInfoHook = NEXTBOOL;
 #undef NEXTBOOL
 
 	const auto pathLength = static_cast<size_t>(bytesToInt(p)); p += 4;
@@ -216,6 +217,7 @@ void __stdcall NativeInjectionEntryPoint(REMOTE_ENTRY_INFO* inRemoteInfo)
 		" reRegisterRawInputKeyboard: " << Globals::options.reRegisterRawInputKeyboard <<
 		" hookXinput: " << Globals::options.HookXInput <<
 		" DinputToXinputTranslation: " << Globals::options.DinputToXinputTranslation <<
+		" GetCursorInfo: " << Globals::options.GetCursorInfoHook <<
 		" controllerIndex: " << Controller::controllerIndex <<
 		" windowWidth: " << windowWidth <<
 		" windowHeight: " << windowHeight <<
@@ -260,6 +262,11 @@ void __stdcall NativeInjectionEntryPoint(REMOTE_ENTRY_INFO* inRemoteInfo)
 	if (Globals::options.filterRawInput || Globals::options.filterMouseMessages || Globals::options.legacyInput || Globals::options.preventWindowDeactivation || Globals::options.reRegisterRawInput)
 	{
 		installMessageFilterHooks();
+	}
+	//new
+	if (Globals::options.GetCursorInfoHook)
+	{
+		installGetCursorInfoHook();
 	}
 #pragma endregion
 	
