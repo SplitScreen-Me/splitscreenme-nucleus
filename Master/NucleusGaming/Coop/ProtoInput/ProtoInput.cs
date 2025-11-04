@@ -254,6 +254,9 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetAdjustWindowRectSettings(uint instanceHandle, int posx, int posy, int width, int height);
+
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void DisableGuiWindow(uint instanceHandle, bool enable);
         }
 
         private static class ProtoInput64
@@ -427,6 +430,9 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetAdjustWindowRectSettings(uint instanceHandle, int posx, int posy, int width, int height);
+            
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void DisableGuiWindow(uint instanceHandle, bool enable);
         }
 
         public uint LockInput(bool lockInput)
@@ -1128,6 +1134,17 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                 ProtoInput64.SetAdjustWindowRectSettings(instanceHandle, posx, posy, width, height);
             }
         }
-
+        
+        public void DisableGuiWindow(uint instanceHandle, bool enable)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.DisableGuiWindow(instanceHandle, enable);
+            }
+            else
+            {
+                ProtoInput64.DisableGuiWindow(instanceHandle, enable);
+            }
+        }
     }
 }

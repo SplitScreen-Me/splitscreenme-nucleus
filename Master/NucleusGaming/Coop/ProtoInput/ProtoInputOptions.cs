@@ -78,6 +78,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
         public bool DinputHookAlsoHooksGetDeviceState;
 
         public bool FreezeExternalInputWhenInputNotLocked;
+        
+        public bool DisableGuiWindow;
 
         public Action OnInputLocked;
         public Action OnInputUnlocked;
