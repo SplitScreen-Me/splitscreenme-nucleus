@@ -103,6 +103,8 @@ namespace Nucleus.Gaming
         public string[] CustomUserInstanceValues;
         public bool InjectHookXinput;
         public bool InjectDinputToXinputTranslation;
+        public bool GetCursorInfoHook;
+        // public bool NewmadeHook;
         public bool UseDInputBlocker;
         public bool BlockRawInput;
         public bool PreventWindowDeactivation;

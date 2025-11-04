@@ -22,4 +22,6 @@ public:
 	bool reRegisterRawInputKeyboard;
 	bool HookXInput;//TODO: implement
 	bool DinputToXinputTranslation;//TODO: implement
+	bool GetCursorInfoHook;
+	//bool NewmadeHook;
 };

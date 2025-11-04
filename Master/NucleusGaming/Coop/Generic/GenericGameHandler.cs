@@ -655,8 +655,8 @@ namespace Nucleus.Gaming
                         }
                     }
                 }
-
-                if (i > 0 && !gen.ProcessChangesAtEnd && (gen.HookFocus || gen.SetWindowHook || gen.HideCursor || gen.PreventWindowDeactivation || gen.SupportsMultipleKeyboardsAndMice))
+                //|| gen.InjectHookXinput is missing, but i dont dare to fix it, may break some handlers. Xinput hook doesnt hook now unless any of these other conditions match
+                if (i > 0 && !gen.ProcessChangesAtEnd && (gen.HookFocus || gen.SetWindowHook || gen.HideCursor || gen.PreventWindowDeactivation || gen.SupportsMultipleKeyboardsAndMice || gen.GetCursorInfoHook))
                 {
                     if (gen.PreventWindowDeactivation && !isPrevent)
                     {
@@ -2895,8 +2895,8 @@ namespace Nucleus.Gaming
                             }
                         }
                     }
-
-                    if ((i > 0 || players.Count == 1) && (gen.HookFocus || gen.SetWindowHook || gen.HideCursor || gen.PreventWindowDeactivation || gen.SupportsMultipleKeyboardsAndMice))
+                    //|| gen.InjectHookXinput is missing, but i dont dare to fix it, may break some handlers. Xinput hook doesnt hook now unless any of these other conditions match
+                    if ((i > 0 || players.Count == 1) && (gen.HookFocus || gen.SetWindowHook || gen.HideCursor || gen.PreventWindowDeactivation || gen.SupportsMultipleKeyboardsAndMice || gen.GetCursorInfoHook))
                     {
                         if (gen.PreventWindowDeactivation && !isPrevent)
                         {
@@ -3156,8 +3156,8 @@ namespace Nucleus.Gaming
                 var window = GlobalWindowMethods.CreateRawInputWindow(proc, players[i]);
 
                 Thread.Sleep(1000);
-
-                if (gen.HookFocus || gen.SetWindowHook || gen.HideCursor || gen.PreventWindowDeactivation || gen.SupportsMultipleKeyboardsAndMice)
+                //|| gen.InjectHookXinput is missing, but i dont dare to fix it, may break some handlers. Xinput hook doesnt hook now unless any of these other conditions match
+                if (gen.HookFocus || gen.SetWindowHook || gen.HideCursor || gen.PreventWindowDeactivation || gen.SupportsMultipleKeyboardsAndMice || gen.GetCursorInfoHook)
                 {
                     Log("Injecting post-launch hooks for process " + proc.ProcessName + " (pid " + proc.Id + ")");
 

@@ -121,6 +121,10 @@ namespace Nucleus.Gaming
 
         bool InjectDinputToXinputTranslation { get; }
 
+        bool GetCursorInfoHook { get; }
+
+        // bool NewmadeHook { get; }
+
         bool UseDInputBlocker { get; }
 
         bool BlockRawInput { get; }
