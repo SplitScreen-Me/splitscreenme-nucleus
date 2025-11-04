@@ -250,6 +250,7 @@ namespace Nucleus.Gaming
         public string[] WindowStyleEndChanges;
         public string[] ExtWindowStyleEndChanges;
         public bool GetCursorInfoHook;
+       // public bool NewmadeHook;
         public bool UseDInputBlocker;
         public bool IgnoreThirdPartyPrompt;
         public string ExecutableToLaunch;

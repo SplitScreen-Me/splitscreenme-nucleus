@@ -270,6 +270,7 @@ copy $(SolutionDir)$(PlatformTarget)\$(Configuration)\$(TargetName).dll $(Soluti
     <ClCompile Include="Piping.cpp" />
     <ClCompile Include="RawInputReRegister.cpp" />
     <ClCompile Include="SetWindowHook.cpp" />
+    <ClCompile Include="NewmadeHook.cpp" />
     <ClCompile Include="XInputHooks.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

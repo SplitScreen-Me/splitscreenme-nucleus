@@ -23,4 +23,5 @@ public:
 	bool HookXInput;//TODO: implement
 	bool DinputToXinputTranslation;//TODO: implement
 	bool GetCursorInfoHook;
+	//bool NewmadeHook;
 };

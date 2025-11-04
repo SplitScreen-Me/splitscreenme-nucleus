@@ -161,6 +161,7 @@ void __stdcall NativeInjectionEntryPoint(REMOTE_ENTRY_INFO* inRemoteInfo)
 	Globals::options.HookXInput = NEXTBOOL;
 	Globals::options.DinputToXinputTranslation = NEXTBOOL;
 	Globals::options.GetCursorInfoHook = NEXTBOOL;
+	//Globals::options.NewmadeHook = NEXTBOOL;
 #undef NEXTBOOL
 
 	const auto pathLength = static_cast<size_t>(bytesToInt(p)); p += 4;
@@ -218,6 +219,7 @@ void __stdcall NativeInjectionEntryPoint(REMOTE_ENTRY_INFO* inRemoteInfo)
 		" hookXinput: " << Globals::options.HookXInput <<
 		" DinputToXinputTranslation: " << Globals::options.DinputToXinputTranslation <<
 		" GetCursorInfo: " << Globals::options.GetCursorInfoHook <<
+		//" Winmm: " << Globals::options.NewmadeHook <<
 		" controllerIndex: " << Controller::controllerIndex <<
 		" windowWidth: " << windowWidth <<
 		" windowHeight: " << windowHeight <<
@@ -268,6 +270,10 @@ void __stdcall NativeInjectionEntryPoint(REMOTE_ENTRY_INFO* inRemoteInfo)
 	{
 		installGetCursorInfoHook();
 	}
+	//if (Globals::options.WinmmHook)
+	//{
+	//	installNewmadeHook();
+	//}
 #pragma endregion
 	
 	DEBUGLOG("Hook injection complete\n");

@@ -23,3 +23,5 @@ void installMessageFilterHooks();
 void installXInputHooks();
 
 void installGetCursorInfoHook(); //new
+
+//void installNewmadeHook();

@@ -123,6 +123,8 @@ namespace Nucleus.Gaming
 
         bool GetCursorInfoHook { get; }
 
+        // bool NewmadeHook { get; }
+
         bool UseDInputBlocker { get; }
 
         bool BlockRawInput { get; }
