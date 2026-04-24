@@ -109,6 +109,8 @@ namespace Nucleus.Gaming
 
         int PlayersPerInstance { get; }
 
+        int EffectivePlayersPerInstance { get; }
+
         bool UseDevReorder { get; }
 
         string[] CustomUserGeneralValues { get; }

@@ -211,7 +211,7 @@ namespace Nucleus.Coop.UI
                                 ((menuCurrentGameInfo.Game.Hook.XInputEnabled && !menuCurrentGameInfo.Game.Hook.XInputReroute && !menuCurrentGameInfo.Game.ProtoInput.DinputDeviceHook) ||
                                 (menuCurrentGameInfo.Game.ProtoInput.XinputHook || menuCurrentGameInfo.Game.Hook.SDL2Enabled)) &&
                                 (!menuCurrentGameInfo.Game.UseDevReorder && !menuCurrentGameInfo.Game.CreateSingleDeviceFile) &&
-                                menuCurrentGameInfo.Game.PlayersPerInstance > 0 &&
+                                menuCurrentGameInfo.Game.EffectivePlayersPerInstance > 0 &&
                                 !menuCurrentGameInfo.Game.Hook.DInputEnabled;
 
                             if (menuCurrentGameInfo.Game.MetaInfo.UseApiIndexForGuests)
@@ -229,11 +229,49 @@ namespace Nucleus.Coop.UI
                             gameOptionMenu.Items[i].Click += UseApiIndexForGuestsMenuItem_Click;
 
                             gameOptionMenu.Items[i].Visible = !menuCurrentGameInfo.Game.MetaInfo.UseApiIndex &&
-                                !menuCurrentGameInfo.Game.MetaInfo.DisableProfiles && menuCurrentGameInfo.Game.PlayersPerInstance > 0;
+                                !menuCurrentGameInfo.Game.MetaInfo.DisableProfiles && menuCurrentGameInfo.Game.EffectivePlayersPerInstance > 0;
                         }
 
 
                         //gameOptionMenu.Items["toolStripSeparator3"].Visible = !menuCurrentGameInfo.Game.MetaInfo.DisableProfiles || !App_Misc.DisableGameProfiles|| gameOptionMenu.Items["useAPIIndexMenuItem"].Visible || gameOptionMenu.Items["useGamepadButtonPressMenuItem"].Visible || gameOptionMenu.Items["useGamepadAPIIndexForGuestsMenuItem"].Visible;
+
+                        if (i == gameOptionMenu.Items.IndexOf(gameOptionMenu.Items["controllersPerInstanceMenuItem"]))
+                        {
+                            ToolStripMenuItem cpiItem = gameOptionMenu.Items[i] as ToolStripMenuItem;
+                            cpiItem.Visible = true;
+
+                            int current = menuCurrentGameInfo.Game.MetaInfo.ControllersPerInstance;
+
+                            foreach (ToolStripMenuItem subItem in cpiItem.DropDownItems)
+                            {
+                                subItem.Checked = false;
+                                subItem.ForeColor = Theme_Settings.GameOptionMenuForeColor;
+                                subItem.Click -= ControllersPerInstanceSubItem_Click;
+                                subItem.Click += ControllersPerInstanceSubItem_Click;
+                            }
+
+                            if (current == 0)
+                            {
+                                cpiItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "unlocked.png");
+                                cpiItem.ForeColor = Theme_Settings.GameOptionMenuForeColor;
+                                if (cpiItem.DropDownItems["cpiDisabledMenuItem"] is ToolStripMenuItem disabledItem)
+                                {
+                                    disabledItem.Checked = true;
+                                    disabledItem.ForeColor = Color.GreenYellow;
+                                }
+                            }
+                            else
+                            {
+                                cpiItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
+                                cpiItem.ForeColor = Color.GreenYellow;
+                                string activeItemName = $"cpi{current}MenuItem";
+                                if (cpiItem.DropDownItems[activeItemName] is ToolStripMenuItem activeItem)
+                                {
+                                    activeItem.Checked = true;
+                                    activeItem.ForeColor = Color.GreenYellow;
+                                }
+                            }
+                        }
 
                         #endregion
 
@@ -964,6 +1002,23 @@ namespace Nucleus.Coop.UI
                     UI_Interface.ProfilesList.Update_Reload();
                 }
 
+                if (Core_Interface.StepsList != null)
+                {
+                    Core_Interface.GoToStep(0);
+                }
+            }
+        }
+
+        public static void ControllersPerInstanceSubItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem subItem = sender as ToolStripMenuItem;
+            if (subItem == null) return;
+
+            int value = subItem.Tag is int tagVal ? tagVal : 0;
+            menuCurrentGameInfo.Game.MetaInfo.ControllersPerInstance = value;
+
+            if (Core_Interface.CurrentMenuUserGameInfo == Core_Interface.Current_UserGameInfo)
+            {
                 if (Core_Interface.StepsList != null)
                 {
                     Core_Interface.GoToStep(0);

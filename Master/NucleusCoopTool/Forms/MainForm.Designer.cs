@@ -65,6 +65,11 @@ namespace Nucleus.Coop
             this.useAPIIndexMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.useGamepadButtonPressMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.useGamepadAPIIndexForGuestsMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.controllersPerInstanceMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cpiDisabledMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cpi2MenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cpi3MenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cpi4MenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.keepInstancesFolderMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disableProfilesMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -176,6 +181,7 @@ namespace Nucleus.Coop
             this.useAPIIndexMenuItem,
             this.useGamepadButtonPressMenuItem,
             this.useGamepadAPIIndexForGuestsMenuItem,
+            this.controllersPerInstanceMenuItem,
             this.toolStripSeparator5,
             this.keepInstancesFolderMenuItem,
             this.disableProfilesMenuItem,
@@ -340,6 +346,45 @@ namespace Nucleus.Coop
             this.useGamepadAPIIndexForGuestsMenuItem.Name = "useGamepadAPIIndexForGuestsMenuItem";
             this.useGamepadAPIIndexForGuestsMenuItem.Size = new System.Drawing.Size(305, 22);
             this.useGamepadAPIIndexForGuestsMenuItem.Text = "Assign Gamepads By Index For Guests Only ";
+            // 
+            // controllersPerInstanceMenuItem
+            // 
+            this.controllersPerInstanceMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cpiDisabledMenuItem,
+            this.cpi2MenuItem,
+            this.cpi3MenuItem,
+            this.cpi4MenuItem});
+            this.controllersPerInstanceMenuItem.Name = "controllersPerInstanceMenuItem";
+            this.controllersPerInstanceMenuItem.Size = new System.Drawing.Size(305, 22);
+            this.controllersPerInstanceMenuItem.Text = "Controllers Per Instance";
+            // 
+            // cpiDisabledMenuItem
+            // 
+            this.cpiDisabledMenuItem.Name = "cpiDisabledMenuItem";
+            this.cpiDisabledMenuItem.Size = new System.Drawing.Size(200, 22);
+            this.cpiDisabledMenuItem.Text = "Disabled (use handler default)";
+            this.cpiDisabledMenuItem.Tag = 0;
+            // 
+            // cpi2MenuItem
+            // 
+            this.cpi2MenuItem.Name = "cpi2MenuItem";
+            this.cpi2MenuItem.Size = new System.Drawing.Size(200, 22);
+            this.cpi2MenuItem.Text = "2 Controllers Per Instance";
+            this.cpi2MenuItem.Tag = 2;
+            // 
+            // cpi3MenuItem
+            // 
+            this.cpi3MenuItem.Name = "cpi3MenuItem";
+            this.cpi3MenuItem.Size = new System.Drawing.Size(200, 22);
+            this.cpi3MenuItem.Text = "3 Controllers Per Instance";
+            this.cpi3MenuItem.Tag = 3;
+            // 
+            // cpi4MenuItem
+            // 
+            this.cpi4MenuItem.Name = "cpi4MenuItem";
+            this.cpi4MenuItem.Size = new System.Drawing.Size(200, 22);
+            this.cpi4MenuItem.Text = "4 Controllers Per Instance";
+            this.cpi4MenuItem.Tag = 4;
             // 
             // toolStripSeparator5
             // 
@@ -1256,5 +1301,10 @@ namespace Nucleus.Coop
         private ToolStripSeparator toolStripSeparator5;
         private ToolStripSeparator toolStripSeparator4;
         public ToolStripMenuItem useGamepadButtonPressMenuItem;
+        public ToolStripMenuItem controllersPerInstanceMenuItem;
+        private ToolStripMenuItem cpiDisabledMenuItem;
+        private ToolStripMenuItem cpi2MenuItem;
+        private ToolStripMenuItem cpi3MenuItem;
+        private ToolStripMenuItem cpi4MenuItem;
     }
 }

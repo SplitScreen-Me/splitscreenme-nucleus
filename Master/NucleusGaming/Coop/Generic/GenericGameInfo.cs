@@ -153,6 +153,13 @@ namespace Nucleus.Gaming
         public string[] SDLPaths;//Relative to instanced game directory root 
         public string[] CopyCustomUtils;
         public int PlayersPerInstance;
+
+        /// <summary>
+        /// Returns the effective number of controllers allowed per game instance.
+        /// Uses the user-configured value from MetaInfo if set (> 0), otherwise falls back to the handler's PlayersPerInstance.
+        /// </summary>
+        public int EffectivePlayersPerInstance => MetaInfo.ControllersPerInstance > 0 ? MetaInfo.ControllersPerInstance : PlayersPerInstance;
+
         public bool UseDevReorder;
         public string[] HexEditAllExes;
         public string[] HexEditExe;

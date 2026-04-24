@@ -144,18 +144,18 @@ namespace Nucleus.Gaming.Tools.X360ce
             if (!player.IsKeyboardPlayer)
             {
                 Thread.Sleep(1000);
-                if (handlerInstance.CurrentGameInfo.PlayersPerInstance > 1)
+                if (handlerInstance.CurrentGameInfo.EffectivePlayersPerInstance > 1)
                 {
-                    for (int x = 1; x <= handlerInstance.CurrentGameInfo.PlayersPerInstance; x++)
+                    for (int x = 1; x <= handlerInstance.CurrentGameInfo.EffectivePlayersPerInstance; x++)
                     {
                         textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "PAD" + x + "=", SearchType.StartsWith) + "|PAD" + x + "=IG_" + players[x].GamepadGuid.ToString().Replace("-", string.Empty));
                     }
-                    for (int x = handlerInstance.CurrentGameInfo.PlayersPerInstance + 1; x <= 4; x++)
+                    for (int x = handlerInstance.CurrentGameInfo.EffectivePlayersPerInstance + 1; x <= 4; x++)
                     {
                         textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "PAD" + x + "=", SearchType.StartsWith) + "|PAD" + x + "=IG_" + players[x].GamepadGuid.ToString().Replace("-", string.Empty));
                     }
 
-                    handlerInstance.plyrIndex += handlerInstance.CurrentGameInfo.PlayersPerInstance;
+                    handlerInstance.plyrIndex += handlerInstance.CurrentGameInfo.EffectivePlayersPerInstance;
                 }
                 else
                 {

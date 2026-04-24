@@ -1257,7 +1257,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         }
 
                         //Gamepads only
-                        if (player.IsController && userGameInfo.Game.PlayersPerInstance > 0)
+                        if (player.IsController && userGameInfo.Game.EffectivePlayersPerInstance > 0)
                         {
                             var playersInDiv = GameProfile.AssignedDevices.Where(pl => (pl != player) && pl.EditBounds.Contains(e.Location) && pl.IsController).ToList();
 
@@ -1273,7 +1273,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                                         if (!instanceOwner.InstanceGuests.Contains(player) &&
                                             !GameProfile.AssignedDevices.Any(pl => pl.InstanceGuests.Contains(player)) &&
-                                            instanceOwnerGuests.Count < userGameInfo.Game.PlayersPerInstance - 1/*&&*/
+                                            instanceOwnerGuests.Count < userGameInfo.Game.EffectivePlayersPerInstance - 1/*&&*/
                                             /*!( GameProfile.AssignedDevices.Count == userGameInfo.Game.MaxPlayers)*/)
                                         {
                                             if (GameProfile.Loaded)

@@ -241,7 +241,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         }
 
                         #region instance guests drawing
-                        if (userGameInfo.Game.PlayersPerInstance > 0 && player.ScreenIndex != -1)
+                        if (userGameInfo.Game.EffectivePlayersPerInstance > 0 && player.ScreenIndex != -1)
                         {
                             DrawGuests(g, player, fontToScale);
                         }
@@ -272,7 +272,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         }
 
                         #region instance guests drawing
-                        if (userGameInfo.Game.PlayersPerInstance > 0 && player.ScreenIndex != -1)
+                        if (userGameInfo.Game.EffectivePlayersPerInstance > 0 && player.ScreenIndex != -1)
                         {
                             DrawGuests(g, player, fontToScale);
                         }
@@ -404,7 +404,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             float guestUIHeight = (guestsArea.Width / guestsPerRow) / (guestsArea.Width / guestsArea.Height);
             var playerInstanceGuests = player.InstanceGuests.Where(ig => ig.GamepadId != -1).ToList();
 
-            for (int ppi = 0; ppi < userGameInfo.Game.PlayersPerInstance; ppi++)
+            for (int ppi = 0; ppi < userGameInfo.Game.EffectivePlayersPerInstance; ppi++)
             {
                 PlayerInfo guest = null;
 
@@ -439,7 +439,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 {
                     if (ppi == playerInstanceGuests.Count)
                     {
-                        int freeSlots = ((userGameInfo.Game.PlayersPerInstance - 1) - playerInstanceGuests.Count);
+                        int freeSlots = ((userGameInfo.Game.EffectivePlayersPerInstance - 1) - playerInstanceGuests.Count);
 
                         if (freeSlots > 0)
                         {

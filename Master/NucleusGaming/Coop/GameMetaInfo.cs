@@ -133,10 +133,25 @@ namespace Nucleus.Gaming.Coop
             set
             {
                 useApiIndexForGuests = value;
-                if (gen.PlayersPerInstance > 0)
+                if (gen.PlayersPerInstance > 0 || controllersPerInstance > 0)
                 {
                     SaveGameMetaInfo();
                 }
+            }
+        }
+
+        private int controllersPerInstance;
+        /// <summary>
+        /// User-configurable number of controllers to assign per game instance (0 = use handler default).
+        /// When > 0, overrides the handler's PlayersPerInstance value.
+        /// </summary>
+        public int ControllersPerInstance
+        {
+            get => controllersPerInstance;
+            set
+            {
+                controllersPerInstance = value;
+                SaveGameMetaInfo();
             }
         }
 
@@ -195,6 +210,7 @@ namespace Nucleus.Gaming.Coop
                         useApiIndexForGuests = JMetaInfo[gameGuid]["UseApiIndexForGuests"] == null ? useApiIndex : (bool)JMetaInfo[gameGuid]["UseApiIndexForGuests"];
                         profileAssignGamepadByButonPress = JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"] == null ? App_Misc.ProfileAssignGamepadByButonPress : (bool)JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"];
                         steamLanguage = (string)JMetaInfo[gameGuid]["SteamLanguage"] ?? "App Setting";
+                        controllersPerInstance = JMetaInfo[gameGuid]["ControllersPerInstance"] == null ? 0 : (int)JMetaInfo[gameGuid]["ControllersPerInstance"];
                         return;
                     }
 
@@ -257,6 +273,7 @@ namespace Nucleus.Gaming.Coop
                         JMetaInfo[gameGuid]["UseApiIndexForGuests"] = useApiIndexForGuests;
                         JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"] = profileAssignGamepadByButonPress;
                         JMetaInfo[gameGuid]["SteamLanguage"] = steamLanguage;
+                        JMetaInfo[gameGuid]["ControllersPerInstance"] = controllersPerInstance;
                     }
                     else
                     {
@@ -273,7 +290,8 @@ namespace Nucleus.Gaming.Coop
                                                             new JProperty("UseApiIndex", useApiIndex),
                                                             new JProperty("UseApiIndexForGuests", useApiIndexForGuests),
                                                             new JProperty("ProfileAssignGamepadByButonPress", profileAssignGamepadByButonPress),
-                                                            new JProperty("SteamLanguage", steamLanguage)
+                                                            new JProperty("SteamLanguage", steamLanguage),
+                                                            new JProperty("ControllersPerInstance", controllersPerInstance)
                                                             ));
                         JMetaInfo.Add(gameMeta);
                     }
@@ -292,7 +310,8 @@ namespace Nucleus.Gaming.Coop
                                                    new JProperty("UseApiIndex", useApiIndex),
                                                    new JProperty("UseApiIndexForGuests", useApiIndexForGuests),
                                                    new JProperty("ProfileAssignGamepadByButonPress", profileAssignGamepadByButonPress),
-                                                   new JProperty("SteamLanguage", steamLanguage)
+                                                   new JProperty("SteamLanguage", steamLanguage),
+                                                   new JProperty("ControllersPerInstance", controllersPerInstance)
                                                    );
 
                     JMetaInfo = new JObject(new JProperty(gameGuid, gameMeta));

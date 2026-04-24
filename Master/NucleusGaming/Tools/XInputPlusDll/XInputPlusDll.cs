@@ -59,7 +59,7 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
             {
                 List<string> textChanges = new List<string>();
 
-                if (player.IsController || (player.IsKeyboardPlayer && handlerInstance.CurrentGameInfo.PlayersPerInstance <= 1))
+                if (player.IsController || (player.IsKeyboardPlayer && handlerInstance.CurrentGameInfo.EffectivePlayersPerInstance <= 1))
                 {
                     if (setupDll)
                     {
@@ -84,7 +84,7 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
 
                     if (player.IsController)
                     {
-                        if (handlerInstance.CurrentGameInfo.PlayersPerInstance > 1 && handlerInstance.profile.DevicesList.Any(pl => pl.InstanceGuests.Count > 0 ))
+                        if (handlerInstance.CurrentGameInfo.EffectivePlayersPerInstance > 1 && handlerInstance.profile.DevicesList.Any(pl => pl.InstanceGuests.Count > 0 ))
                         {
                             #region New multiple player per instance with UI assignation support
 
@@ -103,14 +103,14 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                             }
                             #endregion
                         }
-                        else if (handlerInstance.CurrentGameInfo.PlayersPerInstance > 1)//the old way
+                        else if (handlerInstance.CurrentGameInfo.EffectivePlayersPerInstance > 1)//the old way
                         {
-                            for (int x = 1; x <= handlerInstance.CurrentGameInfo.PlayersPerInstance; x++)
+                            for (int x = 1; x <= handlerInstance.CurrentGameInfo.EffectivePlayersPerInstance; x++)
                             {
                                 textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "Controller" + x + "=", SearchType.StartsWith) + "|Controller" + x + "=" + (x + handlerInstance.plyrIndex));
                             }
 
-                            handlerInstance.plyrIndex += handlerInstance.CurrentGameInfo.PlayersPerInstance;
+                            handlerInstance.plyrIndex += handlerInstance.CurrentGameInfo.EffectivePlayersPerInstance;
                         }
                         else
                         {
