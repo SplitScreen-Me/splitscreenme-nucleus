@@ -417,6 +417,7 @@ Context.ReplacePartialLinesInTextFile(string path, string[] lineNumRegPtrnAndNew
 Context.RemoveLineInTextFile(string path, int lineNum)						//Removes a given line number completely.
 Context.RemoveLineInTextFile(string path, string txtInLine, SearchType type)			//Removes a given line number completely.
 Context.FindLineNumberInTextFile(string path, string searchValue, SearchType type)		//Returns a line number (int), utilizes a newly created enum SearchType.
+Context.SetIniKeyValues(string path, string section, string key, string[] values)		//Writes one "key=value" line per value in an INI section, for keys that can appear more than once (e.g. Path=). Replaces existing lines of that key in the section, creates the section if missing.
 Each of the above methods, also have an overload method so you can specify a kind of encoding to use (enter string of encoding as last parameter, e.g. "utf-8", "utf-16", "us-ascii").
 - SearchTypes include: "Contains", "Full" and "StartsWith", use like so: Nucleus.SearchType.StartsWith.
 

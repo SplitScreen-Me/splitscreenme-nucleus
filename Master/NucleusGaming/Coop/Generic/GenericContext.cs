@@ -1618,6 +1618,107 @@ namespace Nucleus.Gaming
             return true;
         }
 
+        public bool SetIniKeyValues(string path, string section, string key, string[] values)
+        {
+            return SetIniKeyValues(path, section, key, values, null);
+        }
+
+        // Writes one "key=value" line per value, for INI files that allow the same key more than once in a section.
+        // ModifySaveFile can't do this: WritePrivateProfileString only ever updates the first matching key.
+        // Existing lines for the key in that section are replaced, so calling it again doesn't add duplicates.
+        public bool SetIniKeyValues(string path, string section, string key, string[] values, string encoder)
+        {
+            Log("Set " + values.Length + " value(s) for " + key + " in [" + section + "] of " + path);
+
+            // Files without a BOM are treated as ANSI by default, like WritePrivateProfileString does.
+            Encoding encoding = encoder != null ? Encoding.GetEncoding(encoder) : Encoding.Default;
+            List<string> lines = new List<string>();
+
+            if (File.Exists(path))
+            {
+                using (StreamReader reader = new StreamReader(path, encoding, true))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        lines.Add(line);
+                    }
+
+                    encoding = reader.CurrentEncoding;
+                }
+
+                // Delete first so a symlinked or hardlinked file gets replaced instead of editing the original game file.
+                File.Delete(path);
+            }
+
+            List<string> newLines = values.Select(value => key + "=" + value).ToList();
+
+            int sectionIndex = lines.FindIndex(line => IsIniSectionHeader(line, section));
+
+            if (sectionIndex == -1)
+            {
+                if (lines.Count > 0 && lines[lines.Count - 1].Trim() != "")
+                {
+                    lines.Add("");
+                }
+
+                lines.Add("[" + section + "]");
+                lines.AddRange(newLines);
+            }
+            else
+            {
+                int insertIndex = -1;
+                int lastContentIndex = sectionIndex;
+                int index = sectionIndex + 1;
+
+                while (index < lines.Count && !lines[index].TrimStart().StartsWith("["))
+                {
+                    if (IsIniKeyLine(lines[index], key))
+                    {
+                        if (insertIndex == -1)
+                        {
+                            insertIndex = index;
+                        }
+
+                        lines.RemoveAt(index);
+                        continue;
+                    }
+
+                    if (lines[index].Trim() != "")
+                    {
+                        lastContentIndex = index;
+                    }
+
+                    index++;
+                }
+
+                // Keep the key where it was, otherwise add it after the section's last line (before any blank separator).
+                lines.InsertRange(insertIndex != -1 ? insertIndex : lastContentIndex + 1, newLines);
+            }
+
+            File.WriteAllLines(path, lines, encoding);
+
+            return true;
+        }
+
+        private static bool IsIniSectionHeader(string line, string section)
+        {
+            string trimmed = line.Trim();
+            int end = trimmed.IndexOf(']');
+
+            return trimmed.StartsWith("[") && end > 0 &&
+                   string.Equals(trimmed.Substring(1, end - 1).Trim(), section, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool IsIniKeyLine(string line, string key)
+        {
+            string trimmed = line.TrimStart();
+            int separator = trimmed.IndexOf('=');
+
+            return !trimmed.StartsWith(";") && !trimmed.StartsWith("#") && separator > 0 &&
+                   string.Equals(trimmed.Substring(0, separator).Trim(), key, StringComparison.OrdinalIgnoreCase);
+        }
+
         public bool HexEdit(string fileToEdit, string address, byte[] newBytes)
         {
             //if (!File.Exists(fileToEdit))
