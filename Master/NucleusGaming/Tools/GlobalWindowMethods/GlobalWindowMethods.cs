@@ -1123,6 +1123,32 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
         }
         #endregion
 
+        private static void ReHook(PlayerInfo p)
+        {
+            var Proto = GenericGameHandler.Instance.CurrentGameInfo.ProtoInput;
+            DllsInjector.DllsInjector.InjectDLLs(p.ProcessData.Process, null, p); //easyhook dll first
+            Thread.Sleep(1000);
+            if (Proto.InjectRuntime_EasyHookMethod == false && Proto.InjectRuntime_EasyHookStealthMethod == false && Proto.InjectRuntime_RemoteLoadMethod == false)
+                Proto.InjectRuntime_EasyHookMethod = true; //Can happen that all is false if startup hook
+            ProtoInputLauncher.InjectRuntime(
+                Proto.InjectRuntime_EasyHookMethod, //easy
+                Proto.InjectRuntime_EasyHookStealthMethod, //stealth
+                Proto.InjectRuntime_RemoteLoadMethod, //remote
+                (uint)p.ProcessData.Process.Id,
+                Globals.NucleusInstallRoot,
+                p.PlayerID + 1,
+                GenericGameHandler.Instance.CurrentGameInfo,
+                p,
+                (p.IsRawMouse ? (int)p.RawMouseDeviceHandle : -1),
+                (p.IsRawKeyboard ? (int)p.RawKeyboardDeviceHandle : -1),
+                (Proto.MultipleProtoControllers ? (p.ProtoController1) : ((p.IsRawMouse || p.IsRawKeyboard) ? 0 : p.GamepadId + 1)),
+                (Proto.MultipleProtoControllers ? p.ProtoController2 : 0),
+                (Proto.MultipleProtoControllers ? p.ProtoController3 : 0),
+                (Proto.MultipleProtoControllers ? p.ProtoController4 : 0)
+            );
+            ChangeGameWindow(p.ProcessData.Process, GenericGameHandler.Instance.profile.DevicesList, p.PlayerID);
+            GenericGameHandler.Instance.Log("(Update) Repicked process, and attempted to hook it");
+        }
         public static void UpdateAndRefreshGameWindows(double delayMS, bool refresh)
         {
             var handlerInstance = GenericGameHandler.Instance;
@@ -1157,7 +1183,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 {
                     continue;
                 }
-                
+
                 if (ResetingWindows && data.Finished)
                 {
                     Globals.MainOSD.Show(100000, "Resetting game windows. Please wait...");
@@ -1171,9 +1197,21 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 {
                     if (data.Process.HasExited)
                     {
-                        handlerInstance.exited++;
+                        if (handlerInstance.CurrentGameInfo.ForceProcessPickerIfGameExit) //also line 1252
+                        {
+                            GenericGameHandler.Instance.Log("(Update) Lost process, spawning process picker");
+                            Globals.MainOSD.Show(2000, "Lost Process...");
+                            p.ProcessData.AssignProcess(Coop.Generic.ProcessPickerRuntime.LaunchProcessPick(p));
+                            if (p.ProcessData != null)
+                            {
+                                ReHook(p);
+                                p.ProcessData.Finished = false;
+                            }
+                            else handlerInstance.exited++;
+                        }
+                        else handlerInstance.exited++;
                     }
-
+                    
                     continue;
                 }
             
@@ -1210,10 +1248,22 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                     if (updatedHwnd)
                     {
                         if (data.Setted)
-                        {
+                         {
                             if (data.Process.HasExited)
                             {
-                                handlerInstance.exited++;
+                                if (handlerInstance.CurrentGameInfo.ForceProcessPickerIfGameExit) //also line 1200
+                                {
+                                    GenericGameHandler.Instance.Log("(Update) Lost process, spawning process picker");
+                                    Globals.MainOSD.Show(2000, "Lost Process...");
+                                    p.ProcessData.AssignProcess(Coop.Generic.ProcessPickerRuntime.LaunchProcessPick(p));
+                                    if (p.ProcessData != null)
+                                    {
+                                        ReHook(p);
+                                        p.ProcessData.Finished = false;
+                                    }
+                                    else handlerInstance.exited++;
+                                }
+                                else handlerInstance.exited++;
                                 continue;
                             }
 
