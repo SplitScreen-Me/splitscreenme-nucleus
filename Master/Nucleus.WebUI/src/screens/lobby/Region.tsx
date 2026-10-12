@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type DragEvent, type FocusEvent, type Keyb
 import type { Edge, Rect, SetupDevice, SetupPlayer } from '@/bridge';
 import { devicesIcon } from '@/lib/devices';
 import { cn, Icon, playerClass } from '@/ui';
+import { PLAYER_RESIZABLE, PLAYER_RESIZING } from './hints';
 import { ART_VIEW, deviceKinds, devicesLabel, playerName, reduceMotion } from './model';
 import { cornerName, dragSteps, movedFrac, pixelSize, type Corner, type Frac, type StepFrac } from './resize-core';
 
@@ -132,7 +133,7 @@ export function PlayerRegion(props: PlayerRegionProps) {
       data-player-id={p.id}
       // Resize mode takes the pad's d-pad, A and B as arrow keys, Enter and Escape (see couch-nav keyWidget).
       data-pad-keys={resizeCorner ? '' : undefined}
-      data-hints={resizeCorner ? 'resizing' : step ? 'player-resizable' : undefined}
+      data-hints={resizeCorner ? PLAYER_RESIZING : step ? PLAYER_RESIZABLE : undefined}
       onKeyDown={props.onKeyDown}
       onBlur={props.onBlur}
       onDragStart={(e) => {

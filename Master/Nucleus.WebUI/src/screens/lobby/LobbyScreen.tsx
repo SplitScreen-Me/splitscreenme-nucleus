@@ -12,12 +12,13 @@ import { errorMessage } from '@/lib/bridge-ui';
 import { deviceNoun, isGamepadKind } from '@/lib/devices';
 import { heroOf, useLibrary } from '@/lib/library';
 import { isSessionLive, useSessionSnapshot, useSetupSnapshot } from '@/lib/live';
-import { useScreenChrome, type Hint } from '@/shell/chrome';
+import { useScreenChrome } from '@/shell/chrome';
 import { useCapturedCouchNav, useSharedCouchNav } from '@/shell/couch-nav';
 import { ButtonLink, Dialog, Icon, Pane, Spinner, useToast } from '@/ui';
 import { Canvas, type ResizeMode } from './Canvas';
 import { useLobbyCommands } from './commands';
 import { spotStillOpen, type WaitingSpot } from './join-rules';
+import { lobbyHints } from './hints';
 import { LobbyHeader, profileTitle } from './LobbyHeader';
 import { deviceById, playerName, screenName, slotName } from './model';
 import { ProfilesManager } from './ProfilesDialog';
@@ -232,38 +233,19 @@ export default function LobbyScreen() {
     const area = document.activeElement?.closest<HTMLElement>('[data-player-id]');
     area?.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
   };
-  // Only what the buttons do whatever has focus: Start joins (the host's press, never the UI), A selects; on a player
-  // area that can be resized X resizes, and in resize mode A is done. While a place waits for a controller, B cancels.
-  const join: Hint = { button: 'Menu', label: 'Join' };
-  const select: Hint = { button: 'A', label: 'Select' };
-  useScreenChrome(
-    [{ label: 'Library', to: '/library' }, { label: snap?.gameName ?? summary?.name ?? 'Setting up' }],
-    spot
-      ? {
-          base: [{ button: 'B', label: 'Cancel', action: cancelSpot }],
-          aside: (
-            <span>
-              Waiting for a controller: <b>Esc</b> cancels
-            </span>
-          ),
-        }
-      : {
-          base: [join, select],
-          byFocus: {
-            'player-resizable': [join, select, { button: 'X', label: 'Resize', action: keyToFocusedPlayer('r') }],
-            resizing: [
-              { key: 'Arrows', label: 'Move the corner' },
-              { button: 'X', label: 'Other corner', action: keyToFocusedPlayer('x') },
-              { button: 'A', label: 'Done' },
-            ],
-          },
-          aside: (
-            <span>
-              Keyboard: <b>Enter</b> picks up a player, <b>R</b> resizes, <b>Delete</b> takes them out
-            </span>
-          ),
-        },
-  );
+  // Only what the buttons do whatever has focus (see hints.ts); while a place waits for a controller, B cancels.
+  useScreenChrome([{ label: 'Library', to: '/library' }, { label: snap?.gameName ?? summary?.name ?? 'Setting up' }], {
+    ...lobbyHints(spot !== null, { cancelWait: cancelSpot, resize: keyToFocusedPlayer('r'), otherCorner: keyToFocusedPlayer('x') }),
+    aside: spot ? (
+      <span>
+        Waiting for a controller: <b>Esc</b> cancels
+      </span>
+    ) : (
+      <span>
+        Keyboard: <b>Enter</b> picks up a player, <b>R</b> resizes, <b>Delete</b> takes them out
+      </span>
+    ),
+  });
 
   const launch = async () => {
     if (!snap?.flow.canPlay) return;
