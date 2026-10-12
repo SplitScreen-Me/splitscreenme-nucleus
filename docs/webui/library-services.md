@@ -6,9 +6,9 @@ These services replace the library, game menu, handler install/update and settin
 
 ## 1. Startup (`Startup/NucleusCore.cs`)
 
-`NucleusServices.Register` calls `NucleusCore.Start` first, on the UI thread:
+`NucleusServices.Register` registers the notices service at once, then calls `NucleusCore.StartAsync`:
 
-1. `new GameManager()`, as the MainForm constructor did: parses every `handlers\*.js` with Jint, loads `content\userprofile.json`, registers raw input. `LoadUser` no longer starts per-game update checks (the legacy UI's `CheckUpdatesOnLoad` path was removed with it), so step 4 runs the only check. The duration is logged (`[services] INFO GameManager loaded N handler(s)… in X ms`). It stays synchronous on purpose: about 160 ms for one handler, so expect a few seconds with a hundred handlers. Moving it off the UI thread would need the other services to wait for it.
+1. `new GameManager()` on a background STA thread ("Nucleus library load"): parses every `handlers\*.js` with Jint, loads `content\userprofile.json`, registers raw input (on its own thread). `LoadUser` no longer starts per-game update checks (the legacy UI's `CheckUpdatesOnLoad` path was removed with it), so step 4 runs the only check. The duration is logged (`[services] INFO GameManager loaded N handler(s)… in X ms (background)`). The window and the page start meanwhile; the core (steps 2-4) and the library, handlers, settings, setup, profiles and session services are then created on the UI thread and registered with `BridgeHost.RegisterDeferred`: calls that arrive earlier wait for them without blocking the UI thread, and fail with `Unavailable` if the load failed.
 2. Shared objects: `HubClient`, `HubStatus`, `LibraryNotifier`, `UserProfileStore`, `GameIconCache`, `ArtworkDownloader`, `HandlerUpdateChecker`.
 3. `GameMetaInfo.Saved` is wired to `library.changed`.
 4. In the background: a HEAD request to the hub sets `Hub.Connected` (the MainForm used to set it), then an update check of the library games. Every change of `Hub.Connected` made by the services is sent as `app.hubStatusChanged`; the host's `app.getInfo` reads `Hub.Connected` live.
@@ -148,7 +148,6 @@ Host file touched (agreed with the lead): `NucleusCoopTool/Host/Services/AppServ
 
 ## 8. Known gaps
 
-- `GameManager` loads synchronously on the UI thread at startup (see section 1).
 - Handler load errors (`GameManager`) and script errors (`GenericGameInfo.ScriptError`) are `notices`, at startup too; they are only native when no page can show them (see architecture.md, "Engine prompts").
 - `deleteContentFolder` fails with `conflict` (reason `filesLocked`) when files stay locked; opening a setup reports them as a "Risk of crash!" notice.
 - Icons are taken from the executable's icon resources (up to 128 px); executables without icons fall back to the shell's 32 px icon.

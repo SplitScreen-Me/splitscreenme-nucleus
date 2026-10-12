@@ -33,6 +33,7 @@ public sealed class BridgeHost
 
     private readonly Dictionary<string, MethodInvoker> _methods;
     private readonly ConcurrentDictionary<Type, object> _services = new();
+    private readonly ConcurrentDictionary<Type, Task<object>> _deferred = new();
     private readonly ConcurrentDictionary<string, CancellationTokenSource> _inFlight = new();
     private readonly Action<BridgeLogEntry>? _log;
 
@@ -88,10 +89,48 @@ public sealed class BridgeHost
 
         var service = Contract.Services.FirstOrDefault(s => s.Interface == typeof(TService))
             ?? throw new ArgumentException($"{typeof(TService).Name} is not a service of the contract: service interfaces carry [BridgeService] and live in the contract assembly.", nameof(TService));
-        if (!_services.TryAdd(typeof(TService), implementation))
+        if (_deferred.ContainsKey(typeof(TService)) || !_services.TryAdd(typeof(TService), implementation))
         {
             throw new InvalidOperationException($"The '{service.Name}' service is already registered.");
         }
+    }
+
+    /// <summary>
+    /// Registers a service whose implementation is still being created (for example while the library loads in the
+    /// background). Calls to it wait for the task without blocking the calling thread, then run on that thread as
+    /// usual; if the task fails, they fail with <see cref="BridgeErrorKind.Unavailable"/>.
+    /// </summary>
+    /// <typeparam name="TService">A <see cref="BridgeServiceAttribute"/> interface of the contract.</typeparam>
+    /// <param name="implementation">Completes with the implementation.</param>
+    /// <exception cref="ArgumentException"><typeparamref name="TService"/> is not a service of the contract.</exception>
+    /// <exception cref="InvalidOperationException">The service is already registered.</exception>
+    public void RegisterDeferred<TService>(Task<TService> implementation)
+        where TService : class
+    {
+        if (implementation == null)
+        {
+            throw new ArgumentNullException(nameof(implementation));
+        }
+
+        var service = Contract.Services.FirstOrDefault(s => s.Interface == typeof(TService))
+            ?? throw new ArgumentException($"{typeof(TService).Name} is not a service of the contract: service interfaces carry [BridgeService] and live in the contract assembly.", nameof(TService));
+        var pending = implementation.ContinueWith(t => (object)t.Result, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+        if (_services.ContainsKey(typeof(TService)) || !_deferred.TryAdd(typeof(TService), pending))
+        {
+            throw new InvalidOperationException($"The '{service.Name}' service is already registered.");
+        }
+
+        pending.ContinueWith(t =>
+        {
+            if (t.Status == TaskStatus.RanToCompletion)
+            {
+                _services.TryAdd(typeof(TService), t.Result);
+            }
+            else
+            {
+                Log(BridgeLogLevel.Error, $"the '{service.Name}' service couldn't start", t.Exception?.GetBaseException());
+            }
+        }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
     }
 
     /// <summary>
@@ -185,19 +224,49 @@ public sealed class BridgeHost
         return response;
     }
 
-    private Task<object?> InvokeAsync(JsonRpcRequest request, CancellationToken cancellationToken)
+    private async Task<object?> InvokeAsync(JsonRpcRequest request, CancellationToken cancellationToken)
     {
         if (!_methods.TryGetValue(request.Method, out var invoker))
         {
             throw new BridgeException(BridgeErrorKind.MethodNotFound, $"Unknown method '{request.Method}'.");
         }
 
-        if (!_services.TryGetValue(invoker.Model.Method.DeclaringType!, out var service))
+        var serviceType = invoker.Model.Method.DeclaringType!;
+        if (!_services.TryGetValue(serviceType, out var service))
         {
-            throw new BridgeException(BridgeErrorKind.MethodNotFound, $"'{request.Method}' is in the contract, but no '{invoker.Model.ServiceName}' service is registered.");
+            if (!_deferred.TryGetValue(serviceType, out var pending))
+            {
+                throw new BridgeException(BridgeErrorKind.MethodNotFound, $"'{request.Method}' is in the contract, but no '{invoker.Model.ServiceName}' service is registered.");
+            }
+
+            // Resumes on the caller's context (the UI thread with WebView2): services keep running where they expect.
+            service = await WaitForDeferred(pending, invoker.Model.ServiceName, cancellationToken);
         }
 
-        return invoker.InvokeAsync(service, request.Params, cancellationToken);
+        return await invoker.InvokeAsync(service, request.Params, cancellationToken);
+    }
+
+    private static async Task<object> WaitForDeferred(Task<object> pending, string serviceName, CancellationToken cancellationToken)
+    {
+        if (!pending.IsCompleted)
+        {
+            var cancelled = new TaskCompletionSource<bool>();
+            using (cancellationToken.Register(() => cancelled.TrySetResult(true)))
+            {
+                if (await Task.WhenAny(pending, cancelled.Task) != pending)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+            }
+        }
+
+        if (pending.Status != TaskStatus.RanToCompletion)
+        {
+            var reason = pending.Exception?.GetBaseException().Message ?? "it was cancelled";
+            throw new BridgeException(BridgeErrorKind.Unavailable, $"The '{serviceName}' service couldn't start: {reason}");
+        }
+
+        return pending.Result;
     }
 
     private string ErrorResponse(JsonRpcRequest request, string label, Exception exception, bool cancelled, long elapsedMs)

@@ -69,26 +69,53 @@ public sealed class NucleusCore : IDisposable
     }
 
     /// <summary>
-    /// Loads the handlers and the library (synchronously, on the calling UI thread, as the MainForm constructor did),
-    /// then probes the hub and checks handler updates in the background.
+    /// Loads the handlers and the library on a background thread, so the window and the WebView start meanwhile,
+    /// then creates the core on the UI thread and probes the hub and checks handler updates in the background.
     /// </summary>
-    public static NucleusCore Start(SynchronizationContext? uiContext, IBridgeEvents events)
+    public static Task<NucleusCore> StartAsync(UiDispatcher ui, IBridgeEvents events)
     {
-        var ui = new UiDispatcher(uiContext);
+        var loaded = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        Stopwatch clock = Stopwatch.StartNew();
-        // Parses handlers\*.js (Jint), loads content\userprofile.json, registers raw input. LoadUser runs no update
-        // check: StartBackgroundWork runs one and publishes its results.
-        _ = new GameManager();
-        clock.Stop();
-        GameManager manager = GameManager.Instance;
-        ServiceLog.Info($"GameManager loaded {manager.Games.Count} handler(s) and {manager.User?.Games?.Count ?? 0} library game(s) in {clock.ElapsedMilliseconds} ms");
+        // STA: handler errors may still open a native dialog when no page is live yet (UserPrompts fallback).
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                Stopwatch clock = Stopwatch.StartNew();
+                // Parses handlers\*.js (Jint), loads content\userprofile.json, registers raw input (on its own thread).
+                // LoadUser runs no update check: StartBackgroundWork runs one and publishes its results.
+                _ = new GameManager();
+                clock.Stop();
+                GameManager manager = GameManager.Instance;
+                ServiceLog.Info($"GameManager loaded {manager.Games.Count} handler(s) and {manager.User?.Games?.Count ?? 0} library game(s) in {clock.ElapsedMilliseconds} ms (background)");
+                loaded.SetResult(true);
+            }
+            catch (Exception e)
+            {
+                ServiceLog.Error("GameManager failed to load", e);
+                loaded.SetException(e);
+            }
+        })
+        {
+            IsBackground = true,
+            Name = "Nucleus library load",
+        };
 
-        var core = new NucleusCore(ui, events);
-        LibraryHooks.Attach(core.Notifier);
-        GameMetaInfo.Saved += core.OnMetaInfoSaved;
-        core.StartBackgroundWork();
-        return core;
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+
+        return loaded.Task.ContinueWith(t =>
+        {
+            t.GetAwaiter().GetResult(); // rethrows the load failure
+            return ui.InvokeAsync(() =>
+            {
+                var core = new NucleusCore(ui, events);
+                LibraryHooks.Attach(core.Notifier);
+                GameMetaInfo.Saved += core.OnMetaInfoSaved;
+                core.StartBackgroundWork();
+                return core;
+            });
+        }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default).Unwrap();
     }
 
     /// <inheritdoc />
