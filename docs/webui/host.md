@@ -17,7 +17,7 @@ How `NucleusCoop.exe` hosts the React UI in a WebView2 window. Design context: [
 1. Switches the UI thread to per-monitor v2 DPI awareness (the process stays per-monitor v1 as set in `Program.cs`), so the window, the WebView and the native pickers follow monitor DPI changes.
 2. Resolves `HostEnvironment` (folders, start URL, Debug options).
 3. Creates `HostForm`, then `CompositionRoot` (bridge and services), then runs the message loop.
-4. When the window is first shown: creates `Globals.MainOSD` (WPF OSD) and starts the gamepad shortcut/navigation threads, which `MainForm` used to do.
+4. When the window is first shown: creates `Globals.MainOSD` (WPF OSD) and starts the gamepad shortcuts thread, which `MainForm` used to do. (The legacy gamepad navigation thread, which moved the mouse cursor with the left stick, was removed: the page navigates with gamepads itself, see `Nucleus.WebUI/src/shell/couch-nav.tsx`.)
 5. When the window closes: quits with `Process.Kill`, like the legacy UI (the game handler and gamepad threads are foreground threads that never end). If a session is running, closing (title bar, Alt+F4, `window.close`, the kill hotkey's `WM_CLOSE` to `Globals.MainWindowHandle`) hides the window, runs `End(false)` on a worker thread, waits for `HasEnded` (90 s at most), then quits. The UI thread is never blocked.
 
 ## 2. The window (`HostForm`)

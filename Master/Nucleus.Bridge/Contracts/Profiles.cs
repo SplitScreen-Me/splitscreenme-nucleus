@@ -174,9 +174,6 @@ namespace Nucleus.Bridge.Contracts
         /// <summary>Cutscenes: unfocus the other windows.</summary>
         public bool CutscenesUnfocus { get; set; }
 
-        /// <summary>Disables gamepad navigation of the app during the session.</summary>
-        public bool StopUiNavigation { get; set; }
-
         /// <summary>Merges the game windows into one window.</summary>
         public bool WindowsMerger { get; set; }
 

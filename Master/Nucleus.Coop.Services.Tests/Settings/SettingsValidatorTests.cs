@@ -182,7 +182,7 @@ public class SettingsCatalogTests
         Assert.Equal(SettingType.Password, Field("misc.nucleusAccountPassword").Type);
         Assert.Equal(127, Field("misc.nucleusAccountPassword").MaxLength);
         Assert.Equal(2, Field("gamepad.close").ComboButtons);
-        Assert.Equal(1, Field("gamepad.leftClick").ComboButtons);
+        Assert.All(Catalog.Where(d => d.Field.Type == SettingType.GamepadCombo), d => Assert.Equal(2, d.Field.ComboButtons));
         Assert.Equal("audio.mode", Field("audio.instance3").EnabledWhen!.Key);
         Assert.Equal(new[] { "false" }, Field("players.assignGamepadsByIndex").VisibleWhen!.Values.ToArray());
         Assert.All(Catalog.Select(d => d.Field).Where(f => f.VisibleWhen != null || f.EnabledWhen != null),
@@ -196,7 +196,7 @@ public class SettingsCatalogTests
         Assert.Equal(11, counts["general"]);
         Assert.Equal(2, counts["players"]);
         Assert.Equal(10, counts["hotkeys"]);
-        Assert.Equal(17, counts["gamepad"]);
+        Assert.Equal(10, counts["gamepad"]);
         Assert.Equal(9, counts["audio"]);
         Assert.Equal(11, counts["layout"]);
     }

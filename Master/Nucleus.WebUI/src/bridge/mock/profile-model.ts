@@ -57,7 +57,6 @@ export function defaultProfileSettings(
     cutscenesKeepAspectRatio: flag('customLayout.ctsKeepAspectRatio'),
     cutscenesMuteAudioOnly: flag('customLayout.ctsMuteAudioOnly'),
     cutscenesUnfocus: flag('customLayout.ctsUnfocus'),
-    stopUiNavigation: false,
     windowsMerger: flag('customLayout.windowsMerger'),
     losslessHook: flag('customLayout.losslessHook'),
     mergerResolution: settings['customLayout.windowsMergerRes'] ?? '',
