@@ -168,7 +168,8 @@ export function isTopLevel(pathname: string, roots: readonly string[]): boolean 
 
 /**
  * Focused widgets that read keys themselves, and which pad inputs reach them as key presses:
- * - `list`: menus, list boxes and combo boxes take arrows, Enter and Escape;
+ * - `list`: menus, list boxes, combo boxes and `[data-pad-keys]` widgets (a lobby player area in resize mode) take
+ *   arrows, Enter and Escape;
  * - `region`: lobby canvas regions take Enter (pick up, place) and Escape (cancel); the d-pad moves between them
  *   spatially, since their own arrows cycle through the regions forever and the pad could not leave the canvas;
  * - `capture`: other `[data-own-arrows]` controls (a shortcut recorder) only take Escape: an arrow or Enter would be

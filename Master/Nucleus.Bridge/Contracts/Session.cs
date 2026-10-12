@@ -193,6 +193,69 @@ namespace Nucleus.Bridge.Contracts
 
         /// <summary>Key that locks and unlocks inputs, for example "End".</summary>
         public string? LockInputsKey { get; set; }
+
+        /// <summary>Summary of the last session that ended (or failed to start), kept until the next one starts.</summary>
+        public SessionSummary? LastSession { get; set; }
+    }
+
+    /// <summary>How a finished session went: what the session screen shows once it ends.</summary>
+    public sealed class SessionSummary
+    {
+        /// <summary>Game id.</summary>
+        public string GameId { get; set; } = "";
+
+        /// <summary>Display name of the game.</summary>
+        public string GameName { get; set; } = "";
+
+        /// <summary>When Play was pressed (UTC).</summary>
+        public DateTime StartedAt { get; set; }
+
+        /// <summary>When the session ended (UTC).</summary>
+        public DateTime EndedAt { get; set; }
+
+        /// <summary>Whether every copy was started and placed (the session reached <see cref="SessionState.Running"/>).</summary>
+        public bool Launched { get; set; }
+
+        /// <summary>Players, in player order, with the devices they played with.</summary>
+        public List<SessionSummaryPlayer> Players { get; set; } = new List<SessionSummaryPlayer>();
+
+        /// <summary>Why the session failed, when it did (the crash report is <see cref="SessionSnapshot.ErrorDetails"/>).</summary>
+        public string? Error { get; set; }
+
+        /// <summary>Error lines of the session log, oldest first, at most 20.</summary>
+        public List<SessionLogEntry> Errors { get; set; } = new List<SessionLogEntry>();
+
+        /// <summary>Number of error lines in the session log (<see cref="Errors"/> may hold fewer).</summary>
+        public int ErrorCount { get; set; }
+    }
+
+    /// <summary>A player of a finished session.</summary>
+    public sealed class SessionSummaryPlayer
+    {
+        /// <summary>Player number, 1-based. The UI colours players by number.</summary>
+        public int Number { get; set; }
+
+        /// <summary>Nickname, when known.</summary>
+        public string? Nickname { get; set; }
+
+        /// <summary>Monitor index.</summary>
+        public int ScreenIndex { get; set; }
+
+        /// <summary>Devices the player played with, guests last.</summary>
+        public List<SessionSummaryDevice> Devices { get; set; } = new List<SessionSummaryDevice>();
+    }
+
+    /// <summary>A device of a finished session's player.</summary>
+    public sealed class SessionSummaryDevice
+    {
+        /// <summary>Kind of device.</summary>
+        public DeviceKind Kind { get; set; }
+
+        /// <summary>Name, as the setup showed it.</summary>
+        public string Name { get; set; } = "";
+
+        /// <summary>Whether it was a guest gamepad sharing the player's copy.</summary>
+        public bool Guest { get; set; }
     }
 
     /// <summary>The session state changed.</summary>

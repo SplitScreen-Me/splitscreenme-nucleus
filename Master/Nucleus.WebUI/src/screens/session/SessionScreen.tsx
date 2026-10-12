@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { useBridgeEvent, type SessionSnapshot } from '@/bridge';
+import { useBridgeEvent, type SessionLogEntry, type SessionSnapshot, type SessionSummary } from '@/bridge';
 import { heroOf, setupPath, useLibrary } from '@/lib/library';
 import { isSessionLive, useSessionSnapshot, useSetupSnapshot } from '@/lib/live';
 import { useScreenChrome, type Hint } from '@/shell/chrome';
 import { useSuspendCouchNav } from '@/shell/couch-nav';
-import { Button, ButtonLink, cn, Icon, Pane, Spinner, useToast } from '@/ui';
+import { ButtonLink, cn, Icon, Pane, Spinner, useToast } from '@/ui';
 import { EventLog } from './EventLog';
 import type { SessionView } from './model';
 import { ScreenPreview } from './ScreenPreview';
+import { ErrorDetails, SessionSummaryCard } from './SessionSummary';
 import { SessionHeader } from './SessionHeader';
 import { ActionsPane, NotesPane } from './SidePanes';
 import { useSessionCommands } from './useSessionCommands';
@@ -17,7 +18,8 @@ import { useSessionLog } from './useSessionLog';
 /**
  * The running session: every copy of the game and its launch progress, the input lock, the session actions, the event
  * log and the handler notes. Host-owned state: rendered from `session.changed` snapshots. When the session ends while
- * the screen is open, its last state stays on screen with the way back to the lobby.
+ * the screen is open, its last state stays under the host's summary of it; later, the summary shows on its own until
+ * the next session starts.
  */
 export default function SessionScreen() {
   const { data: session, isPending } = useSessionSnapshot();
@@ -26,21 +28,31 @@ export default function SessionScreen() {
   useSuspendCouchNav(live);
   useNotices();
 
-  // The last live snapshot, kept when the session ends so the screen can say how it went.
+  // The last live snapshot, kept when the session ends so the screen keeps the windows under the summary.
   const [last, setLast] = useState<{ snapshot: SessionSnapshot; endedAt?: number } | null>(null);
   if (session && live && last?.snapshot !== session) setLast({ snapshot: session });
-  if (session && !live && last && last.endedAt === undefined) setLast({ ...last, endedAt: Date.now() });
+  if (session && !live && last && last.endedAt === undefined) {
+    const hostEnd = session.lastSession ? Date.parse(session.lastSession.endedAt) : NaN;
+    setLast({ ...last, endedAt: Number.isNaN(hostEnd) ? Date.now() : hostEnd });
+  }
 
   const view: SessionView | null =
     session && live
       ? { snapshot: session, ended: false }
       : last?.endedAt !== undefined
-        ? { snapshot: last.snapshot, ended: true, endedAt: last.endedAt, error: session?.error, errorDetails: session?.errorDetails }
+        ? {
+            snapshot: last.snapshot,
+            ended: true,
+            endedAt: last.endedAt,
+            error: session?.lastSession?.error ?? session?.error,
+            errorDetails: session?.errorDetails,
+            summary: session?.lastSession,
+          }
         : null;
-  const log = useSessionLog(view?.snapshot.startedAt);
+  const log = useSessionLog(view?.snapshot.startedAt ?? session?.lastSession?.startedAt);
 
   if (isPending) return <Loading />;
-  if (!view) return <NoSession session={session} />;
+  if (!view) return <NoSession session={session} log={log} />;
   return <SessionView view={view} log={log} />;
 }
 
@@ -109,6 +121,18 @@ function useBackKey(back: () => void) {
 }
 
 function EndedOverlay({ view }: { view: SessionView }) {
+  if (view.summary) {
+    return (
+      <div className="absolute inset-0 z-10 grid animate-fade-in place-items-center overflow-auto rounded-pane bg-[rgba(7,8,10,0.92)] p-6">
+        <SessionSummaryCard summary={view.summary} errorDetails={view.errorDetails} />
+      </div>
+    );
+  }
+  return <EndedNotice view={view} />;
+}
+
+/** The end of a session without the host's summary: what the screen saw. */
+function EndedNotice({ view }: { view: SessionView }) {
   const primary = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
     primary.current?.focus({ preventScroll: true });
@@ -144,24 +168,6 @@ function EndedOverlay({ view }: { view: SessionView }) {
   );
 }
 
-/** The crash report of a failed launch, behind "Show details". */
-function ErrorDetails({ text, className }: { text: string; className?: string }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className={cn('grid w-full justify-items-start gap-2', className)}>
-      <Button variant="quiet" size="sm" aria-expanded={open} onClick={() => setOpen((o) => !o)} data-nav>
-        <Icon name={open ? 'chev-d' : 'chev-r'} />
-        {open ? 'Hide details' : 'Show details'}
-      </Button>
-      {open && (
-        <pre className="max-h-[40vh] w-full overflow-auto rounded-ctl bg-pane-2 px-3.5 py-3 text-left font-mono text-12 leading-normal whitespace-pre-wrap text-ink-2 wrap-anywhere">
-          {text}
-        </pre>
-      )}
-    </div>
-  );
-}
-
 function Loading() {
   return (
     <Pane className="grid h-full place-items-center text-small text-ink-2">
@@ -173,7 +179,43 @@ function Loading() {
 }
 
 /** No session: send the user to the lobby they were setting up, or to the library. */
-function NoSession({ session }: { session: SessionSnapshot | undefined }) {
+function NoSession({ session, log }: { session: SessionSnapshot | undefined; log: SessionLogEntry[] }) {
+  if (session?.lastSession) return <LastSession summary={session.lastSession} errorDetails={session.errorDetails} log={log} />;
+  return <Idle session={session} />;
+}
+
+/** No session running, but one ended: how it went, its log, and the way back. */
+function LastSession({ summary, errorDetails, log }: { summary: SessionSummary; errorDetails?: string; log: SessionLogEntry[] }) {
+  const navigate = useNavigate();
+  const { data: library = [] } = useLibrary();
+  const game = library.find((g) => g.id === summary.gameId);
+  useScreenChrome([{ label: 'Library', to: '/library' }, { label: `${summary.gameName} session` }], {
+    base: [
+      { button: 'A', label: 'Select' },
+      { button: 'B', label: 'Back to library', action: () => navigate('/library') },
+    ],
+  });
+  useBackKey(() => navigate('/library'));
+  const art = game ? heroOf(game) : undefined;
+
+  return (
+    <div className="flex h-full min-h-[540px] flex-col gap-gutter">
+      <Pane as="div" className="relative grid min-h-0 flex-1 place-items-center overflow-auto p-8">
+        {art && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-[0.08] [mask-image:linear-gradient(to_bottom,black,transparent_75%)]"
+            style={{ backgroundImage: `url("${art}")` }}
+          />
+        )}
+        <SessionSummaryCard summary={summary} errorDetails={errorDetails} className="relative" />
+      </Pane>
+      <EventLog entries={log} />
+    </div>
+  );
+}
+
+function Idle({ session }: { session: SessionSnapshot | undefined }) {
   const navigate = useNavigate();
   const { data: library = [] } = useLibrary();
   const recent = [...library]

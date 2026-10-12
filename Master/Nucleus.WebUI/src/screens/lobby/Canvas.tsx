@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type DragEvent, type KeyboardEvent, type ReactNode } from 'react';
-import type { ScreenLayout, SetupDevice, SetupPlayer, SetupScreen, SetupSnapshot } from '@/bridge';
+import type { Edge, ScreenLayout, SetupDevice, SetupPlayer, SetupScreen, SetupSnapshot } from '@/bridge';
 import { deviceIcon, isGamepadKind, isKeyboardKind } from '@/lib/devices';
 import { Button, cn, Icon, MenuButton, Pane, useConfirm, useToast } from '@/ui';
 import type { LobbyCommands } from './commands';
@@ -25,6 +25,13 @@ import {
   type Box,
 } from './model';
 import { PlayerRegion, SlotCell } from './Region';
+import { arrowResize, cornerName, otherCorner, stepFracOf, type Corner } from './resize-core';
+
+/** A player being resized with the keyboard or a gamepad, and the corner the arrows move. */
+export interface ResizeMode {
+  playerId: string;
+  corner: Corner;
+}
 
 export interface CanvasProps {
   snap: SetupSnapshot;
@@ -34,13 +41,18 @@ export interface CanvasProps {
   flashes: Record<string, number>;
   justJoined: ReadonlySet<string>;
   announce: (message: string) => void;
+  resizing: ResizeMode | null;
+  onResizing: (mode: ResizeMode | null) => void;
 }
+
+/** Arrows with Shift move an edge by this many steps. */
+const BIG_STEP = 5;
 
 const CAPTION_H = 74;
 
 /** Screen canvas: the monitors, to scale, split into slots and player areas; devices waiting below. */
 export function Canvas(props: CanvasProps) {
-  const { snap, commands, announce } = props;
+  const { snap, commands, announce, resizing, onResizing } = props;
   const toast = useToast();
   const confirm = useConfirm();
   const rigRef = useRef<HTMLDivElement>(null);
@@ -72,8 +84,62 @@ export function Canvas(props: CanvasProps) {
     if (lifted && !playerById(snap, lifted)) setLifted(null);
   }, [snap, lifted]);
 
+  // Resize mode ends when its player leaves or can no longer be resized (a profile was loaded, the layout changed).
+  const stepOf = (p: SetupPlayer) => {
+    const screen = snap.screens.find((s) => s.index === p.screenIndex);
+    return p.canResize && screen ? stepFracOf(screen) : null;
+  };
+  const resizingPlayer = playerById(snap, resizing?.playerId);
+  const resizable = Boolean(resizingPlayer && stepOf(resizingPlayer));
+  useEffect(() => {
+    if (resizing && !resizable) onResizing(null);
+  }, [resizing, resizable, onResizing]);
+
+  // The hint bar reads the focused element's data-hints on focus: tell it the focused area changed mode.
+  useLayoutEffect(() => {
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && active.dataset.playerId && rigRef.current?.contains(active)) {
+      active.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    }
+  }, [resizing?.playerId]);
+
   const rig = fitRig(snap.screens, snap.totalBounds, size.w, size.h, CAPTION_H);
   const liftedPlayer = playerById(snap, lifted ?? undefined);
+
+  // ---------- Resizing a player: edge handles (mouse), resize mode (keyboard and gamepads) ----------
+  const sizeOf = (p: SetupPlayer) => `${p.bounds.width} by ${p.bounds.height}`;
+  const resizeBy = async (p: SetupPlayer, edge: Edge, steps: number) => {
+    const next = await commands.resize(p.id, edge, steps);
+    const after = next && playerById(next, p.id);
+    if (after) announce(`${playerName(after)}: ${sizeOf(after)}.`);
+  };
+  const startResizing = (p: SetupPlayer) => {
+    setLifted(null);
+    onResizing({ playerId: p.id, corner: 'bottomRight' });
+    announce(`Resizing ${playerName(p)}, ${sizeOf(p)}. Arrows move the bottom right corner, X switches corners, Enter when done.`);
+  };
+  const resizeKeys = (p: SetupPlayer, mode: ResizeMode, e: KeyboardEvent<HTMLDivElement>) => {
+    const move = arrowResize(mode.corner, e.key);
+    if (move) {
+      e.preventDefault();
+      void resizeBy(p, move.edge, e.shiftKey ? move.steps * BIG_STEP : move.steps);
+    } else if (e.key === 'x' || e.key === 'X') {
+      e.preventDefault();
+      const corner = otherCorner(mode.corner);
+      onResizing({ ...mode, corner });
+      announce(`Arrows move the ${cornerName(corner)} corner.`);
+    } else if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+      e.preventDefault();
+      onResizing(null);
+      announce(`Done resizing ${playerName(p)}.`);
+    } else if (e.key === 'Tab') {
+      onResizing(null);
+      return;
+    } else if (e.key !== 'Shift') {
+      return;
+    }
+    e.stopPropagation();
+  };
 
   // ---------- Moving players and devices ----------
   const dropOnSlot = (dragged: Dragged, screen: SetupScreen, slotIndex: number) => {
@@ -113,6 +179,15 @@ export function Canvas(props: CanvasProps) {
     return false;
   };
   const onPlayerKey = (p: SetupPlayer, screen: SetupScreen) => (e: KeyboardEvent<HTMLDivElement>) => {
+    if (resizing?.playerId === p.id) {
+      resizeKeys(p, resizing, e);
+      return;
+    }
+    if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.altKey && !e.metaKey && stepOf(p)) {
+      e.preventDefault();
+      startResizing(p);
+      return;
+    }
     if (commonKeys(e)) return;
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -275,6 +350,14 @@ export function Canvas(props: CanvasProps) {
                       justJoined={props.justJoined.has(p.id)}
                       ping={props.pings[p.id] ?? 0}
                       regionRef={null}
+                      step={stepOf(p)}
+                      monitor={screen.bounds}
+                      others={players.filter((o) => o.id !== p.id).map((o) => relative(o.bounds, screen.bounds))}
+                      resizeCorner={resizing?.playerId === p.id ? resizing.corner : null}
+                      onResize={(edge, steps) => void resizeBy(p, edge, steps)}
+                      onBlur={() => {
+                        if (resizing?.playerId === p.id) onResizing(null);
+                      }}
                       onKeyDown={onPlayerKey(p, screen)}
                       onDragStart={playerDragStart(p)}
                       onDragEnd={endDrag}

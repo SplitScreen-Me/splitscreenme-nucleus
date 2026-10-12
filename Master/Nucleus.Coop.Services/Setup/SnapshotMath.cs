@@ -45,6 +45,21 @@ namespace Nucleus.Coop.Services.Setup
         /// <summary>Whether a placed player can be resized with edge steps (screens with 4 slots or more, no profile).</summary>
         public static bool CanResize(int slotCount, bool profileLoaded) => !profileLoaded && slotCount >= 4;
 
+        /// <summary>
+        /// Size of one resize step on a screen, as BoundsFunctions.ResizeStep moves an edge: a twentieth of the first slot,
+        /// or one whole cell of the manual layout. Empty where players can't be resized (see <see cref="CanResize"/>).
+        /// </summary>
+        public static Size ResizeStep(UserScreenType type, Rectangle firstSlot, int slotCount, bool profileLoaded)
+        {
+            if (!CanResize(slotCount, profileLoaded))
+            {
+                return Size.Empty;
+            }
+
+            int sensitivity = type == UserScreenType.Manual ? 1 : 20;
+            return new Size(firstSlot.Width / sensitivity, firstSlot.Height / sensitivity);
+        }
+
         /// <summary>Index of the first player area intersecting <paramref name="slot"/>, or -1.</summary>
         public static int OccupantOf(Rectangle slot, IReadOnlyList<Rectangle> playerAreas)
         {

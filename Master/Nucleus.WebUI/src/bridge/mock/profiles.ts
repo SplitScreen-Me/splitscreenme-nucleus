@@ -9,7 +9,7 @@ import {
   storedSettings,
   validateProfileSettings,
 } from './profile-model.ts';
-import { applyProfile, requireEditable, requireSetup, unloadProfile } from './setup-model.ts';
+import { applyProfile, clearAll, requireEditable, requireSetup, unloadProfile } from './setup-model.ts';
 import { publishSetup } from './setup-snapshot.ts';
 import type { MockProfile, MockSetup, MockState } from './state.ts';
 
@@ -37,11 +37,11 @@ export function createProfilesMock(context: MockContext, state: MockState): Brid
       return publishSetup(context, state, setup);
     },
     delete: ({ profileId }) => {
-      const setup = requireSetup(state);
+      const setup = requireEditable(state);
       findProfile(setup, profileId);
       profilesOf(setup).splice(profileId - 1, 1);
-      if (setup.profile?.id === profileId) unloadProfile(setup);
-      else if (setup.profile && setup.profile.id > profileId) setup.profile.id -= 1;
+      // As the host (GameProfile.DeleteProfile): the setup is reset, every player goes back to the tray.
+      clearAll(setup);
       publishSetup(context, state, setup);
       context.emit('profiles.changed', { gameId: setup.gameId });
       context.emit('library.changed', { gameIds: [setup.gameId] });
@@ -53,7 +53,7 @@ export function createProfilesMock(context: MockContext, state: MockState): Brid
         : editableSettings(launchProfileSettings(state, setup), true);
     },
     saveSettings: (edited) => {
-      const setup = requireSetup(state);
+      const setup = requireEditable(state);
       const loaded = setup.profile ? findProfile(setup, setup.profile.id) : undefined;
       const errors = validateProfileSettings(edited, loaded ? loaded.seats.length : setup.players.length);
       if (errors.length > 0) return errors;
