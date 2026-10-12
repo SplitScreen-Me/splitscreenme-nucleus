@@ -4,9 +4,9 @@
 
 # Nucleus Co-op
 
-### One PC. One copy of the game. Everyone on the couch.
+### Split-screen for PC games that never had it.
 
-Split-screen for PC games that never shipped with it. Free and open source.
+Grab a controller, pull up a chair. Nucleus Co-op turns one PC and one copy of a game<br>into a couch co-op session for up to 32 players. Free and open source.
 
 ![P1](https://img.shields.io/badge/-P1-ff6b35?style=flat-square)
 ![P2](https://img.shields.io/badge/-P2-3b8bff?style=flat-square)
@@ -21,112 +21,137 @@ Split-screen for PC games that never shipped with it. Free and open source.
 [![Latest release](https://img.shields.io/github/v/release/SplitScreen-Me/splitscreenme-nucleus?style=for-the-badge&label=release&color=ff6b35)](https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/SplitScreen-Me/splitscreenme-nucleus/total?style=for-the-badge&color=3b8bff)](https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases)
 [![Discord](https://img.shields.io/discord/142649962839277568?style=for-the-badge&logo=discord&logoColor=white&label=discord&color=5865F2)](https://discord.gg/QDUt8HpCvr)
-[![Patreon](https://img.shields.io/badge/patreon-support-ff424d?style=for-the-badge&logo=patreon&logoColor=white)](https://patreon.com/nucleus_coop)
 [![License](https://img.shields.io/badge/license-GPL--3.0-3ddb86?style=for-the-badge)](LICENSE)
 
-**[Download](https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases/latest)** &nbsp;·&nbsp;
-**[600+ games on the Hub](https://hub.splitscreen.me)** &nbsp;·&nbsp;
-**[Install guide](https://www.splitscreen.me/docs/installation)** &nbsp;·&nbsp;
-**[FAQ](https://www.splitscreen.me/docs/faq)** &nbsp;·&nbsp;
-**[Discord](https://discord.gg/QDUt8HpCvr)**
+### [⬇️ Download](https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases/latest) &nbsp;&nbsp; [🔎 Find your game](https://hub.splitscreen.me) &nbsp;&nbsp; [💬 Get help](https://discord.gg/QDUt8HpCvr)
 
 <br>
 
-<img src="docs/readme/v3-library.jpg" alt="The library of Nucleus Co-op 3: the featured game, games found on this PC and your games" width="100%">
+<img src="docs/readme/v3-library.jpg" alt="Nucleus Co-op 3: the library with the featured game, games found on this PC and your games" width="100%">
 
-<sub>Nucleus Co-op 3, the new interface being built on this branch.</sub>
+<sub>The new Nucleus Co-op 3 interface, coming soon.</sub>
 
 </div>
 
 <br>
 
-## Why Nucleus Co-op
+## Your PC is the console now
+
+Left 4 Dead 2 with four players on one TV. Stardew Valley with your partner on the couch. Valheim with the whole family across two monitors. If a game has LAN or online multiplayer, there's a good chance Nucleus Co-op can split it.
 
 <table>
 <tr>
-<td width="50%" valign="top">
+<td width="33%" valign="top">
 
-### 🖥️ Any screen, any layout
-Split one monitor in two, four, six, eight or sixteen, place players by hand, or spread them over several monitors.
+### 🎮 Bring any controller
+Xbox, PlayStation, generic pads, even several keyboards and mice at once. Every player gets their own.
 
 </td>
-<td width="50%" valign="top">
+<td width="33%" valign="top">
 
-### 🎮 Every player gets their own input
-Xbox and DirectInput controllers, and several keyboards and mice on the same PC, each one sent to one player only.
+### 🖥️ Split it your way
+Two, four, six, eight or sixteen players on one screen, or one player per monitor.
+
+</td>
+<td width="33%" valign="top">
+
+### 💿 One copy is enough
+Every player's game runs from the same install, on the same PC.
 
 </td>
 </tr>
 <tr>
-<td width="50%" valign="top">
+<td width="33%" valign="top">
 
-### 📦 600+ games, ready to play
-Community-made handlers on the [Hub](https://hub.splitscreen.me). Pick a game, install its handler in one click, point Nucleus to the game, play.
+### 📦 600+ games ready
+Community-made handlers on the [Hub](https://hub.splitscreen.me) do the setup for you. One click and you're in.
 
 </td>
-<td width="50%" valign="top">
+<td width="33%" valign="top">
 
-### 💸 Free, open, no account
-GPL-3.0, no sign-up, no ads. Built by players for players, and supported by the community on Patreon.
+### ⚡ Press a button to join
+Players join from their own controller. Pick a layout, hit Launch.
+
+</td>
+<td width="33%" valign="top">
+
+### 💸 Free. For real.
+Open source. No account, no ads, no catch.
 
 </td>
 </tr>
 </table>
 
-## How it works
+**Played with Nucleus Co-op:** Borderlands 2 · Left 4 Dead 2 · Terraria · Valheim · Stardew Valley · Don't Starve Together · Elden Ring · Dark Souls III · Deep Rock Galactic · Risk of Rain 2 · Halo: The Master Chief Collection · Lethal Company · Portal 2 · Satisfactory · Sons of the Forest · 7 Days to Die · Factorio · **[and 600+ more on the Hub →](https://hub.splitscreen.me)**
 
-```mermaid
-flowchart LR
-    A["🎮 One game install"] --> B["📂 Several instances<br/>linked copies of the game files"]
-    B --> C["🕹️ One player per instance<br/>input hooks route each controller,<br/>keyboard and mouse"]
-    C --> D["🌐 Connected<br/>the game's LAN or online mode,<br/>emulated when needed"]
-    D --> E["🖥️ Split screen<br/>borderless windows sized<br/>and placed per player"]
-```
+## Three steps to couch co-op
+
+**1. Pick a game.** Find it on the [Hub](https://hub.splitscreen.me), install its handler, and show Nucleus where the game is.
+
+**2. Grab the controllers.** Everyone presses a button to join and takes a spot on the screen.
+
+**3. Hit Launch.** Nucleus opens one copy of the game per player, gives each one their own controls, connects them together and lays the windows out on your screen.
+
+> [!IMPORTANT]
+> Nucleus Co-op needs a game with some form of LAN or online multiplayer, or a mod that adds one. It can't turn a single-player game into a co-op game.
+
+<details>
+<summary><b>How does it actually work?</b></summary>
+
+<br>
 
 Nucleus starts several instances of the same game from a single install, using symlinked copies of its files and closing the mutexes that would stop a second copy. Each instance answers to one player only, through custom XInput libraries, XInput Plus or ProtoInput hooks. The instances connect through the game's own LAN or online mode, with Goldberg or Nemirtingas emulators when it needs Steam, Epic or Galaxy. Nucleus keeps every window active so all players can play at once, then removes the borders and sizes and places each window on its part of the screen.
 
-> [!IMPORTANT]
-> Nucleus doesn't add multiplayer to single-player games. The game needs some form of LAN or online multiplayer, or a mod that connects its instances.
+Each game needs a **handler**: a small JavaScript file written by the community that tells Nucleus how to start, hook and connect that game. Anyone can [write one](https://www.splitscreen.me/docs/create-handlers).
 
-Each game needs a **handler**: a small JavaScript file written by the community that tells Nucleus how to start, hook and connect that game. Hundreds are ready on the [Hub](https://hub.splitscreen.me), and anyone can [write one](https://www.splitscreen.me/docs/create-handlers).
+</details>
 
 ## Get started
 
-1. **Install the requirements.** Windows 10 or 11, [.NET Framework 4.7.2](https://dotnet.microsoft.com/en-us/download/dotnet-framework/thank-you/net472-web-installer) or later, and the Visual C++ 2015-2022 Redistributable, both [x86](https://aka.ms/vs/17/release/vc_redist.x86.exe) and [x64](https://aka.ms/vs/17/release/vc_redist.x64.exe). Nucleus Co-op 3 also needs the [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/en-us/microsoft-edge/webview2/consumer/), already present on most PCs.
-2. **Download the [latest release](https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases/latest)** and extract it into its own folder, for example `C:\NucleusCo-op`. Avoid `Program Files`, your user folder and OneDrive.
-3. **Add a game.** Find it on the Hub and install its handler, then show Nucleus where the game's executable is.
-4. **Set up the session.** Everyone presses a button on their controller to join, pick a layout, launch.
+1. **Install the requirements:** Windows 10 or 11, [.NET Framework 4.7.2](https://dotnet.microsoft.com/en-us/download/dotnet-framework/thank-you/net472-web-installer) or later, and the Visual C++ 2015-2022 Redistributable, both [x86](https://aka.ms/vs/17/release/vc_redist.x86.exe) and [x64](https://aka.ms/vs/17/release/vc_redist.x64.exe).
+2. **Download the [latest release](https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases/latest)** and extract it into its own folder, for example `C:\NucleusCo-op`. Keep it out of `Program Files`, your user folder and OneDrive.
+3. **Run `NucleusCoop.exe`** and add your first game.
 
-The [installation guide](https://www.splitscreen.me/docs/installation), the [usage guide](https://www.splitscreen.me/docs/usage) and the [keyboard and mouse setup](https://www.splitscreen.me/docs/kbm-setup) cover the details.
+New here? The [installation guide](https://www.splitscreen.me/docs/installation), the [usage guide](https://www.splitscreen.me/docs/usage) and the [keyboard and mouse setup](https://www.splitscreen.me/docs/kbm-setup) walk you through it. Game won't start? Check [the troubleshooting page](https://www.splitscreen.me/docs/doesnt-launch) and the [FAQ](https://www.splitscreen.me/docs/faq).
 
-## Nucleus Co-op 3
+## Coming next: Nucleus Co-op 3
 
 > [!NOTE]
-> **Work in progress on the `v3.0.0-wip` branch.** The stable version is the 2.x line on the [releases page](https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases).
+> Nucleus Co-op 3 is in development on the `v3.0.0-wip` branch. The stable version is the 2.x line on the [releases page](https://github.com/SplitScreen-Me/splitscreenme-nucleus/releases).
 
-Version 3 replaces the WinForms window with a new interface, written in React and hosted in WebView2. Handlers, hooks and settings files don't change, so handlers from the Hub work as they are.
+A whole new interface, built around the couch.
 
 <table>
 <tr>
 <td width="58%">
-<img src="docs/readme/v3-lobby.jpg" alt="The session setup screen: a screen with one player placed, layouts and the waiting area">
+<img src="docs/readme/v3-lobby.jpg" alt="Nucleus Co-op 3: setting up a session, with one player placed on the screen">
 </td>
 <td width="42%" valign="top">
 
-- **A library that does the work.** Nucleus finds your Steam and Epic games that have a handler on the Hub and adds them in one go.
+- **Finds your games.** Nucleus scans your Steam and Epic libraries and adds every game that has a handler, in one go.
 - **The Hub built in.** Browse, install and update handlers without leaving the app.
-- **Controller first.** Press any button to join, then drive the whole app with a pad.
-- **Clear errors.** Problems with a handler or a launch show up in the app instead of pop-up boxes.
-- **Lighter.** The download is about 20 % smaller than 2.x, and the app's own libraries live in `bin\`.
+- **Made for the couch.** Press any button to join, then drive the whole app with a controller.
+- **Clear when it fails.** Problems show up in the app, with what to do next, instead of pop-up boxes.
+- **Lighter.** About 20 % smaller to download than 2.x.
+
+Your handlers and settings carry over as they are.
 
 </td>
 </tr>
 </table>
 
-## Build from source
+## Need help?
+
+- 💬 **[Discord](https://discord.gg/QDUt8HpCvr)**: the fastest way to get help, and where handlers are made
+- 🗨️ **[r/nucleuscoop](https://www.reddit.com/r/nucleuscoop/)** on Reddit
+- 📖 **[splitscreen.me](https://www.splitscreen.me/docs/what-is-splitscreen-me)**: guides, FAQ and troubleshooting
+
+## For developers
+
+Want to add a game? [Write a handler](https://www.splitscreen.me/docs/create-handlers) and share it on the Hub. Want to work on the app? Start with the [contributing guide](CONTRIBUTING.md).
 
 <details>
-<summary><b>Requirements and commands</b></summary>
+<summary><b>Build from source</b></summary>
 
 <br>
 
@@ -137,7 +162,7 @@ git clone -c core.longpaths=true https://github.com/SplitScreen-Me/splitscreenme
 cd splitscreenme-nucleus
 git switch v3.0.0-wip
 
-# 1. Web interface (the C# build copies dist\ into the app)
+# 1. Interface (the C# build copies dist\ into the app)
 cd Master\Nucleus.WebUI
 npm ci
 npm run build
@@ -153,15 +178,16 @@ powershell -ExecutionPolicy Bypass -File Master\tools\build-native.ps1 -Configur
 
 The app lands in `Master\NucleusCoopTool\bin\Release`.
 
-**Working on the interface:** `npm run dev` runs it in a browser against a mock of the app. In a Debug build, a `webui\dev-server.txt` file holding the Vite URL makes the real app load the dev server with hot reload.
-
-**Tests:** `npm run typecheck` and `npm run test:bridge` for the interface, `dotnet test` on the compiled `Nucleus.Coop.Services.Tests` and `Nucleus.Bridge.Tests` assemblies for the C# side.
-
-**Changing the bridge:** edit the C# contracts in `Master/Nucleus.Bridge/Contracts`, then `npm run bridge:gen`. `npm run bridge:check` fails when the generated TypeScript is out of date.
+- **Interface work:** `npm run dev` runs it in a browser against a mock of the app. In a Debug build, a `webui\dev-server.txt` file holding the Vite URL makes the app load the dev server with hot reload.
+- **Tests:** `npm run typecheck` and `npm run test:bridge` for the interface, `dotnet test` on the compiled `Nucleus.Coop.Services.Tests` and `Nucleus.Bridge.Tests` assemblies for the C# side.
+- **Bridge changes:** edit the C# contracts in `Master/Nucleus.Bridge/Contracts`, then `npm run bridge:gen`. `npm run bridge:check` fails when the generated TypeScript is out of date.
 
 </details>
 
-### How the code fits together
+<details>
+<summary><b>How the code fits together</b></summary>
+
+<br>
 
 ```mermaid
 flowchart LR
@@ -182,18 +208,13 @@ flowchart LR
 | `Master/Nucleus.Hook`, `Master/Nucleus.SHook` | Native hooks (C++) |
 | `Submodules/ProtoInput` | Several keyboards and mice, input hooks |
 
-The design notes are in [`docs/webui`](docs/webui): [architecture](docs/webui/architecture.md), [bridge how-to](docs/webui/bridge-howto.md), [host window](docs/webui/host.md), [library](docs/webui/library-services.md) and [setup](docs/webui/setup-services.md) services.
+Design notes: [architecture](docs/webui/architecture.md), [bridge how-to](docs/webui/bridge-howto.md), [host window](docs/webui/host.md), [library](docs/webui/library-services.md) and [setup](docs/webui/setup-services.md) services.
 
-## Contribute
+</details>
 
-Bug reports, handlers and code are all welcome. The [contributing guide](CONTRIBUTING.md) explains how to report a bug and how to work on the codebase, and the [handler guide](https://www.splitscreen.me/docs/create-handlers) gets you started on your first handler.
+## The story
 
-## Community
-
-- 💬 [Discord](https://discord.gg/QDUt8HpCvr), where most of the help and handler work happens
-- 🗨️ [r/nucleuscoop](https://www.reddit.com/r/nucleuscoop/) on Reddit
-- 🌐 [splitscreen.me](https://www.splitscreen.me/docs/what-is-splitscreen-me), the website and docs
-- 🧡 [Patreon](https://patreon.com/nucleus_coop), and the [list of all-time supporters](https://github.com/SplitScreen-Me/splitscreenme-patreon/tree/main)
+This repository is the official version of Nucleus Co-op, part of the [SplitScreen.Me](https://www.splitscreen.me/docs/what-is-splitscreen-me) organization. It builds on the [Nucleus Co-op Alpha 8 Mod](https://github.com/ZeroFox5866/nucleuscoop), itself based on the original Nucleus Co-op, and has grown with a reworked interface, proper support for display scaling, player nicknames, a new player and input order, many more handler options and a long list of fixes. The full story is on [splitscreen.me](https://www.splitscreen.me/docs/history).
 
 ## Credits
 
@@ -233,6 +254,14 @@ Special thanks to the SplitScreenDreams Discord community: none of this would ex
 ## License
 
 Nucleus Co-op is free software under the [GNU General Public License v3.0](LICENSE).
+
+## Support the project
+
+Nucleus Co-op is free and will stay free. If it gave you a great night on the couch, you can help keep it going.
+
+<a href="https://patreon.com/nucleus_coop"><img src="https://img.shields.io/badge/support%20us%20on-Patreon-ff424d?style=for-the-badge&logo=patreon&logoColor=white" alt="Support Nucleus Co-op on Patreon"></a>
+
+Thank you to [every supporter, past and present](https://github.com/SplitScreen-Me/splitscreenme-patreon/tree/main) 🧡
 
 <div align="center">
 <br>
