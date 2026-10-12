@@ -79,8 +79,10 @@ function SessionView({ view, log }: { view: SessionView; log: ReturnType<typeof 
         ...(s.lockInputsKey ? [{ key: s.lockInputsKey, label: s.inputsLocked ? 'Unlock inputs' : 'Lock inputs' }] : []),
         ...(s.stopHotkey ? [{ key: s.stopHotkey.replace(/\+/g, ' '), label: 'Stop session' }] : []),
       ];
+  // While copies run, the pads play the game and drive nothing here: only the keyboard's keys are hinted.
+  const back: Hint = view.ended ? { button: 'B', label: 'Back to library', action: backToLibrary } : { key: 'Esc', label: 'Back to library' };
   useScreenChrome([{ label: 'Library', to: '/library' }, { label: `${s.gameName ?? 'Game'} session` }], {
-    base: [{ button: 'A', label: 'Select' }, { button: 'B', label: 'Back to library', action: backToLibrary }, ...keyHints],
+    base: [...(view.ended ? [{ button: 'A' as const, label: 'Select' }] : []), back, ...keyHints],
   });
   useBackKey(backToLibrary);
 
@@ -262,7 +264,7 @@ function Idle({ session }: { session: SessionSnapshot | undefined }) {
           </>
         ) : (
           <p className="text-ink-2">
-            Pick a game in your library, let everyone press a button on their controller to join, then launch. Every copy of the game and
+            Pick a game in your library, let everyone press Start on their controller to join, then launch. Every copy of the game and
             its progress shows up here.
           </p>
         )}

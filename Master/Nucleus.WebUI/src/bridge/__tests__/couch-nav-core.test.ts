@@ -11,6 +11,7 @@ import {
   LEAD_MS,
   mayAct,
   navOrigin,
+  padReach,
   pageStep,
   pickInDirection,
   readPad,
@@ -102,6 +103,14 @@ test('on a shared screen only the pad that moved last may press, for a while', (
   assert.equal(mayAct(true, lead, 1, 1000 + LEAD_MS), true);
   assert.equal(mayAct(true, lead, 0, 1500), false, 'another pad');
   assert.equal(mayAct(true, lead, 1, 1001 + LEAD_MS), false, 'too long ago');
+});
+
+test('a screen waiting for a controller captures the pads: only hint actions, unless a dialog is open', () => {
+  assert.equal(padReach({ active: true, captured: false, dialogOpen: false }), 'all');
+  assert.equal(padReach({ active: true, captured: true, dialogOpen: false }), 'hints');
+  assert.equal(padReach({ active: true, captured: true, dialogOpen: true }), 'all', 'the dialog needs the pads');
+  assert.equal(padReach({ active: false, captured: true, dialogOpen: false }), 'none');
+  assert.equal(padReach({ active: false, captured: false, dialogOpen: false }), 'none');
 });
 
 test('B closes menus then dialogs, and only goes back where it cannot leave a shared or top-level screen', () => {

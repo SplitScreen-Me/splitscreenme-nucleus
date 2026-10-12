@@ -432,27 +432,49 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                     if (!player.IsController){ continue; }
 
+                    //A press the poll sees: which buttons it holds (the new ones raise PlayerInfo.ButtonsPressed), then the flash.
+                    bool polled = true;
+                    bool pressed = false;
+                    PadButtons held = PadButtons.None;
+
                     switch (player.InputType)
                     {
                         case InputType.DInput:
-                            if (DInputManager.Poll(player)) { player.FlashIcon(); }
+                            pressed = DInputManager.Poll(player);
+                            if (pressed) { held = DInputManager.ReadButtons(player); }
                             break;
                         case InputType.XInput:
-                            if (XInputManager.Poll(player, userGameInfo?.Game, profile?.DevicesList)) { player.FlashIcon(); }
+                            pressed = XInputManager.Poll(player, userGameInfo?.Game, profile?.DevicesList);
+                            if (pressed) { held = XInputManager.ReadButtons(player); }
                             break;
                         case InputType.SDL2:
                             if (!sdlLocked)
                             {
                                 if (!Monitor.TryEnter(SDLManager.Sync))
                                 {
+                                    polled = false;
                                     break;//SDL is refreshing
                                 }
 
                                 sdlLocked = true;
                             }
 
-                            if (SDLManager.Poll(player, userGameInfo?.Game, profile?.DevicesList)) { player.FlashIcon(); }
+                            pressed = SDLManager.Poll(player, userGameInfo?.Game, profile?.DevicesList);
+                            if (pressed) { held = SDLManager.ReadButtons(player); }
                             break;
+                        default:
+                            polled = false;
+                            break;
+                    }
+
+                    if (polled)
+                    {
+                        player.TrackButtons(held);
+                    }
+
+                    if (pressed)
+                    {
+                        player.FlashIcon();
                     }
                 }
             }

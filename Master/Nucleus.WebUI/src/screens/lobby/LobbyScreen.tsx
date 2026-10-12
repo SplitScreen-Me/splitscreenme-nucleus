@@ -1,7 +1,7 @@
-// Lobby: "press a button to join" session setup for one game.
+// Lobby: "press Start to join" session setup for one game.
 // The host owns the setup (screens, layouts, devices, players, steps); this screen renders its snapshot and sends
-// commands. Only interaction state lives here: drags, a player picked up with the keyboard, typing, and the flashes
-// that answer a device's activity.
+// commands. Only interaction state lives here: drags, a player picked up with the keyboard, an empty place waiting for
+// a controller, typing, and the flashes that answer a device's activity.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
@@ -9,16 +9,17 @@ import { bridge, bridgeQueryKey, useBridgeEvent, useBridgeQuery, type SetupSnaps
 import { HandlerNotes } from '@/components/HandlerNotes';
 import { useAddGame } from '@/features/add-game';
 import { errorMessage } from '@/lib/bridge-ui';
-import { deviceNoun } from '@/lib/devices';
+import { deviceNoun, isGamepadKind } from '@/lib/devices';
 import { heroOf, useLibrary } from '@/lib/library';
 import { isSessionLive, useSessionSnapshot, useSetupSnapshot } from '@/lib/live';
-import { useScreenChrome } from '@/shell/chrome';
-import { useSharedCouchNav } from '@/shell/couch-nav';
+import { useScreenChrome, type Hint } from '@/shell/chrome';
+import { useCapturedCouchNav, useSharedCouchNav } from '@/shell/couch-nav';
 import { ButtonLink, Dialog, Icon, Pane, Spinner, useToast } from '@/ui';
 import { Canvas, type ResizeMode } from './Canvas';
 import { useLobbyCommands } from './commands';
+import { spotStillOpen, type WaitingSpot } from './join-rules';
 import { LobbyHeader, profileTitle } from './LobbyHeader';
-import { playerName } from './model';
+import { deviceById, playerName, screenName, slotName } from './model';
 import { ProfilesManager } from './ProfilesDialog';
 import { LaunchPane, SidePanel } from './SidePanel';
 import { CustomStep, OptionsStep } from './Steps';
@@ -64,10 +65,14 @@ export default function LobbyScreen() {
   const [justJoined, setJustJoined] = useState<ReadonlySet<string>>(new Set());
   const [profilesOpen, setProfilesOpen] = useState(false);
   const [resizing, setResizing] = useState<ResizeMode | null>(null);
+  // An empty place picked by clicking or activating it: the next press of a free pad takes it.
+  const [spot, setSpot] = useState<WaitingSpot | null>(null);
 
-  // Pads belong to players here (any press on a free one joins): every pad moves focus, only the one that moved last
-  // presses buttons, and B only closes a menu or a dialog.
+  // Pads belong to players here (Start on a free one joins): every pad moves focus, only the one that moved last
+  // presses buttons, and B only closes a menu or a dialog. While a place waits for a controller, the pads only cancel
+  // (B): their next press belongs to that place.
   useSharedCouchNav();
+  useCapturedCouchNav(spot !== null);
 
   // ---------- Open the setup of this game (once), unless a session runs ----------
   const live = isSessionLive(session?.state);
@@ -134,11 +139,66 @@ export default function LobbyScreen() {
     if (unloaded) toast('Profile unloaded. Place players freely.');
     return Boolean(unloaded);
   };
+  // ---------- A place waiting for a controller ----------
+  const liveSpot = useRef({ spot, snap });
+  liveSpot.current = { spot, snap };
+  const pickSpot = useCallback(
+    (picked: WaitingSpot) => {
+      setSpot(picked);
+      const screen = liveSpot.current.snap?.screens.find((s) => s.index === picked.screenIndex);
+      const where = screen ? `${screenName(screen)}${picked.slotIndex === undefined ? '' : `, ${slotName(screen, picked.slotIndex)}`}` : 'this place';
+      announce(`Waiting for a controller on ${where}: press a button on it. Escape cancels.`);
+    },
+    [announce],
+  );
+  const cancelSpot = useCallback(() => {
+    if (!liveSpot.current.spot) return;
+    setSpot(null);
+    announce('No longer waiting for a controller.');
+  }, [announce]);
+  const takeSpot = useCallback(
+    async (deviceId: string, at: WaitingSpot) => {
+      setSpot(null);
+      const name = liveSpot.current.snap ? deviceById(liveSpot.current.snap, deviceId)?.name : undefined;
+      const next =
+        at.slotIndex === undefined
+          ? await commands.assignAt(deviceId, at.screenIndex, at.x, at.y)
+          : await commands.assignToSlot(deviceId, at.screenIndex, at.slotIndex);
+      const player = next?.players.find((p) => p.deviceIds.includes(deviceId));
+      if (!player) return;
+      announce(`${name ?? 'A controller'} joined: ${playerName(player)}, player ${player.number}.`);
+      // Focus follows the new player, so the keyboard and the pads carry on from there.
+      requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-player-id="${CSS.escape(player.id)}"]`)?.focus({ preventScroll: true }));
+    },
+    [commands, announce],
+  );
+
+  // The place stops waiting when it is gone or taken, off the players step, and while launching.
+  const stepKind = snap?.flow.steps[snap.flow.current]?.kind;
+  const onCanvas = Boolean(snap) && stepKind !== 'options' && stepKind !== 'custom';
+  useEffect(() => {
+    if (spot && (!snap || !onCanvas || launching || !spotStillOpen(spot, snap.screens))) setSpot(null);
+  }, [spot, snap, onCanvas, launching]);
+
+  // Escape cancels wherever the focus is.
+  useEffect(() => {
+    if (!spot) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || document.querySelector('dialog[open]')) return;
+      e.preventDefault();
+      e.stopPropagation();
+      cancelSpot();
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [spot, cancelSpot]);
 
   // ---------- Device activity: press to join, flashes, pings ----------
   usePressToJoin({
     snap,
     enabled: Boolean(snap) && !launching,
+    spot,
+    onTakeSpot: (deviceId, at) => void takeSpot(deviceId, at),
     onFlash: (deviceId) => setFlashes((f) => ({ ...f, [deviceId]: (f[deviceId] ?? 0) + 1 })),
     onPing: (playerId) => setPings((s) => ({ ...s, [playerId]: (s[playerId] ?? 0) + 1 })),
     announce,
@@ -146,7 +206,8 @@ export default function LobbyScreen() {
 
   useBridgeEvent('setup.deviceLost', ({ kind, playerNumber, nickname }) => {
     const who = playerNumber ? `${nickname?.trim() || `Player ${playerNumber}`}${nickname ? ` (player ${playerNumber})` : ''}` : 'A player';
-    toast(`${who} lost their ${deviceNoun(kind)}. Plug it back in, or press a button on another one.`, { icon: 'warning', durationMs: 5000 });
+    const again = isGamepadKind(kind) ? 'press Start on another one' : 'use another one';
+    toast(`${who} lost their ${deviceNoun(kind)}. Plug it back in, or ${again}.`, { icon: 'warning', durationMs: 5000 });
   });
 
   // Players who just appeared get the join animation; joins and leaves are announced.
@@ -171,25 +232,38 @@ export default function LobbyScreen() {
     const area = document.activeElement?.closest<HTMLElement>('[data-player-id]');
     area?.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
   };
-  useScreenChrome([{ label: 'Library', to: '/library' }, { label: snap?.gameName ?? summary?.name ?? 'Setting up' }], {
-    base: [{ button: 'A', label: 'Any button on a free controller joins; move, then A selects' }],
-    byFocus: {
-      'player-resizable': [
-        { button: 'A', label: 'Pick up or place' },
-        { button: 'X', label: 'Resize', action: keyToFocusedPlayer('r') },
-      ],
-      resizing: [
-        { key: 'Arrows', label: 'Move the corner' },
-        { button: 'X', label: 'Other corner', action: keyToFocusedPlayer('x') },
-        { button: 'A', label: 'Done' },
-      ],
-    },
-    aside: (
-      <span>
-        Keyboard: <b>Enter</b> picks up a player, <b>R</b> resizes, <b>Delete</b> takes them out
-      </span>
-    ),
-  });
+  // Only what the buttons do whatever has focus: Start joins (the host's press, never the UI), A selects; on a player
+  // area that can be resized X resizes, and in resize mode A is done. While a place waits for a controller, B cancels.
+  const join: Hint = { button: 'Menu', label: 'Join' };
+  const select: Hint = { button: 'A', label: 'Select' };
+  useScreenChrome(
+    [{ label: 'Library', to: '/library' }, { label: snap?.gameName ?? summary?.name ?? 'Setting up' }],
+    spot
+      ? {
+          base: [{ button: 'B', label: 'Cancel', action: cancelSpot }],
+          aside: (
+            <span>
+              Waiting for a controller: <b>Esc</b> cancels
+            </span>
+          ),
+        }
+      : {
+          base: [join, select],
+          byFocus: {
+            'player-resizable': [join, select, { button: 'X', label: 'Resize', action: keyToFocusedPlayer('r') }],
+            resizing: [
+              { key: 'Arrows', label: 'Move the corner' },
+              { button: 'X', label: 'Other corner', action: keyToFocusedPlayer('x') },
+              { button: 'A', label: 'Done' },
+            ],
+          },
+          aside: (
+            <span>
+              Keyboard: <b>Enter</b> picks up a player, <b>R</b> resizes, <b>Delete</b> takes them out
+            </span>
+          ),
+        },
+  );
 
   const launch = async () => {
     if (!snap?.flow.canPlay) return;
@@ -258,6 +332,9 @@ export default function LobbyScreen() {
           announce={announce}
           resizing={resizing}
           onResizing={setResizing}
+          spot={spot}
+          onPickSpot={pickSpot}
+          onCancelSpot={cancelSpot}
         />
       )}
 

@@ -1,10 +1,12 @@
-// Press to join: a free device that is used (or becomes revealed by being used) takes the next free slot.
-// The host owns placement (setup.join); this hook only decides which activity means "I want to play".
+// Press to join: Start on a free pad (or a key on a free keyboard, see wantsToJoin) takes the next free slot. While an
+// empty place waits for a controller, the next press of any free pad takes that place instead (join-rules.ts).
+// The host owns placement (setup.join, setup.assignToSlot); this hook only decides which activity means "I want to play".
 import { useEffect, useRef } from 'react';
 import { bridge, useBridgeEvent, type SetupDevice, type SetupSnapshot } from '@/bridge';
 import { errorMessage, isCancelled, refusalReason } from '@/lib/bridge-ui';
 import { isGamepadKind } from '@/lib/devices';
 import { useToast } from '@/ui';
+import { pressJoins, pressTakesSpot, spotStillOpen, type WaitingSpot } from './join-rules';
 import { deviceById, hasLoneRawKeyboard, isFree, keyboardPressIsForUi, playerName, typedOn } from './model';
 import { recentlyRemoved } from './removals';
 
@@ -17,6 +19,10 @@ interface Options {
   snap: SetupSnapshot | null;
   /** False while joining makes no sense (launching, a dialog the pads should not answer). */
   enabled: boolean;
+  /** The empty place waiting for a controller, if any. */
+  spot: WaitingSpot | null;
+  /** A free pad pressed a button for the waiting place: put it there (and stop waiting). */
+  onTakeSpot: (deviceId: string, spot: WaitingSpot) => void;
   /** A free device was used: flash it in the tray. */
   onFlash: (deviceId: string) => void;
   /** A device of a player was used: ping its region. */
@@ -24,7 +30,14 @@ interface Options {
   announce: (message: string) => void;
 }
 
-export function usePressToJoin({ snap, enabled, onFlash, onPing, announce }: Options) {
+/** What a gamepad press asked for when it was made (it may be acted on once the pad is revealed). */
+interface Press {
+  at: number;
+  takesSpot: boolean;
+  joins: boolean;
+}
+
+export function usePressToJoin({ snap, enabled, spot, onTakeSpot, onFlash, onPing, announce }: Options) {
   const toast = useToast();
   const pending = useRef(new Set<string>());
   // Device id → state of the setup when the host refused it: not asked again until something changes.
@@ -32,8 +45,10 @@ export function usePressToJoin({ snap, enabled, onFlash, onPing, announce }: Opt
   const lastKey = useRef<{ forUi: boolean; at: number } | null>(null);
   // Device id → last time it reported activity.
   const lastActivity = useRef(new Map<string, number>());
-  const live = useRef({ snap, enabled });
-  live.current = { snap, enabled };
+  // Gamepad id → its last press.
+  const lastPress = useRef(new Map<string, Press>());
+  const live = useRef({ snap, enabled, spot, onTakeSpot });
+  live.current = { snap, enabled, spot, onTakeSpot };
 
   // Judge a keyboard's activity by where focus was when the key went down: the host's event arrives later.
   useEffect(() => {
@@ -49,7 +64,7 @@ export function usePressToJoin({ snap, enabled, onFlash, onPing, announce }: Opt
   const signature = (s: SetupSnapshot) =>
     `${s.players.map((p) => `${p.id}:${p.deviceIds.length}`).join(',')}|${s.screens.map((x) => x.layout).join(',')}|${s.profile.loaded}`;
 
-  /** Whether this activity of a free device means it wants to join. */
+  /** Whether this activity of a free device means it wants to join (a gamepad's Start is checked by the caller). */
   const wantsToJoin = (s: SetupSnapshot, device: SetupDevice): boolean => {
     if (!device.revealed || !isFree(device) || recentlyRemoved(device.id)) return false;
     if (document.querySelector('dialog[open]')) return false;
@@ -90,9 +105,19 @@ export function usePressToJoin({ snap, enabled, onFlash, onPing, announce }: Opt
     }
   };
 
-  useBridgeEvent('setup.deviceActivity', ({ deviceId, active }) => {
+  /** A free pad pressed a button for the waiting place: hand it over, when it can be placed. */
+  const takeSpot = (deviceId: string) => {
+    const { snap: s, enabled: on, spot: waiting, onTakeSpot: take } = live.current;
+    if (!on || !s || !waiting || !spotStillOpen(waiting, s.screens)) return;
+    const device = deviceById(s, deviceId);
+    if (!device || !device.revealed || !isFree(device) || document.querySelector('dialog[open]')) return;
+    take(deviceId, waiting);
+  };
+
+  useBridgeEvent('setup.deviceActivity', ({ deviceId, active, buttons }) => {
     const s = live.current.snap;
-    if (active) lastActivity.current.set(deviceId, performance.now());
+    const now = performance.now();
+    if (active) lastActivity.current.set(deviceId, now);
     if (!active || !s) return;
     const device = deviceById(s, deviceId);
     if (!device) return;
@@ -102,7 +127,18 @@ export function usePressToJoin({ snap, enabled, onFlash, onPing, announce }: Opt
       return;
     }
     onFlash(deviceId);
-    void tryJoin(deviceId);
+    if (!isGamepadKind(device.kind)) {
+      void tryJoin(deviceId);
+      return;
+    }
+    // A pad acts on its presses (the start of an activity without one is only a flash): Start joins, or any press takes
+    // the waiting place.
+    if (!buttons) return;
+    const waiting = live.current.spot;
+    const press: Press = { at: now, takesSpot: pressTakesSpot(waiting, buttons, now), joins: !waiting && pressJoins(buttons) };
+    lastPress.current.set(deviceId, press);
+    if (press.takesSpot) takeSpot(deviceId);
+    else if (press.joins) void tryJoin(deviceId);
   });
 
   // A device revealed by being used (a key typed, a gamepad identified) is a press too. Only when it was used just
@@ -116,7 +152,17 @@ export function usePressToJoin({ snap, enabled, onFlash, onPing, announce }: Opt
     if (!before) return;
     const at = performance.now();
     for (const id of now) {
-      if (!before.has(id) && at - (lastActivity.current.get(id) ?? -Infinity) < REVEAL_ACTIVITY_MS) void tryJoin(id);
+      if (before.has(id)) continue;
+      const device = deviceById(snap, id);
+      if (device && isGamepadKind(device.kind)) {
+        // A pad: what its press asked for (Start, or the waiting place).
+        const press = lastPress.current.get(id);
+        if (!press || at - press.at >= REVEAL_ACTIVITY_MS) continue;
+        if (press.takesSpot) takeSpot(id);
+        else if (press.joins) void tryJoin(id);
+      } else if (at - (lastActivity.current.get(id) ?? -Infinity) < REVEAL_ACTIVITY_MS) {
+        void tryJoin(id);
+      }
     }
   });
 }
