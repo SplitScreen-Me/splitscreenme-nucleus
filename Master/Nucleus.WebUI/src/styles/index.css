@@ -263,8 +263,8 @@
     outline: 2px solid var(--color-ink);
     outline-offset: 3px;
   }
-  /* Gamepad focus on navigable items, unless the item draws its own frame. */
-  .nav-input [data-nav]:focus:not([data-nav-frame='own']) {
+  /* Gamepad focus (it also asks for :focus-visible), unless the item draws its own frame (lobby regions do). */
+  .nav-input :focus:not([data-nav-frame='own'], [data-region], [id='stage']) {
     outline: 2px solid var(--color-ink);
     outline-offset: 3px;
   }

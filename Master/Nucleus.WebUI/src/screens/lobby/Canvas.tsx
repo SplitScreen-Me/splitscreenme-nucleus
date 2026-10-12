@@ -206,7 +206,7 @@ export function Canvas(props: CanvasProps) {
       </div>
 
       <div className="relative min-h-0 flex-1">
-        <div ref={rigRef} className="absolute inset-0" data-own-arrows>
+        <div ref={rigRef} className="absolute inset-0" data-own-arrows data-autofocus>
           {snap.screens.map((screen) => {
             const box = rig?.boxes.get(screen.index);
             const players = snap.players.filter((p) => p.screenIndex === screen.index);
@@ -558,6 +558,8 @@ function WaitingDevice({
         <button
           type="button"
           onClick={onRumble}
+          // Sits over the device button; a pad finds itself by pressing a button anyway.
+          data-nav="off"
           aria-label={`Make ${d.name} vibrate`}
           title="Vibrate, to find which one it is"
           className="absolute top-1/2 right-2 grid size-7 -translate-y-1/2 place-items-center rounded-md border-0 bg-transparent text-ink-3 hover:bg-pane-3 hover:text-ink"

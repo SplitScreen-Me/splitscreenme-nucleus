@@ -46,6 +46,17 @@ function devicesCheck(state: MockState, setup: MockSetup): SetupCheck {
   return check('devices', 'ok', players === 1 ? '1 player ready' : `${players} players ready`);
 }
 
+/** Setting that hides the input lock reminder ("Don't show again"). */
+export const INPUT_LOCK_REMINDER_OFF = 'misc.ignoreInputLockReminder';
+
+/** How to lock the inputs, until the user turns the reminder off. */
+function inputLockCheck(state: MockState): SetupCheck[] {
+  if (state.settings[INPUT_LOCK_REMINDER_OFF] === 'true') return [];
+  const key = state.settings['hotkeys.lockKey'] || 'End';
+  const detail = `Some handlers need the keyboard and mouse locked to the game windows. Press ${key} again when you finish playing.`;
+  return [check('inputLock', 'info', `Press ${key} to lock inputs`, detail, "Don't show again")];
+}
+
 /** Checks that only some handlers need. */
 function handlerSpecificChecks(state: MockState, setup: MockSetup): SetupCheck[] {
   const { requiresAdmin, mod, closeSteam, savesInOneDrive } = setupFixtureFor(setup.gameId);
@@ -80,6 +91,7 @@ export function checksOf(state: MockState, setup: MockSetup): SetupCheck[] {
     handlerCheck(game, findHandler(state, setup.gameId)),
     ...handlerSpecificChecks(state, setup),
     devicesCheck(state, setup),
+    ...inputLockCheck(state),
   ];
   return checks
     .map((item) => (setup.busyChecks.has(item.id) ? check(item.id, 'busy', item.title, item.detail) : item))
@@ -114,6 +126,10 @@ export async function fixCheck(context: MockContext, state: MockState, setup: Mo
     case 'steam':
       await sleep(1100);
       setup.steamClosed = true;
+      return;
+    case 'inputLock':
+      state.settings[INPUT_LOCK_REMINDER_OFF] = 'true';
+      context.emit('settings.changed', { keys: [INPUT_LOCK_REMINDER_OFF] });
       return;
   }
 }

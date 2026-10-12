@@ -38,6 +38,8 @@ export function usePressToJoin({ snap, enabled, onFlash, onPing, announce }: Opt
   // Judge a keyboard's activity by where focus was when the key went down: the host's event arrives later.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Keys the gamepad navigation sends to widgets are not the keyboard.
+      if (!e.isTrusted) return;
       lastKey.current = { forUi: keyboardPressIsForUi(e.key), at: performance.now() };
     };
     window.addEventListener('keydown', onKey, true);

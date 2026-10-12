@@ -117,9 +117,16 @@ const artClass =
   'outline-3 outline-offset-3 outline-transparent transition-[transform,outline-color] duration-(--dur-2) ease-snap ' +
   'group-hover:-translate-y-[3px] group-nav-focus:-translate-y-[5px] group-nav-focus:outline-ink';
 
-/** A box the size of the cover, above the card link, for the card's own buttons. */
+/**
+ * A box the size of the cover, above the card link, for the card's own buttons. Pads use the card's hints instead
+ * (View favourite, X update), so the buttons are out of their reach.
+ */
 function CoverOverlay({ children }: { children: ReactNode }) {
-  return <div className="pointer-events-none absolute inset-x-0 top-0 aspect-[2/3]">{children}</div>;
+  return (
+    <div data-nav="off" className="pointer-events-none absolute inset-x-0 top-0 aspect-[2/3]">
+      {children}
+    </div>
+  );
 }
 
 function FavoriteButton({ game: g, onFavorite }: { game: GameSummary; onFavorite: (g: GameSummary) => void }) {

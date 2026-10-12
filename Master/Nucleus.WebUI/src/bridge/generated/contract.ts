@@ -11,7 +11,7 @@ export const protocolVersion = 1;
 /**
  * Hash of the contract this file was generated from. `app.hello` returns the host's: the UI refuses to run when they differ.
  */
-export const contractHash = '721781118ba733db';
+export const contractHash = '290b06521120fd7b';
 
 /** JSON-RPC error code of each kind of error the host returns. */
 export const bridgeErrorCodes = {
@@ -192,6 +192,32 @@ export const logLevelValues = [
   /** A failure. */
   'error',
 ] as const satisfies readonly LogLevel[];
+
+/** Severity of a notice. */
+export type NoticeLevel = 'info' | 'warning' | 'error';
+
+/** Every {@link NoticeLevel}, in declaration order. */
+export const noticeLevelValues = [
+  /** Information. */
+  'info',
+  /** Something may go wrong. */
+  'warning',
+  /** Something failed. */
+  'error',
+] as const satisfies readonly NoticeLevel[];
+
+/** What a notice is about. */
+export type NoticeSource = 'handler' | 'setup' | 'app';
+
+/** Every {@link NoticeSource}, in declaration order. */
+export const noticeSourceValues = [
+  /** Loading or reloading a handler. */
+  'handler',
+  /** The setup of a game: profiles, content folder. */
+  'setup',
+  /** Anything else. */
+  'app',
+] as const satisfies readonly NoticeSource[];
 
 /** Kind of handler option. */
 export type OptionKind = 'choice' | 'text' | 'unsupported';
@@ -394,6 +420,22 @@ export interface AppInfo {
   startupGameId?: string;
 }
 
+/** A message for the user. */
+export interface AppNotice {
+  /** Id, unique within the app's lifetime. */
+  id: string;
+  /** Severity. */
+  level: NoticeLevel;
+  /** What it is about. */
+  source: NoticeSource;
+  /** Short title. */
+  title: string;
+  /** Message, plain text; line breaks are meaningful. */
+  message: string;
+  /** When it was raised (UTC). */
+  at: IsoDateString;
+}
+
 /** Progress of `library.downloadArtwork`. */
 export interface ArtworkProgress {
   /** Game being processed. */
@@ -464,6 +506,12 @@ export interface DeviceLost {
 export interface DeviceRequest {
   /** Device id, see `SetupDevice.id`. */
   deviceId: string;
+}
+
+/** Parameters of `notices.dismiss`. */
+export interface DismissNoticeRequest {
+  /** Notice id. */
+  id: string;
 }
 
 /** Parameters of `library.downloadArtwork`. */
@@ -748,6 +796,12 @@ export interface LogRequest {
   message: string;
   /** Where it comes from in the UI, for example a component name. */
   source?: string;
+}
+
+/** A notice was added or dismissed. */
+export interface NoticesChanged {
+  /** Number of notices waiting. */
+  count: number;
 }
 
 /** Parameters of `app.openExternal`. */
@@ -1088,6 +1142,8 @@ export interface SessionSnapshot {
   inputsLocked: boolean;
   /** Last error, for example why the launch failed. */
   error?: string;
+  /** Crash report of the last failed launch (exception, hints, report file), shown with `SessionSnapshot.error`. */
+  errorDetails?: string;
   /** Actions and their hotkeys. */
   actions: SessionActionInfo[];
   /** Hotkey that stops the session, for example "Ctrl+E". */
@@ -1182,6 +1238,18 @@ export interface SettingCondition {
   values: string[];
 }
 
+/** A confirmation the UI asks before saving some values of a setting. */
+export interface SettingConfirmation {
+  /** Values that need the confirmation. */
+  values: string[];
+  /** Title of the confirmation. */
+  title: string;
+  /** What will happen, in plain words. */
+  message: string;
+  /** Label of the confirming button, a verb, for example "Turn off". */
+  confirmLabel: string;
+}
+
 /** One setting. */
 export interface SettingField {
   /** Key, unique across sections, for example `misc.useNicknames`. */
@@ -1214,6 +1282,10 @@ export interface SettingField {
   visibleWhen?: SettingCondition;
   /** Editable only when this condition holds. */
   enabledWhen?: SettingCondition;
+  /**
+   * Ask the user to confirm before saving one of these values (for example turning off "Keep Nucleus user accounts").
+   */
+  confirm?: SettingConfirmation;
 }
 
 /** Settings were saved. */
@@ -1582,6 +1654,10 @@ export interface BridgeMethods {
   'library.setFavorite': { params: SetFavoriteRequest; result: void };
   /** Saves sorting and filtering of the game list. */
   'library.setPreferences': { params: LibraryPreferences; result: void };
+  /** Removes a notice once the user has read it. Unknown ids are ignored. */
+  'notices.dismiss': { params: DismissNoticeRequest; result: void };
+  /** Notices waiting to be read, oldest first. */
+  'notices.list': { params: void; result: AppNotice[] };
   /** Deletes a profile. The following profiles are renumbered. */
   'profiles.delete': { params: ProfileRequest; result: void };
   /** Settings of the loaded profile, or of the profile that will be saved at launch. */
@@ -1784,6 +1860,15 @@ export interface BridgeHandlers {
     /** Saves sorting and filtering of the game list. */
     setPreferences: (params: LibraryPreferences) => Awaitable<void>;
   };
+  /**
+   * Messages Nucleus has for the user outside a game session: handler errors (at startup, after an install or a reload), setup and profile errors, locked game files. They wait until the user dismisses them, so a page that loads later (startup, reload) still shows them. In-game prompts stay native windows over the game.
+   */
+  notices: {
+    /** Removes a notice once the user has read it. Unknown ids are ignored. */
+    dismiss: (params: DismissNoticeRequest) => Awaitable<void>;
+    /** Notices waiting to be read, oldest first. */
+    list: () => Awaitable<AppNotice[]>;
+  };
   /** Saved setups (profiles) of the game whose setup is open. */
   profiles: {
     /** Deletes a profile. The following profiles are renumbered. */
@@ -1963,6 +2048,10 @@ export const bridgeServices = {
     setFavorite: { params: true },
     setPreferences: { params: true },
   },
+  notices: {
+    dismiss: { params: true },
+    list: { params: false },
+  },
   profiles: {
     delete: { params: true },
     getSettings: { params: false },
@@ -2036,6 +2125,8 @@ export interface BridgeEvents {
   'library.artworkProgress': ArtworkProgress;
   /** Games were added, removed, reloaded or changed (favourite, update found, play time, artwork). */
   'library.changed': LibraryChanged;
+  /** A notice was added or dismissed. */
+  'notices.changed': NoticesChanged;
   /** Profiles of the current game were added, deleted or renamed. */
   'profiles.changed': ProfilesChanged;
   /** The session state changed. */
@@ -2067,6 +2158,7 @@ export const eventInvalidations: { readonly [E in keyof BridgeEvents]: readonly 
   'handlers.progress': [],
   'library.artworkProgress': [],
   'library.changed': ['library.list', 'library.get', 'library.getMenu', 'handlers.listInstalled'],
+  'notices.changed': ['notices.list'],
   'profiles.changed': ['profiles.list', 'profiles.getSettings', 'library.get'],
   'session.changed': [],
   'session.log': [],

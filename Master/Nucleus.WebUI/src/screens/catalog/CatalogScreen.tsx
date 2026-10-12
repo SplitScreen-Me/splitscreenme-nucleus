@@ -146,7 +146,7 @@ export default function CatalogScreen() {
 
       {/* ---------- Body: filters + results ---------- */}
       <div className="grid items-start gap-gutter grid-cols-[272px_minmax(0,1fr)] min-[1400px]:grid-cols-[288px_minmax(0,1fr)]">
-        <Pane as="aside" aria-label="Filters" className="sticky top-0 grid max-h-[calc(100vh-88px)] gap-6 overflow-auto p-6">
+        <Pane as="aside" aria-label="Filters" className="sticky top-0 grid max-h-[calc(100vh-88px)] gap-6 overflow-y-auto p-6">
           <div role="group" aria-labelledby="f-players" className="grid min-w-0">
             <span id="f-players" className="mb-3 block text-small font-[650] text-ink">
               Maximum players

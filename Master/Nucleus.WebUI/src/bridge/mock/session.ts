@@ -64,6 +64,7 @@ function sessionSnapshot(state: MockState): SessionSnapshot {
   const common = {
     inputsLocked: session.inputsLocked,
     error: session.error,
+    errorDetails: session.errorDetails,
     actions: actionsOf(state),
     stopHotkey: state.settings['hotkeys.stop'],
     lockInputsKey: state.settings['hotkeys.lockKey'],
@@ -140,6 +141,7 @@ export function startSession(context: MockContext, state: MockState): SessionSna
     instances,
     inputsLocked: false,
     error: undefined,
+    errorDetails: undefined,
     log: [],
     topmost: true,
     cutscenes: false,

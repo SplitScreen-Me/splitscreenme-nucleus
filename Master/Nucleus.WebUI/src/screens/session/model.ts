@@ -10,6 +10,8 @@ export interface SessionView {
   endedAt?: number;
   /** Why the launch failed, when it did. */
   error?: string;
+  /** Crash report of the failed launch, shown on demand. */
+  errorDetails?: string;
 }
 
 /** Whether a keyboard or a mouse drives one of the copies (then the inputs can be locked). */

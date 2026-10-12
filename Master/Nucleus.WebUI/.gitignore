@@ -3,3 +3,4 @@ dist/
 *.tsbuildinfo
 *.local
 .vite/
+docs/screens/

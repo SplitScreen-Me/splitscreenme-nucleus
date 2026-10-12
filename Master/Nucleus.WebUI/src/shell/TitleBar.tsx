@@ -16,8 +16,9 @@ export function TitleBar({ onOpenPalette }: { onOpenPalette: () => void }) {
     document.title = last ? `${last} - Nucleus Co-op` : 'Nucleus Co-op';
   }, [last]);
 
+  // Out of pad reach (data-nav="off"): window buttons (Close!), chips and links that Y, LB / RB and B already cover.
   return (
-    <header className="app-drag flex min-w-0 items-center gap-4 pl-3.5 select-none [grid-area:title]">
+    <header data-nav="off" className="app-drag flex min-w-0 items-center gap-4 pl-3.5 select-none [grid-area:title]">
       <Link to="/library" className="app-no-drag shrink-0 rounded-ctl no-underline" aria-label="Nucleus Co-op, go to library">
         <Logo />
       </Link>

@@ -7,7 +7,7 @@ import type { LobbyCommands } from './commands';
 export function OptionsStep({ snap, commands }: { snap: SetupSnapshot; commands: LobbyCommands }) {
   const editable = snap.options.filter((o) => o.kind !== 'unsupported');
   return (
-    <Pane as="section" aria-labelledby="lobby-options-title" className="min-h-0 overflow-y-auto px-8 pt-7 pb-8">
+    <Pane as="section" aria-labelledby="lobby-options-title" className="min-h-0 overflow-y-auto px-8 pt-7 pb-8" data-autofocus>
       <h2 id="lobby-options-title" className="type-h2">
         Handler options
       </h2>
@@ -97,7 +97,7 @@ function OptionRow({ option: o, commands }: { option: SetupOption; commands: Lob
 export function CustomStep({ step, commands }: { step: SetupCustomStep; commands: LobbyCommands }) {
   const pictures = step.items.some((item) => item.imageUrl);
   return (
-    <Pane as="section" aria-labelledby="lobby-step-title" className="min-h-0 overflow-y-auto px-8 pt-7 pb-8">
+    <Pane as="section" aria-labelledby="lobby-step-title" className="min-h-0 overflow-y-auto px-8 pt-7 pb-8" data-autofocus>
       <h2 id="lobby-step-title" className="type-h2">
         {step.title}
       </h2>

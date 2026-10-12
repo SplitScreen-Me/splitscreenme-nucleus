@@ -2,6 +2,7 @@ import type { BridgeHandlers, PlayerIdentities, SettingField, ValidationError } 
 import type { MockContext } from '../transports/mock.ts';
 import { invalidParams } from './failures.ts';
 import { GAMEPAD_BUTTONS, PLAYER_SLOTS, SETTINGS_SCHEMA, SETTING_FIELDS } from './fixtures-settings.ts';
+import { INPUT_LOCK_REMINDER_OFF } from './setup-checks.ts';
 import { publishSetup } from './setup-snapshot.ts';
 import type { MockState } from './state.ts';
 import { sleep } from './util.ts';
@@ -98,7 +99,7 @@ export function createSettingsMock(context: MockContext, state: MockState): Brid
       const keys = Object.keys(values).filter((key) => state.settings[key] !== values[key]);
       Object.assign(state.settings, values);
       if (keys.length > 0) context.emit('settings.changed', { keys });
-      const shownInSetup = keys.some((key) => key.startsWith('audio.') || key.startsWith('hotkeys.'));
+      const shownInSetup = keys.some((key) => key.startsWith('audio.') || key.startsWith('hotkeys.') || key === INPUT_LOCK_REMINDER_OFF);
       if (state.setup && shownInSetup) publishSetup(context, state, state.setup);
       return [];
     },

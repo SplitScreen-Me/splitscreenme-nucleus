@@ -8,6 +8,8 @@ export interface DialogProps {
   onClose: () => void;
   title: ReactNode;
   icon?: IconName;
+  /** Tone of the icon, for example `text-danger`. */
+  iconClassName?: string;
   children: ReactNode;
   className?: string;
   /** Extra content in the header, before the close button. */
@@ -15,7 +17,7 @@ export interface DialogProps {
 }
 
 /** Modal dialog on the native <dialog>: focus trap, Escape and top layer come from the platform. */
-export function Dialog({ open, onClose, title, icon, children, className, headerExtra }: DialogProps) {
+export function Dialog({ open, onClose, title, icon, iconClassName, children, className, headerExtra }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
 
@@ -47,7 +49,7 @@ export function Dialog({ open, onClose, title, icon, children, className, header
       )}
     >
       <div className="flex items-center gap-3 border-b border-line px-5 py-4">
-        {icon && <Icon name={icon} />}
+        {icon && <Icon name={icon} className={iconClassName} />}
         <h2 id={titleId} className="type-h3">
           {title}
         </h2>

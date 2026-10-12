@@ -80,6 +80,20 @@ export const SETTINGS_SCHEMA: SettingsSchema = {
         toggle('misc.disableGameProfiles', 'Disable profiles', false, { description: 'Hides saved setups for every game.' }),
         toggle('misc.disableForcedNote', 'Skip handler notes on first launch', false),
         toggle('misc.autoDesktopScaling', 'Adjust Windows scaling automatically', false),
+        toggle('misc.ignoreInputLockReminder', "Don't remind me to lock inputs", true, {
+          description: 'When off, the lobby explains how to lock keyboard and mouse input.',
+        }),
+        toggle('misc.keepAccounts', 'Keep Nucleus user accounts', false, {
+          description:
+            'Keeps the Windows user accounts Nucleus creates for some games. When off, the next game that uses them deletes them with their files and saves.',
+          confirm: {
+            values: ['false'],
+            title: 'Turn off Keep Nucleus user accounts?',
+            message:
+              'The next time you run a game that uses separate Windows user accounts, Nucleus deletes every account it created, with their files and saves.',
+            confirmLabel: 'Turn off',
+          },
+        }),
         field('password', 'misc.nucleusAccountPassword', 'Password of the player accounts', '12345', {
           description: 'Some handlers create a Windows account per player. They all use this password.',
           maxLength: 32,
@@ -197,6 +211,8 @@ export function createSettingsValues(): Record<string, string> {
     ...Object.fromEntries(SETTING_FIELDS.map((setting) => [setting.key, setting.default ?? ''])),
     'misc.network': 'Ethernet',
     'xUINav.enabled': 'true',
+    'misc.ignoreInputLockReminder': 'false',
+    'misc.keepAccounts': 'true',
     'audio.instance1': AUDIO_OUTPUTS[1]?.value ?? 'Default',
     'audio.instance2': AUDIO_OUTPUTS[2]?.value ?? 'Default',
   };

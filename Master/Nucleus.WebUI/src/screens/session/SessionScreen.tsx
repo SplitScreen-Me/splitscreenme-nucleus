@@ -5,7 +5,7 @@ import { heroOf, setupPath, useLibrary } from '@/lib/library';
 import { isSessionLive, useSessionSnapshot, useSetupSnapshot } from '@/lib/live';
 import { useScreenChrome, type Hint } from '@/shell/chrome';
 import { useSuspendCouchNav } from '@/shell/couch-nav';
-import { ButtonLink, Icon, Pane, Spinner, useToast } from '@/ui';
+import { Button, ButtonLink, cn, Icon, Pane, Spinner, useToast } from '@/ui';
 import { EventLog } from './EventLog';
 import type { SessionView } from './model';
 import { ScreenPreview } from './ScreenPreview';
@@ -35,7 +35,7 @@ export default function SessionScreen() {
     session && live
       ? { snapshot: session, ended: false }
       : last?.endedAt !== undefined
-        ? { snapshot: last.snapshot, ended: true, endedAt: last.endedAt, error: session?.error }
+        ? { snapshot: last.snapshot, ended: true, endedAt: last.endedAt, error: session?.error, errorDetails: session?.errorDetails }
         : null;
   const log = useSessionLog(view?.snapshot.startedAt);
 
@@ -117,8 +117,8 @@ function EndedOverlay({ view }: { view: SessionView }) {
   const n = s.instances.length;
   const failed = Boolean(view.error);
   return (
-    <div className="absolute inset-0 z-10 grid animate-fade-in place-items-center rounded-pane bg-[rgba(7,8,10,0.88)] p-6 text-center">
-      <div className="grid max-w-[52ch] justify-items-center gap-1.5">
+    <div className="absolute inset-0 z-10 grid animate-fade-in place-items-center overflow-auto rounded-pane bg-[rgba(7,8,10,0.88)] p-6 text-center">
+      <div className={cn('grid justify-items-center gap-1.5', view.errorDetails ? 'w-full max-w-[72ch]' : 'max-w-[52ch]')}>
         {failed && <Icon name="warning" className="mb-1 size-7 text-danger" />}
         <h3 className="text-22 leading-tight font-[780] stretch-wide">{failed ? 'The session could not start' : 'Session ended'}</h3>
         <p className="mb-3 text-small text-ink-2">
@@ -126,6 +126,7 @@ function EndedOverlay({ view }: { view: SessionView }) {
             ? view.error
             : `${n === 1 ? 'The copy' : `All ${n} copies`} of ${s.gameName ?? 'the game'} ${n === 1 ? 'is' : 'are'} closed. The setup is still open: play again with the same players.`}
         </p>
+        {failed && view.errorDetails && <ErrorDetails text={view.errorDetails} className="mb-3 justify-items-center" />}
         <div className="flex justify-center gap-2">
           {s.gameId && (
             <ButtonLink ref={primary} variant="primary" to={setupPath(s.gameId)} data-nav>
@@ -139,6 +140,24 @@ function EndedOverlay({ view }: { view: SessionView }) {
           </ButtonLink>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** The crash report of a failed launch, behind "Show details". */
+function ErrorDetails({ text, className }: { text: string; className?: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={cn('grid w-full justify-items-start gap-2', className)}>
+      <Button variant="quiet" size="sm" aria-expanded={open} onClick={() => setOpen((o) => !o)} data-nav>
+        <Icon name={open ? 'chev-d' : 'chev-r'} />
+        {open ? 'Hide details' : 'Show details'}
+      </Button>
+      {open && (
+        <pre className="max-h-[40vh] w-full overflow-auto rounded-ctl bg-pane-2 px-3.5 py-3 text-left font-mono text-12 leading-normal whitespace-pre-wrap text-ink-2 wrap-anywhere">
+          {text}
+        </pre>
+      )}
     </div>
   );
 }
@@ -190,12 +209,15 @@ function NoSession({ session }: { session: SessionSnapshot | undefined }) {
           No session running
         </h1>
         {session?.error ? (
-          <p className="flex items-start gap-2 rounded-ctl bg-pane-2 px-3.5 py-3 text-15 text-ink-2">
-            <Icon name="warning" className="mt-0.5 size-[18px] shrink-0 text-danger" />
-            <span>
-              <b className="font-[650] text-ink">The last launch failed.</b> {session.error}
-            </span>
-          </p>
+          <>
+            <p className="flex items-start gap-2 rounded-ctl bg-pane-2 px-3.5 py-3 text-15 text-ink-2">
+              <Icon name="warning" className="mt-0.5 size-[18px] shrink-0 text-danger" />
+              <span>
+                <b className="font-[650] text-ink">The last launch failed.</b> {session.error}
+              </span>
+            </p>
+            {session.errorDetails && <ErrorDetails text={session.errorDetails} />}
+          </>
         ) : (
           <p className="text-ink-2">
             Pick a game in your library, let everyone press a button on their controller to join, then launch. Every copy of the game and

@@ -1,6 +1,7 @@
 // Mutable state of the mock host, shared by the services that interact (library and handlers, setup,
 // profiles and session, settings). Each transport gets its own: tests create several.
 import type {
+  AppNotice,
   DeviceKind,
   GameSummary,
   LibraryPreferences,
@@ -154,6 +155,8 @@ export interface MockSession {
   instances: SessionInstance[];
   inputsLocked: boolean;
   error?: string;
+  /** Crash report of the failed launch, shown with `error`. */
+  errorDetails?: string;
   /** Log of the current or last session. */
   log: SessionLogEntry[];
   topmost: boolean;
@@ -185,6 +188,10 @@ export interface MockState {
   installing: Set<string>;
   /** Whether the "restart as administrator" fix has run. */
   elevated: boolean;
+  /** Notices waiting to be dismissed, oldest first. */
+  notices: AppNotice[];
+  /** Last notice id number. */
+  noticeSeq: number;
 }
 
 /** Creates the startup state: a library of 13 games, profiles for two of them, default settings, no setup. */
@@ -215,5 +222,7 @@ export function createMockState(): MockState {
     logSeq: 0,
     installing: new Set(),
     elevated: false,
+    notices: [],
+    noticeSeq: 0,
   };
 }

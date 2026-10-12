@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { bridge, bridgeQueryKey, type SettingChoice, type SettingCondition, type SettingField } from '@/bridge';
 import { useRun } from '@/lib/bridge-ui';
-import type { IconName } from '@/ui';
+import { useConfirm, type IconName } from '@/ui';
 
 /** Whether a condition holds for the current values. No condition always holds. */
 export const holds = (condition: SettingCondition | undefined, values: Record<string, string>) =>
@@ -31,7 +31,10 @@ export function comboLabels(value: string, buttons: readonly SettingChoice[]): s
 }
 
 export interface SettingsSaver {
-  /** Saves one value. Resolves true when saved; false when refused (the error is in `errors`) or failed (toasted). */
+  /**
+   * Saves one value, once confirmed when the field asks for it (`field.confirm`). Resolves true when saved; false when
+   * declined, refused (the error is in `errors`) or failed (toasted).
+   */
   save: (field: SettingField, value: string) => Promise<boolean>;
   /** Validation messages, by setting key. */
   errors: Record<string, string>;
@@ -47,6 +50,7 @@ export interface SettingsSaver {
  */
 export function useSettingsSaver(knownKeys: ReadonlySet<string>): SettingsSaver {
   const run = useRun();
+  const confirm = useConfirm();
   const queryClient = useQueryClient();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState<ReadonlySet<string>>(new Set());
@@ -56,6 +60,11 @@ export function useSettingsSaver(knownKeys: ReadonlySet<string>): SettingsSaver 
   const save = useCallback(
     async (field: SettingField, value: string) => {
       const key = field.key;
+      const ask = field.confirm;
+      if (ask?.values.includes(value)) {
+        const ok = await confirm({ title: ask.title, message: ask.message, confirmLabel: ask.confirmLabel, danger: true });
+        if (!ok) return false;
+      }
       setSaving((s) => new Set(s).add(key));
       const problems = await run(() => bridge.settings.setValues({ values: { [key]: value } }));
       setSaving((s) => {
@@ -76,7 +85,7 @@ export function useSettingsSaver(knownKeys: ReadonlySet<string>): SettingsSaver 
       queryClient.setQueryData<Record<string, string>>(bridgeQueryKey('settings.getValues'), (old) => (old ? { ...old, [key]: value } : old));
       return true;
     },
-    [run, queryClient, clearError, knownKeys],
+    [run, confirm, queryClient, clearError, knownKeys],
   );
 
   return { save, errors, saving, clearError };

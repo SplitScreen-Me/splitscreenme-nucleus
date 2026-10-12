@@ -13,7 +13,7 @@ import { deviceNoun } from '@/lib/devices';
 import { heroOf, useLibrary } from '@/lib/library';
 import { isSessionLive, useSessionSnapshot, useSetupSnapshot } from '@/lib/live';
 import { useScreenChrome } from '@/shell/chrome';
-import { useSuspendCouchNav } from '@/shell/couch-nav';
+import { useSharedCouchNav } from '@/shell/couch-nav';
 import { ButtonLink, Dialog, Icon, Pane, Spinner, useToast } from '@/ui';
 import { Canvas } from './Canvas';
 import { useLobbyCommands } from './commands';
@@ -62,8 +62,9 @@ export default function LobbyScreen() {
   const [flashes, setFlashes] = useState<Record<string, number>>({});
   const [justJoined, setJustJoined] = useState<ReadonlySet<string>>(new Set());
 
-  // Pads belong to players here; while a dialog is open they may drive it (B closes it).
-  useSuspendCouchNav(!notesOpen);
+  // Pads belong to players here (any press on a free one joins): every pad moves focus, only the one that moved last
+  // presses buttons, and B only closes a menu or a dialog.
+  useSharedCouchNav();
 
   // ---------- Open the setup of this game (once), unless a session runs ----------
   const live = isSessionLive(session?.state);
@@ -151,7 +152,7 @@ export default function LobbyScreen() {
   }, [snap, announce]);
 
   useScreenChrome([{ label: 'Library', to: '/library' }, { label: snap?.gameName ?? summary?.name ?? 'Setting up' }], {
-    base: [{ button: 'A', label: 'Any button on a free controller joins' }],
+    base: [{ button: 'A', label: 'Any button on a free controller joins; move, then A selects' }],
     aside: (
       <span>
         Keyboard: <b>Enter</b> picks up a player, <b>Delete</b> takes them out
