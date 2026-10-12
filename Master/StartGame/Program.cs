@@ -1,7 +1,6 @@
 ﻿using Microsoft.Win32;
 using Nucleus;
 using Nucleus.Gaming;
-using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Windows;
 using System;
 using System.Collections;
@@ -84,19 +83,6 @@ namespace StartGame
 
         private static uint pOutPID = 0;
 
-        [DllImport("EasyHook64.dll", CharSet = CharSet.Ansi)]
-        private static extern int RhCreateAndInject(
-            [MarshalAsAttribute(UnmanagedType.LPWStr)] string InEXEPath,
-            [MarshalAsAttribute(UnmanagedType.LPWStr)] string InCommandLine,
-            uint InProcessCreationFlags,
-            uint InInjectionOptions,
-            [MarshalAsAttribute(UnmanagedType.LPWStr)] string InLibraryPath_x86,
-            [MarshalAsAttribute(UnmanagedType.LPWStr)] string InLibraryPath_x64,
-            IntPtr InPassThruBuffer,
-            uint InPassThruSize,
-            IntPtr OutProcessId //Pointer to a UINT (the PID of the new process)
-            );
-
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         static extern bool CreateProcess(
             string lpApplicationName,
@@ -148,9 +134,6 @@ namespace StartGame
         [DllImport("kernel32.dll")]
         static extern uint ResumeThread(IntPtr hThread);
 
-        [DllImport("kernel32.dll")]
-        static extern int SuspendThread(IntPtr hThread);
-
 
         public enum ProcessCreationFlags : uint
         {
@@ -172,9 +155,6 @@ namespace StartGame
             EXTENDED_STARTUPINFO_PRESENT = 0x00080000,
             INHERIT_PARENT_AFFINITY = 0x00010000
         }
-
-        [DllImport("user32.dll")]
-        static extern uint WaitForInputIdle(IntPtr hProcess, uint dwMilliseconds);
 
         public enum MachineType : ushort
         {
@@ -238,17 +218,7 @@ namespace StartGame
             }
         }
 
-        static void Log(string logMessage)
-        {
-            if (App_Misc.DebugLog)
-            {
-                using (StreamWriter writer = new StreamWriter("debug-log.txt", true))
-                {
-                    writer.WriteLine($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}]STARTGAME: {logMessage}");
-                    writer.Close();
-                }
-            }
-        }
+        static void Log(string logMessage) => DebugLogFile.Write("STARTGAME", logMessage);
 
         static void StartGame(string path, string args = "", string workingDir = null)
         {
@@ -264,8 +234,9 @@ namespace StartGame
                 //proc = Process.Start(startInfo);
                 //string currDir = Directory.GetCurrentDirectory();
 
-                // This works even if the current directory is set elsewhere.
-                string currDir = Globals.NucleusInstallRoot;
+                // Folder of StartGame.exe, where Nucleus.IJx86/x64.exe and Nucleus.SHook32/64.dll are (not the install
+                // root, which may be a parent once the helpers move). Works even if the current directory is set elsewhere.
+                string currDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
 
                 //bool is64 = EasyHook.RemoteHooking.IsX64Process((int)pi.dwProcessId);
                 //if (Is64Bit(path) == true)
@@ -374,21 +345,6 @@ namespace StartGame
                     {
                         try
                         {
-                            //if(useNucleusEnvironment)
-                            //{
-                            //    bool success = CreateProcess(null, path + " " + args, IntPtr.Zero, IntPtr.Zero, false, (uint)ProcessCreationFlags.CREATE_SUSPENDED | (uint)ProcessCreationFlags.CREATE_UNICODE_ENVIRONMENT, envPtr, Path.GetDirectoryName(path), ref startup, out PROCESS_INFORMATION processInformation);
-                            //    if (!success)
-                            //    {
-                            //        Log(string.Format("ERROR - CreateProcess failed - startGamePath: {0}, startArgs: {1}, dirpath: {2}", path, args, Path.GetDirectoryName(path)));
-                            //        return;
-                            //    }
-
-                            //    procInfo = processInformation;
-                            //    pOutPID = (uint)processInformation.dwProcessId;
-                            //}
-
-                            //Thread.Sleep(1000);
-
                             string injectorPath = Path.Combine(currDir, $"Nucleus.IJ{(is64 ? "x64" : "x86")}.exe");
                             ProcessStartInfo injstartInfo = new ProcessStartInfo
                             {

@@ -77,11 +77,7 @@ namespace Nucleus.Inject
         {
             if (ini.IniReadValue("Misc", "DebugLog") == "True")
             {
-                using (StreamWriter writer = new StreamWriter("debug-log.txt", true))
-                {
-                    writer.WriteLine($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}]INJECT: {logMessage}");
-                    writer.Close();
-                }
+                DebugLogFile.Append("INJECT", logMessage);
             }
         }
 
@@ -291,20 +287,6 @@ namespace Nucleus.Inject
 
                 while (result != 0)
                 {
-                    //if (procid > 0)
-                    //{
-                    //	string currDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                    //	if (is64)
-                    //		result = Injector64.RhInjectLibrary(procid, 0, 0, null, Path.Combine(currDir, "Nucleus.SHook64.dll"), ptr, (uint)size);
-                    //	else
-                    //		result = Injector32.RhInjectLibrary(procid, 0, 0, Path.Combine(currDir, "Nucleus.SHook32.dll"), null, ptr, (uint)size);
-                    //	if (result != 0)
-                    //	{
-                    //		Log("Attempt " + (attempts + 1) + "/5 Failed to inject start up hook dll. Result code: " + result);
-                    //	}
-                    //}
-                    //else
-                    //{
                     if (is64)
                     {
                         //Log("is64 " + InEXEPath + " " + InCommandLine + " " + InProcessCreationFlags + " " + envPtr + " " + InInjectionOptions + " " + InLibraryPath_x64 + " " + ptr + " " + (uint)size + " " + pid);
@@ -325,7 +307,6 @@ namespace Nucleus.Inject
                         Log("Attempt " + (attempts + 1) +
                             "/5 Failed to create process and inject start up hook dll. Result code: " + result);
                     }
-                    //}
 
                     Thread.Sleep(1000);
 

@@ -91,7 +91,6 @@
   <ItemGroup>
     <Compile Include="Constants\PositioningFlags.cs" />
     <Compile Include="Constants\WindowMessages.cs" />
-    <Compile Include="Constants\WS.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Static\HwndInterface.cs" />
     <Compile Include="Types\APIRECT.cs" />
