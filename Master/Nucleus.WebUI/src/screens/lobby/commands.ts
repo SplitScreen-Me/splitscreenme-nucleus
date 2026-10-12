@@ -1,7 +1,7 @@
 // Lobby commands: every setup call the screen makes, with refusals toasted by useRun. Results come back as
 // `setup.changed` snapshots, so callers never apply them locally.
 import { useMemo, useState } from 'react';
-import { bridge, type ScreenLayout, type SetupPlayer, type SetupSnapshot } from '@/bridge';
+import { bridge, type Edge, type ScreenLayout, type SetupPlayer, type SetupSnapshot } from '@/bridge';
 import { refusalReason, useRun } from '@/lib/bridge-ui';
 import { slotOfPlayer } from './model';
 import { forgetRemoved, markRemoved } from './removals';
@@ -73,6 +73,7 @@ export function useLobbyCommands(onNeedsPicker: () => Promise<void>) {
         return run(() => setup.removeGuest({ deviceId }));
       },
       toggleExpand: (playerId: string) => run(() => setup.toggleExpand({ playerId })),
+      resize: (playerId: string, edge: Edge, steps: number) => run(() => setup.resize({ playerId, edge, steps })),
       rumble: (deviceId: string) => run(() => setup.rumble({ deviceId })),
       refreshDevices: () => run(() => setup.refreshDevices(), { success: 'Devices scanned again' }),
       autoFill: () => run(() => setup.autoFill()),

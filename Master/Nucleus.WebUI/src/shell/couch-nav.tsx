@@ -281,7 +281,7 @@ export function moveFocus(dir: Dir, reach: Reach = 'keys'): boolean {
 /** Which focused widgets read keys themselves (see KeyWidget). */
 function keyWidget(el: Element | null): KeyWidget | null {
   if (!el) return null;
-  if (el.closest('[role="menu"], [role="listbox"], [role="combobox"]')) return 'list';
+  if (el.closest('[role="menu"], [role="listbox"], [role="combobox"], [data-pad-keys]')) return 'list';
   if (el.closest('[data-region]')) return 'region';
   if (el.closest('[data-own-arrows]')) return 'capture';
   return null;

@@ -15,7 +15,7 @@ import { isSessionLive, useSessionSnapshot, useSetupSnapshot } from '@/lib/live'
 import { useScreenChrome } from '@/shell/chrome';
 import { useSharedCouchNav } from '@/shell/couch-nav';
 import { ButtonLink, Dialog, Icon, Pane, Spinner, useToast } from '@/ui';
-import { Canvas } from './Canvas';
+import { Canvas, type ResizeMode } from './Canvas';
 import { useLobbyCommands } from './commands';
 import { LobbyHeader, profileTitle } from './LobbyHeader';
 import { playerName } from './model';
@@ -63,6 +63,7 @@ export default function LobbyScreen() {
   const [flashes, setFlashes] = useState<Record<string, number>>({});
   const [justJoined, setJustJoined] = useState<ReadonlySet<string>>(new Set());
   const [profilesOpen, setProfilesOpen] = useState(false);
+  const [resizing, setResizing] = useState<ResizeMode | null>(null);
 
   // Pads belong to players here (any press on a free one joins): every pad moves focus, only the one that moved last
   // presses buttons, and B only closes a menu or a dialog.
@@ -165,11 +166,27 @@ export default function LobbyScreen() {
     return () => window.clearTimeout(t);
   }, [snap, announce]);
 
+  // A pad's X reaches the focused player area as the key the keyboard uses: R starts resizing, X switches corners.
+  const keyToFocusedPlayer = (key: string) => () => {
+    const area = document.activeElement?.closest<HTMLElement>('[data-player-id]');
+    area?.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+  };
   useScreenChrome([{ label: 'Library', to: '/library' }, { label: snap?.gameName ?? summary?.name ?? 'Setting up' }], {
     base: [{ button: 'A', label: 'Any button on a free controller joins; move, then A selects' }],
+    byFocus: {
+      'player-resizable': [
+        { button: 'A', label: 'Pick up or place' },
+        { button: 'X', label: 'Resize', action: keyToFocusedPlayer('r') },
+      ],
+      resizing: [
+        { key: 'Arrows', label: 'Move the corner' },
+        { button: 'X', label: 'Other corner', action: keyToFocusedPlayer('x') },
+        { button: 'A', label: 'Done' },
+      ],
+    },
     aside: (
       <span>
-        Keyboard: <b>Enter</b> picks up a player, <b>Delete</b> takes them out
+        Keyboard: <b>Enter</b> picks up a player, <b>R</b> resizes, <b>Delete</b> takes them out
       </span>
     ),
   });
@@ -231,7 +248,17 @@ export default function LobbyScreen() {
       ) : customStep ? (
         <CustomStep step={customStep} commands={commands} />
       ) : (
-        <Canvas snap={snap} art={art} commands={commands} pings={pings} flashes={flashes} justJoined={justJoined} announce={announce} />
+        <Canvas
+          snap={snap}
+          art={art}
+          commands={commands}
+          pings={pings}
+          flashes={flashes}
+          justJoined={justJoined}
+          announce={announce}
+          resizing={resizing}
+          onResizing={setResizing}
+        />
       )}
 
       <aside aria-label="Session" className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-gutter">
