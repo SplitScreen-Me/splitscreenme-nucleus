@@ -58,6 +58,12 @@ namespace SDL
       
         unsafe public static string GetString(byte* ptr)
         {
+            //SDL returns NULL for a missing name or path: reading it ended the process (access violation).
+            if (ptr == null)
+            {
+                return string.Empty;
+            }
+
             int count = 0;
             while (*(ptr + count) != 0)
             {

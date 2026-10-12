@@ -20,8 +20,7 @@ public enum SettingEffects
     /// <summary>Refresh the gamepad shortcut thread (<c>GamepadShortcuts.UpdateShortcutsValue</c>).</summary>
     GamepadShortcuts = 2,
 
-    /// <summary>Refresh the gamepad UI navigation thread (<c>GamepadNavigation.UpdateUINavSettings</c>).</summary>
-    GamepadNavigation = 4,
+    // 4 was GamepadNavigation: the legacy gamepad-as-mouse thread, removed (the web UI navigates with gamepads itself).
 
     /// <summary>Redraw <c>XShortcutsReminder.jpeg</c>.</summary>
     GamepadReminder = 8,
@@ -84,7 +83,7 @@ public static class SettingsCatalog
         new SettingSectionDefinition { Id = "general", Title = "General", Description = "Languages, network and Windows user accounts used by game instances." },
         new SettingSectionDefinition { Id = "players", Title = "Players", Description = "How gamepads are assigned to players. Nicknames and Steam IDs are edited with the player list." },
         new SettingSectionDefinition { Id = "hotkeys", Title = "Keyboard shortcuts", Description = "Shortcuts available during a game session. Changes apply from the next session." },
-        new SettingSectionDefinition { Id = "gamepad", Title = "Gamepad shortcuts", Description = "Button combinations available during a game session (XInput gamepads), and gamepad control of the Nucleus window. Steam Input may interfere with them." },
+        new SettingSectionDefinition { Id = "gamepad", Title = "Gamepad shortcuts", Description = "Button combinations available during a game session (XInput gamepads). Steam Input may interfere with them. The Nucleus window itself works with any gamepad: D-pad or left stick to move, A to select, B to go back, right stick to scroll." },
         new SettingSectionDefinition { Id = "audio", Title = "Audio", Description = "Playback device of each game instance. This may not work with every game." },
         new SettingSectionDefinition { Id = "layout", Title = "Layout", Description = "Defaults of the custom screen layout, split-screen background, cutscenes mode and Windows merger. Profiles keep their own copy." },
     };
@@ -139,7 +138,6 @@ public static class SettingsCatalog
         ("Toggle unfocus", "gamepad.setFocus"), ("Close Nucleus", "gamepad.close"), ("Stop session", "gamepad.stopSession"),
         ("Toggle top most", "gamepad.topMost"), ("Reset windows", "gamepad.resetWindows"), ("Cutscenes mode", "gamepad.cutscenesMode"),
         ("Switch layout", "gamepad.switchLayout"), ("Lock / unlock inputs", "gamepad.lockInputs"), ("Alt+Tab", "gamepad.releaseCursor"),
-        ("Lock UI control", "gamepad.lockUiControl"), ("On-screen keyboard", "gamepad.openOsk"),
     };
 
     /// <summary>Asked before turning "Keep Nucleus user accounts" off (the legacy Settings window asked it too).</summary>
@@ -228,27 +226,9 @@ public static class SettingsCatalog
         list.Add(Pad("gamepad.lockInputs", "Lock / unlock inputs", "1024+128", () => App_GamePadShortcuts.LockInputs, v => App_GamePadShortcuts.LockInputs = v));
         list.Add(Pad("gamepad.releaseCursor", "Alt+Tab", "1024+256", () => App_GamePadShortcuts.ReleaseCursor, v => App_GamePadShortcuts.ReleaseCursor = v,
             "Sends Alt+Tab to get the cursor out of a game window."));
-        SettingDefinition lockUi = Pad("gamepad.lockUiControl", "Lock UI control", "1024+4", () => App_GamePadNavigation.TogglekUINavigation, v => App_GamePadNavigation.TogglekUINavigation = v,
-            "Turns gamepad control of the Nucleus window on and off.");
-        lockUi.Effects = SettingEffects.GamepadNavigation | SettingEffects.GamepadReminder;
-        list.Add(lockUi);
-        SettingDefinition osk = Pad("gamepad.openOsk", "On-screen keyboard", "1024+1", () => App_GamePadNavigation.OpenOsk, v => App_GamePadNavigation.OpenOsk = v,
-            "Opens the Windows on-screen keyboard.");
-        osk.Effects = SettingEffects.GamepadNavigation | SettingEffects.GamepadReminder;
-        list.Add(osk);
 
-        SettingDefinition navEnabled = Toggle("gamepad", "gamepad.uiNavigation", "Gamepad control of the Nucleus window",
-            "Move the cursor with the left stick and click with the buttons below. Requires admin rights for full controller support. Locked automatically while instances are set up.", false,
-            () => App_GamePadNavigation.Enabled, v => App_GamePadNavigation.Enabled = v);
-        navEnabled.Effects = SettingEffects.GamepadNavigation;
-        list.Add(navEnabled);
-        list.Add(Single("gamepad.leftClick", "Left click", "9999", () => App_GamePadNavigation.LeftClick, v => App_GamePadNavigation.LeftClick = v));
-        list.Add(Single("gamepad.rightClick", "Right click", "10000", () => App_GamePadNavigation.RightClick, v => App_GamePadNavigation.RightClick = v));
-        list.Add(Single("gamepad.dragDrop", "Drag and drop", "512", () => App_GamePadNavigation.DragDrop, v => App_GamePadNavigation.DragDrop = v));
-        SettingDefinition deadzone = Number("gamepad", "gamepad.deadzone", "Left stick dead zone", "Raise it (by steps of 1000) if the cursor moves without touching the stick.", "10000", 0, 32767, 1000,
-            () => App_GamePadNavigation.Deadzone, v => App_GamePadNavigation.Deadzone = v);
-        deadzone.Effects = SettingEffects.GamepadNavigation;
-        list.Add(deadzone);
+        // The legacy "Gamepad control of the Nucleus window" (mouse cursor on the left stick, its click buttons, dead zone,
+        // "Lock UI control" and "On-screen keyboard" combos) is gone: it fought the web UI's own gamepad navigation.
         SettingDefinition padType = Choice("gamepad", "gamepad.type", "Gamepad type", "Button names and pictures shown for the shortcuts.", "Xbox",
             new List<SettingChoice> { new SettingChoice { Value = "Xbox", Label = "Xbox" }, new SettingChoice { Value = "Playstation", Label = "PlayStation" } },
             () => App_GamePadNavigation.Type ?? "", v => App_GamePadNavigation.Type = v);
@@ -395,17 +375,6 @@ public static class SettingsCatalog
         definition.Field.ComboButtons = 2;
         definition.Rule.UniqueGroup = "gamepadShortcuts";
         definition.Effects = SettingEffects.GamepadShortcuts | SettingEffects.GamepadReminder;
-        return definition;
-    }
-
-    private static SettingDefinition Single(string key, string label, string defaultValue, Func<int> get, Action<int> set)
-    {
-        SettingDefinition definition = Define("gamepad", key, label, "A single button.", SettingType.GamepadCombo, defaultValue,
-            () => get().ToString(CultureInfo.InvariantCulture), v => set(int.Parse(v, CultureInfo.InvariantCulture)));
-        definition.Rule.ComboSize = 1;
-        definition.Field.ComboButtons = 1;
-        definition.Rule.UniqueGroup = "gamepadClicks";
-        definition.Effects = SettingEffects.GamepadNavigation;
         return definition;
     }
 

@@ -40,6 +40,8 @@ namespace Nucleus.Gaming.Coop
         public bool CutscenesKeepAspectRatio;
         public bool CutscenesMuteAudioOnly;
         public bool CutscenesUnfocus;
+
+        /// <summary>"StopGPUINav" of the legacy gamepad-as-mouse feature (removed): no effect, kept so profile files round-trip.</summary>
         public bool StopUINav;
         public bool WindowsMerger;
         public bool LosslessHook;

@@ -579,7 +579,8 @@ namespace Nucleus.Coop.Services.Setup
                     }
 
                 case InputType.SDL2 when !device.IsFake:
-                    SDL.SDL2.SDL_GameControllerRumble(device.SDL2Joystick, 65535, 65535, 300);
+                    //Not on a handle SDL freed in a refresh (unplugged pads disappear at the next device tick).
+                    Gamepads.SDLManager.Rumble(device.SDL2Joystick, 65535, 65535, 300);
                     break;
 
                 default:

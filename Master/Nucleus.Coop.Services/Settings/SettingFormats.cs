@@ -50,9 +50,8 @@ public static class HotkeyFormat
 }
 
 /// <summary>
-/// Gamepad buttons as <c>[XShortcuts]</c> and <c>[XUINav]</c> store them: XInput button flags, plus 9999 for the
-/// right trigger and 10000 for the left trigger. A shortcut is two of them joined with "+" (<c>1024+32768</c> =
-/// Guide + Y); the UI navigation clicks are one.
+/// Gamepad buttons as <c>[XShortcuts]</c> stores them: XInput button flags, plus 9999 for the right trigger and
+/// 10000 for the left trigger. A shortcut is two of them joined with "+" (<c>1024+32768</c> = Guide + Y).
 /// </summary>
 public static class GamepadComboFormat
 {

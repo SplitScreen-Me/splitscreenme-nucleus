@@ -343,11 +343,6 @@ public sealed class SettingsService : ISettingsService
             TryRun("GamepadShortcuts.UpdateShortcutsValue", GamepadShortcuts.UpdateShortcutsValue);
         }
 
-        if (effects.HasFlag(SettingEffects.GamepadNavigation))
-        {
-            TryRun("GamepadNavigation.UpdateUINavSettings", GamepadNavigation.UpdateUINavSettings);
-        }
-
         if (effects.HasFlag(SettingEffects.GameProfiles))
         {
             core.Notifier.Everything();

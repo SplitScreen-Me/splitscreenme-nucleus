@@ -11,7 +11,7 @@ export const protocolVersion = 1;
 /**
  * Hash of the contract this file was generated from. `app.hello` returns the host's: the UI refuses to run when they differ.
  */
-export const contractHash = '290b06521120fd7b';
+export const contractHash = 'b84d635d38e8afc6';
 
 /** JSON-RPC error code of each kind of error the host returns. */
 export const bridgeErrorCodes = {
@@ -950,8 +950,6 @@ export interface ProfileSettings {
   cutscenesMuteAudioOnly: boolean;
   /** Cutscenes: unfocus the other windows. */
   cutscenesUnfocus: boolean;
-  /** Disables gamepad navigation of the app during the session. */
-  stopUiNavigation: boolean;
   /** Merges the game windows into one window. */
   windowsMerger: boolean;
   /** Uses the lossless hook with the windows merger. */

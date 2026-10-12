@@ -129,6 +129,125 @@ namespace Nucleus.Coop.Host
             HostNative.ShowWindow(Handle, HostNative.IsZoomed(Handle) ? HostNative.SW_RESTORE : HostNative.SW_MAXIMIZE);
         }
 
+        /// <summary>
+        /// Brings the window to the front with the keyboard focus in the page (end of a game session). Windows refuses
+        /// SetForegroundWindow to a background process, which Nucleus is when the last input went to a game or a gamepad
+        /// shortcut ended the session: the window then only flashed in the taskbar, the page had no focus, and gamepad
+        /// navigation (it needs document.hasFocus()) ignored every pad until a mouse click. Attached to the input of the
+        /// foreground window's thread, the call is allowed.
+        /// </summary>
+        public void BringToForeground()
+        {
+            IntPtr hwnd = Handle;
+
+            if (HostNative.GetForegroundWindow() != hwnd && !HostNative.SetForegroundWindow(hwnd))
+            {
+                IntPtr foreground = HostNative.GetForegroundWindow();
+                uint foregroundThread = foreground == IntPtr.Zero ? 0 : HostNative.GetWindowThreadProcessId(foreground, IntPtr.Zero);
+                uint thread = HostNative.GetCurrentThreadId();
+                bool attached = foregroundThread != 0 && foregroundThread != thread && HostNative.AttachThreadInput(thread, foregroundThread, true);
+
+                try
+                {
+                    HostNative.BringWindowToTop(hwnd);
+
+                    if (!HostNative.SetForegroundWindow(hwnd))
+                    {
+                        HostLog.Info("Could not bring the window to the front after the session.");
+                    }
+                }
+                finally
+                {
+                    if (attached)
+                    {
+                        HostNative.AttachThreadInput(thread, foregroundThread, false);
+                    }
+                }
+            }
+
+            FocusPage();
+            EnsurePageFocusAsync();
+        }
+
+        /// <summary>
+        /// Checks what gamepad navigation checks, <c>document.hasFocus()</c>, a few times after a restore, and moves the
+        /// focus into the page again while it is false: a WebView restored from minimized can ignore the first focus move.
+        /// </summary>
+        private async void EnsurePageFocusAsync()
+        {
+            try
+            {
+                for (int attempt = 0; attempt < 3; attempt++)
+                {
+                    await Task.Delay(200);
+
+                    CoreWebView2 core = webView?.CoreWebView2;
+
+                    if (isClosing || IsDisposed || core == null || !isActive || PageState != UiPageState.Ready)
+                    {
+                        return;
+                    }
+
+                    if (await core.ExecuteScriptAsync("document.hasFocus()") == "true")
+                    {
+                        return;
+                    }
+
+                    WebView2 view = webView;
+
+                    if (view != null && !view.IsDisposed)
+                    {
+                        HostNative.SetFocus(Handle); // the form hands the focus back to the WebView, which moves it into the page
+                        view.Focus();
+                    }
+                }
+
+                HostLog.Info("The page still has no keyboard focus after the session: gamepad navigation needs a click.");
+            }
+            catch (Exception ex)
+            {
+                HostLog.Warning($"Could not check the page focus: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Gives the keyboard focus to the page when the active window doesn't have it inside the browser's window
+        /// (activation by Alt+Tab, the taskbar or <see cref="BringToForeground"/>; WinForms doesn't always hand it back).
+        /// </summary>
+        private void FocusPage()
+        {
+            WebView2 view = webView;
+
+            if (isClosing || IsDisposed || view == null || view.IsDisposed || !view.IsHandleCreated || view.CoreWebView2 == null || !isActive)
+            {
+                return;
+            }
+
+            try
+            {
+                IntPtr focus = HostNative.GetFocus();
+
+                // The browser's window is a child of the WebView2 control: the page has the focus.
+                if (focus != IntPtr.Zero && focus != view.Handle && HostNative.IsChild(view.Handle, focus))
+                {
+                    return;
+                }
+
+                // WebView2 moves the focus into the page when its control gets the focus (OnGotFocus → MoveFocus): when the
+                // control already has it, go through the form, which hands it back to its active control, the WebView.
+                if (focus == view.Handle)
+                {
+                    HostNative.SetFocus(Handle);
+                }
+
+                view.Focus();
+            }
+            catch (Exception ex)
+            {
+                HostLog.Warning($"Could not focus the page: {ex.Message}");
+            }
+        }
+
         /// <summary>Closes the window after the current message is handled (safe to call from a WebView2 event).</summary>
         public void CloseWindow()
         {
@@ -188,7 +307,14 @@ namespace Nucleus.Coop.Host
                     base.WndProc(ref m);
                     if (m.Msg == HostNative.WM_ACTIVATE)
                     {
-                        isActive = (HostNative.LoWordSigned(m.WParam) & 0xFFFF) != 0; // WA_INACTIVE = 0
+                        int activation = HostNative.LoWordSigned(m.WParam) & 0xFFFF;
+                        isActive = activation != 0; // WA_INACTIVE = 0
+
+                        // Not on a click: the click itself focuses what it lands on in the page.
+                        if (activation == HostNative.WA_ACTIVE && IsHandleCreated)
+                        {
+                            BeginInvoke(new Action(FocusPage));
+                        }
                     }
 
                     // Re-checked once the activation change is complete (foreground window updated).

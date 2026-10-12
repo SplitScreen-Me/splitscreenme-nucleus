@@ -6,105 +6,45 @@ using System.Threading.Tasks;
 
 namespace Nucleus.Gaming.App.Settings
 {
+    /// <summary>
+    /// The <c>[XUINav]</c> section of Settings.ini. Only <c>Type</c> is still used (button names and pictures of the
+    /// gamepad shortcuts). The other keys belonged to the legacy "gamepad control of the Nucleus window" (mouse cursor on
+    /// the left stick), replaced by the web UI's own gamepad navigation: they are ignored and left in the file, so an
+    /// older Nucleus reading the same Settings.ini still finds them.
+    /// </summary>
     public static class App_GamePadNavigation
     {
-        private static string type;
+        /// <summary>Default <see cref="Type"/>.</summary>
+        public const string DefaultType = "Xbox";
+
+        private static string type = DefaultType;
         public static string Type
         {
             get => type;
             set
             {
-                type = value;
-                Globals.ini.IniWriteValue("XUINav", "Type", value);
+                type = NormalizeType(value);
+                Globals.ini.IniWriteValue("XUINav", "Type", type);
             }
         }
 
-        private static bool enabled;
-        public static bool Enabled
+        /// <summary>"Xbox" or "Playstation" (the gamepad picture folders); anything else, a missing key included, is Xbox.</summary>
+        public static string NormalizeType(string value)
         {
-            get => enabled;
-            set
-            {
-                enabled = value; 
-                Globals.ini.IniWriteValue("XUINav", "Enabled", value.ToString());
-            }
+            return string.Equals(value?.Trim(), "Playstation", StringComparison.OrdinalIgnoreCase) ? "Playstation" : DefaultType;
         }
 
-        private static int deadzone;
-        public static int Deadzone
-        {
-            get => deadzone;
-            set
-            {
-                deadzone = value; 
-                Globals.ini.IniWriteValue("XUINav", "Deadzone", value.ToString());
-            }
-        }
-
-        private static int dragDrop;
-        public static int DragDrop
-        {
-            get => dragDrop;
-            set
-            {
-                dragDrop = value;
-                Globals.ini.IniWriteValue("XUINav", "DragDrop", value.ToString());
-            }
-        }
-
-        private static int rightClick;
-        public static int RightClick
-        {
-            get => rightClick;
-            set
-            {
-                rightClick = value;
-                Globals.ini.IniWriteValue("XUINav", "RightClick", value.ToString());
-            }
-        }
-
-        private static int leftClick;
-        public static int LeftClick
-        {
-            get => leftClick;
-            set
-            {
-                leftClick = value; Globals.ini.IniWriteValue("XUINav", "LeftClick", value.ToString());
-            }
-        }
-
-        private static int[] togglekUINavigation;
-        public static int[] TogglekUINavigation
-        {
-            get => togglekUINavigation;
-            set
-            {
-                togglekUINavigation = value;
-                Globals.ini.IniWriteValue("XUINav", "LockUIControl", $"{value[0]}+{value[1]}");
-            }
-        }
-
-        private static int[] openOsk;
-        public static int[] OpenOsk
-        {
-            get => openOsk;
-            set
-            {
-                openOsk = value;
-                Globals.ini.IniWriteValue("XUINav", "OpenOsk", $"{value[0]}+{value[1]}");
-            }
-        }
-
+        /// <summary>Never throws: a missing or hand-edited value falls back to its default.</summary>
         public static bool LoadSettings()
         {
-            type = Globals.ini.IniReadValue("XUINav", "Type");
-            enabled = bool.Parse(Globals.ini.IniReadValue("XUINav", "Enabled"));
-            deadzone = int.Parse(Globals.ini.IniReadValue("XUINav", "Deadzone"));
-            dragDrop = int.Parse(Globals.ini.IniReadValue("XUINav", "DragDrop"));
-            rightClick = int.Parse(Globals.ini.IniReadValue("XUINav", "RightClick"));
-            leftClick = int.Parse(Globals.ini.IniReadValue("XUINav", "LeftClick"));
-            togglekUINavigation = new int[]{ int.Parse(Globals.ini.IniReadValue("XUINav", "LockUIControl").Split('+')[0]), int.Parse(Globals.ini.IniReadValue("XUINav", "LockUIControl").Split('+')[1])};
-            openOsk = new int[] { int.Parse(Globals.ini.IniReadValue("XUINav", "OpenOsk").Split('+')[0]), int.Parse(Globals.ini.IniReadValue("XUINav", "OpenOsk").Split('+')[1])};
+            try
+            {
+                type = NormalizeType(Globals.ini.IniReadValue("XUINav", "Type"));
+            }
+            catch (Exception)
+            {
+                type = DefaultType;
+            }
 
             return true;
         }

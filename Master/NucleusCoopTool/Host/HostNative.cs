@@ -8,6 +8,9 @@ namespace Nucleus.Coop.Host
     {
         public const int WM_ACTIVATE = 0x0006;
         public const int WM_ACTIVATEAPP = 0x001C;
+
+        /// <summary>WM_ACTIVATE state: activated by something else than a mouse click (WA_CLICKACTIVE is 2, WA_INACTIVE 0).</summary>
+        public const int WA_ACTIVE = 1;
         public const int WM_GETMINMAXINFO = 0x0024;
         public const int WM_NCCALCSIZE = 0x0083;
         public const int WM_NCHITTEST = 0x0084;
@@ -152,6 +155,34 @@ namespace Nucleus.Coop.Host
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetForegroundWindow();
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool BringWindowToTop(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, IntPtr processId);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, [MarshalAs(UnmanagedType.Bool)] bool attach);
+
+        [DllImport("kernel32.dll")]
+        public static extern uint GetCurrentThreadId();
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetFocus();
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SetFocus(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool IsChild(IntPtr hWndParent, IntPtr hWnd);
 
         [DllImport("dwmapi.dll")]
         public static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS margins);
