@@ -9,6 +9,7 @@ using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 using Nucleus.Gaming.Coop.InputManagement.Structs;
 using Nucleus.Gaming.Coop.ProtoInput;
 using Nucleus.Gaming.Forms;
+using Nucleus.Gaming.Forms.Overlay;
 using Nucleus.Gaming.Platform.PCSpecs;
 using Nucleus.Gaming.Tools;
 using Nucleus.Gaming.Tools.AudioReroute;
@@ -1617,7 +1618,9 @@ namespace Nucleus.Gaming
                 }
                 else
                 {
-                    Globals.MainOSD.Show(1200, $"Starting {gen.GameName} instance for {player.Nickname} as Player #{player.PlayerID + 1}");
+                    string starting = $"Starting {gen.GameName} instance for {player.Nickname} as Player #{player.PlayerID + 1}";
+                    Log(starting);
+                    LaunchOverlay.PlayerStarting(player, gen.GameName, starting);//the player's card on its screen region
                 }
 
                 if (context.NeedsSteamEmulation)

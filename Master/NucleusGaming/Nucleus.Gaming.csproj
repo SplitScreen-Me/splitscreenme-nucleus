@@ -271,6 +271,9 @@
     <Compile Include="Forms\WindowMerger.cs" />
     <Compile Include="Forms\WPFDiv.cs" />
     <Compile Include="Forms\WPF_OSD.cs" />
+    <Compile Include="Forms\Overlay\LaunchOverlay.cs" />
+    <Compile Include="Forms\Overlay\OverlayStyle.cs" />
+    <Compile Include="Forms\Overlay\PlayerCard.cs" />
     <Compile Include="Globals.cs" />
     <Compile Include="InstallPaths.cs" />
     <Compile Include="Platform\IO\WinDirectoryUtil.cs" />

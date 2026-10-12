@@ -6,6 +6,7 @@ using Nucleus.Gaming.Controls;
 using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop.InputManagement;
 using Nucleus.Gaming.Forms;
+using Nucleus.Gaming.Forms.Overlay;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -1088,7 +1089,7 @@ namespace Nucleus.Gaming.Coop
             if (profileDisabled || GameInfo.Game.MetaInfo.DisableProfiles || !GameInfo.Game.MetaInfo.SaveProfile)
             {
                 saved = true;
-                Notify(NoticeKind.Info, null, $"Setup Finished", 1600);
+                NotifySetupFinished($"Setup Finished");
                 return;
             }
 
@@ -1331,7 +1332,21 @@ namespace Nucleus.Gaming.Coop
 
             LogManager.Log("Handler Profile Saved");
 
-            Notify(NoticeKind.Info, null, $"Handler Profile Saved. Setup Finished", 1600);
+            NotifySetupFinished($"Handler Profile Saved. Setup Finished");
+        }
+
+        /// <summary>
+        /// The players' launch cards turn "Ready" (the text still reaches the app); the on-screen display shows the text
+        /// when no card is shown.
+        /// </summary>
+        private static void NotifySetupFinished(string text)
+        {
+            LogManager.Log(text);
+
+            if (!LaunchOverlay.SetupFinished(text))
+            {
+                Notify(NoticeKind.Info, null, text, 1600);
+            }
         }
 
         public static void FindProfilePlayers(PlayerInfo player)
