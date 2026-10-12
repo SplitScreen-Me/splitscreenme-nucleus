@@ -120,6 +120,24 @@ public class SnapshotMathTests
     }
 
     [Fact]
+    public void A_resize_step_is_a_twentieth_of_a_slot_or_a_manual_cell()
+    {
+        Rectangle quarter = new Rectangle(0, 0, 960, 540);
+        Rectangle manualCell = new Rectangle(0, 0, 48, 27);
+
+        Assert.Equal(new Size(48, 27), SnapshotMath.ResizeStep(UserScreenType.FourPlayers, quarter, 4, false));
+        Assert.Equal(new Size(48, 27), SnapshotMath.ResizeStep(UserScreenType.Manual, manualCell, 1600, false));
+        Assert.Equal(new Size(32, 18), SnapshotMath.ResizeStep(UserScreenType.Custom, new Rectangle(0, 0, 640, 360), 9, false));
+    }
+
+    [Fact]
+    public void No_resize_step_where_players_cannot_be_resized()
+    {
+        Assert.Equal(Size.Empty, SnapshotMath.ResizeStep(UserScreenType.DualHorizontal, new Rectangle(0, 0, 1920, 540), 2, false));
+        Assert.Equal(Size.Empty, SnapshotMath.ResizeStep(UserScreenType.FourPlayers, new Rectangle(0, 0, 960, 540), 4, true));
+    }
+
+    [Fact]
     public void Slot_occupant_is_the_first_intersecting_player()
     {
         Rectangle slot = new Rectangle(960, 0, 960, 540);

@@ -13,6 +13,8 @@ import type {
   SessionInstance,
   SessionLogEntry,
   SessionState,
+  SessionSummary,
+  SessionSummaryPlayer,
   SetupCapabilities,
   SetupCustomStep,
   SetupOption,
@@ -165,6 +167,12 @@ export interface MockSession {
   layoutIndex: number;
   /** Window areas as set up, in player order. */
   setupBounds: Rect[];
+  /** Players and their devices as placed at Play, for the summary. */
+  players: SessionSummaryPlayer[];
+  /** Whether every window got ready (the session ran). */
+  reachedRunning: boolean;
+  /** Summary of the last session, kept until the next one starts. */
+  lastSession?: SessionSummary;
   timers: TimerSet;
 }
 
@@ -217,6 +225,8 @@ export function createMockState(): MockState {
       cutscenes: false,
       layoutIndex: 0,
       setupBounds: [],
+      players: [],
+      reachedRunning: false,
       timers: new Set(),
     },
     logSeq: 0,

@@ -49,7 +49,7 @@ namespace Nucleus.Bridge.Contracts
         /// <summary>Expands a player to the free neighbouring slots, or shrinks it back.</summary>
         SetupSnapshot ToggleExpand(PlayerRequest request);
 
-        /// <summary>Moves one edge of a player's area by a number of grid steps (layouts with 4 slots or more).</summary>
+        /// <summary>Moves one edge of a player's area by a number of steps (layouts with 4 slots or more). A step is <see cref="SetupScreen.ResizeStepWidth"/> or <see cref="SetupScreen.ResizeStepHeight"/>; the move stops at the first step that can't be made.</summary>
         SetupSnapshot Resize(ResizePlayerRequest request);
 
         /// <summary>Places every revealed, unassigned device in the free slots, in order.</summary>
@@ -319,6 +319,12 @@ namespace Nucleus.Bridge.Contracts
 
         /// <summary>True when a loaded profile fixes the layout.</summary>
         public bool LayoutLocked { get; set; }
+
+        /// <summary>Width of one <see cref="ISetupService.Resize"/> step on this monitor, in desktop pixels. 0 when players can't be resized here.</summary>
+        public int ResizeStepWidth { get; set; }
+
+        /// <summary>Height of one <see cref="ISetupService.Resize"/> step on this monitor, in desktop pixels. 0 when players can't be resized here.</summary>
+        public int ResizeStepHeight { get; set; }
     }
 
     /// <summary>A place for one player on a monitor.</summary>

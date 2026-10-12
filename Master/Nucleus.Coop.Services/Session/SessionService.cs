@@ -43,6 +43,13 @@ namespace Nucleus.Coop.Services.Session
         private int endedOnce;
         private int pollQueued;
 
+        //What the summary of the session needs from the moment it started.
+        private string sessionGameId = "";
+        private string sessionGameName = "";
+        private List<SessionSummaryPlayer> sessionPlayers = new List<SessionSummaryPlayer>();
+        private bool reachedRunning;
+        private SessionSummary? lastSession;
+
         public SessionService(SetupSession setup, IBridgeEvents events, IHostShell shell, NoticeBoard? notices = null)
         {
             this.setup = setup;
@@ -88,6 +95,11 @@ namespace Nucleus.Coop.Services.Session
 
             lastError = null;
             lastErrorDetails = null;
+            lastSession = null;
+            sessionGameId = snapshot.GameId;
+            sessionGameName = snapshot.GameName;
+            sessionPlayers = SessionSummaryBuilder.Players(snapshot);
+            reachedRunning = false;
             notices?.TakeLaunchFailure();//a stale report of an earlier launch
             log.Clear();
             log.Start();
@@ -208,6 +220,16 @@ namespace Nucleus.Coop.Services.Session
                 lastError ??= "The launch failed.";
             }
 
+            lastSession = SessionSummaryBuilder.Build(
+                sessionGameId,
+                sessionGameName,
+                startedAt ?? DateTime.UtcNow,
+                DateTime.UtcNow,
+                reachedRunning,
+                sessionPlayers,
+                lastError,
+                log.Entries());
+
             GameProfile.I_GameHandler = null;
             handler = null;
             active = null;
@@ -245,6 +267,7 @@ namespace Nucleus.Coop.Services.Session
                     if (active == SessionState.Launching && GameProfile.Saved)
                     {
                         active = SessionState.Running;
+                        reachedRunning = true;
                     }
 
                     //The handler ended without raising Ended (it failed before starting its threads).
@@ -386,6 +409,7 @@ namespace Nucleus.Coop.Services.Session
                 Actions = Actions(),
                 StopHotkey = Hotkey(App_Hotkeys.StopSession),
                 LockInputsKey = string.IsNullOrEmpty(App_Hotkeys.LockInputs) ? "End" : App_Hotkeys.LockInputs,
+                LastSession = lastSession,
             };
 
             if (active != null && handler is GenericGameHandler generic)

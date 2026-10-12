@@ -19,6 +19,7 @@ Code: `Master/Nucleus.Coop.Services/Setup`, `Profiles`, `Session`. Seams: `Maste
 | `Profiles/ProfilesService` (`IProfilesService`) | List, load, unload, delete, settings | `ProfilesList`, `ProfileSettings` |
 | `Session/SessionService` (`ISessionService`) | Play, Stop, end handling, instances, actions | `Core_Interface.PlayClicked`, `I_GameHandlerEndFunc`, `Handler_Ended`, `HotkeyListener` |
 | `Session/SessionLog` | Launch log ring buffer, `session.log` | `GenericGameHandler.Log` (debug-log.txt) |
+| `Session/SessionSummaryBuilder` (pure) | `SessionSnapshot.LastSession`: players and device names, duration, outcome, error lines | none (new) |
 
 Registration: `NucleusServices.Register` creates one `SetupSession` and the three services after the library services (which create `GameManager`). `SetupSession.HandlerUpdater` is the handlers service (`IHandlerUpdater`) for the handler update check.
 
@@ -39,7 +40,7 @@ Registration: `NucleusServices.Register` creates one `SetupSession` and the thre
 | `unassign` | `BoundsFunctions.Unassign` (`RemovePlayer`, or guest removal). |
 | `addGuest` / `removeGuest` | `BoundsFunctions.AddGuest/RemoveGuest`: hover rules of `OnMouseMove` (gamepads, `PlayersPerInstance`, profile `CurrentMaxGuests`), `RemoveGuestCore` shared with the right click. |
 | `toggleExpand` | `BoundsFunctions.ToggleExpand` → `ToggleExpandCore` (the right-click block, extracted unchanged). |
-| `resize` | `BoundsFunctions.Resize` → `ResizeStep` (the sizer blocks of `EditPlayerBounds`, extracted; one step = cell/20, one cell in the manual layout), repeated `steps` times. |
+| `resize` | `BoundsFunctions.Resize` → `ResizeStep` (the sizer blocks of `EditPlayerBounds`, extracted; one step = cell/20, one cell in the manual layout), repeated `steps` times; it stops at the first step that can't be made. The snapshot gives the step of each screen in pixels (`SetupScreen.ResizeStepWidth/Height`, `SnapshotMath.ResizeStep`, 0 where players can't be resized), so the UI turns a drag into steps. |
 | `autoFill` | `BoundsFunctions.AutoFill`: revealed, unplaced devices in free slots, in device order (see behaviour changes). |
 | `clearAll` | `GameProfile.Instance.Reset()` (unassign + unload), option values kept when no profile was loaded. |
 | `setOptionChoice` / `setOptionText` | Stores the original `GameOption.List` item (string, double, ExpandoObject) or enum value, or the text, in `profile.Options[key]`. |
@@ -67,7 +68,7 @@ Registration: `NucleusServices.Register` creates one `SetupSession` and the thre
 
 | Method | Implementation |
 |---|---|
-| `get` | State machine: `idle` (no setup), `setup`, `launching` (from Play until `GameProfile.Saved`, set when Play finished placing the windows), `running`, `ending`. Instances come from the launch players (the cloned profile's list). |
+| `get` | State machine: `idle` (no setup), `setup`, `launching` (from Play until `GameProfile.Saved`, set when Play finished placing the windows), `running`, `ending`. Instances come from the launch players (the cloned profile's list). `LastSession`, built when a session ends or fails to start and kept until the next Play: the players and device names of the setup snapshot taken at Play, start and end, whether it reached `running`, the error, and the error lines of the log (20 at most, with their count). |
 | `play` | Requires `Flow.CanPlay`. Pump once (fresh identities), then `GameProfile.InitializeHandlerStartup(OnHandlerEnded)` on the UI thread (it disposes the device timers, reloads the script, `CleanClone`, starts the handler threads), `shell.MinimizeWindow()`, state `launching`, 500 ms poll. Launch dialogs stay native (they are ownerless and run on the play thread). |
 | `stop` | Refused while inputs are locked (`End` would return at once). State `ending`, `End(true)` on a worker (about 9 s of sleeps); if `End` returned early anyway, the previous state comes back with an error. |
 | Ended (any thread) | Posted to the UI thread once: `I_GameHandler = null`, `SetupSession.ResetAfterSession()` (always), `shell.RestoreWindow()`, state `setup`, `profiles.changed` (the launch may have saved a profile). A handler that ended without raising `Ended` is caught by the poll. |

@@ -201,6 +201,8 @@ namespace Nucleus.Coop.Services.Setup
             {
                 UserScreen screen = screens[s];
                 (int rows, int columns) = SnapshotMath.Grid(screen.Type, GameProfile.CustomLayout_Hor, GameProfile.CustomLayout_Ver, screen.SubScreensBounds.Count);
+                Rectangle firstSlot = screen.SubScreensBounds.Count > 0 ? screen.SubScreensBounds.First().Key : Rectangle.Empty;
+                Size resizeStep = SnapshotMath.ResizeStep(screen.Type, firstSlot, screen.SubScreensBounds.Count, loaded);
 
                 SetupScreen dto = new SetupScreen
                 {
@@ -212,6 +214,8 @@ namespace Nucleus.Coop.Services.Setup
                     Rows = rows,
                     Columns = columns,
                     LayoutLocked = loaded,
+                    ResizeStepWidth = resizeStep.Width,
+                    ResizeStepHeight = resizeStep.Height,
                 };
 
                 if (screen.Type != UserScreenType.Manual)
