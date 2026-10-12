@@ -19,6 +19,7 @@ import { Canvas } from './Canvas';
 import { useLobbyCommands } from './commands';
 import { LobbyHeader, profileTitle } from './LobbyHeader';
 import { playerName } from './model';
+import { ProfilesManager } from './ProfilesDialog';
 import { LaunchPane, SidePanel } from './SidePanel';
 import { CustomStep, OptionsStep } from './Steps';
 import { usePressToJoin } from './usePressToJoin';
@@ -61,6 +62,7 @@ export default function LobbyScreen() {
   const [pings, setPings] = useState<Record<string, number>>({});
   const [flashes, setFlashes] = useState<Record<string, number>>({});
   const [justJoined, setJustJoined] = useState<ReadonlySet<string>>(new Set());
+  const [profilesOpen, setProfilesOpen] = useState(false);
 
   // Pads belong to players here (any press on a free one joins): every pad moves focus, only the one that moved last
   // presses buttons, and B only closes a menu or a dialog.
@@ -119,6 +121,18 @@ export default function LobbyScreen() {
     );
   }, [locateGame, gameId, snap?.gameName, summary?.name, executablePath]);
   const commands = useLobbyCommands(onNeedsPicker);
+
+  const loadProfile = async (profileId: number) => {
+    const loaded = await commands.loadProfile(profileId);
+    const p = profiles.data?.find((x) => x.id === profileId);
+    if (loaded) toast(`Loaded ${p ? profileTitle(p) : 'the profile'}. Players join as they press a button.`);
+    return Boolean(loaded);
+  };
+  const unloadProfile = async () => {
+    const unloaded = await commands.unloadProfile();
+    if (unloaded) toast('Profile unloaded. Place players freely.');
+    return Boolean(unloaded);
+  };
 
   // ---------- Device activity: press to join, flashes, pings ----------
   usePressToJoin({
@@ -207,14 +221,9 @@ export default function LobbyScreen() {
         summary={summary}
         profiles={profiles.data ?? []}
         onOpenNotes={() => setNotesOpen(true)}
-        onLoadProfile={async (profileId) => {
-          const loaded = await commands.loadProfile(profileId);
-          const p = profiles.data?.find((x) => x.id === profileId);
-          if (loaded) toast(`Loaded ${p ? profileTitle(p) : 'the profile'}. Players join as they press a button.`);
-        }}
-        onUnloadProfile={async () => {
-          if (await commands.unloadProfile()) toast('Profile unloaded. Place players freely.');
-        }}
+        onLoadProfile={(profileId) => void loadProfile(profileId)}
+        onUnloadProfile={() => void unloadProfile()}
+        onManageProfiles={() => setProfilesOpen(true)}
       />
 
       {step?.kind === 'options' ? (
@@ -238,6 +247,15 @@ export default function LobbyScreen() {
         </p>
         {details?.notes ? <HandlerNotes>{details.notes}</HandlerNotes> : <p className="text-ink-2">This handler has no notes.</p>}
       </Dialog>
+
+      <ProfilesManager
+        snap={snap}
+        profiles={profiles.data ?? []}
+        open={profilesOpen}
+        onClose={() => setProfilesOpen(false)}
+        onLoad={loadProfile}
+        onUnload={unloadProfile}
+      />
 
       <div className="sr-only" aria-live="polite">
         {announcement}

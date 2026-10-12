@@ -10,6 +10,8 @@ export interface LobbyHeaderProps {
   onOpenNotes: () => void;
   onLoadProfile: (profileId: number) => void;
   onUnloadProfile: () => void;
+  /** Opens the list of profiles: settings, delete. */
+  onManageProfiles: () => void;
 }
 
 export const profileTitle = (p: ProfileSummary) => p.title.trim() || `Profile ${p.id}`;
@@ -23,7 +25,7 @@ function profileDescription(p: ProfileSummary): string {
 }
 
 /** Header strip: which game, which handler, which profile. */
-export function LobbyHeader({ snap, details, summary, profiles, onOpenNotes, onLoadProfile, onUnloadProfile }: LobbyHeaderProps) {
+export function LobbyHeader({ snap, details, summary, profiles, onOpenNotes, onLoadProfile, onUnloadProfile, onManageProfiles }: LobbyHeaderProps) {
   const labelId = useId();
   const cover = summary?.coverUrl ?? details?.summary.coverUrl ?? summary?.iconUrl;
   const version = summary?.handlerVersion ?? details?.summary.handlerVersion;
@@ -84,6 +86,17 @@ export function LobbyHeader({ snap, details, summary, profiles, onOpenNotes, onL
                 } else if (Number(id) !== match.profileId) onLoadProfile(Number(id));
               }}
             />
+            <Button
+              variant="quiet"
+              size="icon"
+              aria-label="Manage profiles"
+              title="Profile settings, delete a profile"
+              onClick={onManageProfiles}
+              data-nav
+              className="-ml-1"
+            >
+              <Icon name="sliders" />
+            </Button>
           </>
         ) : (
           <span className="text-small text-ink-3">Profiles are off for this game</span>
