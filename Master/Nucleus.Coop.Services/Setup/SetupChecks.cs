@@ -8,6 +8,7 @@ using System.Security.Principal;
 using Nucleus.Bridge.Contracts;
 using Nucleus.Coop.Services.Startup;
 using Nucleus.Gaming;
+using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Coop;
 
 namespace Nucleus.Coop.Services.Setup
@@ -28,6 +29,7 @@ namespace Nucleus.Coop.Services.Setup
         public const string NucleusLocation = "nucleusLocation";
         public const string Devices = "devices";
         public const string Players = "players";
+        public const string InputLock = "inputLock";
 
         private static readonly Lazy<bool> IsAdministrator = new Lazy<bool>(() =>
         {
@@ -135,8 +137,22 @@ namespace Nucleus.Coop.Services.Setup
                     : Check(Players, CheckState.Blocking, "No player placed", "Place at least one player on a screen."));
             }
 
+            //Replaces the message box GenericGameHandler.Play showed at every launch (WebUserPrompts skips it).
+            if (!App_Misc.IgnoreInputLockReminder)
+            {
+                checks.Add(InputLockReminder());
+            }
+
             //blocking first, then warnings, information, busy and fine checks (stable within a state)
             return checks.Select((c, i) => (c, i)).OrderBy(x => Rank(x.c.State)).ThenBy(x => x.i).Select(x => x.c).ToList();
+        }
+
+        /// <summary>The "lock inputs" reminder, until the user turns it off ([Misc] IgnoreInputLockReminder).</summary>
+        internal static SetupCheck InputLockReminder()
+        {
+            string key = string.IsNullOrWhiteSpace(App_Hotkeys.LockInputs) ? "End" : App_Hotkeys.LockInputs;
+            return Check(InputLock, CheckState.Info, $"Press {key} to lock inputs",
+                $"Some handlers need the keyboard and mouse locked to the game windows. Press {key} again when you finish playing.", "Don't show again");
         }
 
         private static int Rank(CheckState state)

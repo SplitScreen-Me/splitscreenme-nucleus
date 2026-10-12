@@ -217,7 +217,6 @@ public sealed class SettingsService : ISettingsService
     public void RenderReminders(bool keyboard, bool gamepad)
     {
         Dictionary<string, string> values = GetValues();
-        string theme = App_Misc.Theme ?? "default";
         string type = values.TryGetValue("gamepad.type", out string? t) && t.Length > 0 ? t : "Xbox";
 
         lock (reminderGate)
@@ -235,12 +234,7 @@ public sealed class SettingsService : ISettingsService
                     var rows = SettingsCatalog.GamepadReminderRows
                         .Select(r => (r.Label, GamepadComboFormat.Parse(values.TryGetValue(r.Key, out string? v) ? v : "", 2, out _) ?? new int[0]))
                         .ToList();
-                    string images = Path.Combine(NucleusPaths.ThemeFolder(theme), "gamepads", type);
-                    if (!Directory.Exists(images))
-                    {
-                        images = Path.Combine(NucleusPaths.ThemeFolder("default"), "gamepads", type);
-                    }
-
+                    string images = Path.Combine(NucleusPaths.GamepadImages, type);
                     ShortcutsReminderRenderer.RenderGamepad(GamepadReminderPath, rows, type, images);
                 }
             }
@@ -286,6 +280,13 @@ public sealed class SettingsService : ISettingsService
         ComboButtons = field.ComboButtons,
         VisibleWhen = Copy(field.VisibleWhen),
         EnabledWhen = Copy(field.EnabledWhen),
+        Confirm = field.Confirm == null ? null : new SettingConfirmation
+        {
+            Values = field.Confirm.Values.ToList(),
+            Title = field.Confirm.Title,
+            Message = field.Confirm.Message,
+            ConfirmLabel = field.Confirm.ConfirmLabel,
+        },
     };
 
     private static SettingCondition? Copy(SettingCondition? condition) =>

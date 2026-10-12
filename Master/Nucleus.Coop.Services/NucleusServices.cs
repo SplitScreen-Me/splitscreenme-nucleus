@@ -10,6 +10,11 @@ namespace Nucleus.Coop.Services
         /// <param name="shell">Host window.</param>
         public static void Register(BridgeHost bridge, IHostShell shell)
         {
+            // Out-of-game engine messages (handler errors at startup included) go to the web UI from now on.
+            var notices = new Notices.NoticeBoard(bridge.Events);
+            Nucleus.Gaming.Forms.UserPrompts.Handler = new Notices.WebUserPrompts(notices, () => shell.PageState, Nucleus.Gaming.Forms.UserPrompts.Native);
+            bridge.Register<Bridge.Contracts.INoticesService>(notices);
+
             // Library, handlers, settings. Runs first: loads GameManager (every handler + the library), which the
             // other services use through GameManager.Instance.
             Startup.NucleusCore core = Startup.NucleusCore.Start(shell.UiContext, bridge.Events);
@@ -23,7 +28,7 @@ namespace Nucleus.Coop.Services
             var setupSession = new Setup.SetupSession(bridge.Events, shell) { HandlerUpdater = handlerUpdater };
             bridge.Register<Bridge.Contracts.ISetupService>(new Setup.SetupService(setupSession));
             bridge.Register<Bridge.Contracts.IProfilesService>(new Profiles.ProfilesService(setupSession));
-            bridge.Register<Bridge.Contracts.ISessionService>(new Session.SessionService(setupSession, bridge.Events, shell));
+            bridge.Register<Bridge.Contracts.ISessionService>(new Session.SessionService(setupSession, bridge.Events, shell, notices));
         }
     }
 }

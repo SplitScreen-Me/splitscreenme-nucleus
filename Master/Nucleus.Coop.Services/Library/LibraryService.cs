@@ -340,7 +340,7 @@ public sealed class LibraryService : ILibraryService
             }
             catch (Exception e)
             {
-                // Script errors already show the legacy "Error in handler" window from GenericGameInfo.
+                // Script errors are reported by GenericGameInfo (a notice in the web UI).
                 ServiceLog.Warn($"handler {file.Name} could not be loaded", e);
             }
         }

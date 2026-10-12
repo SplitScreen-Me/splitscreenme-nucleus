@@ -9,6 +9,7 @@ using Nucleus.Bridge;
 using Nucleus.Bridge.Contracts;
 using Nucleus.Coop.Services.Startup;
 using Nucleus.Gaming;
+using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop;
@@ -425,6 +426,12 @@ namespace Nucleus.Coop.Services.Setup
 
                 case SetupChecks.HandlerUpToDate:
                     return await UpdateHandler();
+
+                case SetupChecks.InputLock:
+                    //The same setting as "Don't remind me to lock inputs" in the settings.
+                    App_Misc.IgnoreInputLockReminder = true;
+                    session.Events.Emit(new SettingsChanged { Keys = { "misc.ignoreInputLockReminder" } });
+                    return session.CommitCommand();
 
                 default:
                     throw SetupSession.Conflict("noAction", "This check has no fix.");

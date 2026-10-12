@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Nucleus.Bridge;
 using Nucleus.Bridge.Contracts;
+using Nucleus.Coop.Services.Notices;
 using Nucleus.Coop.Services.Setup;
 using Nucleus.Coop.Services.Startup;
 using Nucleus.Gaming;
@@ -29,6 +30,7 @@ namespace Nucleus.Coop.Services.Session
         private readonly SetupSession setup;
         private readonly IBridgeEvents events;
         private readonly IHostShell shell;
+        private readonly NoticeBoard? notices;
         private readonly SessionLog log;
         private readonly Timer pollTimer;
 
@@ -36,15 +38,17 @@ namespace Nucleus.Coop.Services.Session
         private IGameHandler? handler;
         private DateTime? startedAt;
         private string? lastError;
+        private string? lastErrorDetails;
         private string? lastSignature;
         private int endedOnce;
         private int pollQueued;
 
-        public SessionService(SetupSession setup, IBridgeEvents events, IHostShell shell)
+        public SessionService(SetupSession setup, IBridgeEvents events, IHostShell shell, NoticeBoard? notices = null)
         {
             this.setup = setup;
             this.events = events;
             this.shell = shell;
+            this.notices = notices;
             log = new SessionLog(events);
             pollTimer = new Timer(_ => OnPoll(), null, Timeout.Infinite, Timeout.Infinite);
 
@@ -83,6 +87,8 @@ namespace Nucleus.Coop.Services.Session
             }
 
             lastError = null;
+            lastErrorDetails = null;
+            notices?.TakeLaunchFailure();//a stale report of an earlier launch
             log.Clear();
             log.Start();
             setup.SessionActive = true;
@@ -192,6 +198,14 @@ namespace Nucleus.Coop.Services.Session
             if (handler is GenericGameHandler generic && !string.IsNullOrEmpty(generic.error))
             {
                 lastError = generic.error;
+            }
+
+            //The crash report of a failed launch (LogManager.LogExceptionFile), shown with the error.
+            string? report = notices?.TakeLaunchFailure();
+            if (report != null)
+            {
+                lastErrorDetails = report;
+                lastError ??= "The launch failed.";
             }
 
             GameProfile.I_GameHandler = null;
@@ -368,6 +382,7 @@ namespace Nucleus.Coop.Services.Session
                 StartedAt = active != null ? startedAt : null,
                 InputsLocked = LockInputRuntime.IsLocked,
                 Error = lastError,
+                ErrorDetails = lastError != null ? lastErrorDetails : null,
                 Actions = Actions(),
                 StopHotkey = Hotkey(App_Hotkeys.StopSession),
                 LockInputsKey = string.IsNullOrEmpty(App_Hotkeys.LockInputs) ? "End" : App_Hotkeys.LockInputs,

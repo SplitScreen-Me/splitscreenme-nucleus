@@ -23,6 +23,9 @@ namespace Nucleus.Coop.Services.Setup
     internal sealed class SetupSession
     {
         private readonly IBridgeEvents events;
+
+        /// <summary>Bridge events (for services sharing this session).</summary>
+        public IBridgeEvents Events => events;
         private readonly SynchronizationContext ui;
         private readonly Timer refreshTimer;
         private readonly HashSet<string> autoSelectedSteps = new HashSet<string>();
@@ -161,7 +164,7 @@ namespace Nucleus.Coop.Services.Setup
             {
                 try
                 {
-                    CleanGameContent.CleanContentFolder(gen, false);
+                    _ = CleanGameContent.CleanContentFolderAsync(gen);
                 }
                 catch (Exception e)
                 {
@@ -191,9 +194,9 @@ namespace Nucleus.Coop.Services.Setup
                 GameProfile.GenMissingIdFromPlayerSteamIDs();
             }
 
-            BoundsFunctions.InitializeHeadless(game, profile);
+            BoundsFunctions.Initialize(game, profile);
             profile.SyncScreens();
-            DevicesFunctions.Initialize(null, game, profile);
+            DevicesFunctions.Initialize(game, profile);
 
             if (keepOptions != null)
             {
@@ -312,7 +315,7 @@ namespace Nucleus.Coop.Services.Setup
 
             try
             {
-                GameProfile.ProcessProfileAssignment(BoundsFunctions.Dragging);
+                GameProfile.ProcessProfileAssignment();
             }
             catch (Exception e)
             {

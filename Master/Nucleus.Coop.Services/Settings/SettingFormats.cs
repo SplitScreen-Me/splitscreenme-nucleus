@@ -65,7 +65,7 @@ public static class GamepadComboFormat
     /// <summary>Guide button flag (read through the undocumented XInputGetStateSecret).</summary>
     public const int Guide = 1024;
 
-    /// <summary>Button codes and their Xbox / PlayStation names and theme image (<c>gui\theme\&lt;theme&gt;\gamepads\&lt;type&gt;\&lt;image&gt;.png</c>).</summary>
+    /// <summary>Button codes and their Xbox / PlayStation names and image (<c>gui\gamepads\&lt;type&gt;\&lt;image&gt;.png</c>).</summary>
     public static readonly IReadOnlyList<(int Code, string Xbox, string PlayStation, string Image)> Buttons = new[]
     {
         (1, "D-pad Up", "D-pad Up", "du"),

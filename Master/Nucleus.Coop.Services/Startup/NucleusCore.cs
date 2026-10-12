@@ -77,9 +77,8 @@ public sealed class NucleusCore : IDisposable
         var ui = new UiDispatcher(uiContext);
 
         Stopwatch clock = Stopwatch.StartNew();
-        // Parses handlers\*.js (Jint), loads content\userprofile.json, registers raw input. The legacy per-game update
-        // checks of LoadUser are skipped: StartBackgroundWork runs one check and publishes its results.
-        GameManager.CheckUpdatesOnLoad = false;
+        // Parses handlers\*.js (Jint), loads content\userprofile.json, registers raw input. LoadUser runs no update
+        // check: StartBackgroundWork runs one and publishes its results.
         _ = new GameManager();
         clock.Stop();
         GameManager manager = GameManager.Instance;

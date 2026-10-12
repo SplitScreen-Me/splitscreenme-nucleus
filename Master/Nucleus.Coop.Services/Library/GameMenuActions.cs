@@ -119,8 +119,15 @@ public sealed class GameMenuActions
 
             case GameMenuBuilder.Ids.DeleteContentFolder:
                 RefuseDuringSession();
-                await CleanGameContent.CleanContentFolderAsync(game);
+                bool deleted = await CleanGameContent.CleanContentFolderAsync(game, reportLockedFiles: false);
                 core.Notifier.GamesChanged(gameId);
+                if (!deleted)
+                {
+                    throw new BridgeException(BridgeErrorKind.Conflict,
+                        "Some files of the content folder are locked by another program, and Nucleus could not delete them. Close that program or restart your computer, then try again.",
+                        new { reason = "filesLocked", path = game.Content_Folder });
+                }
+
                 return;
 
             case GameMenuBuilder.Ids.OpenUserConfig:

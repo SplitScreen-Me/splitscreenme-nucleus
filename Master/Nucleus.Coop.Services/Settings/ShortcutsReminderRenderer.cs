@@ -49,7 +49,7 @@ public static class ShortcutsReminderRenderer
 
     /// <summary>
     /// Gamepad shortcuts: label and button codes. Button pictures come from <paramref name="buttonImagesFolder"/>
-    /// (<c>gui\theme\&lt;theme&gt;\gamepads\&lt;type&gt;</c>) when present, names otherwise.
+    /// (<c>gui\gamepads\&lt;type&gt;</c>) when present, names otherwise.
     /// </summary>
     public static void RenderGamepad(string path, IReadOnlyList<(string Label, int[] Buttons)> rows, string gamepadType, string? buttonImagesFolder)
     {

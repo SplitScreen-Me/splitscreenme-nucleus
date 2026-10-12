@@ -18,10 +18,10 @@ public static class NucleusPaths
 
     private static string? installRootOverride;
 
-    /// <summary>Folder of NucleusCoop.exe (same as <c>Application.StartupPath</c> and <c>Globals.NucleusInstallRoot</c> in the app).</summary>
-    public static string InstallRoot => installRootOverride ?? AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
+    /// <summary>Folder of NucleusCoop.exe: <see cref="Nucleus.Gaming.InstallPaths.Root"/> (also <c>Globals.NucleusInstallRoot</c>).</summary>
+    public static string InstallRoot => installRootOverride ?? Nucleus.Gaming.InstallPaths.Root;
 
-    /// <summary><c>gui\</c>: covers, screenshots, icons, theme, shortcut reminder images.</summary>
+    /// <summary><c>gui\</c>: covers, screenshots, icons, gamepad button images, shortcut reminder images.</summary>
     public static string Gui => Path.Combine(InstallRoot, "gui");
 
     /// <summary><c>gui\covers\</c>, one <c>&lt;GUID&gt;.jpeg</c> per game.</summary>
@@ -45,8 +45,8 @@ public static class NucleusPaths
     /// <summary><c>game profiles\</c>.</summary>
     public static string GameProfiles => Path.Combine(InstallRoot, "game profiles");
 
-    /// <summary>Folder of the default theme's gamepad button images (<c>gui\theme\&lt;theme&gt;\gamepads\</c>).</summary>
-    public static string ThemeFolder(string? theme) => Path.Combine(Gui, "theme", string.IsNullOrWhiteSpace(theme) ? "default" : theme!);
+    /// <summary><c>gui\gamepads\</c>: gamepad button images of the shortcuts reminder, one folder per gamepad type.</summary>
+    public static string GamepadImages => Path.Combine(Gui, "gamepads");
 
     /// <summary>Tests only: makes every path relative to another folder.</summary>
     internal static void OverrideInstallRoot(string? root) => installRootOverride = root?.TrimEnd('\\');

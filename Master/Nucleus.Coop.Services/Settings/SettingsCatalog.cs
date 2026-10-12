@@ -142,6 +142,15 @@ public static class SettingsCatalog
         ("Lock UI control", "gamepad.lockUiControl"), ("On-screen keyboard", "gamepad.openOsk"),
     };
 
+    /// <summary>Asked before turning "Keep Nucleus user accounts" off (the legacy Settings window asked it too).</summary>
+    public static SettingConfirmation KeepAccountsConfirmation => new SettingConfirmation
+    {
+        Values = { "false" },
+        Title = "Turn off Keep Nucleus user accounts?",
+        Message = "The next time you run a game that uses separate Windows user accounts, Nucleus deletes every account it created, with their files and saves.",
+        ConfirmLabel = "Turn off",
+    };
+
     /// <summary>Builds the definitions.</summary>
     public static List<SettingDefinition> Create()
     {
@@ -160,9 +169,11 @@ public static class SettingsCatalog
         list.Add(network);
         list.Add(Toggle("general", "misc.useNicknames", "Use nicknames in game", "Player nicknames are passed to the game when the handler supports it.", true,
             () => App_Misc.UseNicksInGame, v => App_Misc.UseNicksInGame = v));
-        list.Add(Toggle("general", "misc.keepAccounts", "Keep Nucleus user accounts",
+        SettingDefinition keepAccounts = Toggle("general", "misc.keepAccounts", "Keep Nucleus user accounts",
             "Keeps the Windows user accounts Nucleus creates for some games. When off, the next game that uses them deletes them with their files and saves.", false,
-            () => App_Misc.KeepAccounts, v => App_Misc.KeepAccounts = v));
+            () => App_Misc.KeepAccounts, v => App_Misc.KeepAccounts = v);
+        keepAccounts.Field.Confirm = KeepAccountsConfirmation;
+        list.Add(keepAccounts);
         SettingDefinition password = Password("general", "misc.nucleusAccountPassword", "Nucleus user accounts password",
             "Password of the Windows accounts Nucleus creates. Stored in plain text in Settings.ini. 12345 or empty uses the built-in password.", "12345", 127,
             () => App_Misc.NucleusAccountPassword ?? "", v => App_Misc.NucleusAccountPassword = v);

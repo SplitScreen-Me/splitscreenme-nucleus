@@ -386,6 +386,17 @@ namespace Nucleus.Coop.Services.Setup
                 template.IsRawMouse, template.HIDDeviceID?.Count(h => !string.IsNullOrEmpty(h)) ?? 0);
         }
 
+        /// <summary>How long the "gamepad not identified" hint stays after the press that failed.</summary>
+        internal static readonly TimeSpan UnidentifiedHintDuration = TimeSpan.FromSeconds(10);
+
+        /// <summary>A hidden gamepad whose last button press couldn't identify it (no unique DirectInput match), recently.</summary>
+        internal static PlayerInfo? UnidentifiedPad(IEnumerable<PlayerInfo>? devices, DateTime nowUtc)
+        {
+            return devices?.FirstOrDefault(d => d.IsController && !d.IsInputUsed && !d.IsFake &&
+                                                d.IdentificationFailedUtc != DateTime.MinValue &&
+                                                nowUtc - d.IdentificationFailedUtc < UnidentifiedHintDuration);
+        }
+
         private static SetupHint? HintOf(SetupSnapshot snapshot, SetupSession session)
         {
             SetupHint Hint(string code, string text, params string[] args) => new SetupHint { Code = code, Text = text, Args = args.ToList() };
@@ -412,6 +423,19 @@ namespace Nucleus.Coop.Services.Setup
             if (snapshot.Devices.Count(d => !d.IsVirtual) == 0)
             {
                 return Hint("noDevices", "Plug in a controller.");
+            }
+
+            PlayerInfo? unidentified = UnidentifiedPad(GameProfile.Instance?.DevicesList, DateTime.UtcNow);
+
+            if (unidentified != null)
+            {
+                GenericGameInfo? gen = GameProfile.Game;
+                bool slotModeWorks = gen != null && !gen.UseDevReorder && !gen.CreateSingleDeviceFile;
+
+                return Hint("padNotIdentified", slotModeWorks
+                    ? "A gamepad was pressed, but Nucleus couldn't tell which device it is. Press A on that gamepad alone. If it keeps failing, close tools that duplicate gamepads (DS4Windows without HidHide, Steam Input) or turn on \"Identify gamepads by slot\"."
+                    : "A gamepad was pressed, but Nucleus couldn't tell which device it is. Press A on that gamepad alone. If it keeps failing, close tools that duplicate gamepads (DS4Windows without HidHide, Steam Input).",
+                    KeyOf(unidentified));
             }
 
             if (snapshot.Players.Count == 0)
