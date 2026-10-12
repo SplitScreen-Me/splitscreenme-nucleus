@@ -1,4 +1,4 @@
-import { useEffect, useRef, type DragEvent, type KeyboardEvent, type Ref } from 'react';
+import { useEffect, useRef, type DragEvent, type FocusEvent, type KeyboardEvent, type Ref } from 'react';
 import type { SetupDevice, SetupPlayer } from '@/bridge';
 import { devicesIcon } from '@/lib/devices';
 import { cn, Icon, playerClass } from '@/ui';
@@ -83,6 +83,7 @@ export function PlayerRegion(props: PlayerRegionProps) {
       aria-pressed={lifted}
       draggable
       data-region
+      data-player={p.id}
       onKeyDown={props.onKeyDown}
       onDragStart={props.onDragStart}
       onDragEnd={props.onDragEnd}
@@ -161,14 +162,25 @@ export interface SlotCellProps extends DropHandlers {
   expected: boolean;
   /** A player is lifted with the keyboard: empty slots read as drop targets. */
   dropMode: boolean;
+  /** Waiting for a controller: the next press of a free one takes this slot. */
+  waiting: boolean;
   target: boolean;
   regionRef: Ref<HTMLDivElement>;
   onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => void;
+  onClick: () => void;
+  onBlur?: (e: FocusEvent<HTMLDivElement>) => void;
 }
 
-/** An empty slot of a layout: where the next player joins, or where a dragged one lands. */
+/** An empty slot of a layout: where the next player joins, where a dragged one lands, or where a controller is awaited. */
 export function SlotCell(props: SlotCellProps) {
-  const { frac, expected, dropMode, target } = props;
+  const { frac, expected, dropMode, waiting, target } = props;
+  const [title, note] = dropMode
+    ? ['Move here', undefined]
+    : waiting
+      ? ['Press a button on a controller', 'B or Esc cancels']
+      : expected
+        ? ['Waiting for a player', 'Set by the profile']
+        : ['Press Start to join', 'Or select it, then press any button'];
   return (
     <div
       ref={props.regionRef}
@@ -177,33 +189,46 @@ export function SlotCell(props: SlotCellProps) {
       aria-label={props.label}
       data-region
       onKeyDown={props.onKeyDown}
+      onClick={props.onClick}
+      onBlur={props.onBlur}
       onDragOver={props.onDragOver}
       onDragLeave={props.onDragLeave}
       onDrop={props.onDrop}
       style={place(frac)}
       className={cn(
-        'group/region absolute z-[1] overflow-hidden rounded-md bg-pane-2 select-none [container-type:size]',
-        'transition-[left,top,width,height,opacity] duration-(--dur-3) ease-snap',
+        'group/region absolute z-[1] cursor-pointer overflow-hidden rounded-md select-none [container-type:size]',
+        'transition-[left,top,width,height,opacity,background-color] duration-(--dur-3) ease-snap',
         'focus-visible:outline-none',
+        waiting ? 'bg-pane-3' : 'bg-pane-2',
       )}
     >
       <div className="absolute inset-0 grid place-content-center justify-items-center gap-[clamp(3px,3cqi,10px)] p-1.5 text-center">
-        <span aria-hidden="true" className="flex gap-2 text-ink-3 [@container(max-height:84px)]:hidden [@container(max-width:96px)]:hidden">
+        <span
+          aria-hidden="true"
+          className={cn('flex gap-2 [@container(max-height:84px)]:hidden [@container(max-width:96px)]:hidden', waiting ? 'text-ink' : 'text-ink-3')}
+        >
           <Icon name="pad" className="size-[clamp(16px,10cqi,30px)]" />
-          <Icon name="keyboard" className="size-[clamp(16px,10cqi,30px)]" />
+          {!waiting && <Icon name="keyboard" className="size-[clamp(16px,10cqi,30px)]" />}
         </span>
-        <strong className="text-[clamp(10px,5.6cqi,16px)] leading-[1.2] font-[650] text-ink-2 [@container(max-height:40px)]:hidden">
-          {dropMode ? 'Move here' : expected ? 'Waiting for a player' : 'Press any button to join'}
+        <strong
+          className={cn(
+            'text-[clamp(10px,5.6cqi,16px)] leading-[1.2] font-[650] [@container(max-height:40px)]:hidden',
+            waiting ? 'text-ink' : 'text-ink-2',
+          )}
+        >
+          {title}
         </strong>
-        {expected && !dropMode && (
-          <span className="text-[clamp(10px,4.4cqi,13px)] text-ink-3 [@container(max-height:64px)]:hidden">Set by the profile</span>
-        )}
+        {note && <span className="text-[clamp(10px,4.4cqi,13px)] text-ink-3 [@container(max-height:64px)]:hidden">{note}</span>}
       </div>
       <div
         aria-hidden="true"
         className={cn(
-          'pointer-events-none absolute inset-0 rounded-[inherit] border-[1.5px]',
-          expected ? 'border-solid border-ink-3' : 'animate-idle border-dashed border-line-strong',
+          'pointer-events-none absolute inset-0 rounded-[inherit]',
+          waiting
+            ? 'animate-wait border-2 border-solid border-ink'
+            : expected
+              ? 'border-[1.5px] border-solid border-ink-3'
+              : 'animate-idle border-[1.5px] border-dashed border-line-strong',
         )}
       />
       <div aria-hidden="true" className="pointer-events-none absolute inset-[6px] z-[4] rounded-[4px] opacity-0 shadow-[0_0_0_2px_var(--color-ink)] group-focus-visible/region:opacity-100" />

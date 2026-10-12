@@ -95,6 +95,7 @@
 
   --animate-spin: spin 900ms linear infinite;
   --animate-idle: idle-border 2.8s ease-in-out infinite;
+  --animate-wait: wait-border 1.2s ease-in-out infinite;
   --animate-toast-in: toast-in 240ms var(--ease-snap);
   --animate-fade-in: fade-in 240ms var(--ease-snap);
   --animate-dev-pulse: dev-pulse 420ms var(--ease-snap);
@@ -113,6 +114,10 @@
   }
   @keyframes idle-border {
     50% { border-color: var(--color-ink-3); }
+  }
+  /* A place waiting for a controller: a quicker, brighter pulse. */
+  @keyframes wait-border {
+    50% { border-color: var(--color-line-strong); }
   }
   @keyframes toast-in {
     from { opacity: 0; transform: translateY(8px); }

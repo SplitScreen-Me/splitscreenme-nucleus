@@ -222,7 +222,7 @@ function NoSession({ session }: { session: SessionSnapshot | undefined }) {
           </>
         ) : (
           <p className="text-ink-2">
-            Pick a game in your library, let everyone press a button on their controller to join, then launch. Every copy of the game and
+            Pick a game in your library, let everyone press Start on their controller to join, then launch. Every copy of the game and
             its progress shows up here.
           </p>
         )}

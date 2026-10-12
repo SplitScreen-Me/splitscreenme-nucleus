@@ -1,4 +1,4 @@
-import type { BridgeHandlers, SetPlayerAudioRequest, SetPlayerIdentityRequest, SetupSnapshot } from '../generated/contract.ts';
+import type { BridgeHandlers, GamepadButton, SetPlayerAudioRequest, SetPlayerIdentityRequest, SetupSnapshot } from '../generated/contract.ts';
 import type { MockContext } from '../transports/mock.ts';
 import { conflict, invalidParams, notFound } from './failures.ts';
 import { AUDIO_OUTPUTS, isGamepad } from './fixtures-setup.ts';
@@ -85,9 +85,18 @@ export function createSetupMock(context: MockContext, state: MockState): BridgeH
     return publishSetup(context, state, setup);
   };
 
-  /** A device was used: flashes it, matches it to the loaded profile, and starts an auto-play profile once complete. */
+  /** Presses of each gamepad since the setup opened. */
+  const presses = new Map<string, number>();
+  /**
+   * A device was used: flashes it, matches it to the loaded profile, and starts an auto-play profile once complete. A
+   * gamepad reports the button: Start when the press reveals it and every third press from its first one (so it joins
+   * by itself), A otherwise (a flash, or the place waiting for a controller).
+   */
   const deviceUsed = (setup: MockSetup, device: MockDevice, revealed: boolean) => {
-    context.emit('setup.deviceActivity', { deviceId: device.id, active: true });
+    const count = (presses.get(device.id) ?? 0) + 1;
+    presses.set(device.id, count);
+    const buttons: GamepadButton[] | undefined = isGamepad(device.kind) ? [revealed || count % 3 === 1 ? 'start' : 'a'] : undefined;
+    context.emit('setup.deviceActivity', { deviceId: device.id, active: true, buttons });
     schedule(setup.timers, ACTIVITY_LENGTH_MS, () => context.emit('setup.deviceActivity', { deviceId: device.id, active: false }));
     const matched = state.session.phase === null && matchDevice(setup, device);
     if (revealed || matched) publishSetup(context, state, setup);
@@ -116,6 +125,7 @@ export function createSetupMock(context: MockContext, state: MockState): BridgeH
       if (state.setup) clearTimers(state.setup.timers);
       const setup = createSetup(game, customGridOf(state.settings));
       state.setup = setup;
+      presses.clear();
       setup.devices
         .filter((device) => !device.revealed)
         .forEach((device, index) => scheduleReveal(setup, device, REVEAL_FIRST_MS + index * REVEAL_INTERVAL_MS));

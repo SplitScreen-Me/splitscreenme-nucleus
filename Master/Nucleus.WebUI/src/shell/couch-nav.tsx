@@ -9,8 +9,11 @@
 // it), else on the first target of the stage, never on the rail.
 //
 // Pads and players: the running session suspends pad navigation (useSuspendCouchNav: pads are playing the game). The
-// lobby shares it (useSharedCouchNav): any press on a free pad joins there (the host's setup.deviceActivity), so every
-// pad may move focus, but only the pad that moved last presses buttons, and B never leaves the screen.
+// lobby shares it (useSharedCouchNav): Start on a free pad joins there (the host's setup.deviceActivity), and players
+// press buttons to find their pad, so every pad may move focus, but only the pad that moved last presses buttons, and B
+// never leaves the screen. While the lobby waits for a controller on a place (useCapturedCouchNav), the next press of a
+// free pad belongs to that place: pads neither move nor press anything, a button only runs the screen's hint action
+// for it (B cancels).
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { useChromeApi, type Hint } from './chrome';
@@ -23,6 +26,7 @@ import {
   isTopLevel,
   mayAct,
   navOrigin,
+  padReach,
   pageStep,
   pickInDirection,
   readPad,
@@ -40,9 +44,10 @@ import {
 interface Modes {
   suspend: (on: boolean) => void;
   share: (on: boolean) => void;
+  capture: (on: boolean) => void;
 }
 
-const ModesCtx = createContext<Modes>({ suspend: () => {}, share: () => {} });
+const ModesCtx = createContext<Modes>({ suspend: () => {}, share: () => {}, capture: () => {} });
 
 function useMode(mode: keyof Modes, on: boolean): void {
   const set = useContext(ModesCtx)[mode];
@@ -59,12 +64,21 @@ export function useSuspendCouchNav(suspended = true): void {
 }
 
 /**
- * Shares gamepad navigation with players while the calling screen is mounted (the lobby, where any press on a free pad
- * joins): every pad moves focus and scrolls, only the pad that moved last presses buttons, B only closes a menu or a
- * dialog.
+ * Shares gamepad navigation with players while the calling screen is mounted (the lobby, where Start on a free pad
+ * joins and players press buttons to find their pad): every pad moves focus and scrolls, only the pad that moved last
+ * presses buttons, B only closes a menu or a dialog.
  */
 export function useSharedCouchNav(shared = true): void {
   useMode('share', shared);
+}
+
+/**
+ * Captures the pads while `captured` (the lobby waiting for a controller on a place, where the next press of a free pad
+ * takes the place): they don't move focus, scroll or press anything; any pad's button only runs the screen's hint
+ * action for that button, so B can cancel. An open dialog lifts the capture.
+ */
+export function useCapturedCouchNav(captured: boolean): void {
+  useMode('capture', captured);
 }
 
 const KEYS: Record<string, Dir> = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' };
@@ -328,14 +342,16 @@ function railRoots(): string[] {
 export function CouchNavProvider({ enabled, children }: { enabled: boolean; children: ReactNode }) {
   const [suspendCount, setSuspendCount] = useState(0);
   const [shareCount, setShareCount] = useState(0);
+  const [captureCount, setCaptureCount] = useState(0);
   const suspend = useCallback((on: boolean) => setSuspendCount((n) => Math.max(0, n + (on ? 1 : -1))), []);
   const share = useCallback((on: boolean) => setShareCount((n) => Math.max(0, n + (on ? 1 : -1))), []);
-  const [modes] = useState<Modes>(() => ({ suspend, share }));
+  const capture = useCallback((on: boolean) => setCaptureCount((n) => Math.max(0, n + (on ? 1 : -1))), []);
+  const [modes] = useState<Modes>(() => ({ suspend, share, capture }));
   const chrome = useChromeApi();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const live = useRef({ enabled, suspended: false, shared: false, chrome, navigate, pathname });
-  live.current = { enabled, suspended: suspendCount > 0, shared: shareCount > 0, chrome, navigate, pathname };
+  const live = useRef({ enabled, suspended: false, shared: false, captured: false, chrome, navigate, pathname });
+  live.current = { enabled, suspended: suspendCount > 0, shared: shareCount > 0, captured: captureCount > 0, chrome, navigate, pathname };
 
   // Keyboard: arrows move between [data-nav] items unless a control needs them.
   useEffect(() => {
@@ -450,11 +466,12 @@ export function CouchNavProvider({ enabled, children }: { enabled: boolean; chil
       // Next frame first: an action that throws must not stop the polling.
       raf = pads.length ? requestAnimationFrame(poll) : 0;
       if (!pads.length) last = 0;
-      const { enabled: on, suspended, shared } = live.current;
+      const { enabled: on, suspended, shared, captured } = live.current;
       // A shared screen starts with no lead: the press that opened it is not a move on it.
       if (shared && !wasShared) lead = null;
       wasShared = shared;
-      const active = on && !suspended && document.hasFocus();
+      // Waiting for a controller: the next press belongs to it, only the screen's hint actions run (B cancels).
+      const reach = padReach({ active: on && !suspended && document.hasFocus(), captured, dialogOpen: captured && Boolean(topDialog()) });
       let sx = 0;
       let sy = 0;
       for (const gp of pads) {
@@ -468,8 +485,9 @@ export function CouchNavProvider({ enabled, children }: { enabled: boolean; chil
         ];
         // Edges are tracked on every poll, so a button held while it could not act never fires late.
         const pressed = pad.actions.filter(([action, down]) => tracker.edge(`${action}${id}`, down)).map(([action]) => action);
-        if (!active) {
+        if (reach !== 'all') {
           for (const [dir, held] of dirs) tracker.hold(`${dir}${id}`, held);
+          if (reach === 'hints') for (const action of pressed) runHint(action);
           continue;
         }
         for (const [dir, held] of dirs) {

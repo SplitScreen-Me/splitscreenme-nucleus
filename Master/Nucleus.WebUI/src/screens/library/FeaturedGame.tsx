@@ -102,7 +102,7 @@ export function FeaturedGame({ game, onOptions, onLocate, onUpdate }: FeaturedGa
             </div>
           </dl>
         ) : (
-          <p className="text-small text-ink-2">Not played yet. Hand out the controllers: everyone presses a button to join.</p>
+          <p className="text-small text-ink-2">Not played yet. Hand out the controllers: everyone presses Start to join.</p>
         )}
       </div>
     </Pane>

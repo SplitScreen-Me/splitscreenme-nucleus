@@ -38,7 +38,7 @@ function handlerCheck(game: MockGame | undefined, handler: MockHandler | undefin
 
 function devicesCheck(state: MockState, setup: MockSetup): SetupCheck {
   const players = setup.players.length;
-  if (players === 0) return check('devices', 'info', 'No player yet', 'Press a button on a gamepad, or drag a device onto a screen.');
+  if (players === 0) return check('devices', 'info', 'No player yet', 'Press Start on a gamepad, or drag a device onto a screen.');
   if (setup.players.some((player) => player.deviceIds.some((deviceId) => deviceId.startsWith('raw')))) {
     const detail = `Once every window is in place, press ${state.settings['hotkeys.lockKey'] ?? 'End'} to give each mouse its own cursor.`;
     return check('devices', 'info', 'Keyboards and mice joined', detail);

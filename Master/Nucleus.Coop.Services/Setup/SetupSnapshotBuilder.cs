@@ -433,8 +433,8 @@ namespace Nucleus.Coop.Services.Setup
                 bool slotModeWorks = gen != null && !gen.UseDevReorder && !gen.CreateSingleDeviceFile;
 
                 return Hint("padNotIdentified", slotModeWorks
-                    ? "A gamepad was pressed, but Nucleus couldn't tell which device it is. Press A on that gamepad alone. If it keeps failing, close tools that duplicate gamepads (DS4Windows without HidHide, Steam Input) or turn on \"Identify gamepads by slot\"."
-                    : "A gamepad was pressed, but Nucleus couldn't tell which device it is. Press A on that gamepad alone. If it keeps failing, close tools that duplicate gamepads (DS4Windows without HidHide, Steam Input).",
+                    ? "A gamepad was pressed, but Nucleus couldn't tell which device it is. Press Start on that gamepad alone. If it keeps failing, close tools that duplicate gamepads (DS4Windows without HidHide, Steam Input) or turn on \"Identify gamepads by slot\"."
+                    : "A gamepad was pressed, but Nucleus couldn't tell which device it is. Press Start on that gamepad alone. If it keeps failing, close tools that duplicate gamepads (DS4Windows without HidHide, Steam Input).",
                     KeyOf(unidentified));
             }
 

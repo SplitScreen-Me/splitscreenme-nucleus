@@ -22,8 +22,8 @@ export function SidePanel({ snap, commands, pings, announce }: SidePanelProps) {
     seats >= max
       ? `Full. ${snap.gameName} supports up to ${max} players.`
       : freeRevealed.length
-        ? `${max - seats} more can join. Press any button on a free controller or keyboard.`
-        : `${max - seats} more can join. Plug in a controller, then press any button on it.`;
+        ? `${max - seats} more can join. Press Start on a free controller, or any key on a free keyboard.`
+        : `${max - seats} more can join. Plug in a controller, then press Start on it.`;
 
   return (
     <Pane className="min-h-0 overflow-y-auto">
@@ -320,7 +320,7 @@ export function LaunchPane({
       </>
     );
   else if (!flow.canPlay && nextStep && flow.canGoNext) note = <span>Next: {nextStep.title.toLowerCase()}. Then launch.</span>;
-  else if (!flow.canPlay) note = <span>{hint ?? (n === 0 ? 'Press a button on a controller to join.' : 'Finish this step to launch.')}</span>;
+  else if (!flow.canPlay) note = <span>{hint ?? (n === 0 ? 'Press Start on a controller to join.' : 'Finish this step to launch.')}</span>;
   else if (warning)
     note = (
       <>
