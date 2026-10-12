@@ -182,6 +182,9 @@ namespace Nucleus.Bridge.Contracts
         /// <summary>Last error, for example why the launch failed.</summary>
         public string? Error { get; set; }
 
+        /// <summary>Crash report of the last failed launch (exception, hints, report file), shown with <see cref="Error"/>.</summary>
+        public string? ErrorDetails { get; set; }
+
         /// <summary>Actions and their hotkeys.</summary>
         public List<SessionActionInfo> Actions { get; set; } = new List<SessionActionInfo>();
 

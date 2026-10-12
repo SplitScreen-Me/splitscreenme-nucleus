@@ -117,6 +117,25 @@ namespace Nucleus.Bridge.Contracts
 
         /// <summary>Editable only when this condition holds.</summary>
         public SettingCondition? EnabledWhen { get; set; }
+
+        /// <summary>Ask the user to confirm before saving one of these values (for example turning off "Keep Nucleus user accounts").</summary>
+        public SettingConfirmation? Confirm { get; set; }
+    }
+
+    /// <summary>A confirmation the UI asks before saving some values of a setting.</summary>
+    public sealed class SettingConfirmation
+    {
+        /// <summary>Values that need the confirmation.</summary>
+        public List<string> Values { get; set; } = new List<string>();
+
+        /// <summary>Title of the confirmation.</summary>
+        public string Title { get; set; } = "";
+
+        /// <summary>What will happen, in plain words.</summary>
+        public string Message { get; set; } = "";
+
+        /// <summary>Label of the confirming button, a verb, for example "Turn off".</summary>
+        public string ConfirmLabel { get; set; } = "";
     }
 
     /// <summary>A group of settings.</summary>
