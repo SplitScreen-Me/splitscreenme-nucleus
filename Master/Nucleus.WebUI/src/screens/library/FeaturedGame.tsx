@@ -3,7 +3,7 @@ import type { GameSummary } from '@/bridge';
 import { useActiveDownload, downloadProgress } from '@/lib/downloads';
 import { fmtDuration, fmtWhen } from '@/lib/format';
 import { gameStatus, heroOf, inputsPhrase, setupPath } from '@/lib/library';
-import { Button, ButtonLink, GamepadGlyph, Icon, Pane, Spinner } from '@/ui';
+import { Button, ButtonLink, Icon, Pane, Spinner } from '@/ui';
 
 export interface FeaturedGameProps {
   game: GameSummary;
@@ -65,7 +65,7 @@ export function FeaturedGame({ game, onOptions, onLocate, onUpdate }: FeaturedGa
         </ul>
         <div className="mb-[26px] flex flex-wrap gap-2.5">
           <ButtonLink to={setupPath(game.id)} variant="primary" size="lg" data-nav data-hints="setup" data-id={game.id} data-autofocus>
-            <GamepadGlyph button="A" size="sm" inverse decorative />
+            <Icon name="play" />
             Set up session
           </ButtonLink>
           <Button variant="ghost" size="lg" data-nav data-hints="options" data-id={game.id} onClick={onOptions}>
