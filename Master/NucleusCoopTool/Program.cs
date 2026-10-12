@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Nucleus.Coop.Host;
 using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Cache;
@@ -17,6 +18,13 @@ namespace Nucleus.Coop
         [STAThread]
         static void Main(string[] args)
         {
+            // Settings.ini and the logs are resolved from the working directory (Globals.ini): make it the install folder.
+            string installFolder = AppDomain.CurrentDomain.BaseDirectory;
+            if (!string.Equals(Environment.CurrentDirectory.TrimEnd('\\'), installFolder.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase))
+            {
+                Environment.CurrentDirectory = installFolder;
+            }
+
             try
             {
                 AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
@@ -72,7 +80,15 @@ namespace Nucleus.Coop
             StartChecks.CheckDebugLogSize();
             StartChecks.CleanLogs();
 
-            MainForm form = new MainForm(args);
+            // Web UI by default; --legacy-ui opens the WinForms MainForm. HostStartup.GameId keeps args[0] (game GUID).
+            HostStartup.Parse(args);
+            if (!HostStartup.LegacyUi)
+            {
+                HostApplication.Run();
+                return;
+            }
+
+            MainForm form = new MainForm(HostStartup.ForwardedArgs);
             DPIManager.AddForm(form);
             DPIManager.ForceUpdate();
             Application.Run(form);

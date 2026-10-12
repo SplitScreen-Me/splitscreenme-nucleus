@@ -413,8 +413,14 @@ namespace Nucleus.Coop.UI
             {
                 UI_Functions.RefreshUI(true);//Sort the game in case the last played sorting filter is enabled
                 I_GameHandlerEndFunc("Stop button clicked", true);
-                GameProfile.Instance.Reset();
-               
+
+                //End returns early while inputs are locked: the session goes on and its player list is
+                //GameProfile.AssignedDevices, which Reset would clear.
+                if (GameProfile.I_GameHandler == null || GameProfile.I_GameHandler.HasEnded)
+                {
+                    GameProfile.Instance.Reset();
+                }
+
                 return;
             }
 
@@ -545,17 +551,8 @@ namespace Nucleus.Coop.UI
         public static bool InitializeGamepadThreads()
         {   //Enable only for Windows versions with default support for xinput1.4.dll ,
             //might be fixable by placing the dll at the root of our exe but not for now.
-            string windowsVersion = MachineSpecs.GetPCspecs();
-            if (!windowsVersion.Contains("Windows 7") &&
-                !windowsVersion.Contains("Windows Vista"))
+            if (GamepadThreads.Start())
             {
-                GamepadShortcuts.GamepadShortcutsThread = new Thread(GamepadShortcuts.GamepadShortcutsUpdate);
-                GamepadShortcuts.GamepadShortcutsThread.Start();
-                GamepadShortcuts.UpdateShortcutsValue();
-
-                GamepadNavigation.GamepadNavigationThread = new Thread(GamepadNavigation.GamepadNavigationUpdate);
-                GamepadNavigation.GamepadNavigationThread.Start();
-                GamepadNavigation.UpdateUINavSettings();
                 return true;
             }
             else

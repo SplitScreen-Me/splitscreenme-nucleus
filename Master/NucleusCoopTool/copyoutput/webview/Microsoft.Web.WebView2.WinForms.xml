@@ -300,6 +300,12 @@
             Protected Select method: override this to capture tab direction when WebView control is activated
             </summary>
         </member>
+        <member name="M:Microsoft.Web.WebView2.WinForms.WebView2.ProcessDialogKey(System.Windows.Forms.Keys)">
+            <summary>Processes a dialog key.</summary>
+            <param name="keyData">One of the <see cref="T:System.Windows.Forms.Keys" /> values that represents the key to process.</param>
+            <returns>
+              <see langword="true" /> if the key was processed by the control; otherwise, <see langword="false" />.</returns>
+        </member>
         <member name="M:Microsoft.Web.WebView2.WinForms.WebView2.OnGotFocus(System.EventArgs)">
             <summary>
             Protected OnGotFocus handler.
@@ -496,7 +502,7 @@
         </member>
         <member name="M:Microsoft.Web.WebView2.WinForms.WebView2.InitializeComponent">
             <summary>
-            Required method for Designer support - do not modify 
+            Required method for Designer support - do not modify
             the contents of this method with the code editor.
             </summary>
         </member>

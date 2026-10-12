@@ -1,0 +1,98 @@
+<!doctype html>
+<!-- Copied to webui\index.html by Nucleus.Coop.csproj when Master\Nucleus.WebUI\dist does not exist. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="color-scheme" content="dark">
+  <title>Nucleus Co-op</title>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body {
+      display: flex; flex-direction: column;
+      background: #111214; color: #d9dadc;
+      font: 15px/1.5 "Segoe UI", system-ui, sans-serif;
+      user-select: none;
+    }
+    header {
+      app-region: drag;
+      display: flex; align-items: center; gap: 8px;
+      height: 40px; padding-left: 14px;
+      background: #000; font-weight: 600; letter-spacing: .02em;
+    }
+    header .title { flex: 1; }
+    header button {
+      app-region: no-drag;
+      width: 46px; height: 40px; border: 0; background: transparent; color: inherit;
+      font: 16px "Segoe UI Symbol", sans-serif; cursor: default;
+    }
+    header button:hover { background: #2a2c30; }
+    header button.close:hover { background: #c42b1c; color: #fff; }
+    main { flex: 1; display: grid; place-content: center; text-align: center; padding: 24px; }
+    h1 { margin: 0 0 8px; font-size: 22px; font-weight: 600; color: #fff; }
+    code { background: #1d1f23; padding: 2px 6px; border-radius: 4px; color: #fff; }
+    #bridge { margin-top: 20px; font-size: 13px; color: #8b8e94; user-select: text; }
+    #bridge.ok { color: #6fcf97; }
+    #bridge.error { color: #eb5757; }
+  </style>
+</head>
+<body>
+  <header>
+    <span class="title">Nucleus Co-op</span>
+    <button title="Minimize" data-method="window.minimize">&#x2013;</button>
+    <button title="Maximize" data-method="window.toggleMaximize">&#x25A1;</button>
+    <button title="Close" class="close" data-method="window.close">&#x2715;</button>
+  </header>
+  <main>
+    <h1>The interface is not built</h1>
+    <p>Run <code>npm run build</code> in <code>Master/Nucleus.WebUI</code>, then build Nucleus.Coop again.</p>
+    <p id="bridge">Bridge: waiting…</p>
+  </main>
+  <script>
+    // Raw JSON-RPC over the WebView2 bridge, so the host can be checked without the React app.
+    (function () {
+      var webview = window.chrome && window.chrome.webview;
+      var status = document.getElementById('bridge');
+      var nextId = 1;
+      var pending = {};
+
+      function call(method, params) {
+        return new Promise(function (resolve, reject) {
+          if (!webview) { reject(new Error('not running in WebView2')); return; }
+          var id = nextId++;
+          pending[id] = { resolve: resolve, reject: reject };
+          webview.postMessage(JSON.stringify({ jsonrpc: '2.0', id: id, method: method, params: params }));
+        });
+      }
+
+      if (webview) {
+        webview.addEventListener('message', function (e) {
+          var msg = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+          if (msg.id != null && pending[msg.id]) {
+            var p = pending[msg.id];
+            delete pending[msg.id];
+            if (msg.error) { p.reject(new Error(msg.error.message + ' (' + msg.error.code + ')')); } else { p.resolve(msg.result); }
+          } else if (msg.method) {
+            window.lastBridgeEvent = msg;
+          }
+        });
+      }
+
+      document.querySelectorAll('header button').forEach(function (button) {
+        button.addEventListener('click', function () {
+          call(button.getAttribute('data-method')).catch(function (err) { status.textContent = 'Bridge: ' + err.message; });
+        });
+      });
+
+      window.nucleusBridgeCall = call;
+      call('app.hello').then(function (hello) {
+        status.className = 'ok';
+        status.textContent = 'Bridge OK: app ' + hello.appVersion + ', protocol ' + hello.protocolVersion +
+          ', contract ' + hello.contractHash + (hello.debug ? ', debug build' : '');
+      }, function (err) {
+        status.className = 'error';
+        status.textContent = 'Bridge: ' + err.message;
+      });
+    })();
+  </script>
+</body>
+</html>

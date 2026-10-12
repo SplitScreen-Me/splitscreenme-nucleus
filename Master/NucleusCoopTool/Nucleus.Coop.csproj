@@ -111,16 +111,16 @@
       <HintPath>..\packages\DotNetZip.Reduced.1.9.1.8\lib\net20\Ionic.Zip.Reduced.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="Microsoft.Web.WebView2.Core, Version=1.0.2210.55, Culture=neutral, PublicKeyToken=2a8ab48044d2601e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Web.WebView2.1.0.2210.55\lib\net45\Microsoft.Web.WebView2.Core.dll</HintPath>
+    <Reference Include="Microsoft.Web.WebView2.Core, Version=1.0.4191.47, Culture=neutral, PublicKeyToken=2a8ab48044d2601e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Web.WebView2.1.0.4191.47\lib\net462\Microsoft.Web.WebView2.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Microsoft.Web.WebView2.WinForms, Version=1.0.2210.55, Culture=neutral, PublicKeyToken=2a8ab48044d2601e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Web.WebView2.1.0.2210.55\lib\net45\Microsoft.Web.WebView2.WinForms.dll</HintPath>
+    <Reference Include="Microsoft.Web.WebView2.WinForms, Version=1.0.4191.47, Culture=neutral, PublicKeyToken=2a8ab48044d2601e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Web.WebView2.1.0.4191.47\lib\net462\Microsoft.Web.WebView2.WinForms.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Microsoft.Web.WebView2.Wpf, Version=1.0.2210.55, Culture=neutral, PublicKeyToken=2a8ab48044d2601e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Web.WebView2.1.0.2210.55\lib\net45\Microsoft.Web.WebView2.Wpf.dll</HintPath>
+    <Reference Include="Microsoft.Web.WebView2.Wpf, Version=1.0.4191.47, Culture=neutral, PublicKeyToken=2a8ab48044d2601e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Web.WebView2.1.0.4191.47\lib\net462\Microsoft.Web.WebView2.Wpf.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.Win32.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -496,6 +496,30 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Host\CompositionRoot.cs" />
+    <Compile Include="Host\ExternalLauncher.cs" />
+    <Compile Include="Host\HostApplication.cs" />
+    <Compile Include="Host\HostEnvironment.cs" />
+    <Compile Include="Host\HostForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Host\HostLog.cs" />
+    <Compile Include="Host\HostNative.cs" />
+    <Compile Include="Host\HostShell.cs" />
+    <Compile Include="Host\HostStartup.cs" />
+    <Compile Include="Host\Services\AppService.cs" />
+    <Compile Include="Host\Services\DialogsService.cs" />
+    <Compile Include="Host\Services\FolderPicker.cs" />
+    <Compile Include="Host\Services\WindowService.cs" />
+    <None Include="Host\WebUiPlaceholder.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Nucleus.Bridge\Nucleus.Bridge.csproj">
+      <Name>Nucleus.Bridge</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Nucleus.Coop.Services\Nucleus.Coop.Services.csproj">
+      <Name>Nucleus.Coop.Services</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NucleusGaming\Nucleus.Gaming.csproj">
       <Project>{223dbdae-e362-452c-9455-f518d002b154}</Project>
       <Name>Nucleus.Gaming</Name>
@@ -1005,9 +1029,9 @@ RD /S /Q "$(TargetDir)runtimes\"</PostBuildEvent>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets'))" />
-    <Error Condition="!Exists('..\packages\Microsoft.Web.WebView2.1.0.2210.55\build\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Web.WebView2.1.0.2210.55\build\Microsoft.Web.WebView2.targets'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Web.WebView2.1.0.4191.47\build\Microsoft.Web.WebView2.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Web.WebView2.1.0.4191.47\build\Microsoft.Web.WebView2.targets'))" />
   </Target>
-  <Import Project="..\packages\Microsoft.Web.WebView2.1.0.2210.55\build\Microsoft.Web.WebView2.targets" Condition="Exists('..\packages\Microsoft.Web.WebView2.1.0.2210.55\build\Microsoft.Web.WebView2.targets')" />
+  <Import Project="..\packages\Microsoft.Web.WebView2.1.0.4191.47\build\Microsoft.Web.WebView2.targets" Condition="Exists('..\packages\Microsoft.Web.WebView2.1.0.4191.47\build\Microsoft.Web.WebView2.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
@@ -1015,4 +1039,24 @@ RD /S /Q "$(TargetDir)runtimes\"</PostBuildEvent>
   <Target Name="AfterBuild">
   </Target>
   -->
+  <!-- Web UI: copies Master\Nucleus.WebUI\dist (npm run build, not run by this build) to webui\ next to the exe.
+       Without dist, webui\index.html becomes a placeholder page, so the window never shows an error page.
+       webui\dev-server.txt (Debug: Vite dev server URL) is kept. -->
+  <PropertyGroup>
+    <WebUiDistDir>$(MSBuildProjectDirectory)\..\Nucleus.WebUI\dist\</WebUiDistDir>
+    <WebUiOutputDir>$(TargetDir)webui\</WebUiOutputDir>
+  </PropertyGroup>
+  <Target Name="CopyWebUi" AfterTargets="Build" Condition="Exists('$(WebUiDistDir)index.html')">
+    <ItemGroup>
+      <WebUiStaleFiles Include="$(WebUiOutputDir)**\*" Exclude="$(WebUiOutputDir)dev-server.txt" />
+      <WebUiDistFiles Include="$(WebUiDistDir)**\*" />
+    </ItemGroup>
+    <Delete Files="@(WebUiStaleFiles)" />
+    <Copy SourceFiles="@(WebUiDistFiles)" DestinationFiles="@(WebUiDistFiles->'$(WebUiOutputDir)%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Message Importance="high" Text="Web UI copied from $(WebUiDistDir) to $(WebUiOutputDir)" />
+  </Target>
+  <Target Name="WebUiPlaceholder" AfterTargets="Build" Condition="!Exists('$(WebUiDistDir)index.html') And !Exists('$(WebUiOutputDir)index.html')">
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\Host\WebUiPlaceholder.html" DestinationFiles="$(WebUiOutputDir)index.html" />
+    <Message Importance="high" Text="No web UI build in $(WebUiDistDir): wrote a placeholder $(WebUiOutputDir)index.html" />
+  </Target>
 </Project>
