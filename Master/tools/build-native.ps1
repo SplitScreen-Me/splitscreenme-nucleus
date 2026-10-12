@@ -8,7 +8,7 @@
   3. Builds ProtoInput.sln Release x86 + x64 with v143 (tools\ProtoInput.v143.props, the submodule is not modified).
   4. Builds Nucleus.Hook, Nucleus.SHook and Nucleus.Inject for each configuration, x86 + x64. Their post-build steps
      copy the outputs to NucleusCoopTool\bin\<Configuration>.
-  5. Copies ProtoInput\src\ProtoInput\Release\*.dll/*.exe there (what the Nucleus.Coop post-build also does).
+  5. Copies ProtoInput\src\ProtoInput\Release\*.dll and ProtoInputIJ*.exe there (what the Nucleus.Coop post-build also does).
   6. Checks the files listed in StartChecks.CheckFilesIntegrity: present, not empty, PE architecture matching the name.
   7. Checks that the ProtoInput DLLs export every function ProtoInput.cs imports.
   See docs/webui/host.md, "Building native components".
@@ -99,11 +99,11 @@ foreach ($config in $Configuration) {
   }
 }
 
-# 5. ProtoInput binaries -> bin\<Configuration>
+# 5. ProtoInput binaries -> bin\<Configuration> (root; ProtoInputHost.exe, the standalone GUI, is not shipped)
 foreach ($config in $Configuration) {
   $bin = Join-Path $master "NucleusCoopTool\bin\$config"
   New-Item -ItemType Directory -Force $bin | Out-Null
-  Get-ChildItem (Join-Path $protoDir 'Release') -File | Where-Object { $_.Extension -in '.dll', '.exe' } | ForEach-Object {
+  Get-ChildItem (Join-Path $protoDir 'Release') -File | Where-Object { $_.Extension -in '.dll', '.exe' -and $_.Name -ne 'ProtoInputHost.exe' } | ForEach-Object {
     for ($i = 1; ; $i++) {
       try { Copy-Item $_.FullName $bin -Force; break }
       catch { if ($i -ge 10) { throw }; Start-Sleep -Seconds 3 }  # file locked by a running NucleusCoop.exe or game
