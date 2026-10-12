@@ -67,16 +67,23 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
         public static IntPtr NucleusGetMainWindowHandle(this Process p)
         {
-            bestHandle = (IntPtr)0;
-            processIdOfInterest = p.Id;
+            //The search state is static and the launch thread, the update tick and fast launch's readiness checks call
+            //this concurrently: one search at a time, or a caller can get another process's window.
+            lock (searchLock)
+            {
+                bestHandle = (IntPtr)0;
+                processIdOfInterest = p.Id;
 
-            EnumThreadWindowsCallback callback = new EnumThreadWindowsCallback(EnumWindowsCallback);
+                EnumThreadWindowsCallback callback = new EnumThreadWindowsCallback(EnumWindowsCallback);
 
-            EnumWindows(callback, IntPtr.Zero);
+                EnumWindows(callback, IntPtr.Zero);
 
-            GC.KeepAlive(callback);
+                GC.KeepAlive(callback);
 
-            return bestHandle;
+                return bestHandle;
+            }
         }
+
+        private static readonly object searchLock = new object();
     }
 }

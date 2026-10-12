@@ -308,7 +308,10 @@ namespace StartGame
                 STARTUPINFO startup = new STARTUPINFO();
                 startup.cb = Marshal.SizeOf(startup);
 
-                Thread.Sleep(1000);
+                if (!fastLaunch)
+                {
+                    Thread.Sleep(1000);
+                }
 
                 if (useStartupHooks && (isHook || renameMutex || setWindow || blockRaw || createSingle))
                 {
@@ -420,7 +423,10 @@ namespace StartGame
                         //    ResumeThread(procInfo.hThread);
                         //}
 
-                        Thread.Sleep(1000);
+                        if (!fastLaunch)
+                        {
+                            Thread.Sleep(1000);
+                        }
                     }
 
                 }
@@ -440,7 +446,11 @@ namespace StartGame
                     proc = Process.GetProcessById((int)pOutPID);
                 }
 
-                Thread.Sleep(1000);
+                //Fast launch: the pid is polled below and a stopped process is waited for (10 s) further down.
+                if (!fastLaunch)
+                {
+                    Thread.Sleep(1000);
+                }
 
                 while (pOutPID == 0)
                 {
@@ -597,11 +607,16 @@ namespace StartGame
             uint.TryParse(e.Data, out pOutPID);
         }
 
+        // Fast launch (Settings.ini [Misc] FastLaunch): skip the sleeps that wait for nothing.
+        private static bool fastLaunch;
+
         static void Main(string[] args)
         {
             // We need this, else Windows will fake
             // all the data about monitors inside the application
             User32Util.SetProcessDpiAwareness(ProcessDPIAwareness.ProcessPerMonitorDPIAware);
+
+            fastLaunch = Nucleus.Gaming.Coop.Generic.LaunchWait.InstallIniFastAt(Nucleus.Gaming.Coop.Generic.LaunchWait.Tier1);
 
             if (args.Length == 0)
             {
@@ -891,7 +906,11 @@ namespace StartGame
                                 all = false;
                             }
 
-                            Thread.Sleep(500);
+                            //Fast launch: the check is done, nothing to wait for.
+                            if (!fastLaunch)
+                            {
+                                Thread.Sleep(500);
+                            }
                         }
                         Console.WriteLine(all.ToString());
                     }

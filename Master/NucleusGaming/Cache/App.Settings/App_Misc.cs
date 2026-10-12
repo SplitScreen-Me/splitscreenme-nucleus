@@ -163,6 +163,22 @@ namespace Nucleus.Gaming.App.Settings
             }
         }
 
+        // Fast launch (experimental): ends launch waits early when the awaited state is observable. Missing key = off.
+        private static bool fastLaunch;
+        public static bool FastLaunch
+        {
+            get => fastLaunch;
+            set
+            {
+                fastLaunch = value;
+                Globals.ini.IniWriteValue("Misc", "FastLaunch", value.ToString());
+            }
+        }
+
+        // Hidden [Misc] FastLaunchLevel: 1 = only Nucleus's own sleeps, 2 (default) = also the handler pauses and window setup cadence.
+        private static int fastLaunchLevel = 2;
+        public static int FastLaunchLevel => fastLaunchLevel;
+
         // Web UI host window: "x,y,width,height,maximized" in physical pixels, empty for the default placement.
         private static string hostWindowPlacement;
         public static string HostWindowPlacement
@@ -257,6 +273,9 @@ namespace Nucleus.Gaming.App.Settings
             nucleusMultiInstances = bool.Parse(Globals.ini.IniReadValue("Misc", "NucleusMultiInstances"));
             disableGameProfiles = bool.Parse(Globals.ini.IniReadValue("Misc", "DisableGameProfiles"));
             hostWindowPlacement = Globals.ini.IniReadValue("Misc", "HostWindowPlacement");
+            //Tolerant on purpose: Settings.ini files older than the key must keep loading (missing = off).
+            bool.TryParse(Globals.ini.IniReadValue("Misc", "FastLaunch"), out fastLaunch);
+            fastLaunchLevel = Nucleus.Gaming.Coop.Generic.LaunchWait.ParseLevel(Globals.ini.IniReadValue("Misc", "FastLaunchLevel"));
 
             showFavoriteOnly = bool.Parse(Globals.ini.IniReadValue("Dev", "ShowFavoriteOnly"));
             disablePathCheck = bool.Parse(Globals.ini.IniReadValue("Dev", "DisablePathCheck"));

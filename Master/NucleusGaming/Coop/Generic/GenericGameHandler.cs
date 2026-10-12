@@ -217,6 +217,10 @@ namespace Nucleus.Gaming
 
             error = null;
 
+            //Launch timing (both modes) and the fast launch snapshot for this session.
+            LaunchWait.Begin(App_Misc.FastLaunch, App_Misc.FastLaunchLevel, $"{gen.GameName} | {totalPlayers} player(s)", Log,
+                Path.Combine(Globals.NucleusInstallRoot, "content", LaunchWait.TimingFileName), () => processingExit || hasEnded);
+
             Thread PlayThread = new Thread(delegate ()
             {
                 StartPlay(handler);
@@ -247,6 +251,7 @@ namespace Nucleus.Gaming
                 error = ex.Message;
                 //LogExceptionFile only writes content\app.log and a content\<date>.log report: also put it in debug-log.txt.
                 Log($"ERROR - Play failed: {ex}");
+                LaunchWait.Finish("launch failed: " + ex.Message);
                 TaskbarState.Show.Invoke();
 
                 try
@@ -438,6 +443,8 @@ namespace Nucleus.Gaming
                 nucleusUserAccountsPassword = App_Misc.NucleusAccountPassword;
             }
 
+            LaunchWait.Mark("prelaunch.done");
+
             for (int i = 0; i < players.Count; i++)
             {
                 if (processingExit)
@@ -447,6 +454,7 @@ namespace Nucleus.Gaming
 
                 IsRunning = true;
                 Log($"********** Setting up player {i + 1} **********" + "\n");
+                LaunchWait.Mark($"p{i + 1}.setup");
 
                 PlayerInfo player = players[i];
 
@@ -465,7 +473,7 @@ namespace Nucleus.Gaming
                 if (gen.PauseBeforeMutexKilling > 0)
                 {
                     Log(string.Format("Pausing for {0} seconds", gen.PauseBeforeMutexKilling));
-                    Thread.Sleep(TimeSpan.FromSeconds(gen.PauseBeforeMutexKilling));
+                    LaunchWait.Sleep(gen.PauseBeforeMutexKilling * 1000, $"p{i + 1}.PauseBeforeMutexKilling");
                 }
 
                 if (i > 0 && (gen.KillMutexLauncher?.Length > 0))
@@ -547,7 +555,8 @@ namespace Nucleus.Gaming
                                 return "";
                             }
 
-                            Thread.Sleep(1000);
+                            //Fast launch: without mutexes to kill this loop has nothing to wait for.
+                            LaunchWait.Sleep(1000, $"p{i + 1}.mutexLoop", LaunchWait.Tier1, () => gen.KillMutex == null);
 
                             if (gen.KillMutex != null)
                             {
@@ -559,7 +568,9 @@ namespace Nucleus.Gaming
 
                                     if (gen.KillMutexDelay > 0)
                                     {
-                                        Thread.Sleep((gen.KillMutexDelay * 1000));
+                                        //Fast launch: stop waiting once the previous instance's mutexes exist.
+                                        LaunchWait.Sleep(gen.KillMutexDelay * 1000, $"p{i + 1}.KillMutexDelay", LaunchWait.Tier2,
+                                            () => StartGameUtil.MutexExists(pdata.Process, gen.KillMutexType, gen.PartialMutexSearch, gen.KillMutex), pollMs: 1000);
                                     }
 
                                     if (StartGameUtil.MutexExists(pdata.Process, gen.KillMutexType, gen.PartialMutexSearch, gen.KillMutex))
@@ -691,7 +702,7 @@ namespace Nucleus.Gaming
                             {
                                 Log("Injecting hook DLL for previous instance");
                                 PlayerInfo before = players[i - 1];
-                                Thread.Sleep(1000);
+                                LaunchWait.Sleep(1000, $"p{i}.preHookInjection", LaunchWait.Tier1, () => HasMainWindow(before.ProcessData?.Process));
                                 ProcessData pdata = before.ProcessData;
                                 User32Interop.SetForegroundWindow(pdata.Process.NucleusGetMainWindowHandle());
                                 DllsInjector.InjectDLLs(pdata.Process, nextWindowToInject, before);
@@ -702,7 +713,7 @@ namespace Nucleus.Gaming
                     {
                         Log("Injecting hook DLL for previous instance");
                         PlayerInfo before = players[i - 1];
-                        Thread.Sleep(1000);
+                        LaunchWait.Sleep(1000, $"p{i}.preHookInjection", LaunchWait.Tier1, () => HasMainWindow(before.ProcessData?.Process));
                         ProcessData pdata = before.ProcessData;
                         User32Interop.SetForegroundWindow(pdata.Process.NucleusGetMainWindowHandle());
                         DllsInjector.InjectDLLs(pdata.Process, nextWindowToInject, before);
@@ -781,7 +792,8 @@ namespace Nucleus.Gaming
                     // some games have save files inside their game folder, so we need to access them inside the loop
                     jsData[Folder.InstancedGameFolder.ToString()] = linkFolder;
 
-                    Thread.Sleep(1000);
+                    //Fast launch: nothing is awaited here.
+                    LaunchWait.Sleep(1000, $"p{i + 1}.fileOpsPause", LaunchWait.Tier1, () => true);
                     if (i == 0 && (gen.LauncherExe?.Length > 0 && gen.LauncherExe.EndsWith("NucleusDefined")))
                     {
                         string exeName = null;
@@ -1411,14 +1423,15 @@ namespace Nucleus.Gaming
                     {
                         Log($"Apply Steamless patch for {gen.LauncherExe} Timing: {gen.SteamlessPatch[2]}ms");
                         SteamFunctions.SteamlessProc(linkBinFolder, gen.LauncherExe, gen.SteamlessPatch[1], int.Parse(gen.SteamlessPatch[2]));
-                        Thread.Sleep(int.Parse(gen.SteamlessPatch[2]) + 2000);
+                        //Fast launch: SteamlessProc already waited for Steamless to finish; keep a short settle.
+                        LaunchWait.Sleep(int.Parse(gen.SteamlessPatch[2]) + 2000, $"p{i + 1}.steamlessPause", LaunchWait.Tier1, () => true, minMs: 500);
                     }
                     else//patch game exe
                     {
 
                         Log($"Apply Steamless patch for {gen.ExecutableName} Timing: {gen.SteamlessPatch[2]}ms");
                         SteamFunctions.SteamlessProc(linkBinFolder, gen.ExecutableName, gen.SteamlessPatch[1], int.Parse(gen.SteamlessPatch[2]));
-                        Thread.Sleep(int.Parse(gen.SteamlessPatch[2]) + 2000);
+                        LaunchWait.Sleep(int.Parse(gen.SteamlessPatch[2]) + 2000, $"p{i + 1}.steamlessPause", LaunchWait.Tier1, () => true, minMs: 500);
                     }
                 }
 
@@ -1567,10 +1580,12 @@ namespace Nucleus.Gaming
                     }
                 }
 
+                LaunchWait.Mark($"p{i + 1}.context");
+
                 if (gen.PauseBetweenContextAndLaunch > 0)
                 {
                     Log(string.Format("Pausing for {0} seconds", gen.PauseBetweenContextAndLaunch));
-                    Thread.Sleep(TimeSpan.FromSeconds(gen.PauseBetweenContextAndLaunch));
+                    LaunchWait.Sleep(gen.PauseBetweenContextAndLaunch * 1000, $"p{i + 1}.PauseBetweenContextAndLaunch");
                 }
 
                 string startArgs = context.StartArguments;
@@ -2185,6 +2200,8 @@ namespace Nucleus.Gaming
                     }
                 }
 
+                LaunchWait.Mark($"p{i + 1}.launched");
+
                 if (gen.GamePlayAfterLaunch && !gen.GamePlayBeforeGameSetup)
                 {
                     gen.PrePlay(player);
@@ -2274,7 +2291,8 @@ namespace Nucleus.Gaming
                 if (gen.PauseBetweenProcessGrab > 0)
                 {
                     Log(string.Format("Pausing for {0} seconds", gen.PauseBetweenProcessGrab));
-                    Thread.Sleep(TimeSpan.FromSeconds(gen.PauseBetweenProcessGrab));
+                    //Not shortened by fast launch: hooks and launcher detection rely on it (timing only).
+                    LaunchWait.Sleep(gen.PauseBetweenProcessGrab * 1000, $"p{i + 1}.PauseBetweenProcessGrab");
                 }
 
                 if (processingExit)
@@ -2468,6 +2486,8 @@ namespace Nucleus.Gaming
                     }
                 }
 
+                LaunchWait.Mark($"p{i + 1}.grabbed");
+
                 if (processingExit)
                 {
                     return string.Empty;
@@ -2658,12 +2678,16 @@ namespace Nucleus.Gaming
                     }
                 }
 
+                //Fast launch (tier 2) never shortens a pause the user set in the game profile.
+                int startsTier = GameProfile.PauseBetweenInstanceLaunch > 0 ? LaunchWait.Never : LaunchWait.Tier2;
+
                 if (gen.PromptBetweenInstances && i < (players.Count - 1))
                 {
                     if (gen.PauseBetweenStarts > 0)
                     {
                         Log(string.Format("Pausing for {0} seconds", gen.PauseBetweenStarts));
-                        Thread.Sleep(TimeSpan.FromSeconds(gen.PauseBetweenStarts));
+                        //Fast launch: the user decides when the instance is ready, show the prompt at once.
+                        LaunchWait.Sleep(gen.PauseBetweenStarts * 1000, $"p{i + 1}.PauseBetweenStarts(prompt)", startsTier, () => true);
                     }
 
                     Log(string.Format("Prompted user for Instance {0}", (i + 2)));
@@ -2675,7 +2699,7 @@ namespace Nucleus.Gaming
                     if (gen.PauseBetweenStarts > 0)
                     {
                         Log(string.Format("Pausing for {0} seconds", gen.PauseBetweenStarts));
-                        Thread.Sleep(TimeSpan.FromSeconds(gen.PauseBetweenStarts));
+                        LaunchWait.Sleep(gen.PauseBetweenStarts * 1000, $"p{i + 1}.PauseBetweenStarts(prompt)", startsTier, () => true);
                     }
 
                     Log("Prompted user to install post hooks");
@@ -2699,9 +2723,19 @@ namespace Nucleus.Gaming
                     if (!gen.PromptAfterFirstInstance || (gen.PromptAfterFirstInstance && i > 0))
                     {
                         Log(string.Format("Pausing for {0} seconds", gen.PauseBetweenStarts));
-                        Thread.Sleep(TimeSpan.FromSeconds(gen.PauseBetweenStarts));
+                        //Fast launch: go on once this instance is ready (window up and idle, mutexes created) and has
+                        //settled, never before the floor and never after the handler's pause.
+                        Process readyProc = proc;
+                        int playerIndex = i;
+                        fastLaunchMutexSeen = false;
+                        fastLaunchMutexCheckedAt = DateTime.MinValue;
+                        LaunchWait.Sleep(gen.PauseBetweenStarts * 1000, $"p{i + 1}.PauseBetweenStarts", startsTier,
+                            () => FastLaunchInstanceReady(readyProc, playerIndex, players.Count),
+                            minMs: LaunchWait.StartsFloorMs, settleMs: LaunchWait.StartsSettleMs, pollMs: 250);
                     }
                 }
+
+                LaunchWait.Mark($"p{i + 1}.ready");
 
                 if (!ProcessUtil.IsRunning(proc))
                 {
@@ -2771,6 +2805,8 @@ namespace Nucleus.Gaming
                     nextWindowToInject = window;
                 }
 
+                LaunchWait.Mark($"p{i + 1}.window");
+
                 if (i == (players.Count - 1))
                 {
                     if (processingExit)
@@ -2779,6 +2815,7 @@ namespace Nucleus.Gaming
                     }
 
                     Log("All instances accounted for, performing final preperations");
+                    LaunchWait.Mark("final.start");
 
                     //Audio routing is never called if the handler use ProcessChangeAtEnd()
                     //Add try/catch we never know
@@ -2844,7 +2881,8 @@ namespace Nucleus.Gaming
                         }
                     }
 
-                    Thread.Sleep(1000);
+                    ProcessData lastData = data;
+                    LaunchWait.Sleep(1000, "final.pause", LaunchWait.Tier1, () => HasMainWindow(lastData?.Process));
 
                     if (gen.ResetWindows)
                     {
@@ -3002,7 +3040,8 @@ namespace Nucleus.Gaming
 
             if (gen.LockInputAtStart)
             {
-                Thread.Sleep(5000);
+                //Fast launch: lock once every game window went through the window setup.
+                LaunchWait.Sleep(5000, "lockInputAtStart", LaunchWait.Tier2, () => players.All(pl => pl.ProcessData != null && pl.ProcessData.Finished), settleMs: 1000);
 
                 if (gen.ToggleUnfocusOnInputsLock)
                 {
@@ -3051,8 +3090,9 @@ namespace Nucleus.Gaming
             gen.OnFinishedSetup?.Invoke();
 
             WindowsMerger.Instance?.InsertGameWindows();
-          
+
             Log("All done!");
+            LaunchWait.Running(TimerInterval > 0 && !processingExit);
 
             return string.Empty;
         }
@@ -3302,6 +3342,7 @@ namespace Nucleus.Gaming
             gen.OnFinishedSetup?.Invoke();
 
             WindowsMerger.Instance?.InsertGameWindows();
+            LaunchWait.Running(TimerInterval > 0 && !processingExit);
         }
 
         struct UpdateTickThread
@@ -3356,6 +3397,8 @@ namespace Nucleus.Gaming
                 Log("IGNORING SHUTDOWN BECAUSE INPUT LOCKED");
                 return;
             }
+
+            LaunchWait.Finish(fromStopButton ? "session stopped" : "session ended");
 
             if (!processingExit)
             {
@@ -3606,6 +3649,89 @@ namespace Nucleus.Gaming
             IsRunning = false;
         }
         
+        // Fast launch readiness checks (see LaunchWait).
+        private static bool HasMainWindow(Process proc)
+        {
+            return proc != null && !proc.HasExited && proc.NucleusGetMainWindowHandle() != IntPtr.Zero;
+        }
+
+        private DateTime fastLaunchMutexCheckedAt;
+        private bool fastLaunchMutexSeen;
+
+        /// <summary>
+        /// Fast launch: the instance can be left to finish booting while the next one starts. Its main window passes the
+        /// window setup's own checks (titled, not minimized, not the launcher, expected title) and the update tick took it,
+        /// its message loop is idle, and the mutexes the next launch kills exist.
+        /// </summary>
+        private bool FastLaunchInstanceReady(Process proc, int playerIndex, int playerCount)
+        {
+            if (proc == null || proc.HasExited)
+            {
+                return false;
+            }
+
+            IntPtr hWnd = proc.NucleusGetMainWindowHandle();
+            if (hWnd == IntPtr.Zero)
+            {
+                return false;
+            }
+
+            string title = WinApi.GetWindowText(hWnd);
+            if (string.IsNullOrEmpty(title) || string.Equals(title, gen.LauncherTitle, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(gen.Hook.ForceFocusWindowName) && !gen.HasDynamicWindowTitle &&
+                StringUtil.ComputeLevenshteinDistance(title, gen.Hook.ForceFocusWindowName) > 2)
+            {
+                return false;
+            }
+
+            if (WinApi.GetWindowRect(hWnd, out Coop.BasicTypes.RECT rect) && rect.Left == -32000)
+            {
+                return false;
+            }
+
+            ProcessData pdata = profile.DevicesList[playerIndex].ProcessData;
+            if (TimerInterval > 0 && (pdata == null || !pdata.Setted))
+            {
+                return false;
+            }
+
+            try
+            {
+                if (!proc.WaitForInputIdle(0))
+                {
+                    return false;
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                //No message loop to wait for.
+            }
+
+            bool nextKillsMutex = gen.KillMutex?.Length > 0 && !gen.KillMutexAtEnd && !gen.RenameNotKillMutex &&
+                (playerIndex < playerCount - 1 || gen.KillLastInstanceMutex);
+            if (nextKillsMutex && !fastLaunchMutexSeen)
+            {
+                //StartGame.exe runs for each check: at most one every 2 s.
+                if ((DateTime.Now - fastLaunchMutexCheckedAt).TotalMilliseconds < 2000)
+                {
+                    return false;
+                }
+
+                fastLaunchMutexCheckedAt = DateTime.Now;
+                fastLaunchMutexSeen = StartGameUtil.MutexExists(proc, gen.KillMutexType, gen.PartialMutexSearch, gen.KillMutex);
+                if (!fastLaunchMutexSeen)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public void Log(StreamWriter writer)
         {
         }

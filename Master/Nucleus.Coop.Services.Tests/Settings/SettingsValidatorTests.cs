@@ -193,7 +193,7 @@ public class SettingsCatalogTests
     public void Schema_summary()
     {
         var counts = Catalog.GroupBy(d => d.Section).ToDictionary(g => g.Key, g => g.Count());
-        Assert.Equal(10, counts["general"]);
+        Assert.Equal(11, counts["general"]);
         Assert.Equal(2, counts["players"]);
         Assert.Equal(10, counts["hotkeys"]);
         Assert.Equal(17, counts["gamepad"]);

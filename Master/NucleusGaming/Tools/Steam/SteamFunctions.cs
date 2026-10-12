@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Coop.Generic;
 using Nucleus.Gaming.Forms;
 using Nucleus.Gaming.Util;
 using System;
@@ -1197,11 +1198,12 @@ namespace Nucleus.Gaming.Tools.Steam
                 proc.UseShellExecute = false;
                 proc.WorkingDirectory = Path.GetDirectoryName(batch);
                 proc.CreateNoWindow = true;
-                Process.Start(proc);
+                Process steamless = Process.Start(proc);
 
                 GenericGameHandler.Instance.Log($"Starting Steamless. Pausing setup for {timing}ms");
-                
-                Thread.Sleep(timing);
+
+                //Fast launch: the batch ends when Steamless.CLI is done.
+                LaunchWait.Sleep(timing, "steamless", LaunchWait.Tier1, () => steamless != null && steamless.HasExited);
 
                 if (File.Exists($@"{linkBinFolder}\{executableName}.unpacked.exe"))
                 {
@@ -1246,12 +1248,12 @@ namespace Nucleus.Gaming.Tools.Steam
                 sl.WorkingDirectory = linkBinFolder;
                 sl.UseShellExecute = true;
                 sl.WindowStyle = ProcessWindowStyle.Hidden;
-                sl.Arguments = steamlessArgs;           
-                Process.Start(sl);
+                sl.Arguments = steamlessArgs;
+                Process steamless = Process.Start(sl);
 
                 GenericGameHandler.Instance.Log($"Starting Steamless. Pausing setup for {timing}ms");
-                
-                Thread.Sleep(timing);
+
+                LaunchWait.Sleep(timing, "steamlessLegacy", LaunchWait.Tier1, () => steamless != null && steamless.HasExited);
 
                 if (File.Exists($@"{linkBinFolder}\{executableName}.unpacked.exe"))
                 {

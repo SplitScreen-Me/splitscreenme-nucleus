@@ -1,5 +1,6 @@
 ﻿using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Coop.Generic;
 using Nucleus.Gaming.Coop.InputManagement;
 using Nucleus.Gaming.Coop.ProtoInput;
 using Nucleus.Gaming.Windows;
@@ -84,7 +85,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
             {
                 handlerInstance.profile.DevicesList[i - 1].ProcessData.HWnd = new HwndObject(handlerInstance.profile.DevicesList[i - 1].ProcessData.Process.NucleusGetMainWindowHandle());
                 processData.HWnd = handlerInstance.profile.DevicesList[i - 1].ProcessData.HWnd;
-                Thread.Sleep(1000);
+                LaunchWait.Sleep(1000, $"p{i}.resetWindowsHandle", LaunchWait.Tier1, () => processData.HWnd.NativePtr != IntPtr.Zero);
             }
 
             handlerInstance.Log("Attempting to reposition, resize and strip borders for instance " + (i - 1) + $" - {processData.Process.ProcessName} (pid {processData.Process.Id})");
@@ -415,15 +416,18 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
             {
                 if ((int)proc.NucleusGetMainWindowHandle() == 0)
                 {
-                    for (int times = 0; times < 200; times++)
+                    //Fast launch: same 100 s maximum, checked every 50 ms instead of 500 ms.
+                    int pollMs = LaunchWait.FastAt(LaunchWait.Tier1) ? 50 : 500;
+                    int tries = 100000 / pollMs;
+                    for (int times = 0; times < tries; times++)
                     {
-                        Thread.Sleep(500);
+                        Thread.Sleep(pollMs);
                         if ((int)proc.NucleusGetMainWindowHandle() > 0)
                         {
                             break;
                         }
 
-                        if (times == 199 && (int)proc.NucleusGetMainWindowHandle() == 0)
+                        if (times == tries - 1 && (int)proc.NucleusGetMainWindowHandle() == 0)
                         {
                             if (!proc.HasExited)
                                 handlerInstance.Log(string.Format("ERROR - WaitForProcWindowHandleNotZero could not find main window handle for {0} (pid {1})", proc.ProcessName, proc.Id));
@@ -918,7 +922,15 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
             bool updatedHwnd = false;
 
-            if (handlerInstance.Timer > handlerInstance.HWndInterval)
+            //Fast launch (tier 2): one window setup step per second instead of one per Windows Setup Timing (10 s),
+            //unless the game profile sets that timing.
+            double stepInterval = handlerInstance.HWndInterval;
+            if (LaunchWait.FastAt(LaunchWait.Tier2) && GameProfile.HWndInterval <= 0)
+            {
+                stepInterval = Math.Min(stepInterval, LaunchWait.WindowStepMs);
+            }
+
+            if (handlerInstance.Timer > stepInterval)
             {
                 updatedHwnd = true;
                 handlerInstance.Timer = 0;
@@ -950,6 +962,10 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                     if (data.Process.HasExited)
                     {
                         handlerInstance.exited++;
+                    }
+                    else if (LaunchWait.FastAt(LaunchWait.Tier2))
+                    {
+                        FastLaunchRecheck(handlerInstance, data, i);
                     }
 
                     continue;
@@ -1118,10 +1134,12 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                                         Globals.MainOSD.Show(2000, "Game Windows Resetted");
                                         ResetingWindows = false;
-                                    }                
+                                    }
                                 }
 
                                 data.Finished = true;
+                                LaunchWait.Mark($"p{i + 1}.finished");
+                                FastLaunchArmRecheck(handlerInstance, data);
                             }
                             else if (data.Status == 1)
                             {
@@ -1142,6 +1160,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                                 data.Status++;
                                 handlerInstance.Log("Update State 1");
+                                LaunchWait.Mark($"p{i + 1}.moved");
 
                                 if (handlerInstance.CurrentGameInfo.LockMouse)
                                 {
@@ -1257,6 +1276,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                                 data.Status++;
                                 handlerInstance.Log("Update State 0");
+                                LaunchWait.Mark($"p{i + 1}.resized");
                             }
                         }
                         else
@@ -1367,10 +1387,21 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                                     data.HWnd = new HwndObject(data.Process.NucleusGetMainWindowHandle());
                                     data.Setted = true;
                                 }
+
+                                if (data.Setted)
+                                {
+                                    LaunchWait.Mark($"p{i + 1}.hwnd");
+                                }
                             }
                         }
                     }
                 }
+            }
+
+            //Launch timing: every game window went through the window setup.
+            if (players.Count > 0 && players.All(pl => pl.ProcessData != null && pl.ProcessData.Finished))
+            {
+                LaunchWait.LayoutFinal();
             }
 
             if (handlerInstance.exited == players.Count)
@@ -1382,6 +1413,70 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                     handlerInstance.End(false);
                 }
             }
+        }
+
+        // Fast launch (tier 2): the window setup runs one step per second, possibly before a game is done resizing or
+        // recreating its window. Check each window again 10 s and 30 s after its setup and run the setup again (at most
+        // twice) if the game changed it. Not for aspect-ratio or locked-mouse setups (they use per-launch shared state).
+        private static readonly int[] FastRecheckDelaysMs = { 10000, 20000 };
+
+        private static void FastLaunchArmRecheck(GenericGameHandler handlerInstance, ProcessData data)
+        {
+            var gen = handlerInstance.CurrentGameInfo;
+            if (!LaunchWait.FastAt(LaunchWait.Tier2) || data.FastReruns >= 2 || data.HWnd == null ||
+                gen.KeepAspectRatio || gen.KeepMonitorAspectRatio || gen.LockMouse)
+            {
+                data.FastRechecksLeft = 0;
+                return;
+            }
+
+            data.FastFinalHwnd = data.HWnd.NativePtr;
+            data.FastFinalRect = FastLaunchWindowRect(data.FastFinalHwnd);
+            data.FastRechecksLeft = FastRecheckDelaysMs.Length;
+            data.FastRecheckAt = DateTime.Now.AddMilliseconds(FastRecheckDelaysMs[0]);
+        }
+
+        private static void FastLaunchRecheck(GenericGameHandler handlerInstance, ProcessData data, int i)
+        {
+            if (data.FastRechecksLeft <= 0 || DateTime.Now < data.FastRecheckAt)
+            {
+                return;
+            }
+
+            data.FastRechecksLeft--;
+            if (data.FastRechecksLeft > 0)
+            {
+                data.FastRecheckAt = DateTime.Now.AddMilliseconds(FastRecheckDelaysMs[FastRecheckDelaysMs.Length - data.FastRechecksLeft]);
+            }
+
+            IntPtr hWnd = data.Process.NucleusGetMainWindowHandle();
+            Rectangle rect = FastLaunchWindowRect(data.FastFinalHwnd);
+            bool recreated = hWnd != IntPtr.Zero && hWnd != data.FastFinalHwnd;
+            if (!recreated && rect == data.FastFinalRect)
+            {
+                return;
+            }
+
+            handlerInstance.Log(recreated
+                ? $"(Update) Fast launch: pid {data.Process.Id} recreated its game window after the window setup, running the setup again"
+                : $"(Update) Fast launch: pid {data.Process.Id} changed its game window from {data.FastFinalRect} to {rect} after the window setup, running the setup again");
+            LaunchWait.Mark($"p{i + 1}.windowSetupAgain");
+            data.FastReruns++;
+            data.FastRechecksLeft = 0;
+            data.HWNDRetry = false;
+            data.Setted = false;
+            data.Finished = false;
+            data.Status = 0;
+        }
+
+        private static Rectangle FastLaunchWindowRect(IntPtr hWnd)
+        {
+            if (hWnd != IntPtr.Zero && GetWindowRect(hWnd, out RECT r))
+            {
+                return new Rectangle(r.Left, r.Top, r.Right - r.Left, r.Bottom - r.Top);
+            }
+
+            return Rectangle.Empty;
         }
 
         public static void SetWindowText(Process proc, string windowTitle)
@@ -1524,7 +1619,8 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
             foreach (PlayerInfo plyr in handlerInstance.profile.DevicesList)
             {
-                Thread.Sleep(1000);
+                //Fast launch: nothing is awaited between two windows.
+                LaunchWait.Sleep(1000, $"p{plyr.PlayerID + 1}.removeBorderPause", LaunchWait.Tier1, () => true);
 
                 if (plyr.ProcessData == null)
                 {

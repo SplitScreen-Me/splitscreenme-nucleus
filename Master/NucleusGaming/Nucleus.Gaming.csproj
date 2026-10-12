@@ -239,6 +239,7 @@
     <Compile Include="Coop\Generic\Cursor\NativeMethods.cs" />
     <Compile Include="Coop\Generic\DynamicAttribute.cs" />
     <Compile Include="Coop\Generic\GenericContext.cs" />
+    <Compile Include="Coop\Generic\LaunchWait.cs" />
     <Compile Include="Coop\Generic\GenericGameInfo.cs" />
     <Compile Include="Coop\Generic\JoystickDatabase.cs" />
     <Compile Include="Coop\Generic\SaveData\CfgSaveInfo.cs" />

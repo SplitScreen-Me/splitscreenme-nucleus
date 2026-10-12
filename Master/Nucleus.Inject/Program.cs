@@ -81,6 +81,9 @@ namespace Nucleus.Inject
             }
         }
 
+        // Fast launch (Settings.ini [Misc] FastLaunch): skip the sleeps that wait for nothing.
+        private static readonly bool fastLaunch = Nucleus.Gaming.Coop.Generic.LaunchWait.InstallIniFastAt(Nucleus.Gaming.Coop.Generic.LaunchWait.Tier1);
+
         static void Main(string[] args)
         {
             bool is64 = Environment.Is64BitProcess;
@@ -201,7 +204,10 @@ namespace Nucleus.Inject
                 envPtr = Marshal.AllocHGlobal(envBytes.Length);
                 Marshal.Copy(envBytes, 0, envPtr, envBytes.Length);
 
-                Thread.Sleep(1000);
+                if (!fastLaunch)
+                {
+                    Thread.Sleep(1000);
+                }
             }
 
             var logPath = Encoding.Unicode.GetBytes(nucleusFolderPath);
@@ -299,7 +305,11 @@ namespace Nucleus.Inject
                         result = Injector32.RhCreateAndInject(InEXEPath, InCommandLine, InProcessCreationFlags, envPtr, InInjectionOptions, InLibraryPath_x86, "", ptr, (uint)size, pid);
                     }
 
-                    Thread.Sleep(1000);
+                    //Fast launch: the result is known, only a retry needs a back-off.
+                    if (!fastLaunch || result != 0)
+                    {
+                        Thread.Sleep(1000);
+                    }
 
                     Log("CreateAndInject result code: " + result);
                     if (result != 0)
@@ -308,7 +318,10 @@ namespace Nucleus.Inject
                             "/5 Failed to create process and inject start up hook dll. Result code: " + result);
                     }
 
-                    Thread.Sleep(1000);
+                    if (!fastLaunch || result != 0)
+                    {
+                        Thread.Sleep(1000);
+                    }
 
                     if (++attempts == maxAttempts)
                     {

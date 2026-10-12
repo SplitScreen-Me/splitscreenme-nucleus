@@ -22,6 +22,13 @@ namespace Nucleus.Gaming
         public long RegLong;
         public int Status;
         public float? AudioVolume;
+
+        // Fast launch: re-checks of the window after its (faster) setup, in case the game moved or recreated it.
+        public System.IntPtr FastFinalHwnd;
+        public Rectangle FastFinalRect;
+        public System.DateTime FastRecheckAt;
+        public int FastRechecksLeft;
+        public int FastReruns;
         /// <summary>
         /// A reference to the game's process, if it's running
         /// </summary>
