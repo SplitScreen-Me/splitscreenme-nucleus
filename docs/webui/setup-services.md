@@ -1,6 +1,6 @@
 # Setup, profiles and session services
 
-Status: v1, 2026-10-11. Scope: the headless replacement of the WinForms game setup (`SetupScreenControl`, `Core_Interface` step machine, `PlayerOptionsControl`, `JSUserInputControl`, `ProfilesList`, `ProfileSettings`) and of the Play/Stop logic, behind the bridge contracts `setup.*`, `profiles.*` and `session.*` (`Master/Nucleus.Bridge/Contracts/Setup.cs`, `Profiles.cs`, `Session.cs`). The legacy UI (`--legacy-ui`) keeps working on the same code paths.
+Status: v1, 2026-10-11. Scope: the headless replacement of the WinForms game setup (`SetupScreenControl`, `Core_Interface` step machine, `PlayerOptionsControl`, `JSUserInputControl`, `ProfilesList`, `ProfileSettings`) and of the Play/Stop logic, behind the bridge contracts `setup.*`, `profiles.*` and `session.*` (`Master/Nucleus.Bridge/Contracts/Setup.cs`, `Profiles.cs`, `Session.cs`). The legacy UI was removed on 2026-10-12. The WinForms setup screen (`SetupScreenControl`, `Draw`, `UserInputControl`) and its seams (section 5) were removed on 2026-10-12: the setup services are the only users of `BoundsFunctions`/`DevicesFunctions`.
 
 Code: `Master/Nucleus.Coop.Services/Setup`, `Profiles`, `Session`. Seams: `Master/NucleusGaming` (refactors R1 to R13 below). Tests: `Master/Nucleus.Coop.Services.Tests/Setup`, `Profiles`, `Session`.
 
@@ -28,7 +28,7 @@ Registration: `NucleusServices.Register` creates one `SetupSession` and the thre
 
 | Method | Implementation |
 |---|---|
-| `open` | `SetupSession.Open`: `GameProfile.GameInfo/Game` (as `Core_Interface.Current_UserGameInfo`), `CleanGameContent.CleanContentFolder` unless KeepSymLink, `new GameProfile().InitializeDefault()`, `GenMissingIdFromPlayerSteamIDs` (was in `SetupScreenControl.Initialize`), `BoundsFunctions.InitializeHeadless`, `profile.SyncScreens()`, `DevicesFunctions.Initialize(null, …)`, options defaults (`OptionsCodec.Merge`), players step. Requirements are no longer message boxes: they are checks. |
+| `open` | `SetupSession.Open`: `GameProfile.GameInfo/Game` (as `Core_Interface.Current_UserGameInfo`), `CleanGameContent.CleanContentFolderAsync` (not awaited) unless KeepSymLink, `new GameProfile().InitializeDefault()`, `GenMissingIdFromPlayerSteamIDs` (was in `SetupScreenControl.Initialize`), `BoundsFunctions.Initialize`, `profile.SyncScreens()`, `DevicesFunctions.Initialize`, options defaults (`OptionsCodec.Merge`), players step. Requirements are no longer message boxes: they are checks. |
 | `close` | Stops the device timers and the screens watcher (`RefreshUI(true)`). Refused during a session. |
 | `get` | `SetupSession.Commit()`: builds the snapshot; `Revision` increases only when the snapshot differs from the previous one. During a session it returns the snapshot taken at Play. |
 | `next` / `back` | `SetupFlowRules.Next/Back` after re-evaluating each custom step's `UpdateRequired`. `back` sets `GameProfile.Ready = false` (as `GotoPrevStep`). |
@@ -90,7 +90,7 @@ Registration: `NucleusServices.Register` creates one `SetupSession` and the thre
 
 The WinForms setup screen did business logic while painting: `GameProfile.FindProfilePlayers` (profile matching and auto play), `GameProfile.UpdateProfilePlayerIdentity` (nickname, Steam ID, guests per player) and the reveal of keyboards and mice (`Draw.UIDevices`). A hidden control never paints, so:
 
-- R2 moved the first two into `GameProfile.ProcessProfileAssignment(dragging)`. `SetupScreenControl.OnPaint` calls it; `SetupSession.Pump()` calls it after every command, after every device tick (`DevicesFunctions.DevicesUpdated`) and on every input flash.
+- R2 moved the first two into `GameProfile.ProcessProfileAssignment()` (it took a `dragging` flag while the WinForms screen existed). `SetupSession.Pump()` calls it after every command, after every device tick (`DevicesFunctions.DevicesUpdated`) and on every input flash.
 - R3 moved the reveal into `PlayerInfo.FlashIcon`.
 - `GameProfile.Reset()` rebuilds the options from the raw handler values (`""` for lists). Resets that don't come from a command (monitor change, profile matching errors) are caught through `GameProfile.OnReset`, which posts the defaults merge.
 - The pump never calls `UpdateDevices` (which raises `DevicesUpdated`), so it can't loop. The players step validity is computed by `SetupSession.PlayersValid()` (the `DevicesFunctions.CanProceed` rule plus the profile guests).
@@ -101,16 +101,18 @@ The WinForms setup screen did business logic while painting: `GameProfile.FindPr
 - Every state change runs on the UI thread (the WebView2 host's WinForms context, `IHostShell.UiContext`). Bridge calls arrive there.
 - R4: in headless mode `DevicesFunctions.Dispatch` posts to the UI thread. The 300 ms device tick and the 150 ms polling tick post their whole body (one queued at most), so `DevicesList`, `AssignedDevices` and the screens are only touched on the UI thread. The screens watcher (3 s) posts too. Nothing uses `Control.Invoke`.
 - Measured with the smoke test (Valheim handler: 32 OpenXinput slots probed, raw keyboards and mice, no gamepad connected): UI thread callbacks delayed 0.2 ms on average, 7 ms at most.
-- SDL is initialized, refreshed (it sleeps 1 s) and hot-plugged on a dedicated STA thread with a message loop ("Nucleus SDL"); the ticks skip SDL while it refreshes (`Monitor.TryEnter`). WinForms mode keeps SDL on the UI thread as before.
+- SDL is initialized, refreshed (it sleeps 1 s) and hot-plugged on a dedicated STA thread with a message loop ("Nucleus SDL"); the ticks skip SDL while it refreshes (`Monitor.TryEnter`). `DevicesFunctions.Dispatch` is required: `BoundsFunctions.Initialize` and `DevicesFunctions.Initialize` throw without it, and the timer ticks do nothing.
 - Raw input keeps its own thread; `FlashIcon` and `FlashChanged` come from it and are posted.
 - `End` runs on a worker; `Ended` is posted. Session actions run on a background STA thread. Nothing blocks the UI thread except the existing synchronous work of `InitializeHandlerStartup` (script reload, clone, thread start), as in the WinForms UI.
 
-## 5. Refactors (all keep the WinForms UI working on the same code)
+## 5. Refactors (made while the WinForms UI still ran on the same code)
+
+The NucleusCoopTool parts of R12 and R13 (`Core_Interface.cs`) were deleted with the legacy UI. The WinForms halves of R1 to R7 went with the setup screen on 2026-10-12: `AssignmentChanged`, the `dragging` parameter, the paint-side reveal, the `parent` branches and the WinForms timer/SDL mode, the mouse handlers and cursor moves; `InitializeHeadless` became `BoundsFunctions.Initialize`.
 
 | # | File | Change |
 |---|---|---|
 | R1 | `Coop/GameProfile.cs`, `Controls/SetupScreen/SetupScreenControl.cs` | `GameProfile.CanPlayChanged` / `AssignmentChanged` events replace the direct `SetupScreenControl.Instance` calls (`Reset`, `FindProfilePlayers`); the setup screen subscribes and forwards (same Invoke-when-needed behaviour). |
-| R1b | `Coop/GameProfile.cs` | `GameProfile.Notify(kind, title, text, ms)` hook replaces the 7 `MainOSD.Show` / `NucleusMessageBox.Show` calls; default = the old calls (`MainOSD?.`). |
+| R1b | `Coop/GameProfile.cs` | `GameProfile.Notify(kind, title, text, ms)` hook replaces the 7 `MainOSD.Show` / `NucleusMessageBox.Show` calls; default = the OSD for information, `UserPrompts.Notice` (origin `Setup`, so a `notices` entry in the web UI) for errors. |
 | R2 | `Coop/GameProfile.cs`, `SetupScreenControl.cs` | `ProcessProfileAssignment(dragging)` extracted from `OnPaint`, which calls it before drawing. |
 | R3 | `Coop/PlayerInfo.cs` | `FlashIcon` reveals keyboards/mice and raises `PlayerInfo.FlashChanged`; the paint-side reveal in `Draw.cs` stays as a harmless duplicate. |
 | R4 | `Controls/SetupScreen/DevicesFunctions.cs` | `Dispatch`, `CanProceed`, `DevicesUpdated`, `AssignedDeviceLost`, `IsRunning`, `RequestSdlRefresh`; null-safe `parent`; idempotent `Initialize` (old timers disposed), `PollingTimer` nulled; `DeletePlayer` guards the screens; `UpdateUseGamepadApiIndex` also drops the assignments of the rebuilt devices; `UpdateDevices` public; SDL helper thread in headless mode. |
@@ -119,7 +121,7 @@ The WinForms setup screen did business logic while painting: `GameProfile.FindPr
 | R7 | `Controls/SetupScreen/BoundsFunctions.cs` | Commands without a mouse (`SetLayout`, `AssignToSlot` with swap, `AssignAt`, `Unassign`, `AddGuest`, `RemoveGuest`, `ToggleExpand`, `Resize`, `AutoFill`, `Join`) returning a refusal reason. The mouse handlers call the shared cores (`ApplyScreenLayout`, `RemoveGuestCore`, `ToggleExpandCore`, `ResizeStep`, `CheckFreeSpace`). `AddPlayer` is idempotent and the drag hover undoes its keyboard/mouse merge when the device moves on (no more duplicates in `DevicesToMerge` or inflated counters). |
 | R8 | `Coop/PlayerInfo.cs`, `DevicesFunctions.cs`, `Coop/InputManagement/RawInputManager.cs` | `PlayerInfo.DeviceKey` set at detection: `dinput:{guid}`, `xinput:{slot}`, `sdl:{index}` (or `sdl:h{handle}`), `kb:single`, `rawkb:{hid}`, `rawmouse:{hid}`, `virtual-kb`, `virtual-mouse`, `fake:*`. The services make duplicates unique (`#2`). Not upgraded when an XInput/SDL pad learns its GUID (the id must not change under the UI). |
 | R9 | `Coop/GameProfile.cs`, new `Coop/ProfileSettingsModel.cs` | `UpdateProfilePlayerIdentity` hardened (unassigned or 33rd player, missing handler Steam IDs, unparsable values); `ReadProfiles()`, `DeleteProfile(id)` (from `ProfilesList`); `ProfileSettingsModel` (validation + apply of `ProfileSettings`), creating `game profiles\` before the history backups. `RefreshKeyboardAndMouse` public. The options codec lives in the services (it would break the WinForms card auto-select if applied in `LoadGameProfile`). |
-| R10 | `Coop/GameProfile.cs` | `InitializeHandlerStartup(Action onEnded)`: `Ended` subscribed between `MakeHandler` and `Initialize`. The parameterless overload is unchanged. |
+| R10 | `Coop/GameProfile.cs` | `InitializeHandlerStartup(Action onEnded)`: `Ended` subscribed between `MakeHandler` and `Initialize`. The parameterless overload (legacy UI only) was removed with it. It throws when the handler script no longer parses, instead of launching the previously parsed version (`session.play` answers `unavailable`, the script error is a notice). |
 | R11 | `Coop/InputManagement/RawInputProcessor.cs`, `Coop/GameManager.cs` | `Globals.MainOSD?.Show` in the raw input loop; raw input registered once per process (one shared `RawInputProcessor`, no second window on a handlers refresh). |
 | R12 | new `Coop/InputManagement/Gamepads/GamepadThreads.cs`, `NucleusCoopTool/UI/Core_Interface.cs` | `GamepadThreads.Start()` (no UI control), returns false on Windows 7/Vista; `InitializeGamepadThreads` calls it and keeps its WinForms touches. Hosts call `GamepadThreads.Start()`. |
 | R13 | `NucleusCoopTool/UI/Core_Interface.cs` | The Stop button no longer resets the setup when `End` returned early because inputs are locked (the reset would empty the running handler's player list). |
@@ -139,6 +141,12 @@ The WinForms setup screen did business logic while painting: `GameProfile.FindPr
 - `setLayout` with the current layout changes nothing.
 - Keyboards and mice are revealed by input even when the setup screen isn't the current step (the WinForms UI revealed them only while painting).
 - `setup.deviceLost` is reported on every step; the flow goes back to the players step only when it was further.
+- **XInput pads identified by a press (2026-10-12, `GamepadIdentity`).** Without the slot mode, a press only revealed an XInput pad when exactly one DirectInput device saw it at the same moment. With DS4Windows/ViGEm, Steam Input, a stuck button or a D-pad press, the pad stayed unrevealed forever, so every placement was refused (`deviceNotRevealed`).
+  - Matching now skips devices already identified as another pad, prefers the XInput views (`IG_`) when several devices are pressed, and counts the hat (D-pad).
+  - Without a unique match, handlers that only need the XInput slot reveal the pad with the slot-mode GUID. The others keep it hidden: x360ce, device reordering or single device file, XInput reroute, ProtoInput or Nucleus DirectInput hook, or a script that reads `GamepadGuid`/`RawHID`/`HIDDeviceID`. For those, the press still flashes the pad, and the hint `padNotIdentified` shows for 10 s.
+  - The disconnect check uses the OpenXinput controller that detected the pad, instead of the system `xinput1_3.dll`.
+  - Handlers with both DirectInput and XInput no longer "dispose" the DirectInput view of XInput pads on every tick. That disposal triggered a full DirectInput refresh about once a second, which removed placed DirectInput pads from their slots.
+  - `DInputManager.Refresh` stops the previous watcher thread and locks the device lists.
 - The Stop button of the WinForms UI no longer resets while inputs are locked (R13); toggling API indexes no longer leaves stale assignments (R4); the drag hover no longer duplicates keyboard/mouse entries (R7).
 
 ## 7. Known limitations

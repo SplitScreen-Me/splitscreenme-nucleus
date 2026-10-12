@@ -36,7 +36,7 @@ Rules:
 - The contract has no dependency on WinForms, WPF, `System.Drawing` or Nucleus.Gaming types. DTOs are plain classes.
 - Services never touch WinForms controls. When an existing feature lives inside a form, its logic moves to `Nucleus.Coop.Services` (or `Nucleus.Gaming`), and the form, if it survives, calls the extracted code.
 - The UI never reads local files directly: data comes through the bridge, images through the `assets` virtual host.
-- `Program.cs --legacy-ui` keeps opening the old `MainForm` during the transition.
+- The old `MainForm` and the rest of the WinForms UI were removed on 2026-10-12. `--legacy-ui` is still accepted so old shortcuts keep working: it is logged and ignored.
 
 ## 2. Protocol
 
@@ -133,7 +133,7 @@ const setup = useBridgeSnapshot('setup.get', 'setup.changed');    // query + liv
 
 - `HostForm` is frameless. The WebView2 fills the client area minus a 6 px bezel kept by the form for resize hit-testing (the bezel is black, which matches the design). Dragging uses CSS `app-region: drag` (`CoreWebView2Settings.IsNonClientRegionSupportEnabled = true`). Double-click on the title bar toggles maximize.
 - Virtual hosts: `https://ui.nucleus.example/` → `webui\` (built UI), `https://assets.nucleus.example/` → `gui\` (covers, screenshots, rendered icons), `https://handlers.nucleus.example/` → `handlers\` (images shipped with handlers, used by custom steps). In Debug, if `webui\dev-server.txt` exists, the WebView loads the URL it contains (Vite dev server, hot reload) instead.
-- User data folder: `webview\ui`, separate from the legacy hub browser's `webview\cache` (which runs with browser extensions; two environments with different options can't share a folder). Dev tools, context menu and reload accelerators only in Debug.
+- User data folder: `webview\ui`, separate from the removed legacy hub browser's `webview\cache` (which ran with browser extensions and may still exist in older installs; two environments with different options can't share a folder). Dev tools, context menu and reload accelerators only in Debug.
 - The host takes over the old `MainForm` duties: `Globals.MainWindowHandle` (target of the kill hotkey's `WM_CLOSE`), `Globals.MainOSD`, gamepad threads, window title "Nucleus Co-op", close handling during a session (end the session on a worker, never on the UI thread), working directory = install folder.
 - Dropped files: JS cannot read a dropped file's path. `bridge.getFilePaths(files)` sends the `File` objects with `chrome.webview.postMessageWithAdditionalObjects` as the reserved request `$/filePaths`; the transport answers with their absolute paths, which the UI then passes to normal methods (for example `handlers.installFromFile`).
 - WebView2 SDK: upgrade from 1.0.2210.55 to 1.0.4191.47 everywhere (packages.config and PackageReference must use the same version).
@@ -157,5 +157,15 @@ const setup = useBridgeSnapshot('setup.get', 'setup.changed');    // query + liv
 | `setup` | the lobby: devices, screens, layouts, placement, options, custom steps; `setup.changed`, `setup.deviceActivity`, `setup.deviceLost` | host-owned snapshot |
 | `profiles` | saved setups of the open game, profile settings; `profiles.changed` | queries + invalidation |
 | `session` | play, stop, live state; `session.changed`, `session.notice` | host-owned snapshot |
+| `notices` | out-of-game engine messages (handler load and script errors, setup and profile errors, locked game files), kept until dismissed; `notices.changed` | queries + invalidation |
+
+### Engine prompts
+
+Every message box and prompt of Nucleus.Gaming goes through `Nucleus.Gaming.Forms.UserPrompts` (`Ask(PromptRequest)` and shortcuts: `Report`, `Notice`, `YesNo`, `WaitForOk`, `PickLauncher`, `AskText`, `PickProcess`). Its default handler shows the native windows (plain WinForms). The services install `Notices/WebUserPrompts`, which routes by `PromptOrigin`:
+
+- `Handler` and `Setup` messages become `notices` (the UI shows them in a dialog, after the session when one is live);
+- `LaunchReminder` (the input lock reminder) is skipped: the setup shows it as the `inputLock` check of "Before you launch";
+- `LaunchFailure` (the crash report of a failed launch) goes to `SessionSnapshot.errorDetails`;
+- `Session` prompts (over the game windows), questions, and anything raised while `IHostShell.PageState` is `Unavailable` (WebView failed, renderer crashed, window closing) stay native. While the page is `Loading` (startup, reload), notices wait for it.
 
 The hub catalogue (`allhandlers`, `handler/:id`, `comments/:id`) is read by the UI directly from the public API; only calls without CORS (screenshots, package downloads) go through `handlers`.

@@ -2,13 +2,13 @@
 
 Status: v1, 2026-10-11. Code: `Master/Nucleus.Coop.Services/{Startup,Library,Handlers,Settings}`, tests: `Master/Nucleus.Coop.Services.Tests/{Library,Handlers,Settings}`. Contracts: `Nucleus.Bridge/Contracts/{Library,Handlers,Settings}.cs`.
 
-These services replace the library, game menu, handler install/update and settings parts of the WinForms `MainForm`. The legacy UI (`--legacy-ui`) still works and shares the same files: `userprofile.json`, `metaInfo.json`, `Settings.ini`, `handlers\`, `gui\`.
+These services replace the library, game menu, handler install/update and settings parts of the WinForms `MainForm`, which was removed with the rest of the legacy UI on 2026-10-12. They keep the files and formats of 2.x installs: `userprofile.json`, `metaInfo.json`, `Settings.ini`, `handlers\`, `gui\`.
 
 ## 1. Startup (`Startup/NucleusCore.cs`)
 
 `NucleusServices.Register` calls `NucleusCore.Start` first, on the UI thread:
 
-1. `new GameManager()`, as the MainForm constructor did: parses every `handlers\*.js` with Jint, loads `content\userprofile.json`, registers raw input. `GameManager.CheckUpdatesOnLoad = false` skips the per-game update checks of `LoadUser` (the legacy UI keeps them), so step 4 runs the only check. The duration is logged (`[services] INFO GameManager loaded N handler(s)… in X ms`). It stays synchronous on purpose: about 160 ms for one handler, so expect a few seconds with a hundred handlers. Moving it off the UI thread would need the other services to wait for it.
+1. `new GameManager()`, as the MainForm constructor did: parses every `handlers\*.js` with Jint, loads `content\userprofile.json`, registers raw input. `LoadUser` no longer starts per-game update checks (the legacy UI's `CheckUpdatesOnLoad` path was removed with it), so step 4 runs the only check. The duration is logged (`[services] INFO GameManager loaded N handler(s)… in X ms`). It stays synchronous on purpose: about 160 ms for one handler, so expect a few seconds with a hundred handlers. Moving it off the UI thread would need the other services to wait for it.
 2. Shared objects: `HubClient`, `HubStatus`, `LibraryNotifier`, `UserProfileStore`, `GameIconCache`, `ArtworkDownloader`, `HandlerUpdateChecker`.
 3. `GameMetaInfo.Saved` is wired to `library.changed`.
 4. In the background: a HEAD request to the hub sets `Hub.Connected` (the MainForm used to set it), then an update check of the library games. Every change of `Hub.Connected` made by the services is sent as `app.hubStatusChanged`; the host's `app.getInfo` reads `Hub.Connected` live.
@@ -117,14 +117,14 @@ Reminder images (`ShortcutsReminderRenderer`): `gui\shortcuts\KbShortcutsReminde
 
 | Setting | Why |
 |---|---|
-| Theme (`[Theme] Theme`) | The theme system is obsolete with the web UI (restart-based WinForms theming). |
-| Window and form positions (`WindowSize`, `WindowLocation`, `SettingsLocation`, `ProfileSettingsLocation`, `GamepadSettingsLocation`, `AutoSearchLocation`) | WinForms placement; the host keeps its own `HostWindowPlacement`. |
+| Theme (`[Theme] Theme`) | The theme system is obsolete with the web UI (restart-based WinForms theming). Removed from `App_Misc` and the shipped `Settings.ini` with the theme files; the gamepad images moved to `gui\gamepads\`. |
+| Window and form positions (`WindowSize`, `WindowLocation`, `SettingsLocation`, `ProfileSettingsLocation`, `GamepadSettingsLocation`, `AutoSearchLocation`) | WinForms placement; the host keeps its own `HostWindowPlacement`. Removed from `App_Misc` and the shipped `Settings.ini` on 2026-10-12 (stale keys in existing files are ignored). |
 | "Controller Shortcuts Setup" button | The window became the `gamepad` section. |
 | Goldberg emulator updater button | An action, not a setting; can come later as its own call. |
 | Audio refresh button, "Default: device" label | The lists are re-read on every `getSchema`; the default device is in the audio section description. |
 | Screen identify on merger rows, read-only "Window Resolution" box, max players box | Helper/display only; max players is computed on save. |
 | Nickname/Steam ID swap behaviour of the combo boxes | UI behaviour; the server validates uniqueness. |
-| Ini-only keys never shown by the legacy form (`VGMOnly`, `DisableForcedNote`, `NucleusMultiInstances`, `DisablePathCheck`, `TextEditorPath`, `Blur`, `OSDColor`, `EnableLogAnswer`) | Not in the legacy UI; they keep working from `Settings.ini`. |
+| Ini-only keys never shown by the legacy form (`VGMOnly`, `DisableForcedNote`, `NucleusMultiInstances`, `DisablePathCheck`, `TextEditorPath`, `OSDColor`, `EnableLogAnswer`) | Not in the legacy UI; they keep working from `Settings.ini`. `Blur` (legacy background blur) was removed on 2026-10-12. |
 | `GameSortingOpt`, `ShowFavoriteOnly` | Exposed as `library.getPreferences`. |
 
 ## 6. Behaviour changes and fixed legacy bugs
@@ -140,17 +140,17 @@ Reminder images (`ShortcutsReminderRenderer`): `gui\shortcuts\KbShortcutsReminde
 
 ## 7. Legacy code: what moved, what stayed
 
-New code lives in the services; the legacy forms were not changed and keep their own copies of this logic: `DownloadPrompt`/`HubWebView` (extraction), `SearchGame`, `RemoveGame`, `GameOptionMenuFunc`, `SortGameFunction`, `AssetsDownloader`, `GetGameIcon`, `Settings`, `XInputShortcutsSetup`. Their extraction mixes modal dialogs with the logic (overwrite prompt in the middle of an extraction, `Application.DoEvents` loops), so sharing the code would have meant rewriting them.
+New code lives in the services. The legacy forms kept their own copies of this logic until they were deleted with the legacy UI (2026-10-12): `DownloadPrompt`/`HubWebView` (extraction), `SearchGame`, `RemoveGame`, `GameOptionMenuFunc`, `SortGameFunction`, `AssetsDownloader`, `GetGameIcon`, `Settings`, `XInputShortcutsSetup`. The services now hold the only copy.
 
-NucleusGaming files touched: `Coop/GameManager.cs` (`CheckUpdatesOnLoad` flag), `Coop/GameMetaInfo.cs` (lock, `Saved` event, `TotalPlayTimeRaw`/`LastPlayedAtRaw`, first-run defaults, tolerant parse), `Tools/CleanGameContent/CleanGameContent.cs` (`CleanContentFolderAsync`), `Coop/InputManagement/Gamepads/GamepadShortcuts.cs` (ReleaseCursor), `Coop/InputManagement/HotkeysRegistration.cs` (digit keys).
+NucleusGaming files touched: `Coop/GameManager.cs` (`CheckUpdatesOnLoad` flag, since removed with the legacy update checks of `LoadUser`), `Coop/GameMetaInfo.cs` (lock, `Saved` event, `TotalPlayTimeRaw`/`LastPlayedAtRaw`, first-run defaults, tolerant parse), `Tools/CleanGameContent/CleanGameContent.cs` (`CleanContentFolderAsync`), `Coop/InputManagement/Gamepads/GamepadShortcuts.cs` (ReleaseCursor), `Coop/InputManagement/HotkeysRegistration.cs` (digit keys).
 
 Host file touched (agreed with the lead): `NucleusCoopTool/Host/Services/AppService.cs`, `AppInfo.HubOnline` reads `Hub.Connected` live instead of the startup check.
 
 ## 8. Known gaps
 
 - `GameManager` loads synchronously on the UI thread at startup (see section 1).
-- `GameManager.AddScript` still shows a WinForms message box for handlers that throw `ArgumentException`; handler script errors still show the legacy "Error in handler" window.
-- `deleteContentFolder` may show the legacy "Risk of crash!" window when files stay locked.
+- Handler load errors (`GameManager`) and script errors (`GenericGameInfo.ScriptError`) are `notices`, at startup too; they are only native when no page can show them (see architecture.md, "Engine prompts").
+- `deleteContentFolder` fails with `conflict` (reason `filesLocked`) when files stay locked; opening a setup reports them as a "Risk of crash!" notice.
 - Icons are taken from the executable's icon resources (up to 128 px); executables without icons fall back to the shell's 32 px icon.
 - The reminder images can't be replaced while the in-game reminder shows them (logged, kept until the next save).
 - `Nucleus.Coop.Services` and `Nucleus.Coop.Services.Tests` are not in `NucleusCoop.sln` yet (the services project builds through the exe's project reference). Tests: `dotnet test Master/Nucleus.Coop.Services.Tests/bin/Debug/net472/Nucleus.Coop.Services.Tests.dll` after building the test project with MSBuild.

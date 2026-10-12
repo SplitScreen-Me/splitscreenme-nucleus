@@ -10,7 +10,7 @@ How `NucleusCoop.exe` hosts the React UI in a WebView2 window. Design context: [
 |---|---|
 | `NucleusCoop.exe` | Web UI (`HostApplication.Run`) |
 | `NucleusCoop.exe <gameGuid>` | Web UI; the GUID is in `HostStartup.GameId` and in `app.getInfo().startupGameId` |
-| `NucleusCoop.exe --legacy-ui [<gameGuid>]` | The old WinForms `MainForm`, unchanged (it receives the arguments without `--legacy-ui`) |
+| `NucleusCoop.exe --legacy-ui [<gameGuid>]` | Same as without the switch. The WinForms `MainForm` it used to open was removed (2026-10-12); the switch is logged in `content\app.log` and ignored, so old shortcuts keep working |
 
 `HostApplication.Run` (UI thread):
 
@@ -40,7 +40,7 @@ WinForms detail: after a restore from maximized, WinForms re-applies its stashed
 | | |
 |---|---|
 | SDK | Microsoft.Web.WebView2 1.0.4191.47 (Nucleus.Coop packages.config and Nucleus.Bridge PackageReference use the same version) |
-| User data folder | `webview\ui` (the legacy hub view uses `webview\cache` with browser extensions; two environments with different options cannot share a folder) |
+| User data folder | `webview\ui` (the removed legacy hub view used `webview\cache` with browser extensions, and older installs may still have it; two environments with different options cannot share a folder) |
 | UI | `https://ui.nucleus.example/` → `webui\` (access: same origin only) |
 | Assets | `https://assets.nucleus.example/` → `gui\` (covers, screenshots, icons; CORS allowed so canvas can read pixels) |
 | Handler images | `https://handlers.nucleus.example/` → `handlers\` (images in `<img>`; CORS reads denied) |
@@ -77,18 +77,24 @@ Run `bin\Debug\NucleusCoop.exe` (any working directory; `Main` switches to the e
 ### Output folder layout
 
 ```
-NucleusCoop.exe, NucleusCoop.exe.config     probing privatePath="webview"
-Nucleus.Gaming.dll, Nucleus.Bridge.dll, Nucleus.Coop.Services.dll, Newtonsoft.Json.dll, ...
-webview\Microsoft.Web.WebView2.{Core,WinForms,Wpf}.dll        1.0.4191.47, from copyoutput\webview (managed WebView2 DLLs are not copied to the root)
+NucleusCoop.exe, NucleusCoop.exe.config     probing privatePath="bin;webview"
+bin\                                         managed assemblies: Nucleus.Gaming, Nucleus.Bridge, Nucleus.Coop.Services, WindowScrape,
+                                             Jint, Newtonsoft.Json, NAudio, SharpDX x3, Ionic.Zip.Reduced, EasyHook.dll (+ .pdb)
+StartGame.exe(.config), Nucleus.IJx86/x64.exe(.config)   helper exes; their .config probes bin\ (privatePath="bin")
+EasyHook32/64.dll, Nucleus.Hook*/SHook*.dll, ProtoInput*, SDL2.dll, openxinput1_3.dll   natives, at the root (in-process DllImport
+                                             by bare name, or injected from the helpers' folder)
+webview\Microsoft.Web.WebView2.{Core,WinForms}.dll        1.0.4191.47, from copyoutput\webview
 webview\runtimes\win-{x86,x64,arm64}\native\WebView2Loader.dll  found by WebView2.Core relative to its own folder
 webview\ui\                                  web UI browser profile (created at first run)
-webview\cache\, webview\darkreader\          legacy hub view
 webui\                                       built UI (or the placeholder), optional dev-server.txt
-gui\, handlers\, utils\, Settings.ini        from copyoutput (post-build xcopy, which also resets Settings.ini at each build)
+docs\                                        readme.txt, readme Proto Input.txt (handler-author docs)
+gui\, handlers\, utils\, docs\, Settings.ini from copyoutput (post-build xcopy, which also resets Settings.ini at each build)
 content\app.log                              app log, host lines are tagged [WebUI]
 ```
 
-`StartChecks.CheckFilesIntegrity` kills the app when native files are missing: `Nucleus.Hook32/64.dll`, `Nucleus.SHook32/64.dll` (C++ projects), `Nucleus.IJx86.exe`/`Nucleus.IJx64.exe` (Nucleus.Inject, built through the solution as x86/x64) and the `ProtoInput*` binaries (ProtoInput submodule), or the same files from a release. The check only tests that the files exist, so empty files with those names let the UI start, but a game launch then fails. Build the real ones as described below.
+The `MoveManagedReferencesToBin` target of `Nucleus.Coop.csproj` sets `DestinationSubDirectory=bin\` on every copy-local reference except `StartGame.*`. `AllowedReferenceRelatedFileExtensions` leaves out the library `*.xml` docs. The install root is `Nucleus.Gaming.InstallPaths.Root`: the folder of `NucleusCoop.exe` in every process, including StartGame and the injectors, and including when one of them sits in `bin\`. `InstallPaths.BinDir` is `<root>\bin`. `Globals.NucleusInstallRoot`, `NucleusPaths.InstallRoot` and `HostEnvironment` use it.
+
+`StartChecks.CheckFilesIntegrity` kills the app when one of its files is missing. The list holds paths relative to the install root, with `bin\` for managed assemblies, and includes the helper `.exe.config` files. Native files are the usual cause: `Nucleus.Hook32/64.dll`, `Nucleus.SHook32/64.dll` (C++ projects), `Nucleus.IJx86.exe`/`Nucleus.IJx64.exe` (Nucleus.Inject, built through the solution as x86/x64) and the `ProtoInput*` binaries (ProtoInput submodule), or the same files from a release. The check only tests that the files exist, so empty files with those names let the UI start, but a game launch then fails. Build the real ones as described below.
 
 ### Building native components
 
@@ -119,13 +125,15 @@ foreach ($p in 'x86', 'x64') {
 }
 
 # Nucleus.Hook, Nucleus.SHook, Nucleus.Inject: their post-build steps copy to Master\NucleusCoopTool\bin\<Configuration>
+# (Nucleus.Inject: Nucleus.IJx86/x64.exe and their .exe.config, which probes bin\)
 foreach ($c in 'Debug', 'Release') { foreach ($p in 'x86', 'x64') {
   & $msbuild Master\NucleusCoop.sln "-t:Nucleus_Hook;Nucleus_SHook;Nucleus_Inject" -p:Configuration=$c -p:Platform=$p
 } }
 
-# ProtoInput -> bin (the Nucleus.Coop post-build copies the same files at every C# build once they exist)
+# ProtoInput -> bin (the Nucleus.Coop post-build copies the same files at every C# build once they exist).
+# ProtoInputHost.exe (the standalone ProtoInput GUI) is not copied: nothing launches it.
 foreach ($c in 'Debug', 'Release') {
-  Copy-Item Submodules\ProtoInput\src\ProtoInput\Release\*.dll, Submodules\ProtoInput\src\ProtoInput\Release\*.exe Master\NucleusCoopTool\bin\$c
+  Copy-Item Submodules\ProtoInput\src\ProtoInput\Release\*.dll, Submodules\ProtoInput\src\ProtoInput\Release\ProtoInputIJ*.exe Master\NucleusCoopTool\bin\$c
 }
 ```
 
