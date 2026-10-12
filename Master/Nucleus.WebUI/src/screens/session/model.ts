@@ -1,5 +1,5 @@
 // Session view-model helpers: pure derivations from the host's session snapshot.
-import type { InstanceStage, SessionInstance, SessionSnapshot } from '@/bridge';
+import type { InstanceStage, SessionInstance, SessionSnapshot, SessionSummary } from '@/bridge';
 
 /** What the session screen renders: the live snapshot, or the last one of a session that just ended. */
 export interface SessionView {
@@ -12,6 +12,8 @@ export interface SessionView {
   error?: string;
   /** Crash report of the failed launch, shown on demand. */
   errorDetails?: string;
+  /** The host's summary of the session that ended. */
+  summary?: SessionSummary;
 }
 
 /** Whether a keyboard or a mouse drives one of the copies (then the inputs can be locked). */
