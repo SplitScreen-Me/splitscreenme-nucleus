@@ -110,6 +110,25 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
             }
         }
 
+        /// <summary>Buttons held on an XInput pad of the setup; none when it can't be read.</summary>
+        public static PadButtons ReadButtons(PlayerInfo player)
+        {
+            try
+            {
+                if (player.IsFake || player.XInputJoystick == null || !player.XInputJoystick.GetState(out SharpDX.XInput.State state))
+                {
+                    return PadButtons.None;
+                }
+
+                //GamepadButtonFlags is a short: Y (0x8000) is negative.
+                return (PadButtons)(ushort)state.Gamepad.Buttons;
+            }
+            catch (Exception)
+            {
+                return PadButtons.None;
+            }
+        }
+
         internal static void Vibrate(PlayerInfo player)
         {
             if (!player.Vibrate)

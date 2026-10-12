@@ -11,7 +11,7 @@ export const protocolVersion = 1;
 /**
  * Hash of the contract this file was generated from. `app.hello` returns the host's: the UI refuses to run when they differ.
  */
-export const contractHash = '290b06521120fd7b';
+export const contractHash = 'eb7beb6599afd66b';
 
 /** JSON-RPC error code of each kind of error the host returns. */
 export const bridgeErrorCodes = {
@@ -130,6 +130,62 @@ export const gameStoreValues = [
   /** Epic Games Store. */
   'epic',
 ] as const satisfies readonly GameStore[];
+
+/** A gamepad button, by its Xbox name. */
+export type GamepadButton =
+  | 'a'
+  | 'b'
+  | 'x'
+  | 'y'
+  | 'leftBumper'
+  | 'rightBumper'
+  | 'back'
+  | 'start'
+  | 'leftStick'
+  | 'rightStick'
+  | 'dPadUp'
+  | 'dPadDown'
+  | 'dPadLeft'
+  | 'dPadRight'
+  | 'guide'
+  | 'other'
+;
+
+/** Every {@link GamepadButton}, in declaration order. */
+export const gamepadButtonValues = [
+  /** A (Cross on PlayStation pads). */
+  'a',
+  /** B (Circle). */
+  'b',
+  /** X (Square). */
+  'x',
+  /** Y (Triangle). */
+  'y',
+  /** Left bumper (L1). */
+  'leftBumper',
+  /** Right bumper (R1). */
+  'rightBumper',
+  /** Back or View (Share, Create). */
+  'back',
+  /** Start or Menu (Options): the button that joins in the lobby. */
+  'start',
+  /** Left stick click. */
+  'leftStick',
+  /** Right stick click. */
+  'rightStick',
+  /** D-pad up. */
+  'dPadUp',
+  /** D-pad down. */
+  'dPadDown',
+  /** D-pad left. */
+  'dPadLeft',
+  /** D-pad right. */
+  'dPadRight',
+  /** Guide (Xbox, PS, Home). */
+  'guide',
+  /** A button Nucleus can't name: DirectInput pads number their buttons freely, only their Start is guessed. */
+  'other',
+] as const satisfies readonly GamepadButton[];
 
 /** Stage of a handler install. */
 export type HandlerInstallStage = 'downloading' | 'extracting' | 'done' | 'failed';
@@ -481,13 +537,17 @@ export interface CheckActionRequest {
 }
 
 /**
- * A device is being used (button pressed, key typed, mouse moved). Lets the UI flash it. At most a few per second per device.
+ * A device is being used (button pressed, key typed, mouse moved). Lets the UI flash it. At most a few per second per device; a gamepad also sends one for each new button press, with the buttons (the lobby joins a pad on Start).
  */
 export interface DeviceActivity {
   /** Device id. */
   deviceId: string;
   /** True when activity starts, false when it stops. */
   active: boolean;
+  /**
+   * For a new press on a gamepad: the buttons that went down, even when the device was already active. Absent for keyboards and mice, for a press Nucleus could not read buttons of, and when activity stops.
+   */
+  buttons?: GamepadButton[];
 }
 
 /** A device assigned to a player was unplugged. */
@@ -2142,7 +2202,7 @@ export interface BridgeEvents {
    */
   'setup.changed': SetupChanged;
   /**
-   * A device is being used (button pressed, key typed, mouse moved). Lets the UI flash it. At most a few per second per device.
+   * A device is being used (button pressed, key typed, mouse moved). Lets the UI flash it. At most a few per second per device; a gamepad also sends one for each new button press, with the buttons (the lobby joins a pad on Start).
    */
   'setup.deviceActivity': DeviceActivity;
   /** A device assigned to a player was unplugged. */

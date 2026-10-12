@@ -5,6 +5,7 @@ using System.Linq;
 using Nucleus.Bridge.Contracts;
 using Nucleus.Coop.Services.Setup;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 using Xunit;
 
 namespace Nucleus.Coop.Services.Tests.Setup;
@@ -22,6 +23,25 @@ public class DeviceIdsTests
     public void Kinds_map_to_the_contract(InputType type, DeviceKind kind)
     {
         Assert.Equal(kind, DeviceIds.KindOf(type));
+    }
+
+    [Fact]
+    public void Pad_buttons_get_their_contract_names_face_buttons_first()
+    {
+        Assert.Empty(DeviceIds.ButtonsOf(PadButtons.None));
+        Assert.Equal(new[] { GamepadButton.Start }, DeviceIds.ButtonsOf(PadButtons.Start));
+        Assert.Equal(
+            new[] { GamepadButton.A, GamepadButton.Y, GamepadButton.LeftBumper, GamepadButton.Back, GamepadButton.DPadLeft, GamepadButton.Other },
+            DeviceIds.ButtonsOf(PadButtons.Other | PadButtons.DPadLeft | PadButtons.Back | PadButtons.LeftShoulder | PadButtons.Y | PadButtons.A));
+    }
+
+    [Fact]
+    public void Every_pad_button_has_a_contract_name()
+    {
+        foreach (PadButtons button in Enum.GetValues(typeof(PadButtons)).Cast<PadButtons>().Where(b => b != PadButtons.None))
+        {
+            Assert.Single(DeviceIds.ButtonsOf(button));
+        }
     }
 
     [Fact]

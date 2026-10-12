@@ -223,6 +223,55 @@ namespace Gamepads
             return anyState > 0;
         }
 
+        private static readonly KeyValuePair<SDL.SDL_GameControllerButton, PadButtons>[] namedButtons =
+        {
+            new KeyValuePair<SDL.SDL_GameControllerButton, PadButtons>(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A, PadButtons.A),
+            new KeyValuePair<SDL.SDL_GameControllerButton, PadButtons>(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_B, PadButtons.B),
+            new KeyValuePair<SDL.SDL_GameControllerButton, PadButtons>(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_X, PadButtons.X),
+            new KeyValuePair<SDL.SDL_GameControllerButton, PadButtons>(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_Y, PadButtons.Y),
+            new KeyValuePair<SDL.SDL_GameControllerButton, PadButtons>(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_BACK, PadButtons.Back),
+            new KeyValuePair<SDL.SDL_GameControllerButton, PadButtons>(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_GUIDE, PadButtons.Guide),
+            new KeyValuePair<SDL.SDL_GameControllerButton, PadButtons>(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_START, PadButtons.Start),
+            new KeyValuePair<SDL.SDL_GameControllerButton, PadButtons>(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_LEFTSTICK, PadButtons.LeftThumb),
+            new KeyValuePair<SDL.SDL_GameControllerButton, PadButtons>(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_RIGHTSTICK, PadButtons.RightThumb),
+            new KeyValuePair<SDL.SDL_GameControllerButton, PadButtons>(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_LEFTSHOULDER, PadButtons.LeftShoulder),
+            new KeyValuePair<SDL.SDL_GameControllerButton, PadButtons>(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_RIGHTSHOULDER, PadButtons.RightShoulder),
+            new KeyValuePair<SDL.SDL_GameControllerButton, PadButtons>(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_UP, PadButtons.DPadUp),
+            new KeyValuePair<SDL.SDL_GameControllerButton, PadButtons>(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_DOWN, PadButtons.DPadDown),
+            new KeyValuePair<SDL.SDL_GameControllerButton, PadButtons>(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_LEFT, PadButtons.DPadLeft),
+            new KeyValuePair<SDL.SDL_GameControllerButton, PadButtons>(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_RIGHT, PadButtons.DPadRight),
+        };
+
+        /// <summary>Buttons held on an SDL pad of the setup; none when it can't be read. The caller holds the SDL lock, as for <see cref="Poll"/>.</summary>
+        public static PadButtons ReadButtons(PlayerInfo player)
+        {
+            try
+            {
+                SDL_GameController controller = player.SDL2Joystick;
+
+                if (controller == IntPtr.Zero || !SDL.SDL2.GameControllerGetAttached(controller))
+                {
+                    return PadButtons.None;
+                }
+
+                PadButtons held = PadButtons.None;
+
+                foreach (KeyValuePair<SDL.SDL_GameControllerButton, PadButtons> named in namedButtons)
+                {
+                    if (SDL.SDL2.GameControllerGetButton(controller, named.Key) != 0)
+                    {
+                        held |= named.Value;
+                    }
+                }
+
+                return held;
+            }
+            catch (Exception)
+            {
+                return PadButtons.None;
+            }
+        }
+
         public static bool Poll(PlayerInfo player)
         {
             try

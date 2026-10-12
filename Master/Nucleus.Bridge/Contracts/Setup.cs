@@ -664,7 +664,10 @@ namespace Nucleus.Bridge.Contracts
         public SetupSnapshot Snapshot { get; set; } = new SetupSnapshot();
     }
 
-    /// <summary>A device is being used (button pressed, key typed, mouse moved). Lets the UI flash it. At most a few per second per device.</summary>
+    /// <summary>
+    /// A device is being used (button pressed, key typed, mouse moved). Lets the UI flash it. At most a few per second per
+    /// device; a gamepad also sends one for each new button press, with the buttons (the lobby joins a pad on Start).
+    /// </summary>
     [BridgeEvent("setup.deviceActivity")]
     public sealed class DeviceActivity
     {
@@ -673,6 +676,49 @@ namespace Nucleus.Bridge.Contracts
 
         /// <summary>True when activity starts, false when it stops.</summary>
         public bool Active { get; set; }
+
+        /// <summary>
+        /// For a new press on a gamepad: the buttons that went down, even when the device was already active. Absent for
+        /// keyboards and mice, for a press Nucleus could not read buttons of, and when activity stops.
+        /// </summary>
+        public List<GamepadButton>? Buttons { get; set; }
+    }
+
+    /// <summary>A gamepad button, by its Xbox name.</summary>
+    public enum GamepadButton
+    {
+        /// <summary>A (Cross on PlayStation pads).</summary>
+        A,
+        /// <summary>B (Circle).</summary>
+        B,
+        /// <summary>X (Square).</summary>
+        X,
+        /// <summary>Y (Triangle).</summary>
+        Y,
+        /// <summary>Left bumper (L1).</summary>
+        LeftBumper,
+        /// <summary>Right bumper (R1).</summary>
+        RightBumper,
+        /// <summary>Back or View (Share, Create).</summary>
+        Back,
+        /// <summary>Start or Menu (Options): the button that joins in the lobby.</summary>
+        Start,
+        /// <summary>Left stick click.</summary>
+        LeftStick,
+        /// <summary>Right stick click.</summary>
+        RightStick,
+        /// <summary>D-pad up.</summary>
+        DPadUp,
+        /// <summary>D-pad down.</summary>
+        DPadDown,
+        /// <summary>D-pad left.</summary>
+        DPadLeft,
+        /// <summary>D-pad right.</summary>
+        DPadRight,
+        /// <summary>Guide (Xbox, PS, Home).</summary>
+        Guide,
+        /// <summary>A button Nucleus can't name: DirectInput pads number their buttons freely, only their Start is guessed.</summary>
+        Other,
     }
 
     /// <summary>A device assigned to a player was unplugged.</summary>

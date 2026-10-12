@@ -142,6 +142,7 @@
     <Compile Include="Coop\InputManagement\Gamepads\GamepadNavigation.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\GamepadState.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\InputTypesEnum.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\PadButtons.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL2Utils\SDL_ControllerUtils.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Audio.cs" />

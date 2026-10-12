@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 using Xunit;
 
 namespace Nucleus.Coop.Services.Tests.Setup;
@@ -119,6 +120,59 @@ public class SetupEngineTests
 
         Assert.False(pad.IsInputUsed);//gamepads are revealed by the polling (button press), not by the flash itself
         Assert.True(pad.ShouldFlash);
+    }
+
+    [Fact]
+    public void Tracking_buttons_raises_only_the_ones_that_went_down()
+    {
+        PlayerInfo pad = new PlayerInfo { IsXInput = true };
+        List<PadButtons> presses = new List<PadButtons>();
+
+        void OnPressed(PlayerInfo player, PadButtons pressed)
+        {
+            if (player == pad)
+            {
+                presses.Add(pressed);
+            }
+        }
+
+        PlayerInfo.ButtonsPressed += OnPressed;
+
+        try
+        {
+            pad.TrackButtons(PadButtons.A);
+            pad.TrackButtons(PadButtons.A);//held: no new press
+            pad.TrackButtons(PadButtons.A | PadButtons.Start);//Start joins the held A
+            pad.TrackButtons(PadButtons.Start);//A released
+            pad.TrackButtons(PadButtons.None);
+            pad.TrackButtons(PadButtons.Start);//pressed again
+
+            Assert.Equal(new[] { PadButtons.A, PadButtons.Start, PadButtons.Start }, presses);
+            Assert.Equal(PadButtons.Start, pad.HeldButtons);
+        }
+        finally
+        {
+            PlayerInfo.ButtonsPressed -= OnPressed;
+        }
+    }
+
+    [Theory]
+    [InlineData("1118", 7)]//Microsoft (045E)
+    [InlineData("1356", 9)]//Sony (054C)
+    [InlineData("1406", 9)]//Nintendo (057E)
+    [InlineData("", 9)]
+    [InlineData(null, 9)]
+    public void DirectInput_pads_name_their_start_button_by_vendor(string? vendorId, int start)
+    {
+        Assert.Equal(start, PadButtonRules.DInputStartIndex(vendorId!));
+
+        bool[] buttons = new bool[16];
+        buttons[start] = true;
+        Assert.Equal(PadButtons.Start, PadButtonRules.FromDInput(buttons, vendorId!));
+
+        buttons[0] = true;
+        Assert.Equal(PadButtons.Start | PadButtons.Other, PadButtonRules.FromDInput(buttons, vendorId!));
+        Assert.Equal(PadButtons.None, PadButtonRules.FromDInput(null!, vendorId!));
     }
 
     [Fact]

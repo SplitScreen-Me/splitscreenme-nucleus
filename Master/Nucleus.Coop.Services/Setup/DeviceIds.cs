@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Nucleus.Bridge.Contracts;
+using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 
 namespace Nucleus.Coop.Services.Setup
 {
@@ -116,5 +117,41 @@ namespace Nucleus.Coop.Services.Setup
 
         /// <summary>Whether a raw device is one of the virtual entries that catch injected input (device handle 0).</summary>
         public static bool IsVirtual(string? hid) => hid == "MouseHandleZero" || hid == "KeyboardHandleZero";
+
+        private static readonly KeyValuePair<PadButtons, GamepadButton>[] ButtonNames =
+        {
+            new KeyValuePair<PadButtons, GamepadButton>(PadButtons.A, GamepadButton.A),
+            new KeyValuePair<PadButtons, GamepadButton>(PadButtons.B, GamepadButton.B),
+            new KeyValuePair<PadButtons, GamepadButton>(PadButtons.X, GamepadButton.X),
+            new KeyValuePair<PadButtons, GamepadButton>(PadButtons.Y, GamepadButton.Y),
+            new KeyValuePair<PadButtons, GamepadButton>(PadButtons.LeftShoulder, GamepadButton.LeftBumper),
+            new KeyValuePair<PadButtons, GamepadButton>(PadButtons.RightShoulder, GamepadButton.RightBumper),
+            new KeyValuePair<PadButtons, GamepadButton>(PadButtons.Back, GamepadButton.Back),
+            new KeyValuePair<PadButtons, GamepadButton>(PadButtons.Start, GamepadButton.Start),
+            new KeyValuePair<PadButtons, GamepadButton>(PadButtons.LeftThumb, GamepadButton.LeftStick),
+            new KeyValuePair<PadButtons, GamepadButton>(PadButtons.RightThumb, GamepadButton.RightStick),
+            new KeyValuePair<PadButtons, GamepadButton>(PadButtons.DPadUp, GamepadButton.DPadUp),
+            new KeyValuePair<PadButtons, GamepadButton>(PadButtons.DPadDown, GamepadButton.DPadDown),
+            new KeyValuePair<PadButtons, GamepadButton>(PadButtons.DPadLeft, GamepadButton.DPadLeft),
+            new KeyValuePair<PadButtons, GamepadButton>(PadButtons.DPadRight, GamepadButton.DPadRight),
+            new KeyValuePair<PadButtons, GamepadButton>(PadButtons.Guide, GamepadButton.Guide),
+            new KeyValuePair<PadButtons, GamepadButton>(PadButtons.Other, GamepadButton.Other),
+        };
+
+        /// <summary>Contract names of a set of pad buttons, in a fixed order (face buttons first).</summary>
+        public static List<GamepadButton> ButtonsOf(PadButtons buttons)
+        {
+            List<GamepadButton> names = new List<GamepadButton>();
+
+            foreach (KeyValuePair<PadButtons, GamepadButton> pair in ButtonNames)
+            {
+                if ((buttons & pair.Key) != 0)
+                {
+                    names.Add(pair.Value);
+                }
+            }
+
+            return names;
+        }
     }
 }

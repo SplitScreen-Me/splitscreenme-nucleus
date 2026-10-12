@@ -79,7 +79,7 @@ Registration: `NucleusServices.Register` creates one `SetupSession` and the thre
 | Event | When |
 |---|---|
 | `setup.changed` | Coalesced (about 100 ms) after commands, device ticks (300 ms), flashes, profile matching, monitor changes. Only when the snapshot changed (JSON comparison); never during a session. |
-| `setup.deviceActivity` | `PlayerInfo.FlashChanged` edges (on/off), deduplicated per device. `FlashIcon` already limits the rate (250 ms, off 500 ms after the last input). |
+| `setup.deviceActivity` | `PlayerInfo.FlashChanged` edges (on/off), deduplicated per device. `FlashIcon` already limits the rate (250 ms, off 500 ms after the last input). Gamepads also send one per new button press, with `buttons` (`PlayerInfo.ButtonsPressed`: the 150 ms polling reads the held buttons, XInput and SDL by name, DirectInput only its Start, button 10, or 8 on Microsoft pads, and `Other`), before the flash of that press. The lobby joins a pad on `start` only, and a place waiting for a controller takes any other press but B. |
 | `setup.deviceLost` | `DevicesFunctions.AssignedDeviceLost` (a placed device or a guest unplugged), with the player number and nickname. The flow goes back to the players step, as the WinForms UI did. |
 | `profiles.changed` | Delete, save of a saved profile's settings, after a session. |
 | `session.changed` | State changes, poll (500 ms) when the snapshot changed, setup open/close. |
