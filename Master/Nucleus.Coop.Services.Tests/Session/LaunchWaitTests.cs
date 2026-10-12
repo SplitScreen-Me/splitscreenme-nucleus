@@ -226,7 +226,7 @@ public class LaunchWaitTests
     }
 
     [Fact]
-    public void Ini_reading_is_off_unless_the_key_says_true()
+    public void Ini_reading_is_on_unless_the_key_says_false()
     {
         string dir = Path.Combine(Path.GetTempPath(), "nucleus-launchwait-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(dir);
@@ -235,8 +235,11 @@ public class LaunchWaitTests
         {
             File.WriteAllText(path, "[Misc]\r\nDebugLog=True\r\n");
             var ini = new IniFile(path);
-            Assert.False(LaunchWait.IniFastAt(ini, LaunchWait.Tier1));
+            Assert.True(LaunchWait.IniFastAt(ini, LaunchWait.Tier2));
             Assert.False(LaunchWait.IniFastAt(null, LaunchWait.Tier1));
+
+            File.WriteAllText(path, "[Misc]\r\nFastLaunch=False\r\n");
+            Assert.False(LaunchWait.IniFastAt(ini, LaunchWait.Tier1));
 
             File.WriteAllText(path, "[Misc]\r\nFastLaunch=True\r\n");
             Assert.True(LaunchWait.IniFastAt(ini, LaunchWait.Tier1));
@@ -247,7 +250,7 @@ public class LaunchWaitTests
             Assert.False(LaunchWait.IniFastAt(ini, LaunchWait.Tier2));
 
             File.WriteAllText(path, "[Misc]\r\nFastLaunch=yes\r\n");
-            Assert.False(LaunchWait.IniFastAt(ini, LaunchWait.Tier1));
+            Assert.True(LaunchWait.IniFastAt(ini, LaunchWait.Tier1));
         }
         finally
         {

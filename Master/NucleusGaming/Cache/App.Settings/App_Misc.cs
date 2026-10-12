@@ -163,7 +163,7 @@ namespace Nucleus.Gaming.App.Settings
             }
         }
 
-        // Fast launch (experimental): ends launch waits early when the awaited state is observable. Missing key = off.
+        // Fast launch: ends launch waits early when the awaited state is observable. On by default (missing key = on).
         private static bool fastLaunch;
         public static bool FastLaunch
         {
@@ -273,8 +273,8 @@ namespace Nucleus.Gaming.App.Settings
             nucleusMultiInstances = bool.Parse(Globals.ini.IniReadValue("Misc", "NucleusMultiInstances"));
             disableGameProfiles = bool.Parse(Globals.ini.IniReadValue("Misc", "DisableGameProfiles"));
             hostWindowPlacement = Globals.ini.IniReadValue("Misc", "HostWindowPlacement");
-            //Tolerant on purpose: Settings.ini files older than the key must keep loading (missing = off).
-            bool.TryParse(Globals.ini.IniReadValue("Misc", "FastLaunch"), out fastLaunch);
+            //Tolerant on purpose: Settings.ini files older than the key must keep loading (missing = on, the default).
+            fastLaunch = Nucleus.Gaming.Coop.Generic.LaunchWait.ParseFastLaunch(Globals.ini.IniReadValue("Misc", "FastLaunch"));
             fastLaunchLevel = Nucleus.Gaming.Coop.Generic.LaunchWait.ParseLevel(Globals.ini.IniReadValue("Misc", "FastLaunchLevel"));
 
             showFavoriteOnly = bool.Parse(Globals.ini.IniReadValue("Dev", "ShowFavoriteOnly"));

@@ -306,11 +306,17 @@ namespace Nucleus.Gaming.Coop.Generic
         }
 
         /// <summary>Reads <c>[Misc] FastLaunch</c> / <c>FastLaunchLevel</c> (for StartGame.exe and Nucleus.Inject). A missing or bad key is off.</summary>
+        /// <summary>Value of <c>[Misc] FastLaunch</c>: on by default, only an explicit "False" turns it off.</summary>
+        public static bool ParseFastLaunch(string value)
+        {
+            return !bool.TryParse(value, out bool on) || on;
+        }
+
         public static bool IniFastAt(IniFile ini, int tier)
         {
             try
             {
-                if (ini == null || !bool.TryParse(ini.IniReadValue("Misc", "FastLaunch"), out bool on) || !on)
+                if (ini == null || !ParseFastLaunch(ini.IniReadValue("Misc", "FastLaunch")))
                 {
                     return false;
                 }

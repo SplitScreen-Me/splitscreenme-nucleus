@@ -180,8 +180,8 @@ public static class SettingsCatalog
         list.Add(password);
         list.Add(Toggle("general", "misc.autoDesktopScaling", "Set desktop scale to 100% during sessions", "Some games need 100% display scaling to place their windows correctly.", false,
             () => App_Misc.AutoDesktopScaling, v => App_Misc.AutoDesktopScaling = v));
-        list.Add(Toggle("general", "misc.fastLaunch", "Fast launch (experimental)",
-            "Starts each instance as soon as the previous one is ready instead of always waiting the handler's full pauses. Turn it off if a game stops launching correctly.", false,
+        list.Add(Toggle("general", "misc.fastLaunch", "Fast launch",
+            "Starts each instance as soon as the previous one is ready instead of always waiting the handler's full pauses. Turn it off if a game stops launching correctly.", true,
             () => App_Misc.FastLaunch, v => App_Misc.FastLaunch = v));
         list.Add(Toggle("general", "misc.ignoreInputLockReminder", "Don't remind me to lock inputs", "When off, a message at launch explains how to lock keyboard and mouse input.", true,
             () => App_Misc.IgnoreInputLockReminder, v => App_Misc.IgnoreInputLockReminder = v));
