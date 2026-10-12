@@ -1,5 +1,4 @@
-﻿using Nucleus.Gaming.App.Settings;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -9,17 +8,7 @@ namespace Nucleus.Gaming.Tools.HexEdit
 {
     public static class HexEdit
     {
-        private static void Log(string logMessage)
-        {
-            if (App_Misc.DebugLog)
-            {
-                using (StreamWriter writer = new StreamWriter("debug-log.txt", true))
-                {
-                    writer.WriteLine($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}]NemirtingasGalaxyEmu: {logMessage}");
-                    writer.Close();
-                }
-            }
-        }
+        private static void Log(string logMessage) => DebugLogFile.Write("NemirtingasGalaxyEmu", logMessage);
 
         public static void HexEditFile(int i, string linkFolder)
         {

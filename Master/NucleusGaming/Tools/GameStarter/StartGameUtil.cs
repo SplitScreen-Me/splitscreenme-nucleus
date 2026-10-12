@@ -19,22 +19,6 @@ namespace Nucleus.Gaming.Tools.GameStarter
             return Path.Combine(Globals.NucleusInstallRoot, "StartGame.exe");
         }
 
-        public static string GetArguments(string pathToGame, string args, int waitTime, string mutexType, params string[] mutex)
-        {
-            string mu = "";
-            for (int i = 0; i < mutex.Length; i++)
-            {
-                mu += mutex[i];
-
-                if (i != mutex.Length - 1)
-                {
-                    mu += "|";
-                }
-            }
-
-            return "\"" + pathToGame + "\" \"" + args + "\" \"" + waitTime + "\" \"" + mutexType + "\" \"" + mu + "\"";
-        }
-
         public static void KillMutex(Process p, string mutexType, bool partial, params string[] mutex)
         {
             lock (locker)
@@ -218,8 +202,7 @@ namespace Nucleus.Gaming.Tools.GameStarter
         {
             if (!Directory.Exists(origGameDir))
             {
-                NucleusMessageBox.Show("",
-                                           $"Directory not found:\n"+
+                UserPrompts.Notice("", $"Directory not found:\n"+
                                            $"{origGameDir}", false);
                 return false;
             }
@@ -230,11 +213,10 @@ namespace Nucleus.Gaming.Tools.GameStarter
             {
                 if(entry.Length > 256)
                 {
-                    NucleusMessageBox.Show("File path is too long!", 
-                                           $"The file path is too long.\n" +
+                    UserPrompts.Notice("File path is too long!", $"The file path is too long.\n" +
                                            $"{entry}\n" + 
                                            $"Limit is 256 characters and the file path is {entry.Length} characters long.\n" +
-                                           $"You can try moving your game at the root of your drive to reduce its length.",false);
+                                           $"You can try moving your game at the root of your drive to reduce its length.", false);
                     return false;
                 }
 

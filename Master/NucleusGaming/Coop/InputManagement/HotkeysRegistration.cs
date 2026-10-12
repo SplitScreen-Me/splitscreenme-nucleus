@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using System;
 using Nucleus.Gaming.App.Settings;
+using Nucleus.Gaming.Forms;
 
 namespace Nucleus.Gaming.Coop.InputManagement
 {
@@ -79,7 +80,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error registering hotkeys " + ex.Message, ex.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UserPrompts.Report(PromptIcon.Error, ex.ToString(), "Error registering hotkeys " + ex.Message);
             }
         }
 
@@ -100,7 +101,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error unregistering hotkeys " + ex.Message, ex.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UserPrompts.Report(PromptIcon.Error, ex.ToString(), "Error unregistering hotkeys " + ex.Message);
             }
         }
 
@@ -140,7 +141,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error registering hotkeys " + ex.Message, ex.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UserPrompts.Report(PromptIcon.Error, ex.ToString(), "Error registering hotkeys " + ex.Message);
             }
         }
 
@@ -179,7 +180,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error registering hotkeys " + ex.Message, ex.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UserPrompts.Report(PromptIcon.Error, ex.ToString(), "Error registering hotkeys " + ex.Message);
             }
         }
     }

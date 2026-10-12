@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Nucleus.Gaming.Forms;
 
 namespace Nucleus.Gaming.App.Settings
 {
@@ -22,14 +23,14 @@ namespace Nucleus.Gaming.App.Settings
             }
             catch(Exception ex)
             {
-                MessageBox.Show("Nucleus is unable to load its settings.\n" +
-                                "Do not edit settings.ini manually.\n" +
-                                "Try re-extracting Nucleus with 7-Zip.\n" +
-                                "If the issue persists ask for support on our Discord server.", "Error loading Nucleus settings!" +
+                UserPrompts.Ask(new PromptRequest { Kind = PromptKind.Message, Icon = PromptIcon.Error, Title = "Error loading Nucleus settings!" +
                                 $"Error: " +
                                 $"{ex.Message} \n" +
                                 $"StackTrace:\n" +
-                                $"{ex.StackTrace}", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly, false);
+                                $"{ex.StackTrace}", Message = "Nucleus is unable to load its settings.\n" +
+                                "Do not edit settings.ini manually.\n" +
+                                "Try re-extracting Nucleus with 7-Zip.\n" +
+                                "If the issue persists ask for support on our Discord server.", DesktopOnly = true });
                 return false;
             }
 

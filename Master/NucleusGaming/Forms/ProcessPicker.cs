@@ -1,41 +1,56 @@
-﻿using Nucleus.Gaming.Tools.GlobalWindowMethods;
+﻿using Nucleus.Gaming.Forms;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using System.Windows.Media;
 
 namespace Nucleus.Gaming.Coop.Generic
 {
-    public partial class ProcessPicker : Form, IDynamicSized
+    /// <summary>A plain topmost list of running processes, shown over the game windows. Use <see cref="UserPrompts.PickProcess"/>.</summary>
+    public partial class ProcessPicker : Form
     {
-        public ProcessPicker()
+        private readonly Func<IList<string>> choices;
+
+        public ProcessPicker(Func<IList<string>> choices)
         {
+            this.choices = choices ?? (() => new List<string>());
+
             InitializeComponent();
             MaximizeBox = false;
             MinimizeBox = false;
 
-            GenericGameHandler.Instance?.AllRuntimeForms.Add(this);
+            pplistBox.DoubleClick += (s, e) => PickSelected();
+            selBtn.Click += (s, e) => PickSelected();
+            refrshBtn.Click += (s, e) => Fill();
+            Fill();
 
-            DPIManager.Register(this);
-            DPIManager.AddForm(this);
-            DPIManager.Update(this);         
+            GenericGameHandler.Instance?.AllRuntimeForms.Add(this);
         }
 
-        public void UpdateSize(float scale)
+        /// <summary>The choice picked, or null.</summary>
+        public string SelectedChoice { get; private set; }
+
+        private void Fill()
         {
-            if (IsDisposed)
+            pplistBox.Items.Clear();
+
+            foreach (string choice in choices())
             {
-                DPIManager.Unregister(this);
+                pplistBox.Items.Add(choice);
+            }
+        }
+
+        private void PickSelected()
+        {
+            if (pplistBox.SelectedItem == null)
+            {
+                MessageBox.Show(this, "No process has been selected.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            float ratio = ((float)Height / (float)Width);
-            Height = (int)((float)Height / (float)ratio);
-            pplistBox.Font = new Font("Franklin Gothic", pplistBox.Font.Size * scale, FontStyle.Regular, GraphicsUnit.Pixel, 0);
-            FormGraphicsUtil.CreateRoundedControlRegion(this, 0, 0, Width, Height, 20, 20);
+            SelectedChoice = pplistBox.SelectedItem.ToString();
+            Close();
         }
     }
 
@@ -45,65 +60,13 @@ namespace Nucleus.Gaming.Coop.Generic
         {
             var handlerInstance = GenericGameHandler.Instance;
 
-            ProcessPicker ppform = new ProcessPicker();
             handlerInstance.Log("Launching process picker");
 
-            ppform.pplistBox.DoubleClick += new EventHandler(SelBtn_Click);
+            string choice = UserPrompts.PickProcess(() => ListProcesses(handlerInstance));
 
-            foreach (Control c in ppform.Controls)
+            if (choice != null)
             {
-                if (c.Name == "refrshBtn")
-                {
-                    c.Click += new EventHandler(RefrshBtn_Click);
-                }
-            }
-
-            foreach (Control c in ppform.Controls)
-            {
-                if (c.Name == "selBtn")
-                {
-                    c.Click += new EventHandler(SelBtn_Click);
-                }
-            }
-
-            Process[] allProc = Process.GetProcesses();
-
-            foreach (Process p in allProc)
-            {
-                if (p.Id == 0 || string.IsNullOrEmpty(p.MainWindowTitle))
-                {
-                    continue;
-                }
-                if (handlerInstance.attachedIds.Contains(p.Id))
-                {
-                    if (p.ProcessName.ToLower().Contains(Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.ExecutableName).ToLower()) || (handlerInstance.CurrentGameInfo.LauncherExe?.Length > 0 && p.ProcessName.ToLower().Contains(Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.LauncherExe).ToLower())))
-                    {
-                        ppform.pplistBox.Items.Insert(0, p.Id + " - (DO NOT USE - Already assigned in Nucleus) " + p.ProcessName);
-                    }
-                    else
-                    {
-                        ppform.pplistBox.Items.Add(p.Id + " - (DO NOT USE - Already assigned in Nucleus) " + p.ProcessName);
-                    }
-                }
-                else
-                {
-                    if (p.ProcessName.ToLower().Contains(Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.ExecutableName).ToLower()) || (handlerInstance.CurrentGameInfo.LauncherExe?.Length > 0 && p.ProcessName.ToLower().Contains(Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.LauncherExe).ToLower())))
-                    {
-                        ppform.pplistBox.Items.Insert(0, p.Id + " - " + p.ProcessName);
-                    }
-                    else
-                    {
-                        ppform.pplistBox.Items.Add(p.Id + " - " + p.ProcessName);
-                    }
-                }
-            }
-
-            ppform.ShowDialog();
-            WindowScrape.Static.HwndInterface.MakeTopMost(ppform.Handle);
-
-            if (ppform.pplistBox.SelectedItem != null)
-            {
-                Process proc = Process.GetProcessById(int.Parse(ppform.pplistBox.SelectedItem.ToString().Split(' ')[0]));
+                Process proc = Process.GetProcessById(int.Parse(choice.Split(' ')[0]));
                 handlerInstance.Log(string.Format("Obtained process {0} (pid {1}) via process picker", proc.ProcessName, proc.Id));
                 handlerInstance.attached.Add(proc);
                 handlerInstance.attachedIds.Add(proc.Id);
@@ -120,85 +83,39 @@ namespace Nucleus.Gaming.Coop.Generic
             return null;
         }
 
-        private static void SelBtn_Click(object sender, EventArgs e)
+        /// <summary>"pid - name" of every process with a window, the game's (or launcher's) first; processes already used are marked.</summary>
+        private static IList<string> ListProcesses(GenericGameHandler handlerInstance)
         {
-            Control control = (Control)sender;
-            Form ppform = control.FindForm();
+            List<string> items = new List<string>();
 
-            if (control.GetType() == typeof(ListBox))
+            string exe = Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.ExecutableName).ToLower();
+            string launcher = handlerInstance.CurrentGameInfo.LauncherExe?.Length > 0 ? Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.LauncherExe).ToLower() : null;
+
+            foreach (Process p in Process.GetProcesses())
             {
-                ListBox listBox = control as ListBox;
-                if (listBox.SelectedItem == null)
+                if (p.Id == 0 || string.IsNullOrEmpty(p.MainWindowTitle))
                 {
-                    MessageBox.Show("No process has been selected.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    continue;
+                }
+
+                string item = handlerInstance.attachedIds.Contains(p.Id)
+                    ? p.Id + " - (DO NOT USE - Already assigned in Nucleus) " + p.ProcessName
+                    : p.Id + " - " + p.ProcessName;
+
+                string name = p.ProcessName.ToLower();
+
+                //The game's processes go first, newest first (as the picker always listed them).
+                if (name.Contains(exe) || (launcher != null && name.Contains(launcher)))
+                {
+                    items.Insert(0, item);
+                }
+                else
+                {
+                    items.Add(item);
                 }
             }
-            else if (control.GetType() == typeof(Button))
-            {
-                foreach (Control c in ppform.Controls)
-                {
-                    if (c.GetType() == typeof(ListBox))
-                    {
-                        ListBox listBox = c as ListBox;
-                        if (listBox.SelectedItem == null)
-                        {
-                            MessageBox.Show("No process has been selected.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
-                        }
-                    }
-                }
-            }
 
-            ppform.Close();
-        }
-
-        private static void RefrshBtn_Click(object sender, EventArgs e)
-        {
-            var handlerInstance = GenericGameHandler.Instance;
-
-            Control control = (Button)sender;
-
-            Form ppform = control.FindForm();
-            foreach (Control l in ppform.Controls)
-            {
-                if (l.GetType() == typeof(ListBox))
-                {
-                    ListBox listBox = l as ListBox;
-                    listBox.Items.Clear();
-
-                    Process[] allProc = Process.GetProcesses();
-                    foreach (Process p in allProc)
-                    {
-                        if (p.Id == 0 || string.IsNullOrEmpty(p.MainWindowTitle))
-                        {
-                            continue;
-                        }
-                        if (handlerInstance.attachedIds.Contains(p.Id))
-                        {
-                            if (p.ProcessName.ToLower().Contains(Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.ExecutableName).ToLower()) || (handlerInstance.CurrentGameInfo.LauncherExe?.Length > 0 && p.ProcessName.ToLower().Contains(Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.LauncherExe).ToLower())))
-                            {
-                                listBox.Items.Insert(0, p.Id + " - (DO NOT USE - Already assigned in Nucleus)" + p.ProcessName);
-                            }
-                            else
-                            {
-                                listBox.Items.Add(p.Id + " - (DO NOT USE - Already assigned in Nucleus)" + p.ProcessName);
-                            }
-                        }
-                        else
-                        {
-                            if (p.ProcessName.ToLower().Contains(Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.ExecutableName).ToLower()) || (handlerInstance.CurrentGameInfo.LauncherExe?.Length > 0 && p.ProcessName.ToLower().Contains(Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.LauncherExe).ToLower())))
-                            {
-                                listBox.Items.Insert(0, p.Id + " - " + p.ProcessName);
-                            }
-                            else
-                            {
-                                listBox.Items.Add(p.Id + " - " + p.ProcessName);
-                            }
-                        }
-                    }
-                }
-            }
+            return items;
         }
     }
 }

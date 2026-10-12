@@ -1,141 +1,63 @@
 ﻿using Nucleus.Gaming.Coop;
-using Nucleus.Gaming.UI;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using System.Numerics;
-using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Controls.SetupScreen
 {
     public static class BoundsFunctions
     {
-        //This should not rely on UI at all in the future(SetupScreenControl)
-        public static void Initialize(SetupScreenControl _parent, UserGameInfo _userGameInfo, GameProfile _profile)
+        /// <summary>
+        /// Initializes the screens for the setup service: the layout math runs on a virtual surface of
+        /// <see cref="SurfaceSize"/> pixels (EditBounds/UIBounds stay consistent for profiles and keyboard/mouse pairing).
+        /// Call on the thread that owns the setup state, after the profile is initialized; <see cref="DevicesFunctions.Dispatch"/>
+        /// must be set.
+        /// </summary>
+        public static void Initialize(UserGameInfo _userGameInfo, GameProfile _profile)
         {
-            parent = _parent;
+            if (DevicesFunctions.Dispatch == null)
+            {
+                throw new InvalidOperationException("DevicesFunctions.Dispatch must be set before the setup screens are initialized.");
+            }
+
             userGameInfo = _userGameInfo;
             profile = _profile;
             IsInitialized = true;
 
-            //Initialize runs each time the setup screen is shown: never leak the previous watcher.
+            //Runs each time a setup is opened: never leak the previous watcher.
             screensWatcherTimer?.Dispose();
             screensWatcherTimer = new System.Threading.Timer(ScreensWatcher_Tick, null, 0, 3000);
-        }
 
-        /// <summary>
-        /// Initializes the screens without a WinForms setup screen: the layout math runs on a virtual surface of
-        /// <see cref="SurfaceSize"/> pixels (EditBounds/UIBounds stay consistent for profiles and keyboard/mouse pairing).
-        /// Call on the thread that owns the setup state, after the profile is initialized.
-        /// </summary>
-        public static void InitializeHeadless(UserGameInfo _userGameInfo, GameProfile _profile)
-        {
-            Initialize(null, _userGameInfo, _profile);
             SetPlayerArea();
             RefreshScreens();
         }
 
-        /// <summary>Stops the screens watcher (headless setup closed).</summary>
+        /// <summary>Stops the screens watcher (setup closed).</summary>
         public static void StopScreensWatcher()
         {
             screensWatcherTimer?.Dispose();
             screensWatcherTimer = null;
         }
 
-        /// <summary>True once the screens were initialized, by the WinForms setup screen or <see cref="InitializeHeadless"/>.</summary>
+        /// <summary>True once the screens were initialized by <see cref="Initialize"/>.</summary>
         public static bool IsInitialized { get; private set; }
 
-        /// <summary>Size of the virtual setup surface used when there is no WinForms setup screen.</summary>
+        /// <summary>Size of the virtual setup surface the layout math runs on.</summary>
         public static Size SurfaceSize = new Size(1280, 720);
 
-        private static int SurfaceWidth => parent != null ? parent.Width : SurfaceSize.Width;
-        private static int SurfaceHeight => parent != null ? parent.Height : SurfaceSize.Height;
-        private static int SurfaceTop => parent != null ? parent.Top : 0;
-
         private static System.Threading.Timer screensWatcherTimer;
-        private static SetupScreenControl parent;
         private static UserGameInfo userGameInfo;
         private static GameProfile profile;
-        public static PlayerInfo SelectedPlayer;
 
         public static UserScreen[] Screens;
 
-        private static PointF draggingOffset;
-        public static Point MousePos => mousePos;
-        private static int draggingIndex = -1;
-        public static int DraggingScreen = -1;
-
         internal static RectangleF PlayersArea;
         public static Rectangle TotalBounds;
-        private static RectangleF sizer;
-        private static RectangleF sizerBtnLeft;
-        private static RectangleF sizerBtnRight;
-        private static RectangleF sizerBtnTop;
-        private static RectangleF sizerBtnBottom;
-        private static RectangleF sizerBtnCenter;
 
-        private  static RectangleF destEditBounds;
-        public static RectangleF DestEditBounds
-
-        {
-            get => destEditBounds;
-            private set
-            {
-                if (destEditBounds != RectangleF.Empty)
-                {
-                    parent?.Invalidate(new Rectangle((int)destEditBounds.X - 5, (int)destEditBounds.Y - 5, (int)destEditBounds.Width + 10, (int)destEditBounds.Height + 10), false);//invalidate prev bounds
-                }
-
-                destEditBounds = value;
-
-                if (destEditBounds != RectangleF.Empty)
-                {
-                    parent?.Invalidate(new Rectangle((int)destEditBounds.X - 5, (int)destEditBounds.Y - 5, (int)destEditBounds.Width + 10, (int)destEditBounds.Height + 10), false);//invalidate new bounds
-                }
-            }
-        }
+        private static RectangleF DestEditBounds { get; set; }
 
         private static Rectangle destMonitorBounds;
-
-        public static RectangleF ActiveSizer => activeSizer;
-        private static RectangleF activeSizer;
-
-        public static bool Dragging = false;
-        public static bool ShowSwapTypeTip = true;
-        private static Point mousePos;
-        private static bool canAddGuest;
-
-        private static PlayerInfo instanceHost;
-        public static PlayerInfo ShowGuestRemovelText;
-        
-        public static List<object> PlayerCounters = new List<object>();
-
-        internal static string PlayerBoundsInfoText(PlayerInfo selectedPlayer)
-        {
-            int width = selectedPlayer.MonitorBounds.Width;
-            int height = selectedPlayer.MonitorBounds.Height;
-
-            int fwidth = selectedPlayer.MonitorBounds.Width;
-            int fheight = selectedPlayer.MonitorBounds.Height;
-
-            float ratio = (float)width / height;
-
-            while (fwidth != 0 && fheight != 0)
-            {
-                if (fwidth > fheight)
-                    fwidth %= fheight;
-                else
-                    fheight %= fwidth;
-            }
-
-            float val1 = (fwidth != 0 ? (width / fwidth) : (width / fheight));
-            float val2 = (fwidth != 0 ? ((width / fwidth) / ratio) : ((width / fheight) / ratio));
-
-            var spb = selectedPlayer.MonitorBounds;
-            return $"{selectedPlayer.Nickname} | Resolution: {spb.Width} X {spb.Height}  Aspect Ratio: {val1} : {val2}  Top: {spb.Top}  Bottom: {spb.Bottom}  Left: {spb.Left}  Right: {spb.Right}";
-        }
 
         private static int screensTickQueued;
 
@@ -150,29 +72,22 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             Action<Action> dispatch = DevicesFunctions.Dispatch;
 
-            if (dispatch != null)
+            //The screens and the device list are changed on the dispatcher only. One check queued at most.
+            if (dispatch != null && System.Threading.Interlocked.Exchange(ref screensTickQueued, 1) == 0)
             {
-                //Headless: the screens and the device list are changed on the dispatcher only.
-                if (System.Threading.Interlocked.Exchange(ref screensTickQueued, 1) == 0)
+                dispatch(() =>
                 {
-                    dispatch(() =>
+                    System.Threading.Interlocked.Exchange(ref screensTickQueued, 0);
+
+                    if (screensWatcherTimer != null && (GameProfile.I_GameHandler == null || GameProfile.I_GameHandler.HasEnded))
                     {
-                        System.Threading.Interlocked.Exchange(ref screensTickQueued, 0);
-
-                        if (screensWatcherTimer != null && (GameProfile.I_GameHandler == null || GameProfile.I_GameHandler.HasEnded))
-                        {
-                            ScreensWatcherCheck();
-                        }
-                    });
-                }
-
-                return;
+                        ScreensWatcherCheck();
+                    }
+                });
             }
-
-            ScreensWatcherCheck();
         }
 
-        /// <summary>Raised after the monitors changed and the setup was reset (on the dispatcher in headless mode).</summary>
+        /// <summary>Raised after the monitors changed and the setup was reset (on the dispatcher).</summary>
         public static event Action ScreensChanged;
 
         private static void ScreensWatcherCheck()
@@ -212,8 +127,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     GameProfile.Instance?.Reset();
                     DevicesFunctions.UpdateDevices();
 
-                    parent?.Invalidate(false);
-
                     ScreensChanged?.Invoke();
                 }
             }
@@ -231,11 +144,11 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             if (playerData != null)
             {           
-                float playersWidth = SurfaceWidth * 0.70f;
+                float playersWidth = SurfaceSize.Width * 0.70f;
 
                 float playerCount = playerData.Count;
                 float playerWidth = playersWidth * 0.9f;
-                float playerHeight = SurfaceHeight * 0.2f;
+                float playerHeight = SurfaceSize.Height * 0.2f;
 
                 PlayersArea = new RectangleF(10, 0, playersWidth, playerHeight);
 
@@ -251,8 +164,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 {
                     float newVertical = vertical + 1;
 
-                    if (Draw.PlayerCustomFont != null)//null without the WinForms setup screen
-                    Draw.PlayerCustomFont = new Font(Draw.PlayerCustomFont.FontFamily, Draw.PlayerCustomFont.Size * 0.8f, FontStyle.Regular, GraphicsUnit.Point, 0);
                     playerSize = (int)Math.Round(((playerHeight / 1.2f) / newVertical));
                 }
 
@@ -268,7 +179,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     }
                 }
             }
-            parent?.Invalidate();
         }
       
         internal static RectangleF GetDefaultBounds(int index)
@@ -298,11 +208,11 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         private static RectangleF SetScreenArea(UserScreen screen)
         {
-            Rectangle freeSpace = new Rectangle(0, (int)(SurfaceTop + PlayersArea.Height) - 5, SurfaceWidth - 5, (int)(SurfaceHeight - PlayersArea.Height) - 5);
+            Rectangle freeSpace = new Rectangle(0, (int)PlayersArea.Height - 5, SurfaceSize.Width - 5, (int)(SurfaceSize.Height - PlayersArea.Height) - 5);
 
             if(Screens.Length == 1)
             {
-                freeSpace = new Rectangle(10, (int)(SurfaceTop + PlayersArea.Height) - 30, (int)(SurfaceWidth / 1.38f), (int)(SurfaceHeight - PlayersArea.Height) - 10);
+                freeSpace = new Rectangle(10, (int)PlayersArea.Height - 30, (int)(SurfaceSize.Width / 1.38f), (int)(SurfaceSize.Height - PlayersArea.Height) - 10);
             }
 
             float scaleX = (float)freeSpace.Width / TotalBounds.Width;
@@ -348,7 +258,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         PlayerInfo player = playerData[i];
 
                         ClearPlayerGuests(player);
-                        player.EditBounds = GetDefaultBounds(draggingIndex);
+                        player.EditBounds = GetDefaultBounds(i);
                         player.ScreenIndex = -1;
                         player.DisplayIndex = -1;
                     }
@@ -359,243 +269,14 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             {
                 UserScreen screen = Screens[i];
                 screen.UIBounds = SetScreenArea(screen);
-                screen.SwapTypeBounds = new RectangleF(screen.UIBounds.X, screen.UIBounds.Y, screen.UIBounds.Width * 0.1f, screen.UIBounds.Width * 0.1f);
                 screen.Index = i;
             }
-
-           parent?.Invalidate();
         }
-
-        internal static RectangleF ScreensArea;
-
-        internal static void UpdateUIBounds()
-        {
-            if (Screens != null)
-            {
-                SetPlayerArea();
-
-                for (int i = 0; i < Screens.Length; i++)
-                {
-                    UserScreen screen = Screens[i];
-
-                    RectangleF prevSb = screen.UIBounds;
-                    screen.UIBounds = SetScreenArea(screen);
-                    screen.SwapTypeBounds = new RectangleF(screen.UIBounds.X, screen.UIBounds.Y, screen.UIBounds.Width * 0.1f, screen.UIBounds.Width * 0.1f);
-
-                    if (profile != null && profile.DevicesList != null)
-                    {
-                        foreach (PlayerInfo player in profile?.DevicesList)
-                        {
-                            if (player.ScreenIndex != -1 && player.ScreenIndex == i)
-                            {
-                                var datas = TranslateBounds(player.EditBounds, prevSb, screen.UIBounds);
-                                player.EditBounds = datas;
-                            }
-                            else if (player.ScreenIndex == -1)
-                            {
-                                int playerIndex = profile.DevicesList.FindIndex(p => p == player);
-                                player.EditBounds = GetDefaultBounds(playerIndex);
-                            }
-                        }
-
-                        for(int j = 0; j< GameProfile.GhostBounds.Count;j++)
-                        {
-                            GameProfile.GhostBounds[j] = (GameProfile.GhostBounds[j].Item1,TranslateBounds(GameProfile.GhostBounds[j].Item2, prevSb, screen.UIBounds));
-                        }
-                    }
-                }
-
-                TotalBounds = RectangleUtil.Union(Screens);
-            }
-
-          parent?.Invalidate();
-        }
-
-        internal static RectangleF TranslateBounds(RectangleF currentBounds, RectangleF prevSb, RectangleF newSb)
-        {
-            RectangleF ogEditBounds = currentBounds;
-
-            Vector2 ogScruiLoc = new Vector2(prevSb.X, prevSb.Y);
-            Vector2 ogpEb = new Vector2(ogEditBounds.X, ogEditBounds.Y);
-            Vector2 ogOnUIScrLoc = Vector2.Subtract(ogpEb, ogScruiLoc);
-
-            float ratioEW = (float)newSb.Width / (float)prevSb.Width;
-            float ratioEH = (float)newSb.Height / (float)prevSb.Height;
-
-            return new RectangleF(newSb.X + (ogOnUIScrLoc.X * ratioEW), newSb.Y + (ogOnUIScrLoc.Y * ratioEH), ogEditBounds.Width * ratioEW, ogEditBounds.Height * ratioEH);
-        }
-
-        public static RectangleF GetActiveSizer(MouseEventArgs e)
-        {
-            if (sizerBtnLeft.Contains(e.Location)) return sizerBtnLeft;
-            if (sizerBtnRight.Contains(e.Location)) return sizerBtnRight;
-            if (sizerBtnTop.Contains(e.Location)) return sizerBtnTop;
-            if (sizerBtnBottom.Contains(e.Location)) return sizerBtnBottom;
-
-            return RectangleF.Empty;
-        }
-
-        public static Rectangle BufferedSurface = Rectangle.Empty;
-
-        public static void SetBufferSurface(RectangleF surface, float offset)
-        {
-            BufferedSurface = new Rectangle((int)(surface.X - (surface.Width / offset)), (int)(surface.Y - (surface.Height / offset)), (int)((surface.Width) + (surface.Width / offset) * 2), (int)((surface.Height) + (surface.Height / offset) * 2));
-        }
-
-        internal static void OnMouseDown(MouseEventArgs e)
-        {
-            List<PlayerInfo> players = profile.DevicesList;
-
-            if (Dragging)
-            {
-                return;
-            }
-
-            if (e.Button == MouseButtons.Left)
-            {
-                activeSizer = GetActiveSizer(e);
-
-                if (activeSizer != RectangleF.Empty && Screens.All(s => !s.SwapTypeBounds.Contains(mousePos)))
-                {
-                    MoveCursorToActiveSizer();
-                    return;
-                }
-                else
-                {
-                    Cursor.Current = Theme_Settings.Hand_Cursor; 
-                }
-
-                for (int i = 0; i < Screens.Length; i++)
-                {
-                    UserScreen screen = Screens[i];
-
-                    if (screen.SwapTypeBounds.Contains(e.Location))
-                    {
-                        if (GameProfile.Loaded)
-                        {
-                            return;
-                        }
-
-                        ApplyScreenLayout(i, CycleLayoutType(screen.Type, 1));
-
-                        ShowSwapTypeTip = false;
-                        DevicesFunctions.UpdateDevices();
-                        parent?.Invalidate(false);
-                        return;
-                    }
-                }
-
-                for (int i = 0; i < players.Count; i++)
-                {
-                    PlayerInfo p = players[i];
-
-                    RectangleF r = p.EditBounds;
-
-                    if (r.Contains(e.Location))
-                    {
-                        if (!p.IsInputUsed)
-                        {
-                            return;
-                        }
-
-                        Dragging = true;
-
-                        if (p.ScreenIndex != -1)
-                        {
-                            RemovePlayer(p, p.ScreenIndex);
-                        }
-
-                        draggingIndex = i;
-                        break;
-                    }
-                }
-            }
-            else if (e.Button == MouseButtons.Right || e.Button == MouseButtons.Middle)
-            {
-                for (int i = 0; i < Screens.Length; i++)
-                {
-                    UserScreen screen = Screens[i];
-
-                    PlayerInfo player = profile.DevicesList.Where(pl => pl.EditBounds.Contains(e.Location)).FirstOrDefault();
-
-                    if (player != null)
-                    {
-                        var guest = player.InstanceGuests.Where(gst => gst.GuestBounds.Contains(e.Location)).FirstOrDefault();
-
-                        if (guest != null)
-                        {
-                            RemoveGuestCore(player, guest);
-                            return;
-                        }
-                    }
-
-                    if (screen.SwapTypeBounds.Contains(e.Location))
-                    {
-                        if (GameProfile.Loaded)
-                        {
-                            return;
-                        }
-
-                        ApplyScreenLayout(i, CycleLayoutType(screen.Type, -1));
-
-                        parent?.Invalidate(false);
-                        return;
-                    }
-                }
-
-                if (GameProfile.Loaded)
-                {
-                    return;
-                }
-
-                ///if over a player on a screen, expand player bounds
-                for (int i = 0; i < players.Count; i++)
-                {
-                    PlayerInfo p = players[i];
-
-                    RectangleF r = p.EditBounds;
-                    RectangleF pib = Rectangle.Empty;
-
-                    PlayerInfo playerInbounds = players.Where(pl => pl != p && pl.EditBounds == r).FirstOrDefault();
-
-                    var guest = p.InstanceGuests.Where(gst => gst.GuestBounds.Contains(e.Location)).FirstOrDefault();
-
-                    if (guest != null)
-                    {
-                        RemoveGuestCore(p, guest);
-                        break;
-                    }
-
-                    if (playerInbounds != null)
-                    {
-                        pib = playerInbounds.EditBounds;
-                    }
-
-                    if (r.Contains(e.Location) || pib.Contains(e.Location))
-                    {
-                        ExpandFlow flow = ToggleExpandCore(p, playerInbounds, players);
-
-                        if (flow == ExpandFlow.Return)
-                        {
-                            return;
-                        }
-
-                        if (flow == ExpandFlow.Break)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        private enum ExpandFlow { Continue, Break, Return }
 
         /// <summary>
-        /// Right click on a placed player: expands it to the free neighbour cells, or shrinks it back to one cell.
-        /// The result tells the mouse handler to stop (Return), to leave its player loop (Break) or to go on.
+        /// Expands a placed player to the free neighbour cells, or shrinks it back to one cell.
         /// </summary>
-        private static ExpandFlow ToggleExpandCore(PlayerInfo p, PlayerInfo playerInbounds, List<PlayerInfo> players)
+        private static void ToggleExpandCore(PlayerInfo p, PlayerInfo playerInbounds, List<PlayerInfo> players)
         {
             if (p.ScreenIndex != -1)
             {
@@ -603,7 +284,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                 if(screen.Type == UserScreenType.Manual)
                 {
-                    return ExpandFlow.Return;
+                    return;
                 }
 
                 #region Reset the player bounds if the manual method has been used
@@ -621,7 +302,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     {
                         if (players.Any(pl => pl != p && pl != playerInbounds && pl.MonitorBounds.IntersectsWith(intersecting.Key)))
                         {
-                            return ExpandFlow.Return;
+                            return;
                         }
 
                         p.MonitorBounds = intersecting.Key;
@@ -637,7 +318,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     //If only one device on screen, prevent it to fill the screen(useless)
                     if (screen.PlayerOnScreen == 1 || ((p.IsRawKeyboard || p.IsRawMouse) && screen.PlayerOnScreen == 0))
                     {
-                        return ExpandFlow.Return;
+                        return;
                     }
                 }
                 #endregion
@@ -678,7 +359,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         }
                         break;
                     case UserScreenType.Manual:
-                        return ExpandFlow.Return;
+                        return;
                 }
 
                 int halfWidth = screen.MonitorBounds.Width / verLines;
@@ -763,8 +444,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                     playerInbounds.MonitorBounds = p.MonitorBounds;
                                     playerInbounds.EditBounds = p.EditBounds;
                                 }
-
-                                parent?.Invalidate(false);
                             }
                         }
                         #endregion
@@ -834,8 +513,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                     playerInbounds.MonitorBounds = p.MonitorBounds;
                                     playerInbounds.EditBounds = p.EditBounds;
                                 }
-
-                                parent?.Invalidate(false);
                             }
                         }
                         #endregion
@@ -906,8 +583,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                     playerInbounds.MonitorBounds = p.MonitorBounds;
                                     playerInbounds.EditBounds = p.EditBounds;
                                 }
-
-                                parent?.Invalidate(false);
                             }
                         }
                         #endregion
@@ -973,14 +648,12 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                     playerInbounds.MonitorBounds = p.MonitorBounds;
                                     playerInbounds.EditBounds = p.EditBounds;
                                 }
-
-                                parent?.Invalidate(false);
                             }
                         }
                         #endregion
 
                         bounds = p.MonitorBounds;
-                        return ExpandFlow.Break;
+                        return;
                     }
                     else
                     {
@@ -992,7 +665,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         if (p.MonitorBounds.Width <= 0 || p.MonitorBounds.Height <= 0)
                         {
                             RemovePlayer(p, p.ScreenIndex);
-                            return ExpandFlow.Break;
+                            return;
                         }
 
                         RectangleF edit = p.EditBounds;
@@ -1005,18 +678,14 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             playerInbounds.MonitorBounds = p.MonitorBounds;
                             playerInbounds.EditBounds = p.EditBounds;
                         }
-
-                        parent?.Invalidate(false);
                     }
                 }
             }
-
-            return ExpandFlow.Continue;
         }
 
         internal static void AddPlayer(PlayerInfo player, int screenIndex)
         {
-            //Idempotent: a raw keyboard/mouse dragged over its complementary device is added during the hover, then again on drop.
+            //Idempotent: a device already in the lists only gets its new placement below.
             bool alreadyAdded = GameProfile.AssignedDevices.Contains(player) || GameProfile.DevicesToMerge.Contains(player);
 
             if (alreadyAdded)
@@ -1094,11 +763,9 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 GameProfile.TotalAssignedPlayers--;
 
                 ClearPlayerGuests(player);
-
-                parent?.Invalidate(false);
             }
 
-            if (player.ScreenIndex == screenIndex && !Dragging)
+            if (player.ScreenIndex == screenIndex)
             {
                 player.EditBounds = GetDefaultBounds(playerIndex);
                 player.Owner = null;
@@ -1112,71 +779,13 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         {
             foreach (PlayerInfo guest in player.InstanceGuests)
             {
-                guest.GuestBounds = RectangleF.Empty;
                 guest.EditBounds = guest.SourceEditBounds;
             }
 
             player.InstanceGuests.Clear();
         }
 
-        internal static void OnMouseUp(MouseEventArgs e)
-        {
-            if (activeSizer == RectangleF.Empty)
-            {
-                parent.Cursor = Theme_Settings.Hand_Cursor;
-            }
-
-            if (e.Button == MouseButtons.Left)
-            {
-                if (Dragging)
-                {
-                    Dragging = false;
-
-                    PlayerInfo p = profile.DevicesList[draggingIndex];
-
-                    if (DraggingScreen != -1)
-                    {
-                        //for multiple player per instance
-                        if(canAddGuest && instanceHost != null)
-                        {                          
-                            instanceHost.InstanceGuests.Add(p);
-                            canAddGuest = false;
-                            instanceHost = null;
-                            parent?.Invalidate(false);
-                            DraggingScreen = -1;
-                            return;
-                        }
-
-                        AddPlayer(p, DraggingScreen);
-                        DraggingScreen = -1;
-                    }
-                    else
-                    {
-                        for (int i = 0; i < Screens.Length; i++)
-                        {
-                            if (p.ScreenIndex == i)
-                            {
-                                // return to default position
-                                p.Owner = null;
-                                p.EditBounds = GetDefaultBounds(draggingIndex);
-                                p.MonitorBounds = Rectangle.Empty;
-                                p.ScreenPriority = -1;
-                                p.ScreenIndex = -1;
-                            }
-                        }
-                    }
-
-                    DevicesFunctions.UpdateDevices();
-                    parent?.Invalidate(false);
-                }
-
-                activeSizer = RectangleF.Empty;
-            }
-
-            UpdatetSizersBounds();
-        }
-
-        public static bool CanFillGap(Point mousePos,PlayerInfo player, UserScreen screen)
+        private static bool CanFillGap(Point point, PlayerInfo player, UserScreen screen)
         {
             Rectangle container = screen.MonitorBounds;
 
@@ -1219,7 +828,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                     RectangleF eb = freeSpacesEB[j];
 
-                    if (eb.Contains(mousePos))
+                    if (eb.Contains(point))
                     {
                         if (f.IntersectsWith(pcmb))
                         {
@@ -1251,7 +860,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                 RectangleF freemb = freeSpacesEB[i];
 
-                if (freemb.Contains(mousePos))
+                if (freemb.Contains(point))
                 {
                     if (newWidth <= free.Width && newHeight <= free.Height)
                     {
@@ -1267,277 +876,11 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             return false;
         }
 
-        internal static void OnMouseMove(MouseEventArgs e)
+        /// <summary>Takes the slot of <paramref name="screen"/> under <paramref name="point"/> as the destination and checks it.</summary>
+        private static bool GetFreeSpace(PlayerInfo player, UserScreen screen, Point point)
         {
-            mousePos = e.Location;
-
-            if (Dragging)
-            {
-                canAddGuest = false;
-                instanceHost = null;
-
-                PlayerInfo player = profile.DevicesList[draggingIndex];
-
-                if (!player.IsInputUsed)
-                {
-                    return;
-                }
-
-                //A raw keyboard/mouse hovering its complementary device was merged with it (see below): undo that while it
-                //moves, so it is neither counted twice nor left in the merge list when dropped elsewhere.
-                if (player.ScreenIndex != -1 && GameProfile.DevicesToMerge.Contains(player))
-                {
-                    RemovePlayer(player, player.ScreenIndex);
-                }
-
-                player.MonitorBounds = Rectangle.Empty;
-
-                SetBufferSurface(player.EditBounds, 2.5F);
-
-                UserScreen screen = Screens.Where(scr => scr.UIBounds.Contains(e.Location)).FirstOrDefault();
-
-                if (screen != null)
-                {
-                    RectangleF s = screen.UIBounds;
-
-                    DraggingScreen = screen.Index;
-
-                    #region UI support for multiple controller per instance 
-
-                    bool hasFreeSpace = GetFreeSpace(player);
-
-                    if (!hasFreeSpace)
-                    {   //try to fill any gaps on the screen
-                        if (CanFillGap(e.Location, player, screen))
-                        {
-                            bool skip = false;
-
-                            if (GameProfile.Loaded && !GameProfile.GhostBounds.Any(gb => gb.Item1 == destMonitorBounds))
-                            {
-                                skip = true;
-                            }
-
-                            if (!skip)
-                            {
-                                parent?.Invalidate();
-                                return;
-                            }
-                        }
-
-                        //Gamepads only
-                        if (player.IsController && userGameInfo.Game.PlayersPerInstance > 0)
-                        {
-                            var playersInDiv = GameProfile.AssignedDevices.Where(pl => (pl != player) && pl.EditBounds.Contains(e.Location) && pl.IsController).ToList();
-
-                            if (playersInDiv.Count == 1)
-                            {
-                                PlayerInfo instanceOwner = playersInDiv[0];
-
-                                if (instanceOwner.MonitorBounds.IntersectsWith(destMonitorBounds))
-                                {
-                                    if (instanceOwner.IsController)
-                                    {
-                                        var instanceOwnerGuests = instanceOwner.InstanceGuests.Where(ig => ig.GamepadId != -1).ToList();
-
-                                        if (!instanceOwner.InstanceGuests.Contains(player) &&
-                                            !GameProfile.AssignedDevices.Any(pl => pl.InstanceGuests.Contains(player)) &&
-                                            instanceOwnerGuests.Count < userGameInfo.Game.PlayersPerInstance - 1/*&&*/
-                                            /*!( GameProfile.AssignedDevices.Count == userGameInfo.Game.MaxPlayers)*/)
-                                        {
-                                            if (GameProfile.Loaded)
-                                            {
-                                                //so we can't add more guests than expected by the profile
-                                                if (instanceOwner.InstanceGuests.Count != instanceOwner.CurrentMaxGuests)
-                                                {
-                                                    canAddGuest = true;
-                                                    instanceHost = instanceOwner;
-                                                    DestEditBounds = instanceOwner.EditBounds;
-                                                }
-                                            }
-                                            else
-                                            {
-                                                canAddGuest = true;
-                                                instanceHost = instanceOwner;
-                                                DestEditBounds = instanceOwner.EditBounds;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        //multiple kbm
-                        if ((player.IsRawKeyboard || player.IsRawMouse))
-                        {
-                            var playersInDiv = profile.DevicesList.Where(pl => pl != player && pl.EditBounds.Contains(e.Location)).ToList();
-
-                            if (playersInDiv.Count == 1)
-                            {
-                                PlayerInfo instanceOwner = playersInDiv[0];
-
-                                if ((instanceOwner.IsRawKeyboard && player.IsRawMouse) || (instanceOwner.IsRawMouse && player.IsRawKeyboard))
-                                {
-                                    DestEditBounds = instanceOwner.EditBounds;
-                                    destMonitorBounds = instanceOwner.MonitorBounds;
-                                    AddPlayer(player, instanceOwner.ScreenIndex);
-                                    parent?.Invalidate();
-                                    return;
-                                }
-                            }
-                        }
-                        #endregion
-                    }
-
-                    if (player.EditBounds.IntersectsWith(s) && DestEditBounds == RectangleF.Empty)
-                    {
-                        SetBufferSurface(s, 20.0F);
-                    }
-                    else
-                    {
-                        SetBufferSurface(player.EditBounds, 2.5F);
-                    }
-                   
-                    if (!canAddGuest)
-                    {
-                        if (!GetFreeSpace(player))
-                        {
-                            DraggingScreen = -1;
-                        }
-                        else
-                        {
-                            player.EditBounds = DestEditBounds;
-                            parent?.Invalidate();
-                            return;
-                        }
-                    }       
-                }
-                else
-                {
-                    DraggingScreen = -1;
-                    DestEditBounds = RectangleF.Empty;
-                }
-
-                RectangleF p = new RectangleF(mousePos.X - (player.SourceEditBounds.Width / 2), mousePos.Y - (player.SourceEditBounds.Height / 2), player.SourceEditBounds.Width, player.SourceEditBounds.Height);
-                player.EditBounds = p;
-              
-                parent?.Invalidate(BufferedSurface);
-            }
-            else
-            {
-                BufferedSurface = Rectangle.Empty;
-
-                SelectedPlayer = profile.DevicesList.Where(pl => pl.ScreenIndex != -1 && pl.EditBounds.Contains(e.Location)).FirstOrDefault();
-
-                if (SelectedPlayer != null)
-                {
-                    int maxPlayers = Screens[SelectedPlayer.ScreenIndex].SubScreensBounds.Count();
-
-                    var guest = SelectedPlayer.InstanceGuests.Where(gst => gst.GuestBounds.Contains(e.Location)).FirstOrDefault();
-
-                    if(guest != null)
-                    {
-                        ShowGuestRemovelText = guest;
-                        parent.Cursor = Theme_Settings.Hand_Cursor;
-                    }
-                    else 
-                    {
-                        ShowGuestRemovelText = null;
-                    }
-
-                    if (maxPlayers >= 4)
-                    {
-                        if (!GameProfile.Loaded)
-                        {
-                            sizer = SelectedPlayer.EditBounds;
-                            UpdatetSizersBounds();
-                      
-                            if (activeSizer != RectangleF.Empty)
-                            {
-                                SetCursor(e.Location);
-                                EditPlayerBounds(e);
-                            }
-                            else if (guest == null)
-                            {
-                                SetCursor(e.Location);
-                            }
-                        }
-                        else
-                        {
-                            sizer = RectangleF.Empty;
-                        }
-
-                        return;
-                    }
-                    else
-                    {
-                        sizer = RectangleF.Empty;
-                        return;
-                    }
-                }
-                else
-                {
-                    sizer = RectangleF.Empty;
-                    ShowGuestRemovelText = null;
-                }
-
-                bool isInSwapBounds = IsCursorInSwapBounds();
-
-                if (isInSwapBounds)
-                {
-                    parent.Cursor = Theme_Settings.Hand_Cursor;
-                }
-                else if (parent.Cursor != Theme_Settings.Default_Cursor && !isInSwapBounds)
-                {
-                    parent.Cursor = Theme_Settings.Default_Cursor;
-                }
-            }
-        }
-
-        internal static bool IsCursorInSwapBounds()
-        {
-            var cursorInSwapType = Screens?.Where(scr => scr.SwapTypeBounds.Contains(MousePos)).FirstOrDefault();
-            
-            if (cursorInSwapType != null)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        internal static void SetCursor(Point cursorLoc)
-        {
-            if (IsCursorInSwapBounds() || sizerBtnCenter.Contains(MousePos))
-            {
-                parent.Cursor = Theme_Settings.Hand_Cursor;
-                return;
-            }
-
-            if (sizerBtnLeft.Contains(cursorLoc) || sizerBtnRight.Contains(cursorLoc))
-            {
-                parent.Cursor = Cursors.SizeWE;
-            }
-            else if (sizerBtnTop.Contains(cursorLoc) || sizerBtnBottom.Contains(cursorLoc))
-            {
-                parent.Cursor = Cursors.SizeNS;
-            }
-            else 
-            {
-                parent.Cursor = Theme_Settings.Default_Cursor;
-            }
-        }
-
-        internal static bool GetFreeSpace(PlayerInfo player)
-        {
-            if (DraggingScreen == -1)
-            {
-                return false;
-            }
-
-            UserScreen screen = Screens[DraggingScreen];
-
-            destMonitorBounds = screen.SubScreensBounds.Where(b => b.Value.Contains(mousePos)).FirstOrDefault().Key;
-            DestEditBounds = screen.SubScreensBounds.Where(b => b.Value.Contains(mousePos)).FirstOrDefault().Value;
+            destMonitorBounds = screen.SubScreensBounds.Where(b => b.Value.Contains(point)).FirstOrDefault().Key;
+            DestEditBounds = screen.SubScreensBounds.Where(b => b.Value.Contains(point)).FirstOrDefault().Value;
 
             return CheckFreeSpace(player, screen);
         }
@@ -1604,73 +947,12 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             return false;
         }
 
-        internal static void UpdatetSizersBounds()
-        {
-            sizerBtnLeft = new RectangleF(sizer.Left, sizer.Top + (sizer.Height / 3), sizer.Width / 5, sizer.Height / 3);
-            sizerBtnRight = new RectangleF(sizer.Right - sizer.Width / 5, sizer.Top + (sizer.Height / 3), sizer.Width / 5, sizer.Height / 3);
-            sizerBtnTop = new RectangleF(sizer.Left + (sizer.Width / 3), sizer.Top, (sizer.Width / 3), (sizer.Height / 5));
-            sizerBtnBottom = new RectangleF(sizer.Left + (sizer.Width / 3), sizer.Bottom - (sizer.Height / 5), (sizer.Width / 3), (sizer.Height / 5));
-            sizerBtnCenter = new RectangleF(sizerBtnLeft.Right, sizerBtnTop.Bottom, sizerBtnRight.Left - sizerBtnLeft.Right, sizerBtnBottom.Top - sizerBtnTop.Bottom);
-        }
-
-        internal static void EditPlayerBounds(MouseEventArgs e)
-        {
-            if (SelectedPlayer != null && !GameProfile.Loaded)
-            {
-                PlayerInfo p = SelectedPlayer;
-
-                ShowGuestRemovelText = null;
-                
-                if (p.ScreenIndex != -1)
-                {
-                    float offset = 2;
-                    ResizeEdge? edge = null;
-                    bool grow = false;
-
-                    if (activeSizer == sizerBtnLeft)
-                    {
-                        if (e.Location.X <= (activeSizer.Left + (activeSizer.Width / 2)) - offset) { edge = ResizeEdge.Left; grow = true; }
-                        else if (e.Location.X > (activeSizer.Right - (activeSizer.Width / 2)) + offset) { edge = ResizeEdge.Left; grow = false; }
-                    }
-                    else if (activeSizer == sizerBtnRight)
-                    {
-                        if (e.Location.X > (activeSizer.Right - (activeSizer.Width / 2)) + offset) { edge = ResizeEdge.Right; grow = true; }
-                        else if (e.Location.X <= (activeSizer.Left + (activeSizer.Width / 2)) - offset) { edge = ResizeEdge.Right; grow = false; }
-                    }
-                    else if (activeSizer == sizerBtnTop)
-                    {
-                        if (e.Location.Y <= (activeSizer.Top + (activeSizer.Height / 2)) - offset) { edge = ResizeEdge.Top; grow = true; }
-                        else if (e.Location.Y >= (activeSizer.Top + (activeSizer.Height / 2)) + offset) { edge = ResizeEdge.Top; grow = false; }
-                    }
-                    else if (activeSizer == sizerBtnBottom)
-                    {
-                        if (e.Location.Y >= (activeSizer.Top + (activeSizer.Height / 2)) + offset) { edge = ResizeEdge.Bottom; grow = true; }
-                        else if (e.Location.Y <= (activeSizer.Top + (activeSizer.Height / 2)) - offset) { edge = ResizeEdge.Bottom; grow = false; }
-                    }
-
-                    if (edge.HasValue && !ResizeStep(p, edge.Value, grow))
-                    {
-                        return;//minimum size reached
-                    }
-
-                    if(p?.MonitorBounds.Width <= 0 || p?.MonitorBounds.Height <= 0)
-                    {
-                        RemovePlayer(p, p.ScreenIndex);                      
-                    }
-
-                    SetBufferSurface(p.EditBounds,3.0F);
-
-                    parent?.Invalidate(BufferedSurface);
-                }
-            }
-        }
-
         /// <summary>Edge of a placed player, for <see cref="Resize"/>.</summary>
         public enum ResizeEdge { Left, Right, Top, Bottom }
 
         /// <summary>
         /// Moves one edge of a placed player by one step: a twentieth of a cell (one grid cell in the manual layout).
-        /// Shared by the sizer handles of the WinForms setup screen and <see cref="Resize"/>. Returns false when the
+        /// Used by <see cref="Resize"/>. Returns false when the
         /// step is refused because the player would get smaller than the minimum size.
         /// </summary>
         private static bool ResizeStep(PlayerInfo p, ResizeEdge edge, bool grow)
@@ -1744,11 +1026,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             playerInbounds.MonitorBounds = pmb;
                             playerInbounds.EditBounds = peb;
                         }
-
-                        sizer = p.EditBounds;
-                        UpdatetSizersBounds();
-                        activeSizer = sizerBtnLeft;
-                        MoveCursorToActiveSizer();
                     }
                 }
 
@@ -1786,11 +1063,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         playerInbounds.MonitorBounds = pmb;
                         playerInbounds.EditBounds = peb;
                     }
-
-                    sizer = p.EditBounds;
-                    UpdatetSizersBounds();
-                    activeSizer = sizerBtnLeft;
-                    MoveCursorToActiveSizer();
                 }
             }
             else if (edge == ResizeEdge.Right && grow)
@@ -1821,11 +1093,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             playerInbounds.MonitorBounds = pmb;
                             playerInbounds.EditBounds = peb;
                         }
-
-                        sizer = p.EditBounds;
-                        UpdatetSizersBounds();
-                        activeSizer = sizerBtnRight;
-                        MoveCursorToActiveSizer();
                     }
                 }
             }
@@ -1859,11 +1126,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         playerInbounds.MonitorBounds = pmb;
                         playerInbounds.EditBounds = peb;
                     }
-
-                    sizer = p.EditBounds;
-                    UpdatetSizersBounds();
-                    activeSizer = sizerBtnRight;
-                    MoveCursorToActiveSizer();
                 }
             }
             else if (edge == ResizeEdge.Top && grow)
@@ -1898,11 +1160,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             playerInbounds.EditBounds = peb;
                         }
                     }
-
-                    sizer = p.EditBounds;
-                    UpdatetSizersBounds();
-                    activeSizer = sizerBtnTop;
-                    MoveCursorToActiveSizer();
                 }
             }
             else if (edge == ResizeEdge.Top)
@@ -1938,11 +1195,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         playerInbounds.MonitorBounds = pmb;
                         playerInbounds.EditBounds = peb;
                     }
-
-                    sizer = p.EditBounds;
-                    UpdatetSizersBounds();
-                    activeSizer = sizerBtnTop;
-                    MoveCursorToActiveSizer();
                 }
             }
             else if (edge == ResizeEdge.Bottom && grow)
@@ -1973,11 +1225,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             playerInbounds.MonitorBounds = pmb;
                             playerInbounds.EditBounds = peb;
                         }
-
-                        sizer = p.EditBounds;
-                        UpdatetSizersBounds();
-                        activeSizer = sizerBtnBottom;
-                        MoveCursorToActiveSizer();
                     }
                 }
             }
@@ -2011,104 +1258,13 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         playerInbounds.MonitorBounds = pmb;
                         playerInbounds.EditBounds = peb;
                     }
-
-                    sizer = p.EditBounds;
-                    UpdatetSizersBounds();
-                    activeSizer = sizerBtnBottom;
-                    MoveCursorToActiveSizer();
                 }
             }
 
             return true;
         }
 
-        internal static void OnMouseDoubleClick(MouseEventArgs e)
-        {
-            if (Dragging || GameProfile.Loaded)
-            {
-                return;
-            }
-
-            if (e.Button == MouseButtons.Left && GameProfile.UseXinputIndex)
-            {
-                bool changed = false;
-
-                for (int i = 0; i < Screens.Length; i++)
-                {
-                    UserScreen screen = Screens[i];
-                    DraggingScreen = i;
-
-                    if (screen.Type == UserScreenType.Manual)
-                    {
-                        return;
-                    }
-
-                    List<PlayerInfo> players = profile.DevicesList;
-
-                    if (Screens.Any(s => s.UIBounds.Contains( e.Location)) && 
-                       !Screens.Any(s => s.SwapTypeBounds.Contains(e.Location)) && 
-                       !players.Any(pl => pl.EditBounds.Contains(e.Location)))
-                    {
-                       
-                        for (int b = 0; b < screen.SubScreensBounds.Count; b++)
-                        {
-                            DestEditBounds = screen.SubScreensBounds.ElementAt(b).Value;
-                            destMonitorBounds = screen.SubScreensBounds.ElementAt(b).Key;
-                            // add all possible players!
-                            for (int p = 0; p < players.Count; p++)
-                            {
-                                PlayerInfo player = players[p];
-
-                                if(GameProfile.AssignedDevices.Contains(player) && GameProfile.DevicesToMerge.Contains(player))
-                                {
-                                    continue;
-                                }
-
-                                if (player.ScreenIndex == -1 && 
-                                    (players.All(pl => (pl.MonitorBounds != destMonitorBounds && !pl.MonitorBounds.IntersectsWith(destMonitorBounds) )
-                                    || (pl.MonitorBounds == destMonitorBounds) &&  (pl.IsRawMouse && player.IsRawKeyboard || pl.IsRawKeyboard && player.IsRawMouse))))
-                                {
-                                    player.IsInputUsed = true;
-                                    changed = true;
-
-                                    AddPlayer(player, i);
-                                    p++;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                DraggingScreen = -1;
-
-                if (changed)
-                {
-                    DevicesFunctions.UpdateDevices();
-                }
-            }
-        }
-
-        #region Shared cores (WinForms mouse handlers and the commands below)
-
-        private static void MoveCursorToActiveSizer()
-        {
-            //Only the WinForms setup screen has a cursor to keep on the sizer handle.
-            if (parent != null)
-            {
-                Cursor.Position = parent.PointToScreen(new Point((int)(parent.Location.X + activeSizer.X + activeSizer.Width / 2), (int)(parent.Location.Y + activeSizer.Y + activeSizer.Height / 2)));
-            }
-        }
-
-        /// <summary>Next (direction &gt; 0) or previous layout, wrapping like the layout icon of the setup screen.</summary>
-        private static UserScreenType CycleLayoutType(UserScreenType type, int direction)
-        {
-            if (direction > 0)
-            {
-                return type == UserScreenType.Manual ? UserScreenType.FullScreen : type + 1;
-            }
-
-            return type == UserScreenType.FullScreen ? UserScreenType.Manual : type - 1;
-        }
+        #region Shared cores
 
         /// <summary>Sets the layout of a screen and sends the players of that screen back to the tray.</summary>
         private static void ApplyScreenLayout(int screenIndex, UserScreenType type)
@@ -2132,15 +1288,13 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         private static void RemoveGuestCore(PlayerInfo host, PlayerInfo guest)
         {
-            ShowGuestRemovelText = null;
-            guest.GuestBounds = RectangleF.Empty;
             guest.EditBounds = guest.SourceEditBounds;
             host.InstanceGuests.Remove(guest);
         }
 
         #endregion
 
-        #region Commands without a mouse (headless setup service)
+        #region Commands (setup service)
 
         /// <summary>Refusal reasons returned by the commands below (null means done).</summary>
         public static class Refusal
@@ -2200,7 +1354,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             }
 
             ApplyScreenLayout(screenIndex, type);
-            ShowSwapTypeTip = false;
             DevicesFunctions.UpdateDevices();
 
             return null;
@@ -2304,14 +1457,14 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             return PlaceAt(player, screenIndex, () =>
             {
-                mousePos = new Point((int)(screen.UIBounds.X + x * screen.UIBounds.Width), (int)(screen.UIBounds.Y + y * screen.UIBounds.Height));
+                Point point = new Point((int)(screen.UIBounds.X + x * screen.UIBounds.Width), (int)(screen.UIBounds.Y + y * screen.UIBounds.Height));
 
-                if (GetFreeSpace(player))
+                if (GetFreeSpace(player, screen, point))
                 {
                     return null;
                 }
 
-                if (CanFillGap(mousePos, player, screen) && (!GameProfile.Loaded || GameProfile.GhostBounds.Any(gb => gb.Item1 == destMonitorBounds)))
+                if (CanFillGap(point, player, screen) && (!GameProfile.Loaded || GameProfile.GhostBounds.Any(gb => gb.Item1 == destMonitorBounds)))
                 {
                     return null;
                 }
@@ -2344,20 +1497,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 RemovePlayer(player, oldScreen);
             }
 
-            Point savedMousePos = mousePos;
-            int savedDraggingScreen = DraggingScreen;
-            string refusal;
-
-            try
-            {
-                DraggingScreen = screenIndex;
-                refusal = findDestination();
-            }
-            finally
-            {
-                DraggingScreen = savedDraggingScreen;
-                mousePos = savedMousePos;
-            }
+            string refusal = findDestination();
 
             if (refusal == null)
             {
@@ -2552,7 +1692,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 }
             }
 
-            activeSizer = RectangleF.Empty;
             DevicesFunctions.UpdateDevices();
 
             return player.MonitorBounds != before || player.ScreenIndex == -1 ? null : Refusal.CannotResize;
@@ -2560,7 +1699,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         /// <summary>
         /// Places every revealed, unplaced device in the free slots, in device order (manual layouts are skipped; a raw
-        /// keyboard and a raw mouse can share a slot). Unlike the WinForms double click it doesn't need API indexes and
+        /// keyboard and a raw mouse can share a slot). It doesn't need API indexes and
         /// only places revealed devices.
         /// </summary>
         public static string AutoFill()
@@ -2853,7 +1992,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 List<GroupPlacement> onScreen = groups.Select(TakeOff).ToList();
 
                 Screens[i].Type = bigger.Value;
-                ShowSwapTypeTip = false;
 
                 for (int g = 0; g < onScreen.Count && g < Screens[i].SubScreensBounds.Count; g++)
                 {

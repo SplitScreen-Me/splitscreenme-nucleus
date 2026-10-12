@@ -1,6 +1,4 @@
-﻿using Nucleus.Gaming.Cache;
-using Nucleus.Gaming.Controls.SetupScreen;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -51,11 +49,6 @@ namespace Nucleus.Gaming.Coop
         public List<PlayerInfo> InstanceGuests = new List<PlayerInfo>();
         public List<Guid> GuestsGuid = new List<Guid>();
 
-        /// <summary>
-        /// If the player is instance guest 
-        /// </summary>
-        public RectangleF GuestBounds;
-
         public bool SteamEmu;
         public bool GotLauncher;
         public bool GotGame;
@@ -69,13 +62,11 @@ namespace Nucleus.Gaming.Coop
                 isRawMouse = value;
                 if (value && !IsRawKeyboard)
                 {
-                    Image = ImageCache.GetImage(Globals.ThemeFolder + "proto_mouse.png");
                     InputType = InputType.Mouse;
                 }
                 else if (isRawMouse && isRawKeyboard)//merged profile k&b player
                 {
                     InputType = InputType.KBM;
-                    Image = ImageCache.GetImage(Globals.ThemeFolder + "keyboard.png");
                 }
             }
         }
@@ -90,12 +81,10 @@ namespace Nucleus.Gaming.Coop
                 if(value && !isRawMouse)
                 {
                     InputType = InputType.KB;
-                    Image = ImageCache.GetImage(Globals.ThemeFolder + "proto_keyboard.png");
                 }
                 else if (isRawMouse && isRawKeyboard)//merged profile k&b player
                 {
                     InputType = InputType.KBM;
-                    Image = ImageCache.GetImage(Globals.ThemeFolder + "keyboard.png");
                 }
             }
         }
@@ -110,7 +99,6 @@ namespace Nucleus.Gaming.Coop
                 if(value && !isRawMouse && !isRawKeyboard)
                 {
                     InputType = InputType.SingleKB;
-                    Image = ImageCache.GetImage(Globals.ThemeFolder + "keyboard.png");
                 }               
             }
         }
@@ -127,7 +115,6 @@ namespace Nucleus.Gaming.Coop
                 if(value)
                 {
                     InputType = InputType.XInput;
-                    Image = ImageCache.GetImage(Globals.ThemeFolder + "xinput.png");
                 }    
             }
         }
@@ -144,7 +131,6 @@ namespace Nucleus.Gaming.Coop
                 if (value)
                 {
                     InputType = InputType.SDL2;
-                    Image = ImageCache.GetImage(Globals.ThemeFolder + "xinput.png");
                 }
             }
         }
@@ -161,16 +147,17 @@ namespace Nucleus.Gaming.Coop
                 if (value)
                 {
                     InputType = InputType.DInput;
-                    Image = ImageCache.GetImage(Globals.ThemeFolder + "dinput.png");
                 }
             }
         }
 
-        public Bitmap Image;
         public bool IsFake;
               
         public bool IsInputUsed;
-        public bool IsController;//Good to do not have to loop both Xinput & DInput  
+
+        /// <summary>Last time a button press on this pad could not identify it (no unique DirectInput match); MinValue otherwise.</summary>
+        public DateTime IdentificationFailedUtc = DateTime.MinValue;
+        public bool IsController;//Good to do not have to loop both Xinput & DInput
         public bool Vibrate;
 
         public Guid GamepadProductGuid;
@@ -301,7 +288,6 @@ namespace Nucleus.Gaming.Coop
             if (!ShouldFlash)
             {
                 ShouldFlash = true;
-                SetupScreenControl.InvalidateFlash(new Rectangle((int)editBounds.X, (int)editBounds.Y, (int)editBounds.Width, (int)editBounds.Height));
                 FlashChanged?.Invoke(this, true);
             }
 
@@ -319,7 +305,6 @@ namespace Nucleus.Gaming.Coop
                     flashTask = null;
 
                     ShouldFlash = false;
-                    SetupScreenControl.InvalidateFlash(new Rectangle((int)editBounds.X, (int)editBounds.Y, (int)editBounds.Width, (int)editBounds.Height));
                     FlashChanged?.Invoke(this, false);
                 });
 

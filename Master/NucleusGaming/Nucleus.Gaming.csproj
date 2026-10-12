@@ -90,7 +90,6 @@
       <HintPath>..\packages\SharpDX.XInput.4.2.0\lib\net45\SharpDX.XInput.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
@@ -104,7 +103,6 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -115,6 +113,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Forms\UserPrompts\PromptLinks.cs" />
+    <Compile Include="Forms\UserPrompts\NativeUserPrompts.cs" />
+    <Compile Include="Forms\UserPrompts\UserPrompts.cs" />
     <Compile Include="Cache\App.Settings\App_Audio.cs" />
     <Compile Include="Cache\App.Settings\App_Layouts.cs" />
     <Compile Include="Cache\App.Settings\App_GamePadShortcuts.cs" />
@@ -122,96 +123,22 @@
     <Compile Include="Cache\App.Settings\App_Hotkeys.cs" />
     <Compile Include="Cache\App.Settings\App_Misc.cs" />
     <Compile Include="Cache\App.Settings\App_Settings_Loader.cs" />
-    <Compile Include="Controls\DoubleBufferPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\BufferedFlowLayoutPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\GameControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\HorizontalGameControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\HorizontalControlListBox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\TransparentRichTextBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\TransparentRichTextBox.Designer.cs">
-      <DependentUpon>TransparentRichTextBox.cs</DependentUpon>
-    </Compile>
     <Compile Include="Coop\Generic\Handler.cs" />
-    <Compile Include="Cache\HubCache.cs" />
-    <Compile Include="Cache\ImageCache.cs" />
     <Compile Include="Cache\PlayersIdentityCache.cs" />
-    <Compile Include="Controls\BorderPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\BorderPanel.Designer.cs">
-      <DependentUpon>BorderPanel.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\ControlListBox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\CoolCheckbox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\CoolCheckbox.Designer.cs">
-      <DependentUpon>CoolCheckbox.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\CoolListControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\CustomComboBox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\CustomComboBox.Designer.cs">
-      <DependentUpon>CustomComboBox.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\CustomToolTips.cs" />
     <Compile Include="Coop\ProtoInput\ProtoInputEnumsOptions.cs" />
     <Compile Include="Forms\HotkeyListener.cs" />
     <Compile Include="Forms\HotkeyListener.Designer.cs">
       <DependentUpon>HotkeyListener.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ICanProceed.cs" />
-    <Compile Include="Controls\IHighlightControl.cs" />
-    <Compile Include="Controls\PictureButton.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\PictureButton.Designer.cs">
-      <DependentUpon>PictureButton.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\SetupScreen\BoundsFunctions.cs" />
     <Compile Include="Controls\SetupScreen\DevicesFunctions.cs" />
-    <Compile Include="Controls\SetupScreen\Draw.cs" />
-    <Compile Include="Controls\SizeableCheckbox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\TextMessageBox.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Controls\TextMessageBox.Designer.cs">
-      <DependentUpon>TextMessageBox.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\CustomNumericUpDown.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\CustomNumericUpDown.Designer.cs">
-      <DependentUpon>CustomNumericUpDown.cs</DependentUpon>
-    </Compile>
     <Compile Include="Coop\BasicTypes\IntVector2.cs" />
     <Compile Include="Coop\BasicTypes\RECT.cs" />
-    <Compile Include="Coop\BasicTypes\Ref.cs" />
     <Compile Include="Coop\Generic\async.cs" />
-    <Compile Include="Coop\Generic\HttpClient.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\DInputManagement\D_JoystickStatus.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\DInputManagement\DInputManager.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\DInputManagement\D_Joystick.cs" />
-    <Compile Include="Coop\InputManagement\Gamepads\GamepadButtons.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\GamepadIdentity.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\GamepadNavigation.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\GamepadState.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\InputTypesEnum.cs" />
@@ -242,15 +169,12 @@
     <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDL2\SDL_Video.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\SDL2Management\SDLManager.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\XInputManagement\XInputManager.cs" />
-    <Compile Include="Coop\InputManagement\Gamepads\XInputManagement\X_Joystick.cs" />
     <Compile Include="Coop\InputManagement\HotkeysRegistration.cs" />
     <Compile Include="Coop\InputManagement\Osk.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\GamepadShortcuts.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\GamepadThreads.cs" />
     <Compile Include="Coop\InputManagement\RawInputDeviceName.cs" />
     <Compile Include="Coop\GameMetaInfo.cs" />
-    <Compile Include="Coop\ProtoInput\ProtoInputEnumsOptions.cs" />
-    <Compile Include="DPI\ThreadDPIContext.cs" />
     <Compile Include="Forms\NucleusMessageBox\CustomMessageBox.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -266,7 +190,6 @@
       <DependentUpon>ProcessPicker.cs</DependentUpon>
     </Compile>
     <Compile Include="Coop\Generic\Hub.cs" />
-    <Compile Include="Coop\Generic\KeyboardPlayer.cs" />
     <Compile Include="Coop\Generic\RegType.cs" />
     <Compile Include="Coop\Generic\SearchType.cs" />
     <Compile Include="Coop\InputManagement\Enums\DataCommand.cs" />
@@ -276,17 +199,13 @@
     <Compile Include="Coop\InputManagement\Enums\MouseEvents.cs" />
     <Compile Include="Coop\InputManagement\Enums\RawInputButtonFlags.cs" />
     <Compile Include="Coop\InputManagement\Enums\RawInputDevice_dwFlags.cs" />
-    <Compile Include="Coop\InputManagement\Enums\WindowStyles.cs" />
-    <Compile Include="Coop\InputManagement\Enums\WindowStylesEx.cs" />
     <Compile Include="Coop\InputManagement\Enums\WNDCLASSEX.cs" />
     <Compile Include="Coop\InputManagement\HookPipe.cs" />
-    <Compile Include="Coop\InputManagement\InputInterceptor.cs" />
     <Compile Include="Coop\InputManagement\LockInputRuntime.cs" />
     <Compile Include="Coop\InputManagement\Logger.cs" />
     <Compile Include="Coop\InputManagement\RawInputManager.cs" />
     <Compile Include="Coop\InputManagement\RawInputProcessor.cs" />
     <Compile Include="Coop\InputManagement\RawInputWindow.cs" />
-    <Compile Include="Coop\InputManagement\Structs\KBDLLHOOKSTRUCT.cs" />
     <Compile Include="Coop\InputManagement\Structs\MSG.cs" />
     <Compile Include="Coop\InputManagement\Structs\POINT.cs" />
     <Compile Include="Coop\InputManagement\Structs\RAWHID.cs" />
@@ -309,7 +228,6 @@
     <Compile Include="Coop\ProtoInput\ProtoInputLauncher.cs" />
     <Compile Include="Coop\ProtoInput\ProtoInputOptions.cs" />
     <Compile Include="Coop\Window.cs" />
-    <Compile Include="DirectInputLib\DInputManager.cs" />
     <Compile Include="Coop\GameOption.cs" />
     <Compile Include="Coop\GameOptionValue.cs" />
     <Compile Include="Coop\GameProfile.cs" />
@@ -327,17 +245,10 @@
     <Compile Include="Coop\Generic\SaveData\IniSaveInfo.cs" />
     <Compile Include="Coop\Generic\SaveInfo.cs" />
     <Compile Include="Coop\Generic\Step\CustomStep.cs" />
-    <Compile Include="Coop\Generic\Step\CustomStepType.cs" />
     <Compile Include="Coop\Generic\UserInfo.cs" />
     <Compile Include="Coop\Generic\GameHookInfo.cs" />
-    <Compile Include="Controls\JSUserInputControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="Coop\Generic\DPIHandling.cs" />
-    <Compile Include="DPI\DeviceCapEnum.cs" />
     <Compile Include="DPI\DPIManager.cs" />
-    <Compile Include="DPI\DPIMonitor.cs" />
-    <Compile Include="DPI\IDynamicSized.cs" />
     <Compile Include="Forms\CustomPrompt.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -361,6 +272,7 @@
     <Compile Include="Forms\WPFDiv.cs" />
     <Compile Include="Forms\WPF_OSD.cs" />
     <Compile Include="Globals.cs" />
+    <Compile Include="InstallPaths.cs" />
     <Compile Include="Platform\IO\WinDirectoryUtil.cs" />
     <Compile Include="Platform\MachineSpecs\MachineSpecs.cs" />
     <Compile Include="Platform\Windows\GetNetFrameworkVersion.cs" />
@@ -370,56 +282,28 @@
     <Compile Include="Platform\Windows\Interop\Shcore\ShcoreInterop.cs" />
     <Compile Include="Platform\Windows\Interop\User32\Structures\Display.cs" />
     <Compile Include="Platform\Windows\Interop\User32\C\Rect.cs" />
-    <Compile Include="IO\Content\ContentManager.cs" />
+    <Compile Include="IO\Logging\DebugLogFile.cs" />
     <Compile Include="IO\Logging\ILogNode.cs" />
     <Compile Include="IO\SourceCfgFile.cs" />
     <Compile Include="Coop\IGameHandler.cs" />
-    <Compile Include="Coop\IGameInfo.cs" />
     <Compile Include="Coop\UserGameInfo.cs" />
     <Compile Include="Coop\UserProfile.cs" />
     <Compile Include="Coop\UserScreen.cs" />
     <Compile Include="Coop\UserScreenType.cs" />
     <Compile Include="Coop\Generic\GenericGameHandler.cs" />
-    <Compile Include="Coop\Generic\IGenericGameInfo.cs" />
     <Compile Include="Coop\Generic\SaveType.cs" />
     <Compile Include="Coop\Generic\Folder.cs" />
     <Compile Include="Platform\Windows\Interop\Shell32\Shell32.cs" />
     <Compile Include="Platform\Windows\Interop\Shell32\ShFileInfo.cs" />
     <Compile Include="Platform\Windows\Interop\Shell32\ShgFi.cs" />
-    <Compile Include="IO\BackupFile.cs" />
     <Compile Include="IO\IniFile.cs" />
-    <Compile Include="Platform\Windows\Interop\Interceptor\Win32.cs" />
-    <Compile Include="Platform\Windows\Interop\Interceptor\Win32EnumWindows.cs" />
-    <Compile Include="Platform\Windows\Interop\Interceptor\Win32Messages.cs" />
-    <Compile Include="Platform\Windows\Interop\Interceptor\WindowInterceptor.cs" />
     <Compile Include="Platform\Windows\Interop\User32\User32Util.cs" />
     <Compile Include="Platform\Windows\Interop\User32\User32Interop.cs" />
     <Compile Include="Platform\Windows\Interop\User32\User32_WS.cs" />
     <Compile Include="Platform\Windows\Interop\Win32Api.cs" />
     <Compile Include="Platform\Windows\Interop\User32\WindowShowStyle.cs" />
     <Compile Include="IO\Logging\LogManager.cs" />
-    <Compile Include="IO\MFT\FileNameAndParentFrn.cs" />
-    <Compile Include="IO\MFT\MFTReader.cs" />
     <Compile Include="Coop\GameManager.cs" />
-    <Compile Include="Controls\ImageButtonState.cs" />
-    <Compile Include="Controls\ImageButton.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\UserInputControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\PlayerCountControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\PlayerCountControl.Designer.cs">
-      <DependentUpon>PlayerCountControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\PlayerOptionsControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\SetupScreen\SetupScreenControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -439,12 +323,6 @@
     <Compile Include="Tools\EACBypass\EACBypass.cs" />
     <Compile Include="Tools\CleanGameContent\CleanGameContent.cs" />
     <Compile Include="Tools\NucleusUsers\NucleusUsers.cs" />
-    <Compile Include="Tools\Steam\GoldbergUpdaterForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Tools\Steam\GoldbergUpdaterForm.Designer.cs">
-      <DependentUpon>GoldbergUpdaterForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Tools\WindowFakeFocus\WindowFakeFocus.cs" />
     <Compile Include="Tools\FlawlessWidescreen\FlawlessWidescreen.cs" />
     <Compile Include="Tools\HexEdit\HexEdit.cs" />
@@ -457,9 +335,7 @@
     <Compile Include="Tools\X360ce\X360ce.cs" />
     <Compile Include="Tools\XInputPlusDll\XInputPlusDll.cs" />
     <Compile Include="UI\BackgroundColors.cs" />
-    <Compile Include="UI\Theme_Settings.cs" />
     <Compile Include="Util\ExecutableUtil.cs" />
-    <Compile Include="Util\FormGraphicsUtil.cs" />
     <Compile Include="Util\RectangleUtil.cs" />
     <Compile Include="Platform\Windows\MonitorDpiType.cs" />
     <Compile Include="Platform\Windows\ProcessDpiAwareness.cs" />
@@ -467,57 +343,20 @@
     <Compile Include="Coop\PlayerInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Coop\Generic\ProcessData.cs" />
-    <Compile Include="Util\AssemblyUtil.cs" />
     <Compile Include="Util\CmdUtil.cs" />
     <Compile Include="Util\Palette.cs" />
     <Compile Include="Util\ConsoleU.cs" />
     <Compile Include="Util\FileUtil.cs" />
-    <Compile Include="Util\FormUtil.cs" />
-    <Compile Include="Util\MathUtil.cs" />
     <Compile Include="Util\ProcessUtil.cs" />
     <Compile Include="Util\RegistryUtil.cs" />
     <Compile Include="Util\ScreensUtil.cs" />
     <Compile Include="Tools\GameStarter\StartGameUtil.cs" />
-    <Compile Include="Util\SteamUtil.cs" />
     <Compile Include="Util\StringUtil.cs" />
     <Compile Include="Util\WindowsUsersUtil.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Controls\GameControl.resx">
-      <DependentUpon>GameControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\HorizontalGameControl.resx">
-      <DependentUpon>HorizontalGameControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\HorizontalControlListBox.resx">
-      <DependentUpon>HorizontalControlListBox.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\ControlListBox.resx">
-      <DependentUpon>ControlListBox.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\CoolCheckbox.resx">
-      <DependentUpon>CoolCheckbox.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\CoolListControl.resx">
-      <DependentUpon>CoolListControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\CustomComboBox.resx">
-      <DependentUpon>CustomComboBox.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\CustomNumericUpDown.resx">
-      <DependentUpon>CustomNumericUpDown.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\HotkeyListener.resx">
       <DependentUpon>HotkeyListener.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\PictureButton.resx">
-      <DependentUpon>PictureButton.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\TextMessageBox.resx">
-      <DependentUpon>TextMessageBox.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\JSUserInputControl.resx">
-      <DependentUpon>JSUserInputControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ProcessPicker.resx">
       <DependentUpon>ProcessPicker.cs</DependentUpon>
@@ -534,21 +373,6 @@
     <EmbeddedResource Include="Forms\Prompt.resx">
       <DependentUpon>Prompt.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\ImageButton.resx">
-      <DependentUpon>ImageButton.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\PlayerCountControl.resx">
-      <DependentUpon>PlayerCountControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\PlayerOptionsControl.resx">
-      <DependentUpon>PlayerOptionsControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\SetupScreen\SetupScreenControl.resx">
-      <DependentUpon>SetupScreenControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\UserInputControl.resx">
-      <DependentUpon>UserInputControl.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\ShortcutsReminder\ShortcutsReminder.resx">
       <DependentUpon>ShortcutsReminder.cs</DependentUpon>
     </EmbeddedResource>
@@ -557,15 +381,11 @@
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Tools\Steam\GoldbergUpdaterForm.resx">
-      <DependentUpon>GoldbergUpdaterForm.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="GamingKey.snk" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <None Include="Resources\ncoop.ini" />
   </ItemGroup>
@@ -576,28 +396,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\gbU_background3.jpg" />
-    <Content Include="Resources\icon.ico" />
-    <None Include="Resources\instructions.gif" />
-    <None Include="Resources\title_dropdown_opened.png" />
-    <None Include="Resources\title_dropdown_closed.png" />
     <Content Include="Resources\xinput1_3.dll" />
     <None Include="Resources\xinput1_3_a10_x64.dll" />
     <None Include="Resources\xinput1_3_a10.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Connected Services\" />
-  </ItemGroup>
-  <ItemGroup>
-    <COMReference Include="IWshRuntimeLibrary">
-      <Guid>{F935DC20-1CF0-11D0-ADB9-00C04FD58A0B}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

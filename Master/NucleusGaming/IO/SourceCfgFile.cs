@@ -15,8 +15,6 @@ namespace Nucleus.Gaming
         protected string backupData;
         private Dictionary<string, List<CfgSaveInfo>> sections;
 
-        public string RawData => rawData;
-
         public SourceCfgFile(string filePath)
         {
             path = filePath;
@@ -133,14 +131,6 @@ namespace Nucleus.Gaming
             }
         }
 
-        /// <summary>
-        /// Reverts the data to the initially read data
-        /// </summary>
-        public void RevertToBackup()
-        {
-            rawData = string.Copy(backupData);
-        }
-
         public void ChangeProperty(string section, string propertyName, string value)
         {
             if (!sections.TryGetValue(section, out List<CfgSaveInfo> infos))
@@ -158,78 +148,7 @@ namespace Nucleus.Gaming
             {
                 info.Value = value;
             }
-            //int start;
-            //int end;
-            //if (GetPosition(rawData, propertyName, out start, out end))
-            //{
-            //    rawData = rawData.Remove(start, end - start);
-            //    rawData = rawData.Insert(start, value);
-
-            //    return true;
-            //}
-            //else
-            //{
-            //    // search for the section name
-            //    if (GetPosition(rawData, section, out start, out end))
-            //    {
-            //        // write the property
-
-            //    }
-            //    else
-            //    {
-            //        // write section
-            //        rawData += section + "{ }";
-
-            //        // now write the property
-            //        ChangeProperty(section, propertyName, value);
-            //    }
-            //}
-            //return false;
         }
 
-        private bool GetPosition(string text, string word, out int start, out int end)
-        {
-            start = -1;
-            end = 0;
-
-            int def = text.IndexOf(word);
-            if (def == -1)
-            {
-                return false;
-            }
-
-            int aspas = 0;
-            bool firstNumber = true;
-            for (int i = def; i < text.Length; i++)
-            {
-                char c = text[i];
-                if (start == -1)
-                {
-                    if (c == '"')
-                    {
-                        aspas++;
-                        if (aspas == 2)
-                        {
-                            start = i;
-                        }
-                    }
-                }
-                else
-                {
-                    if (StringUtil.IsNumber(c) && firstNumber)
-                    {
-                        firstNumber = false;
-                        start = i;
-                    }
-                    if (!StringUtil.IsNumber(c))
-                    {
-                        end = i;
-                        break;
-                    }
-                }
-            }
-
-            return true;
-        }
     }
 }

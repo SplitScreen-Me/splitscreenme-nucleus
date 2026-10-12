@@ -163,28 +163,6 @@ namespace Nucleus.Gaming.App.Settings
             }
         }
 
-        private static string windowSize;
-        public static string WindowSize
-        {
-            get => windowSize;
-            set
-            {
-                windowSize = value;
-                Globals.ini.IniWriteValue("Misc", "WindowSize", value);
-            }
-        }
-
-        private static string windowLocation;
-        public static string WindowLocation
-        {
-            get => windowLocation;
-            set
-            {
-                windowLocation = value;
-                Globals.ini.IniWriteValue("Misc", "WindowLocation", value);
-            }
-        }
-
         // Web UI host window: "x,y,width,height,maximized" in physical pixels, empty for the default placement.
         private static string hostWindowPlacement;
         public static string HostWindowPlacement
@@ -194,61 +172,6 @@ namespace Nucleus.Gaming.App.Settings
             {
                 hostWindowPlacement = value;
                 Globals.ini.IniWriteValue("Misc", "HostWindowPlacement", value);
-            }
-        }
-
-        private static string autoSearchLocation;
-        public static string AutoSearchLocation
-        {
-            get => autoSearchLocation;
-            set
-            {
-                autoSearchLocation = value;
-                Globals.ini.IniWriteValue("Misc", "AutoSearchLocation", value);
-            }
-        }
-
-        private static string settingsLocation;
-        public static string SettingsLocation
-        {
-            get => settingsLocation;
-            set
-            {
-                settingsLocation = value;
-                Globals.ini.IniWriteValue("Misc", "SettingsLocation", value);
-            }
-        }
-
-        private static string profileSettingsLocation;
-        public static string ProfileSettingsLocation
-        {
-            get => profileSettingsLocation;
-            set
-            {
-                profileSettingsLocation = value;
-                Globals.ini.IniWriteValue("Misc", "ProfileSettingsLocation", value);
-            }
-        }
-
-        private static string gamepadSettingsLocation;
-        public static string GamepadSettingsLocation
-        {
-            get => gamepadSettingsLocation;
-            set
-            {
-                gamepadSettingsLocation = value;
-                Globals.ini.IniWriteValue("Misc", "GamepadSettingsLocation", value);
-            }
-        }
-
-        private static string theme;
-        public static string Theme
-        {
-            get => theme;
-            set
-            {
-                theme = value;
-                Globals.ini.IniWriteValue("Theme", "Theme", value);
             }
         }
 
@@ -307,17 +230,6 @@ namespace Nucleus.Gaming.App.Settings
             }
         }
 
-        private static int blur;
-        public static int Blur
-        {
-            get => blur;
-            set
-            {
-                blur = value;
-                Globals.ini.IniWriteValue("Dev", "Blur", value.ToString());
-            }
-        }
-
         private static string osdColor;
         public static string OSDColor
         {
@@ -344,15 +256,7 @@ namespace Nucleus.Gaming.App.Settings
             autoDesktopScaling = bool.Parse(Globals.ini.IniReadValue("Misc", "AutoDesktopScaling"));
             nucleusMultiInstances = bool.Parse(Globals.ini.IniReadValue("Misc", "NucleusMultiInstances"));
             disableGameProfiles = bool.Parse(Globals.ini.IniReadValue("Misc", "DisableGameProfiles"));
-            windowSize = Globals.ini.IniReadValue("Misc", "WindowSize");
-            windowLocation = Globals.ini.IniReadValue("Misc", "WindowLocation");
             hostWindowPlacement = Globals.ini.IniReadValue("Misc", "HostWindowPlacement");
-            autoSearchLocation = Globals.ini.IniReadValue("Misc", "AutoSearchLocation");
-            settingsLocation = Globals.ini.IniReadValue("Misc", "SettingsLocation");
-            profileSettingsLocation = Globals.ini.IniReadValue("Misc", "ProfileSettingsLocation");
-            gamepadSettingsLocation = Globals.ini.IniReadValue("Misc", "GamepadSettingsLocation");
-
-            theme = Globals.ini.IniReadValue("Theme", "Theme");
 
             showFavoriteOnly = bool.Parse(Globals.ini.IniReadValue("Dev", "ShowFavoriteOnly"));
             disablePathCheck = bool.Parse(Globals.ini.IniReadValue("Dev", "DisablePathCheck"));
@@ -361,7 +265,6 @@ namespace Nucleus.Gaming.App.Settings
             useXinputIndex = bool.Parse(Globals.ini.IniReadValue("Dev", "UseXinputIndex"));
             profileAssignGamepadByButonPress = bool.Parse(Globals.ini.IniReadValue("Dev", "ProfileAssignGamepadByButonPress"));
 
-            blur = int.Parse(Globals.ini.IniReadValue("Dev", "Blur"));
             osdColor = Globals.ini.IniReadValue("Dev", "OSDColor");
             gamesSorting = Globals.ini.IniReadValue("Misc", "GameSortingOpt").Split(',').ToList();
 

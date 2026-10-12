@@ -150,16 +150,10 @@ namespace Nucleus.Gaming.Windows.Interop
         public static extern uint GetWindowLong(IntPtr hWnd, int nIndex);
 
         [DllImport("user32.dll")]
-        public static extern IntPtr GetDesktopWindow();
-
-        [DllImport("user32.dll")]
         public static extern bool RegisterHotKey(IntPtr hWnd, int id, int fsModifiers, int vlc);
 
         [DllImport("user32.dll", EntryPoint = "SendMessage", SetLastError = true)]
         public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
-
-        [DllImport("user32.dll")]
-        public static extern bool SetActiveWindow(IntPtr hWnd);
 
         /// <summary>
         /// Brings the thread that created the specified window into the foreground and activates the window. Keyboard input is
@@ -175,9 +169,6 @@ namespace Nucleus.Gaming.Windows.Interop
         /// The system assigns a slightly higher priority to the thread that creates the foreground window than it does to other threads.
         /// </summary>
         /// <returns></returns>
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetForegroundWindow();
-
         /// <summary>
         /// Changes an attribute of the specified window. The function also sets the 32-bit (long) value at the specified offset into the extra window memory.
         /// </summary>
@@ -198,12 +189,6 @@ namespace Nucleus.Gaming.Windows.Interop
 
         [DllImport("user32.dll")]
         public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
-
-        [DllImportAttribute("user32.dll")]
-        public static extern bool ReleaseCapture();
-
-        [DllImportAttribute("user32.dll")]
-        public static extern bool BringWindowToTop(IntPtr hWnd);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         private static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, IntPtr wParam, IntPtr lParam);

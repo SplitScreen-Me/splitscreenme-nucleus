@@ -13,16 +13,10 @@ namespace Nucleus.Gaming.Interop
             ObjectInformationClass, IntPtr ObjectInformation, int ObjectInformationLength,
             ref int returnLength);
 
-        [DllImport("kernel32.dll", SetLastError = true)]
-        public static extern uint QueryDosDevice(string lpDeviceName, StringBuilder lpTargetPath, int ucchMax);
-
         [DllImport("ntdll.dll")]
         public static extern uint NtQuerySystemInformation(int
             SystemInformationClass, IntPtr SystemInformation, int SystemInformationLength,
             ref int returnLength);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr OpenMutex(uint desiredAccess, bool inheritHandle, string name);
 
         [DllImport("kernel32.dll")]
         public static extern IntPtr OpenProcess(ProcessAccessFlags dwDesiredAccess, [MarshalAs(UnmanagedType.Bool)] bool bInheritHandle, int dwProcessId);
@@ -465,14 +459,6 @@ namespace Nucleus.Gaming.Interop
         public static bool Is64Bits()
         {
             return Environment.Is64BitProcess;
-        }
-    }
-
-    internal class Program
-    {
-        private static void Main(string[] args)
-        {
-
         }
     }
 }

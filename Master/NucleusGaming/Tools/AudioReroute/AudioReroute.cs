@@ -98,15 +98,6 @@ namespace Nucleus.Gaming.Tools.AudioReroute
                 return $"{MMDEVAPI_TOKEN}{deviceId}{(flow == EDataFlow.eRender ? DEVINTERFACE_AUDIO_RENDER : DEVINTERFACE_AUDIO_CAPTURE)}";
             }
 
-            private static string UnpackDeviceId(string deviceId)
-            {
-                if (deviceId.StartsWith(MMDEVAPI_TOKEN)) deviceId = deviceId.Remove(0, MMDEVAPI_TOKEN.Length);
-                if (deviceId.EndsWith(DEVINTERFACE_AUDIO_RENDER)) deviceId = deviceId.Remove(deviceId.Length - DEVINTERFACE_AUDIO_RENDER.Length);
-                if (deviceId.EndsWith(DEVINTERFACE_AUDIO_CAPTURE)) deviceId = deviceId.Remove(deviceId.Length - DEVINTERFACE_AUDIO_CAPTURE.Length);
-
-                return deviceId;
-            }
-
             internal class ErrorConst
             {
                 //FROM: https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes--1000-1299-
@@ -153,35 +144,6 @@ namespace Nucleus.Gaming.Tools.AudioReroute
                 }
             }
 
-            /// <summary>
-            /// Get the deviceId of the current DefaultEndpoint
-            /// </summary>
-            public string GetDefaultEndPoint(EDataFlow flow, ERole role, uint processId)
-            {
-                try
-                {
-                    PolicyConfig.GetPersistedDefaultAudioEndpoint(processId, flow, role, out string deviceId);
-                    return UnpackDeviceId(deviceId);
-                }
-                catch (Exception ex)
-                {
-                    LogManager.Log($"{ex}");
-                }
-
-                return null;
-            }
-
-            public void ResetAllSetEndpoint()
-            {
-                try
-                {
-                    PolicyConfig.ClearAllPersistedApplicationDefaultEndpoints();
-                }
-                catch (Exception ex)
-                {
-                    LogManager.Log($"{ex}");
-                }
-            }
         }
         private static ExtendedPolicyClient _extendedPolicyClient;
 

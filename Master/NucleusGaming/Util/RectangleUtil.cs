@@ -169,32 +169,6 @@ namespace Nucleus.Gaming
                 (parentHeight - rectHeight) + parent.Y);
         }
 
-        /// <summary>
-        /// Returns a value between 0 and 1 telling how much the first rectangle is inside the parent
-        /// </summary>
-        /// <param name="first"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
-        public static float PcInside(RectangleF first, RectangleF parent)
-        {
-            float pc = 0;
-
-            if (parent.Contains(first))
-            {
-                return 1;
-            }
-            else if (parent.IntersectsWith(first))
-            {
-                RectangleF intersection = RectangleF.Intersect(first, parent);
-                float peri = first.Width * first.Height;
-                float nperi = intersection.Width * intersection.Height;
-
-                return nperi / peri;
-
-            }
-            return pc;
-        }
-
 
         public  static List<RectangleF> SubtractSurfaceF(RectangleF a, RectangleF b)
         {

@@ -19,34 +19,59 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
 
         private JoystickState dummyState = new JoystickState();
 
+        //The setup polls on the UI thread while the DirectInput watcher thread releases devices: never both at once.
+        private readonly object stateLock = new object();
+
         private JoystickState GetState()
         {
-            JoystickState state;
-
-            if (Disposing)
+            lock (stateLock)
             {
-                return dummyState;
-            }
+                JoystickState state;
 
-            try
-            {
-                state = Joystick?.GetCurrentState();
-            }
-            catch
-            {
-                Dispose();
-                return dummyState;
-            }
+                if (Disposing)
+                {
+                    return dummyState;
+                }
 
-            return state;
+                try
+                {
+                    state = Joystick?.GetCurrentState();
+                }
+                catch
+                {
+                    Dispose();
+                    return dummyState;
+                }
+
+                return state ?? dummyState;
+            }
         }
 
+        /// <summary>Marks the device disconnected (its state reads as nothing pressed from now on). Does not release it.</summary>
         public void Dispose()
         {
             if (!Disposing)
             {
                 Status = JoystickStatus.Disconnected;
                 Disposing = true;
+            }
+        }
+
+        /// <summary>Marks the device disconnected and releases the DirectInput device, without racing a state read.</summary>
+        public void Release()
+        {
+            lock (stateLock)
+            {
+                Dispose();
+
+                try
+                {
+                    Joystick?.Unacquire();
+                    Joystick?.Dispose();
+                }
+                catch (Exception)
+                {
+                }
             }
         }
     }

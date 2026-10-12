@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32;
 using Nucleus.Gaming;
-using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Coop.ProtoInput;
 using Nucleus.Gaming.Interop;
 using Nucleus.Gaming.Tools.Steam;
@@ -16,6 +15,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Windows.Forms;
+using Nucleus.Gaming.Forms;
 
 namespace Nucleus
 {
@@ -23,17 +23,7 @@ namespace Nucleus
     {
         private static string UserEnvironmentRoot = Globals.UserEnvironmentRoot;
 
-        private static void Log(string logMessage)
-        {
-            if (App_Misc.DebugLog)
-            {
-                using (StreamWriter writer = new StreamWriter("debug-log.txt", true))
-                {
-                    writer.WriteLine($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}]PROCESSUTIL: {logMessage}");
-                    writer.Close();
-                }
-            }
-        }
+        private static void Log(string logMessage) => DebugLogFile.Write("PROCESSUTIL", logMessage);
 
         [DllImport("advapi32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         public static extern bool CreateProcessWithLogonW(
@@ -407,7 +397,7 @@ namespace Nucleus
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Goldberg Lobby Connect output data error. " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UserPrompts.Report(PromptIcon.Error, "Error", "Goldberg Lobby Connect output data error. " + ex.Message);
             }
         }
 

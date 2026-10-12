@@ -2,28 +2,21 @@
 using Nucleus.Gaming.Controls;
 using System;
 using System.IO;
-using System.Reflection;
-using System.Windows.Forms;
 
 namespace Nucleus.Gaming
 {
     public static class Globals
     {
-        public const string Version = "3.0.0-beta-2";
+        public const string Version = "3.0.0-beta-3";
 
         public static readonly IniFile ini = new IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));
 
-        //returns theme path(current theme folder)
-        public static string ThemeFolder => Path.Combine(Application.StartupPath, $@"gui\theme\{App_Misc.Theme}\");
-
-        //returns theme.ini file(current theme)
-        public static IniFile ThemeConfigFile => new IniFile(Path.Combine(ThemeFolder, "theme.ini"));
-
-        public static string GameProfilesFolder => Path.Combine(Application.StartupPath, $"game profiles");
+        public static string GameProfilesFolder => Path.Combine(InstallPaths.Root, $"game profiles");
        
         public static readonly int NucleusMaxPlayers = 32;
 
-        public static string NucleusInstallRoot => Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+        /// <summary>Folder of NucleusCoop.exe, in every process (see <see cref="InstallPaths.Root"/>).</summary>
+        public static string NucleusInstallRoot => InstallPaths.Root;
 
         //Used so any launcher can add its own "main window" handle without worring about catching the window manually.
         public static IntPtr MainWindowHandle;

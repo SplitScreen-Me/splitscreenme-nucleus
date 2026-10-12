@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using Nucleus.Gaming.Coop.Generic;
 using Nucleus.Gaming.Forms;
-using System.Management.Instrumentation;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Nucleus.Gaming
@@ -13,51 +13,35 @@ namespace Nucleus.Gaming
     public static class CleanGameContent
     {
 
-        public static void CleanContentFolder(GenericGameInfo currentGameInfo, bool askBefore)
-        {
-            string path = currentGameInfo.Content_Folder;
-            bool contentExist = Directory.Exists(path);
-
-            if (askBefore)
-            {
-                if (contentExist)
-                {
-                    DialogResult dialogResult = MessageBox.Show("Are you sure you want to delete '" + path + "' and all its contents?", "Confirm deletion", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                    if (dialogResult == DialogResult.Yes)
-                    {
-                        CleanContentFolder(currentGameInfo,path);
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("No data in content folder to delete.");
-                }
-            }
-            else
-            {
-                if(contentExist)
-                CleanContentFolder(currentGameInfo,path);
-            }
-        }
-
         /// <summary>
-        /// Same as <c>CleanContentFolder(game, false)</c> (kills the game's leftover processes, then deletes its content
-        /// folder in the background) but returns the task, so callers know when the folder is gone.
+        /// Kills the game's leftover processes, then deletes its content folder in the background. The task's result says
+        /// whether the folder is gone. When files stay locked, <paramref name="reportLockedFiles"/> shows "Risk of crash!"
+        /// (<see cref="UserPrompts.Notice"/>, origin <see cref="PromptOrigin.Setup"/>).
         /// </summary>
-        public static System.Threading.Tasks.Task CleanContentFolderAsync(GenericGameInfo currentGameInfo)
+        public static Task<bool> CleanContentFolderAsync(GenericGameInfo currentGameInfo, bool reportLockedFiles = true)
         {
             string path = currentGameInfo.Content_Folder;
-            return Directory.Exists(path) ? CleanContentFolder(currentGameInfo, path) : System.Threading.Tasks.Task.CompletedTask;
+            return Directory.Exists(path) ? CleanContentFolder(currentGameInfo, path, reportLockedFiles) : Task.FromResult(true);
         }
 
-        private static System.Threading.Tasks.Task CleanContentFolder(GenericGameInfo currentGameInfo, string path)
+        /// <summary>Text of the "Risk of crash!" message.</summary>
+        public static string LockedFilesMessage(string path)
         {
-            return System.Threading.Tasks.Task.Run(() =>
+            return $"One or more files in {path} are locked by the system or used by another program, and Nucleus could not unlock them. " +
+                   "This could make the game crash at startup.\n\n" +
+                   "Close the program that uses them, delete or unlock the files manually, or restart your computer. " +
+                   "You can also ignore this message and risk a crash or unexpected behaviors.";
+        }
+
+        private static Task<bool> CleanContentFolder(GenericGameInfo currentGameInfo, string path, bool reportLockedFiles)
+        {
+            return Task.Run(() =>
             {
                 try
                 {
                     KillRemainingGameProcess(currentGameInfo);
                     Directory.Delete(path, true);
+                    return true;
                 }
                 catch
                 {
@@ -84,22 +68,18 @@ namespace Nucleus.Gaming
                         }
 
                         Directory.Delete(path, true);
+                        return true;
                     }
                     catch
                     {
                         LogManager.Log("Game content cleanup failed. One or more files can't be unlocked by Nucleus.");
 
-                        System.Threading.Tasks.Task.Run(() =>
+                        if (reportLockedFiles)
                         {
-                            NucleusMessageBox.Show("Risk of crash!",
-                                $"One or more files from {path} are locked\n" +
-                                $"by the system or used by an other program \n" +
-                                $"and Nucleus failed to unlock them.You can try\n" +
-                                $"to delete/unlock the file(s) manually or restart\n" +
-                                $" your computer to unlock the file(s) because it\n" +
-                                $"could lead to a crash on game startup.\n" +
-                                $" You can ignore this message and risk a crash or unexpected behaviors.", false);
-                        });
+                            Task.Run(() => UserPrompts.Notice("Risk of crash!", LockedFilesMessage(path), false, PromptOrigin.Setup, PromptIcon.Warning));
+                        }
+
+                        return false;
                     }
                 }
             });

@@ -17,7 +17,6 @@ namespace Gamepads
 
         public static bool SDL_INITIALIZED { get; private set; }
         public static List<SDL_GameController> SDL2DevicesList = new List<SDL_GameController>();
-        public static int JoystickCount => SDL2.NumJoysticks();
 
         /// <summary>
         /// Use to filter out VGMaster virtual x360 controllers
@@ -143,21 +142,6 @@ namespace Gamepads
         #endregion
 
         #region ADD/REMOVE SDL DEVICES FUNCTIONS
-
-        private static void AddNewSDLDevice()
-        {
-            int lastEntry = SDL2DevicesList.Count;
-
-            SDL_GameController controller = SDL2.GameControllerOpen(lastEntry);
-
-            if (controller != IntPtr.Zero)
-            {
-                if(!SDL2DevicesList.Contains(controller))
-                {
-                    SDL2DevicesList.Add(controller);
-                }             
-            }    
-        }
 
         private static void RemoveSDLDevice()
         {

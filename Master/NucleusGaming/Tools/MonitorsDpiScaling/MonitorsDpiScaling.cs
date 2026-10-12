@@ -65,9 +65,6 @@ namespace Nucleus.Gaming.Tools.MonitorsDpiScaling
             public int dmPanningHeight;
         }
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        static extern int ChangeDisplaySettings([In] ref DEVMODE lpDevMode, int dwFlags);
-
         enum DISP_CHANGE : int
         {
             Successful = 0,

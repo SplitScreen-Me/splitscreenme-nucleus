@@ -11,7 +11,11 @@ namespace Nucleus.Gaming
 {
     public class LogManager
     {
-        public static readonly long MaxSize = 1024 * 1024 * 1024; // 1mb
+        /// <summary>
+        /// Past this size (10 MiB), app.log is written again from its start. It used to say "1mb" but was 1 GiB;
+        /// 10 MiB leaves room for the host's per-call bridge lines in a long session.
+        /// </summary>
+        public static readonly long MaxSize = 10 * 1024 * 1024;
 
         private static LogManager instance;
         public static LogManager Instance
@@ -41,8 +45,12 @@ namespace Nucleus.Gaming
 
             logCallbacks = new List<ILogNode>();
 
+            // The content folder may not exist yet: the host and the services can log before GameManager creates it.
+            Directory.CreateDirectory(GetAppDataPath());
+
+            // FileMode.Create starts a new log at each launch.
             logStream = new FileStream(GetLogPath(), FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
-            logStream.Position = logStream.Length; // keep writing from where we left
+            logStream.Position = logStream.Length;
 
             writer = new StreamWriter(logStream);
         }
@@ -82,13 +90,20 @@ namespace Nucleus.Gaming
         {
             lock (locker)
             {
-                string str = (string)s;
-                writer.WriteLine(str);
-                writer.Flush();
-
-                if (logStream.Position > MaxSize)
+                try
                 {
-                    logStream.Position = 0;// write on top
+                    string str = (string)s;
+                    writer.WriteLine(str);
+                    writer.Flush();
+
+                    if (logStream.Position > MaxSize)
+                    {
+                        logStream.Position = 0;// write on top
+                    }
+                }
+                catch
+                {
+                    // A thread-pool callback must not throw: that would end the process.
                 }
             }
         }
@@ -130,7 +145,8 @@ namespace Nucleus.Gaming
             string error = $"{version}\n\nNucleus failed setting up the handler. An attempt to clean up will be made.\n\n[Type]\n\n{ex.GetType().Name}\n\n[Message]\n\n{ex.Message}\n{help}\n\n[Stacktrace]\n\n{ex.StackTrace}";
 #endif
 
-            NucleusMessageBox.Show("Something went wrong :(", error, true);
+            //A host can show this report in its own UI once the session has ended.
+            UserPrompts.Notice("Something went wrong :(", error, true, PromptOrigin.LaunchFailure, PromptIcon.Error);
 
             Log("Attempting clean-up procedures...");
 
@@ -215,9 +231,9 @@ namespace Nucleus.Gaming
             if (!App_Misc.DebugLog &&
                 App_Misc.EnableLogAnswer == "")
             {
-                DialogResult dialogResult = System.Windows.Forms.MessageBox.Show($"Click \"Yes\" if you want to enable debug logging. Start the game once again to generate a debug log.\nClick \"No\" to disable this prompt.", "Enable debug log", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                bool yes = UserPrompts.YesNo("Enable debug log", $"Click \"Yes\" if you want to enable debug logging. Start the game once again to generate a debug log.\nClick \"No\" to disable this prompt.", PromptIcon.Question);
                 
-                if (dialogResult == DialogResult.Yes)
+                if (yes)
                 {
                     App_Misc.DebugLog = true;
                     EnableBtn = true;

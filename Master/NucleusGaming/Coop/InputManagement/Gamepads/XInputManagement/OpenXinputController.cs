@@ -25,12 +25,6 @@ namespace Nucleus.Gaming.Coop
                 public uint unk2;             // DWORD -> uint (32-bit)
             }
 
-            [DllImport("openxinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetKeystroke")]
-            public static extern int XInputGetKeystroke(int dwUserIndex, int dwReserved, out Keystroke keystrokeRef);
-
-            [DllImport("openxinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetBatteryInformation")]
-            public static extern int XInputGetBatteryInformation(int dwUserIndex, BatteryDeviceType devType, out BatteryInformation batteryInformationRef);
-
             public static unsafe int XInputSetState(int dwUserIndex, Vibration vibrationRef)
             {
                 return XInputSetState_(dwUserIndex, &vibrationRef);
@@ -42,9 +36,6 @@ namespace Nucleus.Gaming.Coop
             [DllImport("openxinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetState")]
             public static extern int XInputGetState(int dwUserIndex, out State stateRef);
 
-            [DllImport("openxinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputEnable")]
-            public static extern void XInputEnable(RawBool arg0);
-
             [DllImport("openxinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetCapabilities")]
             public static extern int XInputGetCapabilities(int dwUserIndex, DeviceQueryType dwFlags, out Capabilities capabilitiesRef);
 
@@ -52,12 +43,6 @@ namespace Nucleus.Gaming.Coop
 
         public static class NativeXinput
         {
-            [DllImport("xinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetKeystroke")]
-            public static extern int XInputGetKeystroke(int dwUserIndex, int dwReserved, out Keystroke keystrokeRef);
-
-            [DllImport("xinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetBatteryInformation")]
-            public static extern int XInputGetBatteryInformation(int dwUserIndex, BatteryDeviceType devType, out BatteryInformation batteryInformationRef);
-
             public static unsafe int XInputSetState(int dwUserIndex, Vibration vibrationRef)
             {
                 return XInputSetState_(dwUserIndex, &vibrationRef);
@@ -68,9 +53,6 @@ namespace Nucleus.Gaming.Coop
 
             [DllImport("xinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetState")]
             public static extern int XInputGetState(int dwUserIndex, out State stateRef);
-
-            [DllImport("xinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputEnable")]
-            public static extern void XInputEnable(RawBool arg0);
 
             [DllImport("xinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetCapabilities")]
             public static extern int XInputGetCapabilities(int dwUserIndex, DeviceQueryType dwFlags, out Capabilities capabilitiesRef);
@@ -83,15 +65,6 @@ namespace Nucleus.Gaming.Coop
         {
             this.userIndex = userIndex;
             this.openXinput = openXinput;
-        }
-
-        public BatteryInformation GetBatteryInformation(BatteryDeviceType batteryDeviceType)
-        {
-            ErrorCodeHelper.ToResult(
-                openXinput ? NativeOpenXinput.XInputGetBatteryInformation(userIndex, batteryDeviceType, out BatteryInformation temp) :
-                             NativeXinput.XInputGetBatteryInformation(userIndex, batteryDeviceType, out temp)
-                ).CheckError();
-            return temp;
         }
 
 
@@ -119,15 +92,6 @@ namespace Nucleus.Gaming.Coop
                        NativeXinput.XInputGetCapabilities(userIndex, deviceQueryType, out capabilities)) == 0;
         }
 
-        public Result GetKeystroke(DeviceQueryType deviceQueryType, out Keystroke keystroke)
-        {
-            return ErrorCodeHelper.ToResult(
-                openXinput ?
-                    NativeOpenXinput.XInputGetKeystroke(userIndex, (int)deviceQueryType, out keystroke) :
-                    NativeXinput.XInputGetKeystroke(userIndex, (int)deviceQueryType, out keystroke)
-                );
-        }
-
         public State GetState()
         {
             ErrorCodeHelper.ToResult(
@@ -140,18 +104,6 @@ namespace Nucleus.Gaming.Coop
             return (openXinput ?
                        NativeOpenXinput.XInputGetState(userIndex, out state) :
                        NativeXinput.XInputGetState(userIndex, out state)) == 0;
-        }
-
-        public static void SetReporting(bool enableReporting, bool openXinput)
-        {
-            if (openXinput)
-            {
-                NativeOpenXinput.XInputEnable(enableReporting);
-            }
-            else
-            {
-                NativeXinput.XInputEnable(enableReporting);
-            }
         }
 
         public Result SetVibration(Vibration vibration)

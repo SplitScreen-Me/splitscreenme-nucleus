@@ -1,5 +1,4 @@
-﻿using Jint.Parser;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Newtonsoft.Json;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.InputManagement;
@@ -11,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using Nucleus.Gaming.Forms;
 
 namespace Nucleus.Gaming
 {
@@ -22,18 +22,10 @@ namespace Nucleus.Gaming
     {
         public static GameManager Instance { get; private set; }
 
-        /// <summary>
-        /// When false, loading the user profile does not start the per-game hub update checks (the web UI services run
-        /// their own and publish the results). True by default for the legacy UI.
-        /// </summary>
-        public static bool CheckUpdatesOnLoad { get; set; } = true;
-
-        private List<BackupFile> backupFiles;
         private bool isSaving;
 
         private RawInputProcessor rawInputProcessor;
         private static RawInputProcessor sharedRawInputProcessor;
-        //private InputInterceptor inputInterceptor;
 
         /// object instance so we can thread-safe save the user profile
         private object saving = new object();
@@ -68,10 +60,6 @@ namespace Nucleus.Gaming
             string gameJs = GetJsScriptsPath();
             Directory.CreateDirectory(gameJs);
 
-            //inputInterceptor = new InputInterceptor();
-
-            //            LockInput.Unlock();
-
             //Subscribe to raw input
             //TODO: update isRunningSplitScreen
             //Raw input is registered once per process: a new GameManager (handlers refresh) reuses the window and thread
@@ -91,16 +79,6 @@ namespace Nucleus.Gaming
 
             Initialize();
             LoadUser();
-        }
-
-        /// <summary>
-        /// Tests if there's any game with the named exe
-        /// </summary>
-        /// <param name="gameExe"></param>
-        /// <returns></returns>
-        public bool AnyGame(string gameExe)
-        {
-            return Games.Values.Any(c => c.ExecutableName.ToLower() == gameExe);
         }
 
         /// <summary>
@@ -237,201 +215,6 @@ namespace Nucleus.Gaming
             return games;
         }
 
-        /// <summary>
-        /// Tries adding a game to the collection with the provided IGameInfo
-        /// </summary>
-        /// <param name="exePath"></param>
-        /// <returns></returns>
-        public UserGameInfo TryAddGame(string exePath, GenericGameInfo game)
-        {
-            string lower = exePath.ToLower();
-
-            // search for the same exe on the user profile
-            if (Instance.User.Games.Any(c => c.ExePath.ToLower() == lower))
-            {
-                //try to clean old user profile for this game entries, most likely happens if user deleted the js file manually
-                var inUserProfile = Instance.User.Games.Where(c => c.ExePath.ToLower() == lower).ToList();
-                
-                for (int i = 0; i < inUserProfile.Count; i++)
-                {
-                    var toDelete = inUserProfile[i]; 
-                    Instance.User.Games.Remove(inUserProfile[i]);
-                }
-                //DialogResult dialogResult = MessageBox.Show("This game's executable is already in your library. \nRemove the game from your library if you need to re-add it or restart Nucleus if you previouly deleted the handler (.js file) manually.\n" + exePath, "Already exists", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                //if (dialogResult == DialogResult.OK)
-                //{
-                //    return null;
-                //}
-            }
-
-            LogManager.Log("Found game: {0}, full path: {1}", game.GameName, exePath);
-            UserGameInfo uinfo = new UserGameInfo();
-
-            game.MetaInfo.FirstLaunch = true;
-
-            //Check for update in case the handler is outdated (using search game => add old handler version)
-            if(game.MetaInfo.CheckUpdate)
-            {
-                System.Threading.Tasks.Task.Run(() =>
-                {
-                    game.UpdateAvailable = game.Hub.CheckUpdateAvailable();     
-                });
-            }    
-
-            uinfo.InitializeDefault(game, exePath);
-            Instance.User.Games.Add(uinfo);
-            Instance.SaveUserProfile();
-
-            return uinfo;
-        }
-
-        /// <summary>
-        /// Tries adding a game to the collection with the provided executable path
-        /// </summary>
-        /// <param name="exePath"></param>
-        /// <returns></returns>
-        public UserGameInfo TryAddGame(string exePath)
-        {
-            string lower = exePath.ToLower();
-            string fileName = Path.GetFileName(exePath).ToLower();
-            string dir = Path.GetDirectoryName(exePath);
-
-            IEnumerable<GenericGameInfo> possibilities = Games.Values.Where(c => c.ExecutableName.ToLower() == fileName);
-
-            foreach (GenericGameInfo game in possibilities)
-            {
-                // check if the Context matches
-                string[] context = game.ExecutableContext;
-                bool notAdd = false;
-                if (context != null)
-                {
-                    for (int j = 0; j < context.Length; j++)
-                    {
-                        string con = Path.Combine(dir, context[j]);
-                        if (!File.Exists(con) &&
-                            !Directory.Exists(con))
-                        {
-                            notAdd = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (notAdd)
-                {
-                    continue;
-                }
-
-                // search for the same exe on the user profile
-                if (Instance.User.Games.Any(c => c.ExePath.ToLower() == lower))
-                {
-                    continue;
-                }
-
-#if RELEASE
-                if (game.Debug)
-                {
-                    continue;
-                }
-#endif
-
-                LogManager.Log("Found game: {0}, full path: {1}", game.GameName, exePath);
-                UserGameInfo uinfo = new UserGameInfo();
-
-                uinfo.InitializeDefault(game, exePath);
-                Instance.User.Games.Add(uinfo);
-                Instance.SaveUserProfile();
-
-                return uinfo;
-            }
-
-            return null;
-        }
-
-        public void WaitSave()
-        {
-            while (IsSaving)
-            {
-            }
-        }
-
-        /// <summary>
-        /// Check if a game is already prensent in user profile with the provided IGameInfo
-        /// </summary>
-        /// <param name="exePath"></param>
-        /// <returns></returns>
-        public bool IsGameAlreadyInUserProfile(string exeName, string handlerTitle)
-        {
-            // Bellow commented is for new Game.ExecutableNames option (2.4.1) , must finish the implementation
-            //once a handler using it can be downloaded for proper debugging.
-            //if (exeNames != null)
-            //{
-            //    foreach (string _exeName in exeNames)
-            //    {
-            //        string lower = _exeName.ToLower();
-
-            //        if (User.Games.Any(c => c.ExePath.Split('\\').Last().ToLower() == lower))
-            //        {
-            //            DirectoryInfo jsFolder = new DirectoryInfo(GetJsScriptsPath());
-            //            FileInfo f = new FileInfo(Path.Combine(jsFolder.FullName, handlerTitle + ".js"));
-
-            //            using (Stream str = f.OpenRead())
-            //            {
-            //                string ext = Path.GetFileNameWithoutExtension(f.Name);
-            //                string pathBlock = Path.Combine(f.Directory.FullName, ext);
-
-            //                GenericGameInfo newHandler = new GenericGameInfo(f.Name, pathBlock, str, new bool[] { false, false });
-
-            //                bool foundGame = games.Where(g => g.Value.GameName == newHandler.GameName).Count() > 0;
-
-            //                if (foundGame)
-            //                {
-            //                    return true;
-            //                }
-            //                else
-            //                {
-            //                    //found games sharing the same exe name but not game name, not the same => game can be added.
-            //                    return false;
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
-            //else
-            //{
-            string lower = exeName.ToLower();
-
-                if (User.Games.Any(c => c.ExePath.Split('\\').Last().ToLower() == lower))
-                {
-                    DirectoryInfo jsFolder = new DirectoryInfo(GetJsScriptsPath());
-                    FileInfo f = new FileInfo(Path.Combine(jsFolder.FullName, handlerTitle + ".js"));
-
-                    using (Stream str = f.OpenRead())
-                    {
-                        string ext = Path.GetFileNameWithoutExtension(f.Name);
-                        string pathBlock = Path.Combine(f.Directory.FullName, ext);
-
-                        GenericGameInfo newHandler = new GenericGameInfo(f.Name, pathBlock, str, new bool[] { false, false });
-
-                        bool foundGame = games.Where(g => g.Value.GameName == newHandler.GameName).Count() > 0;
-
-                        if (foundGame)
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            //found games sharing the same exe name but not game name, not the same => game can be added.
-                            return false;
-                        }
-                    }
-                }
-            //}
-
-            return false;
-        }
-
         #region Initialize
 
         public string GetAppContentPath()
@@ -470,15 +253,6 @@ namespace Nucleus.Gaming
             return gInfo;
         }
 
-        public void BeginBackup(GenericGameInfo game)
-        {
-            string appData = GetAppContentPath();
-            string gamePath = Path.Combine(appData, game.GUID);
-            Directory.CreateDirectory(gamePath);
-
-            backupFiles = new List<BackupFile>();
-        }
-
         public IGameHandler MakeHandler(GenericGameInfo game)
         {
             return (IGameHandler)Activator.CreateInstance(game.HandlerType);
@@ -488,66 +262,6 @@ namespace Nucleus.Gaming
         {
             string appData = GetAppContentPath();
             return Path.Combine(appData, game.GUID);
-        }
-
-        public BackupFile BackupFile(GenericGameInfo game, string path)
-        {
-            string appData = GetAppContentPath();
-            string gamePath = Path.Combine(appData, game.GUID);
-            string destination = Path.Combine(gamePath, Path.GetFileName(path));
-
-            if (!File.Exists(path))
-            {
-                if (File.Exists(destination))
-                {
-                    // we fucked up and the backup exists? maybe, so restore
-                    File.Copy(destination, path);
-                }
-            }
-            else
-            {
-                if (File.Exists(destination))
-                {
-                    File.Delete(destination);
-                }
-
-                File.Copy(path, destination);
-            }
-
-            BackupFile bkp = new BackupFile(path, destination);
-            backupFiles.Add(bkp);
-
-            return bkp;
-        }
-
-        public void ExecuteBackup(GenericGameInfo game)
-        {
-            // we didnt backup anything
-            if (backupFiles == null)
-            {
-                return;
-            }
-
-            string appData = GetAppContentPath();
-            string gamePath = Path.Combine(appData, game.GUID);
-
-            for (int i = 0; i < backupFiles.Count; i++)
-            {
-                BackupFile bkp = backupFiles[i];
-                if (File.Exists(bkp.BackupPath))
-                {
-                    File.Delete(bkp.Source);
-                    File.Move(bkp.BackupPath, bkp.Source);
-                }
-            }
-        }
-
-        public void ReorderUserProfile()
-        {
-            lock (user.Games)
-            {
-                user.Games = user.Games.OrderBy(g => g.Game.GameName).ToList();
-            }
         }
 
         public void SaveUserProfile()
@@ -615,16 +329,7 @@ namespace Nucleus.Gaming
                                             user.Games[i].Game.ExecutableName = fileName;
                                         }
 
-                                        //Check for handler update here so we check only for added games
-                                        if (CheckUpdatesOnLoad && user.Games[i].Game.MetaInfo.CheckUpdate)
-                                        {
-                                            var game = user.Games[i].Game;
-
-                                            System.Threading.Tasks.Task.Run(() =>
-                                            {
-                                                game.UpdateAvailable = game.Hub.CheckUpdateAvailable();
-                                            });
-                                        }
+                                        // Handler update checks are run by the services (HandlerUpdateChecker), not here.
                                     }
                                 }
                             }
@@ -742,7 +447,7 @@ namespace Nucleus.Gaming
                 }
                 catch (ArgumentException ex)
                 {
-                    MessageBox.Show(ex.InnerException + ": " + ex.Message, "Error with handler " + f.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    UserPrompts.Report(PromptIcon.Error, "Error with handler " + f.Name, ex.InnerException + ": " + ex.Message, PromptOrigin.Handler);
                     continue;
                 }
             }          
@@ -754,19 +459,19 @@ namespace Nucleus.Gaming
             {
                 if (gameGuid != null)
                 {
-                    if (File.Exists(Path.Combine(Application.StartupPath, $"gui\\covers\\{gameGuid}.jpeg")))
+                    if (File.Exists(Path.Combine(Globals.NucleusInstallRoot, $"gui\\covers\\{gameGuid}.jpeg")))
                     {
-                        File.Delete(Path.Combine(Application.StartupPath, $"gui\\covers\\{gameGuid}.jpeg"));
+                        File.Delete(Path.Combine(Globals.NucleusInstallRoot, $"gui\\covers\\{gameGuid}.jpeg"));
                     }
 
-                    if (Directory.Exists(Path.Combine(Application.StartupPath, $"gui\\screenshots\\{gameGuid}")))
+                    if (Directory.Exists(Path.Combine(Globals.NucleusInstallRoot, $"gui\\screenshots\\{gameGuid}")))
                     {
-                        Directory.Delete(Path.Combine(Application.StartupPath, $"gui\\screenshots\\{gameGuid}"), true);
+                        Directory.Delete(Path.Combine(Globals.NucleusInstallRoot, $"gui\\screenshots\\{gameGuid}"), true);
                     }
 
-                    if (Directory.Exists(Path.Combine(Application.StartupPath, $"gui\\descriptions")))
+                    if (Directory.Exists(Path.Combine(Globals.NucleusInstallRoot, $"gui\\descriptions")))
                     {
-                        Directory.Delete(Path.Combine(Application.StartupPath, $"gui\\descriptions"), true);
+                        Directory.Delete(Path.Combine(Globals.NucleusInstallRoot, $"gui\\descriptions"), true);
                     }
 
                     return;
@@ -776,7 +481,7 @@ namespace Nucleus.Gaming
                 //We search for existing screenshot directories and cover file and compare with the actual user games.
                 //If dirs or files with no corresponding user game are found, we delete them.
 
-                List<string> scDirToDelete = Directory.GetDirectories(Path.Combine(Application.StartupPath, $"gui\\screenshots")).
+                List<string> scDirToDelete = Directory.GetDirectories(Path.Combine(Globals.NucleusInstallRoot, $"gui\\screenshots")).
                     Where(sc => user.Games.All(v => !sc.Contains(v.GameGuid))).ToList();
 
                 foreach (var scDirectory in scDirToDelete)
@@ -788,7 +493,7 @@ namespace Nucleus.Gaming
                     }
                 }
 
-                List<string> coversToDelete = Directory.GetFiles(Path.Combine(Application.StartupPath, $"gui\\covers")).
+                List<string> coversToDelete = Directory.GetFiles(Path.Combine(Globals.NucleusInstallRoot, $"gui\\covers")).
                    Where(sc => user.Games.All(v => !sc.Contains(v.GameGuid))).ToList();
 
                 foreach (var coverFile in coversToDelete)
@@ -892,7 +597,7 @@ namespace Nucleus.Gaming
             }
             catch (ArgumentException ex)
             {
-                MessageBox.Show(ex.InnerException + ": " + ex.Message, "Error with handler " + f.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UserPrompts.Report(PromptIcon.Error, "Error with handler " + f.Name, ex.InnerException + ": " + ex.Message, PromptOrigin.Handler);
                 //continue;
                 return null;
             }

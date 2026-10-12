@@ -1,44 +1,43 @@
-﻿using Nucleus.Gaming.Cache;
-using Nucleus.Gaming.DPI;
-using Nucleus.Gaming.Tools.GlobalWindowMethods;
-using Nucleus.Gaming.UI;
-using Nucleus.Gaming.Windows.Interop;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Forms
 {
+    /// <summary>A plain topmost message window (the text can be selected and copied). Use <see cref="UserPrompts.Notice"/>.</summary>
     public partial class CustomMessageBox : Form
     {
-        private string message;
-        private bool sized;
-        private Font font;
+        private const int Gap = 12;
+        private const int MaxTextWidth = 560;
+        private const int MaxTextHeight = 420;
 
         public CustomMessageBox(string title, string message, bool format)
         {
-            string[] rgb_MouseOverColor = Globals.ThemeConfigFile.IniReadValue("Colors", "MouseOver").Split(',');
-
             InitializeComponent();
 
-            Cursor = Theme_Settings.Default_Cursor;
-            TopMost = true;
             Text = title;
+            TopMost = true;
+            messageText.Text = (format ? FormatText(message) : message ?? "").Replace("\r\n", "\n").Replace("\n", Environment.NewLine);
 
-            this.message = format ? FormatText(message) : message;
-
-            closeBtn.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close.png");
-            closeBtn.Cursor = Theme_Settings.Hand_Cursor;
-
-            closeBtn.FlatAppearance.MouseOverBackColor = Color.FromArgb(int.Parse(rgb_MouseOverColor[0]), int.Parse(rgb_MouseOverColor[1]), int.Parse(rgb_MouseOverColor[2]), int.Parse(rgb_MouseOverColor[3]));
-            BackgroundImage = Image.FromFile(Globals.ThemeFolder + "other_backgrounds.jpg");
-            Opacity = 0;//invisible until resized
+            LayoutToText();
         }
 
-        private string FormatText(string message)
+        private void LayoutToText()
         {
-            string removedNewLineJump = message;
-            string[] words = removedNewLineJump.Split(' ');
+            Size text = TextRenderer.MeasureText(messageText.Text, messageText.Font, new Size(MaxTextWidth, int.MaxValue), TextFormatFlags.WordBreak | TextFormatFlags.TextBoxControl);
+
+            int width = Math.Max(Math.Min(text.Width + SystemInformation.VerticalScrollBarWidth, MaxTextWidth), 240);
+            int height = Math.Min(text.Height + 4, MaxTextHeight);
+
+            messageText.ScrollBars = text.Height + 4 > MaxTextHeight ? ScrollBars.Vertical : ScrollBars.None;
+            messageText.SetBounds(Gap, Gap, width, height);
+            okButton.Location = new Point(Gap + width - okButton.Width, Gap + height + Gap);
+            ClientSize = new Size(width + 2 * Gap, okButton.Bottom + Gap);
+        }
+
+        private static string FormatText(string message)
+        {
+            string[] words = (message ?? "").Split(' ');
             string formated = string.Empty;
 
             int wordsBeforeNewLine = 10;
@@ -51,65 +50,23 @@ namespace Nucleus.Gaming.Forms
                     formated += words[i] + '\n';
                     start += wordsBeforeNewLine;
                 }
+                else if (words[i].EndsWith("."))
+                {
+                    formated += words[i] + '\n';
+                    start += wordsBeforeNewLine;
+                }
                 else
                 {
-                    if (words[i].EndsWith("."))
-                    {
-                        formated += words[i] + '\n';
-                        start += wordsBeforeNewLine;
-                    }
-                    else
-                    {
-                        formated += words[i] + ' ';
-                    }
+                    formated += words[i] + ' ';
                 }
             }
 
             return formated;
         }
 
-        private void CustomMessaBox_Paint(object sender, PaintEventArgs e)
-        {
-            Graphics g = e.Graphics;
-
-            float scale = DPIManager.Scale;
-            font = new Font(Font.FontFamily, Font.Size * scale);
-            
-            SizeF newSize = g.MeasureString(message, font);
-
-            if (!sized)
-            {
-                Size = new Size((int)newSize.Width + 30, (int)newSize.Height + 30 + closeBtn.Bottom + 5);
-                MaximumSize = Size;
-
-                FormGraphicsUtil.CreateRoundedControlRegion(this, 0, 0, Width, Height, 20, 20);
-
-                CenterToScreen();
-                Opacity = 1.0F;
-
-                sized = true;
-            }
-
-            g.DrawString(message, font, Brushes.White, 10, closeBtn.Bottom + 5);
-            g.Dispose();
-        }
-
-        private void CloseBtn_Click(object sender, EventArgs e)
+        private void OkButton_Click(object sender, EventArgs e)
         {
             Close();
-        }
-
-        private const int WM_NCLBUTTONDOWN = 0xA1;
-        private const int HT_CAPTION = 0x2;
-
-        private void CustomMessageBox_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                User32Interop.ReleaseCapture();
-                IntPtr nucHwnd = User32Interop.FindWindow(null, Text);
-                User32Interop.SendMessage(nucHwnd, WM_NCLBUTTONDOWN, (IntPtr)HT_CAPTION, (IntPtr)0);
-            }
         }
     }
 }

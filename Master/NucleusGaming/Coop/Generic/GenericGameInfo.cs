@@ -18,6 +18,25 @@ namespace Nucleus.Gaming
     {
         private Engine engine;
         private string js;
+        private bool? scriptReadsGamepadIdentity;
+
+        /// <summary>
+        /// Whether the handler script reads the DirectInput identity of its players' pads (Context.GamepadGuid, RawHID,
+        /// x360ceGamepadGuid, HIDDeviceID). Such handlers need pads matched to a DirectInput device, not only an XInput slot.
+        /// </summary>
+        internal bool ScriptReadsGamepadIdentity
+        {
+            get
+            {
+                if (scriptReadsGamepadIdentity == null)
+                {
+                    string code = js ?? string.Empty;
+                    scriptReadsGamepadIdentity = code.Contains("GamepadGuid") || code.Contains("RawHID") || code.Contains("HIDDeviceID");
+                }
+
+                return scriptReadsGamepadIdentity.Value;
+            }
+        }
 
         public Hub Hub = new Hub();
 
@@ -344,6 +363,35 @@ namespace Nucleus.Gaming
         public Type HandlerType => typeof(GenericGameHandler);
         public GameMetaInfo MetaInfo = new GameMetaInfo();
 
+        /// <summary>Why the script failed to run (the text of the "Error in handler" message), or null.</summary>
+        public string ScriptError { get; private set; }
+
+        private static string DescribeScriptError(string fileName, Exception ex)
+        {
+            string details = ex.Message;
+
+            try
+            {
+                string[] lineSplit = ex.Message.Split(':');
+                string[] getNum = lineSplit[0].Split(' ');
+
+                if (getNum.Length > 1 && int.TryParse(getNum[1], out int num))
+                {
+                    details = $"Error at line {num / 2} {(lineSplit.Length > 1 ? lineSplit[1] : "")}";
+                }
+            }
+            catch
+            {
+                details = ex.Message;
+            }
+
+            return $"There is an error in the game handler {fileName}.\n" +
+            $"\nThe game this handler is for will not appear in the list. If the issue has been fixed,\n" +
+            $"please try re-adding the game.\n\nCommon errors include:\n- A syntax error (such as a \',\' \';\' or \']\' missing)\n" +
+            $"- Another handler has this GUID (must be unique!)\n- Code is not in the right place or format\n(for example: methods using Context must be within the Game.Play function)" +
+            $"\n\n{details}";
+        }
+
         public GenericGameInfo(string fileName, string folderPath, Stream str, bool[] checkUpdate)//checkUpdate [0]=initial update check [1]=update was available before reloading the handler  
         {
             JsFileName = fileName;
@@ -384,30 +432,12 @@ namespace Nucleus.Gaming
             }
             catch (Exception ex)
             {
-                System.Threading.Tasks.Task.Run(() =>
-                {
-                    string[] lineSplit = ex.Message.Split(':');
-                    string splited = lineSplit?[0];
-                    string[] getNum = splited.Split(' ');
+                ScriptError = DescribeScriptError(fileName, ex);
+                LogManager.Log($"Error in handler {fileName}: {ex.Message}");
 
-                    bool lineIsNum = int.TryParse(getNum?[1], out int numLine);
-
-                    string details = ex.Message;
-
-                    if (lineIsNum)
-                    {
-                        int num = int.Parse(getNum?[1]);
-                        details = $"Error at line {num/2} {lineSplit?[1]}";
-                    }
-
-                    string error = $"There is an error in the game handler {fileName}.\n" +
-                    $"\nThe game this handler is for will not appear in the list. If the issue has been fixed,\n" +
-                    $"please try re-adding the game.\n\nCommon errors include:\n- A syntax error (such as a \',\' \';\' or \']\' missing)\n" +
-                    $"- Another handler has this GUID (must be unique!)\n- Code is not in the right place or format\n(for example: methods using Context must be within the Game.Play function)" +
-                    $"\n\n{details}";
-
-                    NucleusMessageBox.Show("Error in handler", error, false);              
-                });
+                //Not on the caller's thread: the native box would block the handlers loading.
+                string error = ScriptError;
+                System.Threading.Tasks.Task.Run(() => UserPrompts.Notice("Error in handler", error, false, PromptOrigin.Handler, PromptIcon.Error));
 
                 return;
             }

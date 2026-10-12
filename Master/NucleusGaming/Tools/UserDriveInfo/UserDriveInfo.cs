@@ -5,12 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Nucleus.Gaming.Forms;
 
 namespace Nucleus.Gaming.Tools.UserDriveInfo
 {
     public static class UserDriveInfo
     {
-        public static bool IsExFat(string fullPath,bool startupCheck)//Addd the check for Nucleus install too just in case(Check on startup).
+        /// <summary>Startup check of the Nucleus install folder: shows a message box and returns true on an exFAT drive.</summary>
+        public static bool IsExFat(string fullPath)
         {
             try
             {
@@ -24,22 +26,10 @@ namespace Nucleus.Gaming.Tools.UserDriveInfo
                     {
                         if (drive.DriveFormat == "exFAT")//exFat do not supports symlink, that's bad for us.
                         {
-                            if (startupCheck)
-                            {
-                                MessageBox.Show("\"exFat\" is not a supported drive format.\n\n" +
-                                   "Move your Nucleus install folder to a NTFS formated drive, or format the drive to NTFS format.\n\n" +
-                                   "Reasons:\n\n" +
-                                   "exFat does not support symlink functions.", "Incompatible drive format!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-                            }
-                            else
-                            {
-                                MessageBox.Show("\"exFat\" is not a supported drive format.\n\n" +
-                                    "Move your game(s) to a NTFS formated drive, or format the drive to NTFS format.\n\n" +
-                                    "Reasons:\n\n" +
-                                    "exFat does not support symlink functions.", "Incompatible drive format!", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-
-                                MessageBox.Show("The game has not been added to your Nucleus game collection.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            }
+                            UserPrompts.Report(PromptIcon.Warning, "Incompatible drive format!", "\"exFat\" is not a supported drive format.\n\n" +
+                               "Move your Nucleus install folder to a NTFS formated drive, or format the drive to NTFS format.\n\n" +
+                               "Reasons:\n\n" +
+                               "exFat does not support symlink functions.");
 
                             return true;
                         }
@@ -51,36 +41,10 @@ namespace Nucleus.Gaming.Tools.UserDriveInfo
             catch (Exception ex)
             {
                 string message = "Error: " + ex.Message;
-                MessageBox.Show(message + "Something went wrong during drives compatibility check!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UserPrompts.Report(PromptIcon.Error, "Error", message + "Something went wrong during drives compatibility check!");
                 return false;
             }
         }
 
-        public static void PrintDrivesInfo()//list
-        {
-            DriveInfo[] allDrives = DriveInfo.GetDrives();
-
-            foreach (DriveInfo d in allDrives)
-            {
-                Console.WriteLine("Drive {0}", d.Name);
-                Console.WriteLine("  Drive type: {0}", d.DriveType);
-                if (d.IsReady)
-                {
-                    Console.WriteLine("  Volume label: {0}", d.VolumeLabel);
-                    Console.WriteLine("  File system: {0}", d.DriveFormat);
-                    Console.WriteLine(
-                        "  Available space to current user:{0, 15} bytes",
-                        d.AvailableFreeSpace);
-
-                    Console.WriteLine(
-                        "  Total available space:          {0, 15} bytes",
-                        d.TotalFreeSpace);
-
-                    Console.WriteLine(
-                        "  Total size of drive:            {0, 15} bytes ",
-                        d.TotalSize);
-                }
-            }
-        }
     }
 }

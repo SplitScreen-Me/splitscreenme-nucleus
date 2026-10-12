@@ -169,14 +169,14 @@ public class WindowsMerger : System.Windows.Window
 
         string pid = searchLossless[0].Id.ToString();
 
-        string injectorPath = Path.Combine(System.Windows.Forms.Application.StartupPath, $@"utils\Hooks\Hk_IJ.exe");
+        string injectorPath = Path.Combine(Globals.NucleusInstallRoot, $@"utils\Hooks\Hk_IJ.exe");
 
         ProcessStartInfo startInfo = new ProcessStartInfo();
         startInfo.FileName = injectorPath;
         startInfo.Arguments = $"\"{pid}\" \"Lossless_Hook.dll\" \"Lossless_Hook.dll\"";
         startInfo.CreateNoWindow = false;
         startInfo.UseShellExecute = false;
-        startInfo.WorkingDirectory = Path.Combine(System.Windows.Forms.Application.StartupPath, $@"utils\Hooks");
+        startInfo.WorkingDirectory = Path.Combine(Globals.NucleusInstallRoot, $@"utils\Hooks");
         startInfo.RedirectStandardOutput = false;
 
         Process injectProc = Process.Start(startInfo);
@@ -330,9 +330,9 @@ public class WindowsMerger : System.Windows.Window
     {
         if (fading == null)
         {
-            if (Directory.Exists(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, $@"gui\screenshots\{gameGUID}")))
+            if (Directory.Exists(System.IO.Path.Combine(Globals.NucleusInstallRoot, $@"gui\screenshots\{gameGUID}")))
             {
-                var imgsPath = Directory.GetFiles(Path.Combine(System.Windows.Forms.Application.StartupPath, $"gui\\screenshots\\{gameGUID}")).Where(s =>
+                var imgsPath = Directory.GetFiles(Path.Combine(Globals.NucleusInstallRoot, $"gui\\screenshots\\{gameGUID}")).Where(s =>
                   s.EndsWith(".png") ||
                   s.EndsWith(".jpeg") ||
                   s.EndsWith(".jpg") ||
@@ -373,9 +373,9 @@ public class WindowsMerger : System.Windows.Window
 
         if (alpha <= 0.01F)
         {
-            if (Directory.Exists(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, $@"gui\screenshots\{gameGUID}")))
+            if (Directory.Exists(System.IO.Path.Combine(Globals.NucleusInstallRoot, $@"gui\screenshots\{gameGUID}")))
             {
-                var imgsPath = Directory.GetFiles(Path.Combine(System.Windows.Forms.Application.StartupPath, $"gui\\screenshots\\{gameGUID}")).Where(s =>
+                var imgsPath = Directory.GetFiles(Path.Combine(Globals.NucleusInstallRoot, $"gui\\screenshots\\{gameGUID}")).Where(s =>
                   s.EndsWith(".png") ||
                   s.EndsWith(".jpeg") ||
                   s.EndsWith(".jpg") ||

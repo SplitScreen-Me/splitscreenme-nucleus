@@ -72,52 +72,9 @@ namespace Nucleus.Gaming.Coop.InputManagement
             return result;
         }
 
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, StringBuilder lParam);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, ref IntPtr lParam);
-
-        /// <summary>
-        /// Sends the specified message to a window or windows. The SendMessage function calls the window procedure for the specified window and does not return until the window procedure has processed the message.
-        /// </summary>
-        /// <param name="hWnd"></param>
-        /// <param name="Msg"></param>
-        /// <param name="wParam"></param>
-        /// <param name="lParam"></param>
-        /// <returns></returns>
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, IntPtr lParam);
-
-        /// <summary>
-        /// Sends the specified message to a window or windows. 
-        /// If the window was created by the calling thread, SendNotifyMessage calls the window procedure for the window and does not return until the window procedure has processed the message. 
-        /// If the window was created by a different thread, SendNotifyMessage passes the message to the window procedure and returns immediately; it does not wait for the window procedure to finish processing the message.
-        /// </summary>
-        /// <param name="hWnd"></param>
-        /// <param name="Msg"></param>
-        /// <param name="wParam"></param>
-        /// <param name="lParam"></param>
-        /// <returns></returns>
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern bool SendNotifyMessage(IntPtr hWnd, uint Msg, UIntPtr wParam, IntPtr lParam);
-
-        [DllImport("user32.dll")]
-        public static extern IntPtr SetCapture(IntPtr hWnd);
-
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool SetForegroundWindow(IntPtr hWnd);
-
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern bool BlockInput(bool fBlockIt);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
         public static extern bool DrawIcon(IntPtr hDC, int x, int y, IntPtr hIcon);
@@ -153,9 +110,6 @@ namespace Nucleus.Gaming.Coop.InputManagement
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern bool GetClientRect(IntPtr hWnd, out RECT lpRect);
-
         public static IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong)
         {
             if (IntPtr.Size == 8)
@@ -188,49 +142,14 @@ namespace Nucleus.Gaming.Coop.InputManagement
         [DllImport("user32.dll", SetLastError = true)]
         public static extern bool BringWindowToTop(IntPtr hWnd);
 
-        [DllImport("user32.dll")]
-        public static extern int ShowCursor(bool bShow);
-
-        [DllImport("user32.dll")]
-        public static extern IntPtr SetCursor(IntPtr handle);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool UnhookWindowsHookEx(IntPtr hhk);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr GetModuleHandle(string lpModuleName);
-
-        [DllImport("user32.dll")]
-        public static extern short GetAsyncKeyState(int vKey);
-
-        public delegate IntPtr GetMsgProc(int nCode, IntPtr wParam, IntPtr lParam);
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr SetWindowsHookEx(int idHook, GetMsgProc lpfn, IntPtr hMod, uint dwThreadId);
-
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr GetDesktopWindow();
-
-        [DllImport("kernel32.dll")]
-        public static extern IntPtr WaitForSingleObject(IntPtr hHandle, int dwMilliseconds);
 
         [DllImport("user32.dll")]
         public static extern int FillRect(IntPtr hDC, [In] ref RECT lprc, IntPtr hbr);
 
         [DllImport("gdi32.dll")]
         public static extern IntPtr CreateSolidBrush(uint crColor);
-
-        [DllImport("kernel32.dll")]
-        public static extern int SuspendThread(IntPtr hThread);
-
-        [DllImport("kernel32.dll")]
-        public static extern IntPtr GetCurrentThread();
-
-        [DllImport("kernel32", SetLastError = true, CharSet = CharSet.Ansi)]
-        public static extern IntPtr LoadLibrary([MarshalAs(UnmanagedType.LPStr)] string lpFileName);
 
         [DllImport("kernel32.dll")]
         public static extern unsafe int WriteFile(
@@ -258,9 +177,6 @@ namespace Nucleus.Gaming.Coop.InputManagement
             IntPtr hMenu,
             IntPtr hInstance,
             IntPtr lpParam);
-
-        [DllImport("user32.dll")]
-        public static extern IntPtr LoadCursor(IntPtr hInstance, int lpCursorName);
 
         [DllImport("user32.dll", SetLastError = true, EntryPoint = "RegisterClassEx")]
         public static extern ushort RegisterClassEx([In] ref WNDCLASSEX lpWndClass);

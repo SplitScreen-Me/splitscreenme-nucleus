@@ -43,19 +43,15 @@ namespace Nucleus.Gaming.Coop
         public static Action OnReadyAutoPlayTrigger;
 
         /// <summary>
-        /// Raised when the setup step validity changes from the profile code: (canProceed, autoProceed), same meaning as
-        /// UserInputControl.CanPlayUpdated. The WinForms setup screen forwards it to its own CanPlayUpdated.
+        /// Raised when the setup step validity changes from the profile code: (canProceed, autoProceed).
         /// </summary>
         public static event Action<bool, bool> CanPlayChanged;
-
-        /// <summary>Raised when the profile matching assigns a device (the WinForms setup screen repaints).</summary>
-        public static event Action AssignmentChanged;
 
         public enum NoticeKind { Info, Error }
 
         /// <summary>
         /// Shows a message from the profile code: (kind, title, text, durationMs). Default: the on-screen display for
-        /// <see cref="NoticeKind.Info"/>, a NucleusMessageBox for <see cref="NoticeKind.Error"/>. A host can wrap or replace it.
+        /// <see cref="NoticeKind.Info"/>, <see cref="UserPrompts.Notice"/> (origin <see cref="PromptOrigin.Setup"/>) for <see cref="NoticeKind.Error"/>. A host can wrap or replace it.
         /// </summary>
         public static Action<NoticeKind, string, string, int> Notify = DefaultNotify;
 
@@ -63,7 +59,7 @@ namespace Nucleus.Gaming.Coop
         {
             if (kind == NoticeKind.Error)
             {
-                NucleusMessageBox.Show(title ?? "", text, false);
+                UserPrompts.Notice(title ?? "", text, false, PromptOrigin.Setup, PromptIcon.Error);
             }
             else
             {
@@ -309,18 +305,17 @@ namespace Nucleus.Gaming.Coop
             return deviceList;       
         }
 
-        public static void InitializeHandlerStartup()
-        {
-            InitializeHandlerStartup(null);
-        }
-
         /// <param name="onEnded">Subscribed to the handler's Ended event before the handler starts, so no end can be missed.</param>
         public static void InitializeHandlerStartup(Action onEnded)
         {
             DevicesFunctions.DisposeGamePadTimer();
 
             //reload the handler here so it can be edited/updated until play button get clicked
-            GameManager.Instance.AddScript(Path.GetFileNameWithoutExtension(Game.JsFileName), new bool[] { false, Game.UpdateAvailable });
+            //A script error is reported by GenericGameInfo; the old parsed handler must not be launched instead.
+            if (GameManager.Instance.AddScript(Path.GetFileNameWithoutExtension(Game.JsFileName), new bool[] { false, Game.UpdateAvailable }) == null)
+            {
+                throw new InvalidOperationException($"{Game.JsFileName} has errors and could not be reloaded.");
+            }
 
             var Current_GenericGameInfo = GameManager.Instance.GetGame(GameInfo.ExePath);
             GameInfo.InitializeDefault(Current_GenericGameInfo,GameInfo.ExePath);
@@ -336,11 +331,10 @@ namespace Nucleus.Gaming.Coop
         }
 
         /// <summary>
-        /// Runs the profile matching and the player identity update for every detected device. This used to run only
-        /// inside the setup screen's OnPaint; the WinForms setup screen and the headless setup service both call it.
+        /// Runs the profile matching and the player identity update for every detected device (the setup service calls it
+        /// after every command and device tick; this used to run inside the WinForms setup screen's OnPaint).
         /// </summary>
-        /// <param name="dragging">True while the user drags a device (matching is paused).</param>
-        public static void ProcessProfileAssignment(bool dragging)
+        public static void ProcessProfileAssignment()
         {
             if (Instance?.deviceList == null)
             {
@@ -351,7 +345,7 @@ namespace Nucleus.Gaming.Coop
             {
                 PlayerInfo player = Instance.DevicesList[i];
 
-                if (Loaded && !dragging)
+                if (Loaded)
                 {
                     FindProfilePlayers(player);
                 }
@@ -424,7 +418,7 @@ namespace Nucleus.Gaming.Coop
             {
                 TotalAssignedPlayers = 0;
 
-                if (BoundsFunctions.IsInitialized)//the WinForms setup screen or the headless setup service initialized the screens
+                if (BoundsFunctions.IsInitialized)//the setup service initialized the screens
                 {
                     BoundsFunctions.RefreshScreens();
                 }
@@ -1372,7 +1366,7 @@ namespace Nucleus.Gaming.Coop
                 if (TotalAssignedPlayers < 0 && !showError)
                 {
                     showError = true;
-                    Notify(NoticeKind.Error, "error", "Oops!\nSomething went wrong, profile has been unloaded.", 0);
+                    Notify(NoticeKind.Error, "Profile unloaded", "Oops!\nSomething went wrong, profile has been unloaded.", 0);
                     return;
                 }
             }
@@ -1410,8 +1404,6 @@ namespace Nucleus.Gaming.Coop
 
                     scr.Item1.PlayerOnScreen++;
                     TotalAssignedPlayers++;
-
-                    AssignmentChanged?.Invoke();
                 }
 
                 return;

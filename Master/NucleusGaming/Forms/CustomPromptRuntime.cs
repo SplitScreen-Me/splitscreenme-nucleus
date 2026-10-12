@@ -87,8 +87,12 @@ namespace Nucleus.Gaming.Forms
                     {
                         prevAnswer = customValue[d];
                     }
-                    Forms.CustomPrompt prompt = new Forms.CustomPrompt(handlerInstance.CurrentGameInfo.CustomUserGeneralPrompts[d], prevAnswer, d);
-                    prompt.ShowDialog();
+                    PromptResult answer = UserPrompts.AskText(handlerInstance.CurrentGameInfo.CustomUserGeneralPrompts[d], prevAnswer);
+                    if (answer.Accepted)
+                    {
+                        customValue[d] = answer.Text;
+                    }
+
                     if (customValue[d]?.Length > 0)
                     {
                         handlerInstance.Context.CustomUserGeneralValues[d] = customValue[d];
@@ -188,8 +192,12 @@ namespace Nucleus.Gaming.Forms
                     {
                         prevAnswer = customValue[d];
                     }
-                    Forms.CustomPrompt prompt = new Forms.CustomPrompt(handlerInstance.CurrentGameInfo.CustomUserPlayerPrompts[d], prevAnswer, d);
-                    prompt.ShowDialog();
+                    PromptResult answer = UserPrompts.AskText(handlerInstance.CurrentGameInfo.CustomUserPlayerPrompts[d], prevAnswer);
+                    if (answer.Accepted)
+                    {
+                        customValue[d] = answer.Text;
+                    }
+
                     handlerInstance.Context.CustomUserPlayerValues[d] = customValue[d];
                     handlerInstance.Log("User entered: " + customValue[d]);
                 }
@@ -272,8 +280,12 @@ namespace Nucleus.Gaming.Forms
                     {
                         prevAnswer = customValue[d];
                     }
-                    Forms.CustomPrompt prompt = new Forms.CustomPrompt(handlerInstance.CurrentGameInfo.CustomUserInstancePrompts[d], prevAnswer, d);
-                    prompt.ShowDialog();
+                    PromptResult answer = UserPrompts.AskText(handlerInstance.CurrentGameInfo.CustomUserInstancePrompts[d], prevAnswer);
+                    if (answer.Accepted)
+                    {
+                        customValue[d] = answer.Text;
+                    }
+
                     handlerInstance.Context.CustomUserInstanceValues[d] = customValue[d];
                     handlerInstance.Log("User entered: " + customValue[d]);
                 }

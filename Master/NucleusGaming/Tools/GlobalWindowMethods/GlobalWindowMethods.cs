@@ -454,18 +454,6 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 return level * 100;
             }
 
-            public static bool? GetApplicationMute(int pid)
-            {
-                ISimpleAudioVolume volume = GetVolumeObject(pid);
-                if (volume == null)
-                    return null;
-
-                bool mute;
-                volume.GetMute(out mute);
-                Marshal.ReleaseComObject(volume);
-                return mute;
-            }
-
             public static void SetApplicationVolume(int pid, float level)
             {
                 ISimpleAudioVolume volume = GetVolumeObject(pid);
@@ -474,17 +462,6 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                 Guid guid = Guid.Empty;
                 volume.SetMasterVolume(level / 100, ref guid);
-                Marshal.ReleaseComObject(volume);
-            }
-
-            public static void SetApplicationMute(int pid, bool mute)
-            {
-                ISimpleAudioVolume volume = GetVolumeObject(pid);
-                if (volume == null)
-                    return;
-
-                Guid guid = Guid.Empty;
-                volume.SetMute(mute, ref guid);
                 Marshal.ReleaseComObject(volume);
             }
 
@@ -660,9 +637,6 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
             int SetDuckingPreference(bool optOut);
         }
 
-        [DllImport("user32.dll", SetLastError = true)]
-        public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);   
-
         public static void SwitchLayout()
         {
             var profile = GenericGameHandler.Instance.profile;
@@ -802,203 +776,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                     }
              
                 }
-
-                //else if (p.Owner.Type == UserScreenType.FourPlayers && !switchingLayout)
-                //{
-
-                //    foreach (UserScreen screen in ScreensUtil.AllScreens())
-                //    {
-                //        if (screen.DisplayIndex == p.Owner.DisplayIndex)
-                //        {
-
-                //            p.OtherLayout.Add(p.MonitorBounds);
-                //            p.CurrentLayout++;//Skip Original default bounds on first swap
-
-                //            if (fisrtOfScr)//Player 0
-                //            {
-                //                //All Vertical
-                //                Rectangle avail1 = new Rectangle(adjust ? screen.MonitorBounds.X + 2 : screen.MonitorBounds.X,
-                //                                                 adjust ? screen.MonitorBounds.Y + 2 : screen.MonitorBounds.Y,
-                //                                                 adjust ? (screen.MonitorBounds.Width / p.Owner.PlayerOnScreen) - 3 : screen.MonitorBounds.Width / p.Owner.PlayerOnScreen,
-                //                                                 adjust ? p.Owner.display.Height - 4 : p.Owner.display.Height);
-                //                p.OtherLayout.Add(avail1);
-
-                //                //All Horizontal
-                //                Rectangle avail2 = new Rectangle(adjust ? screen.MonitorBounds.X + 2 : screen.MonitorBounds.X,
-                //                                                 adjust ? screen.MonitorBounds.Y + 2 : screen.MonitorBounds.Y,
-                //                                                 adjust ? screen.MonitorBounds.Width - 4 : screen.MonitorBounds.Width,
-                //                                                 adjust ? (screen.MonitorBounds.Height / p.Owner.PlayerOnScreen) - 3 : screen.MonitorBounds.Height / p.Owner.PlayerOnScreen);
-                //                p.OtherLayout.Add(avail2);
-
-                //                //Four player Layout but with only 3 players
-                //                if (p.Owner.PlayerOnScreen == 3)
-                //                {
-
-                //                    // Top player full Width
-                //                    Rectangle avail3 = new Rectangle(adjust ? screen.MonitorBounds.X + 2 : screen.MonitorBounds.X,
-                //                                                     adjust ? screen.MonitorBounds.Y + 2 : screen.MonitorBounds.Y,
-                //                                                     adjust ? screen.MonitorBounds.Width - 4 : screen.MonitorBounds.Width,
-                //                                                     adjust ? (screen.MonitorBounds.Height / 2) - 2 : screen.MonitorBounds.Height / 2);
-                //                    p.OtherLayout.Add(avail3);
-
-                //                    //Full height vertical left
-                //                    Rectangle avail4 = new Rectangle(adjust ? screen.MonitorBounds.X + 2 : screen.MonitorBounds.X,
-                //                                                     adjust ? screen.MonitorBounds.Y + 2 : screen.MonitorBounds.Y,
-                //                                                     adjust ? (screen.MonitorBounds.Width / 2) - 2 : screen.MonitorBounds.Width / 2,
-                //                                                     adjust ? screen.MonitorBounds.Height - 3 : screen.MonitorBounds.Height);
-                //                    p.OtherLayout.Add(avail4);
-
-
-                //                    //Top left
-                //                    Rectangle avail5 = new Rectangle(adjust ? screen.MonitorBounds.X + 2 : screen.MonitorBounds.X,
-                //                                                     adjust ? screen.MonitorBounds.Y + 2 : screen.MonitorBounds.Y,
-                //                                                     adjust ? (screen.MonitorBounds.Width / 2) - 2 : screen.MonitorBounds.Width / 2,
-                //                                                     adjust ? (screen.MonitorBounds.Height / 2) - 2 : screen.MonitorBounds.Height / 2);
-                //                    p.OtherLayout.Add(avail5);
-
-                //                    //Top left
-                //                    Rectangle avail6 = avail5;
-
-                //                    p.OtherLayout.Add(avail6);
-
-                //                }
-
-                //                shift += 3;
-
-                //                prev = p;
-
-                //                continue;
-                //            }
-                //            else//All players above 0
-                //            {
-                //                //All Vertical
-                //                Rectangle avail1 = new Rectangle(adjust ? prev.OtherLayout[1].Right + 3 : prev.OtherLayout[1].Right,
-                //                                                 adjust ? screen.MonitorBounds.Y + 2 : screen.MonitorBounds.Y,
-                //                                                 adjust ? prev.OtherLayout[1].Width : prev.OtherLayout[1].Width,
-                //                                                 adjust ? prev.OtherLayout[1].Height : prev.OtherLayout[1].Height);
-                //                p.OtherLayout.Add(avail1);
-
-                //                //All Horizontal
-                //                Rectangle avail2 = new Rectangle(adjust ? screen.MonitorBounds.X + 2 : screen.MonitorBounds.X,
-                //                                                 adjust ? prev.OtherLayout[2].Bottom + 2 : prev.OtherLayout[2].Bottom,
-                //                                                 adjust ? prev.OtherLayout[2].Width : prev.OtherLayout[2].Width,
-                //                                                 adjust ? prev.OtherLayout[2].Height : prev.OtherLayout[2].Height);
-                //                p.OtherLayout.Add(avail2);
-
-                //                if (i >= 1 && prev.DisplayIndex == p.DisplayIndex)
-                //                {
-                //                    prev = p;
-                //                }
-
-                //                //Four player Layout but with only 3 players//
-                //                //Top player full Width
-                //                if (p.Owner.PlayerOnScreen == 3)
-                //                {
-
-                //                    //if (i == 1 || i == 4)// 
-                //                    if (i == shift)
-                //                    {
-                //                        //Bottom left
-                //                        Rectangle avail3 = new Rectangle(adjust ? screen.MonitorBounds.X + 2 : screen.MonitorBounds.X,
-                //                                                         adjust ? (screen.MonitorBounds.Y + (screen.MonitorBounds.Height / 2)) + 2 : screen.MonitorBounds.Y + screen.MonitorBounds.Height / 2,
-                //                                                         adjust ? (screen.MonitorBounds.Width / 2) - 3 : screen.MonitorBounds.Width / 2,
-                //                                                         adjust ? (screen.MonitorBounds.Height / 2) - 4 : screen.MonitorBounds.Height / 2);
-                //                        p.OtherLayout.Add(avail3);
-
-                //                        //Top right
-                //                        Rectangle avail4 = new Rectangle(adjust ? (screen.MonitorBounds.X + (screen.MonitorBounds.Width / 2)) + 2 : screen.MonitorBounds.X + screen.MonitorBounds.Width / 2,
-                //                                                         adjust ? screen.MonitorBounds.Y + screen.MonitorBounds.Y + 2 : screen.MonitorBounds.Y + screen.MonitorBounds.Y,
-                //                                                         adjust ? (screen.MonitorBounds.Width / 2) - 4 : screen.MonitorBounds.Width / 2,
-                //                                                         adjust ? (screen.MonitorBounds.Height / 2) - 2 : screen.MonitorBounds.Height / 2);
-                //                        p.OtherLayout.Add(avail4);
-
-                //                        //Top right
-                //                        Rectangle avail5 = avail4;
-
-                //                        p.OtherLayout.Add(avail5);
-
-                //                        //Right full height
-                //                        Rectangle avail6 = new Rectangle(adjust ? (screen.MonitorBounds.X + (screen.MonitorBounds.Width / 2)) + 2 : screen.MonitorBounds.X + screen.MonitorBounds.Width / 2,
-                //                                                         adjust ? screen.MonitorBounds.Y + screen.MonitorBounds.Y + 2 : screen.MonitorBounds.Y + screen.MonitorBounds.Y,
-                //                                                         adjust ? (screen.MonitorBounds.Width / 2) - 3 : screen.MonitorBounds.Width / 2,
-                //                                                         adjust ? screen.MonitorBounds.Height - 3 : screen.MonitorBounds.Height);
-                //                        p.OtherLayout.Add(avail6);
-                //                    }
-                //                    else if (i == shift + 1)//f(i == 2 || i == 5)
-                //                    {
-                //                        //Bottom right
-                //                        Rectangle avail3 = new Rectangle(adjust ? screen.MonitorBounds.X + (screen.MonitorBounds.Width / 2) + 2 : screen.MonitorBounds.X + screen.MonitorBounds.Width / 2,
-                //                                                         adjust ? (screen.MonitorBounds.Y + (screen.MonitorBounds.Height / 2)) + 2 : screen.MonitorBounds.Y + screen.MonitorBounds.Height / 2,
-                //                                                         adjust ? (screen.MonitorBounds.Width / 2) - 4 : screen.MonitorBounds.Width / 2,
-                //                                                         adjust ? (screen.MonitorBounds.Height / 2) - 4 : screen.MonitorBounds.Height / 2);
-                //                        p.OtherLayout.Add(avail3);
-
-                //                        //Bottom right
-                //                        Rectangle avail4 = avail3;
-
-                //                        p.OtherLayout.Add(avail4);
-
-                //                        //Bottom full width
-                //                        Rectangle avail5 = new Rectangle(adjust ? screen.MonitorBounds.X + 2 : screen.MonitorBounds.X,
-                //                                                         adjust ? (screen.MonitorBounds.Y + (screen.MonitorBounds.Height / 2)) + 2 : screen.MonitorBounds.Y + screen.MonitorBounds.Height / 2,
-                //                                                         adjust ? screen.MonitorBounds.Width - 4 : screen.MonitorBounds.Width,
-                //                                                         adjust ? (screen.MonitorBounds.Height / 2) - 3 : screen.MonitorBounds.Height / 2);
-                //                        p.OtherLayout.Add(avail5);
-
-                //                        //Bottom left
-                //                        Rectangle avail6 = new Rectangle(adjust ? screen.MonitorBounds.X + 2 : screen.MonitorBounds.X,
-                //                                                         adjust ? (screen.MonitorBounds.Y + (screen.MonitorBounds.Height / 2)) + 2 : screen.MonitorBounds.Y + screen.MonitorBounds.Height / 2,
-                //                                                         adjust ? (screen.MonitorBounds.Width / 2) - 2 : screen.MonitorBounds.Width / 2,
-                //                                                         adjust ? (screen.MonitorBounds.Height / 2) - 3 : screen.MonitorBounds.Height / 2);
-                //                        p.OtherLayout.Add(avail6);
-
-                //                    }
-                //                }
-                //            }
-
-                //            break;
-                //        }
-
-                //    }
-
-                //    if (i == players.Count - 1)
-                //    {
-                //        switchingLayout = true;
-                //    }
-                //}
-
             }
-
-            //for (int i = 0; i < players.Count; i++)
-            //{
-            //    PlayerInfo p = players[i];
-            //    ProcessData data = p.ProcessData;
-
-            //    //Swaping 4p layout here 
-            //    if (p.Owner.Type == UserScreenType.FourPlayers)
-            //    {
-            //        if (p.OtherLayout.Count == 0)
-            //        {
-            //            Console.WriteLine("No other Layout found");
-            //            return;
-            //        }
-
-            //        data.HWnd.Size = p.OtherLayout[p.CurrentLayout].Size;
-            //        data.HWnd.Location = p.OtherLayout[p.CurrentLayout].Location;
-            //        p.MonitorBounds = new Rectangle(data.HWnd.Location, data.HWnd.Size);
-            //        //Console.WriteLine(i +": "+p.OtherLayout.Count);
-            //        if (p.CurrentLayout == p.OtherLayout.Count() - 1)
-            //        {
-            //            p.CurrentLayout = 0;
-            //        }
-            //        else
-            //        {
-            //            p.CurrentLayout++;
-            //        }
-            //    }
-            //}
-
-           
         }
 
         #region Cutscene mode function

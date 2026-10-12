@@ -48,15 +48,6 @@ namespace Nucleus.Gaming.Coop
 
         }       
 
-        /// <summary>
-        /// If the game exists
-        /// </summary>
-        /// <returns></returns>
-        public bool IsGamePresent()
-        {
-            return File.Exists(exePath);
-        }
-
         public void InitializeDefault(GenericGameInfo game, string exePath)
         {
             this.game = game;

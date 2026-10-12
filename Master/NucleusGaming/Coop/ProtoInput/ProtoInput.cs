@@ -1,7 +1,6 @@
 ﻿using Nucleus.Gaming.Coop.ProtoInput;
 using System;
 using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Metadata;
 using System.Windows.Documents;
 using System.Windows.Media.Animation;
 using System.Xml.Linq;

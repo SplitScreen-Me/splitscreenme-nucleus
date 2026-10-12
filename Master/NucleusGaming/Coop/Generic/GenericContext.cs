@@ -19,6 +19,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
+using Nucleus.Gaming.Forms;
 
 
 namespace Nucleus.Gaming
@@ -467,7 +468,7 @@ namespace Nucleus.Gaming
             }
             else
             {
-                System.Windows.Forms.MessageBox.Show("Zip file doesn't exist,is corrupted or in an unsupported format.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UserPrompts.Report(PromptIcon.Error, "Error", "Zip file doesn't exist,is corrupted or in an unsupported format.");
             }
 
             return true;
@@ -494,7 +495,7 @@ namespace Nucleus.Gaming
             }
             else
             {
-                System.Windows.Forms.MessageBox.Show("Zip file doesn't exist,is corrupted or in an unsupported format.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UserPrompts.Report(PromptIcon.Error, "Error", "Zip file doesn't exist,is corrupted or in an unsupported format.");
             }
 
             return true;
@@ -769,13 +770,11 @@ namespace Nucleus.Gaming
                 {
                     if (fileIndex < (filePaths.Length - 1))
                     {
-                        Forms.Prompt prompt = new Forms.Prompt("Press OK when ready to launch " + filePaths[fileIndex]);
-                        prompt.ShowDialog();
+                        UserPrompts.WaitForOk("Press OK when ready to launch " + filePaths[fileIndex]);
                     }
                     else
                     {
-                        Forms.Prompt prompt = new Forms.Prompt("Press OK when ready to proceed with launching the game instance " + filePaths[fileIndex]);
-                        prompt.ShowDialog();
+                        UserPrompts.WaitForOk("Press OK when ready to proceed with launching the game instance " + filePaths[fileIndex]);
                     }
 
                     if (fileIndex < (filePaths.Length - 1) && secondsToPauseInbetween > 0)
@@ -843,26 +842,22 @@ namespace Nucleus.Gaming
                         {
                             if (showFilePath)
                             {
-                                Forms.Prompt prompt = new Forms.Prompt(customText + " File path: " + filePaths[fileIndex]);
-                                prompt.ShowDialog();
+                                UserPrompts.WaitForOk(customText + " File path: " + filePaths[fileIndex]);
                             }
                             else
                             {
-                                Forms.Prompt prompt = new Forms.Prompt(customText);
-                                prompt.ShowDialog();
+                                UserPrompts.WaitForOk(customText);
                             }
                         }
                         else
                         {
                             if (showFilePath)
                             {
-                                Forms.Prompt prompt = new Forms.Prompt(customText + filePaths[fileIndex]);
-                                prompt.ShowDialog();
+                                UserPrompts.WaitForOk(customText + filePaths[fileIndex]);
                             }
                             else
                             {
-                                Forms.Prompt prompt = new Forms.Prompt(customText);
-                                prompt.ShowDialog();
+                                UserPrompts.WaitForOk(customText);
                             }
                         }
 
@@ -880,8 +875,7 @@ namespace Nucleus.Gaming
                         {
                             if (showFilePath)
                             {
-                                Forms.Prompt prompt = new Forms.Prompt(customText + " File path: " + filePaths[fileIndex]);
-                                prompt.ShowDialog();
+                                UserPrompts.WaitForOk(customText + " File path: " + filePaths[fileIndex]);
 
                                 ProcessStartInfo psi = new ProcessStartInfo
                                 {
@@ -908,8 +902,7 @@ namespace Nucleus.Gaming
                             }
                             else
                             {
-                                Forms.Prompt prompt = new Forms.Prompt(customText);
-                                prompt.ShowDialog();
+                                UserPrompts.WaitForOk(customText);
 
                                 ProcessStartInfo psi = new ProcessStartInfo
                                 {
@@ -939,8 +932,7 @@ namespace Nucleus.Gaming
                         {
                             if (showFilePath)
                             {
-                                Forms.Prompt prompt = new Forms.Prompt(customText + " File path: " + filePaths[fileIndex]);
-                                prompt.ShowDialog();
+                                UserPrompts.WaitForOk(customText + " File path: " + filePaths[fileIndex]);
 
                                 ProcessStartInfo psi = new ProcessStartInfo
                                 {
@@ -967,8 +959,7 @@ namespace Nucleus.Gaming
                             }
                             else
                             {
-                                Forms.Prompt prompt = new Forms.Prompt(customText);
-                                prompt.ShowDialog();
+                                UserPrompts.WaitForOk(customText);
 
                                 ProcessStartInfo psi = new ProcessStartInfo
                                 {

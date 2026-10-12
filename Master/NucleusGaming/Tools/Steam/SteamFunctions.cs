@@ -383,7 +383,7 @@ namespace Nucleus.Gaming.Tools.Steam
 
                                     if (i == 0)
                                     {
-                                        MessageBox.Show("Goldberg was unable to locate steam_interfaces.txt or create one. Process will continue without using this file.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                        UserPrompts.Report(PromptIcon.Warning, "Warning", "Goldberg was unable to locate steam_interfaces.txt or create one. Process will continue without using this file.");
                                     }
                                 }
                             }
@@ -392,7 +392,7 @@ namespace Nucleus.Gaming.Tools.Steam
                 }
                 else 
                 {
-                    NucleusMessageBox.Show("Warning", "No file path has been added to \"Game.CustomSteamApiDllPath = [fullFilePath1,fullFilePath2]\"", false);
+                    UserPrompts.Notice("Warning", "No file path has been added to \"Game.CustomSteamApiDllPath = [fullFilePath1,fullFilePath2]\"", false);
                 }
             }
 
@@ -737,7 +737,7 @@ namespace Nucleus.Gaming.Tools.Steam
 
                                 if (i == 0)
                                 {
-                                    MessageBox.Show("Goldberg was unable to locate steam_interfaces.txt or create one. Process will continue without using this file.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                    UserPrompts.Report(PromptIcon.Warning, "Warning", "Goldberg was unable to locate steam_interfaces.txt or create one. Process will continue without using this file.");
                                 }
                             }
                         }
@@ -749,7 +749,7 @@ namespace Nucleus.Gaming.Tools.Steam
                     if (!handlerInstance.CurrentGameInfo.GoldbergNoWarning)
                     {
                         handlerInstance.Log("Unable to locate a steam_api(64).dll file, Goldberg will not be used");
-                        NucleusMessageBox.Show("Warning", "Goldberg was unable to locate a steam_api(64).dll file.\nThe built-in Goldberg will not be used.", false);
+                        UserPrompts.Notice("Warning", "Goldberg was unable to locate a steam_api(64).dll file.\nThe built-in Goldberg will not be used.", false);
                     }
                 }
             }
@@ -840,8 +840,7 @@ namespace Nucleus.Gaming.Tools.Steam
         {
             var handlerInstance = GenericGameHandler.Instance;
 
-            Forms.Prompt prompt = new Forms.Prompt("Goldberg Lobby Connect: Press OK after you are hosting a game.");
-            prompt.ShowDialog();
+            UserPrompts.WaitForOk("Goldberg Lobby Connect: Press OK after you are hosting a game.");
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.FileName = Path.Combine(Globals.NucleusInstallRoot, "utils\\GoldbergEmu\\lobby_connect\\lobby_connect.exe");
@@ -868,7 +867,7 @@ namespace Nucleus.Gaming.Tools.Steam
                 p.Kill();
             }
             catch (Exception ex)
-            { MessageBox.Show(ex.Message); }
+            { UserPrompts.Report(PromptIcon.None, "", ex.Message); }
 
             if (!string.IsNullOrEmpty(lobbyConnectArg))
             {
@@ -877,7 +876,7 @@ namespace Nucleus.Gaming.Tools.Steam
             else
             {
                 handlerInstance.Log("Goldberg Lobby Connect: Could not find lobby ID");
-                MessageBox.Show("Goldberg Lobby Connect: Could not find lobby ID.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                UserPrompts.Report(PromptIcon.Error, "Error", "Goldberg Lobby Connect: Could not find lobby ID.");
             }
         }
 
@@ -1306,25 +1305,5 @@ namespace Nucleus.Gaming.Tools.Steam
         }
 
 
-        public static string GetSteamPath()
-        {
-            string steamPath = string.Empty;
-            RegistryKey localKey = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.CurrentUser, RegistryView.Registry32);
-
-            localKey = localKey.OpenSubKey(@"Software\Valve\Steam");
-
-            if (localKey != null)
-            {
-                steamPath = localKey.GetValue("SteamPath").ToString();
-                localKey.Close();
-            }
-
-            string formatDrive = steamPath[0].ToString().ToUpper();
-            string formatSlash = steamPath.Replace("/", "\\");
-            string formatRemoveDrive = formatSlash.Remove(0,1);
-            string formatedPath = formatDrive + formatRemoveDrive;
-
-            return formatedPath;
-        }
     }
 }

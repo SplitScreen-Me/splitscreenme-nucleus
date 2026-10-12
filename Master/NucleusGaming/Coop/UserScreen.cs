@@ -1,14 +1,11 @@
-﻿using Nucleus.Gaming.Cache;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Coop
 {
     public class UserScreen
     {
         private RectangleF uiBounds;
-        private RectangleF swapTypeRect;
 
         private Rectangle monitorBounds;
         public Rectangle MonitorBounds => monitorBounds;
@@ -22,18 +19,10 @@ namespace Nucleus.Gaming.Coop
         private int playerOnScreen = 0;
         public int ManualTypeDefautScale = 1;
 
-        public Bitmap SwapTypeImage = ImageCache.GetImage(Globals.ThemeFolder + "fullscreen.png");
-
         public int PlayerOnScreen
         {
             get => playerOnScreen;
             set => playerOnScreen = value;
-        }
-
-        public RectangleF SwapTypeBounds
-        {
-            get => swapTypeRect;
-            set => swapTypeRect = value;
         }
 
         public RectangleF UIBounds
@@ -45,8 +34,6 @@ namespace Nucleus.Gaming.Coop
                 UpdateSubBounds(type);
             }
         }
-
-        public RectangleF PrevUIBounds;
 
         private UserScreenType type;
         public UserScreenType Type
@@ -103,8 +90,6 @@ namespace Nucleus.Gaming.Coop
 
                     subScreensBounds.Add(bounds, ebounds);
 
-                    SwapTypeImage = ImageCache.GetImage(Globals.ThemeFolder + "fullscreen.png");
-
                     break;
 
                 case UserScreenType.DualHorizontal:
@@ -112,8 +97,6 @@ namespace Nucleus.Gaming.Coop
                     horLines = 2;
                     verLines = 1;
                     maxPlayers = 2;
-
-                    SwapTypeImage = ImageCache.GetImage(Globals.ThemeFolder + "2horizontal.png");
 
                     break;
 
@@ -123,8 +106,6 @@ namespace Nucleus.Gaming.Coop
                     verLines = 2;
                     maxPlayers = 2;
 
-                    SwapTypeImage = ImageCache.GetImage(Globals.ThemeFolder + "2vertical.png");
-
                     break;
 
                 case UserScreenType.FourPlayers:
@@ -132,8 +113,6 @@ namespace Nucleus.Gaming.Coop
                     horLines = 2;
                     verLines = 2;
                     maxPlayers = 4;
-
-                    SwapTypeImage = ImageCache.GetImage(Globals.ThemeFolder + "4players.png");
 
                     break;
 
@@ -143,8 +122,6 @@ namespace Nucleus.Gaming.Coop
                     verLines = 3;
                     maxPlayers = 6;
 
-                    SwapTypeImage = ImageCache.GetImage(Globals.ThemeFolder + "6players.png");
-
                     break;
 
                 case UserScreenType.EightPlayers:
@@ -152,8 +129,6 @@ namespace Nucleus.Gaming.Coop
                     horLines = 2;
                     verLines = 4;
                     maxPlayers = 8;
-
-                    SwapTypeImage = ImageCache.GetImage(Globals.ThemeFolder + "8players.png");
 
                     break;
 
@@ -163,8 +138,6 @@ namespace Nucleus.Gaming.Coop
                     verLines = 4;
                     maxPlayers = 16;
 
-                    SwapTypeImage = ImageCache.GetImage(Globals.ThemeFolder + "16players.png");
-
                     break;
 
                 case UserScreenType.Custom:
@@ -172,8 +145,6 @@ namespace Nucleus.Gaming.Coop
                     horLines = GameProfile.CustomLayout_Hor + 1;
                     verLines = GameProfile.CustomLayout_Ver + 1;
                     maxPlayers = horLines * verLines;
-
-                    SwapTypeImage = ImageCache.GetImage(Globals.ThemeFolder + "customLayout.png");
 
                     break;
 
@@ -211,8 +182,6 @@ namespace Nucleus.Gaming.Coop
                     maxPlayers = horLines * verLines;
 
                     ManualTypeDefautScale = destBoundsScaleFactor;
-
-                    SwapTypeImage = ImageCache.GetImage(Globals.ThemeFolder + "manualLayout.png");
 
                     break;
             }

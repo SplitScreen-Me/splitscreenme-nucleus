@@ -15,9 +15,20 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
     {
         private static System.Threading.Timer vibrationTimer;
 
+        /// <summary>Polls a pad of the current setup (<see cref="GameProfile.Game"/>, <see cref="GameProfile.Instance"/>).</summary>
         public static bool Poll(PlayerInfo player)
         {
-            if (player.IsFake || !player.IsXInput)
+            return Poll(player, GameProfile.Game, GameProfile.Instance?.DevicesList);
+        }
+
+        /// <summary>
+        /// Polls an XInput pad of the setup. True when it reports a button press (the setup flashes it). A press on a pad not
+        /// identified yet identifies it (<see cref="GamepadIdentity.Identify"/>); when that fails the pad stays hidden, flashes,
+        /// and keeps <see cref="PlayerInfo.IdentificationFailedUtc"/> so the setup can say why.
+        /// </summary>
+        public static bool Poll(PlayerInfo player, GenericGameInfo game, IEnumerable<PlayerInfo> devices)
+        {
+            if (player.IsFake || !player.IsXInput || player.XInputJoystick == null)
             {
                 return false;
             }
@@ -40,67 +51,63 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                     }
                 }
 
-                if (player.XInputJoystick.GetState().Gamepad.Buttons != 0)
+                if (player.XInputJoystick.GetState().Gamepad.Buttons == 0)
                 {
-                    if (GameProfile.UseXinputIndex)
-                    {
-                        Vibrate(player);
-                        return true;
-                    }
-
-                    if (player.DInputJoystick == null)
-                    {
-                        int pressedCount = 0;
-
-                        D_Joystick joystick = null;
-
-                        for (int i = 0; i < DInputManager.D_JoysticksList.Count; i++)
-                        {                           
-                            if (DInputManager.D_JoysticksList[i].State.Buttons.Any(b => b == true))
-                            {
-                                joystick = DInputManager.D_JoysticksList[i];
-                                ++pressedCount;
-                            }
-                        }
-
-                        if (pressedCount > 1)
-                        {
-                            return false;
-                        }
-
-                        if (joystick != null)
-                        {
-                            player.DInputJoystick = joystick;
-                            player.GamepadGuid = player.DInputJoystick.InstanceGuid;
-                            player.GamepadProductGuid = player.DInputJoystick.ProductGuid;
-                            player.GamepadName = player.DInputJoystick.InstanceName;
-
-                            player.RawHID = player.DInputJoystick.InterfacePath;
-                            int start = player.RawHID.IndexOf("hid#");
-                            int end = player.RawHID.LastIndexOf("#{");
-                            string fhid = player.RawHID.Substring(start, end - start).Replace('#', '\\').ToUpper();
-                 
-                            player.HIDDeviceID = new string[] { fhid, "" };
-                            player.IsInputUsed = true;
-                            Vibrate(player);
-                        }
-                    }
-
-                    if (player.DInputJoystick != null)
-                    {
-                        player.IsInputUsed = true;
-                        return true;
-                    }
-
                     return false;
                 }
+
+                if (GameProfile.UseXinputIndex)
+                {
+                    Vibrate(player);
+                    return true;
+                }
+
+                if (player.DInputJoystick != null)
+                {
+                    player.IsInputUsed = true;
+                    return true;
+                }
+
+                if (player.IsInputUsed)
+                {
+                    return true;//identified by its slot earlier
+                }
+
+                List<DInputCandidate> candidates = new List<DInputCandidate>();
+
+                foreach (D_Joystick joystick in DInputManager.D_JoysticksList)
+                {
+                    JoystickState state = joystick.State;
+                    candidates.Add(new DInputCandidate(joystick, state != null && GamepadIdentity.IsPressed(state.Buttons, state.PointOfViewControllers)));
+                }
+
+                bool firstFailure = player.IdentificationFailedUtc == DateTime.MinValue;
+                IdentifyResult result = GamepadIdentity.Identify(player, devices, candidates, GamepadIdentity.NeedsDInputIdentity(game), DateTime.UtcNow);
+
+                switch (result)
+                {
+                    case IdentifyResult.Matched:
+                        Vibrate(player);
+                        break;
+                    case IdentifyResult.SlotFallback:
+                        LogManager.Log($"Gamepad: XInput slot {player.GamepadId + 1} identified by its slot ({candidates.Count(c => c.Pressed)} DirectInput devices pressed).");
+                        Vibrate(player);
+                        break;
+                    default:
+                        if (firstFailure)
+                        {
+                            LogManager.Log($"Gamepad: XInput slot {player.GamepadId + 1} pressed but not identified: {candidates.Count(c => c.Pressed)} of {candidates.Count} DirectInput devices pressed, and the handler needs the DirectInput identity.");
+                        }
+                        break;
+                }
+
+                //Also true when the pad stays hidden: it flashes, so the press was seen, and the setup explains why.
+                return true;
             }
             catch (Exception)
             {
                 return false;
             }
-
-            return false;
         }
 
         internal static void Vibrate(PlayerInfo player)
@@ -137,86 +144,5 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
 
             vibrationTimer.Dispose();
         }
-
-        //public OpenXinputController XinputController;
-        //public State State => GetState();
-        //public Guid InstanceGuid;
-        //public Guid ProductGuid;
-        //public string HIDPath;
-        //public string InstanceName;
-        //public int UserIndex;
-
-        //private State GetState()
-        //{
-        //    if(!XinputController.IsConnected)
-        //    {
-        //        return new State();
-        //    }
-
-        //    State state = XinputController.GetState();
-
-        //    return state;
-        //}
-        //private static bool init;
-        //public static bool Init
-        //{
-        //    get
-        //    {
-        //        if (!init)
-        //        {
-        //            init = true;
-        //            Thread watchDevicesListThread = new Thread(WatchDevicesList);
-        //            watchDevicesListThread.Start();
-        //        }
-
-        //        return init;
-        //    }
-        //}
-
-
-        //public static List<X_Joystick> X_JoysticksList => x_joysticksList;
-
-        //private static List<X_Joystick> x_joysticksList = new List<X_Joystick>();
-
-        //private static void WatchDevicesList()
-        //{
-        //   InitJoystickList();
-
-        //    while (true)
-        //    {
-        //        for (int i = 0; i < Globals.NucleusMaxPlayers; i++)
-        //        {
-        //            OpenXinputController device = new OpenXinputController(true, i);
-
-        //            //if (device.IsConnected && !x_joysticksList.Any(dev => dev.XinputController.userIndex == i))
-        //            //{
-        //            //    X_Joystick x_Joystick = new X_Joystick();
-        //            //    x_Joystick.UserIndex = i;
-        //            //    x_Joystick.XinputController = device;
-        //            //    x_joysticksList.Add(x_Joystick);
-        //            //}
-        //        }
-
-        //        x_joysticksList.RemoveAll(dev => !dev.XinputController.IsConnected);
-        //        x_joysticksList = x_joysticksList.OrderBy(dev => dev.UserIndex).ToList();
-        //        Thread.Sleep(100);
-        //    }
-        //}
-
-        //private static void InitJoystickList()
-        //{
-        //    for (int i = 0; i < Globals.NucleusMaxPlayers; i++)
-        //    {
-        //        OpenXinputController device = new OpenXinputController(true, i);
-
-        //        //if (device.IsConnected && !x_joysticksList.Any(dev => dev.XinputController.userIndex == i))
-        //        //{
-        //        //    X_Joystick x_Joystick = new X_Joystick();
-        //        //    x_Joystick.UserIndex = i;
-        //        //    x_Joystick.XinputController = device;
-        //        //    x_joysticksList.Add(x_Joystick);
-        //        //}
-        //    }
-        //}
     }
 }

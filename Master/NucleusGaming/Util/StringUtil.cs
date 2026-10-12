@@ -68,65 +68,6 @@ namespace Nucleus.Gaming
             return d[n, m];
         }
 
-        /// <summary>
-        /// This method can be made better
-        /// </summary>
-        /// <param name="maxWidth"></param>
-        /// <param name="str"></param>
-        /// <param name="graphics"></param>
-        /// <param name="font"></param>
-        /// <param name="size"></param>
-        /// <returns></returns>
-        public static string WrapString(float maxWidth, string str, Graphics graphics, Font font, out SizeF size)
-        {
-            size = graphics.MeasureString(str, font);
-
-            string[] sep = str.Split(' ');
-            if (sep.Length == 0)
-            {
-                return str;
-            }
-
-            float spaceSize = graphics.MeasureString(" ", font).Width;
-
-            string result = sep[0];
-
-            float currentWidth = graphics.MeasureString(result, font).Width;
-            float maxUsedWidth = 0;
-            int lines = 1;
-            string currentLine = result;
-
-            for (int i = 1; i < sep.Length; i++)
-            {
-                string word = sep[i];
-                string spaceWord = " " + word;
-                SizeF wordSize = graphics.MeasureString(spaceWord, font);
-                currentWidth += wordSize.Width;
-
-                if (currentWidth > maxWidth)
-                {
-                    currentWidth = wordSize.Width;
-                    maxUsedWidth = Math.Max(maxUsedWidth, graphics.MeasureString(currentLine, font).Width);
-                    result += "\n" + word;
-                    currentLine = "";
-                    lines++;
-                }
-                else
-                {
-                    result += spaceWord;
-                    currentLine += spaceWord;
-                }
-            }
-
-            if (maxUsedWidth == 0)
-            {
-                maxUsedWidth = Math.Max(maxUsedWidth, graphics.MeasureString(currentLine, font).Width);
-            }
-            size = new SizeF(maxUsedWidth, lines * font.GetHeight(graphics));
-
-            return result;
-        }
-
         public static string GetRootFromBinariesFolder(string gameExePath, string binariesToRemove)
         {
             string[] exeSubStrings = gameExePath.Split('\\');

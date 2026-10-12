@@ -36,9 +36,7 @@
             // 
             // lbl_Desc
             // 
-            this.lbl_Desc.BackColor = System.Drawing.Color.Transparent;
             this.lbl_Desc.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_Desc.ForeColor = System.Drawing.Color.White;
             this.lbl_Desc.Location = new System.Drawing.Point(12, 9);
             this.lbl_Desc.Name = "lbl_Desc";
             this.lbl_Desc.Size = new System.Drawing.Size(386, 115);
@@ -48,22 +46,16 @@
             // 
             // btn_Ok
             // 
-            this.btn_Ok.BackColor = System.Drawing.Color.Transparent;
-            this.btn_Ok.FlatAppearance.BorderColor = System.Drawing.Color.White;
-            this.btn_Ok.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btn_Ok.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_Ok.Location = new System.Drawing.Point(164, 162);
             this.btn_Ok.Name = "btn_Ok";
             this.btn_Ok.Size = new System.Drawing.Size(75, 23);
             this.btn_Ok.TabIndex = 1;
             this.btn_Ok.Text = "OK";
-            this.btn_Ok.UseVisualStyleBackColor = false;
             this.btn_Ok.Click += new System.EventHandler(this.btn_Ok_Click);
             // 
             // txt_UserInput
             // 
-            this.txt_UserInput.BackColor = System.Drawing.Color.Black;
-            this.txt_UserInput.ForeColor = System.Drawing.Color.White;
             this.txt_UserInput.Location = new System.Drawing.Point(12, 127);
             this.txt_UserInput.Name = "txt_UserInput";
             this.txt_UserInput.Size = new System.Drawing.Size(386, 20);
@@ -77,7 +69,6 @@
             this.Controls.Add(this.txt_UserInput);
             this.Controls.Add(this.btn_Ok);
             this.Controls.Add(this.lbl_Desc);
-            this.ForeColor = System.Drawing.Color.White;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;

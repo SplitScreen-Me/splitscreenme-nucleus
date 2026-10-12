@@ -10,6 +10,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using Nucleus.Gaming.Forms;
 
 namespace Nucleus.Gaming.Tools.NucleusUsers
 {
@@ -158,8 +159,8 @@ namespace Nucleus.Gaming.Tools.NucleusUsers
                 {
                     if (!handlerInstance.CurrentGameInfo.IgnoreDeleteFilesPrompt)
                     {
-                        DialogResult dialogResult = MessageBox.Show("Are you sure you want to delete '" + foundFile + "'?", "Nucleus - Delete Files In Config Path", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                        if (dialogResult != DialogResult.Yes)
+                        bool yes = UserPrompts.YesNo("Nucleus - Delete Files In Config Path", "Are you sure you want to delete '" + foundFile + "'?", PromptIcon.Warning);
+                        if (!yes)
                         {
                             continue;
                         }
@@ -183,8 +184,8 @@ namespace Nucleus.Gaming.Tools.NucleusUsers
                 {
                     if (!handlerInstance.CurrentGameInfo.IgnoreDeleteFilesPrompt)
                     {
-                        DialogResult dialogResult = MessageBox.Show("Are you sure you want to delete '" + foundFile + "'?", "Nucleus - Delete Files In Save Path", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                        if (dialogResult != DialogResult.Yes)
+                        bool yes = UserPrompts.YesNo("Nucleus - Delete Files In Save Path", "Are you sure you want to delete '" + foundFile + "'?", PromptIcon.Warning);
+                        if (!yes)
                         {
                             continue;
                         }

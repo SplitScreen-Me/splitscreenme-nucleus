@@ -1,5 +1,4 @@
-﻿using Nucleus.Gaming.App.Settings;
-using Nucleus.Gaming.Platform.Windows.Interop;
+﻿using Nucleus.Gaming.Platform.Windows.Interop;
 using System;
 using System.IO;
 
@@ -7,17 +6,7 @@ namespace Nucleus.Gaming.Platform.Windows.IO
 {
     public static class WinDirectoryUtil
     {
-        private static void Log(string logMessage)
-        {
-            if (App_Misc.DebugLog)
-            {
-                using (StreamWriter writer = new StreamWriter("debug-log.txt", true))
-                {
-                    writer.WriteLine($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}]INJECT: {logMessage}");
-                    writer.Close();
-                }
-            }
-        }
+        private static void Log(string logMessage) => DebugLogFile.Write("INJECT", logMessage);
 
 
         public static void LinkFiles(string rootFolder, string destination, out int exitCode, string[] exclusions, string[] copyInstead, bool hardLink)
@@ -139,11 +128,7 @@ namespace Nucleus.Gaming.Platform.Windows.IO
                 }
             }
 
-            //if (!special)
-            //{
             // this folder has a child that cant be symlinked
-            //CmdUtil.MkLinkDirectory(currentDir.FullName, destination, out exitCode);
-            //Kernel32Interop.CreateSymbolicLink(destination, currentDir.FullName, Nucleus.Gaming.Platform.Windows.Interop.SymbolicLink.Directory);
             if (!skip || firstRun)
             {
                 if (symFolders)
@@ -172,26 +157,6 @@ namespace Nucleus.Gaming.Platform.Windows.IO
                     LinkDirectory(root, child, Path.Combine(destination, child.Name), out exitCode, dirExclusions, fileExclusions, fileCopyInstead, hardLink, symFolders, false);
                 }
             }
-            //}
-            //else
-            //{
-            //    // we symlink this directly
-            //    //CmdUtil.MkLinkDirectory(currentDir.FullName, destination, out exitCode);
-
-            //    //Kernel32Interop.CreateSymbolicLink(destination, currentDir.FullName, Nucleus.Gaming.Platform.Windows.Interop.SymbolicLink.Directory);
-            //    //System.IO.DriveInfo di = new System.IO.DriveInfo(destination);
-            //    //System.IO.DirectoryInfo dirInfo = di.RootDirectory;
-            //    //Console.WriteLine("createsymboliclink: " + dirInfo.Attributes.ToString());
-
-            //    //if (symFolders)
-            //   // {
-            //       // Kernel32Interop.CreateSymbolicLink(destination, currentDir.FullName, Nucleus.Gaming.Platform.Windows.Interop.SymbolicLink.Directory);
-            //   // }
-            //   // else
-            //   // {
-            //        Directory.CreateDirectory(destination);
-            //   // }
-            //}
         }
     }
 }

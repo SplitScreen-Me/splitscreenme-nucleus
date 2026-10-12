@@ -38,39 +38,28 @@ namespace Nucleus.Gaming.Coop.Generic
             // 
             // refrshBtn
             // 
-            this.refrshBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.refrshBtn.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.refrshBtn.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-            this.refrshBtn.ForeColor = System.Drawing.Color.White;
             this.refrshBtn.Location = new System.Drawing.Point(0, 189);
             this.refrshBtn.Margin = new System.Windows.Forms.Padding(0);
             this.refrshBtn.Name = "refrshBtn";
             this.refrshBtn.Size = new System.Drawing.Size(196, 20);
             this.refrshBtn.TabIndex = 0;
             this.refrshBtn.Text = "Refresh";
-            this.refrshBtn.UseVisualStyleBackColor = false;
             // 
             // selBtn
             // 
-            this.selBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.selBtn.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.selBtn.FlatAppearance.BorderColor = System.Drawing.Color.Gray;
-            this.selBtn.ForeColor = System.Drawing.Color.White;
             this.selBtn.Location = new System.Drawing.Point(0, 209);
             this.selBtn.Margin = new System.Windows.Forms.Padding(0);
             this.selBtn.Name = "selBtn";
             this.selBtn.Size = new System.Drawing.Size(196, 20);
             this.selBtn.TabIndex = 1;
             this.selBtn.Text = "Select";
-            this.selBtn.UseVisualStyleBackColor = false;
             // 
             // ppDesc
             // 
-            this.ppDesc.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.ppDesc.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.ppDesc.Dock = System.Windows.Forms.DockStyle.Top;
-            this.ppDesc.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.ppDesc.ForeColor = System.Drawing.Color.White;
             this.ppDesc.Location = new System.Drawing.Point(0, 0);
             this.ppDesc.Margin = new System.Windows.Forms.Padding(0);
             this.ppDesc.Name = "ppDesc";

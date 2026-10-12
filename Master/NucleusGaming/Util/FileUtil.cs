@@ -2,23 +2,14 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using Nucleus.Gaming.Forms;
 
 namespace Nucleus.Gaming
 {
-    public enum SymbolicLink
-    {
-        File = 0,
-        Directory = 1
-    }
-
     public static class FileUtil
     {
-        [DllImport("kernel32.dll")]
-        public static extern bool CreateSymbolicLink(string lpSymlinkFileName, string lpTargetFileName, SymbolicLink dwFlags);
-
         public static void Write(byte[] data, string place)
         {
             using (MemoryStream str = new MemoryStream(data))
@@ -215,8 +206,8 @@ namespace Nucleus.Gaming
                 {
                     if (!handlerInstance.CurrentGameInfo.IgnoreDeleteFilesPrompt)
                     {
-                        DialogResult dialogResult = MessageBox.Show("Are you sure you want to delete '" + fullFilePath + "'?", "Nucleus - Delete Files In Config Path", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                        if (dialogResult != DialogResult.Yes)
+                        bool yes = UserPrompts.YesNo("Nucleus - Delete Files In Config Path", "Are you sure you want to delete '" + fullFilePath + "'?", PromptIcon.Warning);
+                        if (!yes)
                         {
                             continue;
                         }

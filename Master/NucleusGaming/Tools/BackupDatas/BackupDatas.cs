@@ -1,9 +1,7 @@
-﻿using Nucleus.Gaming.App.Settings;
-using Nucleus.Gaming.Coop;
+﻿using Nucleus.Gaming.Coop;
 using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Contexts;
 
 namespace Nucleus.Gaming.Tools.BackupDatas
 {
@@ -308,20 +306,6 @@ namespace Nucleus.Gaming.Tools.BackupDatas
 
         #endregion
 
-        private static void Log(string logMessage)
-        {
-            try
-            {
-                if (App_Misc.DebugLog)
-                {
-                    using (StreamWriter writer = new StreamWriter("debug-log.txt", true))
-                    {
-                        writer.WriteLine($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}]HANDLER: {logMessage}");
-                        writer.Close();
-                    }
-                }
-            }
-            catch { }
-        }
+        private static void Log(string logMessage) => DebugLogFile.Write("HANDLER", logMessage);
     }
 }

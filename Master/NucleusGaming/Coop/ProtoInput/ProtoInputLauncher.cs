@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
+using Nucleus.Gaming.Forms;
 
 
 namespace Nucleus.Gaming.Coop.ProtoInput
@@ -39,8 +40,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             if (instanceHandle == 0)
             {
-                MessageBox.Show("ProtoInput failed to startup inject", "Error", MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                UserPrompts.Report(PromptIcon.Error, "Error", "ProtoInput failed to startup inject");
 
                 GenericGameHandler.Instance?.End(false);
             }
@@ -91,8 +91,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             if (instanceHandle == 0)
             {
-                MessageBox.Show("ProtoInput failed to runtime inject", "Error", MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                UserPrompts.Report(PromptIcon.Error, "Error", "ProtoInput failed to runtime inject");
 
                 GenericGameHandler.Instance?.End(false);
             }

@@ -13,7 +13,7 @@ namespace SDL
 {
     public unsafe static class SDL_ControllerUtils
     {
-        private static string dbsDirectory = Path.Combine(Application.StartupPath, "GameControllerDB");
+        private static string dbsDirectory = Path.Combine(Nucleus.Gaming.Globals.NucleusInstallRoot, "GameControllerDB");
         /// <summary>
         /// Dictionary<string []{controller guid,mapping file name},string mapping string>
         /// </summary>

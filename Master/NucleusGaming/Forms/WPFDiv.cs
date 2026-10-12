@@ -87,9 +87,9 @@ public class WPFDiv : System.Windows.Window
     {
         if (fading == null)
         {
-            if (Directory.Exists(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, $@"gui\screenshots\{gameGUID}")))
+            if (Directory.Exists(System.IO.Path.Combine(Globals.NucleusInstallRoot, $@"gui\screenshots\{gameGUID}")))
             {         
-                var imgsPath = Directory.GetFiles(Path.Combine(System.Windows.Forms.Application.StartupPath, $"gui\\screenshots\\{gameGUID}")).Where(s =>
+                var imgsPath = Directory.GetFiles(Path.Combine(Globals.NucleusInstallRoot, $"gui\\screenshots\\{gameGUID}")).Where(s =>
                     s.EndsWith(".png") ||
                     s.EndsWith(".jpeg") ||
                     s.EndsWith(".jpg") ||
@@ -130,9 +130,9 @@ public class WPFDiv : System.Windows.Window
 
         if (alpha <= 0.01F)
         {
-            if (Directory.Exists(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, $@"gui\screenshots\{gameGUID}")))
+            if (Directory.Exists(System.IO.Path.Combine(Globals.NucleusInstallRoot, $@"gui\screenshots\{gameGUID}")))
             {
-                var imgsPath = Directory.GetFiles(Path.Combine(System.Windows.Forms.Application.StartupPath, $"gui\\screenshots\\{gameGUID}")).Where(s =>
+                var imgsPath = Directory.GetFiles(Path.Combine(Globals.NucleusInstallRoot, $"gui\\screenshots\\{gameGUID}")).Where(s =>
                     s.EndsWith(".png") ||
                     s.EndsWith(".jpeg") ||
                     s.EndsWith(".jpg") ||

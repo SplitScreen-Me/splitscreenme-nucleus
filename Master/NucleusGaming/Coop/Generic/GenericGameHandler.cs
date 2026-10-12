@@ -1,5 +1,4 @@
-﻿using Jint.Native;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Nucleus.Coop.Forms;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Coop;
@@ -183,7 +182,7 @@ namespace Nucleus.Gaming
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message + " " + ex.StackTrace);
+                UserPrompts.Report(PromptIcon.None, "", ex.Message + " " + ex.StackTrace);
             }
 
             if (gen.LockMouse)
@@ -267,7 +266,8 @@ namespace Nucleus.Gaming
         {
             if (!App_Misc.IgnoreInputLockReminder)
             {
-                MessageBox.Show("Some handlers will require you to press the End key to lock input. Remember to unlock input by pressing End again when you finish playing. You can disable this message in the Settings. ", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly, false);
+                //A host can show this reminder before the launch instead (the web UI does, in "Before you launch").
+                UserPrompts.Ask(new PromptRequest { Kind = PromptKind.Message, Origin = PromptOrigin.LaunchReminder, Icon = PromptIcon.Info, Title = "Info", Message = "Some handlers will require you to press the End key to lock input. Remember to unlock input by pressing End again when you finish playing. You can disable this message in the Settings. ", DesktopOnly = true });
             }
 
             if (GameProfile.Stop_UINav) { GamepadNavigation.StopUINavigation(); }
@@ -788,14 +788,20 @@ namespace Nucleus.Gaming
                         {
                             exeName = gen.LauncherExe.Split('|')[0];
                             Log($"User needs to select launcher exe ({exeName})");
-                            Forms.Prompt prompt = new Forms.Prompt($"Press OK after selecting the game launcher executable ({exeName}), and you're ready to continue.", true, exeName);
-                            prompt.ShowDialog();
+                            string picked = UserPrompts.PickLauncher($"Press OK after selecting the game launcher executable ({exeName}), and you're ready to continue.", exeName);
+                            if (picked != null)
+                            {
+                                ofdPath = picked;
+                            }
                         }
                         else
                         {
                             Log($"User needs to select launcher exe");
-                            Forms.Prompt prompt = new Forms.Prompt("Press OK after selecting the game launcher executable, and you're ready to continue.", true, exeName);
-                            prompt.ShowDialog();
+                            string picked = UserPrompts.PickLauncher("Press OK after selecting the game launcher executable, and you're ready to continue.", exeName);
+                            if (picked != null)
+                            {
+                                ofdPath = picked;
+                            }
                         }
 
                         Thread.Sleep(1000);
@@ -2152,8 +2158,7 @@ namespace Nucleus.Gaming
 
                         if (!gen.IgnoreThirdPartyPrompt)
                         {
-                            Forms.Prompt prompt = new Forms.Prompt("Press OK when game has launched.");
-                            prompt.ShowDialog();
+                            UserPrompts.WaitForOk("Press OK when game has launched.");
                         }
                     }
 
@@ -2215,8 +2220,7 @@ namespace Nucleus.Gaming
                         if (gen.PromptProcessChangesAtEnd)
                         {
                             Log("Prompted user before processing end changes");
-                            Forms.Prompt prompt = new Forms.Prompt("Press OK when ready to make changes to game processes.");
-                            prompt.ShowDialog();
+                            UserPrompts.WaitForOk("Press OK when ready to make changes to game processes.");
                         }
 
                         ProcessChangeAtEnd();
@@ -2228,8 +2232,7 @@ namespace Nucleus.Gaming
                         if (gen.PromptAfterFirstInstance && i == 0)
                         {
                             Log("Prompted user after first instance");
-                            Forms.Prompt prompt = new Forms.Prompt("Press OK when ready to launch the rest of the instances.");
-                            prompt.ShowDialog();
+                            UserPrompts.WaitForOk("Press OK when ready to launch the rest of the instances.");
                         }
 
                         if (gen.PromptBetweenInstances)
@@ -2240,8 +2243,7 @@ namespace Nucleus.Gaming
                                 Thread.Sleep(TimeSpan.FromSeconds(gen.PauseBetweenStarts));
                             }
                             Log(string.Format("Prompted user for Instance {0}", (i + 2)));
-                            Forms.Prompt prompt = new Forms.Prompt("Press OK when ready to launch instance " + (i + 2) + ".");
-                            prompt.ShowDialog();
+                            UserPrompts.WaitForOk("Press OK when ready to launch instance " + (i + 2) + ".");
                         }
                         else
                         {
@@ -2263,8 +2265,7 @@ namespace Nucleus.Gaming
                 {
                     Log("Prompted user before searching for game process");
 
-                    Forms.Prompt prompt = new Forms.Prompt("Press OK when ready for Nucleus to search for game process.");
-                    prompt.ShowDialog();
+                    UserPrompts.WaitForOk("Press OK when ready for Nucleus to search for game process.");
                 }
 
                 if (gen.PauseBetweenProcessGrab > 0)
@@ -2616,7 +2617,7 @@ namespace Nucleus.Gaming
                     else
                     {
                         Log(string.Format("ERROR - IdInWindowTitle could not find main window handle for {0} (pid {1})", proc.ProcessName, proc.Id));
-                        MessageBox.Show(string.Format("IdInWindowTitle: Could not find main window handle for {0} (pid:{1})", proc.ProcessName, proc.Id), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        UserPrompts.Report(PromptIcon.Error, "Error", string.Format("IdInWindowTitle: Could not find main window handle for {0} (pid:{1})", proc.ProcessName, proc.Id));
                     }
                 }
 
@@ -2650,8 +2651,7 @@ namespace Nucleus.Gaming
                     if (i == 0)
                     {
                         Log(string.Format("Prompted user after first instance", (i + 2)));
-                        Prompt prompt = new Prompt("Press OK when ready to launch the rest of the instances.");
-                        prompt.ShowDialog();
+                        UserPrompts.WaitForOk("Press OK when ready to launch the rest of the instances.");
                     }
                 }
 
@@ -2665,8 +2665,7 @@ namespace Nucleus.Gaming
 
                     Log(string.Format("Prompted user for Instance {0}", (i + 2)));
 
-                    Prompt prompt = new Prompt("Press OK when ready to launch instance " + (i + 2) + ".");
-                    prompt.ShowDialog();
+                    UserPrompts.WaitForOk("Press OK when ready to launch instance " + (i + 2) + ".");
                 }
                 else if (gen.PromptBetweenInstances && i == players.Count - 1 && (gen.HookFocus || gen.FakeFocus || gen.SetWindowHook || gen.HideCursor || gen.PreventWindowDeactivation || gen.SetTopMostAtEnd))
                 {
@@ -2678,8 +2677,7 @@ namespace Nucleus.Gaming
 
                     Log("Prompted user to install post hooks");
 
-                    Prompt prompt = new Prompt("Press OK when ready to install hooks and/or start sending fake messages.");
-                    prompt.ShowDialog();
+                    UserPrompts.WaitForOk("Press OK when ready to install hooks and/or start sending fake messages.");
 
                     foreach (Process aproc in attached)
                     {
@@ -2881,7 +2879,7 @@ namespace Nucleus.Gaming
                             else
                             {
                                 Log(string.Format("ERROR - ChangeWindowTitle could not find main window handle for {0} (pid:{1})", aproc.ProcessName, aproc.Id));
-                                MessageBox.Show(string.Format("ChangeWindowTitle: Could not find main window handle for {0} (pid:{1})", aproc.ProcessName, aproc.Id), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                UserPrompts.Report(PromptIcon.Error, "Error", string.Format("ChangeWindowTitle: Could not find main window handle for {0} (pid:{1})", aproc.ProcessName, aproc.Id));
                             }
                         }
                     }                 
@@ -3111,8 +3109,7 @@ namespace Nucleus.Gaming
                 {
                     Log(string.Format("Prompted user for Instance {0}", (i + 1)));
 
-                    Prompt prompt = new Prompt("Press OK when game instance " + (i + 1) + " has been launched and/or you wish to continue.");
-                    prompt.ShowDialog();
+                    UserPrompts.WaitForOk("Press OK when game instance " + (i + 1) + " has been launched and/or you wish to continue.");
                 }
                 else
                 {
@@ -3564,8 +3561,6 @@ namespace Nucleus.Gaming
                 }
             }
 
-            GameManager.Instance.ExecuteBackup(userGame.Game);
-
             LogManager.UnregisterForLogCallback(this);
 
             foreach (var window in RawInputManager.windows)
@@ -3623,18 +3618,7 @@ namespace Nucleus.Gaming
             }
             catch { }
 
-            try
-            {
-                if (App_Misc.DebugLog)
-                {
-                    using (StreamWriter writer = new StreamWriter("debug-log.txt", true))
-                    {
-                        writer.WriteLine($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}]HANDLER: {logMessage}");
-                        writer.Close();
-                    }
-                }
-            }
-            catch { }
+            DebugLogFile.Write("HANDLER", logMessage);
         }
     }
 }
