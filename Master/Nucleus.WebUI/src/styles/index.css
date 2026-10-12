@@ -1,0 +1,277 @@
+/* Nucleus Co-op — design system "Bezel" (tokens → Tailwind v4 theme).
+ *
+ * One rule drives the palette: colour means a player. Interface chrome is monochrome
+ * (black bezel, graphite panes, white ink); the eight player colours are the only chroma,
+ * and they always identify a player, a slot or a device.
+ *
+ * Source of truth: redesign-draft/style-1/assets/tokens.css + base.css.
+ */
+@import 'tailwindcss';
+/* Self-hosted fonts (WebView2 runs offline). The wdth build carries both axes: wght 100–900 and wdth 62–125. */
+@import '@fontsource-variable/archivo/wdth.css';
+@import '@fontsource-variable/jetbrains-mono/wght.css';
+
+@theme {
+  /* The palette is closed on purpose: no stray Tailwind hues. */
+  --color-*: initial;
+  --color-black: #000000;
+  --color-white: #ffffff;
+
+  /* Bezel and panes: the window is the screen's black frame, content sits in lit panes. */
+  --color-bezel: #000000;
+  --color-pane: #14171e;
+  --color-pane-2: #1b1f28;
+  --color-pane-3: #242935;
+  --color-line: #2c3240;
+  --color-line-strong: #3d4454;
+
+  /* Ink */
+  --color-ink: #f3f4f6;
+  --color-ink-2: #a3abba;
+  --color-ink-3: #6b7383;
+  --color-on-light: #07080a;
+
+  /* Player colours, in join order. Never used for anything but players. */
+  --color-p1: #ff6b35; /* ember  */
+  --color-p2: #3b8bff; /* azure  */
+  --color-p3: #ffcf3a; /* sun    */
+  --color-p4: #3ddb86; /* mint   */
+  --color-p5: #ff5db1; /* pink   */
+  --color-p6: #9b7cff; /* violet */
+  --color-p7: #23d3d3; /* teal   */
+  --color-p8: #c4eb45; /* lime   */
+
+  /* Status: icon + words first, these tints second. Distinct from every player hue. */
+  --color-ok: #8fe3b8;
+  --color-warn: #f5b971;
+  --color-danger: #ff4d6a;
+  /* Windows' own close-button red, only on the title bar close hover. */
+  --color-win-close: #c42b1c;
+
+  /* Type: one family, the width axis carries the hierarchy. */
+  --font-*: initial;
+  --font-sans: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Named roles from the brand board. */
+  --text-display: clamp(2.6rem, 5.2vw, 5.25rem);
+  --text-display--line-height: 0.94;
+  --text-h1: clamp(2rem, 3.4vw, 3.25rem);
+  --text-h1--line-height: 1.05;
+  --text-h2: clamp(1.5rem, 2.2vw, 2.125rem);
+  --text-h2--line-height: 1.05;
+  --text-h3: 1.25rem;
+  --text-h3--line-height: 1.1;
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-micro: 0.75rem;
+  /* Pixel-named steps for the dense app UI (the mockups use 11–19px a lot). */
+  --text-10: 0.625rem;
+  --text-11: 0.6875rem;
+  --text-12: 0.75rem;
+  --text-13: 0.8125rem;
+  --text-14: 0.875rem;
+  --text-15: 0.9375rem;
+  --text-16: 1rem;
+  --text-17: 1.0625rem;
+  --text-18: 1.125rem;
+  --text-19: 1.1875rem;
+  --text-22: 1.375rem;
+  --text-26: 1.625rem;
+  --text-28: 1.75rem;
+
+  /* Radii follow hierarchy: panes are screens, controls are smaller, tags are pills. */
+  --radius-pane: 14px;
+  --radius-cover: 10px;
+  --radius-ctl: 8px;
+  --radius-tag: 999px;
+
+  /* The gutter is the brand: the black line between split panes. */
+  --spacing-gutter: 4px;
+  --spacing-gutter-web: 6px;
+
+  /* Motion: windows snapping into place. Quick out, firm landing. */
+  --ease-snap: cubic-bezier(0.2, 0.9, 0.1, 1);
+
+  --animate-spin: spin 900ms linear infinite;
+  --animate-idle: idle-border 2.8s ease-in-out infinite;
+  --animate-toast-in: toast-in 240ms var(--ease-snap);
+  --animate-fade-in: fade-in 240ms var(--ease-snap);
+  --animate-dev-pulse: dev-pulse 420ms var(--ease-snap);
+  --animate-rise-in: rise-in 460ms var(--ease-snap) both;
+
+  @keyframes dev-pulse {
+    0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--pc, var(--color-ink)), transparent 30%); }
+    100% { box-shadow: 0 0 0 7px transparent; }
+  }
+  @keyframes rise-in {
+    from { opacity: 0; transform: translateY(8px); }
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes idle-border {
+    50% { border-color: var(--color-ink-3); }
+  }
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateY(8px); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+  }
+}
+
+/* Player colour as a theme colour: set --pc on any element (player-N utilities), children read it. */
+@theme inline {
+  --color-pc: var(--pc, var(--color-ink-3));
+}
+
+/* Durations live outside @theme so reduced motion can zero them in one place. */
+:root {
+  --dur-1: 120ms;
+  --dur-2: 240ms;
+  --dur-3: 520ms;
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-1: 0ms; --dur-2: 0ms; --dur-3: 0ms; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Font stretch: the width axis is the hierarchy ---------- */
+@utility stretch-wide { font-stretch: 125%; }
+@utility stretch-semi { font-stretch: 112%; }
+@utility stretch-normal { font-stretch: 100%; }
+@utility stretch-narrow { font-stretch: 72%; }
+/* Data voice: condensed, tabular. For numbers and compact facts, never for prose. */
+@utility data {
+  font-stretch: 72%;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.005em;
+}
+
+/* ---------- Player colour helpers ---------- */
+@utility player-1 { --pc: var(--color-p1); }
+@utility player-2 { --pc: var(--color-p2); }
+@utility player-3 { --pc: var(--color-p3); }
+@utility player-4 { --pc: var(--color-p4); }
+@utility player-5 { --pc: var(--color-p5); }
+@utility player-6 { --pc: var(--color-p6); }
+@utility player-7 { --pc: var(--color-p7); }
+@utility player-8 { --pc: var(--color-p8); }
+
+/* Window-drag regions (WebView2: CoreWebView2Settings.IsNonClientRegionSupportEnabled). */
+@utility app-drag {
+  app-region: drag;
+  -webkit-app-region: drag;
+}
+@utility app-no-drag {
+  app-region: no-drag;
+  -webkit-app-region: no-drag;
+}
+
+/* Typographic roles shared by every screen. */
+@utility type-display {
+  font-size: var(--text-display);
+  font-stretch: 125%;
+  font-weight: 820;
+  line-height: 0.94;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+@utility type-h1 {
+  font-size: var(--text-h1);
+  font-stretch: 125%;
+  font-weight: 780;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+@utility type-h2 {
+  font-size: var(--text-h2);
+  font-stretch: 112%;
+  font-weight: 740;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+@utility type-h3 {
+  font-size: var(--text-h3);
+  font-weight: 680;
+  line-height: 1.1;
+}
+
+/*
+ * Couch focus. Gamepad navigation moves focus programmatically, which :focus-visible does not
+ * always report; the shell sets html.nav-input while a keyboard or gamepad drives the UI.
+ *  nav-focus:        this element is focused by keyboard/gamepad
+ *  group-nav-focus:  the enclosing .group is (covers draw their own frame around the art)
+ */
+@custom-variant nav-focus (&:where(:focus-visible, .nav-input :focus));
+@custom-variant group-nav-focus (&:where(.group:focus-visible *, .nav-input .group:focus *));
+
+/* No visible scrollbar (the content still scrolls with the wheel, keys and focus). */
+@utility scroll-none {
+  scrollbar-width: none;
+}
+
+@layer base {
+  html, body, #root { height: 100%; }
+  /* The window never scrolls as a page: the stage and panes scroll inside it. */
+  html { -webkit-text-size-adjust: 100%; overflow: hidden; }
+  /*
+   * Scrollbars are drawn by the app: a thin rounded thumb, no track, no arrow buttons. Chromium ignores these
+   * pseudo-elements when scrollbar-width or scrollbar-color is set, and its thin native bar keeps grey arrow
+   * buttons in WebView2, so the standard properties are deliberately not used.
+   */
+  ::-webkit-scrollbar { width: 10px; height: 10px; background: transparent; }
+  ::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+  ::-webkit-scrollbar-thumb:hover { background-color: var(--color-ink-3); }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-line-strong);
+    background-clip: content-box;
+    border: 3px solid transparent;
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-corner, ::-webkit-scrollbar-track { background: transparent; }
+  body {
+    margin: 0;
+    background: var(--color-bezel);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+    font-stretch: 100%;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+  h1, h2, h3, h4 { line-height: 1.05; font-weight: 750; }
+  p { margin: 0; }
+  button:not(:disabled), [role='button']:not([aria-disabled='true']), summary, label[for], select { cursor: pointer; }
+  ::selection { background: var(--color-ink); color: var(--color-on-light); }
+
+  /* Focus is a white frame, like a console highlight. Always visible for keyboard and gamepad. */
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+  /* Gamepad focus on navigable items, unless the item draws its own frame. */
+  .nav-input [data-nav]:focus:not([data-nav-frame='own']) {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+  .nav-input [data-nav-frame='own']:focus { outline: none; }
+  code, kbd, pre, samp { font-family: var(--font-mono); }
+
+  /* Native selects: dark option lists. */
+  select option { background: var(--color-pane-2); color: var(--color-ink); }
+  input[type='search']::-webkit-search-cancel-button { filter: invert(1) opacity(0.6); }
+}

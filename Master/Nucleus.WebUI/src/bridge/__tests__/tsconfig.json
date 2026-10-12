@@ -1,0 +1,11 @@
+{
+  // Typechecks the bridge tests (run by `node --test`, excluded from tsconfig.app.json) and, through their imports,
+  // the bridge itself, with the app's compiler options plus Node's types.
+  "extends": "../../../tsconfig.app.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "../../../node_modules/.tmp/tsconfig.bridge-tests.tsbuildinfo",
+    "types": ["node"]
+  },
+  "include": ["./**/*.ts"],
+  "exclude": []
+}

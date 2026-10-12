@@ -1,0 +1,49 @@
+# UI and bridge: notes
+
+Status: 2026-10-11, contract hash `721781118ba733db`. How the React UI uses the bridge, what it does on its own, and what it would like from the contract. Bridge usage itself: `docs/webui/bridge-howto.md`; running the UI: `../README.md`.
+
+## What the UI does with each service
+
+| Service | Used for |
+|---|---|
+| `app` | Handshake (`BridgeProvider`). `getInfo`: version in the hint bar, About section, `startupGameId` (opens that game's setup once at startup), `hubOnline` + `hubStatusChanged` (offline banner; install buttons disabled with an explanation). `openExternal` for every link (notes, comments, hub pages, community links). `openPath` (install and handlers folders). `log` (screen crashes). `restartAsAdmin` (About, behind a confirmation). |
+| `window` | Title bar buttons; `getState` + `stateChanged` swap maximize/restore. The document title follows the screen; the native title stays "Nucleus Co-op". |
+| `dialogs` | Executable picker of the add-game and locate flows (filter label lists the expected executables, starts in the suggested folder), `pickFile` menu items (`fileFilters`), file and folder settings. |
+| `library` | `list` (library grid, featured game, palette, catalogue badges, downloads), `getPreferences` / `setPreferences` (sort and filters, saved optimistically), `setFavorite`, `get` (notes, details, `showNotesFirst` in the lobby, old path when locating), `getMenu` / `runMenuAction` rendered generically (actions, toggles, choices, submenus, separators, danger, `confirm`, `clientAction`), `addGame` (with the handler chooser for `candidates`), `setExecutable` (missing games, the lobby's "Game found" check), `scanInstalledGames` + `findExecutable` (Found on this PC), `downloadArtwork` + `artworkProgress` (About), `reload` (About). `remove` goes through the menu's remove item. |
+| `handlers` | `listInstalled` (badges, install state), `install` / `update` / `installFromFile` through the downloads store, `progress` events, `checkUpdates` (Downloads, About), `screenshots` (handler page, hub tiles). |
+| `settings` | Schema-driven screen: every `SettingType`, `visibleWhen` / `enabledWhen`, inline `ValidationError`s, hotkey capture in the page, `captureGamepadCombo` with cancel, combos shown with `gamepadButtons` labels ("Guide + Y"). `getPlayers` / `setPlayers` editor. `gamepad.type` picks the button glyphs. |
+| `setup` | The lobby, live with `useBridgeSnapshot('setup.get', 'setup.changed')`: `open` when the snapshot is for another game; screens scaled in `totalBounds`; layouts (four presets as buttons, the rest in a menu, disabled when `layoutLocked`); press-to-join (`join`), drag and drop (`assignToSlot`, `assignAt` on manual layouts, `unassign`), keyboard pick-up/place; guests (`addGuest` / `removeGuest`), `toggleExpand`, `autoFill`, `clearAll` (confirmed), `refreshDevices`, `rumble`; flow steps with `next` / `back`, options (`setOptionChoice` / `setOptionText`), custom-step cards (`selectStepItem`); `setPlayerIdentity`, `setPlayerAudio`; `checks` with `runCheckAction` (`needsPicker` opens the picker, then `library.setExecutable`); `setSaveProfileOnLaunch`, `setUseApiIndex`; `deviceActivity` (flash, ping, press-to-join), `deviceLost` (toast). Refusals toast the host message. |
+| `profiles` | Lobby header: `list`, `load`, `unload`, match progress from `SetupSnapshot.profile`. |
+| `session` | Session screen, live with `useBridgeSnapshot('session.get', 'session.changed')` (also mounted by the shell, so the palette and the lobby redirect know a session is live): instances and stages drawn on the setup's monitors, `actions` with hotkeys (`runAction`), hold-to-stop (`stop`, shown blocked while `inputsLocked`, refusal explained with `lockInputsKey`), `error`, log (`getLog` + `log` events, deduplicated by `seq`), `notice` toasts. `play` from the lobby's Launch button. |
+
+Not used yet: `profiles.delete`, `profiles.getSettings` / `saveSettings` (no profile settings editor), `setup.resize`, `setup.close` (leaving the lobby keeps the setup so it can be resumed).
+
+## UI-side features
+
+- **Downloads store** (`src/lib/downloads.ts`). The host has no download list, so the UI keeps one: every install, update and file install it starts (queued until the first `handlers.progress`, then downloading / extracting / done / failed / cancelled), plus installs started elsewhere (a setup check updating the handler) as soon as their progress arrives. Cancel aborts the call (`$/cancel`); late progress of a cancelled install is ignored. The rail badge, the Downloads screen and the install buttons read it; the last 30 finished items stay until cleared.
+- **Found on this PC** (`screens/library/found-matching.ts`). `scanInstalledGames` results are matched with the hub catalogue by normalised name (letters and digits, accents and ™/® dropped, "&" = "and"), then again without edition suffixes (Game of the Year, Definitive, Anniversary…); several hub handlers for one game: verified first, then most downloaded. Games already in the library or whose handler is installed are left out. Adding runs, per game: `handlers.install` → `findExecutable(installFolder, name)` for each accepted executable → `addGame` (handler given) → the picker in the install folder when nothing was found.
+- **Add-game flow** (`src/features/add-game.tsx`): picker → `addGame` → handler chooser on `candidates`; `afterInstall` chains it after any install whose game is not in the library; `locateGame` relinks a moved game.
+- **File drop** (`src/features/file-drop.tsx`): every file drag is intercepted at the window level, so the WebView never navigates to a dropped file. `.nc` / `.zip` / `.js` → `getFilePaths` → `installFromFile` → on `alreadyInstalled`, a confirmation then `overwrite: true` → add-game flow.
+- **Press-to-join rules** (`screens/lobby/usePressToJoin.ts`): a free revealed device joins on activity, or when it becomes revealed right after activity. Gamepads always; keyboards unless the last DOM key press operated the UI (typing, a dialog, Enter on a control); the shared keyboard only after a real key press (its activity includes mouse moves); raw mice only to complete a lone raw keyboard player. One request per device, a refusal is not repeated until the setup changes, and a device the user just removed waits 6 s.
+- **Handler notes** (`src/components/HandlerNotes.tsx`): the Nucleus markup (`*highlight*`, `*text|r,g,b*`, `[label]{url}`, bare URLs), rendered as text (never HTML); dark author colours are lifted for contrast; links go through `app.openExternal`.
+- **Device tray**: outside a setup no host device exists, so it shows the gamepads the browser's Gamepad API sees; in the lobby and during a session, one chip per player (colour, devices, click to rumble a pad) plus the free devices.
+
+## Contract wishes
+
+| Wish | Why |
+|---|---|
+| `FileFilter.patterns` (file names, e.g. `eldenring.exe`) | Extensions become `*.ext`, so the picker cannot show only the expected executables; the UI lists them in the filter label. |
+| `InstalledHandler.executableNames` and `suggestedFolder` | "Add the game" for a handler installed in an earlier run opens an unfiltered picker. |
+| `GameSummary.executableName(s)` (or the path) | Locating a moved game needs an extra `library.get`. |
+| `setup.deviceActivity` with the kind of input (button + which one, key, mouse move) | Reliable press-to-join for keyboards and mice, and per-button lobby actions on gamepads (B back, X layout) as the design intended. |
+| `setup.movePlayer({ playerId, screenIndex, slotIndex })` | `assignToSlot` moves one device of a keyboard + mouse pair; the UI re-sends the other device to keep the player together. |
+| `SetupSlot.nextPlayerNumber`, expected profile player of an `expected` slot | Empty slots could say "Player 3" and "Waiting for Léa's keyboard". |
+| A device list outside a setup (`devices.list` + activity) | The title bar tray cannot show keyboards or rumble pads outside the lobby. |
+| Session: `screens` / `totalBounds`, on/off state of toggle actions (topmost, cutscenes), a last-session summary (ended, duration, players), device names and audio output per instance, a lock/unlock command | The session screen borrows the setup snapshot frozen at Play, cannot show whether "keep on top" is active, and tracks the end locally. |
+| Last session roster on `GameSummary` | The featured game shows play time and last played instead of who played. |
+| `HandlerProgress` byte counts | "12 of 40 MB" instead of a bare percentage. |
+| `InstalledGame` art (or a Steam app id for Epic games) | Epic games fall back to the hub cover. |
+| `InstalledHandler` title and author | Handlers installed from a file only show their game name. |
+| `library.artworkProgress` per-game failures | The About section can only say "done". |
+
+Host-side notes found while testing in the app: `library.addGame` refuses an executable whose `Game.ExecutableContext` folders are missing with "no Game.ExecutableName matches it", which points at the wrong cause. The mock transport passes no `AbortSignal` to handlers, so a cancelled install still completes in the mock (the UI ignores its late progress).
