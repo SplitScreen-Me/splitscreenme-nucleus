@@ -219,6 +219,138 @@ public class GamepadIdentityTests
         Assert.Null(SetupSnapshotBuilder.UnidentifiedPad(null, Now));
     }
 
+    // ---- SDL pads (the 8 hub handlers with Hook.SDL2Enabled): same rules, helped by what SDL knows of the pad ----
+
+    private static Guid ProductGuid(ushort vid, ushort pid) => new Guid($"{pid:X4}{vid:X4}-0000-0000-0000-504944564944");
+
+    private static D_Joystick Joystick(string path, ushort vid, ushort pid, string name = "pad")
+    {
+        return new D_Joystick { InstanceGuid = Guid.NewGuid(), ProductGuid = ProductGuid(vid, pid), InterfacePath = path, InstanceName = name };
+    }
+
+    private static PlayerInfo SdlPad(int playerIndex) => new PlayerInfo { IsSDL2 = true, GamepadId = playerIndex, DeviceKey = "sdl:" + playerIndex };
+
+    private static PadHint Sdl(string? path, ushort vid, ushort pid, bool xbox = false) => new PadHint { Path = path, VendorId = vid, ProductId = pid, PreferXInputViews = xbox };
+
+    [Theory]
+    [InlineData(Ds4Path, @"\\?\HID#VID_054C&PID_09CC&MI_03#8&1F5C3C5A&0&0000#{4d1e55b2-f16f-11cf-88cb-001111000030}", true)]//raw input spelling
+    [InlineData(Ds4Path, @"\??\hid#vid_054c&pid_09cc&mi_03#8&1f5c3c5a&0&0000#{4d1e55b2-f16f-11cf-88cb-001111000030}", true)]
+    [InlineData(Ds4Path, Xbox360Path, false)]
+    [InlineData(Ds4Path, "XInput#0", false)]
+    [InlineData("", "", false)]
+    [InlineData(null, null, false)]
+    public void Device_paths_compare_without_case_or_prefix(string? a, string? b, bool same)
+    {
+        Assert.Equal(same, GamepadIdentity.SamePath(a!, b!));
+    }
+
+    [Fact]
+    public void Usb_ids_come_from_a_hid_product_guid()
+    {
+        Assert.True(GamepadIdentity.TryUsbIdsOf(new Guid("09CC054C-0000-0000-0000-504944564944"), out ushort vid, out ushort pid));
+        Assert.Equal(0x054C, vid);
+        Assert.Equal(0x09CC, pid);
+
+        Assert.False(GamepadIdentity.TryUsbIdsOf(new Guid("6f1d2b61-d5a0-11cf-bfc7-444553540000"), out _, out _));//not a HID product GUID
+    }
+
+    [Fact]
+    public void The_sdl_path_identifies_the_pad_without_a_directinput_press()
+    {
+        //SDL's HIDAPI driver reports the HID path DirectInput uses: exact, even while another player presses a button.
+        PlayerInfo pad = SdlPad(0);
+        D_Joystick ds4 = Joystick(Ds4Path, 0x054C, 0x09CC);
+        D_Joystick other = Joystick(Xbox360Path, 0x045E, 0x028E);
+
+        D_Joystick? match = GamepadIdentity.PickDInputMatch(pad, new[] { pad }, new[] { new DInputCandidate(ds4, false), new DInputCandidate(other, true) },
+            Sdl(Ds4Path.ToUpperInvariant(), 0x054C, 0x09CC));
+
+        Assert.Same(ds4, match);
+        Assert.Same(ds4, GamepadIdentity.FindByPath(pad, new[] { pad }, new[] { ds4, other }, Ds4Path));
+    }
+
+    [Fact]
+    public void A_path_already_taken_by_another_pad_is_not_reused()
+    {
+        PlayerInfo first = SdlPad(0);
+        PlayerInfo second = SdlPad(1);
+        D_Joystick ds4 = Joystick(Ds4Path, 0x054C, 0x09CC);
+        first.DInputJoystick = ds4;
+
+        Assert.Null(GamepadIdentity.FindByPath(second, new[] { first, second }, new[] { ds4 }, Ds4Path));
+        Assert.Null(GamepadIdentity.FindByPath(second, new[] { first, second }, new[] { ds4 }, null!));
+        Assert.Null(GamepadIdentity.FindByPath(second, new[] { second }, new[] { ds4, Joystick(Ds4Path, 0x054C, 0x09CC) }, Ds4Path));//stale duplicate: don't guess
+    }
+
+    [Fact]
+    public void Usb_ids_pick_the_pad_among_two_pressed_devices()
+    {
+        //DS4Windows without HidHide: SDL sees the DualShock (HIDAPI) and its virtual Xbox 360 pad, DirectInput both views.
+        D_Joystick ds4 = Joystick(Ds4Path, 0x054C, 0x09CC);
+        D_Joystick virtualX360 = Joystick(Xbox360Path, 0x045E, 0x028E);
+        DInputCandidate[] both = { new DInputCandidate(ds4, true), new DInputCandidate(virtualX360, true) };
+
+        PlayerInfo dualShock = SdlPad(0);
+        Assert.Same(ds4, GamepadIdentity.PickDInputMatch(dualShock, new[] { dualShock }, both, Sdl("", 0x054C, 0x09CC)));
+
+        PlayerInfo xbox = SdlPad(1);
+        Assert.Same(virtualX360, GamepadIdentity.PickDInputMatch(xbox, new[] { xbox }, both, Sdl("XInput#0", 0x045E, 0x028E, xbox: true)));
+    }
+
+    [Fact]
+    public void A_single_pressed_device_with_other_usb_ids_is_another_pad()
+    {
+        //The SDL pad is hidden from DirectInput (HidHide) while another player presses a DirectInput pad.
+        PlayerInfo pad = SdlPad(0);
+        D_Joystick someoneElse = Joystick(Xbox360Path, 0x045E, 0x028E);
+
+        Assert.Null(GamepadIdentity.PickDInputMatch(pad, new[] { pad }, new[] { new DInputCandidate(someoneElse, true) }, Sdl("", 0x054C, 0x09CC)));
+
+        //Ids SDL doesn't know, or a product GUID without them: the only pressed device is still taken, as before.
+        Assert.Same(someoneElse, GamepadIdentity.PickDInputMatch(pad, new[] { pad }, new[] { new DInputCandidate(someoneElse, true) }, Sdl("", 0, 0)));
+        D_Joystick noIds = Joystick(Ds4Path);
+        Assert.Same(noIds, GamepadIdentity.PickDInputMatch(pad, new[] { pad }, new[] { new DInputCandidate(noIds, true) }, Sdl("", 0x054C, 0x09CC)));
+    }
+
+    [Fact]
+    public void A_non_xbox_sdl_pad_does_not_guess_an_xinput_view()
+    {
+        PlayerInfo pad = SdlPad(0);
+        DInputCandidate[] twoUnknown = { new DInputCandidate(Joystick(Ds4Path), true), new DInputCandidate(Joystick(Xbox360Path), true) };
+
+        Assert.Null(GamepadIdentity.PickDInputMatch(pad, new[] { pad }, twoUnknown, Sdl("", 0, 0)));
+        Assert.NotNull(GamepadIdentity.PickDInputMatch(pad, new[] { pad }, twoUnknown, Sdl("", 0, 0, xbox: true)));
+    }
+
+    [Fact]
+    public void Without_a_match_an_sdl_pad_is_revealed_by_its_player_index()
+    {
+        //SDL handlers give the game the SDL player index (SDL2.ini) and none needs the DirectInput identity.
+        PlayerInfo pad = SdlPad(2);
+        pad.GamepadName = "PS4 Controller";
+
+        IdentifyResult result = GamepadIdentity.Identify(pad, new[] { pad }, new List<DInputCandidate>(), Sdl("", 0x054C, 0x09CC), needsDInputIdentity: false, Now);
+
+        Assert.Equal(IdentifyResult.SlotFallback, result);
+        Assert.True(pad.IsInputUsed);
+        Assert.Equal(GamepadIdentity.SlotGuid(2), pad.GamepadGuid);
+        Assert.Equal("PS4 Controller", pad.GamepadName);
+    }
+
+    [Fact]
+    public void An_sdl_match_copies_the_directinput_identity()
+    {
+        PlayerInfo pad = SdlPad(0);
+        D_Joystick ds4 = Joystick(Ds4Path, 0x054C, 0x09CC, "Wireless Controller");
+
+        IdentifyResult result = GamepadIdentity.Identify(pad, new[] { pad }, new[] { new DInputCandidate(ds4, false) }, Sdl(Ds4Path, 0x054C, 0x09CC), needsDInputIdentity: true, Now);
+
+        Assert.Equal(IdentifyResult.Matched, result);
+        Assert.True(pad.IsInputUsed);
+        Assert.Equal(ds4.InstanceGuid, pad.GamepadGuid);
+        Assert.Equal(@"HID\VID_054C&PID_09CC&MI_03\8&1F5C3C5A&0&0000", pad.HIDDeviceID[0]);
+    }
+
     [Fact]
     public void Refreshing_directinput_keeps_a_single_watcher_thread()
     {

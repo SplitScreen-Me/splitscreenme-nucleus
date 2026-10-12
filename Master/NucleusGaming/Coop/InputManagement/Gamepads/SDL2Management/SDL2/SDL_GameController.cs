@@ -161,8 +161,17 @@ namespace SDL
         [DllImport("SDL2.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void SDL_GameControllerSetPlayerIndex(IntPtr gamecontroller, int playerIndex);
 
+        /// <summary>The player index SDL gave the controller, or -1 (an int: declared as a byte, -1 read as 255).</summary>
         [DllImport("SDL2.dll", EntryPoint = "SDL_GameControllerGetPlayerIndex", CallingConvention = CallingConvention.Cdecl)]
-        public static extern byte SDL_GameControllerGetPlayerIndex(SDL_GameController gameController);
+        public static extern int SDL_GameControllerGetPlayerIndex(SDL_GameController gameController);
+
+        /// <summary>USB vendor id of an opened controller, 0 when unknown.</summary>
+        [DllImport("SDL2.dll", EntryPoint = "SDL_GameControllerGetVendor", CallingConvention = CallingConvention.Cdecl)]
+        public static extern ushort SDL_GameControllerGetVendor(SDL_GameController gameController);
+
+        /// <summary>USB product id of an opened controller, 0 when unknown.</summary>
+        [DllImport("SDL2.dll", EntryPoint = "SDL_GameControllerGetProduct", CallingConvention = CallingConvention.Cdecl)]
+        public static extern ushort SDL_GameControllerGetProduct(SDL_GameController gameController);
 
         [DllImport("SDL2.dll", EntryPoint = "SDL_GameControllerGetType", CallingConvention = CallingConvention.Cdecl)]
         public static extern SDL_GameControllerType SDL_GameControllerGetType(SDL_GameController gameController);

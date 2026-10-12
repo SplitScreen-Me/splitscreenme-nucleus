@@ -50,7 +50,7 @@ Registration: `NucleusServices.Register` creates one `SetupSession` and the thre
 | `setUseApiIndex` | `MetaInfo.UseApiIndex` (and button-press mode off when on), `GameProfile.UseXinputIndex` (devices rebuilt), reload of a loaded profile, players step. |
 | `setSaveProfileOnLaunch` | `MetaInfo.SaveProfile`. |
 | `refreshDevices` | `DInputManager.Refresh`, SDL refresh on its helper thread, raw keyboards/mice rescanned (`GameProfile.RefreshKeyboardAndMouse`, placed ones unassigned first), audio outputs. `deviceLost` is muted for 3 s. |
-| `rumble` | XInput: full vibration for 300 ms (timer, never blocks); SDL: `SDL_GameControllerRumble`; others: `rumbleNotSupported`. |
+| `rumble` | XInput: full vibration for 300 ms (timer, never blocks); SDL: `SDLManager.Rumble` (skipped while SDL refreshes, never on a stale handle); others: `rumbleNotSupported`. |
 
 ### profiles
 
@@ -101,7 +101,7 @@ The WinForms setup screen did business logic while painting: `GameProfile.FindPr
 - Every state change runs on the UI thread (the WebView2 host's WinForms context, `IHostShell.UiContext`). Bridge calls arrive there.
 - R4: in headless mode `DevicesFunctions.Dispatch` posts to the UI thread. The 300 ms device tick and the 150 ms polling tick post their whole body (one queued at most), so `DevicesList`, `AssignedDevices` and the screens are only touched on the UI thread. The screens watcher (3 s) posts too. Nothing uses `Control.Invoke`.
 - Measured with the smoke test (Valheim handler: 32 OpenXinput slots probed, raw keyboards and mice, no gamepad connected): UI thread callbacks delayed 0.2 ms on average, 7 ms at most.
-- SDL is initialized, refreshed (it sleeps 1 s) and hot-plugged on a dedicated STA thread with a message loop ("Nucleus SDL"); the ticks skip SDL while it refreshes (`Monitor.TryEnter`). `DevicesFunctions.Dispatch` is required: `BoundsFunctions.Initialize` and `DevicesFunctions.Initialize` throw without it, and the timer ticks do nothing.
+- SDL is initialized, refreshed (it sleeps 1 s) and hot-plugged on a dedicated STA thread with a message loop ("Nucleus SDL"). `SDLManager.Sync` guards every SDL call: the refresh holds it throughout, the event loop ("Nucleus SDL events") only while it pumps, and the ticks, `IsConnected`, `Close` and `Rumble` take it with `Monitor.TryEnter` (they skip SDL while it is busy). A refresh quits SDL, which frees every controller: handles opened before it are never passed to SDL again. `DevicesFunctions.Dispatch` is required: `BoundsFunctions.Initialize` and `DevicesFunctions.Initialize` throw without it, and the timer ticks do nothing.
 - Raw input keeps its own thread; `FlashIcon` and `FlashChanged` come from it and are posted.
 - `End` runs on a worker; `Ended` is posted. Session actions run on a background STA thread. Nothing blocks the UI thread except the existing synchronous work of `InitializeHandlerStartup` (script reload, clone, thread start), as in the WinForms UI.
 
@@ -147,11 +147,17 @@ The NucleusCoopTool parts of R12 and R13 (`Core_Interface.cs`) were deleted with
   - The disconnect check uses the OpenXinput controller that detected the pad, instead of the system `xinput1_3.dll`.
   - Handlers with both DirectInput and XInput no longer "dispose" the DirectInput view of XInput pads on every tick. That disposal triggered a full DirectInput refresh about once a second, which removed placed DirectInput pads from their slots.
   - `DInputManager.Refresh` stops the previous watcher thread and locks the device lists.
+- **SDL pads identified like XInput pads (2026-10-12).** The 8 SDL handlers (`Hook.SDL2Enabled`) revealed a pad only when exactly one DirectInput device saw its press, with the problems above; a revealed pad could be rebound to another device by a later press, a press with two pads pressed returned nothing (no flash, no join), and in slot mode later presses replaced the slot GUID with a DirectInput one.
+  - At detection, an SDL pad whose path (HIDAPI and raw input drivers) is a DirectInput interface path takes that device's identity at once and is revealed like a DirectInput pad (on its first press with "assign gamepads on button press"). Detection retries this each tick, since DirectInput lists its devices on its own thread. The pad keeps SDL's name ("PS4 Controller").
+  - Otherwise a press runs `GamepadIdentity.Identify` with an SDL `PadHint`: path, then the only pressed device, then the USB ids (a pressed device with other ids is another pad), then the `IG_` views for Xbox pads; without a match, the SDL handlers (none needs the DirectInput identity) reveal the pad with the slot GUID of its SDL player index, which is what `SDL2.ini` gives the game.
+  - An identified pad stays identified; each press returns true (flash, press-to-join).
+  - Robustness: `SDL_GameControllerGetPlayerIndex` returns an `int` (it was declared `byte`: -1 became 255), `SDL2.GetString` accepts NULL (a controller without a path or name ended the process), the event loop handles only the events `SDL_PollEvent` returns (it re-handled the last one every 16 ms), joysticks without a controller mapping no longer mark the device list changed every tick.
 - The Stop button of the WinForms UI no longer resets while inputs are locked (R13); toggling API indexes no longer leaves stale assignments (R4); the drag hover no longer duplicates keyboard/mouse entries (R7).
 
 ## 7. Known limitations
 
 - Hardware paths were not tested here: no gamepad was connected. XInput/DInput/SDL detection, button-press identification, rumble, guests and DirectInput hot-plug are the legacy code paths running on the UI thread; SDL on its helper thread is untested with a real SDL handler.
+- Plugging a new SDL or DirectInput pad refreshes that API: its pads come back as new devices and placed ones leave their slots (`setup.deviceLost`), as before.
 - The smoke test covered one monitor, raw keyboards/mice (virtual devices revealed by injected input) and saved profiles with a keyboard+mouse player. It did not launch a game: Play/Stop/End, instance stages, session actions and the launch log were not run end to end.
 - Instance stages are approximate: Waiting (no process), Starting (process, window not placed), Ready (`ProcessData.Setted` or `Finished`), Exited (`Process.HasExited`). Running is detected with `GameProfile.Saved`.
 - The session log levels and player numbers are guessed from the words of each line.
