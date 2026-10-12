@@ -1,0 +1,27 @@
+<Project>
+  <!--
+    Builds the ProtoInput submodule (written for VS 2019 / v142, SDK 10.0.18362) with VS 2022 / v143
+    without modifying the submodule. Passed by tools\build-native.ps1 as
+      /p:ForceImportBeforeCppTargets=<this file>
+    together with /p:PlatformToolset=v143 /p:WindowsTargetPlatformVersion=10.0.
+    See docs/webui/host.md, "Building native components".
+  -->
+  <PropertyGroup>
+    <!-- BlackBone needs ATL. When the VS component Microsoft.VisualStudio.Component.VC.ATL is not installed,
+         build-native.ps1 puts a user-level copy here (same packages as the VS installer, from the VS catalog). -->
+    <NucleusAtlDir Condition="'$(NucleusAtlDir)' == ''">$(LOCALAPPDATA)\NucleusBuildDeps\atl\$(VCToolsVersion)\atlmfc\</NucleusAtlDir>
+    <IncludePath Condition="Exists('$(NucleusAtlDir)include\atlbase.h')">$(IncludePath);$(NucleusAtlDir)include</IncludePath>
+    <LibraryPath Condition="Exists('$(NucleusAtlDir)include\atlbase.h')">$(LibraryPath);$(NucleusAtlDir)lib\$(PlatformTarget)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <!-- v143 rejects dependent type names without 'typename' (BlackBone ProcessModules.cpp, ProtoInputHooks Gui.cpp)
+           under /permissive-, which ConformanceMode and /std:c++latest turn on. Restore the lenient mode v142 accepted. -->
+      <AdditionalOptions>%(AdditionalOptions) /permissive</AdditionalOptions>
+      <!-- easyhook.h defines NTDDI_VERSION as _NTDDI_WIN10, which no SDK defines (so NTDDI_VERSION is 0). In recent SDKs
+           (checked: 10.0.22621, 10.0.26100) minwinbase.h then hides FILE_INFO_BY_HANDLE_CLASS while fileapi.h, guarded by
+           _WIN32_WINNT, still uses it. Give the macro its intended value (NTDDI_WIN10). -->
+      <PreprocessorDefinitions>_NTDDI_WIN10=0x0A000000;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+</Project>
