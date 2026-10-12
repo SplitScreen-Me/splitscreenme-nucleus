@@ -12,14 +12,14 @@ namespace Nucleus.Coop
 {
     static class Program
     {      
-        public static bool Connected;
+        // Read by name through reflection (Nucleus.Coop.Services Setup/SetupChecks.cs): do not rename.
         public static bool ForcedBadPath;
 
         [STAThread]
         static void Main(string[] args)
         {
             // Settings.ini and the logs are resolved from the working directory (Globals.ini): make it the install folder.
-            string installFolder = AppDomain.CurrentDomain.BaseDirectory;
+            string installFolder = InstallPaths.Root;
             if (!string.Equals(Environment.CurrentDirectory.TrimEnd('\\'), installFolder.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase))
             {
                 Environment.CurrentDirectory = installFolder;
@@ -72,26 +72,15 @@ namespace Nucleus.Coop
                     ForcedBadPath = true;
             }
 
-            Connected = StartChecks.CheckHubResponse();
-
             StartChecks.CheckFilesIntegrity();
             StartChecks.CheckUserEnvironment();
             StartChecks.CheckAppUpdate();
             StartChecks.CheckDebugLogSize();
             StartChecks.CleanLogs();
 
-            // Web UI by default; --legacy-ui opens the WinForms MainForm. HostStartup.GameId keeps args[0] (game GUID).
+            // HostStartup.GameId keeps args[0] (game GUID); --legacy-ui is still accepted (old shortcuts) and ignored.
             HostStartup.Parse(args);
-            if (!HostStartup.LegacyUi)
-            {
-                HostApplication.Run();
-                return;
-            }
-
-            MainForm form = new MainForm(HostStartup.ForwardedArgs);
-            DPIManager.AddForm(form);
-            DPIManager.ForceUpdate();
-            Application.Run(form);
+            HostApplication.Run();
         }
 
         static void LogFatalError(Exception ex)

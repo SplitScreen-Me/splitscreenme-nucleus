@@ -1,5 +1,6 @@
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
+using Nucleus.Coop.Services;
 using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
 using System;
@@ -7,6 +8,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -45,6 +47,7 @@ namespace Nucleus.Coop.Host
         private int crashCount;
         private DateTime firstCrashUtc;
         private HostWindowSnapshot lastSnapshot;
+        private int pageState = (int)UiPageState.Loading;
 
         public HostForm(HostEnvironment environment)
         {
@@ -64,6 +67,11 @@ namespace Nucleus.Coop.Host
             ApplyInitialPlacement();
             CreateWebViewControl();
         }
+
+        /// <summary>Whether the web UI can show messages (see <see cref="IHostShell.PageState"/>). Any thread.</summary>
+        public UiPageState PageState => (UiPageState)Volatile.Read(ref pageState);
+
+        private void SetPageState(UiPageState state) => Volatile.Write(ref pageState, (int)state);
 
         /// <summary>Raised on the UI thread each time a CoreWebView2 is ready, before the first navigation (again after a browser process crash).</summary>
         public event EventHandler<CoreWebView2> CoreWebView2Ready;
@@ -511,6 +519,7 @@ namespace Nucleus.Coop.Host
             if (!e.Cancel)
             {
                 isClosing = true;
+                SetPageState(UiPageState.Unavailable);
             }
         }
 
@@ -587,6 +596,7 @@ namespace Nucleus.Coop.Host
             catch (WebView2RuntimeNotFoundException ex)
             {
                 HostLog.Error("The WebView2 runtime is not installed.", ex);
+                SetPageState(UiPageState.Unavailable);
                 ShowRuntimeMissing();
                 Close();
                 return;
@@ -599,6 +609,7 @@ namespace Nucleus.Coop.Host
                 }
 
                 HostLog.Error("WebView2 initialization failed.", ex);
+                SetPageState(UiPageState.Unavailable);
                 DialogResult answer = MessageBox.Show(this,
                     "The Nucleus Co-op interface could not be started.\n\n" + ex.Message +
                     "\n\nClose any other Nucleus Co-op window, then click Retry.",
@@ -690,6 +701,7 @@ namespace Nucleus.Coop.Host
         {
             if (environment.IsAppUri(e.Uri))
             {
+                SetPageState(UiPageState.Loading);
                 return;
             }
 
@@ -740,8 +752,17 @@ namespace Nucleus.Coop.Host
 
         private void OnNavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
         {
-            if (!e.IsSuccess)
+            if (e.IsSuccess)
             {
+                if (environment.IsAppUri((sender as CoreWebView2)?.Source))
+                {
+                    SetPageState(UiPageState.Ready);
+                }
+            }
+            else if (e.WebErrorStatus != CoreWebView2WebErrorStatus.OperationCanceled)
+            {
+                //A cancelled navigation (a link opened outside) leaves the UI page in place.
+                SetPageState(UiPageState.Unavailable);
                 HostLog.Warning($"UI navigation failed: {e.WebErrorStatus} (HTTP {e.HttpStatusCode}).");
             }
         }
@@ -753,10 +774,12 @@ namespace Nucleus.Coop.Host
             switch (e.ProcessFailedKind)
             {
                 case CoreWebView2ProcessFailedKind.BrowserProcessExited:
+                    SetPageState(UiPageState.Unavailable);
                     BeginInvoke(new Action(() => RecoverFromCrash(true)));
                     break;
 
                 case CoreWebView2ProcessFailedKind.RenderProcessExited:
+                    SetPageState(UiPageState.Unavailable);
                     BeginInvoke(new Action(() => RecoverFromCrash(false)));
                     break;
 
@@ -790,7 +813,7 @@ namespace Nucleus.Coop.Host
             {
                 MessageBox.Show(this,
                     "The Nucleus Co-op interface keeps stopping unexpectedly and will close.\n\n" +
-                    "Details are in content\\app.log. You can start the previous interface with the --legacy-ui option.",
+                    "Details are in content\\app.log. If this keeps happening, repair or reinstall the Microsoft Edge WebView2 Runtime.",
                     DefaultTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
                 return;

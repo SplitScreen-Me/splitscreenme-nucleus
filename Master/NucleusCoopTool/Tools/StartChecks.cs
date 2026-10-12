@@ -45,7 +45,7 @@ namespace Nucleus.Coop
 
         public static bool IsAlreadyRunning()
         {
-            Thread.Sleep(1000);//Put this here for the theme switch option.
+            Thread.Sleep(1000);// Lets a restarting instance (restart as administrator) exit first.
             if (Process.GetProcessesByName("NucleusCoop").Length > 1)
             {
                 MessageBox.Show("Nucleus Co-op is already running, if you don't see the Nucleus Co-op window it might be running in the background, close the process using task manager.", "Nucleus Co-op is already running", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -57,33 +57,39 @@ namespace Nucleus.Coop
 
         public static bool IsInvalidDriveFormat()
         {
-            return UserDriveInfo.IsExFat(Globals.NucleusInstallRoot, true);       
+            return UserDriveInfo.IsExFat(Globals.NucleusInstallRoot);
         }       
                    
         public static void CheckFilesIntegrity()
         {
+            // Relative to the install root. Managed assemblies are in bin\ (probing privatePath of the exe configs);
+            // natives and helper exes stay at the root. tools\build-native.ps1 parses this list.
             string[] ncFiles = {
-                "Ionic.Zip.Reduced.dll",
-                "EasyHook.dll",
+                @"bin\EasyHook.dll",
+                @"bin\Ionic.Zip.Reduced.dll",
+                @"bin\Jint.dll",
+                @"bin\NAudio.dll",
+                @"bin\Newtonsoft.Json.dll",
+                @"bin\Nucleus.Bridge.dll",
+                @"bin\Nucleus.Coop.Services.dll",
+                @"bin\Nucleus.Gaming.dll",
+                @"bin\SharpDX.DirectInput.dll",
+                @"bin\SharpDX.dll",
+                @"bin\SharpDX.XInput.dll",
+                @"bin\WindowScrape.dll",
                 "EasyHook32.dll",
-                "EasyHook32Svc.exe",
                 "EasyHook64.dll",
-                "EasyHook64Svc.exe",
-                "EasyHookSvc.exe",
-                "Jint.dll",
-                "NAudio.dll",
-                "Newtonsoft.Json.dll",
-                "Nucleus.Gaming.dll",
                 "Nucleus.Hook32.dll",
                 "Nucleus.Hook64.dll",
                 "Nucleus.IJx64.exe",
+                "Nucleus.IJx64.exe.config",
                 "Nucleus.IJx86.exe",
+                "Nucleus.IJx86.exe.config",
                 "Nucleus.SHook32.dll",
                 "Nucleus.SHook64.dll",
                 "openxinput1_3.dll",
                 "ProtoInputHooks32.dll",
                 "ProtoInputHooks64.dll",
-                "ProtoInputHost.exe",
                 "ProtoInputIJ32.exe",
                 "ProtoInputIJ64.exe",
                 "ProtoInputIJP32.dll",
@@ -92,18 +98,15 @@ namespace Nucleus.Coop
                 "ProtoInputLoader64.dll",
                 "ProtoInputUtilDynamic32.dll",
                 "ProtoInputUtilDynamic64.dll",
-                "SharpDX.DirectInput.dll",
-                "SharpDX.dll",
-                "SharpDX.XInput.dll",
                 "StartGame.exe",
-                "WindowScrape.dll"
+                "StartGame.exe.config"
             };
 
             try
             {
                 foreach (string file in ncFiles)
                 {
-                    if (!File.Exists(Path.Combine(Application.StartupPath, file)))
+                    if (!File.Exists(Path.Combine(Globals.NucleusInstallRoot, file)))
                     {
                         if (MessageBox.Show(file + " is missing from your Nucleus Co-op installation folder. Check that your antivirus program is not deleting or blocking any Nucleus Co-op files. Add the Nucleus Co-op folder to your antivirus exceptions list and extract it again. Click \"OK\" for more information", "Missing file(s)", MessageBoxButtons.OKCancel, MessageBoxIcon.Error) == DialogResult.OK)
                         {
@@ -119,19 +122,19 @@ namespace Nucleus.Coop
                     }
                 }
 
-            if (!Directory.Exists(Path.Combine(Application.StartupPath, @"gui\covers")))
+            if (!Directory.Exists(Path.Combine(Globals.NucleusInstallRoot, @"gui\covers")))
             {
-                Directory.CreateDirectory((Path.Combine(Application.StartupPath, @"gui\covers")));
+                Directory.CreateDirectory((Path.Combine(Globals.NucleusInstallRoot, @"gui\covers")));
             }
 
-            if (!Directory.Exists(Path.Combine(Application.StartupPath, @"gui\screenshots")))
+            if (!Directory.Exists(Path.Combine(Globals.NucleusInstallRoot, @"gui\screenshots")))
             {
-                Directory.CreateDirectory((Path.Combine(Application.StartupPath, @"gui\screenshots")));
+                Directory.CreateDirectory((Path.Combine(Globals.NucleusInstallRoot, @"gui\screenshots")));
             }
          
-                if (Directory.Exists(Path.Combine(Application.StartupPath, $"gui\\descriptions")))//Not used anymore
+                if (Directory.Exists(Path.Combine(Globals.NucleusInstallRoot, $"gui\\descriptions")))//Not used anymore
                 {
-                    Directory.Delete(Path.Combine(Application.StartupPath, $"gui\\descriptions"), true);
+                    Directory.Delete(Path.Combine(Globals.NucleusInstallRoot, $"gui\\descriptions"), true);
                 }
             }
             catch 
@@ -183,39 +186,39 @@ namespace Nucleus.Coop
                             //Console.WriteLine("Registry has been restored");
                         }
                     }
-                    else if (!File.Exists(Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg")))
+                    else if (!File.Exists(Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\User Shell Folders.reg")))
                     {
-                        ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg"));
+                        ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\User Shell Folders.reg"));
                     }
                     else
                     {
-                        if (!Directory.Exists(Path.Combine(Application.StartupPath, @"utils\backup\Temp")))
+                        if (!Directory.Exists(Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\Temp")))
                         {
-                            Directory.CreateDirectory((Path.Combine(Application.StartupPath, @"utils\backup\Temp")));
+                            Directory.CreateDirectory((Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\Temp")));
                         }
 
-                        ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Application.StartupPath, @"utils\backup\Temp\User Shell Folders.reg"));
+                        ExportRegistry(@"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders", Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\Temp\User Shell Folders.reg"));
 
-                        FileStream currentEnvPathBackup = new FileStream(Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg"), FileMode.Open);
-                        FileStream TempEnvPathBackup = new FileStream(Path.Combine(Application.StartupPath, @"utils\backup\Temp\User Shell Folders.reg"), FileMode.Open);
+                        FileStream currentEnvPathBackup = new FileStream(Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\User Shell Folders.reg"), FileMode.Open);
+                        FileStream TempEnvPathBackup = new FileStream(Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\Temp\User Shell Folders.reg"), FileMode.Open);
 
                         if (currentEnvPathBackup.Length == TempEnvPathBackup.Length)
                         {
                             TempEnvPathBackup.Dispose();
                             currentEnvPathBackup.Dispose();
 
-                            File.Delete(Path.Combine(Application.StartupPath, @"utils\backup\Temp\User Shell Folders.reg"));
-                            Directory.Delete(Path.Combine(Application.StartupPath, @"utils\backup\Temp"));
+                            File.Delete(Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\Temp\User Shell Folders.reg"));
+                            Directory.Delete(Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\Temp"));
                             //Console.WriteLine("Registry backup is up-to-date");
                         }
                         else
                         {
                             TempEnvPathBackup.Dispose();
                             currentEnvPathBackup.Dispose();
-                            File.Delete(Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg"));
-                            File.Move(Path.Combine(Application.StartupPath, @"utils\backup\Temp\User Shell Folders.reg"), Path.Combine(Application.StartupPath, @"utils\backup\User Shell Folders.reg"));
-                            File.Delete(Path.Combine(Application.StartupPath, @"utils\backup\Temp\User Shell Folders.reg"));
-                            Directory.Delete(Path.Combine(Application.StartupPath, @"utils\backup\Temp"));
+                            File.Delete(Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\User Shell Folders.reg"));
+                            File.Move(Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\Temp\User Shell Folders.reg"), Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\User Shell Folders.reg"));
+                            File.Delete(Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\Temp\User Shell Folders.reg"));
+                            Directory.Delete(Path.Combine(Globals.NucleusInstallRoot, @"utils\backup\Temp"));
                             //Console.WriteLine("Registry has been updated");
                         }
                     }
@@ -235,18 +238,19 @@ namespace Nucleus.Coop
 
         private static bool CheckInstallFolder(bool warningMessage)
         {
-            string exePath = System.Reflection.Assembly.GetExecutingAssembly().Location.ToLower();
+            // Install root with a trailing separator (was the exe path), compared with the folder prefixes below.
+            string installPath = InstallPaths.Root.TrimEnd('\\').ToLower() + "\\";
 
-            if(exePath == null)
+            if(installPath == null)
             {
                 MessageBox.Show($"Unable to check Nucleus installation path." ,"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
-            bool problematic = exePath.StartsWith(@"C:\Program Files\".ToLower()) ||
-                               exePath.StartsWith(@"C:\Program Files (x86)\".ToLower()) ||
-                               exePath.StartsWith(@"C:\Users\".ToLower()) ||
-                               exePath.StartsWith(@"C:\Windows\".ToLower());
+            bool problematic = installPath.StartsWith(@"C:\Program Files\".ToLower()) ||
+                               installPath.StartsWith(@"C:\Program Files (x86)\".ToLower()) ||
+                               installPath.StartsWith(@"C:\Users\".ToLower()) ||
+                               installPath.StartsWith(@"C:\Windows\".ToLower());
 
 
 
@@ -370,36 +374,12 @@ namespace Nucleus.Coop
             }
         }
         
-        public static bool CheckHubResponse()
-        {
-            try
-            {
-                ServicePointManager.Expect100Continue = false;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-                ServicePointManager.DefaultConnectionLimit = 9999;
-
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://hub.splitscreen.me/");
-                request.Timeout = 6000;
-                request.Method = "HEAD";
-
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                {
-                    return response.StatusCode == HttpStatusCode.OK;
-                }
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
         public static void CheckAppUpdate()
         {
             try
             {
-                if (File.Exists(Path.Combine(Application.StartupPath, "Updater.exe")))
-                    Process.Start(Path.Combine(Application.StartupPath, "Updater.exe"));
+                if (File.Exists(Path.Combine(Globals.NucleusInstallRoot, "Updater.exe")))
+                    Process.Start(Path.Combine(Globals.NucleusInstallRoot, "Updater.exe"));
             }
             catch 
             {
@@ -408,7 +388,7 @@ namespace Nucleus.Coop
 
         public static void CheckDebugLogSize()
         {
-           string logPath = Path.Combine(Application.StartupPath, "debug-log.txt");
+           string logPath = Path.Combine(Globals.NucleusInstallRoot, DebugLogFile.FileName);
 
             try
             {

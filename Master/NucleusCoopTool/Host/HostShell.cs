@@ -31,6 +31,8 @@ namespace Nucleus.Coop.Host
 
         public SynchronizationContext UiContext { get; }
 
+        public UiPageState PageState => form.PageState;
+
         public void MinimizeWindow()
         {
             Post(() => form.MinimizeWindow());

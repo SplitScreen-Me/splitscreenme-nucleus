@@ -1,5 +1,4 @@
 ﻿using Nucleus.Gaming;
-using Nucleus.Gaming.UI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,9 +15,7 @@ namespace Nucleus.Coop.Forms
     {
         private WebClient webClient;
         private string tempDir = Path.Combine(Globals.NucleusInstallRoot, "Temp");
-        private List<Control> ctrls = new List<Control>();
 
-        private float fontSize = 10;
         private string _downloadUri;
         private string _description;
         private string _outputFileName;
@@ -41,11 +38,8 @@ namespace Nucleus.Coop.Forms
                 DeleteTemp();
 
                 InitializeComponent();
-                GetAllControls();
                         
                 lbl_Handler.Text = description;
-
-                BackgroundImage = Image.FromFile(Globals.ThemeFolder + "other_backgrounds.jpg");
 
                 _downloadUri = downloadUri;
                 _description = description;
@@ -53,11 +47,6 @@ namespace Nucleus.Coop.Forms
                 _processName = processName;
 
                 Text = "Downloading " + outputFileName + ".";
-
-                foreach (Control control in ctrls)
-                {
-                    control.Font = new Font(Theme_Settings.CustomFont, fontSize, FontStyle.Regular, GraphicsUnit.Pixel, 0);
-                }
 
                 FormClosing += OnFormClosing;
 
@@ -176,26 +165,6 @@ namespace Nucleus.Coop.Forms
         {
             exiting = true;
             DeleteTemp();
-        }
-
-        private void GetAllControls()
-        {
-            foreach (Control control in Controls)
-            {
-                ctrls.Add(control);
-                foreach (Control container1 in control.Controls)
-                {
-                    ctrls.Add(container1);
-                    foreach (Control container2 in container1.Controls)
-                    {
-                        ctrls.Add(container2);
-                        foreach (Control container3 in container2.Controls)
-                        {
-                            ctrls.Add(container3);
-                        }
-                    }
-                }
-            }
         }
 
     }

@@ -89,6 +89,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
+    <!-- Default list without .xml: the IntelliSense docs of the references (NAudio, Newtonsoft.Json, SharpDX, Nucleus.Bridge) are not shipped. -->
+    <AllowedReferenceRelatedFileExtensions>.pdb;.pri;.dll.config;.exe.config</AllowedReferenceRelatedFileExtensions>
   </PropertyGroup>
   <PropertyGroup>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -110,17 +112,12 @@
     <Reference Include="Ionic.Zip.Reduced, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
       <HintPath>..\packages\DotNetZip.Reduced.1.9.1.8\lib\net20\Ionic.Zip.Reduced.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Microsoft.Web.WebView2.Core, Version=1.0.4191.47, Culture=neutral, PublicKeyToken=2a8ab48044d2601e, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Web.WebView2.1.0.4191.47\lib\net462\Microsoft.Web.WebView2.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.Web.WebView2.WinForms, Version=1.0.4191.47, Culture=neutral, PublicKeyToken=2a8ab48044d2601e, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Web.WebView2.1.0.4191.47\lib\net462\Microsoft.Web.WebView2.WinForms.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Microsoft.Web.WebView2.Wpf, Version=1.0.4191.47, Culture=neutral, PublicKeyToken=2a8ab48044d2601e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Web.WebView2.1.0.4191.47\lib\net462\Microsoft.Web.WebView2.Wpf.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Microsoft.Win32.Primitives, Version=4.0.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -151,14 +148,12 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Console, Version=4.0.1.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Console.4.3.1\lib\net46\System.Console.dll</HintPath>
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Core" />
-    <Reference Include="System.Design" />
     <Reference Include="System.Diagnostics.Tracing, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Diagnostics.Tracing.4.3.0\lib\net462\System.Diagnostics.Tracing.dll</HintPath>
       <Private>True</Private>
@@ -205,7 +200,6 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Management" />
     <Reference Include="System.Net.Http, Version=4.1.1.3, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Net.Http.4.3.4\lib\net46\System.Net.Http.dll</HintPath>
       <Private>True</Private>
@@ -240,256 +234,30 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
-    <Reference Include="UIAutomationProvider" />
     <Reference Include="WindowsBase" />
-    <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controls\ExtractButton .cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\HandlerNotesZoom.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\HandlerNotesZoom.Designer.cs">
-      <DependentUpon>HandlerNotesZoom.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\MultiColorLabel.cs" />
-    <Compile Include="Controls\SearchGameButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\HubButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\CustomCheckBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\CustomRadio.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\CustomSwitch.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\CustomSwitch.Designer.cs">
-      <DependentUpon>CustomSwitch.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\FlatCombo.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\FlatTextBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\HubWebView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\HubWebView.Designer.cs">
-      <DependentUpon>HubWebView.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\PlaytimePanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\PlaytimePanel.Designer.cs">
-      <DependentUpon>PlaytimePanel.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\ProfilesList.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\ProfilesList.Designer.cs">
-      <DependentUpon>ProfilesList.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\SearchTextBox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\SearchTextBox.Designer.cs">
-      <DependentUpon>SearchTextBox.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\SortOptionsPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\SortOptionsPanel.Designer.cs">
-      <DependentUpon>SortOptionsPanel.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Enums\SortOption_Enums.cs" />
-    <Compile Include="Controls\SortGamesButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\ToggleFavoriteButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Controls\Tutorial.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\Tutorial.Designer.cs">
-      <DependentUpon>Tutorial.cs</DependentUpon>
-    </Compile>
     <Compile Include="Forms\DependenciesDownloader.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\DependenciesDownloader.Designer.cs">
       <DependentUpon>DependenciesDownloader.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\GameList.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\GameList.Designer.cs">
-      <DependentUpon>GameList.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\HandlerScanner.cs" />
-    <Compile Include="Forms\Screen_Identifier.cs" />
-    <Compile Include="Forms\Settings.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\Settings.Designer.cs">
-      <DependentUpon>Settings.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\ProfileSettings.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\ProfileSettings.Designer.cs">
-      <DependentUpon>ProfileSettings.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\XInputShortcutsSetup.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\XInputShortcutsSetup.Designer.cs">
-      <DependentUpon>XInputShortcutsSetup.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Links.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Tools\AssetsDownloader.cs" />
-    <Compile Include="Tools\blur.cs" />
-    <Compile Include="Tools\ChangeGameIcon.cs" />
-    <Compile Include="Tools\CheckGameRequirements.cs" />
-    <Compile Include="Forms\DownloadPrompt.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\DownloadPrompt.Designer.cs">
-      <DependentUpon>DownloadPrompt.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\MainForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\MainForm.Designer.cs">
-      <DependentUpon>MainForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Forms\SearchDisksForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\SearchDisksForm.Designer.cs">
-      <DependentUpon>SearchDisksForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Controls\InputIcons.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tools\DrawParticles.cs" />
-    <Compile Include="Tools\ExtractHandler.cs" />
-    <Compile Include="Tools\GameAssets.cs" />
-    <Compile Include="Tools\GetCoverMainColor.cs" />
-    <Compile Include="Tools\GetGameDetails.cs" />
-    <Compile Include="Tools\GetGameIcon.cs" />
-    <Compile Include="Tools\InputsText.cs" />
-    <Compile Include="Tools\OpenDebugLog.cs" />
-    <Compile Include="Tools\OpenGameContentFolder.cs" />
-    <Compile Include="Tools\OpenHandler.cs" />
-    <Compile Include="Tools\RemoveGame.cs" />
-    <Compile Include="Tools\SearchGame.cs" />
-    <Compile Include="Tools\SortGameFunction.cs" />
     <Compile Include="Tools\StartChecks.cs" />
-    <Compile Include="Tools\CustomToolStripRenderer.cs" />
-    <Compile Include="UI\Core_Interface.cs" />
-    <Compile Include="UI\Generic_Functions.cs" />
-    <Compile Include="UI\MainWindowFunc.cs" />
-    <Compile Include="UI\Runtime_Controls.cs" />
-    <Compile Include="UI\SocialMenuFunc.cs" />
-    <Compile Include="UI\UI_Actions.cs" />
-    <Compile Include="UI\UI_Functions.cs" />
-    <Compile Include="UI\UI_Graphics.cs" />
-    <Compile Include="UI\UI_Interface.cs" />
-    <Compile Include="UI\GameOptionMenuFunc.cs" />
-    <EmbeddedResource Include="Controls\ExtractButton .resx">
-      <DependentUpon>ExtractButton .cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\HandlerNotesZoom.resx">
-      <DependentUpon>HandlerNotesZoom.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\SearchGameButton.resx">
-      <DependentUpon>SearchGameButton.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\HubButton.resx">
-      <DependentUpon>HubButton.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\CustomSwitch.resx">
-      <DependentUpon>CustomSwitch.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\ProfilesList.resx">
-      <DependentUpon>ProfilesList.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\SearchTextBox.resx">
-      <DependentUpon>SearchTextBox.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Forms\DependenciesDownloader.resx">
       <DependentUpon>DependenciesDownloader.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\DownloadPrompt.resx">
-      <DependentUpon>DownloadPrompt.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\HubWebView.resx">
-      <DependentUpon>HubWebView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\GameList.resx">
-      <DependentUpon>GameList.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Settings.resx">
-      <DependentUpon>Settings.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\ProfileSettings.resx">
-      <DependentUpon>ProfileSettings.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\SearchDisksForm.resx">
-      <DependentUpon>SearchDisksForm.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\XInputShortcutsSetup.resx">
-      <DependentUpon>XInputShortcutsSetup.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <SubType>Designer</SubType>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.manifest">
       <SubType>Designer</SubType>
     </None>
     <None Include="copyoutput\Settings.ini" />
-    <None Include="gui\theme\default\theme.ini">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
     <None Include="SplitKey.snk" />
   </ItemGroup>
   <ItemGroup>
@@ -557,465 +325,199 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="copyoutput\SDL2.dll" />
-    <Content Include="Resources\xboxControllerFront.png" />
-    <None Include="Resources\log1.png" />
-    <None Include="Resources\search_game.png" />
-    <None Include="Resources\xboxControllerTop.png" />
-    <None Include="Resources\linksArrowOpen.png" />
-    <None Include="Resources\linksArrow.png" />
-    <None Include="Resources\logo.png" />
-    <None Include="Resources\settings.png" />
-    <None Include="Resources\maximize_button.png" />
-    <None Include="Resources\minimize_button.png" />
     <Content Include="copyoutput\openxinput1_3.dll" />
-    <None Include="Resources\no_image.jpg" />
     <Content Include="gui\icons\default.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\16players.png">
+    <Content Include="gui\gamepads\Playstation\b1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\2horizontal.png">
+    <Content Include="gui\gamepads\Playstation\b2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\2vertical.png">
+    <Content Include="gui\gamepads\Playstation\b3.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\4players.png">
+    <Content Include="gui\gamepads\Playstation\b4.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\6players.png">
+    <Content Include="gui\gamepads\Playstation\dd.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\8players.png">
+    <Content Include="gui\gamepads\Playstation\dl.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\add_game.png">
+    <Content Include="gui\gamepads\Playstation\dn.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\arrow_left.png">
+    <Content Include="gui\gamepads\Playstation\dr.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\arrow_left_mousehover.png">
+    <Content Include="gui\gamepads\Playstation\du.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\arrow_right.png">
+    <Content Include="gui\gamepads\Playstation\h.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\arrow_right_mousehover.png">
+    <Content Include="gui\gamepads\Playstation\lb.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\audio.png">
+    <Content Include="gui\gamepads\Playstation\ls.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\buttons_dropdown.png">
+    <Content Include="gui\gamepads\Playstation\lsc.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\click.png">
+    <Content Include="gui\gamepads\Playstation\lse.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\cursor.ico">
+    <Content Include="gui\gamepads\Playstation\lsn.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\cursor_hand.ico">
+    <Content Include="gui\gamepads\Playstation\lsnsew.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\donation.png">
+    <Content Include="gui\gamepads\Playstation\lss.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\expand_Notes.png">
+    <Content Include="gui\gamepads\Playstation\lsw.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\extract_nc.png">
+    <Content Include="gui\gamepads\Playstation\lt.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\extract_nc_mousehover.png">
+    <Content Include="gui\gamepads\Playstation\rb.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\favorite_selected.png">
+    <Content Include="gui\gamepads\Playstation\rs.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\favorite_unselected.png">
+    <Content Include="gui\gamepads\Playstation\rsc.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\background.jpg">
+    <Content Include="gui\gamepads\Playstation\rse.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\cover_layer.png">
+    <Content Include="gui\gamepads\Playstation\rsn.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\customLayout.png">
+    <Content Include="gui\gamepads\Playstation\rsnsew.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\dinput.png">
+    <Content Include="gui\gamepads\Playstation\rss.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\dinput_icon.png">
+    <Content Include="gui\gamepads\Playstation\rsw.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\fullscreen.png">
+    <Content Include="gui\gamepads\Playstation\rt.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\b1.png">
+    <Content Include="gui\gamepads\Playstation\select.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\b2.png">
+    <Content Include="gui\gamepads\Playstation\start.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\b3.png">
+    <Content Include="gui\gamepads\Xbox\b1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\b4.png">
+    <Content Include="gui\gamepads\Xbox\b2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\dd.png">
+    <Content Include="gui\gamepads\Xbox\b3.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\dl.png">
+    <Content Include="gui\gamepads\Xbox\b4.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\dn.png">
+    <Content Include="gui\gamepads\Xbox\dd.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\dr.png">
+    <Content Include="gui\gamepads\Xbox\dl.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\du.png">
+    <Content Include="gui\gamepads\Xbox\dn.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\h.png">
+    <Content Include="gui\gamepads\Xbox\dr.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\lb.png">
+    <Content Include="gui\gamepads\Xbox\du.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\ls.png">
+    <Content Include="gui\gamepads\Xbox\h.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\lsc.png">
+    <Content Include="gui\gamepads\Xbox\lb.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\lse.png">
+    <Content Include="gui\gamepads\Xbox\ls.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\lsn.png">
+    <Content Include="gui\gamepads\Xbox\lsc.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\lsnsew.png">
+    <Content Include="gui\gamepads\Xbox\lse.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\lss.png">
+    <Content Include="gui\gamepads\Xbox\lsn.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\lsw.png">
+    <Content Include="gui\gamepads\Xbox\lsnsew.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\lt.png">
+    <Content Include="gui\gamepads\Xbox\lss.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\rb.png">
+    <Content Include="gui\gamepads\Xbox\lsw.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\rs.png">
+    <Content Include="gui\gamepads\Xbox\lt.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\rsc.png">
+    <Content Include="gui\gamepads\Xbox\rb.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\rse.png">
+    <Content Include="gui\gamepads\Xbox\rs.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\rsn.png">
+    <Content Include="gui\gamepads\Xbox\rsc.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\rsnsew.png">
+    <Content Include="gui\gamepads\Xbox\rse.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\rss.png">
+    <Content Include="gui\gamepads\Xbox\rsn.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\rsw.png">
+    <Content Include="gui\gamepads\Xbox\rsnsew.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\rt.png">
+    <Content Include="gui\gamepads\Xbox\rss.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\select.png">
+    <Content Include="gui\gamepads\Xbox\rsw.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Playstation\start.png">
+    <Content Include="gui\gamepads\Xbox\rt.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\b1.png">
+    <Content Include="gui\gamepads\Xbox\select.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\b2.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\b3.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\b4.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\dd.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\dl.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\dn.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\dr.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\du.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\h.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\lb.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\ls.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\lsc.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\lse.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\lsn.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\lsnsew.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\lss.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\lsw.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\lt.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\rb.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\rs.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\rsc.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\rse.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\rsn.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\rsnsew.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\rss.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\rsw.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\rt.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\select.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\gamepads\Xbox\start.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\game_options.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\home.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\instruction_closed.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\instruction_opened.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\keyboard.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\keyboard_icon.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\layout.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\loading.gif">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\locked.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\log.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\log_mousehover.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\magnifier.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\magnifier_close.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\manualLayout.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\page1.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\page2.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\play.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\players.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\profile_info.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\profile_info_mousehover.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\profile_settings.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\processor.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\profiles_list.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\proto_keyboard.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\proto_mouse.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\refresh.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\screen.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\logo.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\no_cover.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\other_backgrounds.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\search_game.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\search_game_mousehover.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\shared.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\title_close.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\title_close_mousehover.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\title_download_assets.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\title_download_assets_mousehover.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\title_dropdown_closed.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\title_dropdown_opened.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\title_logo.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\title_maximize.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\title_maximize_mousehover.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\title_minimize.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\title_minimize_mousehover.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\title_no_hub.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\title_settings.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\title_settings_mousehover.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\title_windowed.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\title_windowed_mousehover.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\unlocked.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\update.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\xinput_background.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\xinput.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\theme\default\xinput_icon.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="gui\tutorial\tutorial.gif">
+    <Content Include="gui\gamepads\Xbox\start.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="icon.ico" />
-    <None Include="Resources\close_button.png" />
-    <None Include="Resources\extract_nc.png" />
-    <Content Include="Resources\icon.ico" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>echo.&gt;Built.flag
-copy $(SolutionDir)..\Submodules\ProtoInput\src\ProtoInput\Release\*.dll $(TargetPath)\..
-copy $(SolutionDir)..\Submodules\ProtoInput\src\ProtoInput\Release\*.exe $(TargetPath)\..
-copy $(SolutionDir)ThirdParty\easyhook\*.dll $(TargetPath)\..
-copy $(SolutionDir)ThirdParty\easyhook\*.exe $(TargetPath)\..
-xcopy $(SolutionDir)ThirdParty\AutoHotkey.Interop\x64\*.dll $(TargetDir)x64\
-xcopy $(SolutionDir)ThirdParty\AutoHotkey.Interop\x86\*.dll $(TargetDir)x86\
+    <PostBuildEvent>copy $(SolutionDir)..\Submodules\ProtoInput\src\ProtoInput\Release\*.dll $(TargetPath)\..
+copy $(SolutionDir)..\Submodules\ProtoInput\src\ProtoInput\Release\ProtoInputIJ*.exe $(TargetPath)\..
+copy $(SolutionDir)ThirdParty\easyhook\EasyHook32.dll $(TargetPath)\..
+copy $(SolutionDir)ThirdParty\easyhook\EasyHook64.dll $(TargetPath)\..
 xcopy $(ProjectDir)copyoutput $(TargetPath)\.. /s/h/e/k/f/c/Y
 RD /S /Q "$(TargetDir)runtimes\"</PostBuildEvent>
   </PropertyGroup>
@@ -1039,6 +541,17 @@ RD /S /Q "$(TargetDir)runtimes\"</PostBuildEvent>
   <Target Name="AfterBuild">
   </Target>
   -->
+  <!-- Managed references (Nucleus.Gaming, Nucleus.Bridge, Nucleus.Coop.Services, WindowScrape, Jint, Newtonsoft.Json, NAudio,
+       SharpDX, Ionic.Zip.Reduced, EasyHook.dll, with their .pdb) are copied to bin\: App.config probes privatePath="bin;webview".
+       StartGame.exe (.exe.config, .pdb), a project reference, stays at the root with the native DLLs, Nucleus.IJx86/x64.exe and
+       the hooks; its App.config probes bin\ as well. Items that already have a DestinationSubDirectory keep it. -->
+  <Target Name="MoveManagedReferencesToBin" BeforeTargets="_CopyFilesMarkedCopyLocal">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Condition="'%(ReferenceCopyLocalPaths.DestinationSubDirectory)' == '' And '%(ReferenceCopyLocalPaths.Filename)' != 'StartGame' And '%(ReferenceCopyLocalPaths.Filename)' != 'StartGame.exe'">
+        <DestinationSubDirectory>bin\</DestinationSubDirectory>
+      </ReferenceCopyLocalPaths>
+    </ItemGroup>
+  </Target>
   <!-- Web UI: copies Master\Nucleus.WebUI\dist (npm run build, not run by this build) to webui\ next to the exe.
        Without dist, webui\index.html becomes a placeholder page, so the window never shows an error page.
        webui\dev-server.txt (Debug: Vite dev server URL) is kept. -->

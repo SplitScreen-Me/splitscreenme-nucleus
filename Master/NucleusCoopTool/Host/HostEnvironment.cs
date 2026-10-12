@@ -67,7 +67,7 @@ namespace Nucleus.Coop.Host
 
         public static HostEnvironment Resolve()
         {
-            string install = Application.StartupPath;
+            string install = InstallPaths.Root;
 
             HostEnvironment env = new HostEnvironment
             {
@@ -78,7 +78,7 @@ namespace Nucleus.Coop.Host
                 WebUiFolder = Path.Combine(install, "webui"),
                 AssetsFolder = Path.Combine(install, "gui"),
                 // Same folder as GameManager.Instance.GetJsScriptsPath(), which needs a GameManager instance.
-                HandlersFolder = Path.Combine(Globals.NucleusInstallRoot, "handlers"),
+                HandlersFolder = Path.Combine(install, "handlers"),
                 UserDataFolder = Path.Combine(install, "webview", "ui"),
                 StartUri = new Uri(StartUrl),
             };

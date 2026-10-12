@@ -6,7 +6,10 @@ namespace Nucleus.Coop.Host
     /// <summary>Command-line options of NucleusCoop.exe, parsed once in <c>Program.RunApplication</c>.</summary>
     public static class HostStartup
     {
-        /// <summary>Opens the previous WinForms interface (MainForm) instead of the web UI.</summary>
+        /// <summary>
+        /// Used to open the WinForms interface (MainForm), which has been removed. Still accepted so old shortcuts keep
+        /// working: it is logged and ignored.
+        /// </summary>
         public const string LegacyUiSwitch = "--legacy-ui";
 
         /// <summary>
@@ -15,21 +18,24 @@ namespace Nucleus.Coop.Host
         /// </summary>
         public static string GameId { get; private set; }
 
-        /// <summary>Whether <see cref="LegacyUiSwitch"/> was passed.</summary>
-        public static bool LegacyUi { get; private set; }
-
-        /// <summary>The arguments without the host switches, in their original order (what MainForm expects).</summary>
+        /// <summary>The arguments without the host switches, in their original order (passed on by a restart as administrator).</summary>
         internal static string[] ForwardedArgs { get; private set; } = new string[0];
 
         internal static void Parse(string[] args)
         {
             args = args ?? new string[0];
 
-            LegacyUi = args.Any(a => string.Equals(a, LegacyUiSwitch, StringComparison.OrdinalIgnoreCase));
-            ForwardedArgs = args.Where(a => !string.Equals(a, LegacyUiSwitch, StringComparison.OrdinalIgnoreCase)).ToArray();
+            if (args.Any(IsLegacyUiSwitch))
+            {
+                HostLog.Info($"Ignoring {LegacyUiSwitch}: the previous interface has been removed, starting the web UI.");
+            }
+
+            ForwardedArgs = args.Where(a => !IsLegacyUiSwitch(a)).ToArray();
 
             string first = ForwardedArgs.FirstOrDefault();
             GameId = string.IsNullOrWhiteSpace(first) || first.StartsWith("--", StringComparison.Ordinal) ? null : first;
         }
+
+        private static bool IsLegacyUiSwitch(string arg) => string.Equals(arg, LegacyUiSwitch, StringComparison.OrdinalIgnoreCase);
     }
 }

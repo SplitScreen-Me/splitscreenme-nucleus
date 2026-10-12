@@ -42,9 +42,7 @@ namespace Nucleus.Coop.Forms
             // 
             this.lbl_ProgPerc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.lbl_ProgPerc.BackColor = System.Drawing.Color.Transparent;
             this.lbl_ProgPerc.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lbl_ProgPerc.ForeColor = System.Drawing.SystemColors.Window;
             this.lbl_ProgPerc.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.lbl_ProgPerc.Location = new System.Drawing.Point(266, 12);
             this.lbl_ProgPerc.Name = "lbl_ProgPerc";
@@ -57,10 +55,7 @@ namespace Nucleus.Coop.Forms
             // 
             this.lbl_Handler.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.lbl_Handler.BackColor = System.Drawing.Color.Transparent;
-            this.lbl_Handler.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.lbl_Handler.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lbl_Handler.ForeColor = System.Drawing.SystemColors.Window;
             this.lbl_Handler.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lbl_Handler.Location = new System.Drawing.Point(12, 12);
             this.lbl_Handler.Name = "lbl_Handler";
@@ -82,8 +77,6 @@ namespace Nucleus.Coop.Forms
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(50)))));
-            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(356, 92);
             this.Controls.Add(this.lbl_ProgPerc);
             this.Controls.Add(this.lbl_Handler);
