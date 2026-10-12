@@ -201,7 +201,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
 
             LockInputs = App_GamePadShortcuts.LockInputs[0] + App_GamePadShortcuts.LockInputs[1];
 
-            ReleaseCursor = App_GamePadShortcuts.TopMost[0] + App_GamePadShortcuts.TopMost[1];
+            ReleaseCursor = App_GamePadShortcuts.ReleaseCursor[0] + App_GamePadShortcuts.ReleaseCursor[1];
         }
     }
 }

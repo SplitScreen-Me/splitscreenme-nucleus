@@ -246,6 +246,7 @@
     <Compile Include="Coop\InputManagement\HotkeysRegistration.cs" />
     <Compile Include="Coop\InputManagement\Osk.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\GamepadShortcuts.cs" />
+    <Compile Include="Coop\InputManagement\Gamepads\GamepadThreads.cs" />
     <Compile Include="Coop\InputManagement\RawInputDeviceName.cs" />
     <Compile Include="Coop\GameMetaInfo.cs" />
     <Compile Include="Coop\ProtoInput\ProtoInputEnumsOptions.cs" />
@@ -312,6 +313,7 @@
     <Compile Include="Coop\GameOption.cs" />
     <Compile Include="Coop\GameOptionValue.cs" />
     <Compile Include="Coop\GameProfile.cs" />
+    <Compile Include="Coop\ProfileSettingsModel.cs" />
     <Compile Include="Coop\Generic\Cursor\CursorBarrier.cs" />
     <Compile Include="Coop\Generic\Cursor\CursorBarrierLower.cs" />
     <Compile Include="Coop\Generic\Cursor\CursorBarrierUpper.cs" />

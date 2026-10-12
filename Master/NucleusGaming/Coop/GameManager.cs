@@ -22,10 +22,17 @@ namespace Nucleus.Gaming
     {
         public static GameManager Instance { get; private set; }
 
+        /// <summary>
+        /// When false, loading the user profile does not start the per-game hub update checks (the web UI services run
+        /// their own and publish the results). True by default for the legacy UI.
+        /// </summary>
+        public static bool CheckUpdatesOnLoad { get; set; } = true;
+
         private List<BackupFile> backupFiles;
         private bool isSaving;
 
         private RawInputProcessor rawInputProcessor;
+        private static RawInputProcessor sharedRawInputProcessor;
         //private InputInterceptor inputInterceptor;
 
         /// object instance so we can thread-safe save the user profile
@@ -67,13 +74,20 @@ namespace Nucleus.Gaming
 
             //Subscribe to raw input
             //TODO: update isRunningSplitScreen
-            Debug.WriteLine("Registering raw input");
-            rawInputProcessor = new RawInputProcessor(() => LockInputRuntime.IsLocked);//TODO: needs more robust method
-                                                                                //Action<IntPtr> rawInputAction = rawInputProcessor.Process;
-                                                                                //GameManager.mainForm.GetType().GetProperty("RawInputAction").SetValue(GameManager.mainForm, rawInputAction, new object[] { });
-                                                                                //IntPtr rawInputHwnd = GameManager.mainFormHandle;
+            //Raw input is registered once per process: a new GameManager (handlers refresh) reuses the window and thread
+            //instead of starting a second one that steals the registration.
+            if (sharedRawInputProcessor == null)
+            {
+                Debug.WriteLine("Registering raw input");
+                sharedRawInputProcessor = new RawInputProcessor(() => LockInputRuntime.IsLocked);//TODO: needs more robust method
+                                                                                    //Action<IntPtr> rawInputAction = rawInputProcessor.Process;
+                                                                                    //GameManager.mainForm.GetType().GetProperty("RawInputAction").SetValue(GameManager.mainForm, rawInputAction, new object[] { });
+                                                                                    //IntPtr rawInputHwnd = GameManager.mainFormHandle;
 
-            RawInputManager.RegisterRawInput(rawInputProcessor);
+                RawInputManager.RegisterRawInput(sharedRawInputProcessor);
+            }
+
+            rawInputProcessor = sharedRawInputProcessor;
 
             Initialize();
             LoadUser();
@@ -602,7 +616,7 @@ namespace Nucleus.Gaming
                                         }
 
                                         //Check for handler update here so we check only for added games
-                                        if (user.Games[i].Game.MetaInfo.CheckUpdate)
+                                        if (CheckUpdatesOnLoad && user.Games[i].Game.MetaInfo.CheckUpdate)
                                         {
                                             var game = user.Games[i].Game;
 

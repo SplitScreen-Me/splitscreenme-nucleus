@@ -27,7 +27,33 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         public SetupScreenControl()
         {
             Instance = this;
+
+            GameProfile.CanPlayChanged += Profile_CanPlayChanged;
+            GameProfile.AssignmentChanged += Profile_AssignmentChanged;
+
             Initialize();
+        }
+
+        private void Profile_CanPlayChanged(bool canProceed, bool autoProceed)
+        {
+            if (!IsHandleCreated)
+            {
+                return;
+            }
+
+            if (InvokeRequired)
+            {
+                Invoke((MethodInvoker)delegate () { CanPlayUpdated(canProceed, autoProceed); });
+            }
+            else
+            {
+                CanPlayUpdated(canProceed, autoProceed);
+            }
+        }
+
+        private void Profile_AssignmentChanged()
+        {
+            Invalidate();
         }
 
         private void Initialize()
@@ -91,7 +117,13 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         protected override void Dispose(bool disposing)
         {
-            base.Dispose(disposing);     
+            if (disposing)
+            {
+                GameProfile.CanPlayChanged -= Profile_CanPlayChanged;
+                GameProfile.AssignmentChanged -= Profile_AssignmentChanged;
+            }
+
+            base.Dispose(disposing);
         }
 
         public override void Ended()
@@ -147,17 +179,15 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             e.Graphics.ResetClip();
 
+            //Profile matching and player identities (no drawing), shared with the headless setup service.
+            GameProfile.ProcessProfileAssignment(BoundsFunctions.Dragging);
+
             for (int i = 0; i < profile.DevicesList.Count; i++)
             {
                 PlayerInfo player = profile.DevicesList[i];
 
                 if (GameProfile.Loaded)
                 {
-                    if (!BoundsFunctions.Dragging)
-                    {
-                        GameProfile.FindProfilePlayers(player);
-                    }
-
                     Draw.GhostBounds(e.Graphics);
                 }
 
@@ -170,8 +200,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                 if (GameProfile.AssignedDevices.Contains(player))
                 {
-                    GameProfile.UpdateProfilePlayerIdentity(player);
-
                     if (BoundsFunctions.ShowGuestRemovelText != null && !BoundsFunctions.Dragging && !GameProfile.Loaded)
                     {
                         Draw.DrawGuestRemovalText(e.Graphics, BoundsFunctions.ShowGuestRemovelText);

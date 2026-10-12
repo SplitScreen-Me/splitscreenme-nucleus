@@ -31,6 +31,12 @@ namespace Nucleus.Gaming.Coop
         public InputType InputType;
         private object tag;
 
+        /// <summary>
+        /// Stable identity of the device this player was created from, for the headless setup services
+        /// (for example "dinput:{guid}", "xinput:2", "rawkb:{hid name}", "kb:single"). Set where the device is detected; null for profile templates.
+        /// </summary>
+        public string DeviceKey;
+
         public string IdealProcessor = "*";
         public string Affinity = "";
         public string PriorityClass = "Normal";
@@ -270,6 +276,12 @@ namespace Nucleus.Gaming.Coop
         #region Flash
         public bool ShouldFlash;
 
+        /// <summary>
+        /// Raised when <see cref="ShouldFlash"/> turns on (true) or off (false). Raised on the thread that detected the input
+        /// (polling timer, raw input thread) or on the thread pool for the "off" edge.
+        /// </summary>
+        public static event Action<PlayerInfo, bool> FlashChanged;
+
         private Stopwatch flashStopwatch = new Stopwatch();
         private Task flashTask = null;
 
@@ -277,13 +289,20 @@ namespace Nucleus.Gaming.Coop
         {
             if (ShouldFlash && flashStopwatch != null && flashStopwatch.IsRunning && flashStopwatch.ElapsedMilliseconds <= 250)
             {
-                return; 
+                return;
+            }
+
+            //Keyboards and mice are revealed by their first input (this used to happen only while painting the setup screen).
+            if (InputType == InputType.SingleKB || InputType == InputType.KB || InputType == InputType.Mouse || InputType == InputType.KBM)
+            {
+                IsInputUsed = true;
             }
 
             if (!ShouldFlash)
             {
                 ShouldFlash = true;
                 SetupScreenControl.InvalidateFlash(new Rectangle((int)editBounds.X, (int)editBounds.Y, (int)editBounds.Width, (int)editBounds.Height));
+                FlashChanged?.Invoke(this, true);
             }
 
             flashStopwatch.Restart();
@@ -301,6 +320,7 @@ namespace Nucleus.Gaming.Coop
 
                     ShouldFlash = false;
                     SetupScreenControl.InvalidateFlash(new Rectangle((int)editBounds.X, (int)editBounds.Y, (int)editBounds.Width, (int)editBounds.Height));
+                    FlashChanged?.Invoke(this, false);
                 });
 
                 flashTask.Start();

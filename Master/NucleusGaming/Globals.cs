@@ -9,7 +9,7 @@ namespace Nucleus.Gaming
 {
     public static class Globals
     {
-        public const string Version = "2.4.1";
+        public const string Version = "3.0.0-beta-2";
 
         public static readonly IniFile ini = new IniFile(Path.Combine(Directory.GetCurrentDirectory(), "Settings.ini"));
 

@@ -175,7 +175,8 @@ namespace Nucleus.Gaming.Coop.InputManagement
                     GamepadId = i++,
                     IsRawMouse = device.deviceInfo.dwType == 0,
                     IsRawKeyboard = device.deviceInfo.dwType == 1,
-                    HIDDeviceID = new string[] { device.deviceName, "" }
+                    HIDDeviceID = new string[] { device.deviceName, "" },
+                    DeviceKey = (device.deviceInfo.dwType == 0 ? "rawmouse:" : "rawkb:") + device.deviceName
                 };
 
                 if (player.IsRawMouse)
@@ -201,7 +202,8 @@ namespace Nucleus.Gaming.Coop.InputManagement
                     GamepadId = i++,
                     IsRawMouse = true,
                     IsRawKeyboard = false,
-                    HIDDeviceID = new string[] { "MouseHandleZero", "" }
+                    HIDDeviceID = new string[] { "MouseHandleZero", "" },
+                    DeviceKey = "virtual-mouse"
                 };
 
                 playerMouseZero.RawMouseDeviceHandle = IntPtr.Zero;
@@ -218,7 +220,8 @@ namespace Nucleus.Gaming.Coop.InputManagement
                     GamepadId = i++,
                     IsRawMouse = false,
                     IsRawKeyboard = true,
-                    HIDDeviceID = new string[] { "KeyboardHandleZero", "" }
+                    HIDDeviceID = new string[] { "KeyboardHandleZero", "" },
+                    DeviceKey = "virtual-kb"
                 };
 
                 playerKeyboardZero.RawKeyboardDeviceHandle = IntPtr.Zero;

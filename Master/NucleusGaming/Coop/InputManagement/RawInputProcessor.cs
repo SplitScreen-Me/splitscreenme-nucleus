@@ -431,7 +431,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
 
                     if(GlobalWindowMethods.ResetingWindows)
                     {
-                        Globals.MainOSD.Show(1200, "Wait For Game Windows To Be Reseted");
+                        Globals.MainOSD?.Show(1200, "Wait For Game Windows To Be Reseted");
                         return;
                     }
 
@@ -447,7 +447,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
                             GlobalWindowMethods.ChangeForegroundWindow();
                         }
 
-                        Globals.MainOSD.Show(800, "Inputs Locked");
+                        Globals.MainOSD?.Show(800, "Inputs Locked");
 
                         Thread.Sleep(850);
 
@@ -459,7 +459,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
                         
                         Thread.Sleep(300);
                         
-                        Globals.MainOSD.Show(800, "Inputs Unlocked");
+                        Globals.MainOSD?.Show(800, "Inputs Unlocked");
                     }
                 }
 

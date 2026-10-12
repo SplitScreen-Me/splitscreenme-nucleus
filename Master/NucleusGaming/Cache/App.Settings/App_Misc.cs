@@ -185,6 +185,18 @@ namespace Nucleus.Gaming.App.Settings
             }
         }
 
+        // Web UI host window: "x,y,width,height,maximized" in physical pixels, empty for the default placement.
+        private static string hostWindowPlacement;
+        public static string HostWindowPlacement
+        {
+            get => hostWindowPlacement;
+            set
+            {
+                hostWindowPlacement = value;
+                Globals.ini.IniWriteValue("Misc", "HostWindowPlacement", value);
+            }
+        }
+
         private static string autoSearchLocation;
         public static string AutoSearchLocation
         {
@@ -334,6 +346,7 @@ namespace Nucleus.Gaming.App.Settings
             disableGameProfiles = bool.Parse(Globals.ini.IniReadValue("Misc", "DisableGameProfiles"));
             windowSize = Globals.ini.IniReadValue("Misc", "WindowSize");
             windowLocation = Globals.ini.IniReadValue("Misc", "WindowLocation");
+            hostWindowPlacement = Globals.ini.IniReadValue("Misc", "HostWindowPlacement");
             autoSearchLocation = Globals.ini.IniReadValue("Misc", "AutoSearchLocation");
             settingsLocation = Globals.ini.IniReadValue("Misc", "SettingsLocation");
             profileSettingsLocation = Globals.ini.IniReadValue("Misc", "ProfileSettingsLocation");

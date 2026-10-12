@@ -17,7 +17,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 {
     //This should not rely on UI at all in the future
     public class DevicesFunctions
-    {     
+    {
         private static SynchronizationContext _syncContext;
         private static SetupScreenControl parent;
         private static UserGameInfo userGameInfo;
@@ -31,14 +31,44 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         private static System.Threading.Timer PollingTimer;
 
         internal static float playerSize;
-       
+
         internal static bool insideGamepadTick = false;
         public static bool isDisconnected;
 
         public static Action<SynchronizationContext, string> OnAssignedDeviceDisconnect;
 
+        /// <summary>
+        /// Raised when a placed device (or a guest) is unplugged, before it leaves the lists: (device, index of its player
+        /// in GameProfile.AssignedDevices, true for a guest).
+        /// </summary>
+        public static event Action<PlayerInfo, int, bool> AssignedDeviceLost;
+
+        /// <summary>
+        /// Headless hosts (no WinForms setup screen): posts an action to the thread that owns the setup state (the UI
+        /// thread), without waiting. When set, the device timers run their whole tick through it, so the device list is
+        /// only changed on that thread, and SDL is initialized on a helper thread so its refresh never blocks the UI.
+        /// Null (default) keeps the WinForms behaviour: ticks on timer threads, Control.Invoke to the setup screen.
+        /// </summary>
+        public static Action<Action> Dispatch;
+
+        /// <summary>Whether the setup step can proceed: every profile player matched, or at least one placed device.</summary>
+        public static bool CanProceed { get; private set; }
+
+        /// <summary>Raised after every device tick and every <see cref="UpdateDevices"/> (on the dispatcher thread when <see cref="Dispatch"/> is set).</summary>
+        public static event Action DevicesUpdated;
+
+        private static int gamepadTickQueued;
+        private static int pollingTickQueued;
+
+        //Headless mode only: SDL lives on its own message-pumping thread, and the ticks skip SDL while it refreshes.
+        private static readonly object sdlSync = new object();
+        private static SynchronizationContext sdlContext;
+
         public static void Initialize(SetupScreenControl _parent, UserGameInfo _userGameInfo, GameProfile _profile)
         {
+            //Initialize can run several times (each time the setup screen is shown): never leak the previous timers.
+            DisposeGamePadTimer();
+
             parent = _parent;
             userGameInfo = _userGameInfo;
             profile = _profile;
@@ -48,7 +78,19 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             UpdateDevices();
 
             DInputManager.Init(_syncContext);
-            SDLManager.InitSDL(_syncContext);
+
+            if (Dispatch != null)
+            {
+                if (!SDLManager.SDL_INITIALIZED)
+                {
+                    SynchronizationContext sdl = GetSdlContext();
+                    sdl.Post(_ => { lock (sdlSync) { SDLManager.InitSDL(sdl); } }, null);
+                }
+            }
+            else
+            {
+                SDLManager.InitSDL(_syncContext);
+            }
 
             GamepadTimer = new System.Threading.Timer(GamepadTimer_Tick, null, 0, 300);
             PollingTimer = new System.Threading.Timer(PollingTimer_Tick, null, 0, 150);
@@ -57,8 +99,51 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             GameProfile.OnUseXinputIndexChanged += UpdateUseGamepadApiIndex;
         }
 
+        /// <summary>A background STA thread with a message loop, where SDL is initialized and refreshed in headless mode.</summary>
+        private static SynchronizationContext GetSdlContext()
+        {
+            if (sdlContext != null)
+            {
+                return sdlContext;
+            }
+
+            using (ManualResetEventSlim ready = new ManualResetEventSlim())
+            {
+                Thread thread = new Thread(() =>
+                {
+                    WindowsFormsSynchronizationContext context = new WindowsFormsSynchronizationContext();
+                    SynchronizationContext.SetSynchronizationContext(context);
+                    sdlContext = context;
+                    ready.Set();
+                    Application.Run();
+                })
+                {
+                    IsBackground = true,
+                    Name = "Nucleus SDL"
+                };
+
+                thread.SetApartmentState(ApartmentState.STA);
+                thread.Start();
+                ready.Wait();
+            }
+
+            return sdlContext;
+        }
+
         private static void UpdateUseGamepadApiIndex()
-        {           
+        {
+            //The device objects are rebuilt below: drop the assignments pointing to the old ones so nothing stale is launched.
+            GameProfile.AssignedDevices.Clear();
+            GameProfile.DevicesToMerge.Clear();
+            GameProfile.TotalAssignedPlayers = 0;
+
+            UserScreen[] screens = BoundsFunctions.Screens;
+
+            for (int i = 0; i < screens?.Length; i++)
+            {
+                screens[i].PlayerOnScreen = 0;
+            }
+
             profile?.DevicesList.Clear();
             UpdateDevices();
         }
@@ -70,7 +155,40 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         /// <param name="RefreshSDL"></param>
         public static void RefreshSDL(SynchronizationContext syncContext)
         {
+            if (Dispatch != null)
+            {
+                //Runs on the SDL helper thread (syncContext is its context): the 1 s pause of the refresh doesn't block the UI.
+                lock (sdlSync)
+                {
+                    SDLManager.Refresh(syncContext);
+                }
+
+                return;
+            }
+
             SDLManager.Refresh(syncContext);
+        }
+
+        /// <summary>
+        /// Rescans SDL controllers. Headless mode: runs on the SDL helper thread and returns at once. WinForms mode: runs here.
+        /// </summary>
+        public static void RequestSdlRefresh()
+        {
+            if (Dispatch != null)
+            {
+                if (sdlContext != null)
+                {
+                    SynchronizationContext sdl = sdlContext;
+                    sdl.Post(_ => RefreshSDL(sdl), null);
+                }
+
+                return;
+            }
+
+            if (SDLManager.SDL_INITIALIZED)
+            {
+                RefreshSDL(_syncContext);
+            }
         }
 
         /// <summary>
@@ -84,6 +202,28 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         }
 
         public static void GamepadTimer_Tick(object state)
+        {
+            Action<Action> dispatch = Dispatch;
+
+            if (dispatch != null)
+            {
+                //Headless: the tick changes the device list, so it runs on the dispatcher. One tick queued at most.
+                if (Interlocked.Exchange(ref gamepadTickQueued, 1) == 0)
+                {
+                    dispatch(() =>
+                    {
+                        Interlocked.Exchange(ref gamepadTickQueued, 0);
+                        GamepadTick();
+                    });
+                }
+
+                return;
+            }
+
+            GamepadTick();
+        }
+
+        private static void GamepadTick()
         {
             if (insideGamepadTick || profile == null || GamepadTimer == null)
             {
@@ -134,6 +274,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         player.GamepadGuid = joystick.InstanceGuid;
                         player.GamepadName = joystick.InstanceName;
                         player.RawHID = joystick.InterfacePath;
+                        player.DeviceKey = "dinput:" + joystick.InstanceGuid.ToString("D");
 
                         int start = player.RawHID.IndexOf("hid#");
                         int end = player.RawHID.LastIndexOf("#{");
@@ -181,7 +322,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             {
                                 continue;
                             }
-           
+
                             //new gamepad
                             PlayerInfo player = new PlayerInfo
                             {
@@ -189,6 +330,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                 XInputJoystick = c,
                                 GamepadId = i,
                                 IsXInput = true,
+                                DeviceKey = "xinput:" + i,
                             };
 
                             if (GameProfile.UseXinputIndex)
@@ -206,57 +348,79 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                 if (g.Hook.SDL2Enabled)
                 {
-                    changed = CheckConnectedGamepads();
+                    //Headless: skip SDL while the helper thread refreshes it (the controller handles are being replaced).
+                    bool sdlLocked = Dispatch != null && !Monitor.TryEnter(sdlSync);
 
-                    for (int i = 0; i < SDLManager.SDL2DevicesList.Count; i++)
+                    if (!sdlLocked)
                     {
-                        SDL_GameController controller = SDLManager.SDL2DevicesList[i];
-
-                        if (controller == IntPtr.Zero || !SDLManager.IsConnected(controller))
+                        try
                         {
-                            changed = true;//do not move
-                            continue;
-                        }
+                            changed = CheckConnectedGamepads();
 
-                        if (CheckAssignedGamepads(i, controller))
-                        {
-                            continue;
-                        }
-
-                        SDL_DeviceInfo devInfo = GetSDL_DeviceInfo(controller);
-
-                        if (App_Misc.VGMOnly)
-                        {
-                            int vid = SDL2.JoystickGetDeviceVendor(i);
-
-                            if (!vid.ToString().StartsWith("202"))
+                            for (int i = 0; i < SDLManager.SDL2DevicesList.Count; i++)
                             {
-                                continue;
+                                SDL_GameController controller = SDLManager.SDL2DevicesList[i];
+
+                                if (controller == IntPtr.Zero || !SDLManager.IsConnected(controller))
+                                {
+                                    changed = true;//do not move
+                                    continue;
+                                }
+
+                                if (CheckAssignedGamepads(i, controller))
+                                {
+                                    continue;
+                                }
+
+                                SDL_DeviceInfo devInfo = GetSDL_DeviceInfo(controller);
+
+                                if (App_Misc.VGMOnly)
+                                {
+                                    int vid = SDL2.JoystickGetDeviceVendor(i);
+
+                                    if (!vid.ToString().StartsWith("202"))
+                                    {
+                                        continue;
+                                    }
+                                }
+
+                                PlayerInfo player = new PlayerInfo();
+
+                                player.HIDDeviceID = new string[] { "Not required", "Not required" };
+                                player.SDL2Joystick = controller;
+                                player.GamepadId = SDL2.SDL_GameControllerGetPlayerIndex(player.SDL2Joystick);
+                                player.DeviceKey = player.GamepadId >= 0 ? "sdl:" + player.GamepadId : "sdl:h" + ((IntPtr)controller).ToInt64().ToString("x");
+
+                                if (GameProfile.UseXinputIndex)
+                                {
+                                    string guid = player.GamepadId + 1 >= 10 ? $"00000000-0000-0000-0000-2000000000{player.GamepadId + 1}" : $"00000000-0000-0000-0000-20000000000{player.GamepadId + 1}";
+                                    player.GamepadGuid = new Guid(guid);
+                                    player.IsInputUsed = true;
+                                }
+
+                                player.IsSDL2 = true;
+                                data.Add(player);
+                                changed = true;
                             }
                         }
-
-                        PlayerInfo player = new PlayerInfo();
-
-                        player.HIDDeviceID = new string[] { "Not required", "Not required" };
-                        player.SDL2Joystick = controller;
-                        player.GamepadId = SDL2.SDL_GameControllerGetPlayerIndex(player.SDL2Joystick);
-
-                        if (GameProfile.UseXinputIndex)
+                        finally
                         {
-                            string guid = player.GamepadId + 1 >= 10 ? $"00000000-0000-0000-0000-2000000000{player.GamepadId + 1}" : $"00000000-0000-0000-0000-20000000000{player.GamepadId + 1}";
-                            player.GamepadGuid = new Guid(guid);
-                            player.IsInputUsed = true;
+                            if (Dispatch != null)
+                            {
+                                Monitor.Exit(sdlSync);
+                            }
                         }
-
-                        player.IsSDL2 = true;
-                        data.Add(player);
-                        changed = true;
                     }
                 }
 
                 if (changed)
                 {
-                    if (parent.InvokeRequired)
+                    if (Dispatch != null || parent == null)
+                    {
+                        //Headless: already on the thread that owns the device list.
+                        UpdateDevices();
+                    }
+                    else if (parent.InvokeRequired)
                     {
                         parent.Invoke(new MethodInvoker(UpdateDevices));
                         insideGamepadTick = false;
@@ -266,10 +430,12 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                 insideGamepadTick = false;
 
-                if (parent.IsHandleCreated)
+                if (parent != null && parent.IsHandleCreated)
                 {
                     parent?.Invoke(new Action(() => parent?.Invalidate(false)));
                 }
+
+                DevicesUpdated?.Invoke();
             }
             catch (Exception)
             {
@@ -280,6 +446,33 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         public static void PollingTimer_Tick(object state)
         {
+            Action<Action> dispatch = Dispatch;
+
+            if (dispatch != null)
+            {
+                if (Interlocked.Exchange(ref pollingTickQueued, 1) == 0)
+                {
+                    dispatch(() =>
+                    {
+                        Interlocked.Exchange(ref pollingTickQueued, 0);
+
+                        if (PollingTimer != null)
+                        {
+                            PollingTick();
+                        }
+                    });
+                }
+
+                return;
+            }
+
+            PollingTick();
+        }
+
+        private static void PollingTick()
+        {
+            bool sdlLocked = false;
+
             try
             {
                 for (int i = 0; i < profile?.DevicesList.Count; i++)
@@ -299,6 +492,16 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             if (XInputManager.Poll(player)) { player.FlashIcon(); }
                             break;
                         case InputType.SDL2:
+                            if (Dispatch != null && !sdlLocked)
+                            {
+                                if (!Monitor.TryEnter(sdlSync))
+                                {
+                                    break;//SDL is refreshing
+                                }
+
+                                sdlLocked = true;
+                            }
+
                             if (SDLManager.Poll(player)) { player.FlashIcon(); }
                             break;
                     }
@@ -307,6 +510,13 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             catch (Exception)
             {
                 return;
+            }
+            finally
+            {
+                if (sdlLocked)
+                {
+                    Monitor.Exit(sdlSync);
+                }
             }
         }
 
@@ -461,7 +671,15 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             if (GameProfile.AssignedDevices.Contains(player))
             {
-                BoundsFunctions.Screens[player.ScreenIndex].PlayerOnScreen--;
+                AssignedDeviceLost?.Invoke(player, GameProfile.AssignedDevices.IndexOf(player), false);
+
+                UserScreen[] screens = BoundsFunctions.Screens;
+
+                if (screens != null && player.ScreenIndex >= 0 && player.ScreenIndex < screens.Length)
+                {
+                    screens[player.ScreenIndex].PlayerOnScreen--;
+                }
+
                 GameProfile.TotalAssignedPlayers--;
                 GameProfile.AssignedDevices.Remove(player);
                 OnAssignedDeviceDisconnect?.Invoke(_syncContext, lostData);
@@ -471,7 +689,9 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             if (isGuestOf != null)
             {
-                lostData = $"{isGuestOf.Nickname} guest {player.GamepadId}|{player.InputType.ToString()}";
+                AssignedDeviceLost?.Invoke(player, GameProfile.AssignedDevices.IndexOf(isGuestOf), true);
+
+                lostData =$"{isGuestOf.Nickname} guest {player.GamepadId}|{player.InputType.ToString()}";
                 isGuestOf.InstanceGuests.Remove(player);
                 OnAssignedDeviceDisconnect?.Invoke(_syncContext, lostData);
             }
@@ -484,9 +704,14 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             GamepadTimer?.Dispose();
             GamepadTimer = null;
             PollingTimer?.Dispose();
+            PollingTimer = null;
         }
 
-        internal static void UpdateDevices()
+        /// <summary>Whether the device timers are running (between Initialize and DisposeGamePadTimer).</summary>
+        public static bool IsRunning => GamepadTimer != null;
+
+        /// <summary>Adds the keyboard devices if missing, recomputes <see cref="CanProceed"/> and the tray layout, notifies.</summary>
+        public static void UpdateDevices()
         {
             if (profile == null)
             {
@@ -496,13 +721,22 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             GenericGameInfo g = userGameInfo.Game;
             List<PlayerInfo> playerData = profile.DevicesList;
 
+            bool canProceed;
+
             if (GameProfile.Loaded)
             {
-                parent.canProceed = (GameProfile.TotalAssignedPlayers == GameProfile.TotalProfilePlayers);
+                canProceed = (GameProfile.TotalAssignedPlayers == GameProfile.TotalProfilePlayers);
             }
             else
             {
-                parent.canProceed = playerData.Count(c => c.ScreenIndex != -1) >= 1;
+                canProceed = playerData.Count(c => c.ScreenIndex != -1) >= 1;
+            }
+
+            CanProceed = canProceed;
+
+            if (parent != null)
+            {
+                parent.canProceed = canProceed;
             }
 
             if (playerData.Count == 0 || playerData.All(pl => !pl.IsRawKeyboard && !pl.IsRawMouse && !pl.IsKeyboardPlayer))
@@ -516,7 +750,8 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         GamepadId = 99,
                         IsInputUsed = true,
                         HIDDeviceID = new string[] { "Not required", "Not required" },
-                        GamepadGuid = new Guid("10000000-1000-1000-1000-100000000000")
+                        GamepadGuid = new Guid("10000000-1000-1000-1000-100000000000"),
+                        DeviceKey = "kb:single",
                     };
 
                     playerData.Add(kbPlayer);
@@ -543,7 +778,8 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             IsDInput = true,
                             IsFake = true,
                             IsInputUsed = true,
-                            HIDDeviceID = new string[] { "Not required", "Not required" }
+                            HIDDeviceID = new string[] { "Not required", "Not required" },
+                            DeviceKey = "fake:dinput:" + i,
                         };
 
                         playerData.Add(player);
@@ -568,7 +804,8 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             GamepadId = i,
                             IsFake = true,
                             IsInputUsed = true,
-                            HIDDeviceID = new string[] { "Not required", "Not required" }
+                            HIDDeviceID = new string[] { "Not required", "Not required" },
+                            DeviceKey = "fake:xinput:" + i,
                         };
 
                         playerData.Add(player);
@@ -594,7 +831,8 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             GamepadId = i,
                             IsFake = true,
                             IsInputUsed = true,
-                            HIDDeviceID = new string[] { "Not required", "Not required" }
+                            HIDDeviceID = new string[] { "Not required", "Not required" },
+                            DeviceKey = "fake:sdl:" + i,
                         };
 
                         playerData.Add(player);
@@ -612,7 +850,8 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     parent.Invalidate(false);
                 });
             }
-            
+
+            DevicesUpdated?.Invoke();
         }
     }
 }

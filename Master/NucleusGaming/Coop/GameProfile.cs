@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 
@@ -40,6 +41,35 @@ namespace Nucleus.Gaming.Coop
         public static Action OnReset;
         public static Action OnUseXinputIndexChanged;
         public static Action OnReadyAutoPlayTrigger;
+
+        /// <summary>
+        /// Raised when the setup step validity changes from the profile code: (canProceed, autoProceed), same meaning as
+        /// UserInputControl.CanPlayUpdated. The WinForms setup screen forwards it to its own CanPlayUpdated.
+        /// </summary>
+        public static event Action<bool, bool> CanPlayChanged;
+
+        /// <summary>Raised when the profile matching assigns a device (the WinForms setup screen repaints).</summary>
+        public static event Action AssignmentChanged;
+
+        public enum NoticeKind { Info, Error }
+
+        /// <summary>
+        /// Shows a message from the profile code: (kind, title, text, durationMs). Default: the on-screen display for
+        /// <see cref="NoticeKind.Info"/>, a NucleusMessageBox for <see cref="NoticeKind.Error"/>. A host can wrap or replace it.
+        /// </summary>
+        public static Action<NoticeKind, string, string, int> Notify = DefaultNotify;
+
+        private static void DefaultNotify(NoticeKind kind, string title, string text, int durationMs)
+        {
+            if (kind == NoticeKind.Error)
+            {
+                NucleusMessageBox.Show(title ?? "", text, false);
+            }
+            else
+            {
+                Globals.MainOSD?.Show(durationMs, text);
+            }
+        }
 
         public static int TotalAssignedPlayers;//K&m player will count as one only if 2 devices(keyboard & mouse) do share the same bounds.
 
@@ -281,6 +311,12 @@ namespace Nucleus.Gaming.Coop
 
         public static void InitializeHandlerStartup()
         {
+            InitializeHandlerStartup(null);
+        }
+
+        /// <param name="onEnded">Subscribed to the handler's Ended event before the handler starts, so no end can be missed.</param>
+        public static void InitializeHandlerStartup(Action onEnded)
+        {
             DevicesFunctions.DisposeGamePadTimer();
 
             //reload the handler here so it can be edited/updated until play button get clicked
@@ -290,7 +326,50 @@ namespace Nucleus.Gaming.Coop
             GameInfo.InitializeDefault(Current_GenericGameInfo,GameInfo.ExePath);
 
             I_GameHandler = GameManager.Instance.MakeHandler(Current_GenericGameInfo);
+
+            if (onEnded != null)
+            {
+                I_GameHandler.Ended += onEnded;
+            }
+
             I_GameHandler.Initialize(GameInfo,CleanClone(Instance), I_GameHandler);
+        }
+
+        /// <summary>
+        /// Runs the profile matching and the player identity update for every detected device. This used to run only
+        /// inside the setup screen's OnPaint; the WinForms setup screen and the headless setup service both call it.
+        /// </summary>
+        /// <param name="dragging">True while the user drags a device (matching is paused).</param>
+        public static void ProcessProfileAssignment(bool dragging)
+        {
+            if (Instance?.deviceList == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < Instance.DevicesList.Count; i++)
+            {
+                PlayerInfo player = Instance.DevicesList[i];
+
+                if (Loaded && !dragging)
+                {
+                    FindProfilePlayers(player);
+                }
+
+                if (AssignedDevices.Contains(player))
+                {
+                    UpdateProfilePlayerIdentity(player);
+                }
+            }
+        }
+
+        /// <summary>Copies the current setup screens (BoundsFunctions.Screens) into this profile.</summary>
+        public void SyncScreens()
+        {
+            if (BoundsFunctions.Screens != null)
+            {
+                screens = BoundsFunctions.Screens.ToList();
+            }
         }
 
         private void ListGameProfiles()
@@ -308,16 +387,8 @@ namespace Nucleus.Gaming.Coop
         }
 
         public virtual void Reset()
-        {            
-            SetupScreenControl setupScreen = SetupScreenControl.Instance;
-
-            if (setupScreen != null && setupScreen.IsHandleCreated)
-            {
-                setupScreen.Invoke((MethodInvoker)delegate ()
-                {
-                    setupScreen.CanPlayUpdated(false, false);
-                });
-            }
+        {
+            CanPlayChanged?.Invoke(false, false);
 
             bool profileDisabled = App_Misc.DisableGameProfiles;
 
@@ -353,7 +424,7 @@ namespace Nucleus.Gaming.Coop
             {
                 TotalAssignedPlayers = 0;
 
-                if(SetupScreenControl.Instance != null)
+                if (BoundsFunctions.IsInitialized)//the WinForms setup screen or the headless setup service initialized the screens
                 {
                     BoundsFunctions.RefreshScreens();
                 }
@@ -397,12 +468,9 @@ namespace Nucleus.Gaming.Coop
                 }
             }
 
-            if (SetupScreenControl.Instance != null)
+            if (BoundsFunctions.IsInitialized)
             {
-                if (BoundsFunctions.Screens != null)
-                {
-                    screens = BoundsFunctions.Screens.ToList();
-                }
+                SyncScreens();
             }
         }
 
@@ -684,7 +752,7 @@ namespace Nucleus.Gaming.Coop
 
                 GetGhostBounds();
 
-                Globals.MainOSD.Show(1000, Title != "" ? $"Handler Profile \"{Title}\" Loaded" : $"Handler Profile N°{_profileToLoad} Loaded");
+                Notify(NoticeKind.Info, null, Title != "" ? $"Handler Profile \"{Title}\" Loaded" : $"Handler Profile N°{_profileToLoad} Loaded", 1000);
 
                 return true;
 
@@ -692,9 +760,9 @@ namespace Nucleus.Gaming.Coop
             catch (Exception ex)
             {
                 Reset();
-                NucleusMessageBox.Show("", "The profile can't be loaded.\n\n" +
+                Notify(NoticeKind.Error, "", "The profile can't be loaded.\n\n" +
                     "If the error persist delete the profile and create a new one.\n\n" +
-                    "[Error]\n\n" + ex.Message, false);
+                    "[Error]\n\n" + ex.Message, 0);
 
                 return false;
             }
@@ -709,6 +777,83 @@ namespace Nucleus.Gaming.Coop
             }
 
             return path;
+        }
+
+        private static readonly Regex profileFileName = new Regex(@"^Profile\[(\d+)\]\.json$", RegexOptions.IgnoreCase);
+
+        /// <summary>
+        /// Saved profiles of the current game (<see cref="GameInfo"/>), ordered by id (N in Profile[N].json).
+        /// The JSON is null when the file can't be read or parsed.
+        /// </summary>
+        public static List<KeyValuePair<int, JObject>> ReadProfiles()
+        {
+            List<KeyValuePair<int, JObject>> profiles = new List<KeyValuePair<int, JObject>>();
+            string path = GetGameProfilesPath();
+
+            if (path == null)
+            {
+                return profiles;
+            }
+
+            foreach (string file in Directory.EnumerateFiles(path))
+            {
+                Match match = profileFileName.Match(Path.GetFileName(file));
+
+                if (!match.Success)
+                {
+                    continue;
+                }
+
+                JObject json = null;
+
+                try
+                {
+                    json = JsonConvert.DeserializeObject(File.ReadAllText(file)) as JObject;
+                }
+                catch
+                {
+                }
+
+                profiles.Add(new KeyValuePair<int, JObject>(int.Parse(match.Groups[1].Value), json));
+            }
+
+            return profiles.OrderBy(p => p.Key).ToList();
+        }
+
+        /// <summary>
+        /// Deletes Profile[id].json of the current game, renumbers the following profiles so the files stay
+        /// Profile[1..n] (new profiles are saved as n+1), then resets the setup. Moved from the WinForms profiles list.
+        /// </summary>
+        /// <returns>False when the profile does not exist.</returns>
+        public static bool DeleteProfile(int profileId)
+        {
+            string path = GetGameProfilesPath();
+            string file = path == null ? null : Path.Combine(path, $"Profile[{profileId}].json");
+
+            if (file == null || !File.Exists(file))
+            {
+                return false;
+            }
+
+            File.Delete(file);
+
+            List<FileInfo> profilesPath = new DirectoryInfo(path).EnumerateFiles()
+                                          .Where(f => profileFileName.IsMatch(f.Name))
+                                          .OrderBy(f => int.Parse(profileFileName.Match(f.Name).Groups[1].Value)).ToList();
+
+            for (int i = 0; i < profilesPath.Count; i++)
+            {
+                if (profilesPath[i].Name == $"Profile[{i + 1}].json")
+                {
+                    continue;
+                }
+
+                File.Move(profilesPath[i].FullName, Path.Combine(path, $"Profile[{i + 1}].json"));
+            }
+
+            Instance?.Reset();
+
+            return true;
         }
 
         public static void UpdateGameProfile(GameProfile profile)
@@ -938,7 +1083,7 @@ namespace Nucleus.Gaming.Coop
 
             Updating = true;
 
-            Globals.MainOSD.Show(1500, Title != "" ? $"Handler Profile \"{Title}\" Updated" : $"Handler Profile N°{profileToSave} Updated");
+            Notify(NoticeKind.Info, null, Title != "" ? $"Handler Profile \"{Title}\" Updated" : $"Handler Profile N°{profileToSave} Updated", 1500);
         }
 
         public static void SaveGameProfile(GameProfile profile)
@@ -949,7 +1094,7 @@ namespace Nucleus.Gaming.Coop
             if (profileDisabled || GameInfo.Game.MetaInfo.DisableProfiles || !GameInfo.Game.MetaInfo.SaveProfile)
             {
                 saved = true;
-                Globals.MainOSD.Show(1600, $"Setup Finished");
+                Notify(NoticeKind.Info, null, $"Setup Finished", 1600);
                 return;
             }
 
@@ -1192,7 +1337,7 @@ namespace Nucleus.Gaming.Coop
 
             LogManager.Log("Handler Profile Saved");
 
-            Globals.MainOSD.Show(1600, $"Handler Profile Saved. Setup Finished");
+            Notify(NoticeKind.Info, null, $"Handler Profile Saved. Setup Finished", 1600);
         }
 
         public static void FindProfilePlayers(PlayerInfo player)
@@ -1227,7 +1372,7 @@ namespace Nucleus.Gaming.Coop
                 if (TotalAssignedPlayers < 0 && !showError)
                 {
                     showError = true;
-                    NucleusMessageBox.Show("error", "Oops!\nSomething went wrong, profile has been unloaded.", false);
+                    Notify(NoticeKind.Error, "error", "Oops!\nSomething went wrong, profile has been unloaded.", 0);
                     return;
                 }
             }
@@ -1252,7 +1397,7 @@ namespace Nucleus.Gaming.Coop
                 if (ProfilePlayersList.Any(pp => pp.ScreenIndex != profilePlayer.ScreenIndex) && scr.Item2 != profilePlayer.ScreenIndex)
                 {
                     Instance.Reset();
-                    Globals.MainOSD.Show(2000, $"Not Enough Active Screens");
+                    Notify(NoticeKind.Info, null, $"Not Enough Active Screens", 2000);
                     scr.Item1.Type = UserScreenType.FullScreen;
                     return;
                 }
@@ -1266,7 +1411,7 @@ namespace Nucleus.Gaming.Coop
                     scr.Item1.PlayerOnScreen++;
                     TotalAssignedPlayers++;
 
-                    SetupScreenControl.Instance?.Invalidate();
+                    AssignmentChanged?.Invoke();
                 }
 
                 return;
@@ -1274,7 +1419,7 @@ namespace Nucleus.Gaming.Coop
 
             if (!FindPlayersInstanceGuests())
             {
-                SetupScreenControl.Instance?.CanPlayUpdated(false, false);
+                CanPlayChanged?.Invoke(false, false);
                 return;
             }
             else//So in case of mistake(user want to switch some guest controllers) they don't get automatically reassigned.
@@ -1284,7 +1429,7 @@ namespace Nucleus.Gaming.Coop
 
             if (TotalAssignedPlayers == TotalProfilePlayers && Ready && AutoPlay && !Updating)
             {
-                SetupScreenControl.Instance?.CanPlayUpdated(true, true);
+                CanPlayChanged?.Invoke(true, true);
                 OnReadyAutoPlayTrigger?.Invoke();
                 Ready = false;
                 return;
@@ -1294,7 +1439,7 @@ namespace Nucleus.Gaming.Coop
             {
                 if (Ready && (!AutoPlay || Updating))
                 {
-                    SetupScreenControl.Instance?.CanPlayUpdated(true, true);
+                    CanPlayChanged?.Invoke(true, true);
                     return;
                 }
             }
@@ -1638,7 +1783,8 @@ namespace Nucleus.Gaming.Coop
             }
         }
 
-        private void RefreshKeyboardAndMouse()
+        /// <summary>Rebuilds the raw keyboards and mice of the device list. Unassign them first: the old objects are dropped.</summary>
+        public void RefreshKeyboardAndMouse()
         {
             DevicesList.RemoveAll(p => p.IsRawMouse || p.IsRawKeyboard);
 
@@ -1655,13 +1801,27 @@ namespace Nucleus.Gaming.Coop
 
         internal static (UserScreen, int) FindScreenOrAlternative(PlayerInfo profilePlayer)
         {
-            UserScreen screen = BoundsFunctions.Screens.ElementAtOrDefault(profilePlayer.ScreenIndex);
+            UserScreen[] allScreens = BoundsFunctions.Screens;
+
+            //Without screens the search below would never end.
+            if (allScreens == null || allScreens.Length == 0)
+            {
+                throw new InvalidOperationException("No screen is available to place the profile players.");
+            }
+
+            UserScreen screen = allScreens.ElementAtOrDefault(profilePlayer.ScreenIndex);
             int ogIndex = profilePlayer.ScreenIndex;
 
             while (screen == null)
             {
                 --ogIndex;
-                screen = BoundsFunctions.Screens.ElementAtOrDefault(ogIndex);
+
+                if (ogIndex < 0)//invalid saved index
+                {
+                    ogIndex = 0;
+                }
+
+                screen = allScreens.ElementAtOrDefault(ogIndex);
             }
 
             screen.Type = (UserScreenType)profilePlayer.OwnerType;
@@ -1786,6 +1946,11 @@ namespace Nucleus.Gaming.Coop
 
             int playerIndex = AssignedDevices.FindIndex(pl => pl == player);
 
+            if (playerIndex < 0 || playerIndex >= Globals.NucleusMaxPlayers)//not assigned, or beyond the identity slots
+            {
+                return;
+            }
+
             bool getIdFromProfile = ProfilePlayersList.Count() > 0 && ProfilePlayersList.Count() > playerIndex && !GameInfo.Game.MetaInfo.DisableProfiles;
 
             player.Nickname = getIdFromProfile ? ProfilePlayersList[playerIndex].Nickname :
@@ -1799,10 +1964,12 @@ namespace Nucleus.Gaming.Coop
 
             string steamID = string.Empty;
 
+            bool hasHandlerSteamId = Game.UseHandlerSteamIds && Game.PlayerSteamIDs != null && playerIndex < Game.PlayerSteamIDs.Length;
+
             if (getIdFromProfile)//get profile value
             {
-                if (Game.UseHandlerSteamIds)//get custom handler value anyway if Game.UseHandlerSteamIds 
-                {                
+                if (hasHandlerSteamId)//get custom handler value anyway if Game.UseHandlerSteamIds
+                {
                     steamID = Game.PlayerSteamIDs[playerIndex];
                 }
                 else
@@ -1810,7 +1977,7 @@ namespace Nucleus.Gaming.Coop
                     steamID = ProfilePlayersList[playerIndex].SteamID.ToString();
                 }
             }
-            else if(Game.UseHandlerSteamIds)//get custom handler value if Game.UseHandlerSteamIds
+            else if(hasHandlerSteamId)//get custom handler value if Game.UseHandlerSteamIds
             {
                 steamID = Game.PlayerSteamIDs[playerIndex];
             }
@@ -1819,7 +1986,13 @@ namespace Nucleus.Gaming.Coop
                 steamID = PlayersIdentityCache.GetSteamIdAt(playerIndex);
             }
 
-            player.SteamID = long.Parse(steamID);
+            //A missing or invalid value falls back to the user (ini) value, which itself falls back to the default id.
+            if (!long.TryParse(steamID, out long parsedSteamId))
+            {
+                long.TryParse(PlayersIdentityCache.GetSteamIdAt(playerIndex), out parsedSteamId);
+            }
+
+            player.SteamID = parsedSteamId;
 
             if (secondInBounds != null)//mkb
             {

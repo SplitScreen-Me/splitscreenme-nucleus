@@ -87,8 +87,25 @@ public class WPF_OSD : Window
         UpdateLayout();
     }
 
+    /// <summary>
+    /// Raised for every message of the main on-screen display (not its per-screen copies): (durationMs, text).
+    /// Raised on the calling thread, before the message is shown. No subscriber by default.
+    /// </summary>
+    public static event Action<int, string> MessageShown;
+
     public void Show(int timing, string text)
     {
+        if (!(this is WPF_OSD_Child))
+        {
+            try
+            {
+                MessageShown?.Invoke(timing, text);
+            }
+            catch
+            {
+            }
+        }
+
         try
         {
             this.Dispatcher.Invoke(new Action(() =>

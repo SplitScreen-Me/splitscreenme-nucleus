@@ -50,21 +50,32 @@ namespace Nucleus.Gaming.Coop.InputManagement
             return mod;
         }
 
+        // Digits must map to Keys.D0-D9: Enum.Parse(typeof(Keys), "1") returns (Keys)1, the left mouse button.
+        private static int GetKey(string key)
+        {
+            if (key != null && key.Length == 1 && key[0] >= '0' && key[0] <= '9')
+            {
+                return (int)Keys.D0 + (key[0] - '0');
+            }
+
+            return (int)Enum.Parse(typeof(Keys), key);
+        }
+
         public static void RegHotkeys(IntPtr _formHandle)
         {
             formHandle = _formHandle;
 
             try
             {
-                User32Interop.RegisterHotKey(_formHandle, KillProcess_HotkeyID, GetMod(App_Hotkeys.CloseApp[0]), (int)Enum.Parse(typeof(Keys), App_Hotkeys.CloseApp[1]));
-                User32Interop.RegisterHotKey(_formHandle, TopMost_HotkeyID, GetMod(App_Hotkeys.TopMost[0]), (int)Enum.Parse(typeof(Keys), App_Hotkeys.TopMost[1]));
-                User32Interop.RegisterHotKey(_formHandle, StopSession_HotkeyID, GetMod(App_Hotkeys.StopSession[0]), (int)Enum.Parse(typeof(Keys), App_Hotkeys.StopSession[1]));
-                User32Interop.RegisterHotKey(_formHandle, SetFocus_HotkeyID, GetMod(App_Hotkeys.SetFocus[0]), (int)Enum.Parse(typeof(Keys), App_Hotkeys.SetFocus[1]));
-                User32Interop.RegisterHotKey(_formHandle, ResetWindows_HotkeyID, GetMod(App_Hotkeys.ResetWindows[0]), (int)Enum.Parse(typeof(Keys), App_Hotkeys.ResetWindows[1]));
-                User32Interop.RegisterHotKey(_formHandle, Cutscenes_HotkeyID, GetMod(App_Hotkeys.CutscenesMode[0]), (int)Enum.Parse(typeof(Keys), App_Hotkeys.CutscenesMode[1]));
-                User32Interop.RegisterHotKey(_formHandle, Switch_HotkeyID, GetMod(App_Hotkeys.SwitchLayout[0]), (int)Enum.Parse(typeof(Keys), App_Hotkeys.SwitchLayout[1]));
-                User32Interop.RegisterHotKey(_formHandle, Reminder_HotkeyID, GetMod(App_Hotkeys.ShortcutsReminder[0]), (int)Enum.Parse(typeof(Keys), App_Hotkeys.ShortcutsReminder[1]));
-                User32Interop.RegisterHotKey(_formHandle, MergerFocusSwitch_HotkeyID, GetMod(App_Hotkeys.SwitchMergerForeGroundChild[0]), (int)Enum.Parse(typeof(Keys), App_Hotkeys.SwitchMergerForeGroundChild[1]));
+                User32Interop.RegisterHotKey(_formHandle, KillProcess_HotkeyID, GetMod(App_Hotkeys.CloseApp[0]), GetKey(App_Hotkeys.CloseApp[1]));
+                User32Interop.RegisterHotKey(_formHandle, TopMost_HotkeyID, GetMod(App_Hotkeys.TopMost[0]), GetKey(App_Hotkeys.TopMost[1]));
+                User32Interop.RegisterHotKey(_formHandle, StopSession_HotkeyID, GetMod(App_Hotkeys.StopSession[0]), GetKey(App_Hotkeys.StopSession[1]));
+                User32Interop.RegisterHotKey(_formHandle, SetFocus_HotkeyID, GetMod(App_Hotkeys.SetFocus[0]), GetKey(App_Hotkeys.SetFocus[1]));
+                User32Interop.RegisterHotKey(_formHandle, ResetWindows_HotkeyID, GetMod(App_Hotkeys.ResetWindows[0]), GetKey(App_Hotkeys.ResetWindows[1]));
+                User32Interop.RegisterHotKey(_formHandle, Cutscenes_HotkeyID, GetMod(App_Hotkeys.CutscenesMode[0]), GetKey(App_Hotkeys.CutscenesMode[1]));
+                User32Interop.RegisterHotKey(_formHandle, Switch_HotkeyID, GetMod(App_Hotkeys.SwitchLayout[0]), GetKey(App_Hotkeys.SwitchLayout[1]));
+                User32Interop.RegisterHotKey(_formHandle, Reminder_HotkeyID, GetMod(App_Hotkeys.ShortcutsReminder[0]), GetKey(App_Hotkeys.ShortcutsReminder[1]));
+                User32Interop.RegisterHotKey(_formHandle, MergerFocusSwitch_HotkeyID, GetMod(App_Hotkeys.SwitchMergerForeGroundChild[0]), GetKey(App_Hotkeys.SwitchMergerForeGroundChild[1]));
             }
             catch (Exception ex)
             {

@@ -40,10 +40,19 @@ namespace Nucleus.Gaming
             }
         }
 
-
-        private static void CleanContentFolder(GenericGameInfo currentGameInfo, string path)
+        /// <summary>
+        /// Same as <c>CleanContentFolder(game, false)</c> (kills the game's leftover processes, then deletes its content
+        /// folder in the background) but returns the task, so callers know when the folder is gone.
+        /// </summary>
+        public static System.Threading.Tasks.Task CleanContentFolderAsync(GenericGameInfo currentGameInfo)
         {
-            System.Threading.Tasks.Task.Run(() =>
+            string path = currentGameInfo.Content_Folder;
+            return Directory.Exists(path) ? CleanContentFolder(currentGameInfo, path) : System.Threading.Tasks.Task.CompletedTask;
+        }
+
+        private static System.Threading.Tasks.Task CleanContentFolder(GenericGameInfo currentGameInfo, string path)
+        {
+            return System.Threading.Tasks.Task.Run(() =>
             {
                 try
                 {

@@ -25,6 +25,13 @@ namespace Nucleus.Gaming.Coop
         private ulong intervale = 20000;//milliseconds
         private bool stopped;
 
+        // metaInfo.json is shared by every game and rewritten whole by each setter, from the UI thread, the
+        // gameplay timer thread and background tasks: serialize every read-modify-write.
+        private static readonly object metaInfoFileLock = new object();
+
+        /// <summary>Raised (on the thread that saved) after metaInfo.json was written for a game. Argument: game GUID.</summary>
+        public static event Action<string> Saved;
+
         private GenericGameInfo gen;
         private string gameGuid;
 
@@ -33,8 +40,14 @@ namespace Nucleus.Gaming.Coop
 
         public string LastPlayedAtFull => GetLastPlayedFull();
 
+        /// <summary>Last session start as stored (DateTime.Now.ToString() of the culture at that time), or null.</summary>
+        public string LastPlayedAtRaw => lastPlayedAt;
+
         private string totalPlayTime;
         public string TotalPlayTime => FormatPlayTime();
+
+        /// <summary>Total play time in seconds as stored, or null when never played.</summary>
+        public string TotalPlayTimeRaw => totalPlayTime;
 
         private string iconPath;
         public string IconPath
@@ -174,7 +187,11 @@ namespace Nucleus.Gaming.Coop
 
                 if (File.Exists(path))
                 {
-                    string jsonString = File.ReadAllText(path);
+                    string jsonString;
+                    lock (metaInfoFileLock)
+                    {
+                        jsonString = File.ReadAllText(path);
+                    }
 
                     JObject JMetaInfo = (JObject)JsonConvert.DeserializeObject(jsonString);
 
@@ -197,21 +214,23 @@ namespace Nucleus.Gaming.Coop
                         steamLanguage = (string)JMetaInfo[gameGuid]["SteamLanguage"] ?? "App Setting";
                         return;
                     }
-
-                    totalPlayTime = null;
-                    lastPlayedAt = null;
-                    iconPath = null;
-                    saveProfile = true;
-                    disableProfiles = false;
-                    keepSymLink = false;
-                    favorite = false;
-                    firstLaunch = true;
-                    checkUpdate = true;
-                    useApiIndex = App_Misc.UseXinputIndex;
-                    useApiIndexForGuests = useApiIndex;
-                    profileAssignGamepadByButonPress = App_Misc.ProfileAssignGamepadByButonPress;
-                    steamLanguage = "App Setting";
                 }
+
+                // New game, or first run without metaInfo.json: start from the defaults (the first run used to
+                // save the C# field defaults, e.g. CheckUpdate=false, for the first handler loaded).
+                totalPlayTime = null;
+                lastPlayedAt = null;
+                iconPath = null;
+                saveProfile = true;
+                disableProfiles = false;
+                keepSymLink = false;
+                favorite = false;
+                firstLaunch = true;
+                checkUpdate = true;
+                useApiIndex = App_Misc.UseXinputIndex;
+                useApiIndexForGuests = useApiIndex;
+                profileAssignGamepadByButonPress = App_Misc.ProfileAssignGamepadByButonPress;
+                steamLanguage = "App Setting";
 
                 SaveGameMetaInfo();
             }
@@ -222,6 +241,27 @@ namespace Nucleus.Gaming.Coop
         }
 
         public void SaveGameMetaInfo()
+        {
+            bool saved = false;
+
+            lock (metaInfoFileLock)
+            {
+                saved = WriteGameMetaInfo();
+            }
+
+            if (saved)
+            {
+                try
+                {
+                    Saved?.Invoke(gameGuid);
+                }
+                catch
+                {
+                }
+            }
+        }
+
+        private bool WriteGameMetaInfo()
         {
             try
             {
@@ -307,21 +347,21 @@ namespace Nucleus.Gaming.Coop
                         stream.Flush();
                     }
                 }
+
+                return true;
             }
             catch
             {
-
+                return false;
             }
         }
 
         private string FormatPlayTime()
         {
-            if (totalPlayTime == null)
+            if (totalPlayTime == null || !ulong.TryParse(totalPlayTime, out ulong totalSeconds))
             {
                 return "...";// 00h:00m:00s";
             }
-
-            ulong totalSeconds = ulong.Parse(totalPlayTime);
 
             ulong seconds = totalSeconds % 60;
             ulong minutes = (totalSeconds / 60) % 60;
@@ -369,13 +409,13 @@ namespace Nucleus.Gaming.Coop
             {
                 Thread.Sleep((int)intervale);
 
-                if (totalPlayTime == null)
+                if (totalPlayTime == null || !ulong.TryParse(totalPlayTime, out ulong previousSeconds))
                 {
                     totalPlayTime = (intervale / 1000).ToString();//seconds
                 }
                 else
                 {
-                    totalPlayTime = (intervale / 1000 + ulong.Parse(totalPlayTime)).ToString();//seconds
+                    totalPlayTime = (intervale / 1000 + previousSeconds).ToString();//seconds
                 }
 
                 SaveGameMetaInfo();

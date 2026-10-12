@@ -245,6 +245,8 @@ namespace Nucleus.Gaming
             catch (Exception ex)
             {
                 error = ex.Message;
+                //LogExceptionFile only writes content\app.log and a content\<date>.log report: also put it in debug-log.txt.
+                Log($"ERROR - Play failed: {ex}");
                 TaskbarState.Show.Invoke();
 
                 try
@@ -3610,8 +3612,17 @@ namespace Nucleus.Gaming
         {
         }
 
+        /// <summary>Receives every handler log line (any thread), for example to show the launch log in the UI. Null by default.</summary>
+        public static Action<string> LogHook;
+
         public void Log(string logMessage)
         {
+            try
+            {
+                LogHook?.Invoke(logMessage);
+            }
+            catch { }
+
             try
             {
                 if (App_Misc.DebugLog)
