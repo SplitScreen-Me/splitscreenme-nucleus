@@ -14,7 +14,8 @@ import { nicknameProblem, rangeProblem, steamIdProblem } from './validation.ts';
 const TITLE_MAX = 32;
 const NOTES_MAX = 500;
 const PROCESSOR_COUNT = 16;
-const PRIORITY_CLASSES = ['Idle', 'BelowNormal', 'Normal', 'AboveNormal', 'High', 'RealTime'];
+/** The process priorities the host accepts (ProfileSettingsModel.PriorityClasses). */
+const PRIORITY_CLASSES = ['Normal', 'AboveNormal', 'High', 'RealTime'];
 
 /** Per-player settings of a new profile: the global nickname, Steam ID and audio output of that player number. */
 function defaultSlot(settings: Record<string, string>, players: PlayerIdentities, index: number): ProfileSlot {
@@ -57,7 +58,6 @@ export function defaultProfileSettings(
     cutscenesKeepAspectRatio: flag('customLayout.ctsKeepAspectRatio'),
     cutscenesMuteAudioOnly: flag('customLayout.ctsMuteAudioOnly'),
     cutscenesUnfocus: flag('customLayout.ctsUnfocus'),
-    stopUiNavigation: false,
     windowsMerger: flag('customLayout.windowsMerger'),
     losslessHook: flag('customLayout.losslessHook'),
     mergerResolution: settings['customLayout.windowsMergerRes'] ?? '',
@@ -161,6 +161,6 @@ function slotErrors(slot: ProfileSlot, index: number): ValidationError[] {
     ['audioDevice', isChoice(AUDIO_OUTPUTS, slot.audioDevice) ? undefined : 'Pick an audio output from the list.'],
   ];
   return problems.flatMap(([field, message]) =>
-    message ? [{ field: `slots.${field}`, index, message: `Player ${index + 1}: ${message}` }] : [],
+    message ? [{ field: `slots.${field}`, index, message }] : [],
   );
 }

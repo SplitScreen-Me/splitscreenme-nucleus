@@ -19,7 +19,24 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
         }
     }
 
-    /// <summary>How a button press identified (revealed) an XInput pad.</summary>
+    /// <summary>
+    /// What the API that saw the press knows about the pad, to tell its DirectInput view apart from the others. XInput
+    /// knows nothing (<see cref="GamepadIdentity.XInputPad"/>); SDL gives the device path and the USB ids.
+    /// </summary>
+    public struct PadHint
+    {
+        /// <summary>Device path (SDL: HIDAPI or raw input path, the same as the DirectInput interface path), or null.</summary>
+        public string Path;
+
+        /// <summary>USB vendor and product ids, 0 when unknown.</summary>
+        public ushort VendorId;
+        public ushort ProductId;
+
+        /// <summary>The pad is an XInput device: when several devices saw the press, its "IG_" view is the likely one.</summary>
+        public bool PreferXInputViews;
+    }
+
+    /// <summary>How a button press identified (revealed) an XInput or SDL pad.</summary>
     public enum IdentifyResult
     {
         /// <summary>The press matched exactly one DirectInput device: the pad got its GUID and HID path.</summary>
@@ -33,13 +50,16 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
     }
 
     /// <summary>
-    /// Rules that turn a button press on an XInput pad into an identified (revealed) setup device. Without the
+    /// Rules that turn a button press on an XInput or SDL pad into an identified (revealed) setup device. Without the
     /// "identify gamepads by slot" mode, the pad used to be revealed only when exactly one DirectInput device reported a
     /// button at the same moment, so a pad was never usable when DirectInput saw the press twice (DS4Windows/ViGEm,
     /// Steam Input, a stuck button) or not at all (D-pad, hidden device). Pure: unit tested without devices.
     /// </summary>
     public static class GamepadIdentity
     {
+        /// <summary>Hint of an XInput pad: no path or ids, and its DirectInput view is an "IG_" one.</summary>
+        public static readonly PadHint XInputPad = new PadHint { PreferXInputViews = true };
+
         /// <summary>The GUID given to a pad identified by its API slot (same scheme as the slot mode).</summary>
         public static Guid SlotGuid(int gamepadId)
         {
@@ -88,14 +108,103 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
         }
 
         /// <summary>
+        /// Whether two device paths name the same device interface: case and the "\\?\" / "\??\" prefix differ between
+        /// APIs (SetupAPI and DirectInput write "\\?\hid#vid_…", raw input "\\?\HID#VID_…").
+        /// </summary>
+        public static bool SamePath(string a, string b)
+        {
+            string x = StripDevicePrefix(a);
+            string y = StripDevicePrefix(b);
+            return x.Length > 0 && string.Equals(x, y, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string StripDevicePrefix(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return "";
+            }
+
+            path = path.Trim();
+
+            foreach (string prefix in new[] { @"\\?\", @"\??\", @"\\.\" })
+            {
+                if (path.StartsWith(prefix, StringComparison.Ordinal))
+                {
+                    return path.Substring(prefix.Length);
+                }
+            }
+
+            return path;
+        }
+
+        /// <summary>
+        /// USB vendor and product ids of a DirectInput product GUID. HID devices have "{PIDVID-0000-0000-0000-504944564944}"
+        /// (the last six bytes spell "PIDVID"); false for other GUIDs.
+        /// </summary>
+        public static bool TryUsbIdsOf(Guid productGuid, out ushort vendorId, out ushort productId)
+        {
+            byte[] bytes = productGuid.ToByteArray();//Data1 first, little endian: VID low word, PID high word
+            vendorId = (ushort)(bytes[0] | bytes[1] << 8);
+            productId = (ushort)(bytes[2] | bytes[3] << 8);
+
+            return bytes[10] == (byte)'P' && bytes[11] == (byte)'I' && bytes[12] == (byte)'D' &&
+                   bytes[13] == (byte)'V' && bytes[14] == (byte)'I' && bytes[15] == (byte)'D';
+        }
+
+        /// <summary>The DirectInput device whose interface path is <paramref name="path"/> and that no other pad uses, or null.</summary>
+        public static D_Joystick FindByPath(PlayerInfo player, IEnumerable<PlayerInfo> devices, IEnumerable<D_Joystick> joysticks, string path)
+        {
+            if (string.IsNullOrEmpty(path) || joysticks == null)
+            {
+                return null;
+            }
+
+            List<D_Joystick> same = joysticks.Where(j => j != null && SamePath(j.InterfacePath, path)).ToList();
+
+            //One device interface, one DirectInput device: two would mean a stale list, so don't guess.
+            if (same.Count != 1 || IsTakenByAnother(player, devices ?? Enumerable.Empty<PlayerInfo>(), same[0]))
+            {
+                return null;
+            }
+
+            return same[0];
+        }
+
+        /// <summary>
         /// The DirectInput device that reported the press of <paramref name="player"/>, or null when it isn't unique.
         /// Devices already identified as another pad are skipped; when several remain, the XInput HID views win.
         /// </summary>
         public static D_Joystick PickDInputMatch(PlayerInfo player, IEnumerable<PlayerInfo> devices, IReadOnlyList<DInputCandidate> candidates)
         {
+            return PickDInputMatch(player, devices, candidates, XInputPad);
+        }
+
+        /// <summary>
+        /// The DirectInput device of <paramref name="player"/>, or null when it isn't unique. In order: the device with the
+        /// pad's path (pressed or not); the only pressed device (a device with other USB ids than the pad is another pad);
+        /// among several, the only one with the pad's USB ids; then, for an XInput device, the only "IG_" view. Devices
+        /// already identified as another pad are skipped.
+        /// </summary>
+        public static D_Joystick PickDInputMatch(PlayerInfo player, IEnumerable<PlayerInfo> devices, IReadOnlyList<DInputCandidate> candidates, PadHint hint)
+        {
+            devices = devices ?? Enumerable.Empty<PlayerInfo>();
+            candidates = candidates ?? new List<DInputCandidate>();
+
+            D_Joystick byPath = FindByPath(player, devices, candidates.Select(c => c.Joystick), hint.Path);
+
+            if (byPath != null)
+            {
+                return byPath;
+            }
+
+            bool idsKnown = hint.VendorId != 0 || hint.ProductId != 0;
+
+            //Two players pressing at once, or a pad DirectInput can't see while another one is pressed: the USB ids tell them apart.
             List<D_Joystick> pressed = candidates
                 .Where(c => c.Pressed && c.Joystick != null && !IsTakenByAnother(player, devices, c.Joystick))
                 .Select(c => c.Joystick)
+                .Where(j => !idsKnown || UsbIdsMatch(j, hint) != false)
                 .ToList();
 
             if (pressed.Count == 1)
@@ -105,24 +214,62 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
 
             if (pressed.Count > 1)
             {
-                List<D_Joystick> xinputViews = pressed.Where(j => IsXInputHidPath(j.InterfacePath)).ToList();
-
-                if (xinputViews.Count == 1)
+                if (idsKnown)
                 {
-                    return xinputViews[0];
+                    List<D_Joystick> sameIds = pressed.Where(j => UsbIdsMatch(j, hint) == true).ToList();
+
+                    if (sameIds.Count == 1)
+                    {
+                        return sameIds[0];
+                    }
+
+                    if (sameIds.Count > 1)
+                    {
+                        pressed = sameIds;
+                    }
+                }
+
+                if (hint.PreferXInputViews)
+                {
+                    List<D_Joystick> xinputViews = pressed.Where(j => IsXInputHidPath(j.InterfacePath)).ToList();
+
+                    if (xinputViews.Count == 1)
+                    {
+                        return xinputViews[0];
+                    }
                 }
             }
 
             return null;
         }
 
+        /// <summary>Whether a DirectInput device has the pad's USB ids; null when its product GUID doesn't carry them.</summary>
+        private static bool? UsbIdsMatch(D_Joystick joystick, PadHint hint)
+        {
+            if (!TryUsbIdsOf(joystick.ProductGuid, out ushort vid, out ushort pid))
+            {
+                return null;
+            }
+
+            return vid == hint.VendorId && pid == hint.ProductId;
+        }
+
         /// <summary>
-        /// Identifies a pad after a button press (XInput reported buttons). Sets the identity and <see cref="PlayerInfo.IsInputUsed"/>
+        /// Identifies an XInput pad after a button press (XInput reported buttons). Sets the identity and <see cref="PlayerInfo.IsInputUsed"/>
         /// on success, <see cref="PlayerInfo.IdentificationFailedUtc"/> on failure. The caller rumbles the pad on success.
         /// </summary>
         public static IdentifyResult Identify(PlayerInfo player, IEnumerable<PlayerInfo> devices, IReadOnlyList<DInputCandidate> candidates, bool needsDInputIdentity, DateTime nowUtc)
         {
-            D_Joystick match = PickDInputMatch(player, devices ?? Enumerable.Empty<PlayerInfo>(), candidates ?? new List<DInputCandidate>());
+            return Identify(player, devices, candidates, XInputPad, needsDInputIdentity, nowUtc);
+        }
+
+        /// <summary>
+        /// Identifies a pad after a button press seen by its API (XInput, SDL). Without a DirectInput match, a handler that
+        /// only needs the API index reveals the pad with <see cref="SlotGuid"/> of <see cref="PlayerInfo.GamepadId"/>.
+        /// </summary>
+        public static IdentifyResult Identify(PlayerInfo player, IEnumerable<PlayerInfo> devices, IReadOnlyList<DInputCandidate> candidates, PadHint hint, bool needsDInputIdentity, DateTime nowUtc)
+        {
+            D_Joystick match = PickDInputMatch(player, devices, candidates, hint);
 
             if (match != null)
             {

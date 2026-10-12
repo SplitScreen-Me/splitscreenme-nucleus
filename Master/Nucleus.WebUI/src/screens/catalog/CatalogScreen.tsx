@@ -74,7 +74,7 @@ export default function CatalogScreen() {
 
   useScreenChrome([{ label: 'Get games' }], {
     base: [
-      { button: 'A', label: 'View handler' },
+      { button: 'A', label: 'Select' },
       { button: 'Y', label: 'Search', action: () => search.current?.focus() },
       { button: 'LB', label: 'Previous section' },
       { button: 'RB', label: 'Next section' },

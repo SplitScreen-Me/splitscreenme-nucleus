@@ -5,6 +5,7 @@ using System.Linq;
 using Nucleus.Bridge.Contracts;
 using Nucleus.Coop.Services.Setup;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 using Xunit;
 
 namespace Nucleus.Coop.Services.Tests.Setup;
@@ -22,6 +23,25 @@ public class DeviceIdsTests
     public void Kinds_map_to_the_contract(InputType type, DeviceKind kind)
     {
         Assert.Equal(kind, DeviceIds.KindOf(type));
+    }
+
+    [Fact]
+    public void Pad_buttons_get_their_contract_names_face_buttons_first()
+    {
+        Assert.Empty(DeviceIds.ButtonsOf(PadButtons.None));
+        Assert.Equal(new[] { GamepadButton.Start }, DeviceIds.ButtonsOf(PadButtons.Start));
+        Assert.Equal(
+            new[] { GamepadButton.A, GamepadButton.Y, GamepadButton.LeftBumper, GamepadButton.Back, GamepadButton.DPadLeft, GamepadButton.Other },
+            DeviceIds.ButtonsOf(PadButtons.Other | PadButtons.DPadLeft | PadButtons.Back | PadButtons.LeftShoulder | PadButtons.Y | PadButtons.A));
+    }
+
+    [Fact]
+    public void Every_pad_button_has_a_contract_name()
+    {
+        foreach (PadButtons button in Enum.GetValues(typeof(PadButtons)).Cast<PadButtons>().Where(b => b != PadButtons.None))
+        {
+            Assert.Single(DeviceIds.ButtonsOf(button));
+        }
     }
 
     [Fact]
@@ -117,6 +137,24 @@ public class SnapshotMathTests
         Assert.True(SnapshotMath.CanResize(4, false));
         Assert.False(SnapshotMath.CanResize(2, false));
         Assert.False(SnapshotMath.CanResize(16, true));
+    }
+
+    [Fact]
+    public void A_resize_step_is_a_twentieth_of_a_slot_or_a_manual_cell()
+    {
+        Rectangle quarter = new Rectangle(0, 0, 960, 540);
+        Rectangle manualCell = new Rectangle(0, 0, 48, 27);
+
+        Assert.Equal(new Size(48, 27), SnapshotMath.ResizeStep(UserScreenType.FourPlayers, quarter, 4, false));
+        Assert.Equal(new Size(48, 27), SnapshotMath.ResizeStep(UserScreenType.Manual, manualCell, 1600, false));
+        Assert.Equal(new Size(32, 18), SnapshotMath.ResizeStep(UserScreenType.Custom, new Rectangle(0, 0, 640, 360), 9, false));
+    }
+
+    [Fact]
+    public void No_resize_step_where_players_cannot_be_resized()
+    {
+        Assert.Equal(Size.Empty, SnapshotMath.ResizeStep(UserScreenType.DualHorizontal, new Rectangle(0, 0, 1920, 540), 2, false));
+        Assert.Equal(Size.Empty, SnapshotMath.ResizeStep(UserScreenType.FourPlayers, new Rectangle(0, 0, 960, 540), 4, true));
     }
 
     [Fact]

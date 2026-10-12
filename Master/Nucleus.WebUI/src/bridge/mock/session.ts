@@ -7,6 +7,7 @@ import {
   type SessionInstance,
   type SessionLogLevel,
   type SessionSnapshot,
+  type SessionSummaryPlayer,
 } from '../generated/contract.ts';
 import type { MockContext } from '../transports/mock.ts';
 import { conflict, invalidParams } from './failures.ts';
@@ -25,6 +26,8 @@ const WINDOW_READY_MS = 700;
 /** Keyboard sessions lock the inputs once running; the mock unlocks them after this delay (the host waits for the hotkey). */
 const INPUTS_LOCKED_MS = 5000;
 const NOTICE_MS = 4000;
+/** Most error lines a session summary keeps (as the host). */
+const MAX_SUMMARY_ERRORS = 20;
 
 /** Label and hotkey setting of each session action. */
 const ACTIONS: Readonly<Record<SessionAction, { label: string; hotkey: string }>> = {
@@ -68,6 +71,7 @@ function sessionSnapshot(state: MockState): SessionSnapshot {
     actions: actionsOf(state),
     stopHotkey: state.settings['hotkeys.stop'],
     lockInputsKey: state.settings['hotkeys.lockKey'],
+    lastSession: session.lastSession,
   };
   if (session.phase) {
     const { phase, gameId, gameName, startedAt, instances } = session;
@@ -104,6 +108,22 @@ function saveLaunchProfile(context: MockContext, state: MockState, setup: MockSe
   context.emit('library.changed', { gameIds: [setup.gameId] });
 }
 
+/** The placed players with the names of their devices, guests last (the host takes them from the setup at Play). */
+function summaryPlayersOf(state: MockState, setup: MockSetup): SessionSummaryPlayer[] {
+  return setupSnapshot(state, setup).players.map((player) => ({
+    number: player.number,
+    nickname: player.nickname,
+    screenIndex: player.screenIndex,
+    devices: [
+      ...player.deviceIds.map((id) => ({ id, guest: false })),
+      ...player.guestDeviceIds.map((id) => ({ id, guest: true })),
+    ].map(({ id, guest }) => {
+      const device = findDevice(setup, id);
+      return { kind: device.kind, name: device.name, guest };
+    }),
+  }));
+}
+
 /** One instance per player, in player order, waiting to start; with the names of the devices bound to each. */
 function instancesOf(state: MockState, setup: MockSetup): { instance: SessionInstance; binding: string }[] {
   return setupSnapshot(state, setup).players.map((player) => {
@@ -130,10 +150,14 @@ export function startSession(context: MockContext, state: MockState): SessionSna
   if (state.session.phase) conflict('sessionRunning', 'A session is already running. Stop it first.');
   const setup = requireSetup(state);
   if (!flowOf(state, setup).canPlay) conflict('notReady', setupSnapshot(state, setup).hint?.text ?? 'The setup is not complete yet.');
+  const players = summaryPlayersOf(state, setup);
   if (setup.saveProfileOnLaunch && !setup.profile) saveLaunchProfile(context, state, setup);
   const launches = instancesOf(state, setup);
   const instances = launches.map(({ instance }) => instance);
   Object.assign(state.session, {
+    players,
+    reachedRunning: false,
+    lastSession: undefined,
     phase: 'launching',
     gameId: setup.gameId,
     gameName: setup.gameName,
@@ -197,6 +221,7 @@ function enterRunning(context: MockContext, state: MockState): void {
   const lockKey = state.settings['hotkeys.lockKey'] ?? 'End';
   const keyboards = session.instances.some((instance) => instance.devices.some((kind) => kind === 'rawKeyboard' || kind === 'rawMouse'));
   session.phase = 'running';
+  session.reachedRunning = true;
   session.inputsLocked = keyboards;
   const ready = `All ${session.instances.length} players are ready.`;
   log(context, state, ready, 'success');
@@ -317,6 +342,19 @@ function endSession(context: MockContext, state: MockState): void {
     context.emit('library.changed', { gameIds: [game.summary.id] });
   }
   log(context, state, `Session ended after ${elapsed(duration)}`, 'success');
+  const errors = session.log.filter((entry) => entry.level === 'error');
+  const endedAt = new Date().toISOString();
+  session.lastSession = {
+    gameId: session.gameId ?? '',
+    gameName: session.gameName ?? '',
+    startedAt: session.startedAt ?? endedAt,
+    endedAt,
+    launched: session.reachedRunning,
+    players: session.players,
+    error: session.error,
+    errors: errors.slice(0, MAX_SUMMARY_ERRORS),
+    errorCount: errors.length,
+  };
   Object.assign(session, {
     phase: null,
     gameId: undefined,

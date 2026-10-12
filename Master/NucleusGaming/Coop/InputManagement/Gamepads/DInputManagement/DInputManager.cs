@@ -290,4 +290,18 @@ public static class DInputManager
 
         return false;
     }
+
+    /// <summary>Buttons held on a DirectInput pad of the setup: its Start, and Other for the rest (see <see cref="PadButtonRules.FromDInput"/>).</summary>
+    public static PadButtons ReadButtons(PlayerInfo player)
+    {
+        try
+        {
+            D_Joystick joystick = player.DInputJoystick;
+            return joystick == null ? PadButtons.None : PadButtonRules.FromDInput(joystick.State?.Buttons, joystick.VendorId);
+        }
+        catch (Exception)
+        {
+            return PadButtons.None;
+        }
+    }
 }

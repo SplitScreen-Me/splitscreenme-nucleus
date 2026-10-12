@@ -138,12 +138,24 @@ export interface Lead {
 
 /**
  * Whether a pad's buttons may act. Everywhere but shared screens, every pad may. On a shared screen (the lobby, where
- * any press on a free pad joins) only the pad that moved focus within the last LEAD_MS does, so players pressing a
- * button to join or to find their pad don't press the focused control.
+ * Start on a free pad joins) only the pad that moved focus within the last LEAD_MS does, so players pressing buttons to
+ * join or to find their pad don't press the focused control.
  */
 export function mayAct(shared: boolean, lead: Lead | null, index: number, now: number, ttl = LEAD_MS): boolean {
   if (!shared) return true;
   return lead !== null && lead.index === index && now - lead.at <= ttl;
+}
+
+/**
+ * What pads may do on this poll: `all`, `hints` only (a screen waiting for a controller captures them: no moves, no
+ * presses, only the screen's hint actions, so B can cancel; an open dialog lifts the capture), or `none` (navigation
+ * off, suspended, or the window has no focus).
+ */
+export type PadReach = 'all' | 'hints' | 'none';
+
+export function padReach(s: { active: boolean; captured: boolean; dialogOpen: boolean }): PadReach {
+  if (!s.active) return 'none';
+  return s.captured && !s.dialogOpen ? 'hints' : 'all';
 }
 
 export type BackStep = 'close-menu' | 'close-dialog' | 'history' | 'none';
@@ -168,7 +180,8 @@ export function isTopLevel(pathname: string, roots: readonly string[]): boolean 
 
 /**
  * Focused widgets that read keys themselves, and which pad inputs reach them as key presses:
- * - `list`: menus, list boxes and combo boxes take arrows, Enter and Escape;
+ * - `list`: menus, list boxes, combo boxes and `[data-pad-keys]` widgets (a lobby player area in resize mode) take
+ *   arrows, Enter and Escape;
  * - `region`: lobby canvas regions take Enter (pick up, place) and Escape (cancel); the d-pad moves between them
  *   spatially, since their own arrows cycle through the regions forever and the pad could not leave the canvas;
  * - `capture`: other `[data-own-arrows]` controls (a shortcut recorder) only take Escape: an arrow or Enter would be

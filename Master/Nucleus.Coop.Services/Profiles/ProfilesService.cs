@@ -191,7 +191,6 @@ namespace Nucleus.Coop.Services.Profiles
                 CutscenesKeepAspectRatio = model.CutscenesKeepAspectRatio,
                 CutscenesMuteAudioOnly = model.CutscenesMuteAudioOnly,
                 CutscenesUnfocus = model.CutscenesUnfocus,
-                StopUiNavigation = model.StopUINav,
                 WindowsMerger = model.WindowsMerger,
                 LosslessHook = model.LosslessHook,
                 MergerResolution = model.MergerResolution,
@@ -248,7 +247,7 @@ namespace Nucleus.Coop.Services.Profiles
                 CutscenesKeepAspectRatio = settings.CutscenesKeepAspectRatio,
                 CutscenesMuteAudioOnly = settings.CutscenesMuteAudioOnly,
                 CutscenesUnfocus = settings.CutscenesUnfocus,
-                StopUINav = settings.StopUiNavigation,
+                StopUINav = current.StopUINav,//legacy gamepad-as-mouse flag: kept as the profile file has it
                 WindowsMerger = settings.WindowsMerger,
                 LosslessHook = settings.LosslessHook,
                 MergerResolution = settings.MergerResolution ?? "",

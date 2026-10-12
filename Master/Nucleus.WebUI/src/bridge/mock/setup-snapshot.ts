@@ -125,7 +125,21 @@ function screenView(setup: MockSetup, screen: MockScreen): SetupScreen {
           };
         });
   const { index, displayIndex, bounds, isPrimary, layout, layoutLocked } = screen;
-  return { index, displayIndex, bounds, isPrimary, layout, rows: grid.rows, columns: grid.columns, slots, layoutLocked };
+  // The mock moves edges by whole cells (`setup.resize`), so a step is a cell.
+  const resizable = setup.profile === null && cellCount(grid) >= 4;
+  return {
+    index,
+    displayIndex,
+    bounds,
+    isPrimary,
+    layout,
+    rows: grid.rows,
+    columns: grid.columns,
+    slots,
+    layoutLocked,
+    resizeStepWidth: resizable ? Math.round(bounds.width / grid.columns) : 0,
+    resizeStepHeight: resizable ? Math.round(bounds.height / grid.rows) : 0,
+  };
 }
 
 function deviceView(setup: MockSetup, device: MockDevice): SetupDevice {

@@ -11,7 +11,7 @@ export const protocolVersion = 1;
 /**
  * Hash of the contract this file was generated from. `app.hello` returns the host's: the UI refuses to run when they differ.
  */
-export const contractHash = '290b06521120fd7b';
+export const contractHash = 'b3edecc7bafb0767';
 
 /** JSON-RPC error code of each kind of error the host returns. */
 export const bridgeErrorCodes = {
@@ -130,6 +130,62 @@ export const gameStoreValues = [
   /** Epic Games Store. */
   'epic',
 ] as const satisfies readonly GameStore[];
+
+/** A gamepad button, by its Xbox name. */
+export type GamepadButton =
+  | 'a'
+  | 'b'
+  | 'x'
+  | 'y'
+  | 'leftBumper'
+  | 'rightBumper'
+  | 'back'
+  | 'start'
+  | 'leftStick'
+  | 'rightStick'
+  | 'dPadUp'
+  | 'dPadDown'
+  | 'dPadLeft'
+  | 'dPadRight'
+  | 'guide'
+  | 'other'
+;
+
+/** Every {@link GamepadButton}, in declaration order. */
+export const gamepadButtonValues = [
+  /** A (Cross on PlayStation pads). */
+  'a',
+  /** B (Circle). */
+  'b',
+  /** X (Square). */
+  'x',
+  /** Y (Triangle). */
+  'y',
+  /** Left bumper (L1). */
+  'leftBumper',
+  /** Right bumper (R1). */
+  'rightBumper',
+  /** Back or View (Share, Create). */
+  'back',
+  /** Start or Menu (Options): the button that joins in the lobby. */
+  'start',
+  /** Left stick click. */
+  'leftStick',
+  /** Right stick click. */
+  'rightStick',
+  /** D-pad up. */
+  'dPadUp',
+  /** D-pad down. */
+  'dPadDown',
+  /** D-pad left. */
+  'dPadLeft',
+  /** D-pad right. */
+  'dPadRight',
+  /** Guide (Xbox, PS, Home). */
+  'guide',
+  /** A button Nucleus can't name: DirectInput pads number their buttons freely, only their Start is guessed. */
+  'other',
+] as const satisfies readonly GamepadButton[];
 
 /** Stage of a handler install. */
 export type HandlerInstallStage = 'downloading' | 'extracting' | 'done' | 'failed';
@@ -481,13 +537,17 @@ export interface CheckActionRequest {
 }
 
 /**
- * A device is being used (button pressed, key typed, mouse moved). Lets the UI flash it. At most a few per second per device.
+ * A device is being used (button pressed, key typed, mouse moved). Lets the UI flash it. At most a few per second per device; a gamepad also sends one for each new button press, with the buttons (the lobby joins a pad on Start).
  */
 export interface DeviceActivity {
   /** Device id. */
   deviceId: string;
   /** True when activity starts, false when it stops. */
   active: boolean;
+  /**
+   * For a new press on a gamepad: the buttons that went down, even when the device was already active. Absent for keyboards and mice, for a press Nucleus could not read buttons of, and when activity stops.
+   */
+  buttons?: GamepadButton[];
 }
 
 /** A device assigned to a player was unplugged. */
@@ -950,8 +1010,6 @@ export interface ProfileSettings {
   cutscenesMuteAudioOnly: boolean;
   /** Cutscenes: unfocus the other windows. */
   cutscenesUnfocus: boolean;
-  /** Disables gamepad navigation of the app during the session. */
-  stopUiNavigation: boolean;
   /** Merges the game windows into one window. */
   windowsMerger: boolean;
   /** Uses the lossless hook with the windows merger. */
@@ -1150,6 +1208,52 @@ export interface SessionSnapshot {
   stopHotkey?: string;
   /** Key that locks and unlocks inputs, for example "End". */
   lockInputsKey?: string;
+  /** Summary of the last session that ended (or failed to start), kept until the next one starts. */
+  lastSession?: SessionSummary;
+}
+
+/** How a finished session went: what the session screen shows once it ends. */
+export interface SessionSummary {
+  /** Game id. */
+  gameId: string;
+  /** Display name of the game. */
+  gameName: string;
+  /** When Play was pressed (UTC). */
+  startedAt: IsoDateString;
+  /** When the session ended (UTC). */
+  endedAt: IsoDateString;
+  /** Whether every copy was started and placed (the session reached `"running"`). */
+  launched: boolean;
+  /** Players, in player order, with the devices they played with. */
+  players: SessionSummaryPlayer[];
+  /** Why the session failed, when it did (the crash report is `SessionSnapshot.errorDetails`). */
+  error?: string;
+  /** Error lines of the session log, oldest first, at most 20. */
+  errors: SessionLogEntry[];
+  /** Number of error lines in the session log (`SessionSummary.errors` may hold fewer). */
+  errorCount: number;
+}
+
+/** A device of a finished session's player. */
+export interface SessionSummaryDevice {
+  /** Kind of device. */
+  kind: DeviceKind;
+  /** Name, as the setup showed it. */
+  name: string;
+  /** Whether it was a guest gamepad sharing the player's copy. */
+  guest: boolean;
+}
+
+/** A player of a finished session. */
+export interface SessionSummaryPlayer {
+  /** Player number, 1-based. The UI colours players by number. */
+  number: number;
+  /** Nickname, when known. */
+  nickname?: string;
+  /** Monitor index. */
+  screenIndex: number;
+  /** Devices the player played with, guests last. */
+  devices: SessionSummaryDevice[];
 }
 
 /** Turns a flag on or off. */
@@ -1484,6 +1588,10 @@ export interface SetupScreen {
   slots: SetupSlot[];
   /** True when a loaded profile fixes the layout. */
   layoutLocked: boolean;
+  /** Width of one `setup.resize` step on this monitor, in desktop pixels. 0 when players can't be resized here. */
+  resizeStepWidth: number;
+  /** Height of one `setup.resize` step on this monitor, in desktop pixels. 0 when players can't be resized here. */
+  resizeStepHeight: number;
 }
 
 /** A place for one player on a monitor. */
@@ -1736,7 +1844,9 @@ export interface BridgeMethods {
   'setup.refreshDevices': { params: void; result: SetupSnapshot };
   /** Removes a guest gamepad from its host instance. */
   'setup.removeGuest': { params: DeviceRequest; result: SetupSnapshot };
-  /** Moves one edge of a player's area by a number of grid steps (layouts with 4 slots or more). */
+  /**
+   * Moves one edge of a player's area by a number of steps (layouts with 4 slots or more). A step is `SetupScreen.resizeStepWidth` or `SetupScreen.resizeStepHeight`; the move stops at the first step that can't be made.
+   */
   'setup.resize': { params: ResizePlayerRequest; result: SetupSnapshot };
   /** Makes a gamepad vibrate briefly so the user can find it. */
   'setup.rumble': { params: DeviceRequest; result: void };
@@ -1962,7 +2072,9 @@ export interface BridgeHandlers {
     refreshDevices: () => Awaitable<SetupSnapshot>;
     /** Removes a guest gamepad from its host instance. */
     removeGuest: (params: DeviceRequest) => Awaitable<SetupSnapshot>;
-    /** Moves one edge of a player's area by a number of grid steps (layouts with 4 slots or more). */
+    /**
+     * Moves one edge of a player's area by a number of steps (layouts with 4 slots or more). A step is `SetupScreen.resizeStepWidth` or `SetupScreen.resizeStepHeight`; the move stops at the first step that can't be made.
+     */
     resize: (params: ResizePlayerRequest) => Awaitable<SetupSnapshot>;
     /** Makes a gamepad vibrate briefly so the user can find it. */
     rumble: (params: DeviceRequest) => Awaitable<void>;
@@ -2142,7 +2254,7 @@ export interface BridgeEvents {
    */
   'setup.changed': SetupChanged;
   /**
-   * A device is being used (button pressed, key typed, mouse moved). Lets the UI flash it. At most a few per second per device.
+   * A device is being used (button pressed, key typed, mouse moved). Lets the UI flash it. At most a few per second per device; a gamepad also sends one for each new button press, with the buttons (the lobby joins a pad on Start).
    */
   'setup.deviceActivity': DeviceActivity;
   /** A device assigned to a player was unplugged. */

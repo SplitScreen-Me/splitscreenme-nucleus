@@ -255,6 +255,8 @@ namespace Nucleus.Gaming.Coop
         }
 
         private static bool stop_UINav;
+
+        /// <summary>"StopGPUINav" of the legacy gamepad-as-mouse feature (removed): no effect, kept so profile files round-trip.</summary>
         public static bool Stop_UINav
         {
             get => stop_UINav;

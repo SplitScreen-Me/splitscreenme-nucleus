@@ -35,8 +35,7 @@ export default function SettingsScreen() {
 
   useScreenChrome([{ label: 'Settings' }], {
     base: [
-      { button: 'A', label: 'Change' },
-      { button: 'B', label: 'Back' },
+      { button: 'A', label: 'Select' },
       { button: 'Y', label: 'Search' },
     ],
   });

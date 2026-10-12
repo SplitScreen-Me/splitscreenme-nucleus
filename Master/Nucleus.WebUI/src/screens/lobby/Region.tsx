@@ -1,16 +1,12 @@
-import { useEffect, useRef, type DragEvent, type KeyboardEvent, type Ref } from 'react';
-import type { SetupDevice, SetupPlayer } from '@/bridge';
+import { useEffect, useRef, useState, type DragEvent, type FocusEvent, type KeyboardEvent, type PointerEvent, type Ref } from 'react';
+import type { Edge, Rect, SetupDevice, SetupPlayer } from '@/bridge';
 import { devicesIcon } from '@/lib/devices';
 import { cn, Icon, playerClass } from '@/ui';
+import { PLAYER_RESIZABLE, PLAYER_RESIZING } from './hints';
 import { ART_VIEW, deviceKinds, devicesLabel, playerName, reduceMotion } from './model';
+import { cornerName, dragSteps, movedFrac, pixelSize, type Corner, type Frac, type StepFrac } from './resize-core';
 
-/** Position inside a monitor, as fractions. */
-export interface Frac {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-}
+export type { Frac } from './resize-core';
 
 const pct = (v: number) => `${v * 100}%`;
 const place = (f: Frac) => ({
@@ -42,14 +38,63 @@ export interface PlayerRegionProps extends DropHandlers {
   onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => void;
   onDragStart: (e: DragEvent<HTMLDivElement>) => void;
   onDragEnd: () => void;
+  /** One resize step as shares of the monitor, when this player can be resized (`setup.resize`); edge handles then show. */
+  step?: StepFrac | null;
+  /** Monitor size in pixels, to label the size of the area while it is resized. */
+  monitor: Pick<Rect, 'width' | 'height'>;
+  /** Areas of the other players of the monitor: a dragged edge stops at them. */
+  others?: readonly Frac[];
+  /** Resize mode of the keyboard and gamepads: the corner the arrows move. */
+  resizeCorner?: Corner | null;
+  /** An edge handle was dragged and released: move that edge by `steps` (positive grows). */
+  onResize?: (edge: Edge, steps: number) => void;
+  /** Leaves resize mode when the area loses focus. */
+  onBlur?: () => void;
 }
+
+const EDGES: readonly Edge[] = ['left', 'right', 'top', 'bottom'];
+
+/** Grab strips along each edge (inside the area), and the pill drawn in their middle. */
+const HANDLE: Record<Edge, { strip: string; pill: string }> = {
+  left: { strip: 'inset-y-[14px] left-0 w-[10px] cursor-ew-resize', pill: 'top-1/2 left-[3px] h-[clamp(16px,26%,46px)] w-1 -translate-y-1/2' },
+  right: { strip: 'inset-y-[14px] right-0 w-[10px] cursor-ew-resize', pill: 'top-1/2 right-[3px] h-[clamp(16px,26%,46px)] w-1 -translate-y-1/2' },
+  top: { strip: 'inset-x-[14px] top-0 h-[10px] cursor-ns-resize', pill: 'top-[3px] left-1/2 h-1 w-[clamp(16px,26%,46px)] -translate-x-1/2' },
+  bottom: { strip: 'inset-x-[14px] bottom-0 h-[10px] cursor-ns-resize', pill: 'bottom-[3px] left-1/2 h-1 w-[clamp(16px,26%,46px)] -translate-x-1/2' },
+};
 
 /** One player's area of a monitor, drawn from its bounds. The black between regions is the brand gutter. */
 export function PlayerRegion(props: PlayerRegionProps) {
-  const { player: p, devices, lifted, dragging, target, justJoined, ping } = props;
+  const { player: p, devices, lifted, dragging, target, justJoined, ping, step, resizeCorner } = props;
   const ring = useRef<HTMLDivElement>(null);
   const art = useRef<HTMLDivElement>(null);
   const name = playerName(p);
+
+  // ---------- Resizing with the mouse: an edge handle follows the pointer by whole steps, released once ----------
+  const [sizing, setSizing] = useState<{ edge: Edge; steps: number } | null>(null);
+  const start = useRef<{ x: number; y: number; w: number; h: number } | null>(null);
+  const beginResize = (edge: Edge) => (e: PointerEvent<HTMLDivElement>) => {
+    const monitor = e.currentTarget.closest('[data-region]')?.parentElement?.getBoundingClientRect();
+    if (!step || !monitor || e.button !== 0) return;
+    e.stopPropagation();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    start.current = { x: e.clientX, y: e.clientY, w: monitor.width, h: monitor.height };
+    setSizing({ edge, steps: 0 });
+  };
+  const followResize = (e: PointerEvent<HTMLDivElement>) => {
+    const from = start.current;
+    if (!sizing || !from || !step || !from.w || !from.h) return;
+    const steps = dragSteps(props.frac, sizing.edge, (e.clientX - from.x) / from.w, (e.clientY - from.y) / from.h, step, props.others);
+    if (steps !== sizing.steps) setSizing({ ...sizing, steps });
+  };
+  const endResize = (commit: boolean) => () => {
+    const done = sizing;
+    start.current = null;
+    setSizing(null);
+    if (commit && done && done.steps !== 0) props.onResize?.(done.edge, done.steps);
+  };
+  const shown = sizing && step ? movedFrac(props.frac, sizing.edge, sizing.steps, step) : props.frac;
+  const resizing = Boolean(sizing || resizeCorner);
+  const size = pixelSize(shown, props.monitor);
 
   // A device of this player pressed a button: light the region.
   useEffect(() => {
@@ -72,7 +117,9 @@ export function PlayerRegion(props: PlayerRegionProps) {
   }, [justJoined]);
 
   const view = ART_VIEW[(p.number - 1) % ART_VIEW.length] ?? ART_VIEW[0]!;
-  const label = `Player ${p.number}, ${name}, ${devicesLabel(devices)}, ${props.where}. Enter to move, Delete to take out.`;
+  const label = resizeCorner
+    ? `Resizing player ${p.number}, ${name}: ${size.width} by ${size.height}. Arrows move the ${cornerName(resizeCorner)} corner, X switches corners, Enter when done.`
+    : `Player ${p.number}, ${name}, ${devicesLabel(devices)}, ${props.where}. Enter to move, ${step ? 'R to resize, ' : ''}Delete to take out.`;
 
   return (
     <div
@@ -81,19 +128,27 @@ export function PlayerRegion(props: PlayerRegionProps) {
       tabIndex={0}
       aria-label={label}
       aria-pressed={lifted}
-      draggable
+      draggable={!resizing}
       data-region
+      data-player-id={p.id}
+      // Resize mode takes the pad's d-pad, A and B as arrow keys, Enter and Escape (see couch-nav keyWidget).
+      data-pad-keys={resizeCorner ? '' : undefined}
+      data-hints={resizeCorner ? PLAYER_RESIZING : step ? PLAYER_RESIZABLE : undefined}
       onKeyDown={props.onKeyDown}
-      onDragStart={props.onDragStart}
+      onBlur={props.onBlur}
+      onDragStart={(e) => {
+        if (start.current) e.preventDefault();
+        else props.onDragStart(e);
+      }}
       onDragEnd={props.onDragEnd}
       onDragOver={props.onDragOver}
       onDragLeave={props.onDragLeave}
       onDrop={props.onDrop}
-      style={place(props.frac)}
+      style={place(shown)}
       className={cn(
         playerClass(p.number),
-        'group/region absolute z-[2] cursor-grab overflow-hidden rounded-md bg-pane-3 select-none [container-type:size] active:cursor-grabbing',
-        'transition-[left,top,width,height,opacity,transform] duration-(--dur-3) ease-snap',
+        'group/region absolute cursor-grab overflow-hidden rounded-md bg-pane-3 select-none [container-type:size] active:cursor-grabbing',
+        sizing ? 'z-[3] transition-none' : 'z-[2] transition-[left,top,width,height,opacity,transform] duration-(--dur-3) ease-snap',
         'focus-visible:outline-none',
         lifted && 'scale-95',
         dragging && 'opacity-45',
@@ -143,13 +198,61 @@ export function PlayerRegion(props: PlayerRegionProps) {
         aria-hidden="true"
         className={cn(
           'pointer-events-none absolute inset-0 rounded-[inherit]',
-          lifted
+          lifted || resizing
             ? 'shadow-[inset_0_0_0_2px_var(--pc),inset_0_0_0_5px_var(--color-bezel),inset_0_0_0_7px_var(--color-ink)]'
             : 'shadow-[inset_0_0_0_2px_var(--pc)]',
         )}
       />
-      <div aria-hidden="true" className="pointer-events-none absolute inset-[6px] z-[4] rounded-[4px] opacity-0 shadow-[0_0_0_2px_var(--color-ink)] group-focus-visible/region:opacity-100" />
+      <div
+        aria-hidden="true"
+        className={cn(
+          'pointer-events-none absolute inset-[6px] z-[4] rounded-[4px] opacity-0 shadow-[0_0_0_2px_var(--color-ink)]',
+          !resizing && 'group-focus-visible/region:opacity-100',
+        )}
+      />
       {target && <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[3] rounded-[inherit] shadow-[inset_0_0_0_3px_var(--color-ink)]" />}
+      {resizeCorner && (
+        <span
+          aria-hidden="true"
+          className={cn(
+            'pointer-events-none absolute z-[6] size-4 border-ink',
+            resizeCorner === 'bottomRight' ? 'right-[3px] bottom-[3px] border-r-[3px] border-b-[3px]' : 'top-[3px] left-[3px] border-t-[3px] border-l-[3px]',
+          )}
+        />
+      )}
+      {resizing && (
+        <span
+          aria-hidden="true"
+          className="data pointer-events-none absolute top-1/2 left-1/2 z-[6] -translate-x-1/2 -translate-y-1/2 rounded-tag bg-black/70 px-2 py-0.5 text-[clamp(10px,5cqi,14px)] font-[650] whitespace-nowrap text-ink tabular-nums"
+        >
+          {size.width} × {size.height}
+        </span>
+      )}
+      {step &&
+        EDGES.map((edge) => (
+          <div
+            key={edge}
+            aria-hidden="true"
+            data-resize-handle={edge}
+            onPointerDown={beginResize(edge)}
+            onPointerMove={followResize}
+            onPointerUp={endResize(true)}
+            onPointerCancel={endResize(false)}
+            // No text selection, no drag of the whole area, no focus change from a handle.
+            onMouseDown={(e) => e.preventDefault()}
+            className={cn('absolute z-[5] touch-none', HANDLE[edge].strip)}
+          >
+            <span
+              className={cn(
+                'absolute rounded-full bg-ink shadow-[0_0_0_1.5px_rgba(0,0,0,0.55)] transition-opacity duration-(--dur-1)',
+                resizeCorner || sizing?.edge === edge
+                  ? 'opacity-100'
+                  : 'opacity-0 group-hover/region:opacity-80 group-focus-visible/region:opacity-80',
+                HANDLE[edge].pill,
+              )}
+            />
+          </div>
+        ))}
     </div>
   );
 }
@@ -161,14 +264,25 @@ export interface SlotCellProps extends DropHandlers {
   expected: boolean;
   /** A player is lifted with the keyboard: empty slots read as drop targets. */
   dropMode: boolean;
+  /** Waiting for a controller: the next press of a free one takes this slot. */
+  waiting: boolean;
   target: boolean;
   regionRef: Ref<HTMLDivElement>;
   onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => void;
+  onClick: () => void;
+  onBlur?: (e: FocusEvent<HTMLDivElement>) => void;
 }
 
-/** An empty slot of a layout: where the next player joins, or where a dragged one lands. */
+/** An empty slot of a layout: where the next player joins, where a dragged one lands, or where a controller is awaited. */
 export function SlotCell(props: SlotCellProps) {
-  const { frac, expected, dropMode, target } = props;
+  const { frac, expected, dropMode, waiting, target } = props;
+  const [title, note] = dropMode
+    ? ['Move here', undefined]
+    : waiting
+      ? ['Press a button on a controller', 'B or Esc cancels']
+      : expected
+        ? ['Waiting for a player', 'Set by the profile']
+        : ['Press Start to join', 'Or select it, then press any button'];
   return (
     <div
       ref={props.regionRef}
@@ -177,33 +291,46 @@ export function SlotCell(props: SlotCellProps) {
       aria-label={props.label}
       data-region
       onKeyDown={props.onKeyDown}
+      onClick={props.onClick}
+      onBlur={props.onBlur}
       onDragOver={props.onDragOver}
       onDragLeave={props.onDragLeave}
       onDrop={props.onDrop}
       style={place(frac)}
       className={cn(
-        'group/region absolute z-[1] overflow-hidden rounded-md bg-pane-2 select-none [container-type:size]',
-        'transition-[left,top,width,height,opacity] duration-(--dur-3) ease-snap',
+        'group/region absolute z-[1] cursor-pointer overflow-hidden rounded-md select-none [container-type:size]',
+        'transition-[left,top,width,height,opacity,background-color] duration-(--dur-3) ease-snap',
         'focus-visible:outline-none',
+        waiting ? 'bg-pane-3' : 'bg-pane-2',
       )}
     >
       <div className="absolute inset-0 grid place-content-center justify-items-center gap-[clamp(3px,3cqi,10px)] p-1.5 text-center">
-        <span aria-hidden="true" className="flex gap-2 text-ink-3 [@container(max-height:84px)]:hidden [@container(max-width:96px)]:hidden">
+        <span
+          aria-hidden="true"
+          className={cn('flex gap-2 [@container(max-height:84px)]:hidden [@container(max-width:96px)]:hidden', waiting ? 'text-ink' : 'text-ink-3')}
+        >
           <Icon name="pad" className="size-[clamp(16px,10cqi,30px)]" />
-          <Icon name="keyboard" className="size-[clamp(16px,10cqi,30px)]" />
+          {!waiting && <Icon name="keyboard" className="size-[clamp(16px,10cqi,30px)]" />}
         </span>
-        <strong className="text-[clamp(10px,5.6cqi,16px)] leading-[1.2] font-[650] text-ink-2 [@container(max-height:40px)]:hidden">
-          {dropMode ? 'Move here' : expected ? 'Waiting for a player' : 'Press any button to join'}
+        <strong
+          className={cn(
+            'text-[clamp(10px,5.6cqi,16px)] leading-[1.2] font-[650] [@container(max-height:40px)]:hidden',
+            waiting ? 'text-ink' : 'text-ink-2',
+          )}
+        >
+          {title}
         </strong>
-        {expected && !dropMode && (
-          <span className="text-[clamp(10px,4.4cqi,13px)] text-ink-3 [@container(max-height:64px)]:hidden">Set by the profile</span>
-        )}
+        {note && <span className="text-[clamp(10px,4.4cqi,13px)] text-ink-3 [@container(max-height:64px)]:hidden">{note}</span>}
       </div>
       <div
         aria-hidden="true"
         className={cn(
-          'pointer-events-none absolute inset-0 rounded-[inherit] border-[1.5px]',
-          expected ? 'border-solid border-ink-3' : 'animate-idle border-dashed border-line-strong',
+          'pointer-events-none absolute inset-0 rounded-[inherit]',
+          waiting
+            ? 'animate-wait border-2 border-solid border-ink'
+            : expected
+              ? 'border-[1.5px] border-solid border-ink-3'
+              : 'animate-idle border-[1.5px] border-dashed border-line-strong',
         )}
       />
       <div aria-hidden="true" className="pointer-events-none absolute inset-[6px] z-[4] rounded-[4px] opacity-0 shadow-[0_0_0_2px_var(--color-ink)] group-focus-visible/region:opacity-100" />

@@ -270,7 +270,7 @@ function Steps({ handler: h }: { handler: HubHandler }) {
     { title: 'Point to the game', body: `The first time, Nucleus finds ${h.gameName} on this PC or asks once where it is installed.` },
     {
       title: 'Take a seat',
-      body: 'Each player presses a button on their controller to join. Nucleus opens one window per player and tiles them.',
+      body: 'Each player presses Start on their controller to join. Nucleus opens one window per player and tiles them.',
       tip: h.inputs.multiKeyboardMouse ? (
         <>
           Using keyboards and mice? Press <Kbd>End</Kbd> once everything is in place to give each window its own cursor.

@@ -61,7 +61,7 @@ namespace Nucleus.Coop.Host
                 HostLog.Error("Could not create the OSD.", ex);
             }
 
-            // After the OSD: both threads report through Globals.MainOSD.
+            // After the OSD: the shortcuts thread reports through Globals.MainOSD.
             StartGamepadThreads();
         }
 
@@ -70,10 +70,10 @@ namespace Nucleus.Coop.Host
         {
             try
             {
-                // Starts each thread once; nothing on Windows 7/Vista (no xinput1_4.dll).
+                // Starts the thread once; nothing on Windows 7/Vista (no xinput1_4.dll).
                 if (!GamepadThreads.Start())
                 {
-                    HostLog.Info("Gamepad shortcuts and navigation need Windows 8 or later.");
+                    HostLog.Info("Gamepad shortcuts need Windows 8 or later.");
                 }
             }
             catch (Exception ex)

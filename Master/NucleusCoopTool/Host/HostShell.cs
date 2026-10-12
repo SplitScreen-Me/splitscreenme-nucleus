@@ -53,7 +53,7 @@ namespace Nucleus.Coop.Host
                     HostNative.ShowWindow(form.Handle, HostNative.SW_RESTORE); // back to maximized when it was
                 }
 
-                form.Activate();
+                form.BringToForeground(); // in front and focused even when a game had the last input, so pads work at once
             });
         }
 

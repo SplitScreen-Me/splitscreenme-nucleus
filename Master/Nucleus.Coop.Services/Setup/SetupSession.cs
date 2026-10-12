@@ -10,6 +10,7 @@ using Nucleus.Coop.Services.Startup;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 using Nucleus.Gaming.Generic.Step;
 
 namespace Nucleus.Coop.Services.Setup
@@ -57,6 +58,7 @@ namespace Nucleus.Coop.Services.Setup
             DevicesFunctions.AssignedDeviceLost += OnAssignedDeviceLost;
             BoundsFunctions.ScreensChanged += OnScreensChanged;
             PlayerInfo.FlashChanged += OnFlashChanged;
+            PlayerInfo.ButtonsPressed += OnButtonsPressed;
             GameProfile.CanPlayChanged += OnCanPlayChanged;
             GameProfile.OnReadyAutoPlayTrigger += OnAutoPlayTrigger;
             GameProfile.OnReset += OnProfileReset;
@@ -542,6 +544,23 @@ namespace Nucleus.Coop.Services.Setup
                 {
                     RequestPump();//keyboards are revealed by input; button-press profile matching
                 }
+            });
+        }
+
+        private void OnButtonsPressed(PlayerInfo device, PadButtons pressed)
+        {
+            //The polling raises it before the flash of the same press: the press is the start of the activity, and its flash
+            //adds nothing (lastActivity is already on). Later presses during the same activity are sent too.
+            Post(() =>
+            {
+                if (!IsOpen || SessionActive || !GameProfile.Instance.DevicesList.Contains(device))
+                {
+                    return;
+                }
+
+                string id = SetupSnapshotBuilder.KeyOf(device);
+                lastActivity[id] = true;
+                events.Emit(new DeviceActivity { DeviceId = id, Active = true, Buttons = DeviceIds.ButtonsOf(pressed) });
             });
         }
 

@@ -269,6 +269,30 @@ namespace Nucleus.Gaming.Coop
         /// </summary>
         public static event Action<PlayerInfo, bool> FlashChanged;
 
+        /// <summary>Gamepad buttons held at the last setup poll (<see cref="TrackButtons"/>).</summary>
+        public PadButtons HeldButtons;
+
+        /// <summary>
+        /// Raised by <see cref="TrackButtons"/> when gamepad buttons go down, with those buttons. The setup polling raises it
+        /// before the flash of the same press, on the thread that polls the pads.
+        /// </summary>
+        public static event Action<PlayerInfo, PadButtons> ButtonsPressed;
+
+        /// <summary>
+        /// Records the buttons a poll saw held on this pad (none when the poll saw no press), and raises
+        /// <see cref="ButtonsPressed"/> with the ones that went down since the previous poll.
+        /// </summary>
+        public void TrackButtons(PadButtons held)
+        {
+            PadButtons pressed = PadButtonRules.Pressed(HeldButtons, held);
+            HeldButtons = held;
+
+            if (pressed != PadButtons.None)
+            {
+                ButtonsPressed?.Invoke(this, pressed);
+            }
+        }
+
         private Stopwatch flashStopwatch = new Stopwatch();
         private Task flashTask = null;
 

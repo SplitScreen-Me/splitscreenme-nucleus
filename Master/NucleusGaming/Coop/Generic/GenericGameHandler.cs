@@ -276,8 +276,6 @@ namespace Nucleus.Gaming
                 UserPrompts.Ask(new PromptRequest { Kind = PromptKind.Message, Origin = PromptOrigin.LaunchReminder, Icon = PromptIcon.Info, Title = "Info", Message = "Some handlers will require you to press the End key to lock input. Remember to unlock input by pressing End again when you finish playing. You can disable this message in the Settings. ", DesktopOnly = true });
             }
 
-            if (GameProfile.Stop_UINav) { GamepadNavigation.StopUINavigation(); }
-
             if (gen.NeedSteamClient)
             {
                 SteamFunctions.StartSteamClient();
@@ -3083,8 +3081,7 @@ namespace Nucleus.Gaming
             if (!processingExit)
             {
                 gen.MetaInfo.StartGameplayTimerThread();
-                GamepadNavigation.StopUINavigation();
-                GameProfile.SaveGameProfile(profile);         
+                GameProfile.SaveGameProfile(profile);
             }
 
             gen.OnFinishedSetup?.Invoke();
@@ -3335,7 +3332,6 @@ namespace Nucleus.Gaming
             if (!processingExit)
             {
                 gen.MetaInfo.StartGameplayTimerThread();
-                GamepadNavigation.StopUINavigation();
                 GameProfile.SaveGameProfile(profile);
             }
             
@@ -3418,7 +3414,6 @@ namespace Nucleus.Gaming
             }
 
             gen.MetaInfo.StopGameplayTimerThread();
-            GamepadNavigation.StartUINavigation();
 
             GlobalWindowMethods.ResetBools();
            

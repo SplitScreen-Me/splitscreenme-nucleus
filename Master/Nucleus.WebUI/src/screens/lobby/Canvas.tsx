@@ -1,9 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState, type DragEvent, type KeyboardEvent, type ReactNode } from 'react';
-import type { ScreenLayout, SetupDevice, SetupPlayer, SetupScreen, SetupSnapshot } from '@/bridge';
+import { useEffect, useLayoutEffect, useRef, useState, type DragEvent, type FocusEvent as ReactFocusEvent, type KeyboardEvent, type ReactNode } from 'react';
+import type { Edge, ScreenLayout, SetupDevice, SetupPlayer, SetupScreen, SetupSnapshot } from '@/bridge';
 import { deviceIcon, isGamepadKind, isKeyboardKind } from '@/lib/devices';
-import { Button, cn, Icon, MenuButton, Pane, useConfirm, useToast } from '@/ui';
+import { Button, cn, Icon, MenuButton, Pane, useConfirm } from '@/ui';
 import type { LobbyCommands } from './commands';
 import { dragKind, readDrop, startDrag, type Dragged } from './dnd';
+import { sameSpot, type WaitingSpot } from './join-rules';
 import {
   devicesOf,
   fitRig,
@@ -25,6 +26,13 @@ import {
   type Box,
 } from './model';
 import { PlayerRegion, SlotCell } from './Region';
+import { arrowResize, cornerName, otherCorner, stepFracOf, type Corner } from './resize-core';
+
+/** A player being resized with the keyboard or a gamepad, and the corner the arrows move. */
+export interface ResizeMode {
+  playerId: string;
+  corner: Corner;
+}
 
 export interface CanvasProps {
   snap: SetupSnapshot;
@@ -34,14 +42,27 @@ export interface CanvasProps {
   flashes: Record<string, number>;
   justJoined: ReadonlySet<string>;
   announce: (message: string) => void;
+  resizing: ResizeMode | null;
+  onResizing: (mode: ResizeMode | null) => void;
+  /** The empty place waiting for a controller, if any. */
+  spot: WaitingSpot | null;
+  /** An empty place was clicked or activated: wait for a controller there. */
+  onPickSpot: (spot: WaitingSpot) => void;
+  onCancelSpot: () => void;
 }
+
+/** Arrows with Shift move an edge by this many steps. */
+const BIG_STEP = 5;
 
 const CAPTION_H = 74;
 
+/** How an empty place was activated: a pad's A reaches it as a synthetic Enter, the keyboard's is trusted. */
+type Via = 'keyboard' | 'pad' | 'pointer';
+const viaKey = (e: KeyboardEvent<HTMLElement>): Via => (e.nativeEvent.isTrusted ? 'keyboard' : 'pad');
+
 /** Screen canvas: the monitors, to scale, split into slots and player areas; devices waiting below. */
 export function Canvas(props: CanvasProps) {
-  const { snap, commands, announce } = props;
-  const toast = useToast();
+  const { snap, commands, announce, resizing, onResizing, spot, onPickSpot, onCancelSpot } = props;
   const confirm = useConfirm();
   const rigRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
@@ -72,8 +93,62 @@ export function Canvas(props: CanvasProps) {
     if (lifted && !playerById(snap, lifted)) setLifted(null);
   }, [snap, lifted]);
 
+  // Resize mode ends when its player leaves or can no longer be resized (a profile was loaded, the layout changed).
+  const stepOf = (p: SetupPlayer) => {
+    const screen = snap.screens.find((s) => s.index === p.screenIndex);
+    return p.canResize && screen ? stepFracOf(screen) : null;
+  };
+  const resizingPlayer = playerById(snap, resizing?.playerId);
+  const resizable = Boolean(resizingPlayer && stepOf(resizingPlayer));
+  useEffect(() => {
+    if (resizing && !resizable) onResizing(null);
+  }, [resizing, resizable, onResizing]);
+
+  // The hint bar reads the focused element's data-hints on focus: tell it the focused area changed mode.
+  useLayoutEffect(() => {
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && active.dataset.playerId && rigRef.current?.contains(active)) {
+      active.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+    }
+  }, [resizing?.playerId]);
+
   const rig = fitRig(snap.screens, snap.totalBounds, size.w, size.h, CAPTION_H);
   const liftedPlayer = playerById(snap, lifted ?? undefined);
+
+  // ---------- Resizing a player: edge handles (mouse), resize mode (keyboard and gamepads) ----------
+  const sizeOf = (p: SetupPlayer) => `${p.bounds.width} by ${p.bounds.height}`;
+  const resizeBy = async (p: SetupPlayer, edge: Edge, steps: number) => {
+    const next = await commands.resize(p.id, edge, steps);
+    const after = next && playerById(next, p.id);
+    if (after) announce(`${playerName(after)}: ${sizeOf(after)}.`);
+  };
+  const startResizing = (p: SetupPlayer) => {
+    setLifted(null);
+    onResizing({ playerId: p.id, corner: 'bottomRight' });
+    announce(`Resizing ${playerName(p)}, ${sizeOf(p)}. Arrows move the bottom right corner, X switches corners, Enter when done.`);
+  };
+  const resizeKeys = (p: SetupPlayer, mode: ResizeMode, e: KeyboardEvent<HTMLDivElement>) => {
+    const move = arrowResize(mode.corner, e.key);
+    if (move) {
+      e.preventDefault();
+      void resizeBy(p, move.edge, e.shiftKey ? move.steps * BIG_STEP : move.steps);
+    } else if (e.key === 'x' || e.key === 'X') {
+      e.preventDefault();
+      const corner = otherCorner(mode.corner);
+      onResizing({ ...mode, corner });
+      announce(`Arrows move the ${cornerName(corner)} corner.`);
+    } else if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
+      e.preventDefault();
+      onResizing(null);
+      announce(`Done resizing ${playerName(p)}.`);
+    } else if (e.key === 'Tab') {
+      onResizing(null);
+      return;
+    } else if (e.key !== 'Shift') {
+      return;
+    }
+    e.stopPropagation();
+  };
 
   // ---------- Moving players and devices ----------
   const dropOnSlot = (dragged: Dragged, screen: SetupScreen, slotIndex: number) => {
@@ -113,6 +188,15 @@ export function Canvas(props: CanvasProps) {
     return false;
   };
   const onPlayerKey = (p: SetupPlayer, screen: SetupScreen) => (e: KeyboardEvent<HTMLDivElement>) => {
+    if (resizing?.playerId === p.id) {
+      resizeKeys(p, resizing, e);
+      return;
+    }
+    if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.altKey && !e.metaKey && stepOf(p)) {
+      e.preventDefault();
+      startResizing(p);
+      return;
+    }
     if (commonKeys(e)) return;
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -135,27 +219,48 @@ export function Canvas(props: CanvasProps) {
     }
   };
   const freeKeyboard = snap.devices.find((d) => isFree(d) && d.revealed && isKeyboardKind(d.kind));
-  const onSlotKey = (screen: SetupScreen, slotIndex: number) => (e: KeyboardEvent<HTMLDivElement>) => {
-    if (commonKeys(e)) return;
-    if (e.key !== 'Enter' && e.key !== ' ') return;
-    e.preventDefault();
+  const pick = (screen: SetupScreen, slotIndex: number | undefined, x: number, y: number, via: Via) =>
+    onPickSpot({ screenIndex: screen.index, slotIndex, x, y, layout: screen.layout, at: performance.now(), byPad: via === 'pad' });
+  /** An empty slot activated: the lifted player moves there; else the keyboard joins there (Enter), or it waits for a controller. */
+  const activateSlot = (screen: SetupScreen, slotIndex: number, via: Via) => {
     if (liftedPlayer) {
       setLifted(null);
       void commands.movePlayer(liftedPlayer, screen.index, slotIndex);
       announce(`${playerName(liftedPlayer)} moved to ${screenName(screen)}, ${slotName(screen, slotIndex)}.`);
-    } else if (freeKeyboard) {
+    } else if (sameSpot(spot, { screenIndex: screen.index, slotIndex })) {
+      onCancelSpot();
+    } else if (via === 'keyboard' && freeKeyboard) {
       void commands.assignToSlot(freeKeyboard.id, screen.index, slotIndex);
     } else {
-      toast('Press a button on a free controller to join, or drag a device here.', { icon: 'info' });
+      pick(screen, slotIndex, 0.5, 0.5, via);
     }
+  };
+  /** A spot of a manual screen activated: the lifted player goes there, else it waits for a controller. */
+  const activateManual = (screen: SetupScreen, x: number, y: number, via: Via) => {
+    if (liftedPlayer) {
+      setLifted(null);
+      void commands.movePlayerAt(liftedPlayer, screen.index, x, y);
+    } else if (via !== 'pointer' && sameSpot(spot, { screenIndex: screen.index, slotIndex: undefined })) {
+      onCancelSpot();
+    } else {
+      pick(screen, undefined, x, y, via);
+    }
+  };
+  const onSlotKey = (screen: SetupScreen, slotIndex: number) => (e: KeyboardEvent<HTMLDivElement>) => {
+    if (commonKeys(e)) return;
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault();
+    activateSlot(screen, slotIndex, viaKey(e));
   };
   const onManualKey = (screen: SetupScreen) => (e: KeyboardEvent<HTMLDivElement>) => {
     if (commonKeys(e)) return;
-    if ((e.key === 'Enter' || e.key === ' ') && liftedPlayer) {
-      e.preventDefault();
-      setLifted(null);
-      void commands.movePlayerAt(liftedPlayer, screen.index, 0.5, 0.5);
-    }
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    e.preventDefault();
+    activateManual(screen, 0.5, 0.5, viaKey(e));
+  };
+  /** Focus leaving the waiting place (a click or Tab elsewhere) stops the wait; the window losing focus does not. */
+  const leaveSpot = (e: ReactFocusEvent<HTMLElement>) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node | null) && document.hasFocus()) onCancelSpot();
   };
 
   // ---------- Drag and drop ----------
@@ -211,6 +316,7 @@ export function Canvas(props: CanvasProps) {
             const box = rig?.boxes.get(screen.index);
             const players = snap.players.filter((p) => p.screenIndex === screen.index);
             const manual = screen.layout === 'manual';
+            const manualSpot = manual && spot?.screenIndex === screen.index && spot.slotIndex === undefined ? spot : null;
             return (
               <Monitor key={screen.index} screen={screen} box={box} animate={ready}>
                 {manual && (
@@ -218,8 +324,19 @@ export function Canvas(props: CanvasProps) {
                     role="button"
                     tabIndex={0}
                     data-region
-                    aria-label={`${screenName(screen)}, manual layout: drop a player anywhere${liftedPlayer ? ', Enter places the player in the middle' : ''}.`}
+                    aria-label={
+                      manualSpot
+                        ? `${screenName(screen)}: waiting for a controller. Press a button on a free controller to place it here. Escape cancels.`
+                        : `${screenName(screen)}, manual layout: drop a player anywhere${liftedPlayer ? ', Enter places the player in the middle' : ', or activate and press a button on a free controller'}.`
+                    }
                     onKeyDown={onManualKey(screen)}
+                    onClick={(e) => {
+                      const r = e.currentTarget.getBoundingClientRect();
+                      const x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+                      const y = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+                      activateManual(screen, x, y, 'pointer');
+                    }}
+                    onBlur={manualSpot ? leaveSpot : undefined}
                     onDragOver={over(`m${screen.index}`)}
                     onDragLeave={leave(`m${screen.index}`)}
                     onDrop={drop((dragged, e) => {
@@ -233,7 +350,10 @@ export function Canvas(props: CanvasProps) {
                       target === `m${screen.index}` && 'shadow-[inset_0_0_0_3px_var(--color-ink)]',
                     )}
                   >
-                    <span className={cn('px-3', players.length > 0 && 'sr-only')}>Manual layout: drop a player anywhere on this screen.</span>
+                    <span className={cn('px-3', (players.length > 0 || manualSpot) && 'sr-only')}>
+                      Manual layout: drop a player anywhere on this screen, or click a spot and press a button on a controller.
+                    </span>
+                    {manualSpot && <WaitingMarker x={manualSpot.x} y={manualSpot.y} />}
                   </div>
                 )}
                 {!manual &&
@@ -241,16 +361,25 @@ export function Canvas(props: CanvasProps) {
                     .filter((slot) => !slot.playerId)
                     .map((slot) => {
                       const key = `s${screen.index}:${slot.index}`;
+                      const where = `${screenName(screen)}, ${slotName(screen, slot.index)}`;
+                      const waiting = !liftedPlayer && sameSpot(spot, { screenIndex: screen.index, slotIndex: slot.index });
                       return (
                         <SlotCell
                           key={key}
                           frac={relative(slot.bounds, screen.bounds)}
-                          label={`${screenName(screen)}, ${slotName(screen, slot.index)}: ${slot.expected ? 'the profile expects a player here' : 'empty'}. ${liftedPlayer ? 'Enter moves the player here.' : 'Press a button on a free device to join.'}`}
+                          label={
+                            waiting
+                              ? `${where}: waiting for a controller. Press a button on a free controller to place it here. Escape cancels.`
+                              : `${where}: ${slot.expected ? 'the profile expects a player here' : 'empty'}. ${liftedPlayer ? 'Enter moves the player here.' : 'Press Start on a free controller to join, or activate to wait for a controller here.'}`
+                          }
                           expected={slot.expected}
                           dropMode={Boolean(liftedPlayer)}
+                          waiting={waiting}
                           target={target === key}
                           regionRef={null}
                           onKeyDown={onSlotKey(screen, slot.index)}
+                          onClick={() => activateSlot(screen, slot.index, 'pointer')}
+                          onBlur={waiting ? leaveSpot : undefined}
                           onDragOver={over(key)}
                           onDragLeave={leave(key)}
                           onDrop={drop((dragged) => dropOnSlot(dragged, screen, slot.index))}
@@ -275,6 +404,14 @@ export function Canvas(props: CanvasProps) {
                       justJoined={props.justJoined.has(p.id)}
                       ping={props.pings[p.id] ?? 0}
                       regionRef={null}
+                      step={stepOf(p)}
+                      monitor={screen.bounds}
+                      others={players.filter((o) => o.id !== p.id).map((o) => relative(o.bounds, screen.bounds))}
+                      resizeCorner={resizing?.playerId === p.id ? resizing.corner : null}
+                      onResize={(edge, steps) => void resizeBy(p, edge, steps)}
+                      onBlur={() => {
+                        if (resizing?.playerId === p.id) onResizing(null);
+                      }}
                       onKeyDown={onPlayerKey(p, screen)}
                       onDragStart={playerDragStart(p)}
                       onDragEnd={endDrag}
@@ -339,7 +476,7 @@ export function Canvas(props: CanvasProps) {
             {draggingPlayer ? (
               <b className="font-[650] text-ink">Drop here to take this player out</b>
             ) : waiting.length > 0 ? (
-              'Press any button on one of these to take the next free place, or drag it onto a screen.'
+              joinSentence(waiting)
             ) : keyboardsSupported && hidden.length > 0 ? (
               'Keyboards and mice appear here once you use them.'
             ) : (
@@ -405,6 +542,31 @@ export function Canvas(props: CanvasProps) {
       </div>
     </Pane>
   );
+}
+
+/** The spot of a manual screen waiting for a controller. */
+function WaitingMarker({ x, y }: { x: number; y: number }) {
+  return (
+    <span
+      aria-hidden="true"
+      style={{ left: `${x * 100}%`, top: `${y * 100}%` }}
+      className="pointer-events-none absolute z-[3] grid max-w-[90%] -translate-x-1/2 -translate-y-1/2 justify-items-center gap-1 rounded-ctl border-[1.5px] border-ink bg-pane-3 px-3 py-2 text-center animate-wait"
+    >
+      <Icon name="pad" className="size-5 text-ink" />
+      <strong className="text-13 leading-tight font-[650] text-ink">Press a button on a controller</strong>
+      <span className="text-12 text-ink-3">B or Esc cancels</span>
+    </span>
+  );
+}
+
+/** How the devices of the tray join: Start on a controller, any key on a keyboard, or a drag. */
+function joinSentence(devices: readonly SetupDevice[]): string {
+  const pads = devices.some((d) => isGamepadKind(d.kind));
+  const keyboards = devices.some((d) => isKeyboardKind(d.kind));
+  if (pads && keyboards) return 'Press Start on a controller, or any key on a keyboard, to join. Or drag a device onto a screen.';
+  if (pads) return 'Press Start on one of these to join, or drag it onto a screen.';
+  if (keyboards) return 'Press any key on one of these to join, or drag it onto a screen.';
+  return 'Drag one of these onto a screen.';
 }
 
 const boxStyle = (b: Box | undefined) =>
@@ -550,7 +712,7 @@ function WaitingDevice({
         <span className="min-w-0">
           <strong className="block max-w-[190px] truncate text-14 font-[650]">{d.name}</strong>
           <span className="block text-12 text-ink-3">
-            {identify ? 'Press a button to identify it' : isKeyboardKind(d.kind) ? 'Press any key to join' : d.kind === 'rawMouse' ? 'Drag onto a keyboard player' : 'Press any button to join'}
+            {identify ? 'Press a button to identify it' : isKeyboardKind(d.kind) ? 'Press any key to join' : d.kind === 'rawMouse' ? 'Drag onto a keyboard player' : 'Press Start to join'}
           </span>
         </span>
       </button>

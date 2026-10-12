@@ -123,7 +123,7 @@ export const SETTINGS_SCHEMA: SettingsSchema = {
     {
       id: 'gamepad',
       title: 'Gamepad',
-      description: 'Gamepad shortcuts and navigating the app with a gamepad.',
+      description: 'Gamepad shortcuts during a session. The app itself works with any gamepad.',
       fields: [
         combo('xShortcuts.close', 'Close Nucleus and every instance', '1024+16'),
         combo('xShortcuts.stop', 'Stop the session', '1024+32'),
@@ -133,20 +133,10 @@ export const SETTINGS_SCHEMA: SettingsSchema = {
         combo('xShortcuts.cutscenes', 'Cutscene mode', '1024+8192'),
         combo('xShortcuts.switch', 'Switch layout', '1024+512'),
         combo('xShortcuts.lockInputs', 'Lock or unlock the inputs', '1024+128'),
-        toggle('xUINav.enabled', 'Navigate the app with a gamepad', false),
-        choice(
-          'xUINav.type',
-          'Button prompts',
-          'Xbox',
-          [
-            { value: 'Xbox', label: 'Xbox' },
-            { value: 'PlayStation', label: 'PlayStation' },
-          ],
-          { visibleWhen: whenOn('xUINav.enabled') },
-        ),
-        number('xUINav.deadzone', 'Stick dead zone', 10000, { min: 0, max: 32000, step: 500 }, { visibleWhen: whenOn('xUINav.enabled') }),
-        combo('xUINav.dragDrop', 'Drag and drop', '512', { visibleWhen: whenOn('xUINav.enabled') }),
-        combo('xUINav.openOsk', 'Open the on-screen keyboard', '1024+1', { visibleWhen: whenOn('xUINav.enabled') }),
+        choice('gamepad.type', 'Gamepad type', 'Xbox', [
+          { value: 'Xbox', label: 'Xbox' },
+          { value: 'Playstation', label: 'PlayStation' },
+        ]),
       ],
     },
     {
@@ -210,7 +200,6 @@ export function createSettingsValues(): Record<string, string> {
   return {
     ...Object.fromEntries(SETTING_FIELDS.map((setting) => [setting.key, setting.default ?? ''])),
     'misc.network': 'Ethernet',
-    'xUINav.enabled': 'true',
     'misc.ignoreInputLockReminder': 'false',
     'misc.keepAccounts': 'true',
     'audio.instance1': AUDIO_OUTPUTS[1]?.value ?? 'Default',

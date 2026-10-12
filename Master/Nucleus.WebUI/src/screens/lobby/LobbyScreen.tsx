@@ -1,7 +1,7 @@
-// Lobby: "press a button to join" session setup for one game.
+// Lobby: "press Start to join" session setup for one game.
 // The host owns the setup (screens, layouts, devices, players, steps); this screen renders its snapshot and sends
-// commands. Only interaction state lives here: drags, a player picked up with the keyboard, typing, and the flashes
-// that answer a device's activity.
+// commands. Only interaction state lives here: drags, a player picked up with the keyboard, an empty place waiting for
+// a controller, typing, and the flashes that answer a device's activity.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
@@ -9,16 +9,19 @@ import { bridge, bridgeQueryKey, useBridgeEvent, useBridgeQuery, type SetupSnaps
 import { HandlerNotes } from '@/components/HandlerNotes';
 import { useAddGame } from '@/features/add-game';
 import { errorMessage } from '@/lib/bridge-ui';
-import { deviceNoun } from '@/lib/devices';
+import { deviceNoun, isGamepadKind } from '@/lib/devices';
 import { heroOf, useLibrary } from '@/lib/library';
 import { isSessionLive, useSessionSnapshot, useSetupSnapshot } from '@/lib/live';
 import { useScreenChrome } from '@/shell/chrome';
-import { useSharedCouchNav } from '@/shell/couch-nav';
+import { useCapturedCouchNav, useSharedCouchNav } from '@/shell/couch-nav';
 import { ButtonLink, Dialog, Icon, Pane, Spinner, useToast } from '@/ui';
-import { Canvas } from './Canvas';
+import { Canvas, type ResizeMode } from './Canvas';
 import { useLobbyCommands } from './commands';
+import { spotStillOpen, type WaitingSpot } from './join-rules';
+import { lobbyHints } from './hints';
 import { LobbyHeader, profileTitle } from './LobbyHeader';
-import { playerName } from './model';
+import { deviceById, playerName, screenName, slotName } from './model';
+import { ProfilesManager } from './ProfilesDialog';
 import { LaunchPane, SidePanel } from './SidePanel';
 import { CustomStep, OptionsStep } from './Steps';
 import { usePressToJoin } from './usePressToJoin';
@@ -61,10 +64,16 @@ export default function LobbyScreen() {
   const [pings, setPings] = useState<Record<string, number>>({});
   const [flashes, setFlashes] = useState<Record<string, number>>({});
   const [justJoined, setJustJoined] = useState<ReadonlySet<string>>(new Set());
+  const [profilesOpen, setProfilesOpen] = useState(false);
+  const [resizing, setResizing] = useState<ResizeMode | null>(null);
+  // An empty place picked by clicking or activating it: the next press of a free pad takes it.
+  const [spot, setSpot] = useState<WaitingSpot | null>(null);
 
-  // Pads belong to players here (any press on a free one joins): every pad moves focus, only the one that moved last
-  // presses buttons, and B only closes a menu or a dialog.
+  // Pads belong to players here (Start on a free one joins): every pad moves focus, only the one that moved last
+  // presses buttons, and B only closes a menu or a dialog. While a place waits for a controller, the pads only cancel
+  // (B): their next press belongs to that place.
   useSharedCouchNav();
+  useCapturedCouchNav(spot !== null);
 
   // ---------- Open the setup of this game (once), unless a session runs ----------
   const live = isSessionLive(session?.state);
@@ -120,10 +129,77 @@ export default function LobbyScreen() {
   }, [locateGame, gameId, snap?.gameName, summary?.name, executablePath]);
   const commands = useLobbyCommands(onNeedsPicker);
 
+  const loadProfile = async (profileId: number) => {
+    const loaded = await commands.loadProfile(profileId);
+    const p = profiles.data?.find((x) => x.id === profileId);
+    if (loaded) toast(`Loaded ${p ? profileTitle(p) : 'the profile'}. Players join as they press a button.`);
+    return Boolean(loaded);
+  };
+  const unloadProfile = async () => {
+    const unloaded = await commands.unloadProfile();
+    if (unloaded) toast('Profile unloaded. Place players freely.');
+    return Boolean(unloaded);
+  };
+  // ---------- A place waiting for a controller ----------
+  const liveSpot = useRef({ spot, snap });
+  liveSpot.current = { spot, snap };
+  const pickSpot = useCallback(
+    (picked: WaitingSpot) => {
+      setSpot(picked);
+      const screen = liveSpot.current.snap?.screens.find((s) => s.index === picked.screenIndex);
+      const where = screen ? `${screenName(screen)}${picked.slotIndex === undefined ? '' : `, ${slotName(screen, picked.slotIndex)}`}` : 'this place';
+      announce(`Waiting for a controller on ${where}: press a button on it. Escape cancels.`);
+    },
+    [announce],
+  );
+  const cancelSpot = useCallback(() => {
+    if (!liveSpot.current.spot) return;
+    setSpot(null);
+    announce('No longer waiting for a controller.');
+  }, [announce]);
+  const takeSpot = useCallback(
+    async (deviceId: string, at: WaitingSpot) => {
+      setSpot(null);
+      const name = liveSpot.current.snap ? deviceById(liveSpot.current.snap, deviceId)?.name : undefined;
+      const next =
+        at.slotIndex === undefined
+          ? await commands.assignAt(deviceId, at.screenIndex, at.x, at.y)
+          : await commands.assignToSlot(deviceId, at.screenIndex, at.slotIndex);
+      const player = next?.players.find((p) => p.deviceIds.includes(deviceId));
+      if (!player) return;
+      announce(`${name ?? 'A controller'} joined: ${playerName(player)}, player ${player.number}.`);
+      // Focus follows the new player, so the keyboard and the pads carry on from there.
+      requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-player-id="${CSS.escape(player.id)}"]`)?.focus({ preventScroll: true }));
+    },
+    [commands, announce],
+  );
+
+  // The place stops waiting when it is gone or taken, off the players step, and while launching.
+  const stepKind = snap?.flow.steps[snap.flow.current]?.kind;
+  const onCanvas = Boolean(snap) && stepKind !== 'options' && stepKind !== 'custom';
+  useEffect(() => {
+    if (spot && (!snap || !onCanvas || launching || !spotStillOpen(spot, snap.screens))) setSpot(null);
+  }, [spot, snap, onCanvas, launching]);
+
+  // Escape cancels wherever the focus is.
+  useEffect(() => {
+    if (!spot) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || document.querySelector('dialog[open]')) return;
+      e.preventDefault();
+      e.stopPropagation();
+      cancelSpot();
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [spot, cancelSpot]);
+
   // ---------- Device activity: press to join, flashes, pings ----------
   usePressToJoin({
     snap,
     enabled: Boolean(snap) && !launching,
+    spot,
+    onTakeSpot: (deviceId, at) => void takeSpot(deviceId, at),
     onFlash: (deviceId) => setFlashes((f) => ({ ...f, [deviceId]: (f[deviceId] ?? 0) + 1 })),
     onPing: (playerId) => setPings((s) => ({ ...s, [playerId]: (s[playerId] ?? 0) + 1 })),
     announce,
@@ -131,7 +207,8 @@ export default function LobbyScreen() {
 
   useBridgeEvent('setup.deviceLost', ({ kind, playerNumber, nickname }) => {
     const who = playerNumber ? `${nickname?.trim() || `Player ${playerNumber}`}${nickname ? ` (player ${playerNumber})` : ''}` : 'A player';
-    toast(`${who} lost their ${deviceNoun(kind)}. Plug it back in, or press a button on another one.`, { icon: 'warning', durationMs: 5000 });
+    const again = isGamepadKind(kind) ? 'press Start on another one' : 'use another one';
+    toast(`${who} lost their ${deviceNoun(kind)}. Plug it back in, or ${again}.`, { icon: 'warning', durationMs: 5000 });
   });
 
   // Players who just appeared get the join animation; joins and leaves are announced.
@@ -151,11 +228,21 @@ export default function LobbyScreen() {
     return () => window.clearTimeout(t);
   }, [snap, announce]);
 
+  // A pad's X reaches the focused player area as the key the keyboard uses: R starts resizing, X switches corners.
+  const keyToFocusedPlayer = (key: string) => () => {
+    const area = document.activeElement?.closest<HTMLElement>('[data-player-id]');
+    area?.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+  };
+  // Only what the buttons do whatever has focus (see hints.ts); while a place waits for a controller, B cancels.
   useScreenChrome([{ label: 'Library', to: '/library' }, { label: snap?.gameName ?? summary?.name ?? 'Setting up' }], {
-    base: [{ button: 'A', label: 'Any button on a free controller joins; move, then A selects' }],
-    aside: (
+    ...lobbyHints(spot !== null, { cancelWait: cancelSpot, resize: keyToFocusedPlayer('r'), otherCorner: keyToFocusedPlayer('x') }),
+    aside: spot ? (
       <span>
-        Keyboard: <b>Enter</b> picks up a player, <b>Delete</b> takes them out
+        Waiting for a controller: <b>Esc</b> cancels
+      </span>
+    ) : (
+      <span>
+        Keyboard: <b>Enter</b> picks up a player, <b>R</b> resizes, <b>Delete</b> takes them out
       </span>
     ),
   });
@@ -207,14 +294,9 @@ export default function LobbyScreen() {
         summary={summary}
         profiles={profiles.data ?? []}
         onOpenNotes={() => setNotesOpen(true)}
-        onLoadProfile={async (profileId) => {
-          const loaded = await commands.loadProfile(profileId);
-          const p = profiles.data?.find((x) => x.id === profileId);
-          if (loaded) toast(`Loaded ${p ? profileTitle(p) : 'the profile'}. Players join as they press a button.`);
-        }}
-        onUnloadProfile={async () => {
-          if (await commands.unloadProfile()) toast('Profile unloaded. Place players freely.');
-        }}
+        onLoadProfile={(profileId) => void loadProfile(profileId)}
+        onUnloadProfile={() => void unloadProfile()}
+        onManageProfiles={() => setProfilesOpen(true)}
       />
 
       {step?.kind === 'options' ? (
@@ -222,7 +304,20 @@ export default function LobbyScreen() {
       ) : customStep ? (
         <CustomStep step={customStep} commands={commands} />
       ) : (
-        <Canvas snap={snap} art={art} commands={commands} pings={pings} flashes={flashes} justJoined={justJoined} announce={announce} />
+        <Canvas
+          snap={snap}
+          art={art}
+          commands={commands}
+          pings={pings}
+          flashes={flashes}
+          justJoined={justJoined}
+          announce={announce}
+          resizing={resizing}
+          onResizing={setResizing}
+          spot={spot}
+          onPickSpot={pickSpot}
+          onCancelSpot={cancelSpot}
+        />
       )}
 
       <aside aria-label="Session" className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-gutter">
@@ -238,6 +333,15 @@ export default function LobbyScreen() {
         </p>
         {details?.notes ? <HandlerNotes>{details.notes}</HandlerNotes> : <p className="text-ink-2">This handler has no notes.</p>}
       </Dialog>
+
+      <ProfilesManager
+        snap={snap}
+        profiles={profiles.data ?? []}
+        open={profilesOpen}
+        onClose={() => setProfilesOpen(false)}
+        onLoad={loadProfile}
+        onUnload={unloadProfile}
+      />
 
       <div className="sr-only" aria-live="polite">
         {announcement}

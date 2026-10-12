@@ -51,8 +51,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         private static int gamepadTickQueued;
         private static int pollingTickQueued;
 
-        //SDL lives on its own message-pumping thread, and the ticks skip SDL while it refreshes.
-        private static readonly object sdlSync = new object();
+        //SDL lives on its own message-pumping thread, and the ticks skip SDL while it refreshes (SDLManager.Sync).
         private static SynchronizationContext sdlContext;
 
         public static void Initialize(UserGameInfo _userGameInfo, GameProfile _profile)
@@ -77,7 +76,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             if (!SDLManager.SDL_INITIALIZED)
             {
                 SynchronizationContext sdl = GetSdlContext();
-                sdl.Post(_ => { lock (sdlSync) { SDLManager.InitSDL(sdl); } }, null);
+                sdl.Post(_ => SDLManager.InitSDL(sdl), null);
             }
 
             GamepadTimer = new System.Threading.Timer(GamepadTimer_Tick, null, 0, 300);
@@ -144,10 +143,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         public static void RefreshSDL(SynchronizationContext syncContext)
         {
             //Runs on the SDL helper thread (syncContext is its context): the 1 s pause of the refresh doesn't block the UI.
-            lock (sdlSync)
-            {
-                SDLManager.Refresh(syncContext);
-            }
+            SDLManager.Refresh(syncContext);
         }
 
         /// <summary>Rescans SDL controllers on the SDL helper thread and returns at once.</summary>
@@ -310,17 +306,24 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 if (g.Hook.SDL2Enabled)
                 {
                     //Skip SDL while the helper thread refreshes it (the controller handles are being replaced).
-                    if (Monitor.TryEnter(sdlSync))
+                    if (Monitor.TryEnter(SDLManager.Sync))
                     {
                         try
                         {
                             changed |= CheckConnectedGamepads();
 
+                            List<D_Joystick> dinputDevices = DInputManager.D_JoysticksList;
+
                             for (int i = 0; i < SDLManager.SDL2DevicesList.Count; i++)
                             {
                                 SDL_GameController controller = SDLManager.SDL2DevicesList[i];
 
-                                if (controller == IntPtr.Zero || !SDLManager.IsConnected(controller))
+                                if (controller == IntPtr.Zero)
+                                {
+                                    continue;//a joystick without a game controller mapping: not a setup device
+                                }
+
+                                if (!SDLManager.IsConnected(controller))
                                 {
                                     changed = true;//do not move
                                     continue;
@@ -331,11 +334,9 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                     continue;
                                 }
 
-                                SDL_DeviceInfo devInfo = GetSDL_DeviceInfo(controller);
-
                                 if (App_Misc.VGMOnly)
                                 {
-                                    int vid = SDL2.JoystickGetDeviceVendor(i);
+                                    int vid = SDL2.SDL_GameControllerGetVendor(controller);
 
                                     if (!vid.ToString().StartsWith("202"))
                                     {
@@ -348,23 +349,36 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                 player.HIDDeviceID = new string[] { "Not required", "Not required" };
                                 player.SDL2Joystick = controller;
                                 player.GamepadId = SDL2.SDL_GameControllerGetPlayerIndex(player.SDL2Joystick);
+                                player.GamepadName = SDL2.GameControllerNameString(controller);
                                 player.DeviceKey = player.GamepadId >= 0 ? "sdl:" + player.GamepadId : "sdl:h" + ((IntPtr)controller).ToInt64().ToString("x");
+                                player.IsSDL2 = true;
 
                                 if (GameProfile.UseXinputIndex)
                                 {
-                                    string guid = player.GamepadId + 1 >= 10 ? $"00000000-0000-0000-0000-2000000000{player.GamepadId + 1}" : $"00000000-0000-0000-0000-20000000000{player.GamepadId + 1}";
-                                    player.GamepadGuid = new Guid(guid);
+                                    player.GamepadGuid = GamepadIdentity.SlotGuid(player.GamepadId);
                                     player.IsInputUsed = true;
                                 }
+                                else
+                                {
+                                    IdentifySdlByPath(player, data, dinputDevices);
+                                }
 
-                                player.IsSDL2 = true;
                                 data.Add(player);
                                 changed = true;
+                            }
+
+                            //DirectInput lists its devices on its own thread, sometimes after SDL: retry the pads not identified yet.
+                            if (!GameProfile.UseXinputIndex)
+                            {
+                                foreach (PlayerInfo sdlPad in data.Where(d => d.IsSDL2 && !d.IsFake && !d.IsInputUsed && d.DInputJoystick == null).ToList())
+                                {
+                                    changed |= IdentifySdlByPath(sdlPad, data, dinputDevices);
+                                }
                             }
                         }
                         finally
                         {
-                            Monitor.Exit(sdlSync);
+                            Monitor.Exit(SDLManager.Sync);
                         }
                     }
                 }
@@ -418,27 +432,49 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                     if (!player.IsController){ continue; }
 
+                    //A press the poll sees: which buttons it holds (the new ones raise PlayerInfo.ButtonsPressed), then the flash.
+                    bool polled = true;
+                    bool pressed = false;
+                    PadButtons held = PadButtons.None;
+
                     switch (player.InputType)
                     {
                         case InputType.DInput:
-                            if (DInputManager.Poll(player)) { player.FlashIcon(); }
+                            pressed = DInputManager.Poll(player);
+                            if (pressed) { held = DInputManager.ReadButtons(player); }
                             break;
                         case InputType.XInput:
-                            if (XInputManager.Poll(player, userGameInfo?.Game, profile?.DevicesList)) { player.FlashIcon(); }
+                            pressed = XInputManager.Poll(player, userGameInfo?.Game, profile?.DevicesList);
+                            if (pressed) { held = XInputManager.ReadButtons(player); }
                             break;
                         case InputType.SDL2:
                             if (!sdlLocked)
                             {
-                                if (!Monitor.TryEnter(sdlSync))
+                                if (!Monitor.TryEnter(SDLManager.Sync))
                                 {
+                                    polled = false;
                                     break;//SDL is refreshing
                                 }
 
                                 sdlLocked = true;
                             }
 
-                            if (SDLManager.Poll(player)) { player.FlashIcon(); }
+                            pressed = SDLManager.Poll(player, userGameInfo?.Game, profile?.DevicesList);
+                            if (pressed) { held = SDLManager.ReadButtons(player); }
                             break;
+                        default:
+                            polled = false;
+                            break;
+                    }
+
+                    if (polled)
+                    {
+                        player.TrackButtons(held);
+                    }
+
+                    if (pressed)
+                    {
+                        player.FlashIcon();
                     }
                 }
             }
@@ -450,9 +486,37 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             {
                 if (sdlLocked)
                 {
-                    Monitor.Exit(sdlSync);
+                    Monitor.Exit(SDLManager.Sync);
                 }
             }
+        }
+
+        /// <summary>
+        /// Identifies an SDL pad by its device path, which is also its DirectInput interface path (SDL's HIDAPI and raw
+        /// input drivers): exact, so no button press is needed. Like a DirectInput pad, it is shown at once, or at its first
+        /// press with "assign gamepads on button press". Call with SDLManager.Sync held.
+        /// </summary>
+        private static bool IdentifySdlByPath(PlayerInfo player, List<PlayerInfo> devices, List<D_Joystick> dinputDevices)
+        {
+            string path = SDLManager.PathOf(player.SDL2Joystick);
+            D_Joystick joystick = GamepadIdentity.FindByPath(player, devices, dinputDevices, path);
+
+            if (joystick == null)
+            {
+                return false;
+            }
+
+            string sdlName = player.GamepadName;
+            GamepadIdentity.Bind(player, joystick);
+
+            if (!string.IsNullOrEmpty(sdlName))
+            {
+                player.GamepadName = sdlName;
+            }
+
+            player.IsInputUsed = !userGameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress;
+            player.IdentificationFailedUtc = DateTime.MinValue;
+            return true;
         }
 
         private static bool CheckConnectedGamepads()
@@ -620,8 +684,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         {
             if (player.SDL2Joystick != IntPtr.Zero)
             {
-                SDL2.GameControllerClose(player.SDL2Joystick);
-                SDLManager.SDL2DevicesList.Remove(player.SDL2Joystick);
+                SDLManager.Close(player.SDL2Joystick);//not a handle SDL freed in a refresh
             }
 
             if (GameProfile.AssignedDevices.Contains(player))

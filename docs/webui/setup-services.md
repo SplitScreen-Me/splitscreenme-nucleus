@@ -19,6 +19,7 @@ Code: `Master/Nucleus.Coop.Services/Setup`, `Profiles`, `Session`. Seams: `Maste
 | `Profiles/ProfilesService` (`IProfilesService`) | List, load, unload, delete, settings | `ProfilesList`, `ProfileSettings` |
 | `Session/SessionService` (`ISessionService`) | Play, Stop, end handling, instances, actions | `Core_Interface.PlayClicked`, `I_GameHandlerEndFunc`, `Handler_Ended`, `HotkeyListener` |
 | `Session/SessionLog` | Launch log ring buffer, `session.log` | `GenericGameHandler.Log` (debug-log.txt) |
+| `Session/SessionSummaryBuilder` (pure) | `SessionSnapshot.LastSession`: players and device names, duration, outcome, error lines | none (new) |
 
 Registration: `NucleusServices.Register` creates one `SetupSession` and the three services after the library services (which create `GameManager`). `SetupSession.HandlerUpdater` is the handlers service (`IHandlerUpdater`) for the handler update check.
 
@@ -39,7 +40,7 @@ Registration: `NucleusServices.Register` creates one `SetupSession` and the thre
 | `unassign` | `BoundsFunctions.Unassign` (`RemovePlayer`, or guest removal). |
 | `addGuest` / `removeGuest` | `BoundsFunctions.AddGuest/RemoveGuest`: hover rules of `OnMouseMove` (gamepads, `PlayersPerInstance`, profile `CurrentMaxGuests`), `RemoveGuestCore` shared with the right click. |
 | `toggleExpand` | `BoundsFunctions.ToggleExpand` → `ToggleExpandCore` (the right-click block, extracted unchanged). |
-| `resize` | `BoundsFunctions.Resize` → `ResizeStep` (the sizer blocks of `EditPlayerBounds`, extracted; one step = cell/20, one cell in the manual layout), repeated `steps` times. |
+| `resize` | `BoundsFunctions.Resize` → `ResizeStep` (the sizer blocks of `EditPlayerBounds`, extracted; one step = cell/20, one cell in the manual layout), repeated `steps` times; it stops at the first step that can't be made. The snapshot gives the step of each screen in pixels (`SetupScreen.ResizeStepWidth/Height`, `SnapshotMath.ResizeStep`, 0 where players can't be resized), so the UI turns a drag into steps. |
 | `autoFill` | `BoundsFunctions.AutoFill`: revealed, unplaced devices in free slots, in device order (see behaviour changes). |
 | `clearAll` | `GameProfile.Instance.Reset()` (unassign + unload), option values kept when no profile was loaded. |
 | `setOptionChoice` / `setOptionText` | Stores the original `GameOption.List` item (string, double, ExpandoObject) or enum value, or the text, in `profile.Options[key]`. |
@@ -50,7 +51,7 @@ Registration: `NucleusServices.Register` creates one `SetupSession` and the thre
 | `setUseApiIndex` | `MetaInfo.UseApiIndex` (and button-press mode off when on), `GameProfile.UseXinputIndex` (devices rebuilt), reload of a loaded profile, players step. |
 | `setSaveProfileOnLaunch` | `MetaInfo.SaveProfile`. |
 | `refreshDevices` | `DInputManager.Refresh`, SDL refresh on its helper thread, raw keyboards/mice rescanned (`GameProfile.RefreshKeyboardAndMouse`, placed ones unassigned first), audio outputs. `deviceLost` is muted for 3 s. |
-| `rumble` | XInput: full vibration for 300 ms (timer, never blocks); SDL: `SDL_GameControllerRumble`; others: `rumbleNotSupported`. |
+| `rumble` | XInput: full vibration for 300 ms (timer, never blocks); SDL: `SDLManager.Rumble` (skipped while SDL refreshes, never on a stale handle); others: `rumbleNotSupported`. |
 
 ### profiles
 
@@ -67,7 +68,7 @@ Registration: `NucleusServices.Register` creates one `SetupSession` and the thre
 
 | Method | Implementation |
 |---|---|
-| `get` | State machine: `idle` (no setup), `setup`, `launching` (from Play until `GameProfile.Saved`, set when Play finished placing the windows), `running`, `ending`. Instances come from the launch players (the cloned profile's list). |
+| `get` | State machine: `idle` (no setup), `setup`, `launching` (from Play until `GameProfile.Saved`, set when Play finished placing the windows), `running`, `ending`. Instances come from the launch players (the cloned profile's list). `LastSession`, built when a session ends or fails to start and kept until the next Play: the players and device names of the setup snapshot taken at Play, start and end, whether it reached `running`, the error, and the error lines of the log (20 at most, with their count). |
 | `play` | Requires `Flow.CanPlay`. Pump once (fresh identities), then `GameProfile.InitializeHandlerStartup(OnHandlerEnded)` on the UI thread (it disposes the device timers, reloads the script, `CleanClone`, starts the handler threads), `shell.MinimizeWindow()`, state `launching`, 500 ms poll. Launch dialogs stay native (they are ownerless and run on the play thread). |
 | `stop` | Refused while inputs are locked (`End` would return at once). State `ending`, `End(true)` on a worker (about 9 s of sleeps); if `End` returned early anyway, the previous state comes back with an error. |
 | Ended (any thread) | Posted to the UI thread once: `I_GameHandler = null`, `SetupSession.ResetAfterSession()` (always), `shell.RestoreWindow()`, state `setup`, `profiles.changed` (the launch may have saved a profile). A handler that ended without raising `Ended` is caught by the poll. |
@@ -79,7 +80,7 @@ Registration: `NucleusServices.Register` creates one `SetupSession` and the thre
 | Event | When |
 |---|---|
 | `setup.changed` | Coalesced (about 100 ms) after commands, device ticks (300 ms), flashes, profile matching, monitor changes. Only when the snapshot changed (JSON comparison); never during a session. |
-| `setup.deviceActivity` | `PlayerInfo.FlashChanged` edges (on/off), deduplicated per device. `FlashIcon` already limits the rate (250 ms, off 500 ms after the last input). |
+| `setup.deviceActivity` | `PlayerInfo.FlashChanged` edges (on/off), deduplicated per device. `FlashIcon` already limits the rate (250 ms, off 500 ms after the last input). Gamepads also send one per new button press, with `buttons` (`PlayerInfo.ButtonsPressed`: the 150 ms polling reads the held buttons, XInput and SDL by name, DirectInput only its Start, button 10, or 8 on Microsoft pads, and `Other`), before the flash of that press. The lobby joins a pad on `start` only, and a place waiting for a controller takes any other press but B. |
 | `setup.deviceLost` | `DevicesFunctions.AssignedDeviceLost` (a placed device or a guest unplugged), with the player number and nickname. The flow goes back to the players step, as the WinForms UI did. |
 | `profiles.changed` | Delete, save of a saved profile's settings, after a session. |
 | `session.changed` | State changes, poll (500 ms) when the snapshot changed, setup open/close. |
@@ -101,7 +102,7 @@ The WinForms setup screen did business logic while painting: `GameProfile.FindPr
 - Every state change runs on the UI thread (the WebView2 host's WinForms context, `IHostShell.UiContext`). Bridge calls arrive there.
 - R4: in headless mode `DevicesFunctions.Dispatch` posts to the UI thread. The 300 ms device tick and the 150 ms polling tick post their whole body (one queued at most), so `DevicesList`, `AssignedDevices` and the screens are only touched on the UI thread. The screens watcher (3 s) posts too. Nothing uses `Control.Invoke`.
 - Measured with the smoke test (Valheim handler: 32 OpenXinput slots probed, raw keyboards and mice, no gamepad connected): UI thread callbacks delayed 0.2 ms on average, 7 ms at most.
-- SDL is initialized, refreshed (it sleeps 1 s) and hot-plugged on a dedicated STA thread with a message loop ("Nucleus SDL"); the ticks skip SDL while it refreshes (`Monitor.TryEnter`). `DevicesFunctions.Dispatch` is required: `BoundsFunctions.Initialize` and `DevicesFunctions.Initialize` throw without it, and the timer ticks do nothing.
+- SDL is initialized, refreshed (it sleeps 1 s) and hot-plugged on a dedicated STA thread with a message loop ("Nucleus SDL"). `SDLManager.Sync` guards every SDL call: the refresh holds it throughout, the event loop ("Nucleus SDL events") only while it pumps, and the ticks, `IsConnected`, `Close` and `Rumble` take it with `Monitor.TryEnter` (they skip SDL while it is busy). A refresh quits SDL, which frees every controller: handles opened before it are never passed to SDL again. `DevicesFunctions.Dispatch` is required: `BoundsFunctions.Initialize` and `DevicesFunctions.Initialize` throw without it, and the timer ticks do nothing.
 - Raw input keeps its own thread; `FlashIcon` and `FlashChanged` come from it and are posted.
 - `End` runs on a worker; `Ended` is posted. Session actions run on a background STA thread. Nothing blocks the UI thread except the existing synchronous work of `InitializeHandlerStartup` (script reload, clone, thread start), as in the WinForms UI.
 
@@ -123,7 +124,7 @@ The NucleusCoopTool parts of R12 and R13 (`Core_Interface.cs`) were deleted with
 | R9 | `Coop/GameProfile.cs`, new `Coop/ProfileSettingsModel.cs` | `UpdateProfilePlayerIdentity` hardened (unassigned or 33rd player, missing handler Steam IDs, unparsable values); `ReadProfiles()`, `DeleteProfile(id)` (from `ProfilesList`); `ProfileSettingsModel` (validation + apply of `ProfileSettings`), creating `game profiles\` before the history backups. `RefreshKeyboardAndMouse` public. The options codec lives in the services (it would break the WinForms card auto-select if applied in `LoadGameProfile`). |
 | R10 | `Coop/GameProfile.cs` | `InitializeHandlerStartup(Action onEnded)`: `Ended` subscribed between `MakeHandler` and `Initialize`. The parameterless overload (legacy UI only) was removed with it. It throws when the handler script no longer parses, instead of launching the previously parsed version (`session.play` answers `unavailable`, the script error is a notice). |
 | R11 | `Coop/InputManagement/RawInputProcessor.cs`, `Coop/GameManager.cs` | `Globals.MainOSD?.Show` in the raw input loop; raw input registered once per process (one shared `RawInputProcessor`, no second window on a handlers refresh). |
-| R12 | new `Coop/InputManagement/Gamepads/GamepadThreads.cs`, `NucleusCoopTool/UI/Core_Interface.cs` | `GamepadThreads.Start()` (no UI control), returns false on Windows 7/Vista; `InitializeGamepadThreads` calls it and keeps its WinForms touches. Hosts call `GamepadThreads.Start()`. |
+| R12 | new `Coop/InputManagement/Gamepads/GamepadThreads.cs`, `NucleusCoopTool/UI/Core_Interface.cs` | `GamepadThreads.Start()` (no UI control), returns false on Windows 7/Vista; `InitializeGamepadThreads` calls it and keeps its WinForms touches. Hosts call `GamepadThreads.Start()`. Since 2026-10-12 it only starts the shortcuts thread: the gamepad-as-mouse thread (`GamepadNavigation`) was removed. |
 | R13 | `NucleusCoopTool/UI/Core_Interface.cs` | The Stop button no longer resets the setup when `End` returned early because inputs are locked (the reset would empty the running handler's player list). |
 | Log hook | `Coop/Generic/GenericGameHandler.cs` | `GenericGameHandler.LogHook` (static, null by default), called by `Log(string)`. |
 | OSD event | `Forms/WPF_OSD.cs` | `WPF_OSD.MessageShown` (static, no subscriber by default), raised by `Show` for the main OSD only. |
@@ -147,11 +148,17 @@ The NucleusCoopTool parts of R12 and R13 (`Core_Interface.cs`) were deleted with
   - The disconnect check uses the OpenXinput controller that detected the pad, instead of the system `xinput1_3.dll`.
   - Handlers with both DirectInput and XInput no longer "dispose" the DirectInput view of XInput pads on every tick. That disposal triggered a full DirectInput refresh about once a second, which removed placed DirectInput pads from their slots.
   - `DInputManager.Refresh` stops the previous watcher thread and locks the device lists.
+- **SDL pads identified like XInput pads (2026-10-12).** The 8 SDL handlers (`Hook.SDL2Enabled`) revealed a pad only when exactly one DirectInput device saw its press, with the problems above; a revealed pad could be rebound to another device by a later press, a press with two pads pressed returned nothing (no flash, no join), and in slot mode later presses replaced the slot GUID with a DirectInput one.
+  - At detection, an SDL pad whose path (HIDAPI and raw input drivers) is a DirectInput interface path takes that device's identity at once and is revealed like a DirectInput pad (on its first press with "assign gamepads on button press"). Detection retries this each tick, since DirectInput lists its devices on its own thread. The pad keeps SDL's name ("PS4 Controller").
+  - Otherwise a press runs `GamepadIdentity.Identify` with an SDL `PadHint`: path, then the only pressed device, then the USB ids (a pressed device with other ids is another pad), then the `IG_` views for Xbox pads; without a match, the SDL handlers (none needs the DirectInput identity) reveal the pad with the slot GUID of its SDL player index, which is what `SDL2.ini` gives the game.
+  - An identified pad stays identified; each press returns true (flash, press-to-join).
+  - Robustness: `SDL_GameControllerGetPlayerIndex` returns an `int` (it was declared `byte`: -1 became 255), `SDL2.GetString` accepts NULL (a controller without a path or name ended the process), the event loop handles only the events `SDL_PollEvent` returns (it re-handled the last one every 16 ms), joysticks without a controller mapping no longer mark the device list changed every tick.
 - The Stop button of the WinForms UI no longer resets while inputs are locked (R13); toggling API indexes no longer leaves stale assignments (R4); the drag hover no longer duplicates keyboard/mouse entries (R7).
 
 ## 7. Known limitations
 
 - Hardware paths were not tested here: no gamepad was connected. XInput/DInput/SDL detection, button-press identification, rumble, guests and DirectInput hot-plug are the legacy code paths running on the UI thread; SDL on its helper thread is untested with a real SDL handler.
+- Plugging a new SDL or DirectInput pad refreshes that API: its pads come back as new devices and placed ones leave their slots (`setup.deviceLost`), as before.
 - The smoke test covered one monitor, raw keyboards/mice (virtual devices revealed by injected input) and saved profiles with a keyboard+mouse player. It did not launch a game: Play/Stop/End, instance stages, session actions and the launch log were not run end to end.
 - Instance stages are approximate: Waiting (no process), Starting (process, window not placed), Ready (`ProcessData.Setted` or `Finished`), Exited (`Process.HasExited`). Running is detected with `GameProfile.Saved`.
 - The session log levels and player numbers are guessed from the words of each line.

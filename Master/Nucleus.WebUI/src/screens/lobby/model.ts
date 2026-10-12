@@ -181,7 +181,7 @@ export function hintText(hint: SetupHint | undefined): string | undefined {
     case 'pressButtonToIdentify':
       return 'Press a button on each gamepad so Nucleus can tell them apart.';
     case 'dragPlayersToScreens':
-      return 'Press a button on a controller to join, or drag a device onto a screen.';
+      return 'Press Start on a controller to join, or drag a device onto a screen.';
     case 'profileWaitingForPlayer': {
       const [n, kind] = hint.args;
       return n && kind ? `Player ${n} of the profile: press a button on a ${deviceNoun(kind as DeviceKind)}.` : hint.text;

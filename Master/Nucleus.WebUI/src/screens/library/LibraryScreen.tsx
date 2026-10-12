@@ -84,29 +84,26 @@ export default function LibraryScreen() {
 
   const openOptions = () => setOptionsFor(focusedId() ?? featured?.id ?? null);
   const closeOptions = useCallback(() => setOptionsFor(null), []);
+  // A presses whatever has focus, so it only says "Select". X and View act on the focused game (X: else the featured
+  // one), whatever control of it has focus.
+  const select: Hint = { button: 'A', label: 'Select' };
   const search: Hint = { button: 'Y', label: 'Search' };
-  const menu: Hint = { button: 'Menu', label: 'Menu' };
   const options: Hint = { button: 'X', label: 'Game options', action: openOptions };
   const favourite: Hint = { button: 'View', label: 'Favourite', action: () => toggleFavorite(byId(focusedId())) };
+  const plain = [select, search];
   useScreenChrome([{ label: 'Library' }], {
-    base: games?.length ? [{ button: 'A', label: 'Set up session' }, options, search, menu] : [{ button: 'A', label: 'Select' }, search, menu],
+    base: games?.length ? [select, options, search] : plain,
     byFocus: {
-      setup: [{ button: 'A', label: 'Set up session' }, options, search, menu],
-      options: [{ button: 'A', label: 'Open game options' }, search],
-      game: [{ button: 'A', label: 'Set up session' }, options, favourite, search],
-      update: [
-        { button: 'A', label: 'Set up session' },
-        { button: 'X', label: 'Update handler', action: () => void runUpdate(byId(focusedId())) },
-        favourite,
-        search,
-      ],
-      missing: [{ button: 'A', label: 'Locate game' }, options, favourite, search],
-      add: [{ button: 'A', label: 'Add a game' }, search],
-      found: [{ button: 'A', label: 'Add selected games' }, search],
-      'found-item': [{ button: 'A', label: 'Select or skip game' }, search],
-      'found-scan': [{ button: 'A', label: 'Scan again' }, search],
-      chip: [{ button: 'A', label: 'Filter' }, search],
-      hub: [{ button: 'A', label: 'View handler' }, search],
+      options: plain,
+      game: [select, options, favourite, search],
+      update: [select, { button: 'X', label: 'Update handler', action: () => void runUpdate(byId(focusedId())) }, favourite, search],
+      missing: [select, options, favourite, search],
+      add: plain,
+      found: plain,
+      'found-item': plain,
+      'found-scan': plain,
+      chip: plain,
+      hub: plain,
     },
   });
 
