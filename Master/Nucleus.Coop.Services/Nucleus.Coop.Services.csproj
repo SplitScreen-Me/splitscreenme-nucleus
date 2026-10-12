@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>10</LangVersion>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Nucleus.Coop.Services</RootNamespace>
+    <AssemblyName>Nucleus.Coop.Services</AssemblyName>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Nucleus.Bridge\Nucleus.Bridge.csproj" />
+    <ProjectReference Include="..\NucleusGaming\Nucleus.Gaming.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <!-- Library, handlers and settings services: hub HTTP, handler archives, audio devices, gamepad capture. -->
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.WebRequest" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <PackageReference Include="NAudio" Version="1.10.0" />
+    <PackageReference Include="SharpDX.XInput" Version="4.2.0" />
+    <InternalsVisibleTo Include="Nucleus.Coop.Services.Tests" />
+  </ItemGroup>
+
+  <!-- Setup, profiles and session services: the session actions touch the WPF on-screen display and windows merger. -->
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+
+</Project>

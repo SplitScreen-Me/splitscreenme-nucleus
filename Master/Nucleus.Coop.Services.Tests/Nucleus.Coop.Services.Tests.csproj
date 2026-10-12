@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Unit tests of the pure parts of Nucleus.Coop.Services. Each services area keeps its tests in its own folder. -->
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>10</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Nucleus.Coop.Services\Nucleus.Coop.Services.csproj" />
+    <ProjectReference Include="..\Nucleus.Bridge\Nucleus.Bridge.csproj" />
+    <ProjectReference Include="..\NucleusGaming\Nucleus.Gaming.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
