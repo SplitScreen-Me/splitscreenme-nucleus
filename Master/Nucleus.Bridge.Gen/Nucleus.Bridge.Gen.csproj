@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Generates Nucleus.WebUI/src/bridge/generated/contract.ts from the contract. Run it with `npm run bridge:gen`. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>10</LangVersion>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Nucleus.Bridge.Gen</RootNamespace>
+    <AssemblyName>Nucleus.Bridge.Gen</AssemblyName>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Nucleus.Bridge\Nucleus.Bridge.csproj" />
+  </ItemGroup>
+
+</Project>
