@@ -134,7 +134,7 @@
       "version": "Nucleus Co-op {version}"
     },
     "rail": {
-      "label": "Principal",
+      "label": "Principale",
       "library": "Bibliothèque",
       "games": "Catalogue",
       "downloads": "Téléchargements",
@@ -334,7 +334,7 @@
       "missing": "Nucleus ne trouve pas l’exécutable de ce jeu. Il a peut-être été déplacé : localisez-le pour pouvoir y rejouer.",
       "yourPlay": "Votre activité",
       "lastPlayed": "Dernière partie",
-      "notRecorded": "Non enregistré",
+      "notRecorded": "Non enregistrée",
       "playTime": "Temps de jeu",
       "underAMinute": "Moins d’une minute",
       "notPlayed": "Pas encore joué. Distribuez les manettes : chacun appuie sur Start pour rejoindre la partie."
@@ -397,9 +397,9 @@
       "showInExplorer": "Afficher dans l’Explorateur de fichiers"
     },
     "hubStrip": {
-      "title_one": "Populaires à {count} joueur ou plus sur le Hub",
-      "title_many": "Populaires à {count} joueurs ou plus sur le Hub",
-      "title_other": "Populaires à {count} joueurs ou plus sur le Hub",
+      "title_one": "Populaires sur le Hub pour {count} joueur ou plus",
+      "title_many": "Populaires sur le Hub pour {count} joueurs ou plus",
+      "title_other": "Populaires sur le Hub pour {count} joueurs ou plus",
       "openGetGames": "Ouvrir le catalogue",
       "tileLabel": "{game} sur le Hub",
       "tileMeta": "{players}, {downloads}"
@@ -424,8 +424,8 @@
       "lastPlayed": "Dernière partie",
       "name": "Nom, de A à Z",
       "nameDescending": "Nom, de Z à A",
-      "maxPlayers": "Plus de joueurs",
-      "playtime": "Plus joués"
+      "maxPlayers": "Le plus de joueurs",
+      "playtime": "Les plus joués"
     },
     "filters": {
       "controllers": "Manettes",
@@ -451,7 +451,7 @@
       "updatingHandler": "Mise à jour du handler, {percent}",
       "handlerUpdate": "Handler v{from} vers v{to}",
       "updateLabel": "Mettre à jour le handler de {game} vers la version {version}",
-      "updateTo": "Mettre à jour en v{version}"
+      "updateTo": "Mise à jour v{version}"
     },
     "found": {
       "title": "Trouvés sur ce PC",
@@ -540,7 +540,7 @@
     },
     "filters": {
       "label": "Filtres",
-      "maxPlayers": "Joueurs maximum",
+      "maxPlayers": "Joueurs max.",
       "playersRange": "{range} joueurs",
       "anyPlayers": "Nombre de joueurs indifférent",
       "maxPlayersHint": "Le nombre maximal de joueurs simultanés pris en charge par le handler.",
@@ -584,7 +584,7 @@
     },
     "card": {
       "verified": "Handler vérifié",
-      "inLibrary": "Dans la bibliothèque",
+      "inLibrary": "En bibliothèque",
       "inLibraryTitle": "Installé, le jeu est dans votre bibliothèque",
       "installed": "Installé",
       "installedTitle": "Handler installé, le jeu n’est pas encore dans votre bibliothèque",
@@ -679,7 +679,7 @@
       "locateTitle": "Indiquez le jeu",
       "locateBody": "La première fois, Nucleus trouve {game} sur ce PC ou vous demande une seule fois où il est installé.",
       "seatTitle": "Prenez place",
-      "seatBody": "Chaque joueur appuie sur Start sur sa manette pour rejoindre la partie. Nucleus ouvre une fenêtre par joueur et les dispose en mosaïque.",
+      "seatBody": "Chaque joueur appuie sur Start de sa manette pour rejoindre la partie. Nucleus ouvre une fenêtre par joueur et les dispose en mosaïque.",
       "seatTip": "Vous jouez avec des claviers et des souris ? Une fois que tout est en place, appuyez sur <kbd>{key}</kbd> pour donner à chaque fenêtre son propre curseur.",
       "connectTitle": "Connectez-vous en jeu",
       "connectBody": "Suivez les notes du handler pour relier les fenêtres : en général, un joueur héberge la partie et les autres la rejoignent."
@@ -724,7 +724,7 @@
       "addGame": "Ajouter le jeu",
       "notInLibraryNote": "Le handler est installé, mais {game} n’est pas encore dans votre bibliothèque. Indiquez à Nucleus où se trouve le jeu.",
       "notInLibraryNoteVersion": "Le handler est installé (version {version}), mais {game} n’est pas encore dans votre bibliothèque. Indiquez à Nucleus où se trouve le jeu.",
-      "updateTo": "Mettre à jour vers la version {version}",
+      "updateTo": "Passer à la version {version}",
       "install": "Installer le handler",
       "offline": "Le Hub est hors ligne. L’installation sera de nouveau possible dès que Nucleus pourra le joindre.",
       "updateNote": "La version {version} est installée. La mise à jour conserve vos profils et vos paramètres.",
@@ -746,7 +746,7 @@
     "toasts": {
       "handlerUpdated": "Handler de {game} mis à jour",
       "handlerUpdatedTo": "Handler de {game} mis à jour vers la version {version}",
-      "checked": "Recherche de mises à jour des handlers effectuée sur le Hub"
+      "checked": "Mises à jour des handlers vérifiées sur le Hub"
     },
     "hubOffline": "Le Hub est hors ligne",
     "checkUpdates": "Rechercher des mises à jour",
@@ -808,7 +808,7 @@
     },
     "sort": {
       "trending": "Tendances",
-      "downloads": "Plus téléchargés",
+      "downloads": "Les plus téléchargés",
       "updated": "Mis à jour récemment",
       "az": "A–Z"
     },
@@ -974,13 +974,13 @@
     },
     "manual": {
       "hint": "Disposition manuelle : déposez un joueur n’importe où sur cet écran, ou cliquez sur un emplacement et appuyez sur un bouton d’une manette.",
-      "label": "{screen}, disposition manuelle : déposez un joueur n’importe où, ou activez et appuyez sur un bouton d’une manette libre.",
+      "label": "{screen}, disposition manuelle : déposez un joueur n’importe où, ou activez cette zone puis appuyez sur un bouton d’une manette libre.",
       "labelMoving": "{screen}, disposition manuelle : déposez un joueur n’importe où ; Enter place le joueur au centre."
     },
     "slot": {
-      "label": "{place} : vide. Appuyez sur Start sur une manette libre pour rejoindre, ou activez l’emplacement pour y attendre une manette.",
+      "label": "{place} : vide. Appuyez sur Start d’une manette libre pour rejoindre, ou activez l’emplacement pour y attendre une manette.",
       "labelMoving": "{place} : vide. Enter déplace le joueur ici.",
-      "labelExpected": "{place} : le profil attend un joueur ici. Appuyez sur Start sur une manette libre pour rejoindre, ou activez l’emplacement pour y attendre une manette.",
+      "labelExpected": "{place} : le profil attend un joueur ici. Appuyez sur Start d’une manette libre pour rejoindre, ou activez l’emplacement pour y attendre une manette.",
       "labelExpectedMoving": "{place} : le profil attend un joueur ici. Enter déplace le joueur ici.",
       "moveHere": "Déplacer ici",
       "expected": "En attente d’un joueur",
@@ -1019,12 +1019,12 @@
     "tray": {
       "title": "En attente",
       "dropToRemove": "Déposez ici pour retirer ce joueur",
-      "joinPadsAndKeyboards": "Appuyez sur Start sur une manette, ou sur une touche d’un clavier, pour rejoindre. Vous pouvez aussi faire glisser un périphérique sur un écran.",
-      "joinPads": "Appuyez sur Start sur l’une d’elles pour rejoindre, ou faites-la glisser sur un écran.",
+      "joinPadsAndKeyboards": "Appuyez sur Start d’une manette ou sur une touche d’un clavier pour rejoindre. Vous pouvez aussi faire glisser un périphérique sur un écran.",
+      "joinPads": "Appuyez sur Start de l’une d’elles pour rejoindre, ou faites-la glisser sur un écran.",
       "joinKeyboards": "Appuyez sur une touche de l’un d’eux pour rejoindre, ou faites-le glisser sur un écran.",
       "joinDrag": "Faites glisser l’un de ces périphériques sur un écran.",
       "hiddenInputs": "Les claviers et les souris apparaissent ici dès que vous les utilisez.",
-      "hiddenInputsShort": "Claviers et souris apparaissent dès leur utilisation.",
+      "hiddenInputsShort": "Les claviers et souris apparaissent dès leur utilisation.",
       "allJoined": "Tous les périphériques ont rejoint la partie. Branchez une autre manette pour ajouter un joueur.",
       "rescan": "Réanalyser",
       "rescanned": "Périphériques réanalysés",
@@ -1054,12 +1054,12 @@
       "full_one": "Complet. {game} prend en charge jusqu’à {count} joueur.",
       "full_many": "Complet. {game} prend en charge jusqu’à {count} joueurs.",
       "full_other": "Complet. {game} prend en charge jusqu’à {count} joueurs.",
-      "moreCanJoinFree_one": "Encore {count} joueur peut rejoindre. Appuyez sur Start sur une manette libre, ou sur une touche d’un clavier libre.",
-      "moreCanJoinFree_many": "Encore {count} joueurs peuvent rejoindre. Appuyez sur Start sur une manette libre, ou sur une touche d’un clavier libre.",
-      "moreCanJoinFree_other": "Encore {count} joueurs peuvent rejoindre. Appuyez sur Start sur une manette libre, ou sur une touche d’un clavier libre.",
-      "moreCanJoin_one": "Encore {count} joueur peut rejoindre. Branchez une manette, puis appuyez sur Start.",
-      "moreCanJoin_many": "Encore {count} joueurs peuvent rejoindre. Branchez une manette, puis appuyez sur Start.",
-      "moreCanJoin_other": "Encore {count} joueurs peuvent rejoindre. Branchez une manette, puis appuyez sur Start.",
+      "moreCanJoinFree_one": "Encore {count} joueur peut rejoindre la partie. Appuyez sur Start d’une manette libre ou sur une touche d’un clavier libre.",
+      "moreCanJoinFree_many": "Encore {count} joueurs peuvent rejoindre la partie. Appuyez sur Start d’une manette libre ou sur une touche d’un clavier libre.",
+      "moreCanJoinFree_other": "Encore {count} joueurs peuvent rejoindre la partie. Appuyez sur Start d’une manette libre ou sur une touche d’un clavier libre.",
+      "moreCanJoin_one": "Encore {count} joueur peut rejoindre la partie. Branchez une manette, puis appuyez sur Start.",
+      "moreCanJoin_many": "Encore {count} joueurs peuvent rejoindre la partie. Branchez une manette, puis appuyez sur Start.",
+      "moreCanJoin_other": "Encore {count} joueurs peuvent rejoindre la partie. Branchez une manette, puis appuyez sur Start.",
       "apiIndex": {
         "label": "Identifier les manettes par numéro",
         "description": "Place les manettes selon leur numéro, sans appuyer sur un bouton. Certains handlers ignorent ce réglage."
@@ -1100,12 +1100,12 @@
     },
     "deviceLost": {
       "namedPlayer": "{nickname} (joueur {number})",
-      "gamepad": "{player} a perdu sa manette. Rebranchez-la ou appuyez sur Start sur une autre.",
+      "gamepad": "{player} a perdu sa manette. Rebranchez-la ou appuyez sur Start d’une autre manette.",
       "keyboard": "{player} a perdu son clavier. Rebranchez-le ou utilisez-en un autre.",
       "mouse": "{player} a perdu sa souris. Rebranchez-la ou utilisez-en une autre.",
       "keyboardMouse": "{player} a perdu son clavier et sa souris. Rebranchez-les ou utilisez-en d’autres.",
       "unknownPlayer": {
-        "gamepad": "Un joueur a perdu sa manette. Rebranchez-la ou appuyez sur Start sur une autre.",
+        "gamepad": "Un joueur a perdu sa manette. Rebranchez-la ou appuyez sur Start d’une autre manette.",
         "keyboard": "Un joueur a perdu son clavier. Rebranchez-le ou utilisez-en un autre.",
         "mouse": "Un joueur a perdu sa souris. Rebranchez-la ou utilisez-en une autre.",
         "keyboardMouse": "Un joueur a perdu son clavier et sa souris. Rebranchez-les ou utilisez-en d’autres."
@@ -1115,7 +1115,7 @@
   "setup": {
     "hints": {
       "pressButtonToIdentify": "Appuyez sur un bouton de chaque manette pour que Nucleus puisse les distinguer.",
-      "dragPlayersToScreens": "Appuyez sur Start sur une manette pour rejoindre, ou faites glisser un périphérique sur un écran.",
+      "dragPlayersToScreens": "Appuyez sur Start d’une manette pour rejoindre, ou faites glisser un périphérique sur un écran.",
       "profileWaitingForPlayer": {
         "gamepad": "Joueur {number} du profil : appuyez sur un bouton d’une manette.",
         "keyboard": "Joueur {number} du profil : appuyez sur une touche d’un clavier.",
@@ -1168,7 +1168,7 @@
       "nextStep": "Prochaine étape : {step}, puis lancement.",
       "nextPlayers": "Prochaine étape : joueurs, puis lancement.",
       "nextOptions": "Prochaine étape : options, puis lancement.",
-      "noPlayers": "Appuyez sur Start sur une manette pour rejoindre.",
+      "noPlayers": "Appuyez sur Start d’une manette pour rejoindre.",
       "finishStep": "Terminez cette étape pour lancer.",
       "warning": "{check}. Vous pouvez quand même lancer.",
       "ready_one": "{count} copie de {game}.",
@@ -1423,7 +1423,7 @@
     "idle": {
       "title": "Aucune session en cours",
       "lastLaunchFailed": "<b>Le dernier lancement a échoué.</b> {error}",
-      "hint": "Choisissez un jeu dans votre bibliothèque, laissez chacun appuyer sur Start sur sa manette pour rejoindre, puis lancez. Chaque copie du jeu et sa progression s’affichent ici."
+      "hint": "Choisissez un jeu dans votre bibliothèque, laissez chacun appuyer sur Start de sa manette pour rejoindre la partie, puis lancez. Chaque copie du jeu et sa progression s’affichent ici."
     },
     "header": {
       "untitled": "Session",
@@ -1434,9 +1434,9 @@
       "status": {
         "failed": "Échec du lancement",
         "ended": "Session terminée",
-        "launching_one": "Lancement pour {count} joueur",
-        "launching_many": "Lancement pour {count} joueurs",
-        "launching_other": "Lancement pour {count} joueurs",
+        "launching_one": "Lancement à {count} joueur",
+        "launching_many": "Lancement à {count} joueurs",
+        "launching_other": "Lancement à {count} joueurs",
         "running_one": "{count} joueur en jeu",
         "running_many": "{count} joueurs en jeu",
         "running_other": "{count} joueurs en jeu",
@@ -1522,7 +1522,7 @@
     "summary": {
       "game": "Jeu",
       "duration": "Durée",
-      "played": "Joué",
+      "played": "Horaires",
       "timeRange": "De {start} à {end}",
       "players": "Joueurs",
       "guest": "Invité : {device}",
@@ -1579,7 +1579,7 @@
     },
     "fields": {
       "notSet": "Non défini",
-      "restartBadge": "Appliqué après un redémarrage",
+      "restartBadge": "S’applique après un redémarrage",
       "showPassword": "Afficher le mot de passe",
       "hidePassword": "Masquer le mot de passe",
       "hotkey": {
@@ -1740,7 +1740,7 @@
             "description": "Mot de passe des comptes Windows créés par Nucleus. Stocké en clair dans Settings.ini. 12345 ou vide : le mot de passe intégré est utilisé."
           },
           "autoDesktopScaling": {
-            "label": "Mettre l’échelle du bureau à 100 % pendant les sessions",
+            "label": "Échelle du bureau à 100 % pendant les sessions",
             "description": "Certains jeux ont besoin d’une mise à l’échelle de 100 % pour placer correctement leurs fenêtres."
           },
           "fastLaunch": {
@@ -1857,7 +1857,7 @@
           },
           "horizontalLines": {
             "label": "Divisions horizontales",
-            "description": "Lignes de la grille de disposition personnalisée, moins une. Joueurs maximum = (horizontales + 1) × (verticales + 1)."
+            "description": "Lignes de la grille de disposition personnalisée, moins une. Nombre max. de joueurs = (horizontales + 1) × (verticales + 1)."
           },
           "splitDiv": {
             "label": "Arrière-plan de l’écran partagé",
@@ -1971,7 +1971,7 @@
           "steamIdFormat": "Un ID Steam comporte 17 chiffres, par exemple 76561199075562883.",
           "nicknameInUse": "Ce pseudo est déjà utilisé par le joueur {number}.",
           "steamIdInUse": "Cet ID Steam est déjà utilisé par le joueur {number}.",
-          "nicknameCharacters": "Les pseudos servent de noms de dossiers : évitez \\ / : * ? \" < > |."
+          "nicknameCharacters": "Les pseudos servent de noms de dossiers : évitez \\ / : * ? \" < > |."
         }
       }
     },
@@ -2221,8 +2221,8 @@
         "pickStepItem": "Faites un choix : {step}",
         "profileWaitingForPlayer": "Joueur {number} : appuyez sur un bouton ou une touche du périphérique à utiliser.",
         "noDevices": "Branchez une manette.",
-        "padNotIdentified": "Un bouton de manette a été pressé, mais Nucleus n’a pas pu identifier le périphérique. Appuyez sur Start sur cette manette uniquement. Si le problème persiste, fermez les outils qui dupliquent les manettes (DS4Windows sans HidHide, Steam Input).",
-        "padNotIdentifiedSlotMode": "Un bouton de manette a été pressé, mais Nucleus n’a pas pu identifier le périphérique. Appuyez sur Start sur cette manette uniquement. Si le problème persiste, fermez les outils qui dupliquent les manettes (DS4Windows sans HidHide, Steam Input) ou activez « Identifier les manettes par numéro ».",
+        "padNotIdentified": "Un bouton de manette a été pressé, mais Nucleus n’a pas pu identifier le périphérique. Appuyez sur Start de cette manette, sans toucher aux autres. Si le problème persiste, fermez les outils qui dupliquent les manettes (DS4Windows sans HidHide, Steam Input).",
+        "padNotIdentifiedSlotMode": "Un bouton de manette a été pressé, mais Nucleus n’a pas pu identifier le périphérique. Appuyez sur Start de cette manette, sans toucher aux autres. Si le problème persiste, fermez les outils qui dupliquent les manettes (DS4Windows sans HidHide, Steam Input) ou activez « Identifier les manettes par numéro ».",
         "dragPlayersToScreens": "Faites glisser un périphérique sur un écran pour ajouter un joueur.",
         "pressButtonToIdentify": "Appuyez sur un bouton d’une manette (ou utilisez un clavier) pour l’afficher."
       },
@@ -2300,7 +2300,7 @@
     },
     "session": {
       "actions": {
-        "toggleTopmost": "Basculer toujours au premier plan",
+        "toggleTopmost": "Basculer le premier plan",
         "setFocus": "Retirer le focus des fenêtres du jeu",
         "resetWindows": "Réinitialiser les fenêtres",
         "cutscenesMode": "Mode cinématiques",
