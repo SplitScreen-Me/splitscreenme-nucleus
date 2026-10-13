@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { useT } from '@/i18n';
 import { cn } from './cn';
 import { Button } from './Button';
 import { Icon, type IconName } from './Icon';
@@ -20,6 +21,7 @@ export interface DialogProps {
 export function Dialog({ open, onClose, title, icon, iconClassName, children, className, headerExtra }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
+  const t = useT();
 
   useEffect(() => {
     const el = ref.current;
@@ -55,7 +57,7 @@ export function Dialog({ open, onClose, title, icon, iconClassName, children, cl
         </h2>
         <span className="ml-auto flex items-center gap-2">
           {headerExtra}
-          <Button variant="quiet" size="icon" aria-label="Close" onClick={onClose}>
+          <Button variant="quiet" size="icon" aria-label={t('common.close')} onClick={onClose}>
             <Icon name="x" />
           </Button>
         </span>

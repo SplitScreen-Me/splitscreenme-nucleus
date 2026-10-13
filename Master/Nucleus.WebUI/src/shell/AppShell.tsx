@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router';
 import { FileDrop } from '@/features/file-drop';
+import { FirstRunLanguageDialog } from '@/features/language';
 import { NoticeDialog } from '@/features/notices';
 import { setupPath } from '@/lib/library';
 import { useAppInfo, useSessionSnapshot, useSettingsValues } from '@/lib/live';
@@ -70,6 +71,7 @@ function ShellBody() {
         <CommandPalette open={palette} onClose={() => setPalette(false)} />
         <FileDrop />
         <NoticeDialog />
+        <FirstRunLanguageDialog />
       </CouchNavProvider>
     </GlyphStyleProvider>
   );

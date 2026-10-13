@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { bridge, bridgeQueryKey, useBridgeQuery, type NoticeLevel } from '@/bridge';
+import { useI18n } from '@/i18n';
 import { isSessionLive, useSessionSnapshot } from '@/lib/live';
 import { Button, Dialog, type IconName } from '@/ui';
 
@@ -21,7 +22,9 @@ export function NoticeDialog() {
   const [dismissed, setDismissed] = useState<ReadonlySet<string>>(new Set());
 
   const waiting = (notices ?? []).filter((n) => !dismissed.has(n.id));
-  const notice = isSessionLive(session?.state) ? undefined : waiting[0];
+  // The first-launch language picker comes first: notices wait until a language is chosen.
+  const { state: language } = useI18n();
+  const notice = isSessionLive(session?.state) || language?.chosen === false ? undefined : waiting[0];
   const tone = TONE[notice?.level ?? 'info'];
 
   const dismiss = (id: string) => {
