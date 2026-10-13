@@ -386,6 +386,140 @@ export interface MessageParamsMap {
   'session.summary.players': undefined;
   /** {start} to {end} */
   'session.summary.timeRange': { end: ParamValue; start: ParamValue };
+  /** Restart as administrator */
+  'settings.about.admin.button': undefined;
+  /** Nucleus Co-op closes and opens again with administrator rights. Some handlers need them. Windows asks you t... */
+  'settings.about.admin.confirmMessage': undefined;
+  /** Restart as administrator? */
+  'settings.about.admin.confirmTitle': undefined;
+  /** Some handlers only work when Nucleus Co-op runs as administrator. */
+  'settings.about.admin.description': undefined;
+  /** Administrator rights */
+  'settings.about.admin.label': undefined;
+  /** Download for every game */
+  'settings.about.artwork.button': undefined;
+  /** Downloads the missing art of every game in your library from the Hub. Files you already have are kept. */
+  'settings.about.artwork.description': undefined;
+  /** Covers and screenshots downloaded */
+  'settings.about.artwork.done': undefined;
+  /** Covers and screenshots */
+  'settings.about.artwork.label': undefined;
+  /** {done} of {count} games */
+  'settings.about.artwork.progress': { count: number; done: ParamValue };
+  /** Starting… */
+  'settings.about.artwork.starting': undefined;
+  /** Administrator */
+  'settings.about.facts.admin': undefined;
+  /** Hub */
+  'settings.about.facts.hub': undefined;
+  /** Version */
+  'settings.about.facts.version': undefined;
+  /** Handlers folder */
+  'settings.about.folders.handlers': undefined;
+  /** Installed in */
+  'settings.about.folders.install': undefined;
+  /** Open the handlers folder in File Explorer */
+  'settings.about.folders.openHandlers': undefined;
+  /** Open the install folder in File Explorer */
+  'settings.about.folders.openInstall': undefined;
+  /** Offline */
+  'settings.about.hubOffline': undefined;
+  /** Online */
+  'settings.about.hubOnline': undefined;
+  /** Documentation */
+  'settings.about.links.docs': undefined;
+  /** FAQ */
+  'settings.about.links.faq': undefined;
+  /** The Hub */
+  'settings.about.links.hub': undefined;
+  /** Reload */
+  'settings.about.reload.button': undefined;
+  /** Reads every handler file again, for example after editing one. */
+  'settings.about.reload.description': undefined;
+  /** Handlers reloaded */
+  'settings.about.reload.done': undefined;
+  /** Reload handlers */
+  'settings.about.reload.label': undefined;
+  /** Free, open-source split-screen for PC games. Made by players, for couches everywhere. */
+  'settings.about.tagline': undefined;
+  /** About */
+  'settings.about.title': undefined;
+  /** Check now */
+  'settings.about.updates.button': undefined;
+  /** Asks the Hub for newer versions of the handlers of your games. Updates then show in the library and in Down... */
+  'settings.about.updates.description': undefined;
+  /** Update check done */
+  'settings.about.updates.done': undefined;
+  /** Handler updates */
+  'settings.about.updates.label': undefined;
+  /** Nucleus Co-op did not return its settings. Restart the app; if it keeps happening, check the app log. */
+  'settings.error.message': undefined;
+  /** Settings could not be read */
+  'settings.error.title': undefined;
+  /** Press a button on a controller… */
+  'settings.fields.combo.pressOne': undefined;
+  /** Press two buttons together on a controller… */
+  'settings.fields.combo.pressTwo': undefined;
+  /** Hide the password */
+  'settings.fields.hidePassword': undefined;
+  /** {key} cancels */
+  'settings.fields.hotkey.cancelHint': { key: ParamValue };
+  /** {label}: {value}. Change */
+  'settings.fields.hotkey.label': { label: ParamValue; value: ParamValue };
+  /** {label}: not set. Change */
+  'settings.fields.hotkey.labelNotSet': { label: ParamValue };
+  /** Press the shortcut… */
+  'settings.fields.hotkey.listening': undefined;
+  /** {label}: press the shortcut, Escape cancels */
+  'settings.fields.hotkey.listeningLabel': { label: ParamValue };
+  /** Not set */
+  'settings.fields.notSet': undefined;
+  /** {label}: pick a file */
+  'settings.fields.path.pickFile': { label: ParamValue };
+  /** {label}: pick a folder */
+  'settings.fields.path.pickFolder': { label: ParamValue };
+  /** Applies after a restart */
+  'settings.fields.restartBadge': undefined;
+  /** Show the password */
+  'settings.fields.showPassword': undefined;
+  /** Loading settings */
+  'settings.loading': undefined;
+  /** Settings sections */
+  'settings.nav': undefined;
+  /** The nickname and Steam ID each player number uses in game. */
+  'settings.players.description': undefined;
+  /** Player 1 always gets the first slot, player 2 the second, and so on. Empty means the default. */
+  'settings.players.editorHint': undefined;
+  /** Nicknames and Steam IDs */
+  'settings.players.editorTitle': undefined;
+  /** The player slots could not be read. */
+  'settings.players.error': undefined;
+  /** ({count} with errors) */
+  'settings.players.hiddenErrors': { count: number };
+  /** Reading the player slots… */
+  'settings.players.loading': undefined;
+  /** Nickname */
+  'settings.players.nickname': undefined;
+  /** Player {number} nickname */
+  'settings.players.nicknameLabel': { number: ParamValue };
+  /** Save players */
+  'settings.players.save': undefined;
+  /** Players saved */
+  'settings.players.saved': undefined;
+  /** Show all {count} */
+  'settings.players.showAll': { count: number };
+  /** Show the first {count} */
+  'settings.players.showFirst': { count: number };
+  /** Steam ID */
+  'settings.players.steamId': undefined;
+  /** Player {number} Steam ID */
+  'settings.players.steamIdLabel': { number: ParamValue };
+  /** Players */
+  'settings.players.title': undefined;
+  /** Undo changes */
+  'settings.players.undo': undefined;
+  /** Settings */
+  'settings.title': undefined;
   /** The interface could not reach the app ({error}). Close Nucleus Co-op and start it again. */
   'shell.startup.hostDownMessage': { error: ParamValue };
   /** Nucleus Co-op did not answer */

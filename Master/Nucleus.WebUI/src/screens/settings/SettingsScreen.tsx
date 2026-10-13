@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router';
 import { useBridgeQuery, type SettingsSection } from '@/bridge';
+import { useT } from '@/i18n';
 import { useSettingsValues } from '@/lib/live';
 import { useScreenChrome } from '@/shell/chrome';
 import { cn, Icon, Pane, Spinner } from '@/ui';
@@ -16,27 +17,22 @@ interface NavEntry {
   section?: SettingsSection;
 }
 
-const PLAYERS_FALLBACK: NavEntry = {
-  id: 'players',
-  title: 'Players',
-  description: 'The nickname and Steam ID each player number uses in game.',
-};
-
 /**
  * Settings, rendered from the host's schema (`settings.getSchema`): adding a setting only takes C#. Values are strings
  * as stored in Settings.ini; each change is saved on its own and validated by the host.
  */
 export default function SettingsScreen() {
+  const t = useT();
   const schema = useBridgeQuery('settings.getSchema', undefined, { staleTime: Infinity });
   const values = useSettingsValues();
   const { hash } = useLocation();
   const [current, setCurrent] = useState('general');
   const ready = Boolean(schema.data && values.data);
 
-  useScreenChrome([{ label: 'Settings' }], {
+  useScreenChrome([{ label: t('settings.title') }], {
     base: [
-      { button: 'A', label: 'Select' },
-      { button: 'Y', label: 'Search' },
+      { button: 'A', label: t('common.select') },
+      { button: 'Y', label: t('common.search') },
     ],
   });
 
@@ -46,10 +42,10 @@ export default function SettingsScreen() {
     const list: NavEntry[] = sections.map((s) => ({ id: s.id, title: s.title, description: s.description, section: s }));
     if (!list.some((e) => e.id === 'players')) {
       const at = list.findIndex((e) => e.id === 'general');
-      list.splice(at + 1, 0, PLAYERS_FALLBACK);
+      list.splice(at + 1, 0, { id: 'players', title: t('settings.players.title'), description: t('settings.players.description') });
     }
-    return [...list, { id: 'about', title: 'About' }];
-  }, [schema.data]);
+    return [...list, { id: 'about', title: t('settings.about.title') }];
+  }, [schema.data, t]);
 
   const keys = useMemo(() => new Set((schema.data?.sections ?? []).flatMap((s) => s.fields.map((f) => f.key))), [schema.data]);
   const saver = useSettingsSaver(keys);
@@ -85,8 +81,8 @@ export default function SettingsScreen() {
       <Pane className="grid h-full place-items-center p-8 text-center">
         <div className="grid justify-items-center gap-3">
           <Icon name="warning" className="size-7 text-warn" />
-          <h1 className="type-h3">Settings could not be read</h1>
-          <p className="max-w-[46ch] text-small text-ink-2">Nucleus Co-op did not return its settings. Restart the app; if it keeps happening, check the app log.</p>
+          <h1 className="type-h3">{t('settings.error.title')}</h1>
+          <p className="max-w-[46ch] text-small text-ink-2">{t('settings.error.message')}</p>
         </div>
       </Pane>
     );
@@ -95,7 +91,7 @@ export default function SettingsScreen() {
     return (
       <Pane className="grid h-full place-items-center text-small text-ink-2">
         <span className="inline-flex items-center gap-2.5">
-          <Spinner /> Loading settings
+          <Spinner /> {t('settings.loading')}
         </span>
       </Pane>
     );
@@ -107,8 +103,8 @@ export default function SettingsScreen() {
 
   return (
     <div className="grid items-start gap-gutter grid-cols-[232px_minmax(0,1fr)] max-[1300px]:grid-cols-[208px_minmax(0,1fr)]">
-      <Pane as="nav" aria-label="Settings sections" className="sticky top-0 grid gap-0.5 p-2.5">
-        <h1 className="px-3 pt-3 pb-3 text-22 font-[800] tracking-[-0.02em] stretch-wide">Settings</h1>
+      <Pane as="nav" aria-label={t('settings.nav')} className="sticky top-0 grid gap-0.5 p-2.5">
+        <h1 className="px-3 pt-3 pb-3 text-22 font-[800] tracking-[-0.02em] stretch-wide">{t('settings.title')}</h1>
         {entries.map((s) => (
           <a
             key={s.id}

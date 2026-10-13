@@ -305,7 +305,107 @@
       "lockedNoKey": "Inputs are locked to the game windows. Press the lock key to unlock them first."
     }
   },
-  "settings": {},
+  "settings": {
+    "title": "Settings",
+    "loading": "Loading settings",
+    "nav": "Settings sections",
+    "error": {
+      "title": "Settings could not be read",
+      "message": "Nucleus Co-op did not return its settings. Restart the app; if it keeps happening, check the app log."
+    },
+    "fields": {
+      "notSet": "Not set",
+      "restartBadge": "Applies after a restart",
+      "showPassword": "Show the password",
+      "hidePassword": "Hide the password",
+      "hotkey": {
+        "label": "{label}: {value}. Change",
+        "labelNotSet": "{label}: not set. Change",
+        "listeningLabel": "{label}: press the shortcut, Escape cancels",
+        "listening": "Press the shortcut…",
+        "cancelHint": "{key} cancels"
+      },
+      "combo": {
+        "pressOne": "Press a button on a controller…",
+        "pressTwo": "Press two buttons together on a controller…"
+      },
+      "path": {
+        "pickFile": "{label}: pick a file",
+        "pickFolder": "{label}: pick a folder"
+      }
+    },
+    "players": {
+      "title": "Players",
+      "description": "The nickname and Steam ID each player number uses in game.",
+      "loading": "Reading the player slots…",
+      "error": "The player slots could not be read.",
+      "editorTitle": "Nicknames and Steam IDs",
+      "editorHint": "Player 1 always gets the first slot, player 2 the second, and so on. Empty means the default.",
+      "nickname": "Nickname",
+      "steamId": "Steam ID",
+      "nicknameLabel": "Player {number} nickname",
+      "steamIdLabel": "Player {number} Steam ID",
+      "showFirst_one": "Show the first {count}",
+      "showFirst_other": "Show the first {count}",
+      "showAll_one": "Show all {count}",
+      "showAll_other": "Show all {count}",
+      "hiddenErrors_one": "({count} with errors)",
+      "hiddenErrors_other": "({count} with errors)",
+      "undo": "Undo changes",
+      "save": "Save players",
+      "saved": "Players saved"
+    },
+    "about": {
+      "title": "About",
+      "tagline": "Free, open-source split-screen for PC games. Made by players, for couches everywhere.",
+      "facts": {
+        "version": "Version",
+        "hub": "Hub",
+        "admin": "Administrator"
+      },
+      "hubOnline": "Online",
+      "hubOffline": "Offline",
+      "folders": {
+        "install": "Installed in",
+        "openInstall": "Open the install folder in File Explorer",
+        "handlers": "Handlers folder",
+        "openHandlers": "Open the handlers folder in File Explorer"
+      },
+      "updates": {
+        "label": "Handler updates",
+        "description": "Asks the Hub for newer versions of the handlers of your games. Updates then show in the library and in Downloads.",
+        "button": "Check now",
+        "done": "Update check done"
+      },
+      "reload": {
+        "label": "Reload handlers",
+        "description": "Reads every handler file again, for example after editing one.",
+        "button": "Reload",
+        "done": "Handlers reloaded"
+      },
+      "artwork": {
+        "label": "Covers and screenshots",
+        "description": "Downloads the missing art of every game in your library from the Hub. Files you already have are kept.",
+        "button": "Download for every game",
+        "starting": "Starting…",
+        "progress_one": "{done} of {count} game",
+        "progress_other": "{done} of {count} games",
+        "done": "Covers and screenshots downloaded"
+      },
+      "admin": {
+        "label": "Administrator rights",
+        "description": "Some handlers only work when Nucleus Co-op runs as administrator.",
+        "button": "Restart as administrator",
+        "confirmTitle": "Restart as administrator?",
+        "confirmMessage": "Nucleus Co-op closes and opens again with administrator rights. Some handlers need them. Windows asks you to allow it."
+      },
+      "links": {
+        "docs": "Documentation",
+        "faq": "FAQ",
+        "hub": "The Hub"
+      }
+    }
+  },
   "host": {
     "settings": {
       "sections": {
