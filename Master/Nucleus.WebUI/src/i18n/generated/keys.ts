@@ -144,6 +144,694 @@ export interface MessageParamsMap {
   'language.firstRun.listLabel': undefined;
   /** Choose your language */
   'language.firstRun.title': undefined;
+  /** A controller joined: {player}, player {number}. */
+  'lobby.announce.controllerJoined': { number: ParamValue; player: ParamValue };
+  /** {device} joined: {player}, player {number}. */
+  'lobby.announce.joined': { device: ParamValue; number: ParamValue; player: ParamValue };
+  /** {player} left. Their devices are back in the tray. */
+  'lobby.announce.playerLeft': { player: ParamValue };
+  /** {names} left. */
+  'lobby.announce.playersLeft': { count: number; names: ParamValue };
+  /** Session */
+  'lobby.asideLabel': undefined;
+  /** Back to library */
+  'lobby.backToLibrary': undefined;
+  /** Library */
+  'lobby.breadcrumbs.library': undefined;
+  /** Setting up */
+  'lobby.breadcrumbs.settingUp': undefined;
+  /** Drag a player onto another place to swap them, or onto the tray to take them out. */
+  'lobby.canvas.description': undefined;
+  /** <b>{seats}</b> of {count} players */
+  'lobby.canvas.seats': { count: number; seats: ParamValue };
+  /** Screens */
+  'lobby.canvas.title': undefined;
+  /** {player} lost their gamepad. Plug it back in, or press Start on another one. */
+  'lobby.deviceLost.gamepad': { player: ParamValue };
+  /** {player} lost their keyboard. Plug it back in, or use another one. */
+  'lobby.deviceLost.keyboard': { player: ParamValue };
+  /** {player} lost their keyboard and mouse. Plug it back in, or use another one. */
+  'lobby.deviceLost.keyboardMouse': { player: ParamValue };
+  /** {player} lost their mouse. Plug it back in, or use another one. */
+  'lobby.deviceLost.mouse': { player: ParamValue };
+  /** {nickname} (player {number}) */
+  'lobby.deviceLost.namedPlayer': { nickname: ParamValue; number: ParamValue };
+  /** A player lost their gamepad. Plug it back in, or press Start on another one. */
+  'lobby.deviceLost.unknownPlayer.gamepad': undefined;
+  /** A player lost their keyboard. Plug it back in, or use another one. */
+  'lobby.deviceLost.unknownPlayer.keyboard': undefined;
+  /** A player lost their keyboard and mouse. Plug it back in, or use another one. */
+  'lobby.deviceLost.unknownPlayer.keyboardMouse': undefined;
+  /** A player lost their mouse. Plug it back in, or use another one. */
+  'lobby.deviceLost.unknownPlayer.mouse': undefined;
+  /** Handler installed from a file */
+  'lobby.header.handlerFromFile': undefined;
+  /** Handler version {version} */
+  'lobby.header.handlerVersion': { version: ParamValue };
+  /** Game */
+  'lobby.header.label': undefined;
+  /** by {name} */
+  'lobby.header.maintainer': { name: ParamValue };
+  /** Up to {count} players */
+  'lobby.header.maxPlayers': { count: number };
+  /** Handler notes */
+  'lobby.header.notes': undefined;
+  /** {count} players per copy */
+  'lobby.header.playersPerCopy': { count: number };
+  /** Arrows */
+  'lobby.hints.arrowsKey': undefined;
+  /** Join */
+  'lobby.hints.join': undefined;
+  /** Move the corner */
+  'lobby.hints.moveCorner': undefined;
+  /** Other corner */
+  'lobby.hints.otherCorner': undefined;
+  /** Resize */
+  'lobby.hints.resize': undefined;
+  /** Keyboard: <b>{pickUp}</b> picks up a player, <b>{resize}</b> resizes, <b>{remove}</b> takes them out */
+  'lobby.keys.help': { pickUp: ParamValue; remove: ParamValue; resize: ParamValue };
+  /** Waiting for a controller: <b>{cancel}</b> cancels */
+  'lobby.keys.waiting': { cancel: ParamValue };
+  /** {screen} set to {layout}. */
+  'lobby.layouts.changed': { layout: ParamValue; screen: ParamValue };
+  /** Rows and columns from Settings, Layout */
+  'lobby.layouts.custom.description': undefined;
+  /** Custom grid */
+  'lobby.layouts.custom.label': undefined;
+  /** Custom */
+  'lobby.layouts.custom.short': undefined;
+  /** Two players, top and bottom */
+  'lobby.layouts.dualHorizontal.label': undefined;
+  /** Two players, side by side */
+  'lobby.layouts.dualVertical.label': undefined;
+  /** 2 rows, 4 columns */
+  'lobby.layouts.eightPlayers.description': undefined;
+  /** Eight players */
+  'lobby.layouts.eightPlayers.label': undefined;
+  /** 8 players */
+  'lobby.layouts.eightPlayers.short': undefined;
+  /** Four players, 2 × 2 */
+  'lobby.layouts.fourPlayers.label': undefined;
+  /** One player, full screen */
+  'lobby.layouts.fullScreen.label': undefined;
+  /** {screen} layout */
+  'lobby.layouts.groupLabel': { screen: ParamValue };
+  /** Layout set by the profile */
+  'lobby.layouts.lockedIcon': undefined;
+  /** The loaded profile sets this layout. Unload the profile to change it. */
+  'lobby.layouts.lockedNote': undefined;
+  /** Drop players anywhere on the screen */
+  'lobby.layouts.manual.description': undefined;
+  /** Manual */
+  'lobby.layouts.manual.label': undefined;
+  /** Manual */
+  'lobby.layouts.manual.short': undefined;
+  /** More layouts for {screen} */
+  'lobby.layouts.moreMenu': { screen: ParamValue };
+  /** Set by the profile */
+  'lobby.layouts.setByProfile': undefined;
+  /** 2 rows, 3 columns */
+  'lobby.layouts.sixPlayers.description': undefined;
+  /** Six players */
+  'lobby.layouts.sixPlayers.label': undefined;
+  /** 6 players */
+  'lobby.layouts.sixPlayers.short': undefined;
+  /** 4 rows, 4 columns */
+  'lobby.layouts.sixteenPlayers.description': undefined;
+  /** Sixteen players */
+  'lobby.layouts.sixteenPlayers.label': undefined;
+  /** 16 players */
+  'lobby.layouts.sixteenPlayers.short': undefined;
+  /** Manual layout: drop a player anywhere on this screen, or click a spot and press a button on a controller. */
+  'lobby.manual.hint': undefined;
+  /** {screen}, manual layout: drop a player anywhere, or activate and press a button on a free controller. */
+  'lobby.manual.label': { screen: ParamValue };
+  /** {screen}, manual layout: drop a player anywhere, Enter places the player in the middle. */
+  'lobby.manual.labelMoving': { screen: ParamValue };
+  /** {screen}, {width} by {height} */
+  'lobby.monitor.label': { height: ParamValue; screen: ParamValue; width: ParamValue };
+  /** {screen}, {width} by {height}, primary */
+  'lobby.monitor.labelPrimary': { height: ParamValue; screen: ParamValue; width: ParamValue };
+  /** Primary */
+  'lobby.monitor.primary': undefined;
+  /** Move cancelled. */
+  'lobby.move.cancelled': undefined;
+  /** {player} moved to {place}. */
+  'lobby.move.moved': { place: ParamValue; player: ParamValue };
+  /** Picked up {player}. Move to another place and press Enter. Escape cancels. */
+  'lobby.move.pickedUp': { player: ParamValue };
+  /** Put back. */
+  'lobby.move.putBack': undefined;
+  /** {first} and {second} swapped. */
+  'lobby.move.swapped': { first: ParamValue; second: ParamValue };
+  /** This handler has no notes. */
+  'lobby.notes.empty': undefined;
+  /** Handler notes */
+  'lobby.notes.title': undefined;
+  /** {game} by {maintainer} */
+  'lobby.notes.withMaintainer': { game: ParamValue; maintainer: ParamValue };
+  /** {game}, handler version {version} */
+  'lobby.notes.withVersion': { game: ParamValue; version: ParamValue };
+  /** {game}, handler version {version} by {maintainer} */
+  'lobby.notes.withVersionAndMaintainer': { game: ParamValue; maintainer: ParamValue; version: ParamValue };
+  /** This game can't be set up */
+  'lobby.openError.title': undefined;
+  /** Opening the setup of {game} */
+  'lobby.opening': { game: ParamValue };
+  /** Opening the setup of the game */
+  'lobby.openingUnnamed': undefined;
+  /** Add a guest gamepad… */
+  'lobby.player.addGuest': undefined;
+  /** A guest plays in this player's copy of the game */
+  'lobby.player.addGuestHint': undefined;
+  /** Add a guest gamepad to player {number} */
+  'lobby.player.addGuestLabel': { number: ParamValue };
+  /** Audio output of this player */
+  'lobby.player.audioHint': undefined;
+  /** Audio output (choosing one turns per-player audio on) */
+  'lobby.player.audioHintOff': undefined;
+  /** Player {number} audio output */
+  'lobby.player.audioLabel': { number: ParamValue };
+  /** Default output */
+  'lobby.player.defaultAudio': undefined;
+  /** Drag onto a screen to move this player */
+  'lobby.player.dragHint': undefined;
+  /** Grow over the free neighbouring places, or shrink back */
+  'lobby.player.expandHint': undefined;
+  /** Grow or shrink player {number} */
+  'lobby.player.expandLabel': { number: ParamValue };
+  /** Guest: {device} */
+  'lobby.player.guest': { device: ParamValue };
+  /** Player {number} */
+  'lobby.player.name': { number: ParamValue };
+  /** Player {number} nickname */
+  'lobby.player.nicknameLabel': { number: ParamValue };
+  /** No device */
+  'lobby.player.noDevice': undefined;
+  /** Take out */
+  'lobby.player.remove': undefined;
+  /** Remove this device */
+  'lobby.player.removeDevice': undefined;
+  /** Remove {device} from player {number} */
+  'lobby.player.removeDeviceLabel': { device: ParamValue; number: ParamValue };
+  /** Remove the guest */
+  'lobby.player.removeGuest': undefined;
+  /** Remove guest {device} */
+  'lobby.player.removeGuestLabel': { device: ParamValue };
+  /** Take out player {number} */
+  'lobby.player.removeLabel': { number: ParamValue };
+  /** P{number} */
+  'lobby.player.short': { number: ParamValue };
+  /** Steam ID used in game (17 digits) */
+  'lobby.player.steamIdHint': undefined;
+  /** Player {number} Steam ID */
+  'lobby.player.steamIdLabel': { number: ParamValue };
+  /** Places gamepads by their controller number, without a button press. Some handlers ignore it. */
+  'lobby.players.apiIndex.description': undefined;
+  /** Identify gamepads by slot */
+  'lobby.players.apiIndex.label': undefined;
+  /** {seats} of {max} */
+  'lobby.players.count': { max: ParamValue; seats: ParamValue };
+  /** Full. {game} supports up to {count} players. */
+  'lobby.players.full': { count: number; game: ParamValue };
+  /** {count} more can join. Plug in a controller, then press Start on it. */
+  'lobby.players.moreCanJoin': { count: number };
+  /** {count} more can join. Press Start on a free controller, or any key on a free keyboard. */
+  'lobby.players.moreCanJoinFree': { count: number };
+  /** Players */
+  'lobby.players.title': undefined;
+  /** Player {number}, {name}, {devices}, {place}. Enter to move, Delete to take out. */
+  'lobby.region.label': { devices: ParamValue; name: ParamValue; number: ParamValue; place: ParamValue };
+  /** Player {number}, {name}, {devices}, {place}. Enter to move, R to resize, Delete to take out. */
+  'lobby.region.labelResizable': { devices: ParamValue; name: ParamValue; number: ParamValue; place: ParamValue };
+  /** Resizing player {number}, {name}: {width} by {height}. Arrows move the bottom right corner, X switches corn... */
+  'lobby.region.resizingBottomRight': { height: ParamValue; name: ParamValue; number: ParamValue; width: ParamValue };
+  /** Resizing player {number}, {name}: {width} by {height}. Arrows move the top left corner, X switches corners,... */
+  'lobby.region.resizingTopLeft': { height: ParamValue; name: ParamValue; number: ParamValue; width: ParamValue };
+  /** Arrows move the bottom right corner. */
+  'lobby.resize.cornerBottomRight': undefined;
+  /** Arrows move the top left corner. */
+  'lobby.resize.cornerTopLeft': undefined;
+  /** Done resizing {player}. */
+  'lobby.resize.done': { player: ParamValue };
+  /** {player}: {width} by {height}. */
+  'lobby.resize.size': { height: ParamValue; player: ParamValue; width: ParamValue };
+  /** Resizing {player}, {width} by {height}. Arrows move the bottom right corner, X switches corners, Enter when... */
+  'lobby.resize.started': { height: ParamValue; player: ParamValue; width: ParamValue };
+  /** Display {number} */
+  'lobby.screen.name': { number: ParamValue };
+  /** Waiting for a player */
+  'lobby.slot.expected': undefined;
+  /** Set by the profile */
+  'lobby.slot.expectedNote': undefined;
+  /** Press Start to join */
+  'lobby.slot.join': undefined;
+  /** Or select it, then press any button */
+  'lobby.slot.joinNote': undefined;
+  /** {place}: empty. Press Start on a free controller to join, or activate to wait for a controller here. */
+  'lobby.slot.label': { place: ParamValue };
+  /** {place}: the profile expects a player here. Press Start on a free controller to join, or activate to wait f... */
+  'lobby.slot.labelExpected': { place: ParamValue };
+  /** {place}: the profile expects a player here. Enter moves the player here. */
+  'lobby.slot.labelExpectedMoving': { place: ParamValue };
+  /** {place}: empty. Enter moves the player here. */
+  'lobby.slot.labelMoving': { place: ParamValue };
+  /** Move here */
+  'lobby.slot.moveHere': undefined;
+  /** bottom */
+  'lobby.slots.bottom': undefined;
+  /** bottom left */
+  'lobby.slots.bottomLeft': undefined;
+  /** bottom right */
+  'lobby.slots.bottomRight': undefined;
+  /** full screen */
+  'lobby.slots.fullScreen': undefined;
+  /** row {row}, column {column} */
+  'lobby.slots.grid': { column: ParamValue; row: ParamValue };
+  /** left */
+  'lobby.slots.left': undefined;
+  /** right */
+  'lobby.slots.right': undefined;
+  /** top */
+  'lobby.slots.top': undefined;
+  /** top left */
+  'lobby.slots.topLeft': undefined;
+  /** top right */
+  'lobby.slots.topRight': undefined;
+  /** B or Esc cancels */
+  'lobby.spot.cancelHint': undefined;
+  /** No longer waiting for a controller. */
+  'lobby.spot.cancelled': undefined;
+  /** {place}: waiting for a controller. Press a button on a free controller to place it here. Escape cancels. */
+  'lobby.spot.label': { place: ParamValue };
+  /** Press a button on a controller */
+  'lobby.spot.pressButton': undefined;
+  /** Waiting for a controller on {place}: press a button on it. Escape cancels. */
+  'lobby.spot.waiting': { place: ParamValue };
+  /** Waiting for a controller on this place: press a button on it. Escape cancels. */
+  'lobby.spot.waitingHere': undefined;
+  /** this game */
+  'lobby.thisGame': undefined;
+  /** Every device has joined. Plug in another controller to add a player. */
+  'lobby.tray.allJoined': undefined;
+  /** Clear */
+  'lobby.tray.clear': undefined;
+  /** Take everyone out */
+  'lobby.tray.clearConfirm.confirm': undefined;
+  /** Every player goes back to the tray. */
+  'lobby.tray.clearConfirm.message': undefined;
+  /** Every player goes back to the tray and the profile is unloaded. */
+  'lobby.tray.clearConfirm.messageProfile': undefined;
+  /** Take everyone out? */
+  'lobby.tray.clearConfirm.title': undefined;
+  /** Every player left. */
+  'lobby.tray.cleared': undefined;
+  /** Drag onto a keyboard player */
+  'lobby.tray.device.dragMouse': undefined;
+  /** Press a button to identify it */
+  'lobby.tray.device.identify': undefined;
+  /** {device}: press a button on it to identify it. */
+  'lobby.tray.device.identifyLabel': { device: ParamValue };
+  /** {device}: waiting. Activate to join, or drag it onto a screen. */
+  'lobby.tray.device.joinLabel': { device: ParamValue };
+  /** Press any key to join */
+  'lobby.tray.device.pressKey': undefined;
+  /** Press Start to join */
+  'lobby.tray.device.pressStart': undefined;
+  /** Vibrate, to find which one it is */
+  'lobby.tray.device.vibrateHint': undefined;
+  /** Make {device} vibrate */
+  'lobby.tray.device.vibrateLabel': { device: ParamValue };
+  /** Drop here to take this player out */
+  'lobby.tray.dropToRemove': undefined;
+  /** Keyboards and mice appear here once you use them. */
+  'lobby.tray.hiddenInputs': undefined;
+  /** Keyboards and mice appear once you use them. */
+  'lobby.tray.hiddenInputsShort': undefined;
+  /** Drag one of these onto a screen. */
+  'lobby.tray.joinDrag': undefined;
+  /** Press any key on one of these to join, or drag it onto a screen. */
+  'lobby.tray.joinKeyboards': undefined;
+  /** Press Start on one of these to join, or drag it onto a screen. */
+  'lobby.tray.joinPads': undefined;
+  /** Press Start on a controller, or any key on a keyboard, to join. Or drag a device onto a screen. */
+  'lobby.tray.joinPadsAndKeyboards': undefined;
+  /** Place everyone */
+  'lobby.tray.placeEveryone': undefined;
+  /** Rescan */
+  'lobby.tray.rescan': undefined;
+  /** Devices scanned again */
+  'lobby.tray.rescanned': undefined;
+  /** Waiting to join */
+  'lobby.tray.title': undefined;
+  /** {screen}, {slot} */
+  'lobby.where.screenAndSlot': { screen: ParamValue; slot: ParamValue };
+  /** a screen */
+  'lobby.where.unknownScreen': undefined;
+  /** Profile {number} */
+  'profiles.defaultTitle': { number: ParamValue };
+  /** {profile} deleted */
+  'profiles.delete.done': { profile: ParamValue };
+  /** {profile} is deleted for good. */
+  'profiles.delete.message': { profile: ParamValue };
+  /** {profile} is deleted for good. The profiles after it are renumbered. */
+  'profiles.delete.messageRenumbered': { profile: ParamValue };
+  /** {profile} is deleted for good. The profiles after it are renumbered. The setup starts over: every player go... */
+  'profiles.delete.messageRenumberedReset': { profile: ParamValue };
+  /** {profile} is deleted for good. The setup starts over: every player goes back to the tray. */
+  'profiles.delete.messageReset': { profile: ParamValue };
+  /** Delete {profile}? */
+  'profiles.delete.title': { profile: ParamValue };
+  /** Starts by itself */
+  'profiles.manager.autoPlay': undefined;
+  /** Delete {profile} */
+  'profiles.manager.deleteLabel': { profile: ParamValue };
+  /** No saved profile yet. */
+  'profiles.manager.empty': undefined;
+  /** A profile keeps the layouts, the options and who plays where. Loading one restores them; its players join a... */
+  'profiles.manager.intro': undefined;
+  /** Saved profiles */
+  'profiles.manager.listLabel': undefined;
+  /** Load */
+  'profiles.manager.load': undefined;
+  /** Loaded */
+  'profiles.manager.loaded': undefined;
+  /** <b>Next profile.</b> Turn on “{setting}” to save this setup as a new profile. */
+  'profiles.manager.nextProfileSaveOff': { setting: ParamValue };
+  /** <b>Next profile.</b> The next session saves this setup as a new profile with these settings. */
+  'profiles.manager.nextProfileSaveOn': undefined;
+  /** Players of {profile} */
+  'profiles.manager.playersLabel': { profile: ParamValue };
+  /** Load it and open its settings */
+  'profiles.manager.settingsHint': undefined;
+  /** Settings of {profile} */
+  'profiles.manager.settingsLabel': { profile: ParamValue };
+  /** Profiles of {game} */
+  'profiles.manager.title': { game: ParamValue };
+  /** Unload */
+  'profiles.manager.unload': undefined;
+  /** Profiles are off for this game */
+  'profiles.picker.disabled': undefined;
+  /** Profile */
+  'profiles.picker.label': undefined;
+  /** Manage profiles */
+  'profiles.picker.manage': undefined;
+  /** Profile settings, delete a profile */
+  'profiles.picker.manageHint': undefined;
+  /** Profiles */
+  'profiles.picker.menuLabel': undefined;
+  /** No profile */
+  'profiles.picker.none': undefined;
+  /** Place players freely */
+  'profiles.picker.noneDescription': undefined;
+  /** No saved profile */
+  'profiles.picker.noneSaved': undefined;
+  /** Profile */
+  'profiles.picker.unknown': undefined;
+  /** The profile keeps its saved settings. */
+  'profiles.settings.discard.message': undefined;
+  /** The next profile keeps the settings it had. */
+  'profiles.settings.discard.messageNext': undefined;
+  /** Discard your changes? */
+  'profiles.settings.discard.title': undefined;
+  /** Sets the display scaling the game windows need during the session. */
+  'profiles.settings.fields.autoDesktopScaling.help': undefined;
+  /** Adjust Windows scaling */
+  'profiles.settings.fields.autoDesktopScaling.label': undefined;
+  /** Launches as soon as every player of the profile has joined. */
+  'profiles.settings.fields.autoPlay.help': undefined;
+  /** Start by itself */
+  'profiles.settings.fields.autoPlay.label': undefined;
+  /** Each copy of the game plays on the output chosen for its player. */
+  'profiles.settings.fields.customAudio.help': undefined;
+  /** Per-player audio */
+  'profiles.settings.fields.customAudio.label': undefined;
+  /** Horizontal lines */
+  'profiles.settings.fields.customLayoutHorizontalLines.label': undefined;
+  /** Most players the custom layout holds. */
+  'profiles.settings.fields.customLayoutMaxPlayers.help': undefined;
+  /** Players */
+  'profiles.settings.fields.customLayoutMaxPlayers.label': undefined;
+  /** Vertical lines */
+  'profiles.settings.fields.customLayoutVerticalLines.label': undefined;
+  /** Keep the aspect ratio */
+  'profiles.settings.fields.cutscenesKeepAspectRatio.label': undefined;
+  /** The other windows keep their size and are only muted. */
+  'profiles.settings.fields.cutscenesMuteAudioOnly.help': undefined;
+  /** Only mute the audio */
+  'profiles.settings.fields.cutscenesMuteAudioOnly.label': undefined;
+  /** Unfocus the other windows */
+  'profiles.settings.fields.cutscenesUnfocus.label': undefined;
+  /** Uses the lossless hook with the merged window. */
+  'profiles.settings.fields.losslessHook.help': undefined;
+  /** Lossless hook */
+  'profiles.settings.fields.losslessHook.label': undefined;
+  /** Size of the merged window. */
+  'profiles.settings.fields.mergerResolution.help': undefined;
+  /** Resolution */
+  'profiles.settings.fields.mergerResolution.label': undefined;
+  /** The connection the copies of the game use. */
+  'profiles.settings.fields.network.help': undefined;
+  /** Network interface */
+  'profiles.settings.fields.network.label': undefined;
+  /** Notes */
+  'profiles.settings.fields.notes.label': undefined;
+  /** Who plays where, which controller goes to whom… */
+  'profiles.settings.fields.notes.placeholder': undefined;
+  /** Wait between the launches of two copies of the game. */
+  'profiles.settings.fields.pauseBetweenCopies.help': undefined;
+  /** Pause between copies */
+  'profiles.settings.fields.pauseBetweenCopies.label': undefined;
+  /** Fills the space around the game windows. */
+  'profiles.settings.fields.splitDivider.help': undefined;
+  /** Background behind the windows */
+  'profiles.settings.fields.splitDivider.label': undefined;
+  /** Background colour */
+  'profiles.settings.fields.splitDividerColor.label': undefined;
+  /** Hides the desktop instead of drawing the background colour. */
+  'profiles.settings.fields.splitDividerHideDesktopOnly.help': undefined;
+  /** Only hide the desktop */
+  'profiles.settings.fields.splitDividerHideDesktopOnly.label': undefined;
+  /** Shown in the list of profiles. Empty means “Profile” and its number. */
+  'profiles.settings.fields.title.help': undefined;
+  /** Title */
+  'profiles.settings.fields.title.label': undefined;
+  /** Profile */
+  'profiles.settings.fields.title.placeholder': undefined;
+  /** Use the nicknames in game */
+  'profiles.settings.fields.useNicknames.label': undefined;
+  /** Time each window gets to settle before the next one is set up. */
+  'profiles.settings.fields.windowSetupDelay.help': undefined;
+  /** Window setup delay */
+  'profiles.settings.fields.windowSetupDelay.label': undefined;
+  /** Shows every copy of the game in one window. */
+  'profiles.settings.fields.windowsMerger.help': undefined;
+  /** Merge the game windows */
+  'profiles.settings.fields.windowsMerger.label': undefined;
+  /** Fix the fields in red, then save again. */
+  'profiles.settings.fixErrors': undefined;
+  /** Saving reloads the profile. */
+  'profiles.settings.footer': undefined;
+  /** Used when a session saves this setup as a new profile. */
+  'profiles.settings.footerNext': undefined;
+  /** {game}: these settings are saved in the profile. */
+  'profiles.settings.intro': { game: ParamValue };
+  /** {game}: the next profile a session saves gets these settings. Per-player settings follow the players placed... */
+  'profiles.settings.introNext': { game: ParamValue };
+  /** The profile settings could not be read. */
+  'profiles.settings.loadError': undefined;
+  /** Reading the profile settings… */
+  'profiles.settings.loading': undefined;
+  /** Not set */
+  'profiles.settings.notSet': undefined;
+  /** Above normal */
+  'profiles.settings.priority.aboveNormal': undefined;
+  /** High */
+  'profiles.settings.priority.high': undefined;
+  /** Normal */
+  'profiles.settings.priority.normal': undefined;
+  /** Real time */
+  'profiles.settings.priority.realTime': undefined;
+  /** {min} to {max}. */
+  'profiles.settings.range': { max: ParamValue; min: ParamValue };
+  /** {profile} saved. Its players join again as they press a button. */
+  'profiles.settings.saved': { profile: ParamValue };
+  /** Settings kept for the next profile */
+  'profiles.settings.savedNext': undefined;
+  /** Profile saved. Its players join again as they press a button. */
+  'profiles.settings.savedUnnamed': undefined;
+  /** Custom layout */
+  'profiles.settings.sections.customLayout': undefined;
+  /** Used when a screen has the custom layout. */
+  'profiles.settings.sections.customLayoutNote': undefined;
+  /** Cutscene mode */
+  'profiles.settings.sections.cutscenes': undefined;
+  /** Merged window */
+  'profiles.settings.sections.mergedWindow': undefined;
+  /** Network */
+  'profiles.settings.sections.network': undefined;
+  /** Players */
+  'profiles.settings.sections.players': undefined;
+  /** Profile */
+  'profiles.settings.sections.profile': undefined;
+  /** Windows */
+  'profiles.settings.sections.windows': undefined;
+  /** Processor and priority */
+  'profiles.settings.slots.advanced': undefined;
+  /** Affinity */
+  'profiles.settings.slots.affinity': undefined;
+  /** Processor numbers separated by commas, empty for all */
+  'profiles.settings.slots.affinityHint': undefined;
+  /** Player {number} processor affinity, numbers separated by commas */
+  'profiles.settings.slots.affinityLabel': { number: ParamValue };
+  /** All processors */
+  'profiles.settings.slots.affinityPlaceholder': undefined;
+  /** Audio output */
+  'profiles.settings.slots.audio': undefined;
+  /** Place players in the lobby to set their nickname, Steam ID and audio output. */
+  'profiles.settings.slots.empty': undefined;
+  /** Ideal processor */
+  'profiles.settings.slots.idealProcessor': undefined;
+  /** * lets Windows choose */
+  'profiles.settings.slots.idealProcessorHint': undefined;
+  /** Player {number} ideal processor, * for any */
+  'profiles.settings.slots.idealProcessorLabel': { number: ParamValue };
+  /** Nickname */
+  'profiles.settings.slots.nickname': undefined;
+  /** Priority */
+  'profiles.settings.slots.priority': undefined;
+  /** Player {number} process priority */
+  'profiles.settings.slots.priorityLabel': { number: ParamValue };
+  /** Steam ID */
+  'profiles.settings.slots.steamId': undefined;
+  /** The handler sets the Steam IDs of this game. */
+  'profiles.settings.slots.steamIdLocked': undefined;
+  /** Player {number} Steam ID, set by the handler */
+  'profiles.settings.slots.steamIdLockedLabel': { number: ParamValue };
+  /** Settings of {profile} */
+  'profiles.settings.title': { profile: ParamValue };
+  /** Settings of the next profile */
+  'profiles.settings.titleNext': undefined;
+  /** Settings of the profile */
+  'profiles.settings.titleUnnamed': undefined;
+  /** ms */
+  'profiles.settings.units.milliseconds': undefined;
+  /** s */
+  'profiles.settings.units.seconds': undefined;
+  /** {assigned} of {total} in */
+  'profiles.status.assigned': { assigned: ParamValue; total: ParamValue };
+  /** {assigned} of {total} in, starts by itself */
+  'profiles.status.assignedAutoPlay': { assigned: ParamValue; total: ParamValue };
+  /** starts by itself */
+  'profiles.summary.autoPlay': undefined;
+  /** {count} gamepads */
+  'profiles.summary.gamepads': { count: number };
+  /** {count} keyboards and mice */
+  'profiles.summary.keyboardMice': { count: number };
+  /** {count} players */
+  'profiles.summary.players': { count: number };
+  /** {summary}. {notes} */
+  'profiles.summary.withNotes': { notes: ParamValue; summary: ParamValue };
+  /** Loaded {profile}. Players join as they press a button. */
+  'profiles.toasts.loaded': { profile: ParamValue };
+  /** Loaded the profile. Players join as they press a button. */
+  'profiles.toasts.loadedUnnamed': undefined;
+  /** Profile unloaded. Place players freely. */
+  'profiles.toasts.unloaded': undefined;
+  /** Blocking */
+  'setup.checks.state.blocking': undefined;
+  /** In progress */
+  'setup.checks.state.busy': undefined;
+  /** Note */
+  'setup.checks.state.info': undefined;
+  /** Done */
+  'setup.checks.state.ok': undefined;
+  /** Warning */
+  'setup.checks.state.warning': undefined;
+  /** Before you launch */
+  'setup.checks.title': undefined;
+  /** Chosen by the profile */
+  'setup.customStep.chosenByProfile': undefined;
+  /** Optional: pick one, or go on without. */
+  'setup.customStep.optional': undefined;
+  /** Optional: pick one, or go on without. The loaded profile already chose for you. */
+  'setup.customStep.optionalFromProfile': undefined;
+  /** Pick one to continue. */
+  'setup.customStep.required': undefined;
+  /** Pick one to continue. The loaded profile already chose for you. */
+  'setup.customStep.requiredFromProfile': undefined;
+  /** Back to {step} */
+  'setup.flow.backTo': { step: ParamValue };
+  /** Back to options */
+  'setup.flow.backToOptions': undefined;
+  /** Back to players */
+  'setup.flow.backToPlayers': undefined;
+  /** Back to the previous step */
+  'setup.flow.backToPrevious': undefined;
+  /** Current step: {step} */
+  'setup.flow.currentStep': { step: ParamValue };
+  /** Next */
+  'setup.flow.next': undefined;
+  /** {number}. {title} */
+  'setup.flow.step': { number: ParamValue; title: ParamValue };
+  /** Steps */
+  'setup.flow.stepsLabel': undefined;
+  /** Press Start on a controller to join, or drag a device onto a screen. */
+  'setup.hints.dragPlayersToScreens': undefined;
+  /** Press a button on each gamepad so Nucleus can tell them apart. */
+  'setup.hints.pressButtonToIdentify': undefined;
+  /** Every player of the profile is here. Launch when you are ready. */
+  'setup.hints.profileReady': undefined;
+  /** Player {number} of the profile: press a button on a gamepad. */
+  'setup.hints.profileWaitingForPlayer.gamepad': { number: ParamValue };
+  /** Player {number} of the profile: press a button on a keyboard. */
+  'setup.hints.profileWaitingForPlayer.keyboard': { number: ParamValue };
+  /** Player {number} of the profile: press a button on a keyboard and mouse. */
+  'setup.hints.profileWaitingForPlayer.keyboardMouse': { number: ParamValue };
+  /** Player {number} of the profile: press a button on a mouse. */
+  'setup.hints.profileWaitingForPlayer.mouse': { number: ParamValue };
+  /** Everyone is in. Launch when you are ready. */
+  'setup.hints.readyToPlay': undefined;
+  /** {check}. Fix it in "{section}". */
+  'setup.launch.blocking': { check: ParamValue; section: ParamValue };
+  /** {check}: working on it… */
+  'setup.launch.busy': { check: ParamValue };
+  /** Launch {count} players */
+  'setup.launch.button': { count: number };
+  /** Finish this step to launch. */
+  'setup.launch.finishStep': undefined;
+  /** Launch */
+  'setup.launch.label': undefined;
+  /** Launching… */
+  'setup.launch.launching': undefined;
+  /** Next: options. Then launch. */
+  'setup.launch.nextOptions': undefined;
+  /** Next: players. Then launch. */
+  'setup.launch.nextPlayers': undefined;
+  /** Next: {step}. Then launch. */
+  'setup.launch.nextStep': { step: ParamValue };
+  /** Press Start on a controller to join. */
+  'setup.launch.noPlayers': undefined;
+  /** {count} copies of {game}. */
+  'setup.launch.ready': { count: number; game: ParamValue };
+  /** Save a profile when the session starts */
+  'setup.launch.saveProfile': undefined;
+  /** Starting the copies… */
+  'setup.launch.starting': undefined;
+  /** {check}. You can still launch. */
+  'setup.launch.warning': { check: ParamValue };
+  /** Choose… */
+  'setup.options.choose': undefined;
+  /** This handler has no option you can change here. */
+  'setup.options.empty': undefined;
+  /** The handler author offers these choices. They apply to every copy of {game}. */
+  'setup.options.intro': { game: ParamValue };
+  /** The handler author offers these choices. They apply to every copy of {game} and come from the loaded profile. */
+  'setup.options.introFromProfile': { game: ParamValue };
+  /** Handler options */
+  'setup.options.title': undefined;
+  /** Uses the handler's default value */
+  'setup.options.unsupported': undefined;
   /** The interface could not reach the app ({error}). Close Nucleus Co-op and start it again. */
   'shell.startup.hostDownMessage': { error: ParamValue };
   /** Nucleus Co-op did not answer */
@@ -207,4 +895,4 @@ export interface MessageParamsMap {
 }
 
 /** Strings with tags (`<kbd>`, `<b>`...): render them with `<T>` to keep their markup; `t()` drops it. */
-export type RichMessageKey = never;
+export type RichMessageKey = 'lobby.canvas.seats' | 'lobby.keys.help' | 'lobby.keys.waiting' | 'profiles.manager.nextProfileSaveOff' | 'profiles.manager.nextProfileSaveOn';

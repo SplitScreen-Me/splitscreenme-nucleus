@@ -124,9 +124,525 @@
   "handler": {},
   "downloads": {},
   "hub": {},
-  "lobby": {},
-  "setup": {},
-  "profiles": {},
+  "lobby": {
+    "thisGame": "this game",
+    "backToLibrary": "Back to library",
+    "breadcrumbs": {
+      "library": "Library",
+      "settingUp": "Setting up"
+    },
+    "opening": "Opening the setup of {game}",
+    "openingUnnamed": "Opening the setup of the game",
+    "openError": {
+      "title": "This game can't be set up"
+    },
+    "asideLabel": "Session",
+    "keys": {
+      "waiting": "Waiting for a controller: <b>{cancel}</b> cancels",
+      "help": "Keyboard: <b>{pickUp}</b> picks up a player, <b>{resize}</b> resizes, <b>{remove}</b> takes them out"
+    },
+    "hints": {
+      "join": "Join",
+      "resize": "Resize",
+      "arrowsKey": "Arrows",
+      "moveCorner": "Move the corner",
+      "otherCorner": "Other corner"
+    },
+    "header": {
+      "label": "Game",
+      "handlerVersion": "Handler version {version}",
+      "handlerFromFile": "Handler installed from a file",
+      "maintainer": "by {name}",
+      "maxPlayers_one": "Up to {count} player",
+      "maxPlayers_other": "Up to {count} players",
+      "playersPerCopy_one": "{count} player per copy",
+      "playersPerCopy_other": "{count} players per copy",
+      "notes": "Handler notes"
+    },
+    "notes": {
+      "title": "Handler notes",
+      "withVersion": "{game}, handler version {version}",
+      "withMaintainer": "{game} by {maintainer}",
+      "withVersionAndMaintainer": "{game}, handler version {version} by {maintainer}",
+      "empty": "This handler has no notes."
+    },
+    "screen": {
+      "name": "Display {number}"
+    },
+    "where": {
+      "screenAndSlot": "{screen}, {slot}",
+      "unknownScreen": "a screen"
+    },
+    "slots": {
+      "fullScreen": "full screen",
+      "left": "left",
+      "right": "right",
+      "top": "top",
+      "bottom": "bottom",
+      "topLeft": "top left",
+      "topRight": "top right",
+      "bottomLeft": "bottom left",
+      "bottomRight": "bottom right",
+      "grid": "row {row}, column {column}"
+    },
+    "layouts": {
+      "fullScreen": {
+        "label": "One player, full screen"
+      },
+      "dualHorizontal": {
+        "label": "Two players, top and bottom"
+      },
+      "dualVertical": {
+        "label": "Two players, side by side"
+      },
+      "fourPlayers": {
+        "label": "Four players, 2 × 2"
+      },
+      "sixPlayers": {
+        "label": "Six players",
+        "short": "6 players",
+        "description": "2 rows, 3 columns"
+      },
+      "eightPlayers": {
+        "label": "Eight players",
+        "short": "8 players",
+        "description": "2 rows, 4 columns"
+      },
+      "sixteenPlayers": {
+        "label": "Sixteen players",
+        "short": "16 players",
+        "description": "4 rows, 4 columns"
+      },
+      "custom": {
+        "label": "Custom grid",
+        "short": "Custom",
+        "description": "Rows and columns from Settings, Layout"
+      },
+      "manual": {
+        "label": "Manual",
+        "short": "Manual",
+        "description": "Drop players anywhere on the screen"
+      },
+      "groupLabel": "{screen} layout",
+      "moreMenu": "More layouts for {screen}",
+      "setByProfile": "Set by the profile",
+      "lockedIcon": "Layout set by the profile",
+      "lockedNote": "The loaded profile sets this layout. Unload the profile to change it.",
+      "changed": "{screen} set to {layout}."
+    },
+    "monitor": {
+      "label": "{screen}, {width} by {height}",
+      "labelPrimary": "{screen}, {width} by {height}, primary",
+      "primary": "Primary"
+    },
+    "canvas": {
+      "title": "Screens",
+      "description": "Drag a player onto another place to swap them, or onto the tray to take them out.",
+      "seats_one": "<b>{seats}</b> of {count} player",
+      "seats_other": "<b>{seats}</b> of {count} players"
+    },
+    "manual": {
+      "hint": "Manual layout: drop a player anywhere on this screen, or click a spot and press a button on a controller.",
+      "label": "{screen}, manual layout: drop a player anywhere, or activate and press a button on a free controller.",
+      "labelMoving": "{screen}, manual layout: drop a player anywhere, Enter places the player in the middle."
+    },
+    "slot": {
+      "label": "{place}: empty. Press Start on a free controller to join, or activate to wait for a controller here.",
+      "labelMoving": "{place}: empty. Enter moves the player here.",
+      "labelExpected": "{place}: the profile expects a player here. Press Start on a free controller to join, or activate to wait for a controller here.",
+      "labelExpectedMoving": "{place}: the profile expects a player here. Enter moves the player here.",
+      "moveHere": "Move here",
+      "expected": "Waiting for a player",
+      "expectedNote": "Set by the profile",
+      "join": "Press Start to join",
+      "joinNote": "Or select it, then press any button"
+    },
+    "spot": {
+      "pressButton": "Press a button on a controller",
+      "cancelHint": "B or Esc cancels",
+      "label": "{place}: waiting for a controller. Press a button on a free controller to place it here. Escape cancels.",
+      "waiting": "Waiting for a controller on {place}: press a button on it. Escape cancels.",
+      "waitingHere": "Waiting for a controller on this place: press a button on it. Escape cancels.",
+      "cancelled": "No longer waiting for a controller."
+    },
+    "move": {
+      "pickedUp": "Picked up {player}. Move to another place and press Enter. Escape cancels.",
+      "putBack": "Put back.",
+      "cancelled": "Move cancelled.",
+      "swapped": "{first} and {second} swapped.",
+      "moved": "{player} moved to {place}."
+    },
+    "resize": {
+      "size": "{player}: {width} by {height}.",
+      "started": "Resizing {player}, {width} by {height}. Arrows move the bottom right corner, X switches corners, Enter when done.",
+      "cornerBottomRight": "Arrows move the bottom right corner.",
+      "cornerTopLeft": "Arrows move the top left corner.",
+      "done": "Done resizing {player}."
+    },
+    "region": {
+      "label": "Player {number}, {name}, {devices}, {place}. Enter to move, Delete to take out.",
+      "labelResizable": "Player {number}, {name}, {devices}, {place}. Enter to move, R to resize, Delete to take out.",
+      "resizingBottomRight": "Resizing player {number}, {name}: {width} by {height}. Arrows move the bottom right corner, X switches corners, Enter when done.",
+      "resizingTopLeft": "Resizing player {number}, {name}: {width} by {height}. Arrows move the top left corner, X switches corners, Enter when done."
+    },
+    "tray": {
+      "title": "Waiting to join",
+      "dropToRemove": "Drop here to take this player out",
+      "joinPadsAndKeyboards": "Press Start on a controller, or any key on a keyboard, to join. Or drag a device onto a screen.",
+      "joinPads": "Press Start on one of these to join, or drag it onto a screen.",
+      "joinKeyboards": "Press any key on one of these to join, or drag it onto a screen.",
+      "joinDrag": "Drag one of these onto a screen.",
+      "hiddenInputs": "Keyboards and mice appear here once you use them.",
+      "hiddenInputsShort": "Keyboards and mice appear once you use them.",
+      "allJoined": "Every device has joined. Plug in another controller to add a player.",
+      "rescan": "Rescan",
+      "rescanned": "Devices scanned again",
+      "placeEveryone": "Place everyone",
+      "clear": "Clear",
+      "clearConfirm": {
+        "title": "Take everyone out?",
+        "message": "Every player goes back to the tray.",
+        "messageProfile": "Every player goes back to the tray and the profile is unloaded.",
+        "confirm": "Take everyone out"
+      },
+      "cleared": "Every player left.",
+      "device": {
+        "identifyLabel": "{device}: press a button on it to identify it.",
+        "joinLabel": "{device}: waiting. Activate to join, or drag it onto a screen.",
+        "identify": "Press a button to identify it",
+        "pressKey": "Press any key to join",
+        "dragMouse": "Drag onto a keyboard player",
+        "pressStart": "Press Start to join",
+        "vibrateLabel": "Make {device} vibrate",
+        "vibrateHint": "Vibrate, to find which one it is"
+      }
+    },
+    "players": {
+      "title": "Players",
+      "count": "{seats} of {max}",
+      "full_one": "Full. {game} supports up to {count} player.",
+      "full_other": "Full. {game} supports up to {count} players.",
+      "moreCanJoinFree_one": "{count} more can join. Press Start on a free controller, or any key on a free keyboard.",
+      "moreCanJoinFree_other": "{count} more can join. Press Start on a free controller, or any key on a free keyboard.",
+      "moreCanJoin_one": "{count} more can join. Plug in a controller, then press Start on it.",
+      "moreCanJoin_other": "{count} more can join. Plug in a controller, then press Start on it.",
+      "apiIndex": {
+        "label": "Identify gamepads by slot",
+        "description": "Places gamepads by their controller number, without a button press. Some handlers ignore it."
+      }
+    },
+    "player": {
+      "name": "Player {number}",
+      "short": "P{number}",
+      "noDevice": "No device",
+      "dragHint": "Drag onto a screen to move this player",
+      "nicknameLabel": "Player {number} nickname",
+      "expandLabel": "Grow or shrink player {number}",
+      "expandHint": "Grow over the free neighbouring places, or shrink back",
+      "removeLabel": "Take out player {number}",
+      "remove": "Take out",
+      "removeDeviceLabel": "Remove {device} from player {number}",
+      "removeDevice": "Remove this device",
+      "guest": "Guest: {device}",
+      "removeGuestLabel": "Remove guest {device}",
+      "removeGuest": "Remove the guest",
+      "audioLabel": "Player {number} audio output",
+      "audioHint": "Audio output of this player",
+      "audioHintOff": "Audio output (choosing one turns per-player audio on)",
+      "defaultAudio": "Default output",
+      "steamIdLabel": "Player {number} Steam ID",
+      "steamIdHint": "Steam ID used in game (17 digits)",
+      "addGuestLabel": "Add a guest gamepad to player {number}",
+      "addGuestHint": "A guest plays in this player's copy of the game",
+      "addGuest": "Add a guest gamepad…"
+    },
+    "announce": {
+      "playerLeft": "{player} left. Their devices are back in the tray.",
+      "playersLeft_one": "{names} left.",
+      "playersLeft_other": "{names} left.",
+      "joined": "{device} joined: {player}, player {number}.",
+      "controllerJoined": "A controller joined: {player}, player {number}."
+    },
+    "deviceLost": {
+      "namedPlayer": "{nickname} (player {number})",
+      "gamepad": "{player} lost their gamepad. Plug it back in, or press Start on another one.",
+      "keyboard": "{player} lost their keyboard. Plug it back in, or use another one.",
+      "mouse": "{player} lost their mouse. Plug it back in, or use another one.",
+      "keyboardMouse": "{player} lost their keyboard and mouse. Plug it back in, or use another one.",
+      "unknownPlayer": {
+        "gamepad": "A player lost their gamepad. Plug it back in, or press Start on another one.",
+        "keyboard": "A player lost their keyboard. Plug it back in, or use another one.",
+        "mouse": "A player lost their mouse. Plug it back in, or use another one.",
+        "keyboardMouse": "A player lost their keyboard and mouse. Plug it back in, or use another one."
+      }
+    }
+  },
+  "setup": {
+    "hints": {
+      "pressButtonToIdentify": "Press a button on each gamepad so Nucleus can tell them apart.",
+      "dragPlayersToScreens": "Press Start on a controller to join, or drag a device onto a screen.",
+      "profileWaitingForPlayer": {
+        "gamepad": "Player {number} of the profile: press a button on a gamepad.",
+        "keyboard": "Player {number} of the profile: press a button on a keyboard.",
+        "mouse": "Player {number} of the profile: press a button on a mouse.",
+        "keyboardMouse": "Player {number} of the profile: press a button on a keyboard and mouse."
+      },
+      "profileReady": "Every player of the profile is here. Launch when you are ready.",
+      "readyToPlay": "Everyone is in. Launch when you are ready."
+    },
+    "options": {
+      "title": "Handler options",
+      "intro": "The handler author offers these choices. They apply to every copy of {game}.",
+      "introFromProfile": "The handler author offers these choices. They apply to every copy of {game} and come from the loaded profile.",
+      "empty": "This handler has no option you can change here.",
+      "choose": "Choose…",
+      "unsupported": "Uses the handler's default value"
+    },
+    "customStep": {
+      "required": "Pick one to continue.",
+      "requiredFromProfile": "Pick one to continue. The loaded profile already chose for you.",
+      "optional": "Optional: pick one, or go on without.",
+      "optionalFromProfile": "Optional: pick one, or go on without. The loaded profile already chose for you.",
+      "chosenByProfile": "Chosen by the profile"
+    },
+    "checks": {
+      "title": "Before you launch",
+      "state": {
+        "ok": "Done",
+        "warning": "Warning",
+        "blocking": "Blocking",
+        "info": "Note",
+        "busy": "In progress"
+      }
+    },
+    "flow": {
+      "stepsLabel": "Steps",
+      "step": "{number}. {title}",
+      "backTo": "Back to {step}",
+      "backToPlayers": "Back to players",
+      "backToOptions": "Back to options",
+      "backToPrevious": "Back to the previous step",
+      "next": "Next",
+      "currentStep": "Current step: {step}"
+    },
+    "launch": {
+      "label": "Launch",
+      "starting": "Starting the copies…",
+      "blocking": "{check}. Fix it in \"{section}\".",
+      "busy": "{check}: working on it…",
+      "nextStep": "Next: {step}. Then launch.",
+      "nextPlayers": "Next: players. Then launch.",
+      "nextOptions": "Next: options. Then launch.",
+      "noPlayers": "Press Start on a controller to join.",
+      "finishStep": "Finish this step to launch.",
+      "warning": "{check}. You can still launch.",
+      "ready_one": "{count} copy of {game}.",
+      "ready_other": "{count} copies of {game}.",
+      "launching": "Launching…",
+      "button_zero": "Launch",
+      "button_one": "Launch {count} player",
+      "button_other": "Launch {count} players",
+      "saveProfile": "Save a profile when the session starts"
+    }
+  },
+  "profiles": {
+    "defaultTitle": "Profile {number}",
+    "picker": {
+      "label": "Profile",
+      "menuLabel": "Profiles",
+      "unknown": "Profile",
+      "none": "No profile",
+      "noneSaved": "No saved profile",
+      "noneDescription": "Place players freely",
+      "manage": "Manage profiles",
+      "manageHint": "Profile settings, delete a profile",
+      "disabled": "Profiles are off for this game"
+    },
+    "summary": {
+      "players_one": "{count} player",
+      "players_other": "{count} players",
+      "gamepads_one": "{count} gamepad",
+      "gamepads_other": "{count} gamepads",
+      "keyboardMice_one": "{count} keyboard and mouse",
+      "keyboardMice_other": "{count} keyboards and mice",
+      "autoPlay": "starts by itself",
+      "withNotes": "{summary}. {notes}"
+    },
+    "status": {
+      "assigned": "{assigned} of {total} in",
+      "assignedAutoPlay": "{assigned} of {total} in, starts by itself"
+    },
+    "toasts": {
+      "loaded": "Loaded {profile}. Players join as they press a button.",
+      "loadedUnnamed": "Loaded the profile. Players join as they press a button.",
+      "unloaded": "Profile unloaded. Place players freely."
+    },
+    "manager": {
+      "title": "Profiles of {game}",
+      "intro": "A profile keeps the layouts, the options and who plays where. Loading one restores them; its players join as they press a button.",
+      "empty": "No saved profile yet.",
+      "listLabel": "Saved profiles",
+      "nextProfileSaveOn": "<b>Next profile.</b> The next session saves this setup as a new profile with these settings.",
+      "nextProfileSaveOff": "<b>Next profile.</b> Turn on “{setting}” to save this setup as a new profile.",
+      "loaded": "Loaded",
+      "autoPlay": "Starts by itself",
+      "playersLabel": "Players of {profile}",
+      "load": "Load",
+      "unload": "Unload",
+      "settingsLabel": "Settings of {profile}",
+      "settingsHint": "Load it and open its settings",
+      "deleteLabel": "Delete {profile}"
+    },
+    "delete": {
+      "title": "Delete {profile}?",
+      "message": "{profile} is deleted for good.",
+      "messageRenumbered": "{profile} is deleted for good. The profiles after it are renumbered.",
+      "messageReset": "{profile} is deleted for good. The setup starts over: every player goes back to the tray.",
+      "messageRenumberedReset": "{profile} is deleted for good. The profiles after it are renumbered. The setup starts over: every player goes back to the tray.",
+      "done": "{profile} deleted"
+    },
+    "settings": {
+      "title": "Settings of {profile}",
+      "titleUnnamed": "Settings of the profile",
+      "titleNext": "Settings of the next profile",
+      "intro": "{game}: these settings are saved in the profile.",
+      "introNext": "{game}: the next profile a session saves gets these settings. Per-player settings follow the players placed now.",
+      "loading": "Reading the profile settings…",
+      "loadError": "The profile settings could not be read.",
+      "fixErrors": "Fix the fields in red, then save again.",
+      "footer": "Saving reloads the profile.",
+      "footerNext": "Used when a session saves this setup as a new profile.",
+      "saved": "{profile} saved. Its players join again as they press a button.",
+      "savedUnnamed": "Profile saved. Its players join again as they press a button.",
+      "savedNext": "Settings kept for the next profile",
+      "discard": {
+        "title": "Discard your changes?",
+        "message": "The profile keeps its saved settings.",
+        "messageNext": "The next profile keeps the settings it had."
+      },
+      "notSet": "Not set",
+      "range": "{min} to {max}.",
+      "units": {
+        "milliseconds": "ms",
+        "seconds": "s"
+      },
+      "sections": {
+        "profile": "Profile",
+        "players": "Players",
+        "windows": "Windows",
+        "customLayout": "Custom layout",
+        "customLayoutNote": "Used when a screen has the custom layout.",
+        "mergedWindow": "Merged window",
+        "cutscenes": "Cutscene mode",
+        "network": "Network"
+      },
+      "fields": {
+        "title": {
+          "label": "Title",
+          "help": "Shown in the list of profiles. Empty means “Profile” and its number.",
+          "placeholder": "Profile"
+        },
+        "notes": {
+          "label": "Notes",
+          "placeholder": "Who plays where, which controller goes to whom…"
+        },
+        "autoPlay": {
+          "label": "Start by itself",
+          "help": "Launches as soon as every player of the profile has joined."
+        },
+        "useNicknames": {
+          "label": "Use the nicknames in game"
+        },
+        "customAudio": {
+          "label": "Per-player audio",
+          "help": "Each copy of the game plays on the output chosen for its player."
+        },
+        "windowSetupDelay": {
+          "label": "Window setup delay",
+          "help": "Time each window gets to settle before the next one is set up."
+        },
+        "pauseBetweenCopies": {
+          "label": "Pause between copies",
+          "help": "Wait between the launches of two copies of the game."
+        },
+        "autoDesktopScaling": {
+          "label": "Adjust Windows scaling",
+          "help": "Sets the display scaling the game windows need during the session."
+        },
+        "splitDivider": {
+          "label": "Background behind the windows",
+          "help": "Fills the space around the game windows."
+        },
+        "splitDividerHideDesktopOnly": {
+          "label": "Only hide the desktop",
+          "help": "Hides the desktop instead of drawing the background colour."
+        },
+        "splitDividerColor": {
+          "label": "Background colour"
+        },
+        "customLayoutHorizontalLines": {
+          "label": "Horizontal lines"
+        },
+        "customLayoutVerticalLines": {
+          "label": "Vertical lines"
+        },
+        "customLayoutMaxPlayers": {
+          "label": "Players",
+          "help": "Most players the custom layout holds."
+        },
+        "windowsMerger": {
+          "label": "Merge the game windows",
+          "help": "Shows every copy of the game in one window."
+        },
+        "losslessHook": {
+          "label": "Lossless hook",
+          "help": "Uses the lossless hook with the merged window."
+        },
+        "mergerResolution": {
+          "label": "Resolution",
+          "help": "Size of the merged window."
+        },
+        "cutscenesKeepAspectRatio": {
+          "label": "Keep the aspect ratio"
+        },
+        "cutscenesMuteAudioOnly": {
+          "label": "Only mute the audio",
+          "help": "The other windows keep their size and are only muted."
+        },
+        "cutscenesUnfocus": {
+          "label": "Unfocus the other windows"
+        },
+        "network": {
+          "label": "Network interface",
+          "help": "The connection the copies of the game use."
+        }
+      },
+      "slots": {
+        "empty": "Place players in the lobby to set their nickname, Steam ID and audio output.",
+        "nickname": "Nickname",
+        "steamId": "Steam ID",
+        "audio": "Audio output",
+        "steamIdLocked": "The handler sets the Steam IDs of this game.",
+        "steamIdLockedLabel": "Player {number} Steam ID, set by the handler",
+        "advanced": "Processor and priority",
+        "priority": "Priority",
+        "idealProcessor": "Ideal processor",
+        "idealProcessorHint": "* lets Windows choose",
+        "affinity": "Affinity",
+        "affinityHint": "Processor numbers separated by commas, empty for all",
+        "priorityLabel": "Player {number} process priority",
+        "idealProcessorLabel": "Player {number} ideal processor, * for any",
+        "affinityLabel": "Player {number} processor affinity, numbers separated by commas",
+        "affinityPlaceholder": "All processors"
+      },
+      "priority": {
+        "normal": "Normal",
+        "aboveNormal": "Above normal",
+        "high": "High",
+        "realTime": "Real time"
+      }
+    }
+  },
   "session": {},
   "settings": {},
   "host": {
