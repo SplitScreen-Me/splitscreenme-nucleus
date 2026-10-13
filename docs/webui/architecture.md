@@ -12,7 +12,7 @@ Status: draft v1, 2026-10-11. Scope: replace the WinForms `MainForm` with a WebV
                 │ JSON-RPC 2.0 over WebView2 web messages (strings)                     │ https://assets.nucleus.example/*
 ┌───────────────▼──────────────────────────────┐                     ┌──────────────────▼──────────────┐
 │ Nucleus.WebUI (React 19, TS, Tailwind v4)    │                     │ Local files (covers, icons…)    │
-│ src/bridge/  generated contract + runtime    │──── fetch ────────▶ │ hub.splitscreen.me /api/v1/*    │
+│ src/bridge/  generated contract + runtime    │──── fetch ────────▶ │ v3.splitscreen.me /api/v3/*     │
 │ src/hub/     public hub API (TanStack Query) │                     │ (public, CORS *)                │
 └──────────────────────────────────────────────┘                     └─────────────────────────────────┘
         ▲ contract.ts generated from
@@ -152,7 +152,7 @@ const setup = useBridgeSnapshot('setup.get', 'setup.changed');    // query + liv
 | `window` | minimize, maximize, close, title; `window.stateChanged` | events |
 | `dialogs` | native file and folder pickers | stateless |
 | `library` | games, details, favourites, per-game menu (descriptors + actions), add/remove, artwork, list preferences; `library.changed` | queries + invalidation |
-| `handlers` | install/update from hub, install from file, update checks, screenshots proxy; `handlers.progress`, `handlers.changed` | queries + invalidation |
+| `handlers` | install/update from hub (SHA-256 checked), install from file, update checks, screenshots; `handlers.progress`, `handlers.changed` | queries + invalidation |
 | `settings` | schema-driven settings (values as strings), player identities, gamepad combo capture; `settings.changed` | queries + invalidation |
 | `setup` | the lobby: devices, screens, layouts, placement, options, custom steps; `setup.changed`, `setup.deviceActivity`, `setup.deviceLost` | host-owned snapshot |
 | `profiles` | saved setups of the open game, profile settings; `profiles.changed` | queries + invalidation |
@@ -168,4 +168,11 @@ Every message box and prompt of Nucleus.Gaming goes through `Nucleus.Gaming.Form
 - `LaunchFailure` (the crash report of a failed launch) goes to `SessionSnapshot.errorDetails`;
 - `Session` prompts (over the game windows), questions, and anything raised while `IHostShell.PageState` is `Unavailable` (WebView failed, renderer crashed, window closing) stay native. While the page is `Loading` (startup, reload), notices wait for it.
 
-The hub catalogue (`allhandlers`, `handler/:id`, `comments/:id`) is read by the UI directly from the public API; only calls without CORS (screenshots, package downloads) go through `handlers`.
+### Hub (API v3)
+
+The hub is the SplitScreen.Me site, `https://v3.splitscreen.me` by default (`Nucleus.Gaming.HubSite`). Settings.ini `[Dev] HubUrl` points the app at another site, a local one during development; the value is read once at startup. The host and the UI use the same value: the UI reads it from `app.getInfo().hubUrl`. Contract of the API: `<hubUrl>/api/v3/openapi.json`, guide at `<hubUrl>/doc/api`.
+
+- **UI** (`src/hub`): `GET /catalog` (every listed handler, persisted in localStorage for offline starts), `GET /handlers/{id}` (notes, game summary), `GET /handlers/{id}/comments` (pages of 200, following `nextCursor`). Called straight from the WebView (CORS `*`, no cookies). Web links come from the API (`url`: the game page `/hub/<slug>` or the handler page; `authorUrl`: `/hub/authors/<username>`), the "Hub" link of Settings is `<hubUrl>/hub`.
+- **Host** (`HubClient`, `Nucleus.Coop.Services/Handlers`): `GET /health` as the online check, `GET /handlers/{id}` for installs, update checks (`version`), screenshots (`screenshots[].imageId`) and covers (`coverImageId`), `GET /handlers/{id}/download?version=n` for installs, counted by the hub once per address, handler, version and day. The download is checked against `currentVersion.sha256` before anything is extracted; a mismatch deletes the file and fails the install (`conflict`, `reason: checksumMismatch`). Tests and manual checks use `count=false`.
+- **Legacy** `Nucleus.Gaming.Coop.Generic.Hub.CheckUpdateAvailable` (run when a handler script loads) reads `version` from `GET /handlers/{id}` too.
+- **CSP**: the packaged UI's `connect-src` allows `'self'` and `https://v3.splitscreen.me` only. A build for another site needs its origin at build time (`NUCLEUS_HUB_ORIGINS=http://localhost:3000 npm run build`); otherwise the hub screens show an error naming the setting (`src/hub/site.ts`) while the host side works. The Vite dev server (`webui\dev-server.txt`) has no CSP, so any site works there.

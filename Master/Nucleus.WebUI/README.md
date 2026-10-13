@@ -17,7 +17,7 @@ npm run preview      # serve dist/ on http://localhost:4173
 
 Node 22.12+ (Vite 8 requirement).
 
-The build uses relative URLs (`base: './'`) and a hash router, so `dist/` works from the WebView2 virtual host folder mapping (`https://ui.nucleus.example/` → `webui\`) with no server fallback. A Content Security Policy is injected into `dist/index.html` (scripts and fonts local, `connect-src` limited to the Hub, images from `https:`).
+The build uses relative URLs (`base: './'`) and a hash router, so `dist/` works from the WebView2 virtual host folder mapping (`https://ui.nucleus.example/` → `webui\`) with no server fallback. A Content Security Policy is injected into `dist/index.html` (scripts and fonts local, `connect-src` limited to the hub site, https://v3.splitscreen.me, images from `https:`). To build a UI that talks to another hub site (Settings.ini `[Dev] HubUrl`, a local site for instance), add its origin at build time: `NUCLEUS_HUB_ORIGINS=http://localhost:3000 npm run build` (space or comma separated). Otherwise the hub screens report that the policy blocks that site; the Vite dev server has no CSP.
 
 ## Talking to the app: the bridge
 
@@ -36,14 +36,14 @@ await bridge.setup.join({ deviceId });                                         /
 - Host data is pushed: the events listed in the contract refetch the queries they make stale; snapshots (setup, session, window) are replaced by the snapshot each `*.changed` event carries. Never keep a copy of host state.
 - Errors are `BridgeError { kind, message, data }`. Refusals are `conflict` with `data.reason` (`slotOccupied`, `inputsLocked`, `needsPicker`…); host messages of expected failures are written for users. `useRun()` (`src/lib/bridge-ui.ts`) runs a call and toasts its failure (cancellations stay silent).
 - Shared UI-side logic: `src/lib/live.ts` (setup/session/window snapshots, app info, settings values), `src/lib/library.ts` (game status, art, matching names), `src/lib/downloads.ts` (the downloads store, see below), `src/features/add-game.tsx` (pick an executable → `library.addGame`, handler chooser, `library.setExecutable`), `src/features/file-drop.tsx` (drop a handler file anywhere), `src/components/HandlerNotes.tsx` (the Nucleus notes markup).
-- The hub catalogue (`allhandlers`, `handler/:id`, `comments/:id`) is read directly from the public API (`src/hub`); only calls without CORS go through the host (`handlers.screenshots`, package downloads inside `handlers.install`).
+- The hub catalogue, handler pages and comments are read directly from the public API v3 (`<hubUrl>/api/v3`: `/catalog`, `/handlers/{id}`, `/handlers/{id}/comments`, CORS `*`) by `src/hub`; the site root comes from `app.getInfo().hubUrl`, the same value the host uses. Screenshots (`handlers.screenshots`, also used for the library artwork) and package downloads (inside `handlers.install`, checked against the API SHA-256) go through the host.
 - Dev tools: `await __bridge.library.list()` in the console; `localStorage.setItem('nucleus.bridge.trace', '1')` then reload logs every message.
 
 What the UI does with each service, the UI-side features and the remaining contract wishes are in `docs/ui-bridge-notes.md`.
 
 ## Mock mode (normal browser)
 
-Outside WebView2 the bridge loads the mock host (`src/bridge/mock/`, its own chunk, never downloaded by the app): a library of 13 games with artwork, two monitors, gamepads and keyboards that reveal themselves and show activity on timers (press-to-join happens by itself), profiles, a session that launches instances one by one, a schema-driven settings set, installs with progress. The hub catalogue, handler pages and comments are real (fetched live from hub.splitscreen.me). Dropping a handler file uses the file name as its path. The mock's pickers return the first executable the UI expects, in the folder it suggests.
+Outside WebView2 the bridge loads the mock host (`src/bridge/mock/`, its own chunk, never downloaded by the app): a library of 13 games with artwork, two monitors, gamepads and keyboards that reveal themselves and show activity on timers (press-to-join happens by itself), profiles, a session that launches instances one by one, a schema-driven settings set, installs with progress. The hub catalogue, handler pages and comments are real (fetched live from https://v3.splitscreen.me; `VITE_HUB_URL` in `.env.local` points the mock at another site). Dropping a handler file uses the file name as its path. The mock's pickers return the first executable the UI expects, in the folder it suggests.
 
 ## Running in the app
 
@@ -60,7 +60,7 @@ src/
   main.tsx, App.tsx        entry, providers (QueryClient, BridgeProvider, toasts, confirm, add game), routes
   bridge/                  bridge runtime, generated contract, mock host (owned by the bridge work)
   features/                cross-screen flows: add a game / locate it, drop a handler file
-  hub/                     public Hub API client: fetch, normalise, persist, TanStack hooks, catalogue filters
+  hub/                     public hub API v3 client: site URL and CSP check, fetch, normalise, persist, TanStack hooks, catalogue filters
   lib/                     bridge helpers, live snapshots, library derivations, downloads store, formatting, art
   components/              app-level shared components (Markdown, HandlerNotes)
   shell/                   app chrome: title bar (device tray, window buttons), rail, hint bar, offline banner,
@@ -88,7 +88,7 @@ docs/
 ## Conventions
 
 - **Host access**: only through `@/bridge` (`bridge.*`, `useBridgeQuery`, `useBridgeMutation`, `useBridgeEvent`, `useBridgeSnapshot`). No `window.chrome.webview`, no file paths read by the UI, images come as ready URLs (remote or `https://assets.nucleus.example/…`). Links leave the app through `bridge.app.openExternal`.
-- **Hub access**: only through `@/hub` hooks (`useAllHandlers`, `useHubHandler`, `useHubComments`). Simple GETs, no custom headers (the Hub has no preflight route). The last catalogue is saved in localStorage so the app starts offline.
+- **Hub access**: only through `@/hub` hooks (`useAllHandlers`, `useHubHandler`, `useHubComments`), which resolve the site with `hubSite()`. Plain GETs without cookies; the browser cache revalidates with the ETags. Hub web links come from the API (`url`, `authorUrl`) or `hubCatalogueUrl(hubUrl)`. The last catalogue is saved in localStorage so the app starts offline.
 - **Design tokens**: colours, radii, gutter, motion live in `styles/index.css` `@theme`. The palette is closed (`--color-*: initial`): `bezel`, `pane`, `pane-2`, `pane-3`, `line`, `line-strong`, `ink`, `ink-2`, `ink-3`, `on-light`, `ok`, `warn`, `danger`, and `p1`…`p8`.
 - **Colour means a player**: the eight player colours are used only for players, slots and devices. Set the colour with `playerClass(n)` (utility `player-N` sets `--pc`), then use `bg-pc`, `text-pc`, `shadow-[…var(--pc)]`. Everything else is monochrome; status uses `ok` / `warn` / `danger` with an icon and words.
 - **Type**: one family, width carries hierarchy: `type-display`, `type-h1` (wide), `type-h2` (112%), `type-h3`, and `stretch-wide | stretch-semi | stretch-normal | stretch-narrow`; `data` is the condensed tabular voice for numbers and compact facts.
