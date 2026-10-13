@@ -167,7 +167,7 @@
       "gameHint_one": "Configure uma sessão, até {count} jogador",
       "gameHint_many": "Configure uma sessão, até {count} jogadores",
       "gameHint_other": "Configure uma sessão, até {count} jogadores",
-      "handlerHint": "Handler de {author}",
+      "handlerHint": "Handler por {author}",
       "settings": {
         "general": "Geral: idiomas, rede, apelidos, log de depuração",
         "players": "Jogadores: apelidos e Steam IDs",
@@ -421,7 +421,7 @@
       "showAll": "Mostrar todos os jogos"
     },
     "sort": {
-      "lastPlayed": "Jogados por último",
+      "lastPlayed": "Jogados recentemente",
       "name": "Nome, de A a Z",
       "nameDescending": "Nome, de Z a A",
       "maxPlayers": "Mais jogadores",
@@ -465,7 +465,7 @@
       "scannedStores_one": "Sua biblioteca {stores} foi verificada {ago}. Estes jogos têm um handler pronto no Hub.",
       "scannedStores_many": "Suas bibliotecas {stores} foram verificadas {ago}. Estes jogos têm um handler pronto no Hub.",
       "scannedStores_other": "Suas bibliotecas {stores} foram verificadas {ago}. Estes jogos têm um handler pronto no Hub.",
-      "scanned": "Verificado {ago}. Estes jogos têm um handler pronto no Hub.",
+      "scanned": "Verificação feita {ago}. Estes jogos têm um handler pronto no Hub.",
       "offline": "O Hub está offline: não é possível baixar handlers agora.",
       "addingGames": "Adicionando jogos…",
       "addCount_one": "Adicionar {count} jogo",
@@ -545,7 +545,7 @@
       "anyPlayers": "Qualquer número de jogadores",
       "maxPlayersHint": "O número máximo de jogadores que o handler suporta ao mesmo tempo.",
       "worksWith": "Funciona com",
-      "verifiedOnly": "Só verificados",
+      "verifiedOnly": "Apenas verificados",
       "verifiedHint": "Conferido pelos moderadores do Hub",
       "genres": "Gêneros",
       "clearAll": "Limpar todos os filtros",
@@ -578,7 +578,7 @@
       "request": "Pedir no Discord"
     },
     "unreachable": {
-      "title": "O Hub está fora de alcance",
+      "title": "O Hub está inacessível",
       "withMessage": "{message} Sua biblioteca continua funcionando offline. O catálogo aparecerá aqui assim que o Nucleus Co-op conseguir acessar o Hub uma vez.",
       "text": "Não foi possível carregar o catálogo. Sua biblioteca continua funcionando offline. O catálogo aparecerá aqui assim que o Nucleus Co-op conseguir acessar o Hub uma vez."
     },
@@ -600,7 +600,7 @@
     },
     "loading": "Carregando o handler",
     "unavailable": {
-      "offlineTitle": "O Hub está fora de alcance",
+      "offlineTitle": "O Hub está inacessível",
       "offlineText": "O Nucleus Co-op não conseguiu carregar este handler. Verifique sua conexão e tente novamente.",
       "goneTitle": "Este handler não está mais no Hub",
       "goneText": "O autor pode tê-lo removido ou tornado privado. Pode haver outros handlers para o mesmo jogo.",
@@ -647,7 +647,7 @@
         }
       },
       "verified": "Handler verificado",
-      "byline": "Handler “{title}” de {author}, versão {version}",
+      "byline": "Handler “{title}” por {author}, versão {version}",
       "previewLabel_one": "{game} dividido em {count} tela de jogador, como o Nucleus Co-op organiza as janelas",
       "previewLabel_many": "{game} dividido em {count} telas de jogadores, como o Nucleus Co-op organiza as janelas",
       "previewLabel_other": "{game} dividido em {count} telas de jogadores, como o Nucleus Co-op organiza as janelas",
@@ -779,10 +779,10 @@
       "cancelLabel": "Cancelar o download de {game}",
       "addGame": "Adicionar o jogo",
       "setUpSession": "Configurar sessão",
-      "retryLabel": "Tentar baixar {game} novamente",
+      "retryLabel": "Tentar novamente o download de {game}",
       "progressLabel": "{game}: {stage}",
-      "failed": "Falhou: {error}",
-      "failedUnknown": "Falhou: a instalação não foi concluída.",
+      "failed": "Falha: {error}",
+      "failedUnknown": "Falha: a instalação não foi concluída.",
       "notInLibrary": "Instalado. O jogo ainda não está na sua biblioteca.",
       "statusWhen": "{status} <when>{ago}</when>"
     },
@@ -1091,7 +1091,7 @@
       "addGuest": "Adicionar um controle convidado…"
     },
     "announce": {
-      "playerLeft": "{player} saiu. Os dispositivos dele voltaram para a área de espera.",
+      "playerLeft": "{player} saiu. Seus dispositivos voltaram para a área de espera.",
       "playersLeft_one": "{names} saiu.",
       "playersLeft_many": "{names} saíram.",
       "playersLeft_other": "{names} saíram.",
@@ -1100,15 +1100,15 @@
     },
     "deviceLost": {
       "namedPlayer": "{nickname} (jogador {number})",
-      "gamepad": "{player} perdeu o controle. Reconecte-o ou pressione Start em outro.",
-      "keyboard": "{player} perdeu o teclado. Reconecte-o ou use outro.",
-      "mouse": "{player} perdeu o mouse. Reconecte-o ou use outro.",
-      "keyboardMouse": "{player} perdeu o teclado e o mouse. Reconecte-os ou use outros.",
+      "gamepad": "O controle de {player} foi desconectado. Reconecte-o ou pressione Start em outro.",
+      "keyboard": "O teclado de {player} foi desconectado. Reconecte-o ou use outro.",
+      "mouse": "O mouse de {player} foi desconectado. Reconecte-o ou use outro.",
+      "keyboardMouse": "O teclado e o mouse de {player} foram desconectados. Reconecte-os ou use outros.",
       "unknownPlayer": {
-        "gamepad": "Um jogador perdeu o controle. Reconecte-o ou pressione Start em outro.",
-        "keyboard": "Um jogador perdeu o teclado. Reconecte-o ou use outro.",
-        "mouse": "Um jogador perdeu o mouse. Reconecte-o ou use outro.",
-        "keyboardMouse": "Um jogador perdeu o teclado e o mouse. Reconecte-os ou use outros."
+        "gamepad": "O controle de um jogador foi desconectado. Reconecte-o ou pressione Start em outro.",
+        "keyboard": "O teclado de um jogador foi desconectado. Reconecte-o ou use outro.",
+        "mouse": "O mouse de um jogador foi desconectado. Reconecte-o ou use outro.",
+        "keyboardMouse": "O teclado e o mouse de um jogador foram desconectados. Reconecte-os ou use outros."
       }
     }
   },
@@ -1165,9 +1165,9 @@
       "starting": "Iniciando as cópias…",
       "blocking": "{check}. Corrija em “{section}”.",
       "busy": "{check}: em andamento…",
-      "nextStep": "Próximo: {step}. Depois, inicie.",
-      "nextPlayers": "Próximo: jogadores. Depois, inicie.",
-      "nextOptions": "Próximo: opções. Depois, inicie.",
+      "nextStep": "Próxima etapa: {step}. Depois, inicie.",
+      "nextPlayers": "Próxima etapa: jogadores. Depois, inicie.",
+      "nextOptions": "Próxima etapa: opções. Depois, inicie.",
       "noPlayers": "Pressione Start em um controle para entrar.",
       "finishStep": "Conclua esta etapa para iniciar.",
       "warning": "{check}. Você ainda pode iniciar.",
@@ -1205,12 +1205,12 @@
       "keyboardMice_one": "{count} teclado e mouse",
       "keyboardMice_many": "{count} teclados e mouses",
       "keyboardMice_other": "{count} teclados e mouses",
-      "autoPlay": "inicia sozinho",
+      "autoPlay": "inicia automaticamente",
       "withNotes": "{summary}. {notes}"
     },
     "status": {
       "assigned": "{assigned} de {total} presentes",
-      "assignedAutoPlay": "{assigned} de {total} presentes, inicia sozinho"
+      "assignedAutoPlay": "{assigned} de {total} presentes, inicia automaticamente"
     },
     "toasts": {
       "loaded": "{profile} carregado. Os jogadores entram ao pressionar um botão.",
@@ -1225,7 +1225,7 @@
       "nextProfileSaveOn": "<b>Próximo perfil.</b> A próxima sessão salva esta configuração como um novo perfil, com estas definições.",
       "nextProfileSaveOff": "<b>Próximo perfil.</b> Ative “{setting}” para salvar esta configuração como um novo perfil.",
       "loaded": "Carregado",
-      "autoPlay": "Inicia sozinho",
+      "autoPlay": "Inicia automaticamente",
       "playersLabel": "Jogadores de {profile}",
       "load": "Carregar",
       "unload": "Descarregar",
@@ -1287,7 +1287,7 @@
           "placeholder": "Quem joga onde, qual controle fica com quem…"
         },
         "autoPlay": {
-          "label": "Iniciar sozinho",
+          "label": "Iniciar automaticamente",
           "help": "Inicia assim que todos os jogadores do perfil tiverem entrado."
         },
         "useNicknames": {
@@ -1437,9 +1437,9 @@
         "launching_one": "Iniciando {count} jogador",
         "launching_many": "Iniciando {count} jogadores",
         "launching_other": "Iniciando {count} jogadores",
-        "running_one": "{count} jogador jogando",
-        "running_many": "{count} jogadores jogando",
-        "running_other": "{count} jogadores jogando",
+        "running_one": "{count} jogador em jogo",
+        "running_many": "{count} jogadores em jogo",
+        "running_other": "{count} jogadores em jogo",
         "ending": "Encerrando a sessão",
         "setup": "Configurando"
       },
@@ -1609,7 +1609,7 @@
       "steamId": "Steam ID",
       "nicknameLabel": "Apelido do jogador {number}",
       "steamIdLabel": "Steam ID do jogador {number}",
-      "showFirst_one": "Mostrar só {count}",
+      "showFirst_one": "Mostrar apenas {count}",
       "showFirst_many": "Mostrar os primeiros {count}",
       "showFirst_other": "Mostrar os primeiros {count}",
       "showAll_one": "Mostrar {count}",
@@ -1624,7 +1624,7 @@
     },
     "about": {
       "title": "Sobre",
-      "tagline": "Tela dividida gratuita e de código aberto para jogos de PC. Feito por jogadores, para sofás do mundo todo.",
+      "tagline": "Tela dividida gratuita e de código aberto para jogos de PC. Feita por jogadores, para sofás do mundo todo.",
       "facts": {
         "version": "Versão",
         "hub": "Hub",
@@ -1715,7 +1715,7 @@
             "automatic": "Automático (idioma do cliente Steam)"
           },
           "epicLanguage": {
-            "label": "Idioma Epic / GOG",
+            "label": "Idioma da Epic / GOG",
             "description": "Idioma informado pelos emuladores da Epic e da GOG."
           },
           "network": {
@@ -1730,7 +1730,7 @@
             "label": "Manter as contas de usuário do Nucleus",
             "description": "Mantém as contas de usuário do Windows que o Nucleus cria para alguns jogos. Quando desativado, o próximo jogo que as usar as excluirá, junto com seus arquivos e dados salvos.",
             "confirm": {
-              "title": "Desativar Manter as contas de usuário do Nucleus?",
+              "title": "Desativar “Manter as contas de usuário do Nucleus”?",
               "message": "Na próxima vez que você executar um jogo que usa contas de usuário do Windows separadas, o Nucleus excluirá todas as contas que criou, junto com seus arquivos e dados salvos.",
               "confirmLabel": "Desativar"
             }
@@ -1740,7 +1740,7 @@
             "description": "Senha das contas do Windows que o Nucleus cria. Armazenada em texto simples no Settings.ini. 12345 ou vazio usa a senha embutida."
           },
           "autoDesktopScaling": {
-            "label": "Definir a escala da área de trabalho em 100% durante as sessões",
+            "label": "Usar escala de exibição de 100% nas sessões",
             "description": "Alguns jogos precisam de escala de exibição em 100% para posicionar suas janelas corretamente."
           },
           "fastLaunch": {
@@ -1800,7 +1800,7 @@
             "description": "Com a mesclagem de janelas: cada toque traz outra janela do jogo para a frente (como Alt+Tab)."
           },
           "lockInputs": {
-            "label": "Tecla de bloqueio das entradas",
+            "label": "Tecla de bloqueio",
             "description": "Bloqueia e desbloqueia as entradas de teclado e mouse durante uma sessão (sem modificador)."
           }
         },
@@ -2050,7 +2050,7 @@
           "description": "Os perfis atribuem os controles ao pressionar um botão, em vez de reutilizar os salvos. Desativa a atribuição por índice."
         },
         "useApiIndexForGuests": {
-          "label": "Atribuir controles por índice só para convidados",
+          "label": "Atribuir controles por índice apenas para convidados",
           "description": "Somente os jogadores convidados (vários jogadores por instância) são atribuídos por índice de API."
         },
         "keepInstancesFolder": {
@@ -2058,7 +2058,7 @@
           "description": "Mantém as instâncias do jogo quando o jogo é selecionado novamente ou a sessão termina, em vez de recriá-las."
         },
         "disableProfiles": {
-          "label": "Desativar perfil",
+          "label": "Desativar perfis",
           "description": "Desativa os perfis para este jogo: as configurações globais são usadas no lugar deles."
         },
         "disableHandlerUpdate": {
@@ -2355,7 +2355,7 @@
     "startChecks": {
       "alreadyRunning": {
         "title": "O Nucleus Co-op já está em execução",
-        "message": "O Nucleus Co-op já está em execução. Se você não vê a janela dele, ele pode estar rodando em segundo plano: encerre o processo pelo Gerenciador de Tarefas."
+        "message": "O Nucleus Co-op já está em execução. Se a janela dele não aparecer, ele pode estar sendo executado em segundo plano: encerre o processo pelo Gerenciador de Tarefas."
       },
       "missingFile": {
         "title": "Arquivo ausente",
@@ -2456,7 +2456,7 @@
     "debugLog": {
       "enable": {
         "title": "Ativar log de depuração",
-        "message": "Clique em \"Sim\" se quiser ativar o log de depuração. Inicie o jogo novamente para gerar um log de depuração.\nClique em \"Não\" para desativar este aviso."
+        "message": "Clique em “Sim” se quiser ativar o log de depuração. Inicie o jogo novamente para gerar um log de depuração.\nClique em “Não” para desativar este aviso."
       }
     },
     "hotkeys": {
@@ -2485,7 +2485,7 @@
     "flawlessWidescreen": {
       "pluginMissing": {
         "title": "Nucleus - Usar o Flawless Widescreen",
-        "message": "O Nucleus não encontrou um plugin instalado para \"{plugin}\" no FlawlessWidescreen. O FlawlessWidescreen será aberto agora. Instale o plugin e faça as alterações necessárias. Quando você fechar o FlawlessWidescreen, o Nucleus continuará. Pressione OK para abrir o FlawlessWidescreen"
+        "message": "O Nucleus não encontrou um plugin instalado para “{plugin}” no FlawlessWidescreen. O FlawlessWidescreen será aberto agora. Instale o plugin e faça as alterações necessárias. Quando você fechar o FlawlessWidescreen, o Nucleus continuará. Pressione OK para abrir o FlawlessWidescreen."
       }
     },
     "network": {
@@ -2504,7 +2504,7 @@
     },
     "goldberg": {
       "interfacesMissing": "O Goldberg não conseguiu localizar nem criar o steam_interfaces.txt. O processo continuará sem usar este arquivo.",
-      "customDllPathMissing": "Nenhum caminho de arquivo foi adicionado a \"{option}\"",
+      "customDllPathMissing": "Nenhum caminho de arquivo foi adicionado a “{option}”.",
       "steamApiMissing": "O Goldberg não conseguiu localizar um arquivo steam_api(64).dll.\nO Goldberg embutido não será usado.",
       "lobbyConnect": {
         "waitForHost": "Goldberg Lobby Connect: pressione OK depois de hospedar uma partida.",
@@ -2515,7 +2515,7 @@
     "drives": {
       "exFat": {
         "title": "Formato de unidade incompatível!",
-        "message": "\"exFat\" não é um formato de unidade suportado.\n\nMova a pasta de instalação do Nucleus para uma unidade formatada em NTFS ou formate a unidade em NTFS.\n\nMotivos:\n\nO exFat não suporta links simbólicos."
+        "message": "“exFat” não é um formato de unidade suportado.\n\nMova a pasta de instalação do Nucleus para uma unidade formatada em NTFS ou formate a unidade em NTFS.\n\nMotivos:\n\nO exFat não suporta links simbólicos."
       },
       "checkFailed": "Erro: {error}\nAlgo deu errado durante a verificação de compatibilidade das unidades!"
     },
