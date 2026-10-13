@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 import { useBridgeEvent, type SessionLogEntry, type SessionSnapshot, type SessionSummary } from '@/bridge';
+import { T, useT } from '@/i18n';
 import { heroOf, setupPath, useLibrary } from '@/lib/library';
 import { isSessionLive, useSessionSnapshot, useSetupSnapshot } from '@/lib/live';
 import { useScreenChrome, type Hint } from '@/shell/chrome';
@@ -66,6 +67,7 @@ function useNotices() {
 
 function SessionView({ view, log }: { view: SessionView; log: ReturnType<typeof useSessionLog> }) {
   const navigate = useNavigate();
+  const t = useT();
   const s = view.snapshot;
   const commands = useSessionCommands(s);
   const { data: setup } = useSetupSnapshot();
@@ -76,13 +78,18 @@ function SessionView({ view, log }: { view: SessionView; log: ReturnType<typeof 
   const keyHints: Hint[] = view.ended
     ? []
     : [
-        ...(s.lockInputsKey ? [{ key: s.lockInputsKey, label: s.inputsLocked ? 'Unlock inputs' : 'Lock inputs' }] : []),
-        ...(s.stopHotkey ? [{ key: s.stopHotkey.replace(/\+/g, ' '), label: 'Stop session' }] : []),
+        ...(s.lockInputsKey
+          ? [{ key: s.lockInputsKey, label: s.inputsLocked ? t('session.hints.unlockInputs') : t('session.hints.lockInputs') }]
+          : []),
+        ...(s.stopHotkey ? [{ key: s.stopHotkey.replace(/\+/g, ' '), label: t('session.hints.stop') }] : []),
       ];
   // While copies run, the pads play the game and drive nothing here: only the keyboard's keys are hinted.
-  const back: Hint = view.ended ? { button: 'B', label: 'Back to library', action: backToLibrary } : { key: 'Esc', label: 'Back to library' };
-  useScreenChrome([{ label: 'Library', to: '/library' }, { label: `${s.gameName ?? 'Game'} session` }], {
-    base: [...(view.ended ? [{ button: 'A' as const, label: 'Select' }] : []), back, ...keyHints],
+  const back: Hint = view.ended
+    ? { button: 'B', label: t('session.hints.backToLibrary'), action: backToLibrary }
+    : { key: 'Esc', label: t('session.hints.backToLibrary') };
+  const crumb = s.gameName ? t('session.chrome.gameSession', { game: s.gameName }) : t('session.chrome.unknownGameSession');
+  useScreenChrome([{ label: t('session.chrome.library'), to: '/library' }, { label: crumb }], {
+    base: [...(view.ended ? [{ button: 'A' as const, label: t('common.select') }] : []), back, ...keyHints],
   });
   useBackKey(backToLibrary);
 
@@ -135,34 +142,36 @@ function EndedOverlay({ view }: { view: SessionView }) {
 
 /** The end of a session without the host's summary: what the screen saw. */
 function EndedNotice({ view }: { view: SessionView }) {
+  const t = useT();
   const primary = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
     primary.current?.focus({ preventScroll: true });
   }, []);
   const s = view.snapshot;
-  const n = s.instances.length;
+  const count = s.instances.length;
   const failed = Boolean(view.error);
+  const closed = s.gameName
+    ? t('session.ended.copiesClosed', { count, game: s.gameName })
+    : t('session.ended.copiesClosedUnknownGame', { count });
   return (
     <div className="absolute inset-0 z-10 grid animate-fade-in place-items-center overflow-auto rounded-pane bg-[rgba(7,8,10,0.88)] p-6 text-center">
       <div className={cn('grid justify-items-center gap-1.5', view.errorDetails ? 'w-full max-w-[72ch]' : 'max-w-[52ch]')}>
         {failed && <Icon name="warning" className="mb-1 size-7 text-danger" />}
-        <h3 className="text-22 leading-tight font-[780] stretch-wide">{failed ? 'The session could not start' : 'Session ended'}</h3>
-        <p className="mb-3 text-small text-ink-2">
-          {failed
-            ? view.error
-            : `${n === 1 ? 'The copy' : `All ${n} copies`} of ${s.gameName ?? 'the game'} ${n === 1 ? 'is' : 'are'} closed. The setup is still open: play again with the same players.`}
-        </p>
+        <h3 className="text-22 leading-tight font-[780] stretch-wide">
+          {failed ? t('session.outcome.failed') : t('session.outcome.ended')}
+        </h3>
+        <p className="mb-3 text-small text-ink-2">{failed ? view.error : closed}</p>
         {failed && view.errorDetails && <ErrorDetails text={view.errorDetails} className="mb-3 justify-items-center" />}
         <div className="flex justify-center gap-2">
           {s.gameId && (
             <ButtonLink ref={primary} variant="primary" to={setupPath(s.gameId)} data-nav>
               <Icon name="users" />
-              Back to the lobby
+              {t('session.links.lobby')}
             </ButtonLink>
           )}
           <ButtonLink variant="ghost" to="/library" data-nav>
             <Icon name="library" />
-            Library
+            {t('session.links.library')}
           </ButtonLink>
         </div>
       </div>
@@ -171,10 +180,11 @@ function EndedNotice({ view }: { view: SessionView }) {
 }
 
 function Loading() {
+  const t = useT();
   return (
     <Pane className="grid h-full place-items-center text-small text-ink-2">
       <span className="inline-flex items-center gap-2.5">
-        <Spinner /> Loading the session
+        <Spinner /> {t('session.loading')}
       </span>
     </Pane>
   );
@@ -189,14 +199,18 @@ function NoSession({ session, log }: { session: SessionSnapshot | undefined; log
 /** No session running, but one ended: how it went, its log, and the way back. */
 function LastSession({ summary, errorDetails, log }: { summary: SessionSummary; errorDetails?: string; log: SessionLogEntry[] }) {
   const navigate = useNavigate();
+  const t = useT();
   const { data: library = [] } = useLibrary();
   const game = library.find((g) => g.id === summary.gameId);
-  useScreenChrome([{ label: 'Library', to: '/library' }, { label: `${summary.gameName} session` }], {
-    base: [
-      { button: 'A', label: 'Select' },
-      { button: 'B', label: 'Back to library', action: () => navigate('/library') },
-    ],
-  });
+  useScreenChrome(
+    [{ label: t('session.chrome.library'), to: '/library' }, { label: t('session.chrome.gameSession', { game: summary.gameName }) }],
+    {
+      base: [
+        { button: 'A', label: t('common.select') },
+        { button: 'B', label: t('session.hints.backToLibrary'), action: () => navigate('/library') },
+      ],
+    },
+  );
   useBackKey(() => navigate('/library'));
   const art = game ? heroOf(game) : undefined;
 
@@ -217,23 +231,29 @@ function LastSession({ summary, errorDetails, log }: { summary: SessionSummary; 
   );
 }
 
+const FAILED_TAGS = { b: (c: ReactNode) => <b className="font-[650] text-ink">{c}</b> };
+
 function Idle({ session }: { session: SessionSnapshot | undefined }) {
   const navigate = useNavigate();
+  const t = useT();
   const { data: library = [] } = useLibrary();
   const recent = [...library]
     .filter((g) => g.lastPlayedAt && g.executableFound)
     .sort((a, b) => (b.lastPlayedAt ?? '').localeCompare(a.lastPlayedAt ?? ''))[0];
   const target =
     session?.state === 'setup' && session.gameId
-      ? { id: session.gameId, name: session.gameName ?? 'the game', resume: true }
+      ? {
+          id: session.gameId,
+          label: session.gameName ? t('session.links.gameLobby', { game: session.gameName }) : t('session.links.lobby'),
+        }
       : recent
-        ? { id: recent.id, name: recent.name, resume: false }
+        ? { id: recent.id, label: t('session.links.setUpGame', { game: recent.name }) }
         : null;
 
-  useScreenChrome([{ label: 'Library', to: '/library' }, { label: 'Session' }], {
+  useScreenChrome([{ label: t('session.chrome.library'), to: '/library' }, { label: t('session.chrome.session') }], {
     base: [
-      { button: 'A', label: 'Select' },
-      { button: 'B', label: 'Back to library', action: () => navigate('/library') },
+      { button: 'A', label: t('common.select') },
+      { button: 'B', label: t('session.hints.backToLibrary'), action: () => navigate('/library') },
     ],
   });
 
@@ -250,34 +270,31 @@ function Idle({ session }: { session: SessionSnapshot | undefined }) {
           <i className="rounded-[5px] shadow-[inset_0_0_0_1.5px_var(--color-line-strong)]" />
         </div>
         <h1 id="no-session-title" className="type-h2">
-          No session running
+          {t('session.idle.title')}
         </h1>
         {session?.error ? (
           <>
             <p className="flex items-start gap-2 rounded-ctl bg-pane-2 px-3.5 py-3 text-15 text-ink-2">
               <Icon name="warning" className="mt-0.5 size-[18px] shrink-0 text-danger" />
               <span>
-                <b className="font-[650] text-ink">The last launch failed.</b> {session.error}
+                <T k="session.idle.lastLaunchFailed" values={{ error: session.error }} tags={FAILED_TAGS} />
               </span>
             </p>
             {session.errorDetails && <ErrorDetails text={session.errorDetails} />}
           </>
         ) : (
-          <p className="text-ink-2">
-            Pick a game in your library, let everyone press Start on their controller to join, then launch. Every copy of the game and
-            its progress shows up here.
-          </p>
+          <p className="text-ink-2">{t('session.idle.hint')}</p>
         )}
         <div className="flex flex-wrap gap-2">
           {target && (
             <ButtonLink to={setupPath(target.id)} variant="primary" data-nav data-autofocus>
               <Icon name="users" />
-              {target.resume ? `Back to the ${target.name} lobby` : `Set up ${target.name}`}
+              {target.label}
             </ButtonLink>
           )}
           <ButtonLink to="/library" variant={target ? 'ghost' : 'primary'} data-nav>
             <Icon name="library" />
-            Go to library
+            {t('session.links.goToLibrary')}
           </ButtonLink>
         </div>
       </div>

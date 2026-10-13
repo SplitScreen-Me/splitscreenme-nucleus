@@ -127,7 +127,184 @@
   "lobby": {},
   "setup": {},
   "profiles": {},
-  "session": {},
+  "session": {
+    "loading": "Loading the session",
+    "player": "Player {number}",
+    "chrome": {
+      "library": "Library",
+      "gameSession": "{game} session",
+      "unknownGameSession": "Game session",
+      "session": "Session"
+    },
+    "hints": {
+      "backToLibrary": "Back to library",
+      "lockInputs": "Lock inputs",
+      "unlockInputs": "Unlock inputs",
+      "stop": "Stop session"
+    },
+    "links": {
+      "lobby": "Back to the lobby",
+      "gameLobby": "Back to the {game} lobby",
+      "setUpGame": "Set up {game}",
+      "openLobby": "Open the lobby",
+      "playAgain": "Play again",
+      "library": "Library",
+      "goToLibrary": "Go to library"
+    },
+    "outcome": {
+      "failed": "The session could not start",
+      "stoppedEarly": "The session stopped during the launch",
+      "ended": "Session ended"
+    },
+    "ended": {
+      "copiesClosed_one": "The copy of {game} is closed. The setup is still open: play again with the same players.",
+      "copiesClosed_other": "All {count} copies of {game} are closed. The setup is still open: play again with the same players.",
+      "copiesClosedUnknownGame_one": "The copy of the game is closed. The setup is still open: play again with the same players.",
+      "copiesClosedUnknownGame_other": "All {count} copies of the game are closed. The setup is still open: play again with the same players."
+    },
+    "idle": {
+      "title": "No session running",
+      "lastLaunchFailed": "<b>The last launch failed.</b> {error}",
+      "hint": "Pick a game in your library, let everyone press Start on their controller to join, then launch. Every copy of the game and its progress shows up here."
+    },
+    "header": {
+      "untitled": "Session",
+      "elapsed": "Elapsed time {time}",
+      "inputsLocked": "Inputs locked",
+      "inputsUnlocked": "Inputs unlocked",
+      "stopKeys": "Stop: {keys}",
+      "status": {
+        "failed": "Launch failed",
+        "ended": "Session ended",
+        "launching_one": "Launching {count} player",
+        "launching_other": "Launching {count} players",
+        "running_one": "{count} player running",
+        "running_other": "{count} players running",
+        "ending": "Stopping the session",
+        "setup": "Setting up"
+      },
+      "note": {
+        "failed": "The launch stopped before every copy was ready.",
+        "ended": "Every copy is closed.",
+        "locked": "Inputs are locked to the game windows. Press {key} to unlock them.",
+        "lockedNoKey": "Inputs are locked to the game windows. Press the lock key to unlock them.",
+        "lockHint": "Press {key} once every window is in place to give each keyboard and mouse to its player.",
+        "lockHintNoKey": "Press the lock key once every window is in place to give each keyboard and mouse to its player.",
+        "pads": "The game windows keep the controllers.",
+        "padsStopKey": "The game windows keep the controllers. {key} also stops the session."
+      }
+    },
+    "stop": {
+      "hold": "Hold to stop",
+      "holding": "Keep holding",
+      "blocked": "Unlock to stop",
+      "stopping": "Stopping…",
+      "stopped": "Stopped",
+      "hint": "Hold for one second to close every copy of the game.",
+      "blockedHint": "Inputs are locked: unlock them with the lock key first."
+    },
+    "preview": {
+      "screenCount_one": "{count} screen",
+      "screenCount_other": "{count} screens",
+      "display": "Display {number}",
+      "windowsTitle": "Game windows",
+      "resolution": "{width} × {height}",
+      "resolutionPrimary": "{resolution}, primary",
+      "caption": "<b>Display {number}</b> {resolution}",
+      "captionPrimary": "<b>Display {number}</b> {resolution}, primary",
+      "displayLabel": "Display {number}, {resolution}",
+      "displayLabelPrimary": "Display {number}, {resolution}, primary",
+      "windowCount_zero": "No window yet",
+      "windowCount_one": "{count} window",
+      "windowCount_other": "{count} windows",
+      "displayUnused": "Display {number}: not used",
+      "unused": "Not used",
+      "noWindowOpened": "No game window was opened.",
+      "preparing": "Preparing the instances…"
+    },
+    "instance": {
+      "label": "Player {number}, {name}: {stage}",
+      "pid": "PID {pid}",
+      "noDevice": "No device",
+      "progress": "Launch progress",
+      "_noteSteps": "stepDone and stepPending: the <sr> part is read by screen readers only, after the visible step name.",
+      "stepDone": "{step}<sr>, done</sr>",
+      "stepPending": "{step}<sr>, pending</sr>",
+      "steps": {
+        "waiting": "Waiting",
+        "starting": "Starting",
+        "ready": "Ready"
+      },
+      "stage": {
+        "closed": "Closed",
+        "waiting": "Waiting to start…",
+        "starting": "Starting, placing the window…",
+        "ready": "Ready"
+      }
+    },
+    "log": {
+      "title": "Event log",
+      "count_one": "{count} event",
+      "count_other": "{count} events",
+      "copy": "Copy log",
+      "listLabel": "Session events",
+      "empty": "Nothing logged yet. Every step of every copy shows up here.",
+      "playerPrefix": "Player {number}:",
+      "levels": {
+        "info": "Info",
+        "success": "Done",
+        "warning": "Warning",
+        "error": "Error"
+      }
+    },
+    "summary": {
+      "game": "Game",
+      "duration": "Duration",
+      "played": "Played",
+      "timeRange": "{start} to {end}",
+      "players": "Players",
+      "guest": "Guest: {device}",
+      "noDevice": "No device recorded",
+      "noErrors": "No errors in the session log.",
+      "logErrors_one": "{count} error in the session log",
+      "logErrors_other": "{count} errors in the session log",
+      "errors": "Errors",
+      "moreErrors_one": "And {count} more: the full log is below.",
+      "moreErrors_other": "And {count} more: the full log is below.",
+      "playerShort": "P{number}"
+    },
+    "errorDetails": {
+      "show": "Show details",
+      "hide": "Hide details"
+    },
+    "notes": {
+      "title": "Handler notes",
+      "byMaintainer": "How to connect the copies, by {name}",
+      "byAuthor": "How to connect the copies, from the handler author",
+      "textLabel": "Handler notes text",
+      "loading": "Reading the notes…",
+      "error": "The notes could not be read.",
+      "empty": "The handler author left no notes. Usually one player hosts a co-op game and the others join it from the in-game menu."
+    },
+    "controls": {
+      "title": "Controls",
+      "lockKey": "Lock or unlock keyboards and mice",
+      "stopKey": "Stop the session",
+      "empty": "No controls for this session.",
+      "keysHint": "The keys also work while a game window has the focus.",
+      "unavailable": {
+        "ended": "The session has ended.",
+        "notRunning": "Available once every copy is running.",
+        "notApplicable": "Does not apply to this session.",
+        "locked": "Inputs are locked: press {key} first.",
+        "lockedNoKey": "Inputs are locked: press the lock key first."
+      }
+    },
+    "commands": {
+      "locked": "Inputs are locked to the game windows. Press {key} to unlock them first.",
+      "lockedNoKey": "Inputs are locked to the game windows. Press the lock key to unlock them first."
+    }
+  },
   "settings": {},
   "host": {
     "settings": {

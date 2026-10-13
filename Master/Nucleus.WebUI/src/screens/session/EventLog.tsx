@@ -1,26 +1,25 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import type { SessionLogEntry, SessionLogLevel } from '@/bridge';
+import { useI18n, type MessageKey } from '@/i18n';
 import { Button, cn, Icon, Pane, playerClass, type IconName } from '@/ui';
 
-const LEVEL: Record<SessionLogLevel, { icon: IconName; word: string; tone: string }> = {
-  info: { icon: 'info', word: 'Info', tone: '' },
-  success: { icon: 'check', word: 'Done', tone: 'text-ink' },
-  warning: { icon: 'warning', word: 'Warning', tone: 'text-warn' },
-  error: { icon: 'x', word: 'Error', tone: 'text-danger' },
+const LEVEL: Record<SessionLogLevel, { icon: IconName; word: MessageKey; tone: string }> = {
+  info: { icon: 'info', word: 'session.log.levels.info', tone: '' },
+  success: { icon: 'check', word: 'session.log.levels.success', tone: 'text-ink' },
+  warning: { icon: 'warning', word: 'session.log.levels.warning', tone: 'text-warn' },
+  error: { icon: 'x', word: 'session.log.levels.error', tone: 'text-danger' },
 };
 
-/** "21:04:14.580" in local time. */
-function stamp(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
-  return `${d.toTimeString().slice(0, 8)}.${String(d.getMilliseconds()).padStart(3, '0')}`;
-}
+/** "21:04:14.580" in local time: a 24-hour clock with milliseconds, with the separators of the language. */
+const STAMP: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3, hourCycle: 'h23' };
 
 /**
  * Live event log of the session: every step of every copy, in monospace, newest at the bottom.
  * A disclosure (not <details>) so the list can grow into the space the row gives it.
  */
 export function EventLog({ entries }: { entries: SessionLogEntry[] }) {
+  const { t, format } = useI18n();
+  const stamp = (iso: string) => format.date(iso, STAMP);
   const list = useRef<HTMLOListElement>(null);
   const stick = useRef(true);
   const listId = useId();
@@ -40,6 +39,7 @@ export function EventLog({ entries }: { entries: SessionLogEntry[] }) {
     return () => window.clearTimeout(id);
   }, [copied]);
 
+  // The copied lines are a log for support: level names and the player tag stay as the log writes them.
   const copy = async () => {
     const text = entries.map((e) => `${stamp(e.at)}  ${e.level.padEnd(7)}  ${e.playerNumber ? `[P${e.playerNumber}] ` : ''}${e.text}`).join('\n');
     try {
@@ -51,7 +51,7 @@ export function EventLog({ entries }: { entries: SessionLogEntry[] }) {
   };
 
   return (
-    <Pane as="section" aria-label="Event log" className="flex shrink-0 flex-col">
+    <Pane as="section" aria-label={t('session.log.title')} className="flex shrink-0 flex-col">
       <div className="flex items-center gap-2.5 py-3 pr-[18px] pl-2.5">
         <button
           type="button"
@@ -61,21 +61,19 @@ export function EventLog({ entries }: { entries: SessionLogEntry[] }) {
           className="flex items-center gap-2.5 rounded-ctl border-0 bg-transparent px-2 py-1 text-15 font-[650] text-ink hover:bg-pane-2"
         >
           <Icon name="chev-d" className={cn('size-4 text-ink-3 transition-transform duration-(--dur-2) ease-snap', open && 'rotate-180')} />
-          Event log
-          <span className="data text-small font-medium text-ink-3">
-            {entries.length} {entries.length === 1 ? 'event' : 'events'}
-          </span>
+          {t('session.log.title')}
+          <span className="data text-small font-medium text-ink-3">{t('session.log.count', { count: entries.length })}</span>
         </button>
         <Button variant="ghost" size="sm" className="ml-auto" disabled={!entries.length} onClick={() => void copy()}>
           <Icon name={copied ? 'check' : 'file'} />
-          {copied ? 'Copied' : 'Copy log'}
+          {copied ? t('common.copied') : t('session.log.copy')}
         </Button>
       </div>
       <ol
         ref={list}
         id={listId}
         hidden={!open}
-        aria-label="Session events"
+        aria-label={t('session.log.listLabel')}
         tabIndex={0}
         onScroll={(e) => {
           const el = e.currentTarget;
@@ -88,7 +86,7 @@ export function EventLog({ entries }: { entries: SessionLogEntry[] }) {
           scrolled && '[mask-image:linear-gradient(180deg,transparent_0,#000_22px)]',
         )}
       >
-        {entries.length === 0 && <li className="py-2 font-sans text-small text-ink-3">Nothing logged yet. Every step of every copy shows up here.</li>}
+        {entries.length === 0 && <li className="py-2 font-sans text-small text-ink-3">{t('session.log.empty')}</li>}
         {entries.map((e) => {
           const level = LEVEL[e.level] ?? LEVEL.info;
           return (
@@ -96,10 +94,10 @@ export function EventLog({ entries }: { entries: SessionLogEntry[] }) {
               <time dateTime={e.at} className="text-ink-3">
                 {stamp(e.at)}
               </time>
-              <Icon name={level.icon} label={level.word} strokeWidth={2.2} className={cn('size-3', e.level === 'info' ? 'text-ink-3' : '')} />
+              <Icon name={level.icon} label={t(level.word)} strokeWidth={2.2} className={cn('size-3', e.level === 'info' ? 'text-ink-3' : '')} />
               <span aria-hidden="true" className={cn('size-1.5 rounded-full', e.playerNumber ? cn(playerClass(e.playerNumber), 'bg-pc') : 'bg-line-strong')} />
               <span className="min-w-0 break-words">
-                {e.playerNumber ? <span className="sr-only">Player {e.playerNumber}: </span> : null}
+                {e.playerNumber ? <span className="sr-only">{t('session.log.playerPrefix', { number: e.playerNumber })} </span> : null}
                 {e.text}
               </span>
             </li>
