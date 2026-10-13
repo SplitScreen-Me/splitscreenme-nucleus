@@ -24,6 +24,7 @@ const item = (kind: GameMenuItem['kind'], id: string, label: string, extras: Par
   kind,
   label,
   choices: [],
+  choiceLabels: [],
   danger: false,
   children: [],
   fileFilters: [],

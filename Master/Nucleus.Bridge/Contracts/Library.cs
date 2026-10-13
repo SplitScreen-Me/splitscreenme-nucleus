@@ -208,6 +208,9 @@ namespace Nucleus.Bridge.Contracts
         /// <summary>Values of a choice item.</summary>
         public List<string> Choices { get; set; } = new List<string>();
 
+        /// <summary>Labels of <see cref="Choices"/>, in the same order, in the language in use. Empty: the values are shown as they are.</summary>
+        public List<string> ChoiceLabels { get; set; } = new List<string>();
+
         /// <summary>Current value of a choice item.</summary>
         public string? Value { get; set; }
 

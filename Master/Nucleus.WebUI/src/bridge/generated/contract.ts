@@ -11,7 +11,7 @@ export const protocolVersion = 1;
 /**
  * Hash of the contract this file was generated from. `app.hello` returns the host's: the UI refuses to run when they differ.
  */
-export const contractHash = '3396420b39cfe196';
+export const contractHash = '0d82bf46c7eec969';
 
 /** JSON-RPC error code of each kind of error the host returns. */
 export const bridgeErrorCodes = {
@@ -668,6 +668,10 @@ export interface GameMenuItem {
   checked?: boolean;
   /** Values of a choice item. */
   choices: string[];
+  /**
+   * Labels of `GameMenuItem.choices`, in the same order, in the language in use. Empty: the values are shown as they are.
+   */
+  choiceLabels: string[];
   /** Current value of a choice item. */
   value?: string;
   /** Destructive action: shown in red. */

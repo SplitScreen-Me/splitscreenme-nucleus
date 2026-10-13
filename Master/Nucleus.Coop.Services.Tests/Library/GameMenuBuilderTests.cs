@@ -151,6 +151,10 @@ public class GameMenuBuilderTests
             Assert.Equal(GameMenuItemKind.Choice, item.Kind);
             Assert.Equal("French", item.Value);
             Assert.Equal("App Setting", item.Choices[0]);
+            // One label per value: the stored "App Setting" is labelled in the language in use, Steam languages keep their names.
+            Assert.Equal(item.Choices.Count, item.ChoiceLabels.Count);
+            Assert.Equal("App Setting", item.ChoiceLabels[0]);
+            Assert.Equal("French", item.ChoiceLabels[item.Choices.IndexOf("French")]);
         }
     }
 

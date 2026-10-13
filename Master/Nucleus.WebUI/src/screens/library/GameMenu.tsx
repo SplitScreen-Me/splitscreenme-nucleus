@@ -167,9 +167,9 @@ function MenuRow({
                 data-nav
               >
                 {item.value !== undefined && !item.choices.includes(item.value) && <option value={item.value}>{item.value}</option>}
-                {item.choices.map((c) => (
+                {item.choices.map((c, i) => (
                   <option key={c} value={c}>
-                    {c}
+                    {item.choiceLabels[i] ?? c}
                   </option>
                 ))}
               </MiniSelect>
@@ -218,13 +218,16 @@ function MenuRow({
   }
 }
 
-/** A generic icon from what the item does (labels are the host's, so only broad hints). */
+/**
+ * A generic icon from what the item does: its kind and its id (`openHandler`, `openBackup:Player 2`…). Never from the
+ * label, which the host translates.
+ */
 function actionIcon(item: GameMenuItem) {
   if (item.danger) return 'trash' as const;
   if (item.clientAction === 'showNotes') return 'book' as const;
   if (item.clientAction === 'showDetails') return 'info' as const;
   if (item.clientAction === 'pickFile') return 'file' as const;
-  if (/folder|open/i.test(item.label)) return 'folder' as const;
-  if (/download/i.test(item.label)) return 'download' as const;
+  if (/^open|folder/i.test(item.id)) return 'folder' as const;
+  if (/download/i.test(item.id)) return 'download' as const;
   return 'chev-r' as const;
 }

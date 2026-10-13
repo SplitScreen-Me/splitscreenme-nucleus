@@ -1016,6 +1016,8 @@ export interface MessageParamsMap {
   'host.library.gameMenu.remove.description': undefined;
   /** Remove Game From List */
   'host.library.gameMenu.remove.label': undefined;
+  /** App Setting */
+  'host.library.gameMenu.steamLanguage.appSetting': undefined;
   /** Language reported by the Steam emulator for this game. "{appSetting}" uses the global setting. */
   'host.library.gameMenu.steamLanguage.description': { appSetting: ParamValue };
   /** Steam Language */

@@ -311,14 +311,17 @@ public static class GameMenuBuilder
 
         if (ShowSteamLanguage(c))
         {
+            // The values are stored in the game's metadata. The Steam languages are what the game sees and keep their names;
+            // only "App Setting" (use the global setting) gets a translated label.
+            string appSetting = T("host.library.gameMenu.steamLanguage.appSetting");
             look.Add(new GameMenuItem
             {
                 Id = Ids.SteamLanguage,
                 Kind = GameMenuItemKind.Choice,
                 Label = T("host.library.gameMenu.steamLanguage.label"),
-                // The choices are the values stored in the game's metadata, shown as they are (no labels in the contract).
-                Description = T("host.library.gameMenu.steamLanguage.description", new { appSetting = AppSettingLanguage }),
+                Description = T("host.library.gameMenu.steamLanguage.description", new { appSetting }),
                 Choices = SteamLanguages.ToList(),
+                ChoiceLabels = SteamLanguages.Select(v => v == AppSettingLanguage ? appSetting : v).ToList(),
                 Value = SteamLanguages.Contains(c.SteamLanguage) ? c.SteamLanguage : AppSettingLanguage,
             });
         }

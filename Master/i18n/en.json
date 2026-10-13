@@ -2009,7 +2009,8 @@
         },
         "steamLanguage": {
           "label": "Steam Language",
-          "description": "Language reported by the Steam emulator for this game. \"{appSetting}\" uses the global setting."
+          "description": "Language reported by the Steam emulator for this game. \"{appSetting}\" uses the global setting.",
+          "appSetting": "App Setting"
         },
         "remove": {
           "label": "Remove Game From List",
