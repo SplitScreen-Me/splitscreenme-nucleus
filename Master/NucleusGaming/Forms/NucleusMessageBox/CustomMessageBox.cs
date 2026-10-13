@@ -16,6 +16,7 @@ namespace Nucleus.Gaming.Forms
             InitializeComponent();
 
             Text = title;
+            okButton.Text = Localization.I18n.T("common.ok");
             TopMost = true;
             messageText.Text = (format ? FormatText(message) : message ?? "").Replace("\r\n", "\n").Replace("\n", Environment.NewLine);
 

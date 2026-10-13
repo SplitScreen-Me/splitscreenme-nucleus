@@ -16,6 +16,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Gaming.Tools.Steam
 {
@@ -384,7 +385,7 @@ namespace Nucleus.Gaming.Tools.Steam
 
                                     if (i == 0)
                                     {
-                                        UserPrompts.Report(PromptIcon.Warning, "Warning", "Goldberg was unable to locate steam_interfaces.txt or create one. Process will continue without using this file.");
+                                        UserPrompts.Report(PromptIcon.Warning, T("engine.titles.warning"), T("engine.goldberg.interfacesMissing"));
                                     }
                                 }
                             }
@@ -393,7 +394,7 @@ namespace Nucleus.Gaming.Tools.Steam
                 }
                 else 
                 {
-                    UserPrompts.Notice("Warning", "No file path has been added to \"Game.CustomSteamApiDllPath = [fullFilePath1,fullFilePath2]\"", false);
+                    UserPrompts.Notice(T("engine.titles.warning"), T("engine.goldberg.customDllPathMissing", new { option = "Game.CustomSteamApiDllPath = [fullFilePath1,fullFilePath2]" }), false);
                 }
             }
 
@@ -738,7 +739,7 @@ namespace Nucleus.Gaming.Tools.Steam
 
                                 if (i == 0)
                                 {
-                                    UserPrompts.Report(PromptIcon.Warning, "Warning", "Goldberg was unable to locate steam_interfaces.txt or create one. Process will continue without using this file.");
+                                    UserPrompts.Report(PromptIcon.Warning, T("engine.titles.warning"), T("engine.goldberg.interfacesMissing"));
                                 }
                             }
                         }
@@ -750,7 +751,7 @@ namespace Nucleus.Gaming.Tools.Steam
                     if (!handlerInstance.CurrentGameInfo.GoldbergNoWarning)
                     {
                         handlerInstance.Log("Unable to locate a steam_api(64).dll file, Goldberg will not be used");
-                        UserPrompts.Notice("Warning", "Goldberg was unable to locate a steam_api(64).dll file.\nThe built-in Goldberg will not be used.", false);
+                        UserPrompts.Notice(T("engine.titles.warning"), T("engine.goldberg.steamApiMissing"), false);
                     }
                 }
             }
@@ -841,7 +842,7 @@ namespace Nucleus.Gaming.Tools.Steam
         {
             var handlerInstance = GenericGameHandler.Instance;
 
-            UserPrompts.WaitForOk("Goldberg Lobby Connect: Press OK after you are hosting a game.");
+            UserPrompts.WaitForOk(T("engine.goldberg.lobbyConnect.waitForHost"));
 
             ProcessStartInfo startInfo = new ProcessStartInfo();
             startInfo.FileName = Path.Combine(Globals.NucleusInstallRoot, "utils\\GoldbergEmu\\lobby_connect\\lobby_connect.exe");
@@ -877,7 +878,7 @@ namespace Nucleus.Gaming.Tools.Steam
             else
             {
                 handlerInstance.Log("Goldberg Lobby Connect: Could not find lobby ID");
-                UserPrompts.Report(PromptIcon.Error, "Error", "Goldberg Lobby Connect: Could not find lobby ID.");
+                UserPrompts.Report(PromptIcon.Error, T("engine.titles.error"), T("engine.goldberg.lobbyConnect.lobbyNotFound"));
             }
         }
 

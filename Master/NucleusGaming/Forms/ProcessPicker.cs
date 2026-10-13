@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Gaming.Coop.Generic
 {
@@ -17,6 +18,10 @@ namespace Nucleus.Gaming.Coop.Generic
             this.choices = choices ?? (() => new List<string>());
 
             InitializeComponent();
+            Text = T("engine.dialogs.processPicker.windowTitle");
+            ppDesc.Text = T("engine.dialogs.processPicker.description");
+            refrshBtn.Text = T("engine.dialogs.processPicker.refresh");
+            selBtn.Text = T("common.select");
             MaximizeBox = false;
             MinimizeBox = false;
 
@@ -45,7 +50,7 @@ namespace Nucleus.Gaming.Coop.Generic
         {
             if (pplistBox.SelectedItem == null)
             {
-                MessageBox.Show(this, "No process has been selected.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, T("engine.dialogs.processPicker.noSelection"), T("engine.titles.error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -98,8 +103,9 @@ namespace Nucleus.Gaming.Coop.Generic
                     continue;
                 }
 
+                //The pid comes first: the choice is read back from it (LaunchProcessPick).
                 string item = handlerInstance.attachedIds.Contains(p.Id)
-                    ? p.Id + " - (DO NOT USE - Already assigned in Nucleus) " + p.ProcessName
+                    ? p.Id + " - " + T("engine.dialogs.processPicker.alreadyAssigned", new { process = p.ProcessName })
                     : p.Id + " - " + p.ProcessName;
 
                 string name = p.ProcessName.ToLower();

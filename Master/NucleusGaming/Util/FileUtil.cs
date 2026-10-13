@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using Nucleus.Gaming.Forms;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Gaming
 {
@@ -206,7 +207,7 @@ namespace Nucleus.Gaming
                 {
                     if (!handlerInstance.CurrentGameInfo.IgnoreDeleteFilesPrompt)
                     {
-                        bool yes = UserPrompts.YesNo("Nucleus - Delete Files In Config Path", "Are you sure you want to delete '" + fullFilePath + "'?", PromptIcon.Warning);
+                        bool yes = UserPrompts.YesNo(T("engine.deleteFiles.configPathTitle"), T("engine.deleteFiles.confirm", new { file = fullFilePath }), PromptIcon.Warning);
                         if (!yes)
                         {
                             continue;

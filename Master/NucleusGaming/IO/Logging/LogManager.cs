@@ -1,5 +1,6 @@
 ﻿using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Forms;
+using Nucleus.Gaming.Localization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -117,7 +118,6 @@ namespace Nucleus.Gaming
         {
             Log("ERROR - " + ex.Message + " | Stacktrace: " + ex.StackTrace);
            
-            string version = "Nucleus version: " + Globals.Version;
             string local = GetAppDataPath();
             DateTime now = DateTime.Now;
             string file = string.Format("{0}{1}{2}_{3}{4}{5}", now.Day.ToString("00"), now.Month.ToString("00"), now.Year.ToString("0000"), now.Hour.ToString("00"), now.Minute.ToString("00"), now.Second.ToString("00")) + ".log";
@@ -126,27 +126,37 @@ namespace Nucleus.Gaming
             // if(Regex.IsMatch(ex.Message, ".*(.cfg|.ini|.xml|.conf|.scr|.json|.kgs).") && !Regex.IsMatch(ex.Message, ".*(XinputPlus.ini).") && ex.GetType().Name != "UnauthorizedAccessException")FileNotFoundExeption
             if (ex.GetType().Name == "FileNotFoundException")
             {
-                help = "Nucleus Co-op can't find the game's configuration file, make you sure you ran your main game at least once without Nucleus and that you changed some graphic settings and applied them, that way you make sure the proper configuration files got generated.\n" +
-                       "If you are still getting this error after doing that, select the game in the Nucleus Co-op user interface, click on Game Options and select Delete UserProfile Config Path for all players. You can also try deleting Nucleus Co-op content folder and adding the game again.";
+                help = I18n.T("engine.crashReport.help.fileNotFound");
             }
             else if (ex.GetType().Name == "UnauthorizedAccessException" || ex.GetType().Name == "IOException")
             {
-                help = "Nucleus Co-op doesn't have the necessary permissions or is trying to access a file that is already in use,\n" +
-                       "a file could be missing(For helpers: in case of \"IOException\" check if all required files from \"Game.Play = function()\" exists.)\n" +
-                       "please make sure Nucleus Co-op is outside any game files or protected folders,\n" +
-                       "placing Nucleus Co-op app folder in the root of your main drive is recommended to avoid permission issues: C:\\NucleusCo-op.\n" +
-                       "Make sure other apps are not using any of the files Nucleus is trying to access. If all else fails run Nucleus Co-op with admin rights.";
+                help = I18n.T("engine.crashReport.help.access", new { suggestedFolder = @"C:\NucleusCo-op" });
             }
 #if RELEASE
 
-            string error = $"-{version}\n-Install location: {Globals.NucleusInstallRoot}\n-OneDrive: {Globals.IsOneDriveEnabled} \n\nNucleus failed setting up the handler. An attempt to clean up will be made.\n\n[Type]\n\n{ex.GetType().Name}\n\n[Message]\n\n{ex.Message}\n\n{help}";
+            string error = I18n.T("engine.crashReport.release", new
+            {
+                version = Globals.Version,
+                installPath = Globals.NucleusInstallRoot,
+                oneDrive = Globals.IsOneDriveEnabled,
+                type = ex.GetType().Name,
+                message = ex.Message,
+                help,
+            });
 #else
 
-            string error = $"{version}\n\nNucleus failed setting up the handler. An attempt to clean up will be made.\n\n[Type]\n\n{ex.GetType().Name}\n\n[Message]\n\n{ex.Message}\n{help}\n\n[Stacktrace]\n\n{ex.StackTrace}";
+            string error = I18n.T("engine.crashReport.debug", new
+            {
+                version = Globals.Version,
+                type = ex.GetType().Name,
+                message = ex.Message,
+                help,
+                stackTrace = ex.StackTrace,
+            });
 #endif
 
             //A host can show this report in its own UI once the session has ended.
-            UserPrompts.Notice("Something went wrong :(", error, true, PromptOrigin.LaunchFailure, PromptIcon.Error);
+            UserPrompts.Notice(I18n.T("engine.crashReport.title"), error, true, PromptOrigin.LaunchFailure, PromptIcon.Error);
 
             Log("Attempting clean-up procedures...");
 
@@ -231,7 +241,7 @@ namespace Nucleus.Gaming
             if (!App_Misc.DebugLog &&
                 App_Misc.EnableLogAnswer == "")
             {
-                bool yes = UserPrompts.YesNo("Enable debug log", $"Click \"Yes\" if you want to enable debug logging. Start the game once again to generate a debug log.\nClick \"No\" to disable this prompt.", PromptIcon.Question);
+                bool yes = UserPrompts.YesNo(I18n.T("engine.debugLog.enable.title"), I18n.T("engine.debugLog.enable.message"), PromptIcon.Question);
                 
                 if (yes)
                 {

@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using Nucleus.Gaming.Forms;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Gaming.Tools.Network
 {
@@ -75,7 +76,7 @@ namespace Nucleus.Gaming.Tools.Network
                 if (iniNetworkInterface == null)
                 {
                     handlerInstance.Log("ERROR - Unable to resolve network interface");
-                    UserPrompts.Report(PromptIcon.Error, "Error", "Unable to resolve network interface");
+                    UserPrompts.Report(PromptIcon.Error, T("engine.titles.error"), T("engine.network.interfaceNotFound"));
                     return;
                 }
 
@@ -103,13 +104,22 @@ namespace Nucleus.Gaming.Tools.Network
                 }
                 catch (Exception ex)
                 {
-                    UserPrompts.Report(PromptIcon.Error, "Error", "Obtaining default IP settings error. " + ex.Message);
+                    UserPrompts.Report(PromptIcon.Error, T("engine.titles.error"), T("engine.network.defaultSettingsError", new { error = ex.Message }));
                 }
             }
 
             if (networkInterfaceOverride == null)
             {
-                UserPrompts.Report(PromptIcon.Warning, "Nucleus - Change IP Per Instance", "WARNING: This feature is highly experimental!\n\nYour computers IP is about to be changed. You may receive a prompt immediately after to complete this action. Your IP settings will be reverted back to normal upon exiting Nucleus normally. However, if Nucleus crashes, it is not gauranteed that your settings will be set back.\n\nPress OK when ready to have your IP changed.\n\nOriginal Settings:\nNetworkInterface: " + iniNetworkInterface + "\nIP: " + currentIPaddress + "\nSubnet Mask: " + currentSubnetMask + "\nDefault Gateway: " + currentGateway + "\nDHCP: " + isDHCPenabled + "\nDynamic DNS: " + isDynamicDns + "\nDNS: " + dnsServersStr);
+                UserPrompts.Report(PromptIcon.Warning, T("engine.network.changeIp.title"), T("engine.network.changeIp.message", new
+                {
+                    networkInterface = iniNetworkInterface,
+                    ip = currentIPaddress,
+                    subnetMask = currentSubnetMask,
+                    gateway = currentGateway,
+                    dhcp = isDHCPenabled,
+                    dynamicDns = isDynamicDns,
+                    dns = dnsServersStr,
+                }));
             }
             else
             {
@@ -152,7 +162,7 @@ namespace Nucleus.Gaming.Tools.Network
 
             handlerInstance.Log("Reverting IP settings back to normal");
 
-            UserPrompts.WaitForOk("Reverting IP settings back to normal. You may receive another prompt to action it.");
+            UserPrompts.WaitForOk(T("engine.network.reverting"));
             if (isDHCPenabled)
             {
                 SetDHCP(iniNetworkInterface);

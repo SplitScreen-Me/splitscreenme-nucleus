@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Windows.Forms;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Gaming.Forms
 {
@@ -17,6 +18,7 @@ namespace Nucleus.Gaming.Forms
         public Prompt(string message, bool onpaint)
         {
             InitializeComponent();
+            ApplyTexts();
             PromptLinks.Apply(lbl_Msg, message);
             MakeTopMost();
             GenericGameHandler.Instance?.AllRuntimeForms.Add(this);
@@ -26,6 +28,7 @@ namespace Nucleus.Gaming.Forms
         public Prompt(string message, bool isOFD, string launcherFileName)
         {
             InitializeComponent();
+            ApplyTexts();
             PromptLinks.Apply(lbl_Msg, message);
             MakeTopMost();
 
@@ -36,13 +39,14 @@ namespace Nucleus.Gaming.Forms
                     open.ShowHelp = true; //needed as a work-around to get the prompt to appear
                     if (!string.IsNullOrEmpty(launcherFileName))
                     {
-                        open.Title = $"Select the executable, {launcherFileName}, as the launcher";
+                        open.Title = T("engine.launch.pickLauncher.dialogTitleNamed", new { file = launcherFileName });
                         open.Filter = launcherFileName + "|" + launcherFileName;
                     }
                     else
                     {
-                        open.Title = "Select the executable to be the launcher";
-                        open.Filter = "Game Launcher Executable Files|*.exe";
+                        open.Title = T("engine.launch.pickLauncher.dialogTitle");
+                        //"|" separates the filter's parts: it can't appear in the description.
+                        open.Filter = T("engine.launch.pickLauncher.fileType").Replace("|", " ") + "|*.exe";
                     }
 
                     if (open.ShowDialog() == DialogResult.OK)
@@ -60,6 +64,12 @@ namespace Nucleus.Gaming.Forms
 
         /// <summary>The launcher picked by the open file dialog (backslashes doubled), or null.</summary>
         public string SelectedPath { get; private set; }
+
+        private void ApplyTexts()
+        {
+            Text = T("engine.dialogs.prompt.windowTitle");
+            btn_Ok.Text = T("common.ok");
+        }
 
         private void MakeTopMost()
         {

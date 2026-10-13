@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using static Nucleus.Gaming.Localization.I18n;
 namespace Nucleus.Gaming
 {
     public class GenericGameInfo
@@ -377,7 +378,7 @@ namespace Nucleus.Gaming
 
                 if (getNum.Length > 1 && int.TryParse(getNum[1], out int num))
                 {
-                    details = $"Error at line {num / 2} {(lineSplit.Length > 1 ? lineSplit[1] : "")}";
+                    details = T("engine.handlers.scriptError.atLine", new { line = (num / 2).ToString(), message = lineSplit.Length > 1 ? lineSplit[1] : "" });
                 }
             }
             catch
@@ -385,11 +386,7 @@ namespace Nucleus.Gaming
                 details = ex.Message;
             }
 
-            return $"There is an error in the game handler {fileName}.\n" +
-            $"\nThe game this handler is for will not appear in the list. If the issue has been fixed,\n" +
-            $"please try re-adding the game.\n\nCommon errors include:\n- A syntax error (such as a \',\' \';\' or \']\' missing)\n" +
-            $"- Another handler has this GUID (must be unique!)\n- Code is not in the right place or format\n(for example: methods using Context must be within the Game.Play function)" +
-            $"\n\n{details}";
+            return T("engine.handlers.scriptError.message", new { file = fileName, details });
         }
 
         public GenericGameInfo(string fileName, string folderPath, Stream str, bool[] checkUpdate)//checkUpdate [0]=initial update check [1]=update was available before reloading the handler  
@@ -437,7 +434,8 @@ namespace Nucleus.Gaming
 
                 //Not on the caller's thread: the native box would block the handlers loading.
                 string error = ScriptError;
-                System.Threading.Tasks.Task.Run(() => UserPrompts.Notice("Error in handler", error, false, PromptOrigin.Handler, PromptIcon.Error));
+                string title = T("engine.handlers.scriptError.title");
+                System.Threading.Tasks.Task.Run(() => UserPrompts.Notice(title, error, false, PromptOrigin.Handler, PromptIcon.Error));
 
                 return;
             }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
 using Nucleus.Gaming.Forms;
+using static Nucleus.Gaming.Localization.I18n;
 
 
 namespace Nucleus.Gaming.Coop.ProtoInput
@@ -40,7 +41,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             if (instanceHandle == 0)
             {
-                UserPrompts.Report(PromptIcon.Error, "Error", "ProtoInput failed to startup inject");
+                UserPrompts.Report(PromptIcon.Error, T("engine.titles.error"), T("engine.protoInput.startupInjectFailed"));
 
                 GenericGameHandler.Instance?.End(false);
             }
@@ -91,7 +92,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             if (instanceHandle == 0)
             {
-                UserPrompts.Report(PromptIcon.Error, "Error", "ProtoInput failed to runtime inject");
+                UserPrompts.Report(PromptIcon.Error, T("engine.titles.error"), T("engine.protoInput.runtimeInjectFailed"));
 
                 GenericGameHandler.Instance?.End(false);
             }
