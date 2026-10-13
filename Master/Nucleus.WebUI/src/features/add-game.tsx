@@ -3,6 +3,7 @@
 // and the lobby's "Game found" check.
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
 import { bridge, type GameSummary, type HandlerCandidate, type InstallResult } from '@/bridge';
+import { T, useI18n, type RichTags } from '@/i18n';
 import { useRun } from '@/lib/bridge-ui';
 import { Button, Dialog, Icon, useToast } from '@/ui';
 
@@ -30,10 +31,13 @@ export interface AddGameApi {
 
 const AddGameContext = createContext<AddGameApi | null>(null);
 
+const FILE_NAME_TAG: RichTags = { b: (children) => <b className="font-[650] text-ink">{children}</b> };
+
 /** Provides {@link useAddGame}. Renders the handler chooser when an executable matches several handlers. */
 export function AddGameProvider({ children }: { children: ReactNode }) {
   const run = useRun();
   const toast = useToast();
+  const { t, format } = useI18n();
   const [choice, setChoice] = useState<{ fileName: string; candidates: HandlerCandidate[] } | null>(null);
   const resolveChoice = useRef<((gameId: string | null) => void) | null>(null);
 
@@ -55,14 +59,23 @@ export function AddGameProvider({ children }: { children: ReactNode }) {
   const pickExecutable = useCallback(
     async ({ gameName, executableNames = [], initialDirectory }: PickExecutableOptions = {}) => {
       const names = [...new Set(executableNames.filter(Boolean))];
-      const label = names.length ? `${gameName ?? 'Game'} executable (${names.join(', ')})` : 'Game executable';
-      const title = gameName ? `Where is ${gameName}? Pick ${names[0] ?? 'its executable'}` : 'Pick the game executable';
+      const files = format.list(names, 'unit');
+      const label = !names.length
+        ? t('features.addGame.picker.filter')
+        : gameName
+          ? t('features.addGame.picker.filterNamed', { game: gameName, files })
+          : t('features.addGame.picker.filterFiles', { files });
+      const title = !gameName
+        ? t('features.addGame.picker.title')
+        : names[0]
+          ? t('features.addGame.picker.titleWithFile', { game: gameName, file: names[0] })
+          : t('features.addGame.picker.titleNamed', { game: gameName });
       const path = await run(() =>
         bridge.dialogs.pickFile({ title, filters: [{ name: label, extensions: ['exe'] }], initialDirectory }, { timeoutMs: 0 }),
       );
       return path ?? null;
     },
-    [run],
+    [run, t, format],
   );
 
   const addGameAt = useCallback<AddGameApi['addGameAt']>(
@@ -75,10 +88,10 @@ export function AddGameProvider({ children }: { children: ReactNode }) {
         result = await run(() => bridge.library.addGame({ executablePath, handlerGameId: picked }));
       }
       const game = result?.game ?? null;
-      if (game && !quiet) toast(`${game.name} is in your library`);
+      if (game && !quiet) toast(t('features.addGame.added', { game: game.name }));
       return game;
     },
-    [run, chooseHandler, toast],
+    [run, chooseHandler, toast, t],
   );
 
   const api = useMemo<AddGameApi>(
@@ -93,7 +106,7 @@ export function AddGameProvider({ children }: { children: ReactNode }) {
         const path = await pickExecutable({ ...options, gameName: game.name });
         if (!path) return false;
         const done = await run(() => bridge.library.setExecutable({ gameId: game.id, executablePath: path }).then(() => true));
-        if (done) toast(`${game.name} found. Ready to play.`);
+        if (done) toast(t('features.addGame.located', { game: game.name }));
         return done ?? false;
       },
       afterInstall: async (result) => {
@@ -103,17 +116,17 @@ export function AddGameProvider({ children }: { children: ReactNode }) {
         return path ? addGameAt(path, { handlerGameId: result.gameId }) : null;
       },
     }),
-    [pickExecutable, addGameAt, run, toast],
+    [pickExecutable, addGameAt, run, toast, t],
   );
 
   return (
     <AddGameContext value={api}>
       {children}
-      <Dialog open={choice !== null} onClose={() => settle(null)} title="Which game is it?" icon="library" className="w-[min(560px,90vw)]">
+      <Dialog open={choice !== null} onClose={() => settle(null)} title={t('features.addGame.chooser.title')} icon="library" className="w-[min(560px,90vw)]">
         {choice && (
           <div className="grid gap-4">
             <p className="text-15 text-ink-2">
-              Several installed handlers run <b className="font-[650] text-ink">{choice.fileName}</b>. Pick the game this executable belongs to.
+              <T k="features.addGame.chooser.message" values={{ file: choice.fileName }} tags={FILE_NAME_TAG} />
             </p>
             <ul className="m-0 grid list-none gap-1.5 p-0">
               {choice.candidates.map((c, i) => (
@@ -133,7 +146,7 @@ export function AddGameProvider({ children }: { children: ReactNode }) {
             </ul>
             <div className="flex justify-end">
               <Button variant="ghost" onClick={() => settle(null)} data-nav>
-                Cancel
+                {t('common.cancel')}
               </Button>
             </div>
           </div>

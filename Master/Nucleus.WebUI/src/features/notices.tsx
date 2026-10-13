@@ -23,7 +23,7 @@ export function NoticeDialog() {
 
   const waiting = (notices ?? []).filter((n) => !dismissed.has(n.id));
   // The first-launch language picker comes first: notices wait until a language is chosen.
-  const { state: language } = useI18n();
+  const { state: language, t } = useI18n();
   const notice = isSessionLive(session?.state) || language?.chosen === false ? undefined : waiting[0];
   const tone = TONE[notice?.level ?? 'info'];
 
@@ -40,14 +40,16 @@ export function NoticeDialog() {
       title={notice?.title ?? ''}
       icon={tone.icon}
       iconClassName={tone.className}
-      headerExtra={waiting.length > 1 && <span className="text-12 text-ink-3 tabular-nums">1 of {waiting.length}</span>}
+      headerExtra={
+        waiting.length > 1 && <span className="text-12 text-ink-3 tabular-nums">{t('features.notices.position', { current: 1, total: waiting.length })}</span>
+      }
     >
       {notice && (
         <div className="grid gap-6">
           <p className="max-h-[50vh] overflow-auto text-15 leading-[1.55] whitespace-pre-line text-ink-2 wrap-anywhere">{notice.message}</p>
           <div className="flex justify-end">
             <Button variant="primary" onClick={() => dismiss(notice.id)} data-nav autoFocus>
-              OK
+              {t('common.ok')}
             </Button>
           </div>
         </div>

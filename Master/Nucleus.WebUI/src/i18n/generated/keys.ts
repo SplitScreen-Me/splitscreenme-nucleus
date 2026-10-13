@@ -132,6 +132,46 @@ export interface MessageParamsMap {
   'engine.startChecks.missingFile.message': { file: ParamValue };
   /** Missing file */
   'engine.startChecks.missingFile.title': undefined;
+  /** {game} is in your library */
+  'features.addGame.added': { game: ParamValue };
+  /** Several installed handlers run <b>{file}</b>. Pick the game this executable belongs to. */
+  'features.addGame.chooser.message': { file: ParamValue };
+  /** Which game is it? */
+  'features.addGame.chooser.title': undefined;
+  /** {game} found. Ready to play. */
+  'features.addGame.located': { game: ParamValue };
+  /** Game executable */
+  'features.addGame.picker.filter': undefined;
+  /** Game executable ({files}) */
+  'features.addGame.picker.filterFiles': { files: ParamValue };
+  /** {game} executable ({files}) */
+  'features.addGame.picker.filterNamed': { files: ParamValue; game: ParamValue };
+  /** Pick the game executable */
+  'features.addGame.picker.title': undefined;
+  /** Where is {game}? Pick its executable */
+  'features.addGame.picker.titleNamed': { game: ParamValue };
+  /** Where is {game}? Pick {file} */
+  'features.addGame.picker.titleWithFile': { file: ParamValue; game: ParamValue };
+  /** {game} handler installed */
+  'features.fileDrop.installed': { game: ParamValue };
+  /** Nucleus Co-op could not read where that file is. Save it to a folder, then drop it from File Explorer. */
+  'features.fileDrop.noPath': undefined;
+  /** .nc, .zip or .js files. Nucleus asks where the game is afterwards. */
+  'features.fileDrop.overlay.hint': undefined;
+  /** Drop to install the handler */
+  'features.fileDrop.overlay.title': undefined;
+  /** Replace */
+  'features.fileDrop.replace.confirm': undefined;
+  /** {game} already has a handler. Replace it with {file}? Your profiles and settings stay. */
+  'features.fileDrop.replace.message': { file: ParamValue; game: ParamValue };
+  /** A handler for this game is already installed. Replace it with {file}? Your profiles and settings stay. */
+  'features.fileDrop.replace.messageUnknownGame': { file: ParamValue };
+  /** Replace the installed handler? */
+  'features.fileDrop.replace.title': undefined;
+  /** Drop a handler file: .nc, .zip or .js. */
+  'features.fileDrop.wrongType': undefined;
+  /** {current} of {total} */
+  'features.notices.position': { current: ParamValue; total: ParamValue };
   /** Language of Nucleus Co-op's windows and messages. Handler notes and game names stay as their authors wrote ... */
   'host.settings.fields.misc.appLanguage.description': undefined;
   /** Language */
@@ -367,4 +407,4 @@ export interface MessageParamsMap {
 }
 
 /** Strings with tags (`<kbd>`, `<b>`...): render them with `<T>` to keep their markup; `t()` drops it. */
-export type RichMessageKey = never;
+export type RichMessageKey = 'features.addGame.chooser.message';

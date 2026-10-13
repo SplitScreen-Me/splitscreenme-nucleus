@@ -231,7 +231,42 @@
       }
     }
   },
-  "features": {},
+  "features": {
+    "addGame": {
+      "picker": {
+        "title": "Pick the game executable",
+        "titleNamed": "Where is {game}? Pick its executable",
+        "titleWithFile": "Where is {game}? Pick {file}",
+        "filter": "Game executable",
+        "filterFiles": "Game executable ({files})",
+        "filterNamed": "{game} executable ({files})"
+      },
+      "added": "{game} is in your library",
+      "located": "{game} found. Ready to play.",
+      "chooser": {
+        "title": "Which game is it?",
+        "message": "Several installed handlers run <b>{file}</b>. Pick the game this executable belongs to."
+      }
+    },
+    "fileDrop": {
+      "replace": {
+        "title": "Replace the installed handler?",
+        "message": "{game} already has a handler. Replace it with {file}? Your profiles and settings stay.",
+        "messageUnknownGame": "A handler for this game is already installed. Replace it with {file}? Your profiles and settings stay.",
+        "confirm": "Replace"
+      },
+      "installed": "{game} handler installed",
+      "wrongType": "Drop a handler file: .nc, .zip or .js.",
+      "noPath": "Nucleus Co-op could not read where that file is. Save it to a folder, then drop it from File Explorer.",
+      "overlay": {
+        "title": "Drop to install the handler",
+        "hint": ".nc, .zip or .js files. Nucleus asks where the game is afterwards."
+      }
+    },
+    "notices": {
+      "position": "{current} of {total}"
+    }
+  },
   "language": {
     "firstRun": {
       "title": "Choose your language",
