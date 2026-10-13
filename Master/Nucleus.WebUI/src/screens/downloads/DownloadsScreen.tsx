@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { bridge, type GameSummary } from '@/bridge';
 import { useAddGame } from '@/features/add-game';
 import { useAllHandlers, type HubHandler } from '@/hub';
+import { T, useI18n, type TFunction } from '@/i18n';
 import { igdbImage } from '@/lib/art';
 import { useRun } from '@/lib/bridge-ui';
 import {
@@ -16,7 +17,6 @@ import {
   useDownloads,
   type DownloadItem,
 } from '@/lib/downloads';
-import { fmtAgo, plural } from '@/lib/format';
 import { setupPath, useLibrary } from '@/lib/library';
 import { useAppInfo } from '@/lib/live';
 import { useScreenChrome } from '@/shell/chrome';
@@ -31,13 +31,13 @@ interface Resolved {
   hub?: HubHandler;
 }
 
-function resolve(item: DownloadItem, library: readonly GameSummary[], hub: readonly HubHandler[]): Resolved {
+function resolve(t: TFunction, item: DownloadItem, library: readonly GameSummary[], hub: readonly HubHandler[]): Resolved {
   const gameId = item.gameId ?? item.result?.gameId;
   const game = gameId ? library.find((g) => g.id === gameId) : library.find((g) => g.handlerId === item.source);
   const handler = hub.find((h) => h.id === item.source || (game?.handlerId !== undefined && h.id === game.handlerId));
   const fileName = item.kind === 'file' ? item.source.slice(Math.max(item.source.lastIndexOf('\\'), item.source.lastIndexOf('/')) + 1) : undefined;
   return {
-    name: item.result?.gameName ?? item.name ?? game?.name ?? handler?.gameName ?? fileName ?? 'Handler',
+    name: item.result?.gameName ?? item.name ?? game?.name ?? handler?.gameName ?? fileName ?? t('downloads.row.defaultName'),
     cover: item.coverUrl ?? game?.coverUrl ?? igdbImage(handler?.coverImageId, 'cover_big'),
     game,
     hub: handler,
@@ -52,6 +52,7 @@ export default function DownloadsScreen() {
   const { data: info } = useAppInfo();
   const run = useRun();
   const toast = useToast();
+  const { t } = useI18n();
   const [updatingAll, setUpdatingAll] = useState(false);
   const [checking, setChecking] = useState(false);
   const offline = info?.hubOnline === false;
@@ -63,7 +64,9 @@ export default function DownloadsScreen() {
 
   const update = (g: GameSummary) =>
     run(() => updateHandler(g.id, { name: g.name, coverUrl: g.coverUrl, handlerId: g.handlerId, version: g.latestHandlerVersion }), {
-      success: `${g.name} handler updated${g.latestHandlerVersion ? ` to version ${g.latestHandlerVersion}` : ''}`,
+      success: g.latestHandlerVersion
+        ? t('downloads.toasts.handlerUpdatedTo', { game: g.name, version: String(g.latestHandlerVersion) })
+        : t('downloads.toasts.handlerUpdated', { game: g.name }),
     });
 
   const updateAll = async () => {
@@ -79,14 +82,14 @@ export default function DownloadsScreen() {
     setChecking(true);
     const done = await run(() => bridge.handlers.checkUpdates({ timeoutMs: 120_000 }).then(() => true));
     setChecking(false);
-    if (done) toast('Checked the Hub for handler updates', { icon: 'update' });
+    if (done) toast(t('downloads.toasts.checked'), { icon: 'update' });
   };
 
-  useScreenChrome([{ label: 'Downloads' }], {
+  useScreenChrome([{ label: t('downloads.title') }], {
     base: [
-      { button: 'A', label: 'Select' },
-      ...(outdated.length && !offline ? [{ button: 'X' as const, label: 'Update all', action: () => void updateAll() }] : []),
-      { button: 'Y', label: 'Search' },
+      { button: 'A', label: t('common.select') },
+      ...(outdated.length && !offline ? [{ button: 'X' as const, label: t('downloads.hints.updateAll'), action: () => void updateAll() }] : []),
+      { button: 'Y', label: t('common.search') },
     ],
   });
 
@@ -94,18 +97,18 @@ export default function DownloadsScreen() {
     <div className="grid content-start gap-gutter">
       <Pane as="header" className="flex flex-wrap items-end gap-6 px-8 pt-8 pb-7">
         <div className="grid gap-2">
-          <h1 className="type-h1">Downloads</h1>
-          <p className="max-w-[60ch] text-ink-2">Handlers you install or update from the Hub. Games stay playable while their handler updates.</p>
+          <h1 className="type-h1">{t('downloads.title')}</h1>
+          <p className="max-w-[60ch] text-ink-2">{t('downloads.intro')}</p>
         </div>
         <div className="ml-auto flex flex-wrap gap-2">
-          <Button variant="ghost" onClick={() => void checkUpdates()} disabled={checking || offline} data-nav title={offline ? 'The Hub is offline' : undefined}>
+          <Button variant="ghost" onClick={() => void checkUpdates()} disabled={checking || offline} data-nav title={offline ? t('downloads.hubOffline') : undefined}>
             {checking ? <Spinner /> : <Icon name="refresh" />}
-            Check for updates
+            {t('downloads.checkUpdates')}
           </Button>
           {finished.length > 0 && (
             <Button variant="ghost" onClick={clearFinishedDownloads} data-nav>
               <Icon name="check" />
-              Clear finished
+              {t('downloads.clearFinished')}
             </Button>
           )}
         </div>
@@ -115,18 +118,18 @@ export default function DownloadsScreen() {
         <Pane as="section" aria-labelledby="updates-title" className="px-6 pt-6 pb-4">
           <div className="mb-3 flex items-center gap-3">
             <h2 id="updates-title" className="type-h3">
-              Updates available
+              {t('downloads.updates.title')}
             </h2>
             <span className="data text-15 text-ink-3">{outdated.length}</span>
             <Button size="sm" className="ml-auto" onClick={() => void updateAll()} disabled={updatingAll || offline} data-nav>
               {updatingAll ? <Spinner /> : <Icon name="update" />}
-              {updatingAll ? 'Updating…' : 'Update all'}
+              {updatingAll ? t('downloads.updates.updating') : t('downloads.updates.updateAll')}
             </Button>
           </div>
           {offline && (
             <p className="mb-2 flex items-center gap-2 text-13 text-ink-2">
               <Icon name="offline" className="size-4 text-warn" />
-              The Hub is offline. Updates work again as soon as Nucleus reaches it.
+              {t('downloads.updates.offline')}
             </p>
           )}
           <ul className="m-0 list-none p-0">
@@ -140,24 +143,22 @@ export default function DownloadsScreen() {
       <Pane as="section" aria-labelledby="dl-title" className="px-6 pt-6 pb-4">
         <div className="mb-3 flex items-baseline gap-3">
           <h2 id="dl-title" className="type-h3">
-            {active.length ? 'In progress' : 'Recent downloads'}
+            {active.length ? t('downloads.list.inProgress') : t('downloads.list.recent')}
           </h2>
-          {items.length > 0 && <span className="data text-15 text-ink-3">{plural(items.length, 'item')}</span>}
+          {items.length > 0 && <span className="data text-15 text-ink-3">{t('downloads.list.count', { count: items.length })}</span>}
         </div>
         {items.length === 0 ? (
           <div className="grid justify-items-start gap-4 py-8">
-            <p className="max-w-[56ch] text-ink-2">
-              Nothing downloaded since Nucleus Co-op started. Handlers you install from Get games, or drop on the window as .nc files, show up here with their progress.
-            </p>
+            <p className="max-w-[56ch] text-ink-2">{t('downloads.list.empty')}</p>
             <ButtonLink to="/games" variant="primary" data-nav>
               <Icon name="compass" />
-              Get games
+              {t('downloads.list.getGames')}
             </ButtonLink>
           </div>
         ) : (
           <ul className="m-0 list-none p-0" aria-live="polite">
             {[...active, ...finished].map((d) => (
-              <DownloadRow key={d.id} item={d} resolved={resolve(d, library, hub)} />
+              <DownloadRow key={d.id} item={d} resolved={resolve(t, d, library, hub)} />
             ))}
           </ul>
         )}
@@ -168,22 +169,24 @@ export default function DownloadsScreen() {
 
 function UpdateRow({ game: g, disabled, onUpdate }: { game: GameSummary; disabled: boolean; onUpdate: () => void }) {
   const active = useActiveDownload({ gameId: g.id, handlerId: g.handlerId });
+  const { t, format } = useI18n();
+  const to = g.latestHandlerVersion !== undefined ? String(g.latestHandlerVersion) : '?';
   return (
     <li className="grid grid-cols-[40px_minmax(0,1fr)_auto] items-center gap-4 border-t border-line py-3 first:border-t-0">
       <Cover src={g.coverUrl} title={g.name} ratio="3/4" className="w-10 rounded-md" />
       <div className="min-w-0">
         <b className="block truncate text-15 font-[650]">{g.name}</b>
         {active ? (
-          <span className="data text-13 text-ink-2">{stageText(active)}</span>
+          <span className="data text-13 text-ink-2">{stageText(t, format, active)}</span>
         ) : (
           <span className="data text-13 text-warn">
-            Handler update{g.handlerVersion !== undefined ? ` v${g.handlerVersion}` : ''} to v{g.latestHandlerVersion ?? '?'}
+            {g.handlerVersion !== undefined ? t('downloads.updates.fromTo', { from: String(g.handlerVersion), to }) : t('downloads.updates.to', { to })}
           </span>
         )}
       </div>
-      <Button size="sm" variant="ghost" disabled={Boolean(active) || disabled} onClick={onUpdate} data-nav aria-label={`Update the ${g.name} handler`}>
+      <Button size="sm" variant="ghost" disabled={Boolean(active) || disabled} onClick={onUpdate} data-nav aria-label={t('downloads.updates.updateLabel', { game: g.name })}>
         {active ? <Spinner /> : <Icon name="update" />}
-        Update
+        {t('common.update')}
       </Button>
     </li>
   );
@@ -192,17 +195,23 @@ function UpdateRow({ game: g, disabled, onUpdate }: { game: GameSummary; disable
 function DownloadRow({ item: d, resolved }: { item: DownloadItem; resolved: Resolved }) {
   const run = useRun();
   const { afterInstall } = useAddGame();
+  const { t, format } = useI18n();
   const [adding, setAdding] = useState(false);
   const running = isActiveStage(d.stage);
   const progress = downloadProgress(d);
   const pct = Math.round(progress * 100);
   const { name, cover, game } = resolved;
+  const stage = stageText(t, format, d);
   const what =
     d.kind === 'update'
-      ? `Handler update${d.version ? ` to version ${d.version}` : ''}`
+      ? d.version
+        ? t('downloads.row.updateTo', { version: String(d.version) })
+        : t('downloads.row.update')
       : d.kind === 'file'
-        ? 'From a file'
-        : `Handler${d.version ? `, version ${d.version}` : ''}`;
+        ? t('downloads.row.file')
+        : d.version
+          ? t('downloads.row.installVersion', { version: String(d.version) })
+          : t('downloads.row.install');
   const needsGame = d.stage === 'done' && d.result !== undefined && !d.result.inLibrary && !game;
 
   const retry = () => {
@@ -213,8 +222,8 @@ function DownloadRow({ item: d, resolved }: { item: DownloadItem; resolved: Reso
   let action: ReactNode = <span />;
   if (running && d.cancellable) {
     action = (
-      <Button size="sm" variant="ghost" onClick={() => cancelDownload(d.id)} data-nav aria-label={`Cancel the ${name} download`}>
-        Cancel
+      <Button size="sm" variant="ghost" onClick={() => cancelDownload(d.id)} data-nav aria-label={t('downloads.row.cancelLabel', { game: name })}>
+        {t('common.cancel')}
       </Button>
     );
   } else if (needsGame) {
@@ -233,20 +242,20 @@ function DownloadRow({ item: d, resolved }: { item: DownloadItem; resolved: Reso
         }}
       >
         {adding ? <Spinner /> : <Icon name="plus" />}
-        Add the game
+        {t('downloads.row.addGame')}
       </Button>
     );
   } else if (d.stage === 'done' && game) {
     action = (
       <Link to={setupPath(game.id)} className="rounded text-small font-semibold text-ink-2 no-underline hover:text-ink" data-nav>
-        Set up session
+        {t('downloads.row.setUpSession')}
       </Link>
     );
   } else if ((d.stage === 'failed' || d.stage === 'cancelled') && d.kind !== 'file') {
     action = (
-      <Button size="sm" variant="ghost" onClick={retry} data-nav aria-label={`Try the ${name} download again`}>
+      <Button size="sm" variant="ghost" onClick={retry} data-nav aria-label={t('downloads.row.retryLabel', { game: name })}>
         <Icon name="refresh" />
-        Try again
+        {t('common.tryAgain')}
       </Button>
     );
   }
@@ -268,18 +277,31 @@ function DownloadRow({ item: d, resolved }: { item: DownloadItem; resolved: Reso
               aria-valuenow={pct}
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-label={`${name}: ${stageText(d)}`}
+              aria-label={t('downloads.row.progressLabel', { game: name, stage })}
             >
               <div className="h-full origin-left bg-ink transition-transform duration-(--dur-2)" style={{ transform: `scaleX(${Math.max(0.03, progress)})` }} />
             </div>
-            <span className="data w-36 shrink-0 text-right text-13 text-ink-2">{stageText(d)}</span>
+            <span className="data w-36 shrink-0 text-right text-13 text-ink-2">{stage}</span>
           </div>
         ) : (
           <span className={cn('flex min-w-0 items-center gap-1.5 text-13', d.stage === 'done' ? 'text-ink-2' : d.stage === 'cancelled' ? 'text-ink-3' : 'text-warn')}>
             <Icon name={d.stage === 'done' ? 'check' : d.stage === 'cancelled' ? 'x' : 'warning'} className="size-3.5 shrink-0" />
             <span className="truncate">
-              {d.stage === 'failed' ? `Failed: ${d.error ?? 'the install did not finish.'}` : needsGame ? 'Installed. The game is not in your library yet.' : stageText(d)}{' '}
-              <span className="text-ink-3">{fmtAgo(new Date(ended).toISOString())}</span>
+              <T
+                k="downloads.row.statusWhen"
+                values={{
+                  status:
+                    d.stage === 'failed'
+                      ? d.error
+                        ? t('downloads.row.failed', { error: d.error })
+                        : t('downloads.row.failedUnknown')
+                      : needsGame
+                        ? t('downloads.row.notInLibrary')
+                        : stage,
+                  ago: format.ago(ended),
+                }}
+                tags={{ when: (c) => <span className="text-ink-3">{c}</span> }}
+              />
             </span>
           </span>
         )}
