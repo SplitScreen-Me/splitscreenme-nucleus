@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Gaming.Coop
 {
@@ -170,25 +171,25 @@ namespace Nucleus.Gaming.Coop
 
                 if (string.IsNullOrWhiteSpace(slot.Nickname))
                 {
-                    errors.Add(new ProfileSettingsError("slots.nickname", i, "Nicknames can't be empty."));
+                    errors.Add(new ProfileSettingsError("slots.nickname", i, T("engine.profileSettings.errors.nicknameEmpty")));
                 }
 
                 string sid = slot.SteamId ?? "";
 
                 if (!((Regex.IsMatch(sid, "^[0-9]+$") && sid.Length == 17) || sid.Length == 0 || sid == "-1"))
                 {
-                    errors.Add(new ProfileSettingsError("slots.steamId", i, "A Steam ID must be 17 digits, for example 76561199075562883."));
+                    errors.Add(new ProfileSettingsError("slots.steamId", i, T("engine.profileSettings.errors.steamIdFormat", new { example = "76561199075562883" })));
                 }
                 else if (sid != "" && Slots.Where((other, j) => j != i && (other.SteamId ?? "") == sid).Any())
                 {
-                    errors.Add(new ProfileSettingsError("slots.steamId", i, "Each player needs a different Steam ID."));
+                    errors.Add(new ProfileSettingsError("slots.steamId", i, T("engine.profileSettings.errors.steamIdDuplicate")));
                 }
 
                 string ideal = string.IsNullOrEmpty(slot.IdealProcessor) ? "*" : slot.IdealProcessor;
 
                 if (ideal != "*" && (!int.TryParse(ideal, out int idealValue) || idealValue < 0 || idealValue > cores))
                 {
-                    errors.Add(new ProfileSettingsError("slots.idealProcessor", i, $"This PC has {cores} cores: use * or a number up to {cores}."));
+                    errors.Add(new ProfileSettingsError("slots.idealProcessor", i, T("engine.profileSettings.errors.idealProcessor", new { count = cores })));
                 }
 
                 foreach (string value in (slot.Affinity ?? "").Split(','))
@@ -200,7 +201,7 @@ namespace Nucleus.Gaming.Coop
 
                     if (!int.TryParse(value.Trim(), out int core) || core < 0 || core > cores)
                     {
-                        errors.Add(new ProfileSettingsError("slots.affinity", i, $"This PC has {cores} cores: use numbers up to {cores}, separated by commas."));
+                        errors.Add(new ProfileSettingsError("slots.affinity", i, T("engine.profileSettings.errors.affinity", new { count = cores })));
                         break;
                     }
                 }
@@ -209,43 +210,43 @@ namespace Nucleus.Gaming.Coop
 
                 if (!PriorityClasses.Contains(priority))
                 {
-                    errors.Add(new ProfileSettingsError("slots.priorityClass", i, "The priority must be Normal, AboveNormal, High or RealTime."));
+                    errors.Add(new ProfileSettingsError("slots.priorityClass", i, T("engine.profileSettings.errors.priorityClass")));
                 }
             }
 
             if (CustomLayoutHor < 0 || CustomLayoutHor > 5)
             {
-                errors.Add(new ProfileSettingsError("customLayoutHorizontalLines", null, "Use 0 to 5 horizontal lines."));
+                errors.Add(new ProfileSettingsError("customLayoutHorizontalLines", null, T("engine.profileSettings.errors.horizontalLines")));
             }
 
             if (CustomLayoutVer < 0 || CustomLayoutVer > 5)
             {
-                errors.Add(new ProfileSettingsError("customLayoutVerticalLines", null, "Use 0 to 5 vertical lines."));
+                errors.Add(new ProfileSettingsError("customLayoutVerticalLines", null, T("engine.profileSettings.errors.verticalLines")));
             }
 
             if (CustomLayoutMax < 1)
             {
-                errors.Add(new ProfileSettingsError("customLayoutMaxPlayers", null, "The custom layout needs at least 1 player."));
+                errors.Add(new ProfileSettingsError("customLayoutMaxPlayers", null, T("engine.profileSettings.errors.maxPlayers")));
             }
 
             if (WindowsSetupTimingMs < 0)
             {
-                errors.Add(new ProfileSettingsError("windowSetupDelayMs", null, "The delay can't be negative."));
+                errors.Add(new ProfileSettingsError("windowSetupDelayMs", null, T("engine.profileSettings.errors.delayNegative")));
             }
 
             if (PauseBetweenInstanceLaunchSec < 0)
             {
-                errors.Add(new ProfileSettingsError("pauseBetweenInstancesSec", null, "The pause can't be negative."));
+                errors.Add(new ProfileSettingsError("pauseBetweenInstancesSec", null, T("engine.profileSettings.errors.pauseNegative")));
             }
 
             if (!string.IsNullOrEmpty(SplitDivColor) && !BackgroundColors.ColorsDictionnary.ContainsKey(SplitDivColor))
             {
-                errors.Add(new ProfileSettingsError("splitDividerColor", null, "Unknown colour."));
+                errors.Add(new ProfileSettingsError("splitDividerColor", null, T("engine.profileSettings.errors.unknownColor")));
             }
 
             if (!string.IsNullOrEmpty(MergerResolution) && !Regex.IsMatch(MergerResolution, "^[0-9]+X[0-9]+$"))
             {
-                errors.Add(new ProfileSettingsError("mergerResolution", null, "The resolution must look like 1920X1080."));
+                errors.Add(new ProfileSettingsError("mergerResolution", null, T("engine.profileSettings.errors.mergerResolution", new { example = "1920X1080" })));
             }
 
             return errors;

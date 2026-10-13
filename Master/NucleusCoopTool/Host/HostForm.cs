@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Coop.Host
 {
@@ -737,8 +738,7 @@ namespace Nucleus.Coop.Host
                 HostLog.Error("WebView2 initialization failed.", ex);
                 SetPageState(UiPageState.Unavailable);
                 DialogResult answer = MessageBox.Show(this,
-                    "The Nucleus Co-op interface could not be started.\n\n" + ex.Message +
-                    "\n\nClose any other Nucleus Co-op window, then click Retry.",
+                    T("engine.host.interface.startFailed", new { error = ex.Message }),
                     DefaultTitle, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
 
                 if (answer == DialogResult.Retry)
@@ -938,14 +938,13 @@ namespace Nucleus.Coop.Host
             if (crashCount > MaxCrashesPerMinute)
             {
                 MessageBox.Show(this,
-                    "The Nucleus Co-op interface keeps stopping unexpectedly and will close.\n\n" +
-                    "Details are in content\\app.log. If this keeps happening, repair or reinstall the Microsoft Edge WebView2 Runtime.",
+                    T("engine.host.interface.keepsCrashing", new { logFile = @"content\app.log" }),
                     DefaultTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Close();
                 return;
             }
 
-            MessageBox.Show(this, "The Nucleus Co-op interface stopped unexpectedly. It will be reloaded.",
+            MessageBox.Show(this, T("engine.host.interface.crashed"),
                 DefaultTitle, MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
             if (browserProcessExited || webView?.CoreWebView2 == null)
@@ -969,7 +968,7 @@ namespace Nucleus.Coop.Host
             try
             {
                 DialogResult answer = MessageBox.Show(this,
-                    "The Nucleus Co-op interface is not responding.\n\nReload it now? Click No to keep waiting.",
+                    T("engine.host.interface.notResponding"),
                     DefaultTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
                 if (answer == DialogResult.Yes && !isClosing && !IsDisposed)
@@ -1024,8 +1023,7 @@ namespace Nucleus.Coop.Host
             const string downloadPage = "https://developer.microsoft.com/microsoft-edge/webview2/";
 
             DialogResult answer = MessageBox.Show(this,
-                "Nucleus Co-op needs the Microsoft Edge WebView2 Runtime to show its interface, and it is not installed.\n\n" +
-                "Open the download page now?",
+                T("engine.host.interface.runtimeMissing"),
                 DefaultTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Error);
 
             if (answer == DialogResult.Yes)

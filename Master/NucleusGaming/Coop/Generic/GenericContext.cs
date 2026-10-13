@@ -20,6 +20,7 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 using Nucleus.Gaming.Forms;
+using static Nucleus.Gaming.Localization.I18n;
 
 
 namespace Nucleus.Gaming
@@ -468,7 +469,7 @@ namespace Nucleus.Gaming
             }
             else
             {
-                UserPrompts.Report(PromptIcon.Error, "Error", "Zip file doesn't exist,is corrupted or in an unsupported format.");
+                UserPrompts.Report(PromptIcon.Error, T("engine.titles.error"), T("engine.launch.invalidZip"));
             }
 
             return true;
@@ -495,7 +496,7 @@ namespace Nucleus.Gaming
             }
             else
             {
-                UserPrompts.Report(PromptIcon.Error, "Error", "Zip file doesn't exist,is corrupted or in an unsupported format.");
+                UserPrompts.Report(PromptIcon.Error, T("engine.titles.error"), T("engine.launch.invalidZip"));
             }
 
             return true;
@@ -770,11 +771,11 @@ namespace Nucleus.Gaming
                 {
                     if (fileIndex < (filePaths.Length - 1))
                     {
-                        UserPrompts.WaitForOk("Press OK when ready to launch " + filePaths[fileIndex]);
+                        UserPrompts.WaitForOk(T("engine.launch.waitForOk.launchFile", new { file = filePaths[fileIndex] }));
                     }
                     else
                     {
-                        UserPrompts.WaitForOk("Press OK when ready to proceed with launching the game instance " + filePaths[fileIndex]);
+                        UserPrompts.WaitForOk(T("engine.launch.waitForOk.launchGameAfterFile", new { file = filePaths[fileIndex] }));
                     }
 
                     if (fileIndex < (filePaths.Length - 1) && secondsToPauseInbetween > 0)
@@ -842,7 +843,7 @@ namespace Nucleus.Gaming
                         {
                             if (showFilePath)
                             {
-                                UserPrompts.WaitForOk(customText + " File path: " + filePaths[fileIndex]);
+                                UserPrompts.WaitForOk(T("engine.launch.waitForOk.handlerTextWithPath", new { text = customText, path = filePaths[fileIndex] }));
                             }
                             else
                             {
@@ -875,7 +876,7 @@ namespace Nucleus.Gaming
                         {
                             if (showFilePath)
                             {
-                                UserPrompts.WaitForOk(customText + " File path: " + filePaths[fileIndex]);
+                                UserPrompts.WaitForOk(T("engine.launch.waitForOk.handlerTextWithPath", new { text = customText, path = filePaths[fileIndex] }));
 
                                 ProcessStartInfo psi = new ProcessStartInfo
                                 {
@@ -932,7 +933,7 @@ namespace Nucleus.Gaming
                         {
                             if (showFilePath)
                             {
-                                UserPrompts.WaitForOk(customText + " File path: " + filePaths[fileIndex]);
+                                UserPrompts.WaitForOk(T("engine.launch.waitForOk.handlerTextWithPath", new { text = customText, path = filePaths[fileIndex] }));
 
                                 ProcessStartInfo psi = new ProcessStartInfo
                                 {

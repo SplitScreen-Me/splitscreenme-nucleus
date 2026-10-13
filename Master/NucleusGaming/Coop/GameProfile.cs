@@ -16,6 +16,7 @@ using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using static Nucleus.Gaming.Localization.I18n;
 
 
 namespace Nucleus.Gaming.Coop
@@ -317,7 +318,7 @@ namespace Nucleus.Gaming.Coop
             //A script error is reported by GenericGameInfo; the old parsed handler must not be launched instead.
             if (GameManager.Instance.AddScript(Path.GetFileNameWithoutExtension(Game.JsFileName), new bool[] { false, Game.UpdateAvailable }) == null)
             {
-                throw new InvalidOperationException($"{Game.JsFileName} has errors and could not be reloaded.");
+                throw new InvalidOperationException(T("engine.handlers.reloadFailed", new { file = Game.JsFileName }));
             }
 
             var Current_GenericGameInfo = GameManager.Instance.GetGame(GameInfo.ExePath);
@@ -749,7 +750,7 @@ namespace Nucleus.Gaming.Coop
 
                 GetGhostBounds();
 
-                Notify(NoticeKind.Info, null, Title != "" ? $"Handler Profile \"{Title}\" Loaded" : $"Handler Profile N°{_profileToLoad} Loaded", 1000);
+                Notify(NoticeKind.Info, null, Title != "" ? T("engine.profiles.loaded", new { title = Title }) : T("engine.profiles.loadedNumber", new { number = _profileToLoad }), 1000);
 
                 return true;
 
@@ -757,9 +758,7 @@ namespace Nucleus.Gaming.Coop
             catch (Exception ex)
             {
                 Reset();
-                Notify(NoticeKind.Error, "", "The profile can't be loaded.\n\n" +
-                    "If the error persist delete the profile and create a new one.\n\n" +
-                    "[Error]\n\n" + ex.Message, 0);
+                Notify(NoticeKind.Error, "", T("engine.profiles.loadFailed", new { error = ex.Message }), 0);
 
                 return false;
             }
@@ -1080,7 +1079,7 @@ namespace Nucleus.Gaming.Coop
 
             Updating = true;
 
-            Notify(NoticeKind.Info, null, Title != "" ? $"Handler Profile \"{Title}\" Updated" : $"Handler Profile N°{profileToSave} Updated", 1500);
+            Notify(NoticeKind.Info, null, Title != "" ? T("engine.profiles.updated", new { title = Title }) : T("engine.profiles.updatedNumber", new { number = profileToSave }), 1500);
         }
 
         public static void SaveGameProfile(GameProfile profile)
@@ -1091,7 +1090,7 @@ namespace Nucleus.Gaming.Coop
             if (profileDisabled || GameInfo.Game.MetaInfo.DisableProfiles || !GameInfo.Game.MetaInfo.SaveProfile)
             {
                 saved = true;
-                NotifySetupFinished($"Setup Finished");
+                NotifySetupFinished("Setup Finished", T("engine.profiles.setupFinished"));
                 return;
             }
 
@@ -1334,16 +1333,16 @@ namespace Nucleus.Gaming.Coop
 
             LogManager.Log("Handler Profile Saved");
 
-            NotifySetupFinished($"Handler Profile Saved. Setup Finished");
+            NotifySetupFinished("Handler Profile Saved. Setup Finished", T("engine.profiles.savedSetupFinished"));
         }
 
         /// <summary>
         /// The players' launch cards turn "Ready" (the text still reaches the app); the on-screen display shows the text
         /// when no card is shown.
         /// </summary>
-        private static void NotifySetupFinished(string text)
+        private static void NotifySetupFinished(string logText, string text)
         {
-            LogManager.Log(text);
+            LogManager.Log(logText);
 
             if (!LaunchOverlay.SetupFinished(text))
             {
@@ -1383,7 +1382,7 @@ namespace Nucleus.Gaming.Coop
                 if (TotalAssignedPlayers < 0 && !showError)
                 {
                     showError = true;
-                    Notify(NoticeKind.Error, "Profile unloaded", "Oops!\nSomething went wrong, profile has been unloaded.", 0);
+                    Notify(NoticeKind.Error, T("engine.profiles.unloaded.title"), T("engine.profiles.unloaded.message"), 0);
                     return;
                 }
             }
@@ -1408,7 +1407,7 @@ namespace Nucleus.Gaming.Coop
                 if (ProfilePlayersList.Any(pp => pp.ScreenIndex != profilePlayer.ScreenIndex) && scr.Item2 != profilePlayer.ScreenIndex)
                 {
                     Instance.Reset();
-                    Notify(NoticeKind.Info, null, $"Not Enough Active Screens", 2000);
+                    Notify(NoticeKind.Info, null, T("engine.profiles.notEnoughScreens"), 2000);
                     scr.Item1.Type = UserScreenType.FullScreen;
                     return;
                 }

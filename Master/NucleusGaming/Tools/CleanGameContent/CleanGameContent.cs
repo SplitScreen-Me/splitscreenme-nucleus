@@ -7,6 +7,7 @@ using Nucleus.Gaming.Coop.Generic;
 using Nucleus.Gaming.Forms;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Gaming
 {
@@ -27,10 +28,7 @@ namespace Nucleus.Gaming
         /// <summary>Text of the "Risk of crash!" message.</summary>
         public static string LockedFilesMessage(string path)
         {
-            return $"One or more files in {path} are locked by the system or used by another program, and Nucleus could not unlock them. " +
-                   "This could make the game crash at startup.\n\n" +
-                   "Close the program that uses them, delete or unlock the files manually, or restart your computer. " +
-                   "You can also ignore this message and risk a crash or unexpected behaviors.";
+            return T("engine.gameContent.lockedFiles.message", new { path });
         }
 
         private static Task<bool> CleanContentFolder(GenericGameInfo currentGameInfo, string path, bool reportLockedFiles)
@@ -76,7 +74,9 @@ namespace Nucleus.Gaming
 
                         if (reportLockedFiles)
                         {
-                            Task.Run(() => UserPrompts.Notice("Risk of crash!", LockedFilesMessage(path), false, PromptOrigin.Setup, PromptIcon.Warning));
+                            string title = T("engine.gameContent.lockedFiles.title");
+                            string message = LockedFilesMessage(path);
+                            Task.Run(() => UserPrompts.Notice(title, message, false, PromptOrigin.Setup, PromptIcon.Warning));
                         }
 
                         return false;

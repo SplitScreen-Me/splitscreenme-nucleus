@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Gaming.Tools.GameStarter
 {
@@ -198,12 +199,13 @@ namespace Nucleus.Gaming.Tools.GameStarter
             return true;
         }
 
+        private const int MaxPathLength = 256;
+
         public static bool UnlockGameFiles(string origGameDir)
         {
             if (!Directory.Exists(origGameDir))
             {
-                UserPrompts.Notice("", $"Directory not found:\n"+
-                                           $"{origGameDir}", false);
+                UserPrompts.Notice("", T("engine.gameFiles.directoryNotFound", new { path = origGameDir }), false);
                 return false;
             }
 
@@ -211,12 +213,9 @@ namespace Nucleus.Gaming.Tools.GameStarter
 
             foreach (string entry in fileSystemEntries)
             {
-                if(entry.Length > 256)
+                if(entry.Length > MaxPathLength)
                 {
-                    UserPrompts.Notice("File path is too long!", $"The file path is too long.\n" +
-                                           $"{entry}\n" + 
-                                           $"Limit is 256 characters and the file path is {entry.Length} characters long.\n" +
-                                           $"You can try moving your game at the root of your drive to reduce its length.", false);
+                    UserPrompts.Notice(T("engine.gameFiles.pathTooLong.title"), T("engine.gameFiles.pathTooLong.message", new { path = entry, limit = MaxPathLength, count = entry.Length }), false);
                     return false;
                 }
 

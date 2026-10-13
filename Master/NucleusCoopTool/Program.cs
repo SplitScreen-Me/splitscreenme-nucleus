@@ -36,8 +36,28 @@ namespace Nucleus.Coop
             catch (Exception ex)
             {
                 LogFatalError(ex);
-                MessageBox.Show($"A fatal error occurred:\n{ex.Message} {ex.StackTrace}", "Fatal Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }     
+                ShowFatalError(ex);
+            }
+        }
+
+        static void ShowFatalError(Exception ex)
+        {
+            string title;
+            string message;
+
+            try
+            {
+                title = I18n.T("engine.host.fatalError.title");
+                message = I18n.T("engine.host.fatalError.message", new { message = ex.Message, stackTrace = ex.StackTrace });
+            }
+            catch
+            {
+                //The strings themselves may be what failed: the message must still show.
+                title = "Fatal Error";
+                message = $"A fatal error occurred:\n{ex.Message} {ex.StackTrace}";
+            }
+
+            MessageBox.Show(message, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         static void RunApplication(string[] args)

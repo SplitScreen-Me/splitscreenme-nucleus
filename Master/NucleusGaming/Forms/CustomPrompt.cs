@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Gaming.Forms
 {
@@ -9,6 +10,8 @@ namespace Nucleus.Gaming.Forms
         public CustomPrompt(string message, string prevAnswer)
         {
             InitializeComponent();
+            Text = T("engine.dialogs.customPrompt.windowTitle");
+            btn_Ok.Text = T("common.ok");
             PromptLinks.Apply(lbl_Desc, message);
 
             txt_UserInput.Text = prevAnswer;

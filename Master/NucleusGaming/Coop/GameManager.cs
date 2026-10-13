@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using Nucleus.Gaming.Forms;
+using Nucleus.Gaming.Localization;
 
 namespace Nucleus.Gaming
 {
@@ -447,7 +448,7 @@ namespace Nucleus.Gaming
                 }
                 catch (ArgumentException ex)
                 {
-                    UserPrompts.Report(PromptIcon.Error, "Error with handler " + f.Name, ex.InnerException + ": " + ex.Message, PromptOrigin.Handler);
+                    UserPrompts.Report(PromptIcon.Error, I18n.T("engine.handlers.errorTitle", new { file = f.Name }), ex.InnerException + ": " + ex.Message, PromptOrigin.Handler);
                     continue;
                 }
             }          
@@ -597,7 +598,7 @@ namespace Nucleus.Gaming
             }
             catch (ArgumentException ex)
             {
-                UserPrompts.Report(PromptIcon.Error, "Error with handler " + f.Name, ex.InnerException + ": " + ex.Message, PromptOrigin.Handler);
+                UserPrompts.Report(PromptIcon.Error, I18n.T("engine.handlers.errorTitle", new { file = f.Name }), ex.InnerException + ": " + ex.Message, PromptOrigin.Handler);
                 //continue;
                 return null;
             }

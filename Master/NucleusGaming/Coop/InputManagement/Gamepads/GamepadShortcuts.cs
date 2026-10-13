@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
 {
@@ -90,7 +91,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                         else if ((button == SetFocus || rt == SetFocus || lt == SetFocus))///Unfocus windows
                         {
                             GlobalWindowMethods.ChangeForegroundWindow();
-                            Globals.MainOSD.Show(1600, $"Game Windows Unfocused");
+                            Globals.MainOSD.Show(1600, T("engine.osd.windowsUnfocused"));
                             Thread.Sleep(500);
                         }
                         else if ((button == TopMost || rt == TopMost || lt == TopMost))///Minimize/restore windows
@@ -105,12 +106,12 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                                 if (GenericGameHandler.Instance != null)
                                 {
                                     GenericGameHandler.Instance.End(true);
-                                    Globals.MainOSD.Show(1600, $"Session Ended");
+                                    Globals.MainOSD.Show(1600, T("engine.osd.sessionEnded"));
                                 }
                             }
                             else
                             {
-                                Globals.MainOSD.Show(1600, $"Unlock Inputs First");
+                                Globals.MainOSD.Show(1600, T("engine.osd.unlockInputsFirst"));
                             }
                         }
                         else if (button == Close || rt == Close || lt == Close)///Close nucleus
@@ -121,7 +122,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                         {
                             if (!LockInputRuntime.IsLocked)
                             {
-                                Globals.MainOSD.Show(1000, "Inputs Locked");
+                                Globals.MainOSD.Show(1000, T("engine.osd.inputsLocked"));
 
                                 LockInputRuntime.Lock(GenericGameHandler.Instance.CurrentGameInfo?.LockInputSuspendsExplorer ?? true, GenericGameHandler.Instance.CurrentGameInfo?.ProtoInput.FreezeExternalInputWhenInputNotLocked ?? true, GameProfile.Game?.ProtoInput);
 
@@ -135,7 +136,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                             else
                             {
                                 LockInputRuntime.Unlock(GenericGameHandler.Instance.CurrentGameInfo?.ProtoInput.FreezeExternalInputWhenInputNotLocked ?? true, GenericGameHandler.Instance.CurrentGameInfo?.ProtoInput);
-                                Globals.MainOSD.Show(1000, "Inputs Unlocked");
+                                Globals.MainOSD.Show(1000, T("engine.osd.inputsUnlocked"));
                             }
                         }
                         else if (button == ReleaseCursor || rt == ReleaseCursor || lt == ReleaseCursor)///Try to release the cursor from game window by alt+tab inputs

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Nucleus.Gaming.Forms;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Gaming.Tools.UserDriveInfo
 {
@@ -26,10 +27,7 @@ namespace Nucleus.Gaming.Tools.UserDriveInfo
                     {
                         if (drive.DriveFormat == "exFAT")//exFat do not supports symlink, that's bad for us.
                         {
-                            UserPrompts.Report(PromptIcon.Warning, "Incompatible drive format!", "\"exFat\" is not a supported drive format.\n\n" +
-                               "Move your Nucleus install folder to a NTFS formated drive, or format the drive to NTFS format.\n\n" +
-                               "Reasons:\n\n" +
-                               "exFat does not support symlink functions.");
+                            UserPrompts.Report(PromptIcon.Warning, T("engine.drives.exFat.title"), T("engine.drives.exFat.message"));
 
                             return true;
                         }
@@ -40,8 +38,7 @@ namespace Nucleus.Gaming.Tools.UserDriveInfo
             }
             catch (Exception ex)
             {
-                string message = "Error: " + ex.Message;
-                UserPrompts.Report(PromptIcon.Error, "Error", message + "Something went wrong during drives compatibility check!");
+                UserPrompts.Report(PromptIcon.Error, T("engine.titles.error"), T("engine.drives.checkFailed", new { error = ex.Message }));
                 return false;
             }
         }

@@ -16,6 +16,7 @@ using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Windows.Forms;
 using Nucleus.Gaming.Forms;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus
 {
@@ -397,7 +398,7 @@ namespace Nucleus
             }
             catch (Exception ex)
             {
-                UserPrompts.Report(PromptIcon.Error, "Error", "Goldberg Lobby Connect output data error. " + ex.Message);
+                UserPrompts.Report(PromptIcon.Error, T("engine.titles.error"), T("engine.goldberg.lobbyConnect.outputError", new { error = ex.Message }));
             }
         }
 
