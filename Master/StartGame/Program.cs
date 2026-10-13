@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using Nucleus;
 using Nucleus.Gaming;
+using Nucleus.Gaming.Localization;
 using Nucleus.Gaming.Windows;
 using System;
 using System.Collections;
@@ -560,7 +561,7 @@ namespace StartGame
                 }
                 else
                 {
-                    MessageBox.Show("Nucleus was unable to launch and/or find the proper process for this instance. Please close Nucleus and try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(I18n.T("engine.startGame.launchFailed"), I18n.T("engine.titles.error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }

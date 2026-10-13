@@ -226,7 +226,7 @@ namespace Nucleus.Coop
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "Error while checking the user environment.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(ex.Message, TPlain("engine.startChecks.environmentError.title"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
             });
@@ -244,7 +244,7 @@ namespace Nucleus.Coop
 
             if(installPath == null)
             {
-                MessageBox.Show($"Unable to check Nucleus installation path." ,"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(TPlain("engine.startChecks.installPathUnknown.message"), TPlain("engine.titles.error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
@@ -257,27 +257,23 @@ namespace Nucleus.Coop
 
             if (Globals.IsOneDriveEnabled)
             {
-                string message = "Using OneDrive as default documents path will break many handlers because Nucleus can't access its storage." +
-                                 "To change your documents path log out from the OneDrive app and right click your Documents folder in file explorer, go to properties, " +
-                                 "select path or location and set it to the default Windows."; /*one when done delete \"User Shell Folders.reg\" from \"utils\\backup\" if the file exists.";*/
-
-                MessageBox.Show(message, "OneDrive must be disabled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(TPlain("engine.startChecks.oneDrive.message"), TPlain("engine.startChecks.oneDrive.title"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
 
             if (problematic)
             {
-                string message = "Nucleus Co-op should not be installed here.\n\n" +
-                                "Do NOT install it in any of these folders:\n" +
-                                "- A folder containing any game files\n" +
-                                "- C:\\Program Files or C:\\Program Files (x86)\n" +
-                                "- C:\\Users (including Documents, Desktop, or Downloads)\n" +
-                                "- Any folder with security settings like C:\\Windows\n" +
-                                "\n" +
-                                "A good place is C:\\Nucleus\\NucleusCoop.exe";
-
                 if (warningMessage)
                 {
-                    MessageBox.Show(message, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    string message = TPlain("engine.startChecks.installFolder.message", new
+                    {
+                        programFiles = @"C:\Program Files",
+                        programFilesX86 = @"C:\Program Files (x86)",
+                        users = @"C:\Users",
+                        windows = @"C:\Windows",
+                        example = @"C:\Nucleus\NucleusCoop.exe",
+                    });
+
+                    MessageBox.Show(message, TPlain("engine.titles.warning"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return false;
                 }
                 else
@@ -311,12 +307,11 @@ namespace Nucleus.Coop
 
                 if (!validVCRx86)//!validVCRx86
                 {
-                    DialogResult dialogResultX86 = MessageBox.Show("Please install Microsoft Visual C++ 2015 - 2022 Redistributable X86\n\n" +
-                                   "Do you want to download and install Microsoft Visual C++ 2015 - 2022 Redistributable x86 version now?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult dialogResultX86 = MessageBox.Show(TPlain("engine.startChecks.vcRedist.message", new { architecture = "x86" }), TPlain("engine.titles.warning"), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                     if (dialogResultX86 == DialogResult.Yes)
                     {
-                        DependenciesDownloader dldp = new DependenciesDownloader("https://aka.ms/vs/17/release/vc_redist.x86.exe", "Downloading Microsoft Visual C++ 2015 - 2022 Redistributable x86 version", "vc_redist.x86.exe", "vc_redist.x86");
+                        DependenciesDownloader dldp = new DependenciesDownloader("https://aka.ms/vs/17/release/vc_redist.x86.exe", TPlain("engine.startChecks.vcRedist.downloading", new { architecture = "x86" }), "vc_redist.x86.exe", "vc_redist.x86");
                         dldp.ShowDialog();//to keep it synchronous                       
                     }
                     else
@@ -327,12 +322,11 @@ namespace Nucleus.Coop
 
                 if (!validVCRx64)//!validVCRx64
                 {
-                    DialogResult dialogResultX64 = MessageBox.Show("Please install Microsoft Visual C++ 2015 - 2022 Redistributable x64\n\n" +
-                                    "Do you want to download and install Microsoft Visual C++ 2015 - 2022 Redistributable x64 version now?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    DialogResult dialogResultX64 = MessageBox.Show(TPlain("engine.startChecks.vcRedist.message", new { architecture = "x64" }), TPlain("engine.titles.warning"), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                     if (dialogResultX64 == DialogResult.Yes)
                     {
-                        DependenciesDownloader dldp = new DependenciesDownloader("https://aka.ms/vs/17/release/vc_redist.x64.exe", "Downloading Microsoft Visual C++ 2015 - 2022 Redistributable x64 version", "vc_redist.x64.exe", "vc_redist.x64");
+                        DependenciesDownloader dldp = new DependenciesDownloader("https://aka.ms/vs/17/release/vc_redist.x64.exe", TPlain("engine.startChecks.vcRedist.downloading", new { architecture = "x64" }), "vc_redist.x64.exe", "vc_redist.x64");
                         dldp.ShowDialog();//to keep it synchronous
                     }
                     else
@@ -365,11 +359,11 @@ namespace Nucleus.Coop
 
             if (webViewVer == null)
             {
-                DialogResult dialogResultX64 = MessageBox.Show("Do you want to download and install Microsoft WebView2 Runtime now?\n\nWithout it you will be unable to download handlers from the application.", "Microsoft WebView2 Runtime is not installed.", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                DialogResult dialogResultX64 = MessageBox.Show(TPlain("engine.startChecks.webView2.message"), TPlain("engine.startChecks.webView2.title"), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                 if (dialogResultX64 == DialogResult.Yes)
                 {
-                    DependenciesDownloader dldp = new DependenciesDownloader(directDownloadLinkX64, "Downloading Microsoft WebView2 Runtime", x64FileName, "MicrosoftEdgeWebView2RuntimeInstallerX64");
+                    DependenciesDownloader dldp = new DependenciesDownloader(directDownloadLinkX64, TPlain("engine.startChecks.webView2.downloading"), x64FileName, "MicrosoftEdgeWebView2RuntimeInstallerX64");
                     dldp.ShowDialog();           
                 }
             }

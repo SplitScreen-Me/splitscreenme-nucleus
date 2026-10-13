@@ -1,4 +1,5 @@
 ﻿using Nucleus.Gaming;
+using Nucleus.Gaming.Localization;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -46,7 +47,7 @@ namespace Nucleus.Coop.Forms
                 _outputFileName = outputFileName;
                 _processName = processName;
 
-                Text = "Downloading " + outputFileName + ".";
+                Text = I18n.TPlain("engine.downloader.windowTitle", new { file = outputFileName });
 
                 FormClosing += OnFormClosing;
 
@@ -83,7 +84,7 @@ namespace Nucleus.Coop.Forms
         private void wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
             prog_DownloadBar.Value = e.ProgressPercentage;
-            lbl_ProgPerc.Text = e.ProgressPercentage + "%";
+            lbl_ProgPerc.Text = (e.ProgressPercentage / 100d).ToString("P0", I18n.Culture);
         }
 
         private void wc_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
