@@ -740,14 +740,38 @@ export interface MessageParamsMap {
   'handler.hero.moreSeats': { count: number };
   /** {game} split into {count} player views, the way Nucleus Co-op arranges the windows */
   'handler.hero.previewLabel': { count: number; game: ParamValue };
-  /** Split-screen on one PC */
-  'handler.hero.splitScreen': undefined;
-  /** {players}. */
-  'handler.hero.summary': { players: ParamValue };
-  /** {players}, {inputs}. */
-  'handler.hero.summaryWithInputs': { inputs: ParamValue; players: ParamValue };
-  /** Up to {count} players on one PC */
-  'handler.hero.upToPlayers': { count: number };
+  /** Split-screen on one PC, with controllers, keyboard and mouse or several keyboards and mice. */
+  'handler.hero.summary.splitScreen.all': undefined;
+  /** Split-screen on one PC, with controllers. */
+  'handler.hero.summary.splitScreen.controllers': undefined;
+  /** Split-screen on one PC, with controllers or keyboard and mouse. */
+  'handler.hero.summary.splitScreen.controllersKeyboardMouse': undefined;
+  /** Split-screen on one PC, with controllers or several keyboards and mice. */
+  'handler.hero.summary.splitScreen.controllersMultiKeyboardMouse': undefined;
+  /** Split-screen on one PC, with keyboard and mouse. */
+  'handler.hero.summary.splitScreen.keyboardMouse': undefined;
+  /** Split-screen on one PC, with keyboard and mouse or several keyboards and mice. */
+  'handler.hero.summary.splitScreen.keyboardMouseMultiKeyboardMouse': undefined;
+  /** Split-screen on one PC, with several keyboards and mice. */
+  'handler.hero.summary.splitScreen.multiKeyboardMouse': undefined;
+  /** Split-screen on one PC. */
+  'handler.hero.summary.splitScreen.none': undefined;
+  /** Up to {count} players on one PC, with controllers, keyboard and mouse or several keyboards and mice. */
+  'handler.hero.summary.upTo.all': { count: number };
+  /** Up to {count} players on one PC, with controllers. */
+  'handler.hero.summary.upTo.controllers': { count: number };
+  /** Up to {count} players on one PC, with controllers or keyboard and mouse. */
+  'handler.hero.summary.upTo.controllersKeyboardMouse': { count: number };
+  /** Up to {count} players on one PC, with controllers or several keyboards and mice. */
+  'handler.hero.summary.upTo.controllersMultiKeyboardMouse': { count: number };
+  /** Up to {count} players on one PC, with keyboard and mouse. */
+  'handler.hero.summary.upTo.keyboardMouse': { count: number };
+  /** Up to {count} players on one PC, with keyboard and mouse or several keyboards and mice. */
+  'handler.hero.summary.upTo.keyboardMouseMultiKeyboardMouse': { count: number };
+  /** Up to {count} players on one PC, with several keyboards and mice. */
+  'handler.hero.summary.upTo.multiKeyboardMouse': { count: number };
+  /** Up to {count} players on one PC. */
+  'handler.hero.summary.upTo.none': { count: number };
   /** Verified handler */
   'handler.hero.verified': undefined;
   /** Add the game */
@@ -3218,20 +3242,6 @@ export interface MessageParamsMap {
   'ui.compat.playersUnknown': undefined;
   /** Plays with: {inputs} */
   'ui.compat.playsWith': { inputs: ParamValue };
-  /** with controllers, keyboard and mouse or several keyboards and mice */
-  'ui.compat.withInputs.all': undefined;
-  /** with controllers */
-  'ui.compat.withInputs.controllers': undefined;
-  /** with controllers or keyboard and mouse */
-  'ui.compat.withInputs.controllersKeyboardMouse': undefined;
-  /** with controllers or several keyboards and mice */
-  'ui.compat.withInputs.controllersMultiKeyboardMouse': undefined;
-  /** with keyboard and mouse */
-  'ui.compat.withInputs.keyboardMouse': undefined;
-  /** with keyboard and mouse or several keyboards and mice */
-  'ui.compat.withInputs.keyboardMouseMultiKeyboardMouse': undefined;
-  /** with several keyboards and mice */
-  'ui.compat.withInputs.multiKeyboardMouse': undefined;
   /** Cross button */
   'ui.glyph.playstation.a': undefined;
   /** Circle button */

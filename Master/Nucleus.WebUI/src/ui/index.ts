@@ -11,7 +11,7 @@ export { GamepadGlyph, GlyphStyleProvider, Kbd, type GlyphStyle, type PadButton 
 export { Pane } from './Pane';
 export { Cover } from './Cover';
 export { Switch, Checkbox, Segmented, Spinner, Verified } from './Controls';
-export { Pips, InputSupport, INPUT_KINDS, inputSentence, type InputSupportFlags } from './Compat';
+export { Pips, InputSupport, INPUT_KINDS, inputCombo, type InputCombo, type InputSupportFlags } from './Compat';
 export { ToastProvider, useToast } from './Toast';
 export { Dialog } from './Dialog';
 export { ConfirmProvider, useConfirm, type ConfirmOptions } from './Confirm';

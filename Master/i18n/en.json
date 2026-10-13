@@ -198,17 +198,7 @@
         "keyboardMouse": "keyboard and mouse",
         "multiKeyboardMouse": "several keyboards and mice"
       },
-      "notSupported": "{input} (not supported)",
-      "withInputs": {
-        "_note": "The end of a sentence saying how a game is played, for example \"Up to 4 players on one PC, with controllers\".",
-        "controllers": "with controllers",
-        "keyboardMouse": "with keyboard and mouse",
-        "multiKeyboardMouse": "with several keyboards and mice",
-        "controllersKeyboardMouse": "with controllers or keyboard and mouse",
-        "controllersMultiKeyboardMouse": "with controllers or several keyboards and mice",
-        "keyboardMouseMultiKeyboardMouse": "with keyboard and mouse or several keyboards and mice",
-        "all": "with controllers, keyboard and mouse or several keyboards and mice"
-      }
+      "notSupported": "{input} (not supported)"
     },
     "playerTag": "P{number}",
     "verified": "Verified",
@@ -592,12 +582,37 @@
     },
     "hero": {
       "allGames": "All games",
-      "upToPlayers_one": "Up to {count} player on one PC",
-      "upToPlayers_other": "Up to {count} players on one PC",
-      "splitScreen": "Split-screen on one PC",
-      "_noteSummary": "{players} is upToPlayers or splitScreen; {inputs} lists the supported inputs.",
-      "summary": "{players}.",
-      "summaryWithInputs": "{players}, {inputs}.",
+      "summary": {
+        "_note": "The sentence under the game name: how many players, and the inputs the handler supports. upTo gives the maximum number of players ({count}); splitScreen is used when the handler does not say.",
+        "upTo": {
+          "none_one": "Up to {count} player on one PC.",
+          "none_other": "Up to {count} players on one PC.",
+          "controllers_one": "Up to {count} player on one PC, with controllers.",
+          "controllers_other": "Up to {count} players on one PC, with controllers.",
+          "keyboardMouse_one": "Up to {count} player on one PC, with keyboard and mouse.",
+          "keyboardMouse_other": "Up to {count} players on one PC, with keyboard and mouse.",
+          "multiKeyboardMouse_one": "Up to {count} player on one PC, with several keyboards and mice.",
+          "multiKeyboardMouse_other": "Up to {count} players on one PC, with several keyboards and mice.",
+          "controllersKeyboardMouse_one": "Up to {count} player on one PC, with controllers or keyboard and mouse.",
+          "controllersKeyboardMouse_other": "Up to {count} players on one PC, with controllers or keyboard and mouse.",
+          "controllersMultiKeyboardMouse_one": "Up to {count} player on one PC, with controllers or several keyboards and mice.",
+          "controllersMultiKeyboardMouse_other": "Up to {count} players on one PC, with controllers or several keyboards and mice.",
+          "keyboardMouseMultiKeyboardMouse_one": "Up to {count} player on one PC, with keyboard and mouse or several keyboards and mice.",
+          "keyboardMouseMultiKeyboardMouse_other": "Up to {count} players on one PC, with keyboard and mouse or several keyboards and mice.",
+          "all_one": "Up to {count} player on one PC, with controllers, keyboard and mouse or several keyboards and mice.",
+          "all_other": "Up to {count} players on one PC, with controllers, keyboard and mouse or several keyboards and mice."
+        },
+        "splitScreen": {
+          "none": "Split-screen on one PC.",
+          "controllers": "Split-screen on one PC, with controllers.",
+          "keyboardMouse": "Split-screen on one PC, with keyboard and mouse.",
+          "multiKeyboardMouse": "Split-screen on one PC, with several keyboards and mice.",
+          "controllersKeyboardMouse": "Split-screen on one PC, with controllers or keyboard and mouse.",
+          "controllersMultiKeyboardMouse": "Split-screen on one PC, with controllers or several keyboards and mice.",
+          "keyboardMouseMultiKeyboardMouse": "Split-screen on one PC, with keyboard and mouse or several keyboards and mice.",
+          "all": "Split-screen on one PC, with controllers, keyboard and mouse or several keyboards and mice."
+        }
+      },
       "verified": "Verified handler",
       "byline": "Handler “{title}” by {author}, version {version}",
       "previewLabel_one": "{game} split into {count} player view, the way Nucleus Co-op arranges the windows",

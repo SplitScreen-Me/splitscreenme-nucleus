@@ -8,7 +8,21 @@ import { igdbImage } from '@/lib/art';
 import { useInstalledHandlers, useLibrary } from '@/lib/library';
 import { igdbResize, useScreenshots } from '@/lib/screenshots';
 import { useScreenChrome } from '@/shell/chrome';
-import { Button, ButtonLink, Icon, InputSupport, inputSentence, Pane, Pips, PlayerTag, Spinner, Verified, cn, playerClass, type IconName } from '@/ui';
+import {
+  Button,
+  ButtonLink,
+  Icon,
+  InputSupport,
+  inputCombo,
+  Pane,
+  Pips,
+  PlayerTag,
+  Spinner,
+  Verified,
+  cn,
+  playerClass,
+  type IconName,
+} from '@/ui';
 import { ActionPane } from './ActionPane';
 import { HandlerCard } from './HandlerCard';
 import { handlerInstallState, installStatuses } from './install-state';
@@ -65,8 +79,8 @@ export default function HandlerScreen() {
 function HandlerDetail({ handler: h, all, refreshing }: { handler: HubHandler; all: HubHandler[]; refreshing: boolean }) {
   const { t } = useI18n();
   const v = variant(h);
-  const inputs = inputSentence(h.inputs);
-  const howMany = h.maxPlayers ? t('handler.hero.upToPlayers', { count: h.maxPlayers }) : t('handler.hero.splitScreen');
+  // The sentence under the game name is written whole for each combination of inputs.
+  const inputs = inputCombo(h.inputs);
   const commentsRef = useRef<HTMLElement>(null);
 
   const byAuthor = useMemo(() => (h.authorId ? all.filter((x) => x.authorId === h.authorId) : [h]), [all, h]);
@@ -95,7 +109,9 @@ function HandlerDetail({ handler: h, all, refreshing }: { handler: HubHandler; a
               {v && <span className="block font-[700] text-ink-2">{v}</span>}
             </h1>
             <p className="max-w-[40ch] text-17 text-ink-2">
-              {inputs ? t('handler.hero.summaryWithInputs', { players: howMany, inputs }) : t('handler.hero.summary', { players: howMany })}
+              {h.maxPlayers
+                ? t(`handler.hero.summary.upTo.${inputs}`, { count: h.maxPlayers })
+                : t(`handler.hero.summary.splitScreen.${inputs}`)}
             </p>
             <div className="flex flex-wrap items-center gap-x-6 gap-y-4 border-t border-line pt-4">
               <Pips players={h.maxPlayers} size="lg" />

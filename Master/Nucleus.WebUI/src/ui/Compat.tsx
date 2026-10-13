@@ -1,4 +1,4 @@
-import { t as translate, useI18n, type MessageKey } from '@/i18n';
+import { useI18n, type MessageKey } from '@/i18n';
 import { cn } from './cn';
 import { Icon, type IconName } from './Icon';
 import { playerClass } from './player';
@@ -53,22 +53,29 @@ export function InputSupport({ flags, size = 'md', className }: { flags: InputSu
   );
 }
 
-/** One phrase per combination of supported inputs (controllers, keyboard and mouse, several keyboards and mice). */
-const WITH_INPUTS: Readonly<Record<string, MessageKey>> = {
-  '100': 'ui.compat.withInputs.controllers',
-  '010': 'ui.compat.withInputs.keyboardMouse',
-  '001': 'ui.compat.withInputs.multiKeyboardMouse',
-  '110': 'ui.compat.withInputs.controllersKeyboardMouse',
-  '101': 'ui.compat.withInputs.controllersMultiKeyboardMouse',
-  '011': 'ui.compat.withInputs.keyboardMouseMultiKeyboardMouse',
-  '111': 'ui.compat.withInputs.all',
+/** The inputs a handler supports, one name per combination: for texts written whole for each combination. */
+export type InputCombo =
+  | 'none'
+  | 'controllers'
+  | 'keyboardMouse'
+  | 'multiKeyboardMouse'
+  | 'controllersKeyboardMouse'
+  | 'controllersMultiKeyboardMouse'
+  | 'keyboardMouseMultiKeyboardMouse'
+  | 'all';
+
+const COMBOS: Readonly<Record<string, InputCombo>> = {
+  '000': 'none',
+  '100': 'controllers',
+  '010': 'keyboardMouse',
+  '001': 'multiKeyboardMouse',
+  '110': 'controllersKeyboardMouse',
+  '101': 'controllersMultiKeyboardMouse',
+  '011': 'keyboardMouseMultiKeyboardMouse',
+  '111': 'all',
 };
 
-/**
- * "with controllers, keyboard and mouse or several keyboards and mice", in the language in use; empty when no input is
- * known. Meant as the value of a placeholder: callers re-render on a change of language through their own hooks.
- */
-export function inputSentence(flags: InputSupportFlags): string {
-  const key = WITH_INPUTS[[flags.controllers, flags.keyboardMouse, flags.multiKeyboardMouse].map((on) => (on ? '1' : '0')).join('')];
-  return key ? translate(key) : '';
+/** Which combination of inputs (controllers, keyboard and mouse, several keyboards and mice) `flags` describes. */
+export function inputCombo(flags: InputSupportFlags): InputCombo {
+  return COMBOS[[flags.controllers, flags.keyboardMouse, flags.multiKeyboardMouse].map((on) => (on ? '1' : '0')).join('')] ?? 'none';
 }
