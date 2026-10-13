@@ -262,8 +262,9 @@ public sealed class BridgeHost
 
         if (pending.Status != TaskStatus.RanToCompletion)
         {
+            // The runtime doesn't translate: the message is for the log; the UI words `serviceFailed` in the user's language.
             var reason = pending.Exception?.GetBaseException().Message ?? "it was cancelled";
-            throw new BridgeException(BridgeErrorKind.Unavailable, $"The '{serviceName}' service couldn't start: {reason}");
+            throw new BridgeException(BridgeErrorKind.Unavailable, $"The '{serviceName}' service couldn't start: {reason}", new { reason = "serviceFailed", service = serviceName });
         }
 
         return pending.Result;

@@ -12,6 +12,7 @@ namespace Nucleus.Bridge;
 /// <summary>Binds params and calls one contract method on a service implementation.</summary>
 internal sealed class MethodInvoker
 {
+    private static readonly object BadParams = new { reason = "badParams" };
     private readonly int _parameterCount;
     private readonly PropertyInfo? _taskResult;
 
@@ -63,9 +64,10 @@ internal sealed class MethodInvoker
 
     private object Bind(JToken? @params, Type type)
     {
+        // Messages for the log (a UI and host out of step): the UI words `badParams` in the user's language.
         if (@params is not JObject request)
         {
-            throw new BridgeException(BridgeErrorKind.InvalidParams, $"'{Model.WireName}' expects params: a {type.Name} object.");
+            throw new BridgeException(BridgeErrorKind.InvalidParams, $"'{Model.WireName}' expects params: a {type.Name} object.", BadParams);
         }
 
         try
@@ -74,7 +76,7 @@ internal sealed class MethodInvoker
         }
         catch (JsonException e)
         {
-            throw new BridgeException(BridgeErrorKind.InvalidParams, $"Invalid params for '{Model.WireName}': {e.Message}");
+            throw new BridgeException(BridgeErrorKind.InvalidParams, $"Invalid params for '{Model.WireName}': {e.Message}", BadParams);
         }
     }
 }

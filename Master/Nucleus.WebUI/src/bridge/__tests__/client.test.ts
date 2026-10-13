@@ -201,6 +201,9 @@ describe('file paths', () => {
   test('reject with unavailable when the transport cannot attach files', async () => {
     const { client } = setup({ withFiles: false });
 
-    await assert.rejects(client.getFilePaths([file('a.nc')]), (error: unknown) => BridgeError.is(error, 'unavailable'));
+    await assert.rejects(
+      client.getFilePaths([file('a.nc')]),
+      (error: unknown) => BridgeError.is(error, 'unavailable') && (error.data as { reason?: string }).reason === 'noFilePaths',
+    );
   });
 });

@@ -79,6 +79,7 @@ public class BridgeHostTests
 
         AssertError(response, -32602);
         Assert.Contains("FindItemRequest", (string?)response["error"]!["message"]);
+        Assert.Equal("badParams", (string?)response["error"]!["data"]!["reason"]);
     }
 
     [Fact]
@@ -87,6 +88,7 @@ public class BridgeHostTests
         var response = await _test.CallAsync("shelf.find", new { index = "first" });
 
         AssertError(response, -32602);
+        Assert.Equal("badParams", (string?)response["error"]!["data"]!["reason"]);
     }
 
     [Fact]

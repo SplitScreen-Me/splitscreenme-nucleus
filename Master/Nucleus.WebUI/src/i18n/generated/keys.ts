@@ -148,10 +148,14 @@ export interface MessageParamsMap {
   'common.errors.internal': undefined;
   /** This version of Nucleus Co-op cannot do that yet. */
   'common.errors.methodNotFound': undefined;
+  /** This part of Nucleus Co-op did not start. Restart the app. The details are in the app log. */
+  'common.errors.serviceFailed': undefined;
   /** Nucleus Co-op did not answer in time. Try again. */
   'common.errors.timeout': undefined;
   /** Something went wrong. Try again. */
   'common.errors.unknown': undefined;
+  /** The interface could not reach Nucleus Co-op. Try again. */
+  'common.errors.unreachable': undefined;
   /** Controllers */
   'common.inputs.controllers': undefined;
   /** Keyboard and mouse */
@@ -3170,8 +3174,12 @@ export interface MessageParamsMap {
   'shell.rail.settings': undefined;
   /** Skip to content */
   'shell.skipToContent': undefined;
-  /** The interface could not reach the app ({error}). Close Nucleus Co-op and start it again. */
-  'shell.startup.hostDownMessage': { error: ParamValue };
+  /** Details: {error} */
+  'shell.startup.hostDownDetails': { error: ParamValue };
+  /** The interface could not reach the app. Close Nucleus Co-op and start it again. */
+  'shell.startup.hostDownMessage': undefined;
+  /** The app did not answer the interface in time. Close Nucleus Co-op and start it again. */
+  'shell.startup.hostDownTimeout': undefined;
   /** Nucleus Co-op did not answer */
   'shell.startup.hostDownTitle': undefined;
   /** UI contract {uiContract} (protocol {uiProtocol}), app contract {appContract} (protocol {appProtocol}) */

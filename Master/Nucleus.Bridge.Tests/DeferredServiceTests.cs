@@ -50,6 +50,8 @@ public class DeferredServiceTests
 
         Assert.Equal(-32001, (int)response["error"]!["code"]!);
         Assert.Contains("library failed", (string?)response["error"]!["message"]);
+        Assert.Equal("serviceFailed", (string?)response["error"]!["data"]!["reason"]);
+        Assert.Equal("clock", (string?)response["error"]!["data"]!["service"]);
     }
 
     [Fact]

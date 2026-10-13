@@ -115,8 +115,10 @@ function HostDown({ error }: { error: BridgeError }) {
     <Blocker title={t('shell.startup.hostDownTitle')}>
       <p className="flex items-start gap-2 text-ink-2">
         <Icon name="warning" className="mt-0.5 size-5 text-warn" />
-        {t('shell.startup.hostDownMessage', { error: error.message })}
+        {error.kind === 'timeout' ? t('shell.startup.hostDownTimeout') : t('shell.startup.hostDownMessage')}
       </p>
+      {/* The bridge's own message is English: a detail for bug reports, under the translated explanation. */}
+      {error.message && <p className="data text-13 text-ink-3">{t('shell.startup.hostDownDetails', { error: error.message })}</p>}
     </Blocker>
   );
 }

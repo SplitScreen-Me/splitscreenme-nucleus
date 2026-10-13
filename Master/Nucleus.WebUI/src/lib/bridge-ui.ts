@@ -1,42 +1,9 @@
 // UI glue around the bridge: error wording, refusal reasons, and commands that toast their failures.
 import { useCallback } from 'react';
-import { BridgeError } from '@/bridge';
-import { t } from '@/i18n';
 import { useToast } from '@/ui';
+import { errorMessage, isCancelled } from './bridge-errors';
 
-/** `data.reason` of a refused command (`conflict`, sometimes `notFound`), for example `slotOccupied`. */
-export function refusalReason(error: unknown): string | undefined {
-  if (!BridgeError.is(error)) return undefined;
-  const data = error.data as { reason?: unknown } | null | undefined;
-  return typeof data?.reason === 'string' ? data.reason : undefined;
-}
-
-/** Whether a call was cancelled (aborted signal, unmount, page reload): nothing to tell the user. */
-export const isCancelled = (error: unknown) => BridgeError.is(error, 'cancelled');
-
-/**
- * What to tell the user about a failed call. Host messages of expected failures (`conflict`, `notFound`,
- * `unavailable`, `invalidParams`) are written for users; the others get a plain explanation.
- */
-export function errorMessage(error: unknown): string {
-  if (BridgeError.is(error)) {
-    switch (error.kind) {
-      case 'timeout':
-        return t('common.errors.timeout');
-      case 'internal':
-        return t('common.errors.internal');
-      case 'methodNotFound':
-        return t('common.errors.methodNotFound');
-      case 'cancelled':
-        return t('common.errors.cancelled');
-      default:
-        // Host messages are built in the language in use.
-        return error.message || t('common.errors.failed');
-    }
-  }
-  if (error instanceof Error && error.message) return error.message;
-  return t('common.errors.unknown');
-}
+export { errorMessage, isCancelled, refusalReason } from './bridge-errors';
 
 export interface RunOptions {
   /** Toast shown when the call succeeds. */

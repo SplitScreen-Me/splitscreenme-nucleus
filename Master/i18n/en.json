@@ -62,6 +62,8 @@
       "timeout": "Nucleus Co-op did not answer in time. Try again.",
       "internal": "Something went wrong in Nucleus Co-op. The details are in the app log.",
       "methodNotFound": "This version of Nucleus Co-op cannot do that yet.",
+      "serviceFailed": "This part of Nucleus Co-op did not start. Restart the app. The details are in the app log.",
+      "unreachable": "The interface could not reach Nucleus Co-op. Try again.",
       "cancelled": "Cancelled.",
       "failed": "That did not work. Try again.",
       "unknown": "Something went wrong. Try again."
@@ -88,7 +90,10 @@
       "mismatchMessage": "The interface files of this install were not built for Nucleus Co-op {version}. Reinstall Nucleus Co-op to get matching files.",
       "mismatchDetails": "UI contract {uiContract} (protocol {uiProtocol}), app contract {appContract} (protocol {appProtocol})",
       "hostDownTitle": "Nucleus Co-op did not answer",
-      "hostDownMessage": "The interface could not reach the app ({error}). Close Nucleus Co-op and start it again."
+      "hostDownMessage": "The interface could not reach the app. Close Nucleus Co-op and start it again.",
+      "hostDownTimeout": "The app did not answer the interface in time. Close Nucleus Co-op and start it again.",
+      "hostDownDetails": "Details: {error}",
+      "_noteHostDownDetails": "{error} is a technical message in English, for a bug report."
     },
     "titleBar": {
       "home": "Nucleus Co-op, go to library",

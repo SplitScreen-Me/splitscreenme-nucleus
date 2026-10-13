@@ -76,7 +76,7 @@ export class BridgeClient {
     const transport = this.#transport;
     if (list.length === 0) return Promise.resolve([]);
     if (!transport.sendWithFiles) {
-      return Promise.reject(new BridgeError('unavailable', 'This transport cannot read file paths.'));
+      return Promise.reject(new BridgeError('unavailable', 'This transport cannot read file paths.', { reason: 'noFilePaths' }));
     }
     return this.#request(FILE_PATHS_METHOD, undefined, options, (message) => transport.sendWithFiles!(message, list)) as Promise<
       string[]
@@ -142,7 +142,7 @@ export class BridgeClient {
       try {
         this.#post(JSON.stringify(message), send);
       } catch (error) {
-        this.#take(id)?.reject(new BridgeError('unavailable', `${method} could not be sent: ${String(error)}`));
+        this.#take(id)?.reject(new BridgeError('unavailable', `${method} could not be sent: ${String(error)}`, { reason: 'notSent' }));
       }
     });
   }
