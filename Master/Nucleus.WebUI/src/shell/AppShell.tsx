@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from 'react-router';
 import { FileDrop } from '@/features/file-drop';
 import { FirstRunLanguageDialog } from '@/features/language';
 import { NoticeDialog } from '@/features/notices';
+import { useT } from '@/i18n';
 import { setupPath } from '@/lib/library';
 import { useAppInfo, useSessionSnapshot, useSettingsValues } from '@/lib/live';
 import { GlyphStyleProvider, Icon, Spinner } from '@/ui';
@@ -26,6 +27,7 @@ export function AppShell() {
 }
 
 function ShellBody() {
+  const t = useT();
   const [palette, setPalette] = useState(false);
   const { data: values } = useSettingsValues();
   const glyphs = values?.['gamepad.type']?.toLowerCase().startsWith('play') ? 'playstation' : 'xbox';
@@ -56,7 +58,7 @@ function ShellBody() {
             }}
             className="fixed top-2 left-2 z-50 -translate-y-20 rounded-ctl bg-ink px-3 py-2 text-small font-semibold text-on-light focus:translate-y-0"
           >
-            Skip to content
+            {t('shell.skipToContent')}
           </a>
           <TitleBar onOpenPalette={() => setPalette(true)} />
           <Rail />
@@ -92,6 +94,7 @@ function useStartupGame() {
 /** The hub is out of reach: say what still works. Collapses to nothing when online. */
 function OfflineBanner() {
   const { data: info } = useAppInfo();
+  const t = useT();
   if (!info || info.hubOnline) return null;
   return (
     <div
@@ -99,17 +102,18 @@ function OfflineBanner() {
       className="mb-gutter flex items-center gap-2.5 rounded-pane bg-pane px-4 py-2 text-13 text-ink-2 [grid-area:banner]"
     >
       <Icon name="offline" className="size-4 text-warn" />
-      <b className="font-[650] text-ink">The Hub is offline.</b>
-      <span className="truncate">Your games still work; installing and updating handlers waits until it is back.</span>
+      <b className="font-[650] text-ink">{t('shell.offlineBanner.title')}</b>
+      <span className="truncate">{t('shell.offlineBanner.message')}</span>
     </div>
   );
 }
 
 function StageLoading() {
+  const t = useT();
   return (
     <div className="grid h-full place-items-center rounded-pane bg-pane text-small text-ink-2">
       <span className="inline-flex items-center gap-2.5">
-        <Spinner /> Loading
+        <Spinner /> {t('common.loading')}
       </span>
     </div>
   );

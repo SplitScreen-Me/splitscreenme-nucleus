@@ -32,6 +32,14 @@ export interface MessageParamsMap {
   'common.delete': undefined;
   /** Details */
   'common.details': undefined;
+  /** gamepad */
+  'common.devices.gamepad': undefined;
+  /** keyboard */
+  'common.devices.keyboard': undefined;
+  /** keyboard and mouse */
+  'common.devices.keyboardMouse': undefined;
+  /** mouse */
+  'common.devices.mouse': undefined;
   /** Discard */
   'common.discard': undefined;
   /** Done */
@@ -44,6 +52,16 @@ export interface MessageParamsMap {
   'common.errors.cancelled': undefined;
   /** That did not work. Try again. */
   'common.errors.failed': undefined;
+  /** The Hub is busy right now. Try again in a moment. */
+  'common.errors.hub.busy': undefined;
+  /** The Hub is busy right now. Try again in {seconds} s. */
+  'common.errors.hub.busyRetryAfter': { seconds: ParamValue };
+  /** The Hub answered {status}. */
+  'common.errors.hub.status': { status: ParamValue };
+  /** The Hub is unreachable. Check your connection. */
+  'common.errors.hub.unreachable': undefined;
+  /** The Hub sent an unreadable answer. */
+  'common.errors.hub.unreadable': undefined;
   /** Something went wrong in Nucleus Co-op. The details are in the app log. */
   'common.errors.internal': undefined;
   /** This version of Nucleus Co-op cannot do that yet. */
@@ -52,6 +70,32 @@ export interface MessageParamsMap {
   'common.errors.timeout': undefined;
   /** Something went wrong. Try again. */
   'common.errors.unknown': undefined;
+  /** Someone */
+  'common.hubData.someone': undefined;
+  /** Unknown author */
+  'common.hubData.unknownAuthor': undefined;
+  /** Unknown game */
+  'common.hubData.unknownGame': undefined;
+  /** Untitled handler */
+  'common.hubData.untitledHandler': undefined;
+  /** Controllers */
+  'common.inputs.controllers': undefined;
+  /** Keyboard and mouse */
+  'common.inputs.keyboardMouse': undefined;
+  /** Several keyboards and mice */
+  'common.inputs.multiKeyboardMouse': undefined;
+  /** Controllers */
+  'common.inputs.summary.controllers': undefined;
+  /** Controllers, keyboard and mouse */
+  'common.inputs.summary.controllersKeyboardMouse': undefined;
+  /** Controllers, keyboards and mice */
+  'common.inputs.summary.controllersMultiKeyboardMouse': undefined;
+  /** Keyboard and mouse */
+  'common.inputs.summary.keyboardMouse': undefined;
+  /** Keyboards and mice */
+  'common.inputs.summary.multiKeyboardMouse': undefined;
+  /** Input support unknown */
+  'common.inputs.unknown': undefined;
   /** Install */
   'common.install': undefined;
   /** Launch */
@@ -124,6 +168,46 @@ export interface MessageParamsMap {
   'engine.startChecks.missingFile.message': { file: ParamValue };
   /** Missing file */
   'engine.startChecks.missingFile.title': undefined;
+  /** {game} is in your library */
+  'features.addGame.added': { game: ParamValue };
+  /** Several installed handlers run <b>{file}</b>. Pick the game this executable belongs to. */
+  'features.addGame.chooser.message': { file: ParamValue };
+  /** Which game is it? */
+  'features.addGame.chooser.title': undefined;
+  /** {game} found. Ready to play. */
+  'features.addGame.located': { game: ParamValue };
+  /** Game executable */
+  'features.addGame.picker.filter': undefined;
+  /** Game executable ({files}) */
+  'features.addGame.picker.filterFiles': { files: ParamValue };
+  /** {game} executable ({files}) */
+  'features.addGame.picker.filterNamed': { files: ParamValue; game: ParamValue };
+  /** Pick the game executable */
+  'features.addGame.picker.title': undefined;
+  /** Where is {game}? Pick its executable */
+  'features.addGame.picker.titleNamed': { game: ParamValue };
+  /** Where is {game}? Pick {file} */
+  'features.addGame.picker.titleWithFile': { file: ParamValue; game: ParamValue };
+  /** {game} handler installed */
+  'features.fileDrop.installed': { game: ParamValue };
+  /** Nucleus Co-op could not read where that file is. Save it to a folder, then drop it from File Explorer. */
+  'features.fileDrop.noPath': undefined;
+  /** .nc, .zip or .js files. Nucleus asks where the game is afterwards. */
+  'features.fileDrop.overlay.hint': undefined;
+  /** Drop to install the handler */
+  'features.fileDrop.overlay.title': undefined;
+  /** Replace */
+  'features.fileDrop.replace.confirm': undefined;
+  /** {game} already has a handler. Replace it with {file}? Your profiles and settings stay. */
+  'features.fileDrop.replace.message': { file: ParamValue; game: ParamValue };
+  /** A handler for this game is already installed. Replace it with {file}? Your profiles and settings stay. */
+  'features.fileDrop.replace.messageUnknownGame': { file: ParamValue };
+  /** Replace the installed handler? */
+  'features.fileDrop.replace.title': undefined;
+  /** Drop a handler file: .nc, .zip or .js. */
+  'features.fileDrop.wrongType': undefined;
+  /** {current} of {total} */
+  'features.notices.position': { current: ParamValue; total: ParamValue };
   /** Language of Nucleus Co-op's windows and messages. Handler notes and game names stay as their authors wrote ... */
   'host.settings.fields.misc.appLanguage.description': undefined;
   /** Language */
@@ -144,6 +228,96 @@ export interface MessageParamsMap {
   'language.firstRun.listLabel': undefined;
   /** Choose your language */
   'language.firstRun.title': undefined;
+  /** Back to library */
+  'shell.crashed.backToLibrary': undefined;
+  /** Nucleus Co-op is still running. Go back to the library and try again; if it happens again, copy the details... */
+  'shell.crashed.message': undefined;
+  /** Something broke on this screen */
+  'shell.crashed.title': undefined;
+  /** Unknown error */
+  'shell.crashed.unknownError': undefined;
+  /** Button hints */
+  'shell.hintBar.hintsLabel': undefined;
+  /** Controls */
+  'shell.hintBar.label': undefined;
+  /** Nucleus Co-op {version} */
+  'shell.hintBar.version': { version: ParamValue };
+  /** Back to library */
+  'shell.notFound.backToLibrary': undefined;
+  /** Not found */
+  'shell.notFound.crumb': undefined;
+  /** The link may be from an older version of Nucleus Co-op. */
+  'shell.notFound.message': undefined;
+  /** This screen does not exist */
+  'shell.notFound.title': undefined;
+  /** Your games still work; installing and updating handlers waits until it is back. */
+  'shell.offlineBanner.message': undefined;
+  /** The Hub is offline. */
+  'shell.offlineBanner.title': undefined;
+  /** Set up a session, up to {count} players */
+  'shell.palette.gameHint': { count: number };
+  /** Get games */
+  'shell.palette.groups.getGames': undefined;
+  /** Go to */
+  'shell.palette.groups.goTo': undefined;
+  /** Settings */
+  'shell.palette.groups.settings': undefined;
+  /** Your games */
+  'shell.palette.groups.yourGames': undefined;
+  /** Handler by {author} */
+  'shell.palette.handlerHint': { author: ParamValue };
+  /** Search */
+  'shell.palette.label': undefined;
+  /** Nothing matches “{query}”. */
+  'shell.palette.noMatch': { query: ParamValue };
+  /** Results */
+  'shell.palette.results': undefined;
+  /** Downloads */
+  'shell.palette.screens.downloads': undefined;
+  /** Get games */
+  'shell.palette.screens.games': undefined;
+  /** Browse every handler on the Hub */
+  'shell.palette.screens.gamesHint': undefined;
+  /** Library */
+  'shell.palette.screens.library': undefined;
+  /** {game} session */
+  'shell.palette.screens.session': { game: ParamValue };
+  /** Running now */
+  'shell.palette.screens.sessionHint': undefined;
+  /** Game session */
+  'shell.palette.screens.sessionUnnamed': undefined;
+  /** Settings */
+  'shell.palette.screens.settings': undefined;
+  /** Search games, handlers, settings */
+  'shell.palette.search': undefined;
+  /** About, handlers folder, updates */
+  'shell.palette.settings.about': undefined;
+  /** Audio: playback device of each instance */
+  'shell.palette.settings.audio': undefined;
+  /** Gamepad shortcuts and controller type */
+  'shell.palette.settings.gamepad': undefined;
+  /** General: languages, network, nicknames, debug log */
+  'shell.palette.settings.general': undefined;
+  /** Keyboard shortcuts and input lock key */
+  'shell.palette.settings.hotkeys': undefined;
+  /** Layout: custom grid, background, windows merger */
+  'shell.palette.settings.layout': undefined;
+  /** Players: nicknames and Steam IDs */
+  'shell.palette.settings.players': undefined;
+  /** Downloads */
+  'shell.rail.downloads': undefined;
+  /** Get games */
+  'shell.rail.games': undefined;
+  /** {label}, {count} in progress */
+  'shell.rail.inProgress': { count: number; label: ParamValue };
+  /** Main */
+  'shell.rail.label': undefined;
+  /** Library */
+  'shell.rail.library': undefined;
+  /** Settings */
+  'shell.rail.settings': undefined;
+  /** Skip to content */
+  'shell.skipToContent': undefined;
   /** The interface could not reach the app ({error}). Close Nucleus Co-op and start it again. */
   'shell.startup.hostDownMessage': { error: ParamValue };
   /** Nucleus Co-op did not answer */
@@ -204,7 +378,69 @@ export interface MessageParamsMap {
   'shell.window.minimize': undefined;
   /** Restore */
   'shell.window.restore': undefined;
+  /** controllers */
+  'ui.compat.inputsInList.controllers': undefined;
+  /** keyboard and mouse */
+  'ui.compat.inputsInList.keyboardMouse': undefined;
+  /** several keyboards and mice */
+  'ui.compat.inputsInList.multiKeyboardMouse': undefined;
+  /** Up to {count} players */
+  'ui.compat.maxPlayers': { count: number };
+  /** {input} (not supported) */
+  'ui.compat.notSupported': { input: ParamValue };
+  /** Players unknown */
+  'ui.compat.playersUnknown': undefined;
+  /** Plays with: {inputs} */
+  'ui.compat.playsWith': { inputs: ParamValue };
+  /** with controllers, keyboard and mouse or several keyboards and mice */
+  'ui.compat.withInputs.all': undefined;
+  /** with controllers */
+  'ui.compat.withInputs.controllers': undefined;
+  /** with controllers or keyboard and mouse */
+  'ui.compat.withInputs.controllersKeyboardMouse': undefined;
+  /** with controllers or several keyboards and mice */
+  'ui.compat.withInputs.controllersMultiKeyboardMouse': undefined;
+  /** with keyboard and mouse */
+  'ui.compat.withInputs.keyboardMouse': undefined;
+  /** with keyboard and mouse or several keyboards and mice */
+  'ui.compat.withInputs.keyboardMouseMultiKeyboardMouse': undefined;
+  /** with several keyboards and mice */
+  'ui.compat.withInputs.multiKeyboardMouse': undefined;
+  /** Cross button */
+  'ui.glyph.playstation.a': undefined;
+  /** Circle button */
+  'ui.glyph.playstation.b': undefined;
+  /** Options button */
+  'ui.glyph.playstation.menu': undefined;
+  /** Create button */
+  'ui.glyph.playstation.view': undefined;
+  /** Square button */
+  'ui.glyph.playstation.x': undefined;
+  /** Triangle button */
+  'ui.glyph.playstation.y': undefined;
+  /** A button */
+  'ui.glyph.xbox.a': undefined;
+  /** B button */
+  'ui.glyph.xbox.b': undefined;
+  /** Left bumper */
+  'ui.glyph.xbox.lb': undefined;
+  /** Menu button */
+  'ui.glyph.xbox.menu': undefined;
+  /** Right bumper */
+  'ui.glyph.xbox.rb': undefined;
+  /** View button */
+  'ui.glyph.xbox.view': undefined;
+  /** X button */
+  'ui.glyph.xbox.x': undefined;
+  /** Y button */
+  'ui.glyph.xbox.y': undefined;
+  /** Image */
+  'ui.markdown.image': undefined;
+  /** P{number} */
+  'ui.playerTag': { number: ParamValue };
+  /** Verified */
+  'ui.verified': undefined;
 }
 
 /** Strings with tags (`<kbd>`, `<b>`...): render them with `<T>` to keep their markup; `t()` drops it. */
-export type RichMessageKey = never;
+export type RichMessageKey = 'features.addGame.chooser.message';

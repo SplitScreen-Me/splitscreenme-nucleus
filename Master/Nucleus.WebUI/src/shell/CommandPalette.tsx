@@ -1,14 +1,24 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAllHandlers, norm } from '@/hub';
+import { useT, type MessageKey } from '@/i18n';
 import { setupPath, useLibrary } from '@/lib/library';
 import { isSessionLive, useSessionSnapshot } from '@/lib/live';
 import { igdbImage } from '@/lib/art';
 import { cn, Icon, Kbd, type IconName } from '@/ui';
 
+type Group = 'goTo' | 'yourGames' | 'getGames' | 'settings';
+
+const GROUP_LABELS: Record<Group, MessageKey> = {
+  goTo: 'shell.palette.groups.goTo',
+  yourGames: 'shell.palette.groups.yourGames',
+  getGames: 'shell.palette.groups.getGames',
+  settings: 'shell.palette.groups.settings',
+};
+
 interface Entry {
   id: string;
-  group: 'Go to' | 'Your games' | 'Get games' | 'Settings';
+  group: Group;
   label: string;
   hint?: string;
   icon?: IconName;
@@ -17,21 +27,30 @@ interface Entry {
   text: string;
 }
 
-const SCREENS: Array<Omit<Entry, 'text' | 'group'>> = [
-  { id: 's-library', label: 'Library', icon: 'library', to: '/library' },
-  { id: 's-games', label: 'Get games', hint: 'Browse every handler on the Hub', icon: 'compass', to: '/games' },
-  { id: 's-downloads', label: 'Downloads', icon: 'download', to: '/downloads' },
-  { id: 's-settings', label: 'Settings', icon: 'sliders', to: '/settings' },
+/** A fixed entry: its texts are keys, translated when the list is built. */
+interface FixedEntry {
+  id: string;
+  label: MessageKey;
+  hint?: MessageKey;
+  icon: IconName;
+  to: string;
+}
+
+const SCREENS: FixedEntry[] = [
+  { id: 's-library', label: 'shell.palette.screens.library', icon: 'library', to: '/library' },
+  { id: 's-games', label: 'shell.palette.screens.games', hint: 'shell.palette.screens.gamesHint', icon: 'compass', to: '/games' },
+  { id: 's-downloads', label: 'shell.palette.screens.downloads', icon: 'download', to: '/downloads' },
+  { id: 's-settings', label: 'shell.palette.screens.settings', icon: 'sliders', to: '/settings' },
 ];
 
-const SETTINGS: Array<Omit<Entry, 'text' | 'group'>> = [
-  { id: 'set-general', label: 'General: languages, network, nicknames, debug log', icon: 'sliders', to: '/settings#general' },
-  { id: 'set-players', label: 'Players: nicknames and Steam IDs', icon: 'users', to: '/settings#players' },
-  { id: 'set-hotkeys', label: 'Keyboard shortcuts and input lock key', icon: 'keyboard', to: '/settings#hotkeys' },
-  { id: 'set-gamepad', label: 'Gamepad shortcuts and controller type', icon: 'pad', to: '/settings#gamepad' },
-  { id: 'set-audio', label: 'Audio: playback device of each instance', icon: 'speaker', to: '/settings#audio' },
-  { id: 'set-layout', label: 'Layout: custom grid, background, windows merger', icon: 'layers', to: '/settings#layout' },
-  { id: 'set-about', label: 'About, handlers folder, updates', icon: 'info', to: '/settings#about' },
+const SETTINGS: FixedEntry[] = [
+  { id: 'set-general', label: 'shell.palette.settings.general', icon: 'sliders', to: '/settings#general' },
+  { id: 'set-players', label: 'shell.palette.settings.players', icon: 'users', to: '/settings#players' },
+  { id: 'set-hotkeys', label: 'shell.palette.settings.hotkeys', icon: 'keyboard', to: '/settings#hotkeys' },
+  { id: 'set-gamepad', label: 'shell.palette.settings.gamepad', icon: 'pad', to: '/settings#gamepad' },
+  { id: 'set-audio', label: 'shell.palette.settings.audio', icon: 'speaker', to: '/settings#audio' },
+  { id: 'set-layout', label: 'shell.palette.settings.layout', icon: 'layers', to: '/settings#layout' },
+  { id: 'set-about', label: 'shell.palette.settings.about', icon: 'info', to: '/settings#about' },
 ];
 
 /** Ctrl K: jump to a screen, a game in the library, a handler on the Hub or a setting. */
@@ -45,6 +64,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   const { data: library = [] } = useLibrary();
   const { data: hub = [] } = useAllHandlers();
   const { data: session } = useSessionSnapshot();
+  const t = useT();
 
   useEffect(() => {
     const el = ref.current;
@@ -58,40 +78,48 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   }, [open]);
 
   const entries = useMemo<Entry[]>(() => {
-    const screens = [...SCREENS];
+    const fixed = ({ label, hint, ...rest }: FixedEntry) => ({ ...rest, label: t(label), hint: hint ? t(hint) : undefined });
+    const screens: Array<Omit<Entry, 'text' | 'group'>> = SCREENS.map(fixed);
     if (session && isSessionLive(session.state)) {
-      screens.unshift({ id: 's-session', label: `${session.gameName ?? 'Game'} session`, hint: 'Running now', icon: 'play', to: '/session' });
+      screens.unshift({
+        id: 's-session',
+        label: session.gameName ? t('shell.palette.screens.session', { game: session.gameName }) : t('shell.palette.screens.sessionUnnamed'),
+        hint: t('shell.palette.screens.sessionHint'),
+        icon: 'play',
+        to: '/session',
+      });
     }
+    const settingsWord = t(GROUP_LABELS.settings);
     return [
-      ...screens.map((s) => ({ ...s, group: 'Go to' as const, text: norm(`${s.label} ${s.hint ?? ''}`) })),
+      ...screens.map((s) => ({ ...s, group: 'goTo' as const, text: norm(`${s.label} ${s.hint ?? ''}`) })),
       ...library.map((g) => ({
         id: `g-${g.id}`,
-        group: 'Your games' as const,
+        group: 'yourGames' as const,
         label: g.name,
-        hint: `Set up a session, up to ${g.maxPlayers} players`,
+        hint: t('shell.palette.gameHint', { count: g.maxPlayers }),
         image: g.coverUrl ?? g.iconUrl,
         to: setupPath(g.id),
         text: norm(g.name),
       })),
       ...hub.map((h) => ({
         id: `h-${h.id}`,
-        group: 'Get games' as const,
+        group: 'getGames' as const,
         label: h.gameName,
-        hint: `Handler by ${h.author}`,
+        hint: t('shell.palette.handlerHint', { author: h.author }),
         image: igdbImage(h.coverImageId, 'cover_small_2x'),
         to: `/games/${encodeURIComponent(h.id)}`,
         text: norm(`${h.gameName} ${h.title} ${h.author}`),
       })),
-      ...SETTINGS.map((s) => ({ ...s, group: 'Settings' as const, text: norm(`settings ${s.label}`) })),
+      ...SETTINGS.map(fixed).map((s) => ({ ...s, group: 'settings' as const, text: norm(`${settingsWord} ${s.label}`) })),
     ];
-  }, [library, hub, session]);
+  }, [library, hub, session, t]);
 
   const results = useMemo(() => {
     const words = norm(q).split(/\s+/).filter(Boolean);
-    if (!words.length) return entries.filter((e) => e.group === 'Go to' || e.group === 'Your games').slice(0, 9);
+    if (!words.length) return entries.filter((e) => e.group === 'goTo' || e.group === 'yourGames').slice(0, 9);
     const hits = entries.filter((e) => words.every((w) => e.text.includes(w)));
     // Keep each group short so the list stays scannable.
-    const cap: Record<Entry['group'], number> = { 'Go to': 4, 'Your games': 5, 'Get games': 6, Settings: 3 };
+    const cap: Record<Group, number> = { goTo: 4, yourGames: 5, getGames: 6, settings: 3 };
     const seen: Record<string, number> = {};
     return hits.filter((e) => (seen[e.group] = (seen[e.group] ?? 0) + 1) <= cap[e.group]);
   }, [entries, q]);
@@ -104,11 +132,11 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     navigate(e.to);
   };
 
-  let lastGroup = '';
+  let lastGroup: Group | undefined;
   return (
     <dialog
       ref={ref}
-      aria-label="Search"
+      aria-label={t('shell.palette.label')}
       onClose={onClose}
       onCancel={(e) => {
         e.preventDefault();
@@ -125,8 +153,8 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
           aria-expanded="true"
           aria-controls={listId}
           aria-activedescendant={results[active] ? `${listId}-${results[active].id}` : undefined}
-          aria-label="Search games, handlers, settings"
-          placeholder="Search games, handlers, settings"
+          aria-label={t('shell.palette.search')}
+          placeholder={t('shell.palette.search')}
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onKeyDown={(e) => {
@@ -145,14 +173,14 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
         />
         <Kbd>Esc</Kbd>
       </label>
-      <ul id={listId} role="listbox" aria-label="Results" className="m-0 max-h-[56vh] list-none overflow-auto p-2">
-        {results.length === 0 && <li className="px-3 py-6 text-center text-small text-ink-3">Nothing matches “{q}”.</li>}
+      <ul id={listId} role="listbox" aria-label={t('shell.palette.results')} className="m-0 max-h-[56vh] list-none overflow-auto p-2">
+        {results.length === 0 && <li className="px-3 py-6 text-center text-small text-ink-3">{t('shell.palette.noMatch', { query: q })}</li>}
         {results.map((e, i) => {
           const header = e.group !== lastGroup;
           lastGroup = e.group;
           return (
             <li key={e.id} role="presentation">
-              {header && <div className="px-3 pt-2.5 pb-1 text-12 font-[650] text-ink-3">{e.group}</div>}
+              {header && <div className="px-3 pt-2.5 pb-1 text-12 font-[650] text-ink-3">{t(GROUP_LABELS[e.group])}</div>}
               <div
                 id={`${listId}-${e.id}`}
                 role="option"

@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from 'react';
+import { useT } from '@/i18n';
 import { cn } from './cn';
 import { playerClass } from './player';
 
@@ -19,6 +20,7 @@ const SIZE = {
 
 /** "P1"…"P8" in the player's colour. Colour means a player: this is where it lives. */
 export function PlayerTag({ n, outline, size = 'md', className, ...rest }: PlayerTagProps) {
+  const t = useT();
   return (
     <span
       className={cn(
@@ -30,7 +32,7 @@ export function PlayerTag({ n, outline, size = 'md', className, ...rest }: Playe
       )}
       {...rest}
     >
-      P{n}
+      {t('ui.playerTag', { number: n })}
     </span>
   );
 }
