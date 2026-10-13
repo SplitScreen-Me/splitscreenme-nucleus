@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { useT } from '@/i18n';
 import { buttonClass, cn, Icon } from '@/ui';
 
 const HOLD_MS = 1000;
@@ -23,6 +24,7 @@ export function HoldToStop({
   /** Pressed while blocked. */
   onBlocked?: () => void;
 }) {
+  const t = useT();
   const [progress, setProgress] = useState(0);
   const [holding, setHolding] = useState(false);
   const start = useRef(0);
@@ -69,7 +71,15 @@ export function HoldToStop({
     reset();
   };
 
-  const label = stopped ? 'Stopped' : stopping ? 'Stopping…' : blocked ? 'Unlock to stop' : holding ? 'Keep holding' : 'Hold to stop';
+  const label = stopped
+    ? t('session.stop.stopped')
+    : stopping
+      ? t('session.stop.stopping')
+      : blocked
+        ? t('session.stop.blocked')
+        : holding
+          ? t('session.stop.holding')
+          : t('session.stop.hold');
 
   return (
     <>
@@ -102,7 +112,7 @@ export function HoldToStop({
         <span>{label}</span>
       </button>
       <span id="hold-to-stop-hint" className="sr-only">
-        {blocked ? 'Inputs are locked: unlock them with the lock key first.' : 'Hold for one second to close every copy of the game.'}
+        {blocked ? t('session.stop.blockedHint') : t('session.stop.hint')}
       </span>
     </>
   );

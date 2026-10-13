@@ -24,9 +24,10 @@ test('the summary says how the session went', () => {
   assert.equal(summaryTitle({ error: 'x', launched: true }), 'The session could not start');
   assert.equal(summaryDuration({ startedAt: '2026-10-12T20:00:00Z', endedAt: '2026-10-12T21:02:03.900Z' }), '1:02:03');
   assert.equal(summaryDuration({ startedAt: 'never', endedAt: '2026-10-12T21:02:03Z' }), '0:00:00');
-  assert.equal(errorsLabel({ errorCount: 0 }), 'No errors');
-  assert.equal(errorsLabel({ errorCount: 1 }), '1 error');
-  assert.equal(errorsLabel({ errorCount: 21 }), '21 errors');
+  assert.equal(errorsLabel({ errorCount: 0 }), 'No errors in the session log.');
+  assert.equal(errorsLabel({ errorCount: 1 }), '1 error in the session log');
+  assert.equal(errorsLabel({ errorCount: 21 }), '21 errors in the session log');
+  assert.equal(errorsLabel({ errorCount: 1500 }), '1,500 errors in the session log');
 });
 
 test('players are named, and their guests listed apart', () => {

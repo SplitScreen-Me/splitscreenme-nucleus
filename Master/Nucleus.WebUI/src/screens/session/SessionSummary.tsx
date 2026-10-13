@@ -2,22 +2,18 @@
 // session screen until the next one starts.
 import { useEffect, useId, useRef, useState } from 'react';
 import type { SessionLogEntry, SessionSummary } from '@/bridge';
+import { useI18n, useT } from '@/i18n';
 import { deviceIcon } from '@/lib/devices';
 import { setupPath } from '@/lib/library';
 import { Button, ButtonLink, cn, Icon, PlayerTag, playerClass } from '@/ui';
 import { errorsLabel, summaryDevices, summaryDuration, summaryOutcome, summaryPlayerName, summaryTitle } from './summary';
-
-/** "21:04" in local time. */
-function clock(iso: string): string {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? '' : d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-}
 
 /**
  * The summary card: what ended and how, the players with their colour and devices, the errors, and the way back.
  * `errorDetails` is the crash report of a failed launch, behind "Show details".
  */
 export function SessionSummaryCard({ summary, errorDetails, className }: { summary: SessionSummary; errorDetails?: string; className?: string }) {
+  const { t, format } = useI18n();
   const primary = useRef<HTMLAnchorElement>(null);
   const titleId = useId();
   useEffect(() => {
@@ -25,8 +21,8 @@ export function SessionSummaryCard({ summary, errorDetails, className }: { summa
   }, []);
   const outcome = summaryOutcome(summary);
   const duration = summaryDuration(summary);
-  const started = clock(summary.startedAt);
-  const ended = clock(summary.endedAt);
+  const started = format.time(summary.startedAt);
+  const ended = format.time(summary.endedAt);
 
   return (
     <section aria-labelledby={titleId} className={cn('grid w-full max-w-[68ch] gap-5 text-left', className)}>
@@ -37,28 +33,26 @@ export function SessionSummaryCard({ summary, errorDetails, className }: { summa
         </h3>
         <dl className="m-0 flex flex-wrap gap-x-6 gap-y-1 text-13 text-ink-3">
           <div className="flex gap-1.5">
-            <dt>Game</dt>
+            <dt>{t('session.summary.game')}</dt>
             <dd className="m-0 font-[650] text-ink">{summary.gameName}</dd>
           </div>
           <div className="flex gap-1.5">
-            <dt>Duration</dt>
+            <dt>{t('session.summary.duration')}</dt>
             <dd className="data m-0 font-[650] text-ink" aria-label={duration}>
               {duration}
             </dd>
           </div>
           {started && (
             <div className="flex gap-1.5">
-              <dt>Played</dt>
-              <dd className="data m-0 text-ink-2">
-                {started} to {ended}
-              </dd>
+              <dt>{t('session.summary.played')}</dt>
+              <dd className="data m-0 text-ink-2">{t('session.summary.timeRange', { start: started, end: ended })}</dd>
             </div>
           )}
         </dl>
       </div>
 
       {summary.players.length > 0 && (
-        <ul className="m-0 grid list-none gap-0 p-0" aria-label="Players">
+        <ul className="m-0 grid list-none gap-0 p-0" aria-label={t('session.summary.players')}>
           {summary.players.map((p) => {
             const { own, guests } = summaryDevices(p);
             return (
@@ -75,10 +69,10 @@ export function SessionSummaryCard({ summary, errorDetails, className }: { summa
                   {guests.map((d, i) => (
                     <span key={`guest-${d.name}-${i}`} className="inline-flex min-w-0 items-center gap-1.5 text-ink-3">
                       <Icon name="users" className="size-4 shrink-0" />
-                      <span className="truncate">Guest: {d.name}</span>
+                      <span className="truncate">{t('session.summary.guest', { device: d.name })}</span>
                     </span>
                   ))}
-                  {own.length + guests.length === 0 && <span className="text-ink-3">No device recorded</span>}
+                  {own.length + guests.length === 0 && <span className="text-ink-3">{t('session.summary.noDevice')}</span>}
                 </span>
               </li>
             );
@@ -92,12 +86,12 @@ export function SessionSummaryCard({ summary, errorDetails, className }: { summa
         {summary.gameId && (
           <ButtonLink ref={primary} variant="primary" to={setupPath(summary.gameId)} data-nav>
             <Icon name="users" />
-            {outcome === 'failed' ? 'Back to the lobby' : 'Play again'}
+            {outcome === 'failed' ? t('session.links.lobby') : t('session.links.playAgain')}
           </ButtonLink>
         )}
         <ButtonLink variant="ghost" to="/library" data-nav>
           <Icon name="library" />
-          Library
+          {t('session.links.library')}
         </ButtonLink>
       </div>
     </section>
@@ -106,19 +100,20 @@ export function SessionSummaryCard({ summary, errorDetails, className }: { summa
 
 /** The error of a failed launch and the error lines of the log; a plain "No errors" otherwise. */
 function Problems({ summary, errorDetails }: { summary: SessionSummary; errorDetails?: string }) {
+  const t = useT();
   if (!summary.error && summary.errorCount === 0) {
     return (
       <p className="flex items-center gap-2 text-13 text-ink-2">
         <span className="grid size-5 place-items-center rounded-full bg-ok/16 text-ok">
           <Icon name="check" strokeWidth={2.4} className="size-3" />
         </span>
-        No errors in the session log.
+        {errorsLabel(summary)}
       </p>
     );
   }
   const more = summary.errorCount - summary.errors.length;
   return (
-    <div role="group" aria-label="Errors" className="grid gap-2.5 rounded-ctl bg-pane-2 px-4 py-3.5">
+    <div role="group" aria-label={t('session.summary.errors')} className="grid gap-2.5 rounded-ctl bg-pane-2 px-4 py-3.5">
       {summary.error && (
         <p className="flex items-start gap-2 text-15 text-ink">
           <Icon name="warning" className="mt-0.5 size-[18px] shrink-0 text-danger" />
@@ -127,13 +122,13 @@ function Problems({ summary, errorDetails }: { summary: SessionSummary; errorDet
       )}
       {summary.errorCount > 0 && (
         <>
-          <p className="text-13 font-[650] text-ink-2">{errorsLabel(summary)} in the session log</p>
+          <p className="text-13 font-[650] text-ink-2">{errorsLabel(summary)}</p>
           <ol className="m-0 grid max-h-[22vh] list-none gap-1 overflow-auto p-0 font-mono text-12 leading-normal text-ink-2">
             {summary.errors.map((e) => (
               <ErrorLine key={e.seq} entry={e} />
             ))}
           </ol>
-          {more > 0 && <p className="text-12 text-ink-3">And {more} more: the full log is below.</p>}
+          {more > 0 && <p className="text-12 text-ink-3">{t('session.summary.moreErrors', { count: more })}</p>}
         </>
       )}
       {errorDetails && <ErrorDetails text={errorDetails} onRaised />}
@@ -142,11 +137,14 @@ function Problems({ summary, errorDetails }: { summary: SessionSummary; errorDet
 }
 
 function ErrorLine({ entry }: { entry: SessionLogEntry }) {
+  const { t, format } = useI18n();
   return (
     <li className="grid grid-cols-[auto_auto_minmax(0,1fr)] items-baseline gap-x-2">
-      <span className="text-ink-3">{clock(entry.at)}</span>
+      <span className="text-ink-3">{format.time(entry.at)}</span>
       {entry.playerNumber ? (
-        <span className={cn(playerClass(entry.playerNumber), 'font-[700] text-pc')}>P{entry.playerNumber}</span>
+        <span className={cn(playerClass(entry.playerNumber), 'font-[700] text-pc')}>
+          {t('session.summary.playerShort', { number: entry.playerNumber })}
+        </span>
       ) : (
         <span aria-hidden="true" />
       )}
@@ -157,12 +155,13 @@ function ErrorLine({ entry }: { entry: SessionLogEntry }) {
 
 /** The crash report of a failed launch, behind "Show details". `onRaised` when it sits on a raised surface (bg-pane-2). */
 export function ErrorDetails({ text, className, onRaised }: { text: string; className?: string; onRaised?: boolean }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   return (
     <div className={cn('grid w-full justify-items-start gap-2', className)}>
       <Button variant="quiet" size="sm" aria-expanded={open} onClick={() => setOpen((o) => !o)} data-nav>
         <Icon name={open ? 'chev-d' : 'chev-r'} />
-        {open ? 'Hide details' : 'Show details'}
+        {open ? t('session.errorDetails.hide') : t('session.errorDetails.show')}
       </Button>
       {open && (
         <pre

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { bridge, type SessionAction, type SessionSnapshot } from '@/bridge';
+import { t } from '@/i18n';
 import { refusalReason, useRun } from '@/lib/bridge-ui';
 import { useToast } from '@/ui';
 
@@ -12,10 +13,11 @@ export function useSessionCommands(session: Pick<SessionSnapshot, 'lockInputsKey
   const toast = useToast();
   const lockKey = session.lockInputsKey;
   return useMemo(() => {
-    const lockedMessage = `Inputs are locked to the game windows. Press ${lockKey ?? 'the lock key'} to unlock them first.`;
     const onLocked = (error: unknown) => {
       if (refusalReason(error) !== 'inputsLocked') return false;
-      toast(lockedMessage, { icon: 'lock', durationMs: 4200 });
+      // Built when it shows, in the language in use then.
+      const message = lockKey ? t('session.commands.locked', { key: lockKey }) : t('session.commands.lockedNoKey');
+      toast(message, { icon: 'lock', durationMs: 4200 });
       return true;
     };
     return {

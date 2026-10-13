@@ -1568,6 +1568,382 @@ export interface MessageParamsMap {
   'profiles.toasts.loadedUnnamed': undefined;
   /** Profile unloaded. Place players freely. */
   'profiles.toasts.unloaded': undefined;
+  /** {game} session */
+  'session.chrome.gameSession': { game: ParamValue };
+  /** Library */
+  'session.chrome.library': undefined;
+  /** Session */
+  'session.chrome.session': undefined;
+  /** Game session */
+  'session.chrome.unknownGameSession': undefined;
+  /** Inputs are locked to the game windows. Press {key} to unlock them first. */
+  'session.commands.locked': { key: ParamValue };
+  /** Inputs are locked to the game windows. Press the lock key to unlock them first. */
+  'session.commands.lockedNoKey': undefined;
+  /** No controls for this session. */
+  'session.controls.empty': undefined;
+  /** The keys also work while a game window has the focus. */
+  'session.controls.keysHint': undefined;
+  /** Lock or unlock keyboards and mice */
+  'session.controls.lockKey': undefined;
+  /** Stop the session */
+  'session.controls.stopKey': undefined;
+  /** Controls */
+  'session.controls.title': undefined;
+  /** The session has ended. */
+  'session.controls.unavailable.ended': undefined;
+  /** Inputs are locked: press {key} first. */
+  'session.controls.unavailable.locked': { key: ParamValue };
+  /** Inputs are locked: press the lock key first. */
+  'session.controls.unavailable.lockedNoKey': undefined;
+  /** Does not apply to this session. */
+  'session.controls.unavailable.notApplicable': undefined;
+  /** Available once every copy is running. */
+  'session.controls.unavailable.notRunning': undefined;
+  /** All {count} copies of {game} are closed. The setup is still open: play again with the same players. */
+  'session.ended.copiesClosed': { count: number; game: ParamValue };
+  /** All {count} copies of the game are closed. The setup is still open: play again with the same players. */
+  'session.ended.copiesClosedUnknownGame': { count: number };
+  /** Hide details */
+  'session.errorDetails.hide': undefined;
+  /** Show details */
+  'session.errorDetails.show': undefined;
+  /** Elapsed time {time} */
+  'session.header.elapsed': { time: ParamValue };
+  /** Inputs locked */
+  'session.header.inputsLocked': undefined;
+  /** Inputs unlocked */
+  'session.header.inputsUnlocked': undefined;
+  /** Every copy is closed. */
+  'session.header.note.ended': undefined;
+  /** The launch stopped before every copy was ready. */
+  'session.header.note.failed': undefined;
+  /** Press {key} once every window is in place to give each keyboard and mouse to its player. */
+  'session.header.note.lockHint': { key: ParamValue };
+  /** Press the lock key once every window is in place to give each keyboard and mouse to its player. */
+  'session.header.note.lockHintNoKey': undefined;
+  /** Inputs are locked to the game windows. Press {key} to unlock them. */
+  'session.header.note.locked': { key: ParamValue };
+  /** Inputs are locked to the game windows. Press the lock key to unlock them. */
+  'session.header.note.lockedNoKey': undefined;
+  /** The game windows keep the controllers. */
+  'session.header.note.pads': undefined;
+  /** The game windows keep the controllers. {key} also stops the session. */
+  'session.header.note.padsStopKey': { key: ParamValue };
+  /** Session ended */
+  'session.header.status.ended': undefined;
+  /** Stopping the session */
+  'session.header.status.ending': undefined;
+  /** Launch failed */
+  'session.header.status.failed': undefined;
+  /** Launching {count} players */
+  'session.header.status.launching': { count: number };
+  /** {count} players running */
+  'session.header.status.running': { count: number };
+  /** Setting up */
+  'session.header.status.setup': undefined;
+  /** Stop: {keys} */
+  'session.header.stopKeys': { keys: ParamValue };
+  /** Session */
+  'session.header.untitled': undefined;
+  /** Back to library */
+  'session.hints.backToLibrary': undefined;
+  /** Lock inputs */
+  'session.hints.lockInputs': undefined;
+  /** Stop session */
+  'session.hints.stop': undefined;
+  /** Unlock inputs */
+  'session.hints.unlockInputs': undefined;
+  /** Pick a game in your library, let everyone press Start on their controller to join, then launch. Every copy ... */
+  'session.idle.hint': undefined;
+  /** <b>The last launch failed.</b> {error} */
+  'session.idle.lastLaunchFailed': { error: ParamValue };
+  /** No session running */
+  'session.idle.title': undefined;
+  /** Player {number}, {name}: {stage} */
+  'session.instance.label': { name: ParamValue; number: ParamValue; stage: ParamValue };
+  /** No device */
+  'session.instance.noDevice': undefined;
+  /** PID {pid} */
+  'session.instance.pid': { pid: ParamValue };
+  /** Launch progress */
+  'session.instance.progress': undefined;
+  /** Closed */
+  'session.instance.stage.closed': undefined;
+  /** Ready */
+  'session.instance.stage.ready': undefined;
+  /** Starting, placing the window… */
+  'session.instance.stage.starting': undefined;
+  /** Waiting to start… */
+  'session.instance.stage.waiting': undefined;
+  /** {step}<sr>, done</sr> */
+  'session.instance.stepDone': { step: ParamValue };
+  /** {step}<sr>, pending</sr> */
+  'session.instance.stepPending': { step: ParamValue };
+  /** Ready */
+  'session.instance.steps.ready': undefined;
+  /** Starting */
+  'session.instance.steps.starting': undefined;
+  /** Waiting */
+  'session.instance.steps.waiting': undefined;
+  /** Back to the {game} lobby */
+  'session.links.gameLobby': { game: ParamValue };
+  /** Go to library */
+  'session.links.goToLibrary': undefined;
+  /** Library */
+  'session.links.library': undefined;
+  /** Back to the lobby */
+  'session.links.lobby': undefined;
+  /** Open the lobby */
+  'session.links.openLobby': undefined;
+  /** Play again */
+  'session.links.playAgain': undefined;
+  /** Set up {game} */
+  'session.links.setUpGame': { game: ParamValue };
+  /** Loading the session */
+  'session.loading': undefined;
+  /** Copy log */
+  'session.log.copy': undefined;
+  /** {count} events */
+  'session.log.count': { count: number };
+  /** Nothing logged yet. Every step of every copy shows up here. */
+  'session.log.empty': undefined;
+  /** Error */
+  'session.log.levels.error': undefined;
+  /** Info */
+  'session.log.levels.info': undefined;
+  /** Done */
+  'session.log.levels.success': undefined;
+  /** Warning */
+  'session.log.levels.warning': undefined;
+  /** Session events */
+  'session.log.listLabel': undefined;
+  /** Player {number}: */
+  'session.log.playerPrefix': { number: ParamValue };
+  /** Event log */
+  'session.log.title': undefined;
+  /** How to connect the copies, from the handler author */
+  'session.notes.byAuthor': undefined;
+  /** How to connect the copies, by {name} */
+  'session.notes.byMaintainer': { name: ParamValue };
+  /** The handler author left no notes. Usually one player hosts a co-op game and the others join it from the in-... */
+  'session.notes.empty': undefined;
+  /** The notes could not be read. */
+  'session.notes.error': undefined;
+  /** Reading the notes… */
+  'session.notes.loading': undefined;
+  /** Handler notes text */
+  'session.notes.textLabel': undefined;
+  /** Handler notes */
+  'session.notes.title': undefined;
+  /** Session ended */
+  'session.outcome.ended': undefined;
+  /** The session could not start */
+  'session.outcome.failed': undefined;
+  /** The session stopped during the launch */
+  'session.outcome.stoppedEarly': undefined;
+  /** Player {number} */
+  'session.player': { number: ParamValue };
+  /** <b>Display {number}</b> {resolution} */
+  'session.preview.caption': { number: ParamValue; resolution: ParamValue };
+  /** <b>Display {number}</b> {resolution}, primary */
+  'session.preview.captionPrimary': { number: ParamValue; resolution: ParamValue };
+  /** Display {number} */
+  'session.preview.display': { number: ParamValue };
+  /** Display {number}, {resolution} */
+  'session.preview.displayLabel': { number: ParamValue; resolution: ParamValue };
+  /** Display {number}, {resolution}, primary */
+  'session.preview.displayLabelPrimary': { number: ParamValue; resolution: ParamValue };
+  /** Display {number}: not used */
+  'session.preview.displayUnused': { number: ParamValue };
+  /** No game window was opened. */
+  'session.preview.noWindowOpened': undefined;
+  /** Preparing the instances… */
+  'session.preview.preparing': undefined;
+  /** {width} × {height} */
+  'session.preview.resolution': { height: ParamValue; width: ParamValue };
+  /** {resolution}, primary */
+  'session.preview.resolutionPrimary': { resolution: ParamValue };
+  /** {count} screens */
+  'session.preview.screenCount': { count: number };
+  /** Not used */
+  'session.preview.unused': undefined;
+  /** {count} windows */
+  'session.preview.windowCount': { count: number };
+  /** Game windows */
+  'session.preview.windowsTitle': undefined;
+  /** Unlock to stop */
+  'session.stop.blocked': undefined;
+  /** Inputs are locked: unlock them with the lock key first. */
+  'session.stop.blockedHint': undefined;
+  /** Hold for one second to close every copy of the game. */
+  'session.stop.hint': undefined;
+  /** Hold to stop */
+  'session.stop.hold': undefined;
+  /** Keep holding */
+  'session.stop.holding': undefined;
+  /** Stopped */
+  'session.stop.stopped': undefined;
+  /** Stopping… */
+  'session.stop.stopping': undefined;
+  /** Duration */
+  'session.summary.duration': undefined;
+  /** Errors */
+  'session.summary.errors': undefined;
+  /** Game */
+  'session.summary.game': undefined;
+  /** Guest: {device} */
+  'session.summary.guest': { device: ParamValue };
+  /** {count} errors in the session log */
+  'session.summary.logErrors': { count: number };
+  /** And {count} more: the full log is below. */
+  'session.summary.moreErrors': { count: number };
+  /** No device recorded */
+  'session.summary.noDevice': undefined;
+  /** No errors in the session log. */
+  'session.summary.noErrors': undefined;
+  /** Played */
+  'session.summary.played': undefined;
+  /** P{number} */
+  'session.summary.playerShort': { number: ParamValue };
+  /** Players */
+  'session.summary.players': undefined;
+  /** {start} to {end} */
+  'session.summary.timeRange': { end: ParamValue; start: ParamValue };
+  /** Restart as administrator */
+  'settings.about.admin.button': undefined;
+  /** Nucleus Co-op closes and opens again with administrator rights. Some handlers need them. Windows asks you t... */
+  'settings.about.admin.confirmMessage': undefined;
+  /** Restart as administrator? */
+  'settings.about.admin.confirmTitle': undefined;
+  /** Some handlers only work when Nucleus Co-op runs as administrator. */
+  'settings.about.admin.description': undefined;
+  /** Administrator rights */
+  'settings.about.admin.label': undefined;
+  /** Download for every game */
+  'settings.about.artwork.button': undefined;
+  /** Downloads the missing art of every game in your library from the Hub. Files you already have are kept. */
+  'settings.about.artwork.description': undefined;
+  /** Covers and screenshots downloaded */
+  'settings.about.artwork.done': undefined;
+  /** Covers and screenshots */
+  'settings.about.artwork.label': undefined;
+  /** {done} of {count} games */
+  'settings.about.artwork.progress': { count: number; done: ParamValue };
+  /** Starting… */
+  'settings.about.artwork.starting': undefined;
+  /** Administrator */
+  'settings.about.facts.admin': undefined;
+  /** Hub */
+  'settings.about.facts.hub': undefined;
+  /** Version */
+  'settings.about.facts.version': undefined;
+  /** Handlers folder */
+  'settings.about.folders.handlers': undefined;
+  /** Installed in */
+  'settings.about.folders.install': undefined;
+  /** Open the handlers folder in File Explorer */
+  'settings.about.folders.openHandlers': undefined;
+  /** Open the install folder in File Explorer */
+  'settings.about.folders.openInstall': undefined;
+  /** Offline */
+  'settings.about.hubOffline': undefined;
+  /** Online */
+  'settings.about.hubOnline': undefined;
+  /** Documentation */
+  'settings.about.links.docs': undefined;
+  /** FAQ */
+  'settings.about.links.faq': undefined;
+  /** The Hub */
+  'settings.about.links.hub': undefined;
+  /** Reload */
+  'settings.about.reload.button': undefined;
+  /** Reads every handler file again, for example after editing one. */
+  'settings.about.reload.description': undefined;
+  /** Handlers reloaded */
+  'settings.about.reload.done': undefined;
+  /** Reload handlers */
+  'settings.about.reload.label': undefined;
+  /** Free, open-source split-screen for PC games. Made by players, for couches everywhere. */
+  'settings.about.tagline': undefined;
+  /** About */
+  'settings.about.title': undefined;
+  /** Check now */
+  'settings.about.updates.button': undefined;
+  /** Asks the Hub for newer versions of the handlers of your games. Updates then show in the library and in Down... */
+  'settings.about.updates.description': undefined;
+  /** Update check done */
+  'settings.about.updates.done': undefined;
+  /** Handler updates */
+  'settings.about.updates.label': undefined;
+  /** Nucleus Co-op did not return its settings. Restart the app; if it keeps happening, check the app log. */
+  'settings.error.message': undefined;
+  /** Settings could not be read */
+  'settings.error.title': undefined;
+  /** Press a button on a controller… */
+  'settings.fields.combo.pressOne': undefined;
+  /** Press two buttons together on a controller… */
+  'settings.fields.combo.pressTwo': undefined;
+  /** Hide the password */
+  'settings.fields.hidePassword': undefined;
+  /** {key} cancels */
+  'settings.fields.hotkey.cancelHint': { key: ParamValue };
+  /** {label}: {value}. Change */
+  'settings.fields.hotkey.label': { label: ParamValue; value: ParamValue };
+  /** {label}: not set. Change */
+  'settings.fields.hotkey.labelNotSet': { label: ParamValue };
+  /** Press the shortcut… */
+  'settings.fields.hotkey.listening': undefined;
+  /** {label}: press the shortcut, Escape cancels */
+  'settings.fields.hotkey.listeningLabel': { label: ParamValue };
+  /** Not set */
+  'settings.fields.notSet': undefined;
+  /** {label}: pick a file */
+  'settings.fields.path.pickFile': { label: ParamValue };
+  /** {label}: pick a folder */
+  'settings.fields.path.pickFolder': { label: ParamValue };
+  /** Applies after a restart */
+  'settings.fields.restartBadge': undefined;
+  /** Show the password */
+  'settings.fields.showPassword': undefined;
+  /** Loading settings */
+  'settings.loading': undefined;
+  /** Settings sections */
+  'settings.nav': undefined;
+  /** The nickname and Steam ID each player number uses in game. */
+  'settings.players.description': undefined;
+  /** Player 1 always gets the first slot, player 2 the second, and so on. Empty means the default. */
+  'settings.players.editorHint': undefined;
+  /** Nicknames and Steam IDs */
+  'settings.players.editorTitle': undefined;
+  /** The player slots could not be read. */
+  'settings.players.error': undefined;
+  /** ({count} with errors) */
+  'settings.players.hiddenErrors': { count: number };
+  /** Reading the player slots… */
+  'settings.players.loading': undefined;
+  /** Nickname */
+  'settings.players.nickname': undefined;
+  /** Player {number} nickname */
+  'settings.players.nicknameLabel': { number: ParamValue };
+  /** Save players */
+  'settings.players.save': undefined;
+  /** Players saved */
+  'settings.players.saved': undefined;
+  /** Show all {count} */
+  'settings.players.showAll': { count: number };
+  /** Show the first {count} */
+  'settings.players.showFirst': { count: number };
+  /** Steam ID */
+  'settings.players.steamId': undefined;
+  /** Player {number} Steam ID */
+  'settings.players.steamIdLabel': { number: ParamValue };
+  /** Players */
+  'settings.players.title': undefined;
+  /** Undo changes */
+  'settings.players.undo': undefined;
+  /** Settings */
+  'settings.title': undefined;
   /** Blocking */
   'setup.checks.state.blocking': undefined;
   /** In progress */
@@ -1877,4 +2253,4 @@ export interface MessageParamsMap {
 }
 
 /** Strings with tags (`<kbd>`, `<b>`...): render them with `<T>` to keep their markup; `t()` drops it. */
-export type RichMessageKey = 'catalog.offlineCopy' | 'downloads.row.statusWhen' | 'features.addGame.chooser.message' | 'handler.action.reportProblem' | 'handler.comments.title' | 'handler.steps.seatTip' | 'lobby.canvas.seats' | 'lobby.keys.help' | 'lobby.keys.waiting' | 'profiles.manager.nextProfileSaveOff' | 'profiles.manager.nextProfileSaveOn';
+export type RichMessageKey = 'catalog.offlineCopy' | 'downloads.row.statusWhen' | 'features.addGame.chooser.message' | 'handler.action.reportProblem' | 'handler.comments.title' | 'handler.steps.seatTip' | 'lobby.canvas.seats' | 'lobby.keys.help' | 'lobby.keys.waiting' | 'profiles.manager.nextProfileSaveOff' | 'profiles.manager.nextProfileSaveOn' | 'session.idle.lastLaunchFailed' | 'session.instance.stepDone' | 'session.instance.stepPending' | 'session.preview.caption' | 'session.preview.captionPrimary';

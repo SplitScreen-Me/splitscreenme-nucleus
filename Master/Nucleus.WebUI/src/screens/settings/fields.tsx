@@ -2,6 +2,7 @@
 // captures and pickers at once, typed values when the field is left or Enter is pressed (Escape puts the value back).
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { bridge, type SettingChoice, type SettingField } from '@/bridge';
+import { useT } from '@/i18n';
 import { useRun } from '@/lib/bridge-ui';
 import { Button, cn, Icon, Kbd, Select, Spinner, Switch } from '@/ui';
 import { comboLabels, hotkeyOf, modifiersOf, type SettingsSaver } from './model';
@@ -60,6 +61,7 @@ function ToggleControl({ field, value, disabled, saver, labelId, describedBy }: 
 }
 
 function ChoiceControl({ field, value, disabled, saver, labelId, describedBy }: FieldProps) {
+  const t = useT();
   const known = field.choices.some((c) => c.value === value);
   const widest = Math.max(...field.choices.map((c) => c.label.length), value.length);
   return (
@@ -74,7 +76,7 @@ function ChoiceControl({ field, value, disabled, saver, labelId, describedBy }: 
     >
       {!known && (
         <option value={value}>
-          {value ? `${value} (not available)` : 'Not set'}
+          {value ? t('common.notAvailable', { value }) : t('settings.fields.notSet')}
         </option>
       )}
       {field.choices.map((c) => (
@@ -94,6 +96,7 @@ const frameTone = (error: boolean) =>
 
 /** Number, text and password fields: typed, saved when left or on Enter. */
 function TypedControl({ field, value, disabled, saver, labelId, describedBy }: FieldProps) {
+  const t = useT();
   const [draft, setDraft] = useState<string | null>(null);
   const [reveal, setReveal] = useState(false);
   const error = saver.errors[field.key];
@@ -157,7 +160,7 @@ function TypedControl({ field, value, disabled, saver, labelId, describedBy }: F
       {password && (
         <button
           type="button"
-          aria-label={reveal ? 'Hide the password' : 'Show the password'}
+          aria-label={reveal ? t('settings.fields.hidePassword') : t('settings.fields.showPassword')}
           aria-pressed={reveal}
           disabled={disabled}
           onClick={() => setReveal((r) => !r)}
@@ -172,19 +175,25 @@ function TypedControl({ field, value, disabled, saver, labelId, describedBy }: F
 
 /** A keyboard shortcut: press the combination while the control listens. Escape cancels. */
 function HotkeyControl({ field, value, disabled, saver, describedBy }: FieldProps) {
+  const t = useT();
   const [listening, setListening] = useState(false);
   const [held, setHeld] = useState<string[]>([]);
   const stop = () => {
     setListening(false);
     setHeld([]);
   };
+  const label = listening
+    ? t('settings.fields.hotkey.listeningLabel', { label: field.label })
+    : value
+      ? t('settings.fields.hotkey.label', { label: field.label, value })
+      : t('settings.fields.hotkey.labelNotSet', { label: field.label });
   return (
     <button
       type="button"
       data-own-arrows
       data-nav
       disabled={disabled || saver.saving.has(field.key)}
-      aria-label={listening ? `${field.label}: press the shortcut, Escape cancels` : `${field.label}: ${value || 'not set'}. Change`}
+      aria-label={label}
       aria-describedby={describedBy}
       aria-pressed={listening}
       aria-live="polite"
@@ -218,13 +227,15 @@ function HotkeyControl({ field, value, disabled, saver, describedBy }: FieldProp
       )}
     >
       {listening ? (
-        <span>{held.length ? `${held.join(' + ')} + …` : 'Press the shortcut…'}</span>
+        <span>{held.length ? `${held.join(' + ')} + …` : t('settings.fields.hotkey.listening')}</span>
       ) : value ? (
         <KeyCaps combo={value} />
       ) : (
-        <span className="text-ink-3">Not set</span>
+        <span className="text-ink-3">{t('settings.fields.notSet')}</span>
       )}
-      <span className={cn('text-13 font-[560]', listening ? 'text-on-light/70' : 'text-ink-3')}>{listening ? 'Esc cancels' : 'Change'}</span>
+      <span className={cn('text-13 font-[560]', listening ? 'text-on-light/70' : 'text-ink-3')}>
+        {listening ? t('settings.fields.hotkey.cancelHint', { key: 'Esc' }) : t('common.change')}
+      </span>
     </button>
   );
 }
@@ -264,6 +275,7 @@ export function ButtonChips({ labels, className }: { labels: string[]; className
 
 /** A gamepad combination, captured by the host from a real controller (`settings.captureGamepadCombo`). */
 function ComboControl({ field, value, disabled, saver, labelId, describedBy, gamepadButtons }: FieldProps) {
+  const t = useT();
   const run = useRun();
   const [capturing, setCapturing] = useState<AbortController | null>(null);
   const count = field.comboButtons ?? 2;
@@ -284,7 +296,7 @@ function ComboControl({ field, value, disabled, saver, labelId, describedBy, gam
       <div className="flex items-center gap-2.5" role="status" aria-live="polite">
         <span className="inline-flex h-10 items-center gap-2.5 rounded-ctl bg-ink px-3 text-14 font-semibold text-on-light">
           <Spinner className="border-on-light/30 border-t-on-light" />
-          {count === 1 ? 'Press a button on a controller…' : 'Press two buttons together on a controller…'}
+          {count === 1 ? t('settings.fields.combo.pressOne') : t('settings.fields.combo.pressTwo')}
         </span>
         <Button
           variant="ghost"
@@ -295,14 +307,18 @@ function ComboControl({ field, value, disabled, saver, labelId, describedBy, gam
           }}
           autoFocus
         >
-          Cancel
+          {t('common.cancel')}
         </Button>
       </div>
     );
   }
   return (
     <div className="flex items-center gap-3">
-      {value ? <ButtonChips labels={comboLabels(value, gamepadButtons)} /> : <span className="text-small text-ink-3">Not set</span>}
+      {value ? (
+        <ButtonChips labels={comboLabels(value, gamepadButtons)} />
+      ) : (
+        <span className="text-small text-ink-3">{t('settings.fields.notSet')}</span>
+      )}
       <Button
         variant="ghost"
         size="sm"
@@ -313,7 +329,7 @@ function ComboControl({ field, value, disabled, saver, labelId, describedBy, gam
         data-nav
       >
         <Icon name="pad" />
-        <span id={`${field.key}-change`}>Change</span>
+        <span id={`${field.key}-change`}>{t('common.change')}</span>
       </Button>
     </div>
   );
@@ -321,11 +337,14 @@ function ComboControl({ field, value, disabled, saver, labelId, describedBy, gam
 
 /** A file or folder, picked with the native dialog. */
 function PathControl({ field, value, disabled, saver, labelId, describedBy }: FieldProps) {
+  const t = useT();
   const run = useRun();
   const folder = field.type === 'folderPath';
   const browseId = useId();
   const pick = async () => {
-    const title = `${field.label}: pick a ${folder ? 'folder' : 'file'}`;
+    const title = folder
+      ? t('settings.fields.path.pickFolder', { label: field.label })
+      : t('settings.fields.path.pickFile', { label: field.label });
     const picked = await run(() =>
       folder
         ? bridge.dialogs.pickFolder({ title, initialDirectory: value || undefined }, { timeoutMs: 0 })
@@ -338,7 +357,7 @@ function PathControl({ field, value, disabled, saver, labelId, describedBy }: Fi
       <div className={cn(inputFrame, frameTone(false), 'min-w-0 flex-1', disabled && 'opacity-50')} title={value}>
         <Icon name={folder ? 'folder' : 'file'} className="size-4 shrink-0 text-ink-3" />
         <span className="min-w-0 flex-1 truncate font-mono text-13 text-ink-2" aria-labelledby={labelId}>
-          {value || 'Not set'}
+          {value || t('settings.fields.notSet')}
         </span>
       </div>
       <Button
@@ -351,7 +370,7 @@ function PathControl({ field, value, disabled, saver, labelId, describedBy }: Fi
         data-nav
       >
         {saver.saving.has(field.key) ? <Spinner /> : null}
-        <span id={browseId}>Browse</span>
+        <span id={browseId}>{t('common.browse')}</span>
       </Button>
     </div>
   );
@@ -365,6 +384,7 @@ export function SettingRow({
   saver,
   gamepadButtons,
 }: Omit<FieldProps, 'labelId' | 'describedBy'>) {
+  const t = useT();
   const labelId = useId();
   const helpId = useId();
   const error = saver.errors[field.key];
@@ -387,7 +407,7 @@ export function SettingRow({
           {field.requiresRestart && (
             <span className="inline-flex h-5 items-center gap-1 rounded-tag bg-pane-3 px-2 text-11 font-[650] text-ink-2">
               <Icon name="refresh" className="size-3" />
-              Applies after a restart
+              {t('settings.fields.restartBadge')}
             </span>
           )}
         </div>
