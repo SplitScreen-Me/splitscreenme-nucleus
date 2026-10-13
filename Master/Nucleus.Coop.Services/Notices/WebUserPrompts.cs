@@ -2,6 +2,7 @@ using System;
 using Nucleus.Bridge.Contracts;
 using Nucleus.Coop.Services.Startup;
 using Nucleus.Gaming.Forms;
+using Nucleus.Gaming.Localization;
 
 namespace Nucleus.Coop.Services.Notices;
 
@@ -74,5 +75,5 @@ internal sealed class WebUserPrompts : IUserPromptHandler
         }
     }
 
-    private static string DefaultTitle(PromptRequest request) => request.Origin == PromptOrigin.Handler ? "Handler error" : "Setup error";
+    private static string DefaultTitle(PromptRequest request) => request.Origin == PromptOrigin.Handler ? I18n.T("host.notices.handlerError") : I18n.T("host.notices.setupError");
 }

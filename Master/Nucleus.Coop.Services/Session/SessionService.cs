@@ -15,6 +15,7 @@ using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.InputManagement;
+using Nucleus.Gaming.Localization;
 using Nucleus.Gaming.Tools.GlobalWindowMethods;
 
 namespace Nucleus.Coop.Services.Session
@@ -81,7 +82,7 @@ namespace Nucleus.Coop.Services.Session
         {
             if (active != null)
             {
-                throw SetupSession.Conflict("sessionRunning", "A session is already running.");
+                throw SetupSession.Conflict("sessionRunning", I18n.T("host.session.errors.alreadyRunning"));
             }
 
             setup.EnsureOpen();
@@ -90,7 +91,7 @@ namespace Nucleus.Coop.Services.Session
 
             if (!snapshot.Flow.CanPlay)
             {
-                throw SetupSession.Conflict("cannotPlay", "The setup isn't ready to play.");
+                throw SetupSession.Conflict("cannotPlay", I18n.T("host.session.errors.notReady"));
             }
 
             lastError = null;
@@ -120,7 +121,7 @@ namespace Nucleus.Coop.Services.Session
                 ServiceLog.Error("session: launch failed", e);
                 lastError = e.Message;
                 Finish();
-                throw new BridgeException(BridgeErrorKind.Unavailable, "The session couldn't start: " + e.Message, new { reason = "launchFailed" });
+                throw new BridgeException(BridgeErrorKind.Unavailable, I18n.T("host.session.errors.startFailed", new { error = e.Message }), new { reason = "launchFailed" });
             }
 
             shell.MinimizeWindow();
@@ -148,7 +149,7 @@ namespace Nucleus.Coop.Services.Session
         {
             if (active == null || handler == null)
             {
-                throw SetupSession.Conflict("noSession", "No session is running.");
+                throw SetupSession.Conflict("noSession", I18n.T("host.session.errors.notRunning"));
             }
 
             if (active == SessionState.Ending)
@@ -159,7 +160,7 @@ namespace Nucleus.Coop.Services.Session
             //End returns at once while inputs are locked (and the session goes on).
             if (LockInputRuntime.IsLocked)
             {
-                throw SetupSession.Conflict("inputsLocked", $"Unlock the inputs first (press {App_Hotkeys.LockInputs}).");
+                throw SetupSession.Conflict("inputsLocked", I18n.T("host.session.errors.inputsLocked", new { key = App_Hotkeys.LockInputs }));
             }
 
             IGameHandler stopping = handler;
@@ -184,7 +185,7 @@ namespace Nucleus.Coop.Services.Session
                     if (!stopping.HasEnded && active == SessionState.Ending && handler == stopping)
                     {
                         active = previous;
-                        lastError = "The session couldn't stop: inputs are locked.";
+                        lastError = I18n.T("host.session.errors.stopLocked");
                         EmitIfChanged(force: true);
                     }
                 });
@@ -217,7 +218,7 @@ namespace Nucleus.Coop.Services.Session
             if (report != null)
             {
                 lastErrorDetails = report;
-                lastError ??= "The launch failed.";
+                lastError ??= I18n.T("host.session.errors.launchFailed");
             }
 
             lastSession = SessionSummaryBuilder.Build(
@@ -287,20 +288,20 @@ namespace Nucleus.Coop.Services.Session
         {
             if (active == null || GenericGameHandler.Instance == null || GenericGameHandler.Instance.HasEnded)
             {
-                throw SetupSession.Conflict("noSession", "No session is running.");
+                throw SetupSession.Conflict("noSession", I18n.T("host.session.errors.notRunning"));
             }
 
             SessionActionInfo info = Actions().First(a => a.Action == request.Action);
 
             if (!info.Available)
             {
-                throw SetupSession.Conflict("notAvailable", $"{info.Label} isn't available now.");
+                throw SetupSession.Conflict("notAvailable", I18n.T("host.session.errors.actionUnavailable", new { action = info.Label }));
             }
 
             //As HotkeyListener: only the cutscenes mode passes through locked inputs.
             if (LockInputRuntime.IsLocked && request.Action != SessionAction.CutscenesMode)
             {
-                throw SetupSession.Conflict("inputsLocked", $"Unlock the inputs first (press {App_Hotkeys.LockInputs}).");
+                throw SetupSession.Conflict("inputsLocked", I18n.T("host.session.errors.inputsLocked", new { key = App_Hotkeys.LockInputs }));
             }
 
             Action action = HotkeyFunction(request.Action);
@@ -339,7 +340,7 @@ namespace Nucleus.Coop.Services.Session
                     return () =>
                     {
                         GlobalWindowMethods.ChangeForegroundWindow();
-                        Globals.MainOSD?.Show(2000, "Game Windows Unfocused");
+                        Globals.MainOSD?.Show(2000, I18n.T("host.session.osd.windowsUnfocused"));
                     };
                 case SessionAction.ResetWindows:
                     return () => GlobalWindowMethods.ResetingWindows = true;
@@ -381,13 +382,13 @@ namespace Nucleus.Coop.Services.Session
 
             return new List<SessionActionInfo>
             {
-                Info(SessionAction.ToggleTopmost, "Toggle always on top", App_Hotkeys.TopMost, running),
-                Info(SessionAction.SetFocus, "Unfocus game windows", App_Hotkeys.SetFocus, running),
-                Info(SessionAction.ResetWindows, "Reset windows", App_Hotkeys.ResetWindows, running),
-                Info(SessionAction.CutscenesMode, "Cutscenes mode", App_Hotkeys.CutscenesMode, ready),
-                Info(SessionAction.SwitchLayout, "Switch layout", App_Hotkeys.SwitchLayout, ready),
-                Info(SessionAction.ToggleShortcutsReminder, "Shortcuts reminder", App_Hotkeys.ShortcutsReminder, running && instance!.shortcutsReminders.Count > 0),
-                Info(SessionAction.SwitchMergerForeground, "Next merged window", App_Hotkeys.SwitchMergerForeGroundChild, running && WindowsMerger.Instance != null),
+                Info(SessionAction.ToggleTopmost, I18n.T("host.session.actions.toggleTopmost"), App_Hotkeys.TopMost, running),
+                Info(SessionAction.SetFocus, I18n.T("host.session.actions.setFocus"), App_Hotkeys.SetFocus, running),
+                Info(SessionAction.ResetWindows, I18n.T("host.session.actions.resetWindows"), App_Hotkeys.ResetWindows, running),
+                Info(SessionAction.CutscenesMode, I18n.T("host.session.actions.cutscenesMode"), App_Hotkeys.CutscenesMode, ready),
+                Info(SessionAction.SwitchLayout, I18n.T("host.session.actions.switchLayout"), App_Hotkeys.SwitchLayout, ready),
+                Info(SessionAction.ToggleShortcutsReminder, I18n.T("host.session.actions.shortcutsReminder"), App_Hotkeys.ShortcutsReminder, running && instance!.shortcutsReminders.Count > 0),
+                Info(SessionAction.SwitchMergerForeground, I18n.T("host.session.actions.switchMergerForeground"), App_Hotkeys.SwitchMergerForeGroundChild, running && WindowsMerger.Instance != null),
             };
         }
 

@@ -40,7 +40,7 @@ public sealed class I18nService : II18nService, IDisposable
     public LanguageStrings GetStrings(GetLanguageStringsRequest request)
     {
         string locale = translator.Resolve(request?.Locale)
-            ?? throw new BridgeException(BridgeErrorKind.NotFound, "This language is not available.", new { locale = request?.Locale });
+            ?? throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.i18n.errors.notAvailable"), new { locale = request?.Locale });
         return new LanguageStrings
         {
             Locale = locale,
@@ -53,7 +53,7 @@ public sealed class I18nService : II18nService, IDisposable
     {
         if (!LanguageSettings.Choose(request?.Locale ?? "", translator, store))
         {
-            throw new BridgeException(BridgeErrorKind.InvalidParams, "This language is not available.", new { locale = request?.Locale });
+            throw new BridgeException(BridgeErrorKind.InvalidParams, I18n.T("host.i18n.errors.notAvailable"), new { locale = request?.Locale });
         }
     }
 

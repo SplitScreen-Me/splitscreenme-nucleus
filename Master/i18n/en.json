@@ -609,6 +609,175 @@
         "unreachable": "The server could not be reached: {error}",
         "checksumMismatch": "The downloaded package does not match the one published on the hub (SHA-256 {actual}, expected {expected}). It was not installed."
       }
+    },
+    "setup": {
+      "steps": {
+        "players": "Position players",
+        "options": "Options"
+      },
+      "checks": {
+        "gameFound": {
+          "ok": "Game found",
+          "missing": "Game not found",
+          "action": "Locate"
+        },
+        "handler": {
+          "updating": "Updating the handler",
+          "updateAvailable": "Handler update available",
+          "version": "Version {version}",
+          "action": "Update",
+          "upToDate": "Handler up to date"
+        },
+        "oneDrive": {
+          "title": "Documents folder in OneDrive",
+          "detail": "This handler can't run when the Documents folder is in OneDrive ({folder})."
+        },
+        "gameLocation": {
+          "title": "Unsupported game location",
+          "detail": "This handler doesn't support games installed in C:\\Users (Documents, Desktop, Downloads…) or C:\\Windows."
+        },
+        "admin": {
+          "ok": "Administrator rights",
+          "needed": "Administrator rights needed",
+          "detail": "This handler requires Nucleus Co-op to run as administrator.",
+          "action": "Restart as administrator"
+        },
+        "nucleusLocation": {
+          "title": "Unsupported Nucleus Co-op location",
+          "detail": "Install Nucleus Co-op outside game folders, C:\\Users and protected folders, for example C:\\Nucleus."
+        },
+        "devices": {
+          "none": "No input device",
+          "noneDetail": "Plug in a controller.",
+          "count_one": "{count} input device",
+          "count_other": "{count} input devices"
+        },
+        "players": {
+          "count_one": "{count} player",
+          "count_other": "{count} players",
+          "waitingForProfile": "Waiting for the profile's players",
+          "profileMatched": "{matched} of {total} matched.",
+          "none": "No player placed",
+          "noneDetail": "Place at least one player on a screen."
+        },
+        "inputLock": {
+          "title": "Press {key} to lock inputs",
+          "detail": "Some handlers need the keyboard and mouse locked to the game windows. Press {key} again when you finish playing.",
+          "action": "Don't show again"
+        }
+      },
+      "hints": {
+        "pickStepItem": "Pick one: {step}",
+        "profileWaitingForPlayer": "Player {number}: press a button or a key on the device to use.",
+        "noDevices": "Plug in a controller.",
+        "padNotIdentified": "A gamepad was pressed, but Nucleus couldn't tell which device it is. Press Start on that gamepad alone. If it keeps failing, close tools that duplicate gamepads (DS4Windows without HidHide, Steam Input).",
+        "padNotIdentifiedSlotMode": "A gamepad was pressed, but Nucleus couldn't tell which device it is. Press Start on that gamepad alone. If it keeps failing, close tools that duplicate gamepads (DS4Windows without HidHide, Steam Input) or turn on \"Identify gamepads by slot\".",
+        "dragPlayersToScreens": "Drag a device to a screen to add a player.",
+        "pressButtonToIdentify": "Press a button on a controller (or use a keyboard) to show it."
+      },
+      "devices": {
+        "xinput": "XInput controller {number}",
+        "controllerNumber": "Controller {number}",
+        "controller": "Controller",
+        "dinput": "DirectInput controller {number}",
+        "keyboardMouse": "Keyboard and mouse",
+        "virtualMouse": "Virtual mouse",
+        "mouse": "Mouse",
+        "keyboard": "Keyboard",
+        "virtualKeyboard": "Virtual keyboard",
+        "withIds": "{device} ({vid}:{pid})"
+      },
+      "refusals": {
+        "invalidScreen": "There is no monitor with this index.",
+        "invalidSlot": "There is no slot with this index.",
+        "manualLayout": "The manual layout has no slots: place the player at a point.",
+        "profileLocked": "The loaded profile decides where players go.",
+        "deviceNotRevealed": "Press a button on this device first.",
+        "slotOccupied": "This place is taken.",
+        "notAssigned": "This device is not placed.",
+        "notAGamepad": "Guests must be gamepads, and so must their host.",
+        "guestsNotSupported": "This game doesn't support several players per instance.",
+        "guestLimitReached": "This instance can't take more guests.",
+        "alreadyGuest": "This gamepad is already a guest.",
+        "notAGuest": "This gamepad is not a guest.",
+        "cannotExpand": "This player can't grow or shrink here.",
+        "cannotResize": "This player can't be resized that way.",
+        "noFreeSlot": "No free slot.",
+        "nothingToPlace": "No revealed device is waiting to be placed.",
+        "full": "Every slot is taken and no monitor can be split further."
+      },
+      "errors": {
+        "noSetup": "No game setup is open.",
+        "sessionRunning": "A session is running.",
+        "libraryNotLoaded": "The game library is not loaded yet.",
+        "cannotGoNext": "This step isn't complete, or it is the last one.",
+        "firstStep": "This is the first step.",
+        "notAChoice": "This option is not a list of values.",
+        "noValue": "No value at this index.",
+        "notAText": "This option is not a text.",
+        "customStepNotFound": "Custom step not found.",
+        "noItem": "No item at this index.",
+        "noIdentitySlot": "This player has no identity slot.",
+        "emptyNickname": "Nicknames can't be empty.",
+        "steamIdLocked": "This handler sets the Steam IDs.",
+        "steamIdFormat": "A Steam ID must be 17 digits, for example 76561199075562883.",
+        "steamIdInUse": "Another player slot uses this Steam ID.",
+        "noAudioSlot_one": "Per-player audio is available for the first player.",
+        "noAudioSlot_other": "Per-player audio is available for the first {count} players.",
+        "audioOutputNotFound": "Audio output not found.",
+        "checkNotFound": "Check not found.",
+        "noFix": "This check has no fix.",
+        "needsPicker": "Choose the game executable.",
+        "adminCancelled": "Restart as administrator was cancelled.",
+        "updatesUnavailable": "Handler updates are not available.",
+        "updateBusy": "The handler is already being updated.",
+        "cannotVibrate": "This device can't vibrate.",
+        "deviceNotFound": "Device not found.",
+        "playerNotFound": "Player not found.",
+        "optionNotFound": "Option not found."
+      }
+    },
+    "profiles": {
+      "unreadable": "This profile can't be read.",
+      "errors": {
+        "disabled": "Profiles are turned off for this game.",
+        "notFound": "Profile not found.",
+        "cannotLoad": "The profile can't be loaded.",
+        "audioUnavailable": "This audio output is not available."
+      }
+    },
+    "session": {
+      "actions": {
+        "toggleTopmost": "Toggle always on top",
+        "setFocus": "Unfocus game windows",
+        "resetWindows": "Reset windows",
+        "cutscenesMode": "Cutscenes mode",
+        "switchLayout": "Switch layout",
+        "shortcutsReminder": "Shortcuts reminder",
+        "switchMergerForeground": "Next merged window"
+      },
+      "errors": {
+        "alreadyRunning": "A session is already running.",
+        "notReady": "The setup isn't ready to play.",
+        "startFailed": "The session couldn't start: {error}",
+        "notRunning": "No session is running.",
+        "inputsLocked": "Unlock the inputs first (press {key}).",
+        "stopLocked": "The session couldn't stop: inputs are locked.",
+        "launchFailed": "The launch failed.",
+        "actionUnavailable": "{action} isn't available now."
+      },
+      "osd": {
+        "windowsUnfocused": "Game Windows Unfocused"
+      }
+    },
+    "notices": {
+      "handlerError": "Handler error",
+      "setupError": "Setup error"
+    },
+    "i18n": {
+      "errors": {
+        "notAvailable": "This language is not available."
+      }
     }
   },
   "engine": {

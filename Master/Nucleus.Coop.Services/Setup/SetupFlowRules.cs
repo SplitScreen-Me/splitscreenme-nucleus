@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Nucleus.Bridge.Contracts;
+using Nucleus.Gaming.Localization;
 
 namespace Nucleus.Coop.Services.Setup
 {
@@ -69,8 +70,11 @@ namespace Nucleus.Coop.Services.Setup
     /// </summary>
     internal static class SetupFlowRules
     {
-        public const string PlayersTitle = "Position players";
-        public const string OptionsTitle = "Options";
+        /// <summary>Title of the players step, in the language in use.</summary>
+        public static string PlayersTitle => I18n.T("host.setup.steps.players");
+
+        /// <summary>Title of the options step, in the language in use.</summary>
+        public static string OptionsTitle => I18n.T("host.setup.steps.options");
 
         /// <summary>The steps that will actually be shown, in order.</summary>
         public static List<StepId> VisibleSteps(FlowInput input)

@@ -184,6 +184,8 @@ export interface MessageParamsMap {
   'host.hub.errors.unexpectedAnswer': undefined;
   /** The server could not be reached: {error} */
   'host.hub.errors.unreachable': { error: ParamValue };
+  /** This language is not available. */
+  'host.i18n.errors.notAvailable': undefined;
   /** This executable is already used by {game} in your library. */
   'host.library.errors.alreadyInLibrary': { game: ParamValue };
   /** The artwork could not be downloaded: {error} */
@@ -330,6 +332,52 @@ export interface MessageParamsMap {
   'host.library.gameMenu.useGamepadButtonPress.description': undefined;
   /** Assign Gamepads On Button Press (profile) */
   'host.library.gameMenu.useGamepadButtonPress.label': undefined;
+  /** Handler error */
+  'host.notices.handlerError': undefined;
+  /** Setup error */
+  'host.notices.setupError': undefined;
+  /** This audio output is not available. */
+  'host.profiles.errors.audioUnavailable': undefined;
+  /** The profile can't be loaded. */
+  'host.profiles.errors.cannotLoad': undefined;
+  /** Profiles are turned off for this game. */
+  'host.profiles.errors.disabled': undefined;
+  /** Profile not found. */
+  'host.profiles.errors.notFound': undefined;
+  /** This profile can't be read. */
+  'host.profiles.unreadable': undefined;
+  /** Cutscenes mode */
+  'host.session.actions.cutscenesMode': undefined;
+  /** Reset windows */
+  'host.session.actions.resetWindows': undefined;
+  /** Unfocus game windows */
+  'host.session.actions.setFocus': undefined;
+  /** Shortcuts reminder */
+  'host.session.actions.shortcutsReminder': undefined;
+  /** Switch layout */
+  'host.session.actions.switchLayout': undefined;
+  /** Next merged window */
+  'host.session.actions.switchMergerForeground': undefined;
+  /** Toggle always on top */
+  'host.session.actions.toggleTopmost': undefined;
+  /** {action} isn't available now. */
+  'host.session.errors.actionUnavailable': { action: ParamValue };
+  /** A session is already running. */
+  'host.session.errors.alreadyRunning': undefined;
+  /** Unlock the inputs first (press {key}). */
+  'host.session.errors.inputsLocked': { key: ParamValue };
+  /** The launch failed. */
+  'host.session.errors.launchFailed': undefined;
+  /** The setup isn't ready to play. */
+  'host.session.errors.notReady': undefined;
+  /** No session is running. */
+  'host.session.errors.notRunning': undefined;
+  /** The session couldn't start: {error} */
+  'host.session.errors.startFailed': { error: ParamValue };
+  /** The session couldn't stop: inputs are locked. */
+  'host.session.errors.stopLocked': undefined;
+  /** Game Windows Unfocused */
+  'host.session.osd.windowsUnfocused': undefined;
   /** Black */
   'host.settings.colors.black': undefined;
   /** Blue */
@@ -638,6 +686,190 @@ export interface MessageParamsMap {
   'host.settings.sections.players.description': undefined;
   /** Players */
   'host.settings.sections.players.title': undefined;
+  /** Restart as administrator */
+  'host.setup.checks.admin.action': undefined;
+  /** This handler requires Nucleus Co-op to run as administrator. */
+  'host.setup.checks.admin.detail': undefined;
+  /** Administrator rights needed */
+  'host.setup.checks.admin.needed': undefined;
+  /** Administrator rights */
+  'host.setup.checks.admin.ok': undefined;
+  /** {count} input devices */
+  'host.setup.checks.devices.count': { count: number };
+  /** No input device */
+  'host.setup.checks.devices.none': undefined;
+  /** Plug in a controller. */
+  'host.setup.checks.devices.noneDetail': undefined;
+  /** Locate */
+  'host.setup.checks.gameFound.action': undefined;
+  /** Game not found */
+  'host.setup.checks.gameFound.missing': undefined;
+  /** Game found */
+  'host.setup.checks.gameFound.ok': undefined;
+  /** This handler doesn't support games installed in C:\Users (Documents, Desktop, Downloads…) or C:\Windows. */
+  'host.setup.checks.gameLocation.detail': undefined;
+  /** Unsupported game location */
+  'host.setup.checks.gameLocation.title': undefined;
+  /** Update */
+  'host.setup.checks.handler.action': undefined;
+  /** Handler up to date */
+  'host.setup.checks.handler.upToDate': undefined;
+  /** Handler update available */
+  'host.setup.checks.handler.updateAvailable': undefined;
+  /** Updating the handler */
+  'host.setup.checks.handler.updating': undefined;
+  /** Version {version} */
+  'host.setup.checks.handler.version': { version: ParamValue };
+  /** Don't show again */
+  'host.setup.checks.inputLock.action': undefined;
+  /** Some handlers need the keyboard and mouse locked to the game windows. Press {key} again when you finish pla... */
+  'host.setup.checks.inputLock.detail': { key: ParamValue };
+  /** Press {key} to lock inputs */
+  'host.setup.checks.inputLock.title': { key: ParamValue };
+  /** Install Nucleus Co-op outside game folders, C:\Users and protected folders, for example C:\Nucleus. */
+  'host.setup.checks.nucleusLocation.detail': undefined;
+  /** Unsupported Nucleus Co-op location */
+  'host.setup.checks.nucleusLocation.title': undefined;
+  /** This handler can't run when the Documents folder is in OneDrive ({folder}). */
+  'host.setup.checks.oneDrive.detail': { folder: ParamValue };
+  /** Documents folder in OneDrive */
+  'host.setup.checks.oneDrive.title': undefined;
+  /** {count} players */
+  'host.setup.checks.players.count': { count: number };
+  /** No player placed */
+  'host.setup.checks.players.none': undefined;
+  /** Place at least one player on a screen. */
+  'host.setup.checks.players.noneDetail': undefined;
+  /** {matched} of {total} matched. */
+  'host.setup.checks.players.profileMatched': { matched: ParamValue; total: ParamValue };
+  /** Waiting for the profile's players */
+  'host.setup.checks.players.waitingForProfile': undefined;
+  /** Controller */
+  'host.setup.devices.controller': undefined;
+  /** Controller {number} */
+  'host.setup.devices.controllerNumber': { number: ParamValue };
+  /** DirectInput controller {number} */
+  'host.setup.devices.dinput': { number: ParamValue };
+  /** Keyboard */
+  'host.setup.devices.keyboard': undefined;
+  /** Keyboard and mouse */
+  'host.setup.devices.keyboardMouse': undefined;
+  /** Mouse */
+  'host.setup.devices.mouse': undefined;
+  /** Virtual keyboard */
+  'host.setup.devices.virtualKeyboard': undefined;
+  /** Virtual mouse */
+  'host.setup.devices.virtualMouse': undefined;
+  /** {device} ({vid}:{pid}) */
+  'host.setup.devices.withIds': { device: ParamValue; pid: ParamValue; vid: ParamValue };
+  /** XInput controller {number} */
+  'host.setup.devices.xinput': { number: ParamValue };
+  /** Restart as administrator was cancelled. */
+  'host.setup.errors.adminCancelled': undefined;
+  /** Audio output not found. */
+  'host.setup.errors.audioOutputNotFound': undefined;
+  /** This step isn't complete, or it is the last one. */
+  'host.setup.errors.cannotGoNext': undefined;
+  /** This device can't vibrate. */
+  'host.setup.errors.cannotVibrate': undefined;
+  /** Check not found. */
+  'host.setup.errors.checkNotFound': undefined;
+  /** Custom step not found. */
+  'host.setup.errors.customStepNotFound': undefined;
+  /** Device not found. */
+  'host.setup.errors.deviceNotFound': undefined;
+  /** Nicknames can't be empty. */
+  'host.setup.errors.emptyNickname': undefined;
+  /** This is the first step. */
+  'host.setup.errors.firstStep': undefined;
+  /** The game library is not loaded yet. */
+  'host.setup.errors.libraryNotLoaded': undefined;
+  /** Choose the game executable. */
+  'host.setup.errors.needsPicker': undefined;
+  /** Per-player audio is available for the first {count} players. */
+  'host.setup.errors.noAudioSlot': { count: number };
+  /** This check has no fix. */
+  'host.setup.errors.noFix': undefined;
+  /** This player has no identity slot. */
+  'host.setup.errors.noIdentitySlot': undefined;
+  /** No item at this index. */
+  'host.setup.errors.noItem': undefined;
+  /** No game setup is open. */
+  'host.setup.errors.noSetup': undefined;
+  /** No value at this index. */
+  'host.setup.errors.noValue': undefined;
+  /** This option is not a list of values. */
+  'host.setup.errors.notAChoice': undefined;
+  /** This option is not a text. */
+  'host.setup.errors.notAText': undefined;
+  /** Option not found. */
+  'host.setup.errors.optionNotFound': undefined;
+  /** Player not found. */
+  'host.setup.errors.playerNotFound': undefined;
+  /** A session is running. */
+  'host.setup.errors.sessionRunning': undefined;
+  /** A Steam ID must be 17 digits, for example 76561199075562883. */
+  'host.setup.errors.steamIdFormat': undefined;
+  /** Another player slot uses this Steam ID. */
+  'host.setup.errors.steamIdInUse': undefined;
+  /** This handler sets the Steam IDs. */
+  'host.setup.errors.steamIdLocked': undefined;
+  /** The handler is already being updated. */
+  'host.setup.errors.updateBusy': undefined;
+  /** Handler updates are not available. */
+  'host.setup.errors.updatesUnavailable': undefined;
+  /** Drag a device to a screen to add a player. */
+  'host.setup.hints.dragPlayersToScreens': undefined;
+  /** Plug in a controller. */
+  'host.setup.hints.noDevices': undefined;
+  /** A gamepad was pressed, but Nucleus couldn't tell which device it is. Press Start on that gamepad alone. If ... */
+  'host.setup.hints.padNotIdentified': undefined;
+  /** A gamepad was pressed, but Nucleus couldn't tell which device it is. Press Start on that gamepad alone. If ... */
+  'host.setup.hints.padNotIdentifiedSlotMode': undefined;
+  /** Pick one: {step} */
+  'host.setup.hints.pickStepItem': { step: ParamValue };
+  /** Press a button on a controller (or use a keyboard) to show it. */
+  'host.setup.hints.pressButtonToIdentify': undefined;
+  /** Player {number}: press a button or a key on the device to use. */
+  'host.setup.hints.profileWaitingForPlayer': { number: ParamValue };
+  /** This gamepad is already a guest. */
+  'host.setup.refusals.alreadyGuest': undefined;
+  /** This player can't grow or shrink here. */
+  'host.setup.refusals.cannotExpand': undefined;
+  /** This player can't be resized that way. */
+  'host.setup.refusals.cannotResize': undefined;
+  /** Press a button on this device first. */
+  'host.setup.refusals.deviceNotRevealed': undefined;
+  /** Every slot is taken and no monitor can be split further. */
+  'host.setup.refusals.full': undefined;
+  /** This instance can't take more guests. */
+  'host.setup.refusals.guestLimitReached': undefined;
+  /** This game doesn't support several players per instance. */
+  'host.setup.refusals.guestsNotSupported': undefined;
+  /** There is no monitor with this index. */
+  'host.setup.refusals.invalidScreen': undefined;
+  /** There is no slot with this index. */
+  'host.setup.refusals.invalidSlot': undefined;
+  /** The manual layout has no slots: place the player at a point. */
+  'host.setup.refusals.manualLayout': undefined;
+  /** No free slot. */
+  'host.setup.refusals.noFreeSlot': undefined;
+  /** Guests must be gamepads, and so must their host. */
+  'host.setup.refusals.notAGamepad': undefined;
+  /** This gamepad is not a guest. */
+  'host.setup.refusals.notAGuest': undefined;
+  /** This device is not placed. */
+  'host.setup.refusals.notAssigned': undefined;
+  /** No revealed device is waiting to be placed. */
+  'host.setup.refusals.nothingToPlace': undefined;
+  /** The loaded profile decides where players go. */
+  'host.setup.refusals.profileLocked': undefined;
+  /** This place is taken. */
+  'host.setup.refusals.slotOccupied': undefined;
+  /** Options */
+  'host.setup.steps.options': undefined;
+  /** Position players */
+  'host.setup.steps.players': undefined;
   /** {percent} translated */
   'language.firstRun.completion': { percent: ParamValue };
   /** Continue in {language} */

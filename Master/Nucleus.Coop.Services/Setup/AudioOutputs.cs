@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NAudio.CoreAudioApi;
 using Nucleus.Bridge.Contracts;
 using Nucleus.Coop.Services.Startup;
+using Nucleus.Gaming.Localization;
 
 namespace Nucleus.Coop.Services.Setup
 {
@@ -16,7 +18,9 @@ namespace Nucleus.Coop.Services.Setup
 
         private List<SettingChoice> outputs = new List<SettingChoice> { new SettingChoice { Value = Default, Label = Default } };
 
-        public IReadOnlyList<SettingChoice> Current => outputs;
+        /// <summary>The outputs, "Default" labelled in the language in use.</summary>
+        public IReadOnlyList<SettingChoice> Current =>
+            outputs.Select(c => c.Value == Default ? new SettingChoice { Value = Default, Label = I18n.T("common.default") } : c).ToList();
 
         /// <summary>Enumerates the endpoints again (UI thread).</summary>
         public void Refresh()
