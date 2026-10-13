@@ -64,7 +64,7 @@ URLs: `https://assets.nucleus.example/<path under gui>?v=<last write ticks>` (pa
 | `disableHandlerUpdate` | toggle (checked = updates off) | always | Turning updates back on checks the hub in the background. |
 | `changeIcon` | action, `clientAction: pickFile` + `fileFilters` | always | The UI picks a file, then calls with `value` = its path (png, jpg, jpeg, jfif, gif, bmp, tif, tiff, ico, exe). |
 | `gameAssets` › `openCoverFolder`, `openScreenshotsFolder` | submenu | cover / screenshots exist | Explorer (the cover is selected). |
-| `steamLanguage` | choice | `(SteamID && UseGoldberg) || UseGoldbergNoOGSteamDlls || NeedsSteamEmulation` | `value` in the listed languages ("App Setting" first). |
+| `steamLanguage` | choice | `(SteamID && UseGoldberg) || UseGoldbergNoOGSteamDlls || NeedsSteamEmulation` | `value` in the listed languages ("App Setting" first). `choiceLabels` labels "App Setting" in the app's language; Steam language names stay as they are. |
 | `remove` | action, danger, confirm | always | `library.remove`. |
 
 `runMenuAction` rebuilds the menu and refuses ids it does not contain (`notFound`, reason `itemUnavailable`), so a dynamic id can only target a folder the menu offers. Destructive items are refused during a session. The gamepad toggles and `disableProfiles` raise `LibraryHooks.SetupInvalidated(gameId)` for the game being set up, and the two index/button-press toggles set `GameProfile.UseXinputIndex` like the legacy code.
