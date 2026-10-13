@@ -13,6 +13,7 @@ using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Coop
 {
@@ -48,7 +49,7 @@ namespace Nucleus.Coop
             Thread.Sleep(1000);// Lets a restarting instance (restart as administrator) exit first.
             if (Process.GetProcessesByName("NucleusCoop").Length > 1)
             {
-                MessageBox.Show("Nucleus Co-op is already running, if you don't see the Nucleus Co-op window it might be running in the background, close the process using task manager.", "Nucleus Co-op is already running", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(TPlain("engine.startChecks.alreadyRunning.message"), TPlain("engine.startChecks.alreadyRunning.title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 isRunning = true;
             }
 
@@ -108,7 +109,7 @@ namespace Nucleus.Coop
                 {
                     if (!File.Exists(Path.Combine(Globals.NucleusInstallRoot, file)))
                     {
-                        if (MessageBox.Show(file + " is missing from your Nucleus Co-op installation folder. Check that your antivirus program is not deleting or blocking any Nucleus Co-op files. Add the Nucleus Co-op folder to your antivirus exceptions list and extract it again. Click \"OK\" for more information", "Missing file(s)", MessageBoxButtons.OKCancel, MessageBoxIcon.Error) == DialogResult.OK)
+                        if (MessageBox.Show(TPlain("engine.startChecks.missingFile.message", new { file }), TPlain("engine.startChecks.missingFile.title"), MessageBoxButtons.OKCancel, MessageBoxIcon.Error) == DialogResult.OK)
                         {
                             Process.Start("https://www.splitscreen.me/docs/faq/#7--nucleus-co-op-doesnt-launchcrashes-how-do-i-fix-it");
                             Process nc = Process.GetCurrentProcess();

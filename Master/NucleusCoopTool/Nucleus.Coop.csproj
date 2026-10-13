@@ -572,4 +572,13 @@ RD /S /Q "$(TargetDir)runtimes\"</PostBuildEvent>
     <Copy SourceFiles="$(MSBuildProjectDirectory)\Host\WebUiPlaceholder.html" DestinationFiles="$(WebUiOutputDir)index.html" />
     <Message Importance="high" Text="No web UI build in $(WebUiDistDir): wrote a placeholder $(WebUiOutputDir)index.html" />
   </Target>
+  <!-- Languages: Master\i18n\*.json (en.json, the source of every string, and the translations) to i18n\ next to the exe,
+       one file per language; the app lists the languages it finds there (docs/webui/i18n.md). Other files already in
+       the output's i18n\ (a translation in progress) are kept. -->
+  <Target Name="CopyI18n" AfterTargets="Build">
+    <ItemGroup>
+      <I18nFiles Include="$(MSBuildProjectDirectory)\..\i18n\*.json" />
+    </ItemGroup>
+    <Copy SourceFiles="@(I18nFiles)" DestinationFolder="$(TargetDir)i18n\" SkipUnchangedFiles="true" />
+  </Target>
 </Project>

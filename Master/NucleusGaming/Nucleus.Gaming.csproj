@@ -278,6 +278,13 @@
     <Compile Include="Globals.cs" />
     <Compile Include="HubSite.cs" />
     <Compile Include="InstallPaths.cs" />
+    <Compile Include="Localization\I18n.cs" />
+    <Compile Include="Localization\LanguageDetector.cs" />
+    <Compile Include="Localization\LanguageFile.cs" />
+    <Compile Include="Localization\LanguageSettings.cs" />
+    <Compile Include="Localization\MessageFormat.cs" />
+    <Compile Include="Localization\PluralRules.cs" />
+    <Compile Include="Localization\Translator.cs" />
     <Compile Include="Platform\IO\WinDirectoryUtil.cs" />
     <Compile Include="Platform\MachineSpecs\MachineSpecs.cs" />
     <Compile Include="Platform\Windows\GetNetFrameworkVersion.cs" />
@@ -385,6 +392,11 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <!-- English strings built in (I18n.BuiltInEnglish): the fallback when i18n\en.json is missing next to the exe. -->
+    <EmbeddedResource Include="..\i18n\en.json">
+      <Link>Localization\en.json</Link>
+      <LogicalName>Nucleus.Gaming.Localization.en.json</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

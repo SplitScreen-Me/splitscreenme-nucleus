@@ -3,6 +3,7 @@ using Nucleus.Coop.Host;
 using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Cache;
+using Nucleus.Gaming.Localization;
 using Nucleus.Gaming.Windows;
 using System;
 using System.IO;
@@ -48,6 +49,10 @@ namespace Nucleus.Coop
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            // Strings before any message, start checks included: i18n\<language>.json, the saved language (Settings.ini
+            // [Misc] AppLanguage) or the one matching Windows until the user picks one.
+            I18n.Initialize();
 
             if (StartChecks.IsInvalidDriveFormat())
             {

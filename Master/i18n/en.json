@@ -1,0 +1,162 @@
+{
+  "_meta": {
+    "locale": "en",
+    "englishName": "English",
+    "nativeName": "English",
+    "direction": "ltr"
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "close": "Close",
+    "back": "Back",
+    "save": "Save",
+    "delete": "Delete",
+    "retry": "Retry",
+    "tryAgain": "Try again",
+    "loading": "Loading",
+    "edit": "Edit",
+    "add": "Add",
+    "remove": "Remove",
+    "rename": "Rename",
+    "search": "Search",
+    "select": "Select",
+    "change": "Change",
+    "browse": "Browse",
+    "open": "Open",
+    "openMenu": "Open menu",
+    "more": "More",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "yes": "Yes",
+    "no": "No",
+    "continue": "Continue",
+    "done": "Done",
+    "apply": "Apply",
+    "reset": "Reset",
+    "restart": "Restart",
+    "discard": "Discard",
+    "skip": "Skip",
+    "install": "Install",
+    "update": "Update",
+    "download": "Download",
+    "launch": "Launch",
+    "stop": "Stop",
+    "copy": "Copy",
+    "copied": "Copied",
+    "details": "Details",
+    "settings": "Settings",
+    "learnMore": "Learn more",
+    "on": "On",
+    "off": "Off",
+    "none": "None",
+    "unknown": "Unknown",
+    "default": "Default",
+    "automatic": "Automatic",
+    "notAvailable": "{value} (not available)",
+    "time": {
+      "justNow": "just now",
+      "inMonth": "in {month}"
+    },
+    "errors": {
+      "timeout": "Nucleus Co-op did not answer in time. Try again.",
+      "internal": "Something went wrong in Nucleus Co-op. The details are in the app log.",
+      "methodNotFound": "This version of Nucleus Co-op cannot do that yet.",
+      "cancelled": "Cancelled.",
+      "failed": "That did not work. Try again.",
+      "unknown": "Something went wrong. Try again."
+    }
+  },
+  "shell": {
+    "startup": {
+      "starting": "Starting Nucleus Co-op",
+      "mismatchTitle": "UI and app versions don't match",
+      "mismatchMessage": "The interface files of this install were not built for Nucleus Co-op {version}. Reinstall Nucleus Co-op to get matching files.",
+      "mismatchDetails": "UI contract {uiContract} (protocol {uiProtocol}), app contract {appContract} (protocol {appProtocol})",
+      "hostDownTitle": "Nucleus Co-op did not answer",
+      "hostDownMessage": "The interface could not reach the app ({error}). Close Nucleus Co-op and start it again."
+    },
+    "titleBar": {
+      "home": "Nucleus Co-op, go to library",
+      "breadcrumb": "Breadcrumb",
+      "documentTitle": "{screen} - Nucleus Co-op",
+      "search": "Search games, handlers, settings",
+      "setupDevices": "Players and devices in this setup",
+      "player": "Player {number}: {devices}",
+      "playerNamed": "Player {number} ({nickname}): {devices}",
+      "playerShort": "P{number}",
+      "noDevice": "no device",
+      "vibrateHint": "{label}. Click to make the gamepad vibrate.",
+      "vibrateLabel": "{label}. Vibrate",
+      "freeDevicesHint": "Free: {names}",
+      "freeDevicesLabel_one": "{count} free: {names}",
+      "freeDevicesLabel_other": "{count} free: {names}",
+      "freeDevices_one": "{count} free",
+      "freeDevices_other": "{count} free",
+      "controllers": "Connected controllers",
+      "controllerFallback": "Controller {number}",
+      "controllerConnected": "{name}, connected",
+      "controllerShort": "Pad {number}",
+      "noController": "No controller",
+      "noControllerHint": "No controller seen yet. Press a button on a controller to show it here."
+    },
+    "window": {
+      "minimize": "Minimize",
+      "maximize": "Maximize",
+      "restore": "Restore",
+      "close": "Close"
+    }
+  },
+  "ui": {},
+  "features": {},
+  "language": {
+    "firstRun": {
+      "title": "Choose your language",
+      "description": "Nucleus Co-op shows its windows and messages in this language. You can change it at any time in Settings.",
+      "listLabel": "Languages",
+      "detected": "Your Windows language",
+      "completion": "{percent} translated",
+      "confirm": "Continue in {language}"
+    }
+  },
+  "library": {},
+  "catalog": {},
+  "handler": {},
+  "downloads": {},
+  "hub": {},
+  "lobby": {},
+  "setup": {},
+  "profiles": {},
+  "session": {},
+  "settings": {},
+  "host": {
+    "settings": {
+      "sections": {
+        "general": {
+          "title": "General",
+          "description": "Language, network and Windows user accounts used by game instances."
+        }
+      },
+      "fields": {
+        "misc": {
+          "appLanguage": {
+            "label": "Language",
+            "description": "Language of Nucleus Co-op's windows and messages. Handler notes and game names stay as their authors wrote them."
+          }
+        }
+      }
+    }
+  },
+  "engine": {
+    "startChecks": {
+      "alreadyRunning": {
+        "title": "Nucleus Co-op is already running",
+        "message": "Nucleus Co-op is already running. If you don't see its window, it may be running in the background: close the process with Task Manager."
+      },
+      "missingFile": {
+        "title": "Missing file",
+        "message": "{file} is missing from your Nucleus Co-op folder. Check that your antivirus program is not deleting or blocking Nucleus Co-op files: add the Nucleus Co-op folder to its exceptions and extract Nucleus Co-op again. Click OK for more information."
+      }
+    }
+  }
+}
