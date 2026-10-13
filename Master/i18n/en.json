@@ -105,6 +105,71 @@
       "maximize": "Maximize",
       "restore": "Restore",
       "close": "Close"
+    },
+    "skipToContent": "Skip to content",
+    "offlineBanner": {
+      "title": "The Hub is offline.",
+      "message": "Your games still work; installing and updating handlers waits until it is back."
+    },
+    "hintBar": {
+      "label": "Controls",
+      "hintsLabel": "Button hints",
+      "version": "Nucleus Co-op {version}"
+    },
+    "rail": {
+      "label": "Main",
+      "library": "Library",
+      "games": "Get games",
+      "downloads": "Downloads",
+      "settings": "Settings",
+      "inProgress_one": "{label}, {count} in progress",
+      "inProgress_other": "{label}, {count} in progress"
+    },
+    "palette": {
+      "label": "Search",
+      "search": "Search games, handlers, settings",
+      "results": "Results",
+      "noMatch": "Nothing matches “{query}”.",
+      "groups": {
+        "goTo": "Go to",
+        "yourGames": "Your games",
+        "getGames": "Get games",
+        "settings": "Settings"
+      },
+      "screens": {
+        "library": "Library",
+        "games": "Get games",
+        "gamesHint": "Browse every handler on the Hub",
+        "downloads": "Downloads",
+        "settings": "Settings",
+        "session": "{game} session",
+        "sessionUnnamed": "Game session",
+        "sessionHint": "Running now"
+      },
+      "gameHint_one": "Set up a session, up to {count} player",
+      "gameHint_other": "Set up a session, up to {count} players",
+      "handlerHint": "Handler by {author}",
+      "settings": {
+        "general": "General: languages, network, nicknames, debug log",
+        "players": "Players: nicknames and Steam IDs",
+        "hotkeys": "Keyboard shortcuts and input lock key",
+        "gamepad": "Gamepad shortcuts and controller type",
+        "audio": "Audio: playback device of each instance",
+        "layout": "Layout: custom grid, background, windows merger",
+        "about": "About, handlers folder, updates"
+      }
+    },
+    "notFound": {
+      "crumb": "Not found",
+      "title": "This screen does not exist",
+      "message": "The link may be from an older version of Nucleus Co-op.",
+      "backToLibrary": "Back to library"
+    },
+    "crashed": {
+      "title": "Something broke on this screen",
+      "message": "Nucleus Co-op is still running. Go back to the library and try again; if it happens again, copy the details below into a bug report.",
+      "unknownError": "Unknown error",
+      "backToLibrary": "Back to library"
     }
   },
   "ui": {},

@@ -144,6 +144,96 @@ export interface MessageParamsMap {
   'language.firstRun.listLabel': undefined;
   /** Choose your language */
   'language.firstRun.title': undefined;
+  /** Back to library */
+  'shell.crashed.backToLibrary': undefined;
+  /** Nucleus Co-op is still running. Go back to the library and try again; if it happens again, copy the details... */
+  'shell.crashed.message': undefined;
+  /** Something broke on this screen */
+  'shell.crashed.title': undefined;
+  /** Unknown error */
+  'shell.crashed.unknownError': undefined;
+  /** Button hints */
+  'shell.hintBar.hintsLabel': undefined;
+  /** Controls */
+  'shell.hintBar.label': undefined;
+  /** Nucleus Co-op {version} */
+  'shell.hintBar.version': { version: ParamValue };
+  /** Back to library */
+  'shell.notFound.backToLibrary': undefined;
+  /** Not found */
+  'shell.notFound.crumb': undefined;
+  /** The link may be from an older version of Nucleus Co-op. */
+  'shell.notFound.message': undefined;
+  /** This screen does not exist */
+  'shell.notFound.title': undefined;
+  /** Your games still work; installing and updating handlers waits until it is back. */
+  'shell.offlineBanner.message': undefined;
+  /** The Hub is offline. */
+  'shell.offlineBanner.title': undefined;
+  /** Set up a session, up to {count} players */
+  'shell.palette.gameHint': { count: number };
+  /** Get games */
+  'shell.palette.groups.getGames': undefined;
+  /** Go to */
+  'shell.palette.groups.goTo': undefined;
+  /** Settings */
+  'shell.palette.groups.settings': undefined;
+  /** Your games */
+  'shell.palette.groups.yourGames': undefined;
+  /** Handler by {author} */
+  'shell.palette.handlerHint': { author: ParamValue };
+  /** Search */
+  'shell.palette.label': undefined;
+  /** Nothing matches “{query}”. */
+  'shell.palette.noMatch': { query: ParamValue };
+  /** Results */
+  'shell.palette.results': undefined;
+  /** Downloads */
+  'shell.palette.screens.downloads': undefined;
+  /** Get games */
+  'shell.palette.screens.games': undefined;
+  /** Browse every handler on the Hub */
+  'shell.palette.screens.gamesHint': undefined;
+  /** Library */
+  'shell.palette.screens.library': undefined;
+  /** {game} session */
+  'shell.palette.screens.session': { game: ParamValue };
+  /** Running now */
+  'shell.palette.screens.sessionHint': undefined;
+  /** Game session */
+  'shell.palette.screens.sessionUnnamed': undefined;
+  /** Settings */
+  'shell.palette.screens.settings': undefined;
+  /** Search games, handlers, settings */
+  'shell.palette.search': undefined;
+  /** About, handlers folder, updates */
+  'shell.palette.settings.about': undefined;
+  /** Audio: playback device of each instance */
+  'shell.palette.settings.audio': undefined;
+  /** Gamepad shortcuts and controller type */
+  'shell.palette.settings.gamepad': undefined;
+  /** General: languages, network, nicknames, debug log */
+  'shell.palette.settings.general': undefined;
+  /** Keyboard shortcuts and input lock key */
+  'shell.palette.settings.hotkeys': undefined;
+  /** Layout: custom grid, background, windows merger */
+  'shell.palette.settings.layout': undefined;
+  /** Players: nicknames and Steam IDs */
+  'shell.palette.settings.players': undefined;
+  /** Downloads */
+  'shell.rail.downloads': undefined;
+  /** Get games */
+  'shell.rail.games': undefined;
+  /** {label}, {count} in progress */
+  'shell.rail.inProgress': { count: number; label: ParamValue };
+  /** Main */
+  'shell.rail.label': undefined;
+  /** Library */
+  'shell.rail.library': undefined;
+  /** Settings */
+  'shell.rail.settings': undefined;
+  /** Skip to content */
+  'shell.skipToContent': undefined;
   /** The interface could not reach the app ({error}). Close Nucleus Co-op and start it again. */
   'shell.startup.hostDownMessage': { error: ParamValue };
   /** Nucleus Co-op did not answer */
