@@ -1,6 +1,6 @@
 // Numbers, dates, durations, sizes and lists for a language, with Intl. Never build them by hand: the order, separators
 // and words change between languages ("1,234.5" / "1 234,5", "2 hr 14 min" / "2 h 14 min", "Jul 31, 2024" / "31 juil. 2024").
-import type { Params } from './core.ts';
+import { intlLocale, type Params } from './core.ts';
 
 /** A date as the bridge and the hub send it (ISO 8601), a Date, or milliseconds since the epoch. */
 export type DateInput = string | number | Date | undefined | null;
@@ -48,6 +48,8 @@ function toDate(value: DateInput): Date | undefined {
 
 /** Formatters for `locale`. `phrases` gives the few words Intl lacks ("just now", "in {month}"). */
 export function createFormatters(locale: string, phrases: FormatPhrases): Formatters {
+  // Intl gets English for a tag it doesn't know (instead of the runtime's language); `locale` stays the app's tag.
+  const intl = intlLocale(locale);
   const cache = new Map<string, unknown>();
   const cached = <T>(kind: string, options: object, make: () => T): T => {
     const key = `${kind}:${JSON.stringify(options)}`;
@@ -58,9 +60,9 @@ export function createFormatters(locale: string, phrases: FormatPhrases): Format
     }
     return value;
   };
-  const nf = (options: Intl.NumberFormatOptions = {}) => cached('n', options, () => new Intl.NumberFormat(locale, options));
-  const df = (options: Intl.DateTimeFormatOptions) => cached('d', options, () => new Intl.DateTimeFormat(locale, options));
-  const rtf = cached('r', {}, () => new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }));
+  const nf = (options: Intl.NumberFormatOptions = {}) => cached('n', options, () => new Intl.NumberFormat(intl, options));
+  const df = (options: Intl.DateTimeFormatOptions) => cached('d', options, () => new Intl.DateTimeFormat(intl, options));
+  const rtf = cached('r', {}, () => new Intl.RelativeTimeFormat(intl, { numeric: 'auto' }));
   const unit = (value: number, name: string) => nf({ style: 'unit', unit: name, unitDisplay: 'short', maximumFractionDigits: 1 }).format(value);
   const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 
@@ -125,12 +127,12 @@ export function createFormatters(locale: string, phrases: FormatPhrases): Format
       const h = Math.floor(seconds / 3600);
       const m = Math.round((seconds % 3600) / 60);
       const parts = [h ? unit(h, 'hour') : '', h && !m ? '' : unit(h ? m : Math.max(1, m), 'minute')].filter(Boolean);
-      return cached('l', { type: 'unit', style: 'narrow' }, () => new Intl.ListFormat(locale, { type: 'unit', style: 'narrow' })).format(parts);
+      return cached('l', { type: 'unit', style: 'narrow' }, () => new Intl.ListFormat(intl, { type: 'unit', style: 'narrow' })).format(parts);
     },
     clock(ms) {
       const s = Math.max(0, Math.floor(ms / 1000));
       return `${Math.floor(s / 3600)}:${String(Math.floor((s % 3600) / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
     },
-    list: (items, type = 'conjunction') => cached('l', { type }, () => new Intl.ListFormat(locale, { type, style: 'long' })).format(items),
+    list: (items, type = 'conjunction') => cached('l', { type }, () => new Intl.ListFormat(intl, { type, style: 'long' })).format(items),
   };
 }

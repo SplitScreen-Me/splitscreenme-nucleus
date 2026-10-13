@@ -41,17 +41,33 @@ export const baseKey = (key: string): string => key.replace(PLURAL_SUFFIX, '');
 /** The plural suffix of a key (`one` for `x_one`), or undefined. */
 export const pluralSuffix = (key: string): string | undefined => PLURAL_SUFFIX.exec(key)?.[1];
 
+const intlLocales = new Map<string, string>();
+
+/**
+ * The tag to give Intl for `locale`: the tag itself when Intl knows its language (`fr-CA`, `en-XA` via `en`), else
+ * English. Given a tag it doesn't know, Intl silently uses the runtime's own locale (the Windows language), so a
+ * language file with an unusual tag would get, say, French lists and plural rules; C# uses the English rules too.
+ */
+export function intlLocale(locale: string): string {
+  let tag = intlLocales.get(locale);
+  if (tag === undefined) {
+    try {
+      tag = Intl.PluralRules.supportedLocalesOf([locale]).length ? locale : DEFAULT_LOCALE;
+    } catch {
+      tag = DEFAULT_LOCALE; // not a valid language tag
+    }
+    intlLocales.set(locale, tag);
+  }
+  return tag;
+}
+
 const pluralRules = new Map<string, Intl.PluralRules>();
 
 /** CLDR category of `count` in `locale` (Intl.PluralRules; the C# PluralRules gives the same answers). */
 export function pluralCategory(locale: string, count: number): Intl.LDMLPluralRule {
   let rules = pluralRules.get(locale);
   if (!rules) {
-    try {
-      rules = new Intl.PluralRules(locale);
-    } catch {
-      rules = new Intl.PluralRules(DEFAULT_LOCALE);
-    }
+    rules = new Intl.PluralRules(intlLocale(locale));
     pluralRules.set(locale, rules);
   }
   return rules.select(count);
@@ -188,7 +204,7 @@ export interface Translator {
 }
 
 export function createTranslator({ locale, messages, fallback, formatValue, onMissing }: TranslatorOptions): Translator {
-  const numbers = new Intl.NumberFormat(locale, { maximumFractionDigits: 3 });
+  const numbers = new Intl.NumberFormat(intlLocale(locale), { maximumFractionDigits: 3 });
   const format = formatValue ?? ((value: ParamValue) => (typeof value === 'number' ? numbers.format(value) : value));
   const reported = new Set<string>();
   const template = (key: string, params?: Params) =>

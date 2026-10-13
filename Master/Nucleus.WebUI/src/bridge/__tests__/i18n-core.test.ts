@@ -9,6 +9,7 @@ import {
   createTranslator,
   flattenMessages,
   interpolate,
+  intlLocale,
   matchLocale,
   parseRich,
   pluralCategory,
@@ -164,4 +165,20 @@ test('formatters follow the language', () => {
   assert.equal(en.ago(new Date(t - 30_000).toISOString(), t), 'just now');
   assert.equal(en.ago(new Date(t - 5 * 60_000).toISOString(), t), '5 minutes ago');
   assert.equal(en.ago(new Date(t - 3 * 864e5).toISOString(), t), '3 days ago');
+});
+
+test('a tag Intl does not know formats and pluralizes as English, not as the runtime language', () => {
+  assert.equal(intlLocale('fr-CA'), 'fr-CA');
+  assert.equal(intlLocale('en-XA'), 'en-XA');
+  assert.equal(intlLocale('xx'), 'en');
+  assert.equal(intlLocale('not a tag'), 'en');
+
+  const xx = createFormatters('xx', () => '');
+  assert.equal(xx.locale, 'xx');
+  assert.equal(xx.list(['Steam', 'Epic']), 'Steam and Epic');
+  assert.equal(xx.number(1234.5), '1,234.5');
+  assert.equal(pluralCategory('xx', 0), 'other');
+  assert.equal(pluralCategory('xx', 1), 'one');
+  const t = createTranslator({ locale: 'xx', messages: {}, fallback: { n: '{value}' } });
+  assert.equal(t.t('n', { value: 1234.5 }), '1,234.5');
 });
