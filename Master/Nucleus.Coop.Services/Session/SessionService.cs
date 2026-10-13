@@ -340,7 +340,7 @@ namespace Nucleus.Coop.Services.Session
                     return () =>
                     {
                         GlobalWindowMethods.ChangeForegroundWindow();
-                        Globals.MainOSD?.Show(2000, I18n.T("host.session.osd.windowsUnfocused"));
+                        Globals.MainOSD?.Show(2000, I18n.T("engine.osd.windowsUnfocused"));
                     };
                 case SessionAction.ResetWindows:
                     return () => GlobalWindowMethods.ResetingWindows = true;

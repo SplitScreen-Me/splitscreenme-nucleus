@@ -256,8 +256,8 @@ function WindowControls() {
       </button>
       <button
         type="button"
-        aria-label={t('shell.window.close')}
-        title={t('shell.window.close')}
+        aria-label={t('common.close')}
+        title={t('common.close')}
         className={cn(btn, 'hover:bg-win-close hover:text-white')}
         onClick={() => void bridge.window.close().catch(() => undefined)}
       >

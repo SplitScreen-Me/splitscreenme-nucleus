@@ -71,15 +71,7 @@
       "controllers": "Controllers",
       "keyboardMouse": "Keyboard and mouse",
       "multiKeyboardMouse": "Several keyboards and mice",
-      "unknown": "Input support unknown",
-      "summary": {
-        "_note": "One line saying which inputs a game supports (library).",
-        "controllersMultiKeyboardMouse": "Controllers, keyboards and mice",
-        "controllersKeyboardMouse": "Controllers, keyboard and mouse",
-        "controllers": "Controllers",
-        "multiKeyboardMouse": "Keyboards and mice",
-        "keyboardMouse": "Keyboard and mouse"
-      }
+      "unknown": "Input support unknown"
     },
     "devices": {
       "_note": "Kinds of input device as they read inside a sentence (lower case in English).",
@@ -125,8 +117,7 @@
     "window": {
       "minimize": "Minimize",
       "maximize": "Maximize",
-      "restore": "Restore",
-      "close": "Close"
+      "restore": "Restore"
     },
     "skipToContent": "Skip to content",
     "offlineBanner": {
@@ -336,8 +327,7 @@
       "controllersKeyboardMouse": "Controllers, keyboard and mouse",
       "controllers": "Controllers",
       "keyboardsMice": "Keyboards and mice",
-      "keyboardMouse": "Keyboard and mouse",
-      "unknown": "Input support unknown"
+      "keyboardMouse": "Keyboard and mouse"
     },
     "featured": {
       "setUpSession": "Set up session",
@@ -582,7 +572,6 @@
       "inLibraryTitle": "Installed, the game is in your library",
       "installed": "Installed",
       "installedTitle": "Handler installed, the game is not in your library yet",
-      "update": "Update",
       "updateTitle": "A newer version of this handler is on the Hub"
     }
   },
@@ -619,9 +608,6 @@
     "compat": {
       "title": "Compatibility",
       "players": "Players",
-      "controllers": "Controllers",
-      "keyboardMouse": "Keyboard and mouse",
-      "multiKeyboardMouse": "Several keyboards and mice",
       "moderators": "Hub moderators",
       "supported": "Supported",
       "notSupported": "Not supported",
@@ -764,11 +750,6 @@
     "downloadCount_other": "{downloads} downloads",
     "players": {
       "any": "Any"
-    },
-    "inputs": {
-      "controllers": "Controllers",
-      "keyboardMouse": "Keyboard and mouse",
-      "multiKeyboardMouse": "Several keyboards and mice"
     },
     "sort": {
       "trending": "Trending",
@@ -2253,9 +2234,6 @@
         "stopLocked": "The session couldn't stop: inputs are locked.",
         "launchFailed": "The launch failed.",
         "actionUnavailable": "{action} isn't available now."
-      },
-      "osd": {
-        "windowsUnfocused": "Game Windows Unfocused"
       }
     },
     "notices": {

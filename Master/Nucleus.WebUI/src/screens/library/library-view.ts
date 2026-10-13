@@ -37,7 +37,7 @@ export function inputsPhrase(t: TFunction, inputs: GameInputs): string {
   if (pads) return t('library.inputs.controllers');
   if (inputs.multipleKeyboards) return t('library.inputs.keyboardsMice');
   if (inputs.keyboard) return t('library.inputs.keyboardMouse');
-  return t('library.inputs.unknown');
+  return t('common.inputs.unknown');
 }
 
 const byName = (a: GameSummary, b: GameSummary) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' });

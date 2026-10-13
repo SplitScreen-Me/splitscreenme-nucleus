@@ -8,7 +8,7 @@ import type { HandlerInstallStatus } from './install-state';
 const BADGES: Partial<Record<HandlerInstallStatus, { icon: IconName; label: MessageKey; title: MessageKey; solid: boolean }>> = {
   library: { icon: 'check', label: 'catalog.card.inLibrary', title: 'catalog.card.inLibraryTitle', solid: true },
   installed: { icon: 'download', label: 'catalog.card.installed', title: 'catalog.card.installedTitle', solid: false },
-  update: { icon: 'update', label: 'catalog.card.update', title: 'catalog.card.updateTitle', solid: true },
+  update: { icon: 'update', label: 'common.update', title: 'catalog.card.updateTitle', solid: true },
 };
 
 /** A game on the shelf: cover, name, author, downloads, seats and inputs. */

@@ -1,6 +1,5 @@
 // The user's library as the screens read it: live queries plus small derivations of `GameSummary`.
 import { useBridgeQuery, type GameInputs, type GameSummary, type InstalledHandler } from '@/bridge';
-import { t } from '@/i18n';
 
 /** Every library game (refetched on `library.changed` / `handlers.changed`). */
 export const useLibrary = () => useBridgeQuery('library.list');
@@ -29,20 +28,6 @@ export const heroOf = (game: Pick<GameSummary, 'heroUrl' | 'coverUrl'>) => game.
 
 /** Route of a game's setup (lobby). */
 export const setupPath = (gameId: string) => `/library/${encodeURIComponent(gameId)}/setup`;
-
-/**
- * "Controllers, keyboard and mouse" from the inputs a handler supports, in the language in use (callers re-render on a
- * change of language through their own hooks).
- */
-export function inputsPhrase(inputs: GameInputs): string {
-  const pads = inputs.xInput || inputs.dInput;
-  if (pads && inputs.multipleKeyboards) return t('common.inputs.summary.controllersMultiKeyboardMouse');
-  if (pads && inputs.keyboard) return t('common.inputs.summary.controllersKeyboardMouse');
-  if (pads) return t('common.inputs.summary.controllers');
-  if (inputs.multipleKeyboards) return t('common.inputs.summary.multiKeyboardMouse');
-  if (inputs.keyboard) return t('common.inputs.summary.keyboardMouse');
-  return t('common.inputs.unknown');
-}
 
 /** The `InputSupport` flags of the design system, from the inputs a handler supports. */
 export const inputFlags = (inputs: GameInputs) => ({

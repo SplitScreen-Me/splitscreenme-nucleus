@@ -260,9 +260,9 @@ function Compat({ handler: h }: { handler: HubHandler }) {
           <Pips players={h.maxPlayers} size="lg" />
         </span>
       </li>
-      {cell(h.inputs.controllers, 'pad', 'handler.compat.controllers', 'handler.compat.supported', 'handler.compat.notSupported')}
-      {cell(h.inputs.keyboardMouse, 'kbm', 'handler.compat.keyboardMouse', 'handler.compat.supported', 'handler.compat.notSupported')}
-      {cell(h.inputs.multiKeyboardMouse, 'multi', 'handler.compat.multiKeyboardMouse', 'handler.compat.onePerPlayer', 'handler.compat.notSupported')}
+      {cell(h.inputs.controllers, 'pad', 'common.inputs.controllers', 'handler.compat.supported', 'handler.compat.notSupported')}
+      {cell(h.inputs.keyboardMouse, 'kbm', 'common.inputs.keyboardMouse', 'handler.compat.supported', 'handler.compat.notSupported')}
+      {cell(h.inputs.multiKeyboardMouse, 'multi', 'common.inputs.multiKeyboardMouse', 'handler.compat.onePerPlayer', 'handler.compat.notSupported')}
       {cell(h.verified, 'seal', 'handler.compat.moderators', 'handler.compat.verified', 'handler.compat.notVerified', true)}
     </ul>
   );

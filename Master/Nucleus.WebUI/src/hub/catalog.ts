@@ -28,9 +28,9 @@ export const PLAYERS: ReadonlyArray<{ key: PlayersFilter; range: string; test: (
 ];
 
 export const INPUTS: ReadonlyArray<{ key: InputFilter; icon: 'pad' | 'kbm' | 'multi'; label: MessageKey; test: (h: HubHandler) => boolean }> = [
-  { key: 'pad', icon: 'pad', label: 'hub.inputs.controllers', test: (h) => h.inputs.controllers === true },
-  { key: 'kbm', icon: 'kbm', label: 'hub.inputs.keyboardMouse', test: (h) => h.inputs.keyboardMouse === true },
-  { key: 'multi', icon: 'multi', label: 'hub.inputs.multiKeyboardMouse', test: (h) => h.inputs.multiKeyboardMouse === true },
+  { key: 'pad', icon: 'pad', label: 'common.inputs.controllers', test: (h) => h.inputs.controllers === true },
+  { key: 'kbm', icon: 'kbm', label: 'common.inputs.keyboardMouse', test: (h) => h.inputs.keyboardMouse === true },
+  { key: 'multi', icon: 'multi', label: 'common.inputs.multiKeyboardMouse', test: (h) => h.inputs.multiKeyboardMouse === true },
 ];
 
 export const SORTS: ReadonlyArray<{ key: SortKey; label: MessageKey; compare: (a: HubHandler, b: HubHandler) => number }> = [

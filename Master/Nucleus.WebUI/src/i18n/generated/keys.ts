@@ -12,8 +12,6 @@ export interface MessageParamsMap {
   'catalog.card.installed': undefined;
   /** Handler installed, the game is not in your library yet */
   'catalog.card.installedTitle': undefined;
-  /** Update */
-  'catalog.card.update': undefined;
   /** A newer version of this handler is on the Hub */
   'catalog.card.updateTitle': undefined;
   /** Verified handler */
@@ -160,16 +158,6 @@ export interface MessageParamsMap {
   'common.inputs.keyboardMouse': undefined;
   /** Several keyboards and mice */
   'common.inputs.multiKeyboardMouse': undefined;
-  /** Controllers */
-  'common.inputs.summary.controllers': undefined;
-  /** Controllers, keyboard and mouse */
-  'common.inputs.summary.controllersKeyboardMouse': undefined;
-  /** Controllers, keyboards and mice */
-  'common.inputs.summary.controllersMultiKeyboardMouse': undefined;
-  /** Keyboard and mouse */
-  'common.inputs.summary.keyboardMouse': undefined;
-  /** Keyboards and mice */
-  'common.inputs.summary.multiKeyboardMouse': undefined;
   /** Input support unknown */
   'common.inputs.unknown': undefined;
   /** Install */
@@ -724,14 +712,8 @@ export interface MessageParamsMap {
   'handler.comments.showMore': { count: number };
   /** Comments <count>{number}</count> */
   'handler.comments.title': { number: ParamValue };
-  /** Controllers */
-  'handler.compat.controllers': undefined;
-  /** Keyboard and mouse */
-  'handler.compat.keyboardMouse': undefined;
   /** Hub moderators */
   'handler.compat.moderators': undefined;
-  /** Several keyboards and mice */
-  'handler.compat.multiKeyboardMouse': undefined;
   /** Not stated */
   'handler.compat.notStated': undefined;
   /** Not supported */
@@ -1094,8 +1076,6 @@ export interface MessageParamsMap {
   'host.session.errors.startFailed': { error: ParamValue };
   /** The session couldn't stop: inputs are locked. */
   'host.session.errors.stopLocked': undefined;
-  /** Game Windows Unfocused */
-  'host.session.osd.windowsUnfocused': undefined;
   /** Black */
   'host.settings.colors.black': undefined;
   /** Blue */
@@ -1656,12 +1636,6 @@ export interface MessageParamsMap {
   'hub.genres.turnBasedStrategy': undefined;
   /** Visual Novel */
   'hub.genres.visualNovel': undefined;
-  /** Controllers */
-  'hub.inputs.controllers': undefined;
-  /** Keyboard and mouse */
-  'hub.inputs.keyboardMouse': undefined;
-  /** Several keyboards and mice */
-  'hub.inputs.multiKeyboardMouse': undefined;
   /** Any */
   'hub.players.any': undefined;
   /** A–Z */
@@ -1954,8 +1928,6 @@ export interface MessageParamsMap {
   'library.inputs.keyboardMouse': undefined;
   /** Keyboards and mice */
   'library.inputs.keyboardsMice': undefined;
-  /** Input support unknown */
-  'library.inputs.unknown': undefined;
   /** Your library could not be read */
   'library.loadError': undefined;
   /** Loading your library */
@@ -3224,8 +3196,6 @@ export interface MessageParamsMap {
   'shell.titleBar.vibrateHint': { label: ParamValue };
   /** {label}. Vibrate */
   'shell.titleBar.vibrateLabel': { label: ParamValue };
-  /** Close */
-  'shell.window.close': undefined;
   /** Maximize */
   'shell.window.maximize': undefined;
   /** Minimize */
