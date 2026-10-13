@@ -1,6 +1,7 @@
 // Saved profiles of the open game: load or unload one, edit its settings, delete it (renumbering the next ones).
 import { useState } from 'react';
 import { bridge, type ProfileSummary, type SetupSnapshot } from '@/bridge';
+import { T, useT, type RichTags } from '@/i18n';
 import { useRun } from '@/lib/bridge-ui';
 import { deviceIcon } from '@/lib/devices';
 import { Button, Dialog, Icon, PlayerTag, useConfirm, useToast } from '@/ui';
@@ -20,6 +21,7 @@ export interface ProfilesManagerProps {
 
 /** The list of profiles and, over it, the settings of one of them. */
 export function ProfilesManager({ snap, profiles, open, onClose, onLoad, onUnload }: ProfilesManagerProps) {
+  const t = useT();
   const run = useRun();
   const toast = useToast();
   const confirm = useConfirm();
@@ -38,16 +40,17 @@ export function ProfilesManager({ snap, profiles, open, onClose, onLoad, onUnloa
     const name = profileTitle(p);
     const later = profiles.some((other) => other.id > p.id);
     const placed = snap.players.length > 0;
+    const message = later
+      ? placed
+        ? 'profiles.delete.messageRenumberedReset'
+        : 'profiles.delete.messageRenumbered'
+      : placed
+        ? 'profiles.delete.messageReset'
+        : 'profiles.delete.message';
     const ok = await confirm({
-      title: `Delete ${name}?`,
-      message: (
-        <>
-          {`${name} is deleted for good.`}
-          {later && ' The profiles after it are renumbered.'}
-          {placed && ' The setup starts over: every player goes back to the tray.'}
-        </>
-      ),
-      confirmLabel: 'Delete',
+      title: t('profiles.delete.title', { profile: name }),
+      message: t(message, { profile: name }),
+      confirmLabel: t('common.delete'),
       danger: true,
       icon: 'trash',
     });
@@ -56,19 +59,17 @@ export function ProfilesManager({ snap, profiles, open, onClose, onLoad, onUnloa
       await bridge.profiles.delete({ profileId: p.id });
       return true;
     });
-    if (deleted) toast(`${name} deleted`);
+    if (deleted) toast(t('profiles.delete.done', { profile: name }));
   };
 
   return (
     <>
-      <Dialog open={open} onClose={onClose} title={`Profiles of ${snap.gameName}`} icon="users" className="w-[min(720px,92vw)]">
-        <p className="text-13 text-ink-3">
-          A profile keeps the layouts, the options and who plays where. Loading one restores them; its players join as they press a button.
-        </p>
+      <Dialog open={open} onClose={onClose} title={t('profiles.manager.title', { game: snap.gameName })} icon="users" className="w-[min(720px,92vw)]">
+        <p className="text-13 text-ink-3">{t('profiles.manager.intro')}</p>
         {profiles.length === 0 ? (
-          <p className="mt-4 rounded-ctl bg-pane-2 px-4 py-3 text-15 text-ink-2">No saved profile yet.</p>
+          <p className="mt-4 rounded-ctl bg-pane-2 px-4 py-3 text-15 text-ink-2">{t('profiles.manager.empty')}</p>
         ) : (
-          <ul className="m-0 mt-3 list-none p-0" aria-label="Saved profiles">
+          <ul className="m-0 mt-3 list-none p-0" aria-label={t('profiles.manager.listLabel')}>
             {profiles.map((p) => (
               <ProfileRow
                 key={p.id}
@@ -85,14 +86,15 @@ export function ProfilesManager({ snap, profiles, open, onClose, onLoad, onUnloa
         {loadedId === undefined && (
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-ctl bg-pane-2 px-4 py-3">
             <p className="min-w-0 flex-1 text-13 leading-[1.45] text-ink-2">
-              <b className="font-[650] text-ink">Next profile. </b>
-              {snap.saveProfileOnLaunch
-                ? 'The next session saves this setup as a new profile with these settings.'
-                : 'Turn on “Save a profile when the session starts” to save this setup as a new profile.'}
+              {snap.saveProfileOnLaunch ? (
+                <T k="profiles.manager.nextProfileSaveOn" tags={NEXT_PROFILE_TAGS} />
+              ) : (
+                <T k="profiles.manager.nextProfileSaveOff" values={{ setting: t('setup.launch.saveProfile') }} tags={NEXT_PROFILE_TAGS} />
+              )}
             </p>
             <Button variant="ghost" size="sm" onClick={() => void edit(null)} data-nav>
               <Icon name="sliders" />
-              Settings
+              {t('common.settings')}
             </Button>
           </div>
         )}
@@ -101,6 +103,8 @@ export function ProfilesManager({ snap, profiles, open, onClose, onLoad, onUnloa
     </>
   );
 }
+
+const NEXT_PROFILE_TAGS: RichTags = { b: (c) => <b className="font-[650] text-ink">{c}</b> };
 
 function ProfileRow({
   profile: p,
@@ -117,27 +121,28 @@ function ProfileRow({
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const t = useT();
   const name = profileTitle(p);
   return (
     <li className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 border-t border-line py-3.5 first:border-t-0">
       <div className="min-w-0">
         <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1">
           <strong className="truncate text-16 font-[680]">{name}</strong>
-          {loaded && <span className="inline-flex h-5 items-center rounded-tag bg-ink px-2 text-11 font-[750] text-on-light">Loaded</span>}
+          {loaded && <span className="inline-flex h-5 items-center rounded-tag bg-ink px-2 text-11 font-[750] text-on-light">{t('profiles.manager.loaded')}</span>}
           {p.autoPlay && (
             <span className="inline-flex h-5 items-center gap-1 rounded-tag bg-pane-3 px-2 text-11 font-[650] text-ink-2">
               <Icon name="play" className="size-2.5" />
-              Starts by itself
+              {t('profiles.manager.autoPlay')}
             </span>
           )}
         </div>
         {p.playerList.length > 0 && (
-          <ul className="m-0 mt-1.5 flex list-none flex-wrap gap-x-3 gap-y-1 p-0" aria-label={`Players of ${name}`}>
+          <ul className="m-0 mt-1.5 flex list-none flex-wrap gap-x-3 gap-y-1 p-0" aria-label={t('profiles.manager.playersLabel', { profile: name })}>
             {p.playerList.map((pl) => (
               <li key={pl.number} className="inline-flex items-center gap-1.5 text-13 text-ink-2">
                 <PlayerTag n={pl.number} size="xs" />
                 <Icon name={deviceIcon(pl.device)} className="size-3.5 text-ink-3" />
-                <span>{pl.nickname?.trim() || `Player ${pl.number}`}</span>
+                <span>{pl.nickname?.trim() || t('lobby.player.name', { number: pl.number })}</span>
                 {pl.guests > 0 && <span className="text-ink-3">+{pl.guests}</span>}
               </li>
             ))}
@@ -148,24 +153,24 @@ function ProfileRow({
       <div className="flex items-center gap-1">
         {loaded ? (
           <Button variant="ghost" size="sm" onClick={onUnload} data-nav>
-            Unload
+            {t('profiles.manager.unload')}
           </Button>
         ) : (
           <Button variant="ghost" size="sm" onClick={onLoad} data-nav>
-            Load
+            {t('profiles.manager.load')}
           </Button>
         )}
         <Button
           variant="quiet"
           size="icon"
-          aria-label={`Settings of ${name}`}
-          title={loaded ? 'Settings' : 'Load it and open its settings'}
+          aria-label={t('profiles.manager.settingsLabel', { profile: name })}
+          title={t(loaded ? 'common.settings' : 'profiles.manager.settingsHint')}
           onClick={onEdit}
           data-nav
         >
           <Icon name="sliders" />
         </Button>
-        <Button variant="quiet" size="icon" aria-label={`Delete ${name}`} title="Delete" onClick={onDelete} data-nav>
+        <Button variant="quiet" size="icon" aria-label={t('profiles.manager.deleteLabel', { profile: name })} title={t('common.delete')} onClick={onDelete} data-nav>
           <Icon name="trash" />
         </Button>
       </div>
