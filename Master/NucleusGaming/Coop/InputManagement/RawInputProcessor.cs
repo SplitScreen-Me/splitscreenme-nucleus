@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Gaming.Coop.InputManagement
 {
@@ -431,7 +432,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
 
                     if(GlobalWindowMethods.ResetingWindows)
                     {
-                        Globals.MainOSD?.Show(1200, "Wait For Game Windows To Be Reseted");
+                        Globals.MainOSD?.Show(1200, T("engine.osd.waitForReset"));
                         return;
                     }
 
@@ -447,7 +448,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
                             GlobalWindowMethods.ChangeForegroundWindow();
                         }
 
-                        Globals.MainOSD?.Show(800, "Inputs Locked");
+                        Globals.MainOSD?.Show(800, T("engine.osd.inputsLocked"));
 
                         Thread.Sleep(850);
 
@@ -459,7 +460,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
                         
                         Thread.Sleep(300);
                         
-                        Globals.MainOSD?.Show(800, "Inputs Unlocked");
+                        Globals.MainOSD?.Show(800, T("engine.osd.inputsUnlocked"));
                     }
                 }
 

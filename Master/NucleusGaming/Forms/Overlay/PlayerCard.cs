@@ -6,6 +6,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Gaming.Forms.Overlay
 {
@@ -29,7 +30,7 @@ namespace Nucleus.Gaming.Forms.Overlay
 
             if (player.IsController || player.IsXInput || player.IsDInput || player.IsSDL2)
             {
-                device = "Controller";
+                device = T("engine.overlay.device.controller");
                 glyph = OverlayStyle.GlyphController;
             }
             else
@@ -37,20 +38,20 @@ namespace Nucleus.Gaming.Forms.Overlay
                 switch (player.InputType)
                 {
                     case InputType.KB:
-                        device = "Keyboard";
+                        device = T("engine.overlay.device.keyboard");
                         glyph = OverlayStyle.GlyphKeyboard;
                         break;
                     case InputType.Mouse:
-                        device = "Mouse";
+                        device = T("engine.overlay.device.mouse");
                         glyph = OverlayStyle.GlyphMouse;
                         break;
                     case InputType.KBM:
                     case InputType.SingleKB:
-                        device = "Keyboard & mouse";
+                        device = T("engine.overlay.device.keyboardMouse");
                         glyph = OverlayStyle.GlyphKeyboard;
                         break;
                     default:
-                        device = "Controller";
+                        device = T("engine.overlay.device.controller");
                         glyph = OverlayStyle.GlyphController;
                         break;
                 }
@@ -60,13 +61,13 @@ namespace Nucleus.Gaming.Forms.Overlay
 
             if (guests > 0)
             {
-                device += $" + {guests} more";
+                device = T("engine.overlay.device.withGuests", new { device, count = guests });
             }
 
             return new PlayerCardModel
             {
                 Number = number,
-                Nickname = string.IsNullOrWhiteSpace(player.Nickname) ? $"Player {number}" : player.Nickname.Trim(),
+                Nickname = string.IsNullOrWhiteSpace(player.Nickname) ? T("engine.overlay.playerFallback", new { number }) : player.Nickname.Trim(),
                 Device = device,
                 Glyph = glyph,
                 Game = gameName ?? "",
@@ -245,7 +246,7 @@ namespace Nucleus.Gaming.Forms.Overlay
                 Background = badgeFill,
                 Child = new TextBlock
                 {
-                    Text = $"P{model.Number}",
+                    Text = T("engine.overlay.badge", new { number = model.Number }),
                     FontFamily = OverlayStyle.DisplayFont,
                     FontWeight = FontWeights.Bold,
                     FontSize = (compact ? 19 : 27) * (model.Number >= 10 ? 0.92 : 1),
@@ -306,7 +307,7 @@ namespace Nucleus.Gaming.Forms.Overlay
 
             status = new TextBlock
             {
-                Text = "Starting…",
+                Text = T("engine.overlay.starting"),
                 FontFamily = OverlayStyle.TextFont,
                 FontWeight = FontWeights.SemiBold,
                 FontSize = 16,
@@ -403,7 +404,7 @@ namespace Nucleus.Gaming.Forms.Overlay
             }
 
             IsReady = false;
-            status.Text = "Starting…";
+            status.Text = T("engine.overlay.starting");
             status.Foreground = OverlayStyle.Brush(OverlayStyle.Ink2);
             border.BeginAnimation(SolidColorBrush.ColorProperty, null);
             border.Color = OverlayStyle.Line;
@@ -426,7 +427,7 @@ namespace Nucleus.Gaming.Forms.Overlay
             }
 
             IsReady = true;
-            status.Text = "Ready";
+            status.Text = T("engine.overlay.ready");
             status.Foreground = OverlayStyle.Brush(OverlayStyle.Ok);
 
             Color lit = OverlayStyle.WithAlpha(color, 0.75);
@@ -641,7 +642,7 @@ namespace Nucleus.Gaming.Forms.Overlay
         public PlayerCardWindow(PlayerCardModel model)
         {
             Number = model.Number;
-            Title = $"Nucleus Co-op player {model.Number}";
+            Title = T("engine.overlay.windowTitle", new { number = model.Number });
             WindowStyle = WindowStyle.None;
             ResizeMode = ResizeMode.NoResize;
             AllowsTransparency = true;

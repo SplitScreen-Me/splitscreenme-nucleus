@@ -19,6 +19,7 @@ using System.Windows.Media;
 using WindowScrape.Constants;
 using WindowScrape.Static;
 using WindowScrape.Types;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 {
@@ -647,7 +648,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
             if (profile == null || !GameProfile.Saved || !canSwitchLayout || ResetingWindows)
             {
-                Globals.MainOSD.Show(1600, $"Can't Be Used Now");
+                Globals.MainOSD.Show(1600, T("engine.osd.cantBeUsedNow"));
                 return;
             }
 
@@ -703,7 +704,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                 if (p.Owner.Type == UserScreenType.DualHorizontal)
                 {
-                    Globals.MainOSD.Show(1600, $"Switching Layouts");
+                    Globals.MainOSD.Show(1600, T("engine.osd.switchingLayouts"));
 
                     foreach (UserScreen screen in screens)
                     {                        
@@ -741,7 +742,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 }
                 else if (p.Owner.Type == UserScreenType.DualVertical)
                 {
-                    Globals.MainOSD.Show(1600, $"Switching Layouts");
+                    Globals.MainOSD.Show(1600, T("engine.osd.switchingLayouts"));
                     foreach (UserScreen screen in ScreensUtil.AllScreens())
                     {
                         //Console.WriteLine(p.Owner.MonitorBounds + " " + screen.MonitorBounds);
@@ -790,7 +791,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
             if (handlerInstance.profile == null || !GameProfile.Saved || ResetingWindows)
             {
-                Globals.MainOSD.Show(1600, $"Can't Be Used Now");
+                Globals.MainOSD.Show(1600, T("engine.osd.cantBeUsedNow"));
                 return;
             }
 
@@ -805,7 +806,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                 if (data == null)
                 {
-                    Globals.MainOSD.Show(1600, $"Can't Be Used Now");
+                    Globals.MainOSD.Show(1600, T("engine.osd.cantBeUsedNow"));
                     return;
                 }
 
@@ -855,7 +856,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                     }
 
                     canSwitchLayout = false;
-                    Globals.MainOSD.Show(1600, "Cutscenes Mode On");
+                    Globals.MainOSD.Show(1600, T("engine.osd.cutscenesModeOn"));
                 }
                 else//Reset all player windows and unmute
                 {
@@ -885,7 +886,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                     canSwitchLayout = true;
 
-                    Globals.MainOSD.Show(1600, "Cutscenes Mode Off");
+                    Globals.MainOSD.Show(1600, T("engine.osd.cutscenesModeOff"));
 
                     if (handlerInstance.CurrentGameInfo.SetForegroundWindowElsewhere || GameProfile.Cts_Unfocus)
                     {
@@ -950,7 +951,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 
                 if (ResetingWindows && data.Finished)
                 {
-                    Globals.MainOSD.Show(100000, "Resetting game windows. Please wait...");
+                    Globals.MainOSD.Show(100000, T("engine.osd.resettingWindows"));
                     data.HWNDRetry = false;
                     data.Setted = false;
                     data.Finished = false;
@@ -1132,7 +1133,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                                             ChangeForegroundWindow();
                                         }
 
-                                        Globals.MainOSD.Show(2000, "Game Windows Resetted");
+                                        Globals.MainOSD.Show(2000, T("engine.osd.windowsReset"));
                                         ResetingWindows = false;
                                     }
                                 }
@@ -1495,13 +1496,13 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
             if (LockInputRuntime.IsLocked)
             {
-                Globals.MainOSD.Show(1600, $"Unlock Inputs First (Press {App_Hotkeys.LockInputs} key)");
+                Globals.MainOSD.Show(1600, T("engine.osd.unlockInputsFirstKey", new { key = App_Hotkeys.LockInputs }));
                 return;
             }
 
             if (handlerInstance.profile.DevicesList.All(pl => pl.ProcessData == null))
             {
-                Globals.MainOSD.Show(1600, $"Can't Be Used Now");
+                Globals.MainOSD.Show(1600, T("engine.osd.cantBeUsedNow"));
                 return;//return until atleast 1 player processdata is set 
             }
 
@@ -1554,7 +1555,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 if (windowsFound > 0)
                 {
                     TaskbarState.Show.Invoke();
-                    Globals.MainOSD.Show(1600, $"Game Windows Minimized");                 
+                    Globals.MainOSD.Show(1600, T("engine.osd.windowsMinimized"));                 
                     TopMostToggle = false;
                 }
             }
@@ -1607,7 +1608,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                 if (windowsFound > 0)
                 {
-                    Globals.MainOSD.Show(1600, $"Game Windows Restored");
+                    Globals.MainOSD.Show(1600, T("engine.osd.windowsRestored"));
                     TopMostToggle = true;
                 }
             }

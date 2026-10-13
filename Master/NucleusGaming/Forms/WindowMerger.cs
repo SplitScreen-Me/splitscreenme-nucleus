@@ -24,6 +24,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.UI;
+using static Nucleus.Gaming.Localization.I18n;
 
 public static class WindowsMergerThread
 {
@@ -209,7 +210,7 @@ public class WindowsMerger : System.Windows.Window
 
         var players = childsInfo.Keys.ToList();
         HwndInterface.ActivateWindow(childsInfo[players[currentFocused]]);
-        Globals.MainOSD.Show(1600, $"{players[currentFocused]} Window Focused");
+        Globals.MainOSD.Show(1600, T("engine.osd.windowFocused", new { nickname = players[currentFocused] }));
 
         currentFocused++;
     }

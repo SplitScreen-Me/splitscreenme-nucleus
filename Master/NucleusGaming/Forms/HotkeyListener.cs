@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using WindowScrape.Static;
+using static Nucleus.Gaming.Localization.I18n;
 
 
 namespace Nucleus.Gaming.Forms
@@ -121,7 +122,7 @@ namespace Nucleus.Gaming.Forms
                     if (HotkeysRegistration.ChkPassThrough[0])
                     {
                         GenericGameHandler.Instance.CurrentGameInfo.OnCustomHotKey_1.Invoke();
-                        Globals.MainOSD.Show(800, HotkeysRegistration.CustomHotKeyDisplayText[0] == "" ? $"Custom Hotkey 1" : HotkeysRegistration.CustomHotKeyDisplayText[0]);
+                        Globals.MainOSD.Show(800, HotkeysRegistration.CustomHotKeyDisplayText[0] == "" ? T("engine.osd.customHotkey", new { number = 1 }) : HotkeysRegistration.CustomHotKeyDisplayText[0]);
                         HotkeyCoolDown();
 
                         base.WndProc(ref m);
@@ -133,7 +134,7 @@ namespace Nucleus.Gaming.Forms
                     if (HotkeysRegistration.ChkPassThrough[1])
                     {
                         GenericGameHandler.Instance.CurrentGameInfo.OnCustomHotKey_2.Invoke();
-                        Globals.MainOSD.Show(800, HotkeysRegistration.CustomHotKeyDisplayText[1] == "" ? $"Custom Hotkey 2" : HotkeysRegistration.CustomHotKeyDisplayText[1]);
+                        Globals.MainOSD.Show(800, HotkeysRegistration.CustomHotKeyDisplayText[1] == "" ? T("engine.osd.customHotkey", new { number = 2 }) : HotkeysRegistration.CustomHotKeyDisplayText[1]);
                         HotkeyCoolDown();
 
                         base.WndProc(ref m);
@@ -145,7 +146,7 @@ namespace Nucleus.Gaming.Forms
                     if (HotkeysRegistration.ChkPassThrough[2])
                     {
                         GenericGameHandler.Instance.CurrentGameInfo.OnCustomHotKey_3.Invoke();
-                        Globals.MainOSD.Show(800, HotkeysRegistration.CustomHotKeyDisplayText[2] == "" ? $"Custom Hotkey 3" : HotkeysRegistration.CustomHotKeyDisplayText[2]);
+                        Globals.MainOSD.Show(800, HotkeysRegistration.CustomHotKeyDisplayText[2] == "" ? T("engine.osd.customHotkey", new { number = 3 }) : HotkeysRegistration.CustomHotKeyDisplayText[2]);
                         HotkeyCoolDown();
 
                         base.WndProc(ref m);
@@ -158,7 +159,7 @@ namespace Nucleus.Gaming.Forms
             //Pass through locked inputs state Hotkeys must be placed before this check.
             if (m.Msg == 0x0312 && LockInputRuntime.IsLocked)//WM_HOTKEY
             {
-                Globals.MainOSD.Show(1600, $"Unlock Inputs First (Press {App_Hotkeys.LockInputs} Key)");
+                Globals.MainOSD.Show(1600, T("engine.osd.unlockInputsFirstKey", new { key = App_Hotkeys.LockInputs }));
                 base.WndProc(ref m);
                 return;
             }
@@ -179,13 +180,13 @@ namespace Nucleus.Gaming.Forms
                     case HotkeysRegistration.StopSession_HotkeyID:
                         UnregisterHotkeys();
                         GenericGameHandler.Instance?.End(false);
-                        Globals.MainOSD.Show(2000, "Session Ended");
+                        Globals.MainOSD.Show(2000, T("engine.osd.sessionEnded"));
                         break;
 
                     case HotkeysRegistration.SetFocus_HotkeyID:
                         HotkeyCoolDown();
                         GlobalWindowMethods.ChangeForegroundWindow();
-                        Globals.MainOSD.Show(2000, "Game Windows Unfocused");
+                        Globals.MainOSD.Show(2000, T("engine.osd.windowsUnfocused"));
                         break;
 
                     case HotkeysRegistration.ResetWindows_HotkeyID:
@@ -217,19 +218,19 @@ namespace Nucleus.Gaming.Forms
                     case HotkeysRegistration.Custom_Hotkey_1:
                         HotkeyCoolDown();
                         GenericGameHandler.Instance.CurrentGameInfo.OnCustomHotKey_1.Invoke();
-                        Globals.MainOSD.Show(800, HotkeysRegistration.CustomHotKeyDisplayText[0] == "" ? $"Custom Hotkey 1" : HotkeysRegistration.CustomHotKeyDisplayText[0]);
+                        Globals.MainOSD.Show(800, HotkeysRegistration.CustomHotKeyDisplayText[0] == "" ? T("engine.osd.customHotkey", new { number = 1 }) : HotkeysRegistration.CustomHotKeyDisplayText[0]);
                         break;
 
                     case HotkeysRegistration.Custom_Hotkey_2:
                         HotkeyCoolDown();
                         GenericGameHandler.Instance.CurrentGameInfo.OnCustomHotKey_2.Invoke();
-                        Globals.MainOSD.Show(800, HotkeysRegistration.CustomHotKeyDisplayText[1] == "" ? $"Custom Hotkey 2" : HotkeysRegistration.CustomHotKeyDisplayText[1]);
+                        Globals.MainOSD.Show(800, HotkeysRegistration.CustomHotKeyDisplayText[1] == "" ? T("engine.osd.customHotkey", new { number = 2 }) : HotkeysRegistration.CustomHotKeyDisplayText[1]);
                         break;
 
                     case HotkeysRegistration.Custom_Hotkey_3:
                         HotkeyCoolDown();
                         GenericGameHandler.Instance.CurrentGameInfo.OnCustomHotKey_3.Invoke();
-                        Globals.MainOSD.Show(800, HotkeysRegistration.CustomHotKeyDisplayText[2] == "" ? $"Custom Hotkey 3" : HotkeysRegistration.CustomHotKeyDisplayText[2]);
+                        Globals.MainOSD.Show(800, HotkeysRegistration.CustomHotKeyDisplayText[2] == "" ? T("engine.osd.customHotkey", new { number = 3 }) : HotkeysRegistration.CustomHotKeyDisplayText[2]);
                         break;
                 }
 
