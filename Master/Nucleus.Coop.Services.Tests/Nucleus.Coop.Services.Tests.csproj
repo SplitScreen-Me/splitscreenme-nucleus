@@ -33,6 +33,8 @@
     <None Update="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
     <!-- Captured API v3 answers, shared with the web UI tests. -->
     <None Include="..\Nucleus.WebUI\src\bridge\__tests__\fixtures\hub-handler.json" Link="Handlers\Fixtures\hub-handler.json" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Plural categories checked against Intl.PluralRules by the web UI tests: C# and TypeScript pick the same forms. -->
+    <None Include="..\Nucleus.WebUI\src\bridge\__tests__\fixtures\plurals.json" Link="Localization\Fixtures\plurals.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

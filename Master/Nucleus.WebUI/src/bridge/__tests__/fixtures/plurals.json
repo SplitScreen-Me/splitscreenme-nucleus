@@ -1,0 +1,19 @@
+{
+  "_about": "Plural categories by locale and number, as Intl.PluralRules gives them. Checked by src/bridge/__tests__/i18n-core.test.ts against Intl and by Nucleus.Coop.Services.Tests (Localization/PluralRulesTests.cs) against the C# PluralRules, so both sides pick the same form.",
+  "en": { "0": "other", "1": "one", "2": "other", "1.5": "other", "21": "other", "1000000": "other" },
+  "fr": { "0": "one", "1": "one", "1.5": "one", "2": "other", "21": "other", "1000000": "many", "2000000": "many", "1000001": "other" },
+  "pt": { "0": "one", "1": "one", "2": "other", "1000000": "many" },
+  "pt-PT": { "0": "other", "1": "one", "2": "other", "1000000": "many" },
+  "es": { "0": "other", "1": "one", "2": "other", "1000000": "many" },
+  "it": { "0": "other", "1": "one", "2": "other", "1000000": "many" },
+  "de": { "0": "other", "1": "one", "2": "other", "1.5": "other" },
+  "ru": { "0": "many", "1": "one", "2": "few", "4": "few", "5": "many", "11": "many", "12": "many", "21": "one", "22": "few", "25": "many", "111": "many", "1.5": "other" },
+  "uk": { "1": "one", "3": "few", "7": "many" },
+  "pl": { "0": "many", "1": "one", "2": "few", "5": "many", "12": "many", "22": "few", "25": "many", "1.5": "other" },
+  "cs": { "0": "other", "1": "one", "2": "few", "4": "few", "5": "other", "1.5": "many" },
+  "tr": { "0": "other", "1": "one", "2": "other" },
+  "ja": { "0": "other", "1": "other", "2": "other" },
+  "zh": { "1": "other", "2": "other" },
+  "ko": { "1": "other" },
+  "ar": { "0": "zero", "1": "one", "2": "two", "3": "few", "10": "few", "11": "many", "99": "many", "100": "other", "103": "few", "1.5": "other" }
+}

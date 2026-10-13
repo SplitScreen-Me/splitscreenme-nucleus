@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Nucleus.Bridge.Contracts;
+using Nucleus.Coop.Services.Localization;
 using Nucleus.Gaming.App.Settings;
+using Nucleus.Gaming.Localization;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Coop.Services.Settings;
 
@@ -77,10 +80,13 @@ public sealed class SettingSectionDefinition
 /// </summary>
 public static class SettingsCatalog
 {
-    /// <summary>Sections, in order.</summary>
-    public static readonly IReadOnlyList<SettingSectionDefinition> Sections = new[]
+    /// <summary>Key of the app language setting, the first one of General (saved by <see cref="LanguageSettings"/>).</summary>
+    public const string LanguageKey = "misc.appLanguage";
+
+    /// <summary>Sections, in order, in the language in use (built at each call: texts follow the language).</summary>
+    public static IReadOnlyList<SettingSectionDefinition> Sections => new[]
     {
-        new SettingSectionDefinition { Id = "general", Title = "General", Description = "Languages, network and Windows user accounts used by game instances." },
+        new SettingSectionDefinition { Id = "general", Title = T("host.settings.sections.general.title"), Description = T("host.settings.sections.general.description") },
         new SettingSectionDefinition { Id = "players", Title = "Players", Description = "How gamepads are assigned to players. Nicknames and Steam IDs are edited with the player list." },
         new SettingSectionDefinition { Id = "hotkeys", Title = "Keyboard shortcuts", Description = "Shortcuts available during a game session. Changes apply from the next session." },
         new SettingSectionDefinition { Id = "gamepad", Title = "Gamepad shortcuts", Description = "Button combinations available during a game session (XInput gamepads). Steam Input may interfere with them. The Nucleus window itself works with any gamepad: D-pad or left stick to move, A to select, B to go back, right stick to scroll." },
@@ -149,12 +155,17 @@ public static class SettingsCatalog
         ConfirmLabel = "Turn off",
     };
 
-    /// <summary>Builds the definitions.</summary>
+    /// <summary>Builds the definitions, with labels and descriptions in the language in use (built again when it changes).</summary>
     public static List<SettingDefinition> Create()
     {
         var list = new List<SettingDefinition>();
 
         // ---- General (Settings tab) ----
+        // The app's language comes first: its choices are the files of the i18n folder. Saving it switches the app at once.
+        SettingDefinition language = Choice("general", LanguageKey, T("host.settings.fields.misc.appLanguage.label"), T("host.settings.fields.misc.appLanguage.description"),
+            Translator.DefaultLocale, new List<SettingChoice>(), () => I18n.Locale, v => LanguageSettings.Choose(v));
+        language.DynamicChoices = () => I18nService.Choices(I18n.Current);
+        list.Add(language);
         list.Add(Choice("general", "misc.steamLanguage", "Steam language", "Language reported by the Steam emulator. A game can override it from its menu.", "Automatic",
             SteamLanguages.Select(l => new SettingChoice { Value = l.Value, Label = l.Label }).ToList(),
             () => App_Misc.SteamLang ?? "", v => App_Misc.SteamLang = v));

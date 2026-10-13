@@ -12,6 +12,7 @@ using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Coop.InputManagement.Gamepads;
+using Nucleus.Gaming.Localization;
 
 namespace Nucleus.Coop.Services.Settings;
 
@@ -23,18 +24,15 @@ namespace Nucleus.Coop.Services.Settings;
 public sealed class SettingsService : ISettingsService
 {
     private readonly NucleusCore core;
-    private readonly List<SettingDefinition> catalog;
-    private readonly Dictionary<string, SettingDefinition> byKey;
     private readonly IGamepadReader gamepads;
     private readonly object reminderGate = new object();
+    private volatile LocalizedCatalog? localized;
 
     /// <summary>Creates the service and draws the shortcut reminder images when they are missing.</summary>
     public SettingsService(NucleusCore core, IGamepadReader? gamepads = null)
     {
         this.core = core;
         this.gamepads = gamepads ?? new XInputGamepadReader();
-        catalog = SettingsCatalog.Create();
-        byKey = catalog.ToDictionary(d => d.Field.Key, StringComparer.Ordinal);
 
         bool keyboardMissing = !File.Exists(KeyboardReminderPath);
         bool gamepadMissing = !File.Exists(GamepadReminderPath);
@@ -42,6 +40,39 @@ public sealed class SettingsService : ISettingsService
         {
             RenderRemindersInBackground(keyboardMissing, gamepadMissing);
         }
+    }
+
+    /// <summary>
+    /// The definitions, built again after a change of language: their labels and descriptions are texts of the
+    /// language in use (docs/webui/i18n.md, "Texts built by the host").
+    /// </summary>
+    private List<SettingDefinition> Catalog
+    {
+        get
+        {
+            LocalizedCatalog? current = localized;
+            string locale = I18n.Locale;
+            if (current == null || current.Locale != locale)
+            {
+                current = new LocalizedCatalog(locale, SettingsCatalog.Create());
+                localized = current;
+            }
+
+            return current.Definitions;
+        }
+    }
+
+    private sealed class LocalizedCatalog
+    {
+        public LocalizedCatalog(string locale, List<SettingDefinition> definitions)
+        {
+            Locale = locale;
+            Definitions = definitions;
+        }
+
+        public string Locale { get; }
+
+        public List<SettingDefinition> Definitions { get; }
     }
 
     private static string KeyboardReminderPath => Path.Combine(NucleusPaths.Shortcuts, "KbShortcutsReminder.jpeg");
@@ -64,7 +95,7 @@ public sealed class SettingsService : ISettingsService
                 }
             }
 
-            foreach (SettingDefinition definition in catalog.Where(d => d.Section == section.Id))
+            foreach (SettingDefinition definition in Catalog.Where(d => d.Section == section.Id))
             {
                 SettingField field = Copy(definition.Field);
                 if (definition.DynamicChoices != null)
@@ -88,7 +119,7 @@ public sealed class SettingsService : ISettingsService
     }
 
     /// <inheritdoc />
-    public Dictionary<string, string> GetValues() => catalog.ToDictionary(d => d.Field.Key, SafeGet, StringComparer.Ordinal);
+    public Dictionary<string, string> GetValues() => Catalog.ToDictionary(d => d.Field.Key, SafeGet, StringComparer.Ordinal);
 
     /// <inheritdoc />
     public List<ValidationError> SetValues(SetSettingsRequest request)
@@ -99,7 +130,7 @@ public sealed class SettingsService : ISettingsService
         }
 
         Dictionary<string, string> current = GetValues();
-        List<SettingRule> rules = catalog.Select(d => RuleFor(d, request.Values.ContainsKey(d.Field.Key))).ToList();
+        List<SettingRule> rules = Catalog.Select(d => RuleFor(d, request.Values.ContainsKey(d.Field.Key))).ToList();
 
         List<ValidationError> errors = SettingsValidator.Validate(request.Values, current, rules, SettingsCatalog.ExclusiveRules);
         if (errors.Count > 0)
@@ -109,7 +140,7 @@ public sealed class SettingsService : ISettingsService
 
         // Write only what changed, in catalog order.
         var changed = new List<SettingDefinition>();
-        foreach (SettingDefinition definition in catalog)
+        foreach (SettingDefinition definition in Catalog)
         {
             if (!request.Values.TryGetValue(definition.Field.Key, out string? raw))
             {

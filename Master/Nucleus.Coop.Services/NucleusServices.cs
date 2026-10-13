@@ -13,6 +13,9 @@ namespace Nucleus.Coop.Services
         /// <param name="shell">Host window.</param>
         public static void Register(BridgeHost bridge, IHostShell shell)
         {
+            // Languages first: the page needs its strings before the library has loaded.
+            bridge.Register<Bridge.Contracts.II18nService>(new Localization.I18nService(bridge.Events));
+
             // Out-of-game engine messages (handler errors at startup included) go to the web UI from now on.
             var notices = new Notices.NoticeBoard(bridge.Events);
             Nucleus.Gaming.Forms.UserPrompts.Handler = new Notices.WebUserPrompts(notices, () => shell.PageState, Nucleus.Gaming.Forms.UserPrompts.Native);
