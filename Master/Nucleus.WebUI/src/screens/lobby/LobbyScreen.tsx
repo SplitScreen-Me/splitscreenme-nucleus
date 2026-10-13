@@ -8,8 +8,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { bridge, bridgeQueryKey, useBridgeEvent, useBridgeQuery, type SetupSnapshot } from '@/bridge';
 import { HandlerNotes } from '@/components/HandlerNotes';
 import { useAddGame } from '@/features/add-game';
+import { T, useI18n, type MessageKey } from '@/i18n';
 import { errorMessage } from '@/lib/bridge-ui';
-import { deviceNoun, isGamepadKind } from '@/lib/devices';
 import { heroOf, useLibrary } from '@/lib/library';
 import { isSessionLive, useSessionSnapshot, useSetupSnapshot } from '@/lib/live';
 import { useScreenChrome } from '@/shell/chrome';
@@ -20,13 +20,21 @@ import { useLobbyCommands } from './commands';
 import { spotStillOpen, type WaitingSpot } from './join-rules';
 import { lobbyHints } from './hints';
 import { LobbyHeader, profileTitle } from './LobbyHeader';
-import { deviceById, playerName, screenName, slotName } from './model';
+import { deviceById, deviceGroup, placeName, playerName, type DeviceGroup } from './model';
 import { ProfilesManager } from './ProfilesDialog';
 import { LaunchPane, SidePanel } from './SidePanel';
 import { CustomStep, OptionsStep } from './Steps';
 import { usePressToJoin } from './usePressToJoin';
 
 const notesSeenKey = (gameId: string) => `nucleus.notesShown.${gameId}`;
+
+/** What a player who lost a device can do, by the kind of device: one sentence each. */
+const DEVICE_LOST: Record<DeviceGroup, { known: MessageKey; unknown: MessageKey }> = {
+  gamepad: { known: 'lobby.deviceLost.gamepad', unknown: 'lobby.deviceLost.unknownPlayer.gamepad' },
+  keyboard: { known: 'lobby.deviceLost.keyboard', unknown: 'lobby.deviceLost.unknownPlayer.keyboard' },
+  mouse: { known: 'lobby.deviceLost.mouse', unknown: 'lobby.deviceLost.unknownPlayer.mouse' },
+  keyboardMouse: { known: 'lobby.deviceLost.keyboardMouse', unknown: 'lobby.deviceLost.unknownPlayer.keyboardMouse' },
+};
 
 function notesSeen(gameId: string): boolean {
   try {
@@ -49,6 +57,7 @@ export default function LobbyScreen() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const toast = useToast();
+  const { t, format } = useI18n();
   const { locateGame } = useAddGame();
   const { data: setup, isPending: setupPending } = useSetupSnapshot();
   const { data: session, isPending: sessionPending } = useSessionSnapshot();
@@ -123,21 +132,21 @@ export default function LobbyScreen() {
     const cut = executablePath ? Math.max(executablePath.lastIndexOf('\\'), executablePath.lastIndexOf('/')) : -1;
     const fileName = executablePath && cut >= 0 ? executablePath.slice(cut + 1) : undefined;
     await locateGame(
-      { id: gameId, name: snap?.gameName ?? summary?.name ?? 'this game' },
+      { id: gameId, name: snap?.gameName ?? summary?.name ?? t('lobby.thisGame') },
       { executableNames: fileName ? [fileName] : undefined, initialDirectory: cut > 0 ? executablePath?.slice(0, cut) : undefined },
     );
-  }, [locateGame, gameId, snap?.gameName, summary?.name, executablePath]);
+  }, [locateGame, gameId, snap?.gameName, summary?.name, executablePath, t]);
   const commands = useLobbyCommands(onNeedsPicker);
 
   const loadProfile = async (profileId: number) => {
     const loaded = await commands.loadProfile(profileId);
     const p = profiles.data?.find((x) => x.id === profileId);
-    if (loaded) toast(`Loaded ${p ? profileTitle(p) : 'the profile'}. Players join as they press a button.`);
+    if (loaded) toast(p ? t('profiles.toasts.loaded', { profile: profileTitle(p) }) : t('profiles.toasts.loadedUnnamed'));
     return Boolean(loaded);
   };
   const unloadProfile = async () => {
     const unloaded = await commands.unloadProfile();
-    if (unloaded) toast('Profile unloaded. Place players freely.');
+    if (unloaded) toast(t('profiles.toasts.unloaded'));
     return Boolean(unloaded);
   };
   // ---------- A place waiting for a controller ----------
@@ -147,16 +156,15 @@ export default function LobbyScreen() {
     (picked: WaitingSpot) => {
       setSpot(picked);
       const screen = liveSpot.current.snap?.screens.find((s) => s.index === picked.screenIndex);
-      const where = screen ? `${screenName(screen)}${picked.slotIndex === undefined ? '' : `, ${slotName(screen, picked.slotIndex)}`}` : 'this place';
-      announce(`Waiting for a controller on ${where}: press a button on it. Escape cancels.`);
+      announce(screen ? t('lobby.spot.waiting', { place: placeName(screen, picked.slotIndex) }) : t('lobby.spot.waitingHere'));
     },
-    [announce],
+    [announce, t],
   );
   const cancelSpot = useCallback(() => {
     if (!liveSpot.current.spot) return;
     setSpot(null);
-    announce('No longer waiting for a controller.');
-  }, [announce]);
+    announce(t('lobby.spot.cancelled'));
+  }, [announce, t]);
   const takeSpot = useCallback(
     async (deviceId: string, at: WaitingSpot) => {
       setSpot(null);
@@ -167,11 +175,12 @@ export default function LobbyScreen() {
           : await commands.assignToSlot(deviceId, at.screenIndex, at.slotIndex);
       const player = next?.players.find((p) => p.deviceIds.includes(deviceId));
       if (!player) return;
-      announce(`${name ?? 'A controller'} joined: ${playerName(player)}, player ${player.number}.`);
+      const joined = { player: playerName(player), number: player.number };
+      announce(name ? t('lobby.announce.joined', { device: name, ...joined }) : t('lobby.announce.controllerJoined', joined));
       // Focus follows the new player, so the keyboard and the pads carry on from there.
       requestAnimationFrame(() => document.querySelector<HTMLElement>(`[data-player-id="${CSS.escape(player.id)}"]`)?.focus({ preventScroll: true }));
     },
-    [commands, announce],
+    [commands, announce, t],
   );
 
   // The place stops waiting when it is gone or taken, off the players step, and while launching.
@@ -206,9 +215,14 @@ export default function LobbyScreen() {
   });
 
   useBridgeEvent('setup.deviceLost', ({ kind, playerNumber, nickname }) => {
-    const who = playerNumber ? `${nickname?.trim() || `Player ${playerNumber}`}${nickname ? ` (player ${playerNumber})` : ''}` : 'A player';
-    const again = isGamepadKind(kind) ? 'press Start on another one' : 'use another one';
-    toast(`${who} lost their ${deviceNoun(kind)}. Plug it back in, or ${again}.`, { icon: 'warning', durationMs: 5000 });
+    const keys = DEVICE_LOST[deviceGroup(kind)];
+    const named = nickname?.trim();
+    const who = !playerNumber
+      ? undefined
+      : named
+        ? t('lobby.deviceLost.namedPlayer', { nickname: named, number: playerNumber })
+        : t('lobby.player.name', { number: playerNumber });
+    toast(who ? t(keys.known, { player: who }) : t(keys.unknown), { icon: 'warning', durationMs: 5000 });
   });
 
   // Players who just appeared get the join animation; joins and leaves are announced.
@@ -221,12 +235,12 @@ export default function LobbyScreen() {
     if (!before) return;
     const fresh = [...now.keys()].filter((id) => !before.has(id));
     const gone = [...before.entries()].filter(([id]) => !now.has(id));
-    if (gone.length) announce(`${gone.map(([, name]) => name).join(', ')} left.`);
+    if (gone.length) announce(t('lobby.announce.playersLeft', { count: gone.length, names: format.list(gone.map(([, name]) => name)) }));
     if (!fresh.length) return;
     setJustJoined((s) => new Set([...s, ...fresh]));
-    const t = window.setTimeout(() => setJustJoined((s) => new Set([...s].filter((id) => !fresh.includes(id)))), 900);
-    return () => window.clearTimeout(t);
-  }, [snap, announce]);
+    const timer = window.setTimeout(() => setJustJoined((s) => new Set([...s].filter((id) => !fresh.includes(id)))), 900);
+    return () => window.clearTimeout(timer);
+  }, [snap, announce]); // Not t or format: a change of language changes no player.
 
   // A pad's X reaches the focused player area as the key the keyboard uses: R starts resizing, X switches corners.
   const keyToFocusedPlayer = (key: string) => () => {
@@ -234,15 +248,15 @@ export default function LobbyScreen() {
     area?.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
   };
   // Only what the buttons do whatever has focus (see hints.ts); while a place waits for a controller, B cancels.
-  useScreenChrome([{ label: 'Library', to: '/library' }, { label: snap?.gameName ?? summary?.name ?? 'Setting up' }], {
+  useScreenChrome([{ label: t('lobby.breadcrumbs.library'), to: '/library' }, { label: snap?.gameName ?? summary?.name ?? t('lobby.breadcrumbs.settingUp') }], {
     ...lobbyHints(spot !== null, { cancelWait: cancelSpot, resize: keyToFocusedPlayer('r'), otherCorner: keyToFocusedPlayer('x') }),
     aside: spot ? (
       <span>
-        Waiting for a controller: <b>Esc</b> cancels
+        <T k="lobby.keys.waiting" values={{ cancel: 'Esc' }} tags={{ b: (c) => <b>{c}</b> }} />
       </span>
     ) : (
       <span>
-        Keyboard: <b>Enter</b> picks up a player, <b>R</b> resizes, <b>Delete</b> takes them out
+        <T k="lobby.keys.help" values={{ pickUp: 'Enter', resize: 'R', remove: 'Delete' }} tags={{ b: (c) => <b>{c}</b> }} />
       </span>
     ),
   });
@@ -261,11 +275,11 @@ export default function LobbyScreen() {
       <Pane className="grid h-full place-items-center p-8">
         <div className="grid max-w-[48ch] justify-items-start gap-4">
           <Icon name="warning" className="size-7 text-warn" />
-          <h1 className="type-h2">This game can't be set up</h1>
+          <h1 className="type-h2">{t('lobby.openError.title')}</h1>
           <p className="text-ink-2">{openError ?? errorMessage(detailsError)}</p>
           <ButtonLink to="/library" variant="primary" data-nav>
             <Icon name="arrow-l" />
-            Back to library
+            {t('lobby.backToLibrary')}
           </ButtonLink>
         </div>
       </Pane>
@@ -276,7 +290,7 @@ export default function LobbyScreen() {
     return (
       <Pane className="grid h-full place-items-center">
         <span className="inline-flex items-center gap-2.5 text-small text-ink-2" role="status">
-          <Spinner /> Opening the setup of {summary?.name ?? 'the game'}
+          <Spinner /> {summary?.name ? t('lobby.opening', { game: summary.name }) : t('lobby.openingUnnamed')}
         </span>
       </Pane>
     );
@@ -320,18 +334,14 @@ export default function LobbyScreen() {
         />
       )}
 
-      <aside aria-label="Session" className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-gutter">
+      <aside aria-label={t('lobby.asideLabel')} className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-gutter">
         <SidePanel snap={snap} commands={commands} pings={pings} announce={announce} />
         <LaunchPane snap={snap} commands={commands} launching={launching} onLaunch={() => void launch()} />
       </aside>
 
-      <Dialog open={notesOpen} onClose={() => setNotesOpen(false)} title="Handler notes" icon="book" className="w-[min(720px,90vw)]">
-        <p className="mb-4 text-13 text-ink-3">
-          {snap.gameName}
-          {details?.summary.handlerVersion !== undefined ? `, handler version ${details.summary.handlerVersion}` : ''}
-          {details?.maintainer ? ` by ${details.maintainer}` : ''}
-        </p>
-        {details?.notes ? <HandlerNotes>{details.notes}</HandlerNotes> : <p className="text-ink-2">This handler has no notes.</p>}
+      <Dialog open={notesOpen} onClose={() => setNotesOpen(false)} title={t('lobby.notes.title')} icon="book" className="w-[min(720px,90vw)]">
+        <p className="mb-4 text-13 text-ink-3">{notesByline(t, snap.gameName, details?.summary.handlerVersion, details?.maintainer)}</p>
+        {details?.notes ? <HandlerNotes>{details.notes}</HandlerNotes> : <p className="text-ink-2">{t('lobby.notes.empty')}</p>}
       </Dialog>
 
       <ProfilesManager
@@ -348,4 +358,12 @@ export default function LobbyScreen() {
       </div>
     </div>
   );
+}
+
+/** "Game, handler version 3 by someone": the parts known. */
+function notesByline(t: ReturnType<typeof useI18n>['t'], game: string, version: number | undefined, maintainer: string | undefined): string {
+  if (version !== undefined && maintainer) return t('lobby.notes.withVersionAndMaintainer', { game, version: String(version), maintainer });
+  if (version !== undefined) return t('lobby.notes.withVersion', { game, version: String(version) });
+  if (maintainer) return t('lobby.notes.withMaintainer', { game, maintainer });
+  return game;
 }

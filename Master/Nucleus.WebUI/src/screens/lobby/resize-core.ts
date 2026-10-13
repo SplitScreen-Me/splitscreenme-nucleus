@@ -113,9 +113,6 @@ export function arrowResize(corner: Corner, key: string): { edge: Edge; steps: 1
 /** The other corner. */
 export const otherCorner = (corner: Corner): Corner => (corner === 'bottomRight' ? 'topLeft' : 'bottomRight');
 
-/** "bottom right", "top left". */
-export const cornerName = (corner: Corner) => (corner === 'bottomRight' ? 'bottom right' : 'top left');
-
 /** The size in pixels an area of a monitor stands for, for the label shown while resizing. */
 export function pixelSize(frac: Frac, monitor: Pick<Rect, 'width' | 'height'>): { width: number; height: number } {
   return { width: Math.round(frac.width * monitor.width), height: Math.round(frac.height * monitor.height) };

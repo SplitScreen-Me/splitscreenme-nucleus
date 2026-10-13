@@ -2,6 +2,7 @@
 // `setup.changed` snapshots, so callers never apply them locally.
 import { useMemo, useState } from 'react';
 import { bridge, type Edge, type ScreenLayout, type SetupPlayer, type SetupSnapshot } from '@/bridge';
+import { t } from '@/i18n';
 import { refusalReason, useRun } from '@/lib/bridge-ui';
 import { slotOfPlayer } from './model';
 import { forgetRemoved, markRemoved } from './removals';
@@ -75,7 +76,7 @@ export function useLobbyCommands(onNeedsPicker: () => Promise<void>) {
       toggleExpand: (playerId: string) => run(() => setup.toggleExpand({ playerId })),
       resize: (playerId: string, edge: Edge, steps: number) => run(() => setup.resize({ playerId, edge, steps })),
       rumble: (deviceId: string) => run(() => setup.rumble({ deviceId })),
-      refreshDevices: () => run(() => setup.refreshDevices(), { success: 'Devices scanned again' }),
+      refreshDevices: () => run(() => setup.refreshDevices(), { success: t('lobby.tray.rescanned') }),
       autoFill: () => run(() => setup.autoFill()),
       clearAll: (deviceIds: readonly string[] = []) => {
         markRemoved(deviceIds);

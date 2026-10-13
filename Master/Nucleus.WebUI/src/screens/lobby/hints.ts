@@ -1,7 +1,9 @@
 // The lobby's gamepad hints, the pure part: a button is only tied to what it does whatever has focus.
-// src/bridge/__tests__/lobby-hints.test.ts runs it under `node --test` (keep this file erasable TypeScript with no imports).
+// src/bridge/__tests__/lobby-hints.test.ts runs it under `node --test`: keep this file erasable TypeScript, importing the
+// i18n store by its relative path (labels are read when the hints are built, in the language in use).
+import { t } from '../../i18n/store.ts';
 
-/** One hint of the bar: the shape of shell/chrome's Hint, restated so this file needs no imports. */
+/** One hint of the bar: the shape of shell/chrome's Hint, restated so this file needs no app imports. */
 export interface LobbyHint {
   button?: 'A' | 'B' | 'X' | 'Menu';
   key?: string;
@@ -28,17 +30,17 @@ export interface LobbyHintActions {
  * controller the pads only cancel: B is the one hint, whatever has focus.
  */
 export function lobbyHints(waiting: boolean, actions: LobbyHintActions): { base: LobbyHint[]; byFocus?: Record<string, LobbyHint[]> } {
-  if (waiting) return { base: [{ button: 'B', label: 'Cancel', action: actions.cancelWait }] };
-  const join: LobbyHint = { button: 'Menu', label: 'Join' };
-  const select: LobbyHint = { button: 'A', label: 'Select' };
+  if (waiting) return { base: [{ button: 'B', label: t('common.cancel'), action: actions.cancelWait }] };
+  const join: LobbyHint = { button: 'Menu', label: t('lobby.hints.join') };
+  const select: LobbyHint = { button: 'A', label: t('common.select') };
   return {
     base: [join, select],
     byFocus: {
-      [PLAYER_RESIZABLE]: [join, select, { button: 'X', label: 'Resize', action: actions.resize }],
+      [PLAYER_RESIZABLE]: [join, select, { button: 'X', label: t('lobby.hints.resize'), action: actions.resize }],
       [PLAYER_RESIZING]: [
-        { key: 'Arrows', label: 'Move the corner' },
-        { button: 'X', label: 'Other corner', action: actions.otherCorner },
-        { button: 'A', label: 'Done' },
+        { key: t('lobby.hints.arrowsKey'), label: t('lobby.hints.moveCorner') },
+        { button: 'X', label: t('lobby.hints.otherCorner'), action: actions.otherCorner },
+        { button: 'A', label: t('common.done') },
       ],
     },
   };

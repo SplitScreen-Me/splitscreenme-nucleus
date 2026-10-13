@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, type DragEvent, type FocusEvent, type KeyboardEvent, type PointerEvent, type Ref } from 'react';
 import type { Edge, Rect, SetupDevice, SetupPlayer } from '@/bridge';
+import { useT } from '@/i18n';
 import { devicesIcon } from '@/lib/devices';
 import { cn, Icon, playerClass } from '@/ui';
 import { PLAYER_RESIZABLE, PLAYER_RESIZING } from './hints';
 import { ART_VIEW, deviceKinds, devicesLabel, playerName, reduceMotion } from './model';
-import { cornerName, dragSteps, movedFrac, pixelSize, type Corner, type Frac, type StepFrac } from './resize-core';
+import { dragSteps, movedFrac, pixelSize, type Corner, type Frac, type StepFrac } from './resize-core';
 
 export type { Frac } from './resize-core';
 
@@ -65,6 +66,7 @@ const HANDLE: Record<Edge, { strip: string; pill: string }> = {
 /** One player's area of a monitor, drawn from its bounds. The black between regions is the brand gutter. */
 export function PlayerRegion(props: PlayerRegionProps) {
   const { player: p, devices, lifted, dragging, target, justJoined, ping, step, resizeCorner } = props;
+  const t = useT();
   const ring = useRef<HTMLDivElement>(null);
   const art = useRef<HTMLDivElement>(null);
   const name = playerName(p);
@@ -118,8 +120,13 @@ export function PlayerRegion(props: PlayerRegionProps) {
 
   const view = ART_VIEW[(p.number - 1) % ART_VIEW.length] ?? ART_VIEW[0]!;
   const label = resizeCorner
-    ? `Resizing player ${p.number}, ${name}: ${size.width} by ${size.height}. Arrows move the ${cornerName(resizeCorner)} corner, X switches corners, Enter when done.`
-    : `Player ${p.number}, ${name}, ${devicesLabel(devices)}, ${props.where}. Enter to move, ${step ? 'R to resize, ' : ''}Delete to take out.`;
+    ? t(resizeCorner === 'bottomRight' ? 'lobby.region.resizingBottomRight' : 'lobby.region.resizingTopLeft', {
+        number: p.number,
+        name,
+        width: String(size.width),
+        height: String(size.height),
+      })
+    : t(step ? 'lobby.region.labelResizable' : 'lobby.region.label', { number: p.number, name, devices: devicesLabel(devices), place: props.where });
 
   return (
     <div
@@ -169,7 +176,7 @@ export function PlayerRegion(props: PlayerRegionProps) {
           justJoined && 'animate-rise-in [animation-delay:80ms]',
         )}
       >
-        P{p.number}
+        {t('lobby.player.short', { number: p.number })}
       </span>
       {props.guests > 0 && (
         <span
@@ -276,13 +283,14 @@ export interface SlotCellProps extends DropHandlers {
 /** An empty slot of a layout: where the next player joins, where a dragged one lands, or where a controller is awaited. */
 export function SlotCell(props: SlotCellProps) {
   const { frac, expected, dropMode, waiting, target } = props;
+  const t = useT();
   const [title, note] = dropMode
-    ? ['Move here', undefined]
+    ? [t('lobby.slot.moveHere'), undefined]
     : waiting
-      ? ['Press a button on a controller', 'B or Esc cancels']
+      ? [t('lobby.spot.pressButton'), t('lobby.spot.cancelHint')]
       : expected
-        ? ['Waiting for a player', 'Set by the profile']
-        : ['Press Start to join', 'Or select it, then press any button'];
+        ? [t('lobby.slot.expected'), t('lobby.slot.expectedNote')]
+        : [t('lobby.slot.join'), t('lobby.slot.joinNote')];
   return (
     <div
       ref={props.regionRef}

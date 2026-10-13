@@ -3,6 +3,7 @@
 // The host owns placement (setup.join, setup.assignToSlot); this hook only decides which activity means "I want to play".
 import { useEffect, useRef } from 'react';
 import { bridge, useBridgeEvent, type SetupDevice, type SetupSnapshot } from '@/bridge';
+import { t } from '@/i18n';
 import { errorMessage, isCancelled, refusalReason } from '@/lib/bridge-ui';
 import { isGamepadKind } from '@/lib/devices';
 import { useToast } from '@/ui';
@@ -93,7 +94,7 @@ export function usePressToJoin({ snap, enabled, spot, onTakeSpot, onFlash, onPin
       const next = await bridge.setup.join({ deviceId });
       refused.current.delete(deviceId);
       const player = next.players.find((p) => p.deviceIds.includes(deviceId) || p.guestDeviceIds.includes(deviceId));
-      if (player) announce(`${device.name} joined: ${playerName(player)}, player ${player.number}.`);
+      if (player) announce(t('lobby.announce.joined', { device: device.name, player: playerName(player), number: player.number }));
     } catch (error) {
       if (isCancelled(error)) return;
       refused.current.set(deviceId, state);

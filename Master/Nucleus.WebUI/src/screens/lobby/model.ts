@@ -1,6 +1,9 @@
 // Lobby view-model helpers: pure derivations from the host's setup snapshot. Commands go through bridge.setup.*.
+// Texts use the module-level `t` (the language in use): the components that call these helpers re-render on a change of
+// language through their own useI18n / useT.
 import type { DeviceKind, Rect, ScreenLayout, SetupDevice, SetupHint, SetupPlayer, SetupScreen, SetupSnapshot } from '@/bridge';
-import { deviceNoun, isGamepadKind, isKeyboardKind } from '@/lib/devices';
+import { t, type MessageKey } from '@/i18n';
+import { isGamepadKind, isKeyboardKind } from '@/lib/devices';
 import type { IconName } from '@/ui';
 
 // ---------------------------------------------------------------- lookups
@@ -50,59 +53,97 @@ export function hasLoneRawKeyboard(snap: SetupSnapshot): boolean {
 // ---------------------------------------------------------------- names
 
 export function screenName(screen: SetupScreen): string {
-  return `Display ${screen.displayIndex}`;
+  return t('lobby.screen.name', { number: screen.displayIndex });
 }
 
 export function playerName(p: SetupPlayer): string {
-  return p.nickname?.trim() || `Player ${p.number}`;
+  return p.nickname?.trim() || t('lobby.player.name', { number: p.number });
 }
 
 /** "Xbox Wireless Controller + Logitech G502" */
 export function devicesLabel(devices: readonly SetupDevice[]): string {
-  return devices.map((d) => d.name).join(' + ') || 'No device';
+  return devices.map((d) => d.name).join(' + ') || t('lobby.player.noDevice');
 }
 
 export const deviceKinds = (devices: readonly SetupDevice[]): DeviceKind[] => devices.map((d) => d.kind);
 
+/** The words a sentence uses for a device kind: each group has its own sentences (no noun glued into a sentence). */
+export type DeviceGroup = 'gamepad' | 'keyboard' | 'mouse' | 'keyboardMouse';
+
+const DEVICE_GROUPS: Record<DeviceKind, DeviceGroup> = {
+  xInput: 'gamepad',
+  dInput: 'gamepad',
+  sdl: 'gamepad',
+  keyboard: 'keyboardMouse',
+  rawKeyboard: 'keyboard',
+  rawMouse: 'mouse',
+  keyboardMouse: 'keyboardMouse',
+};
+
+export const deviceGroup = (kind: DeviceKind): DeviceGroup => DEVICE_GROUPS[kind] ?? 'gamepad';
+
+/** A screen, and the slot when there is one: "Display 1, top left". */
+export function placeName(screen: SetupScreen, slot: number | undefined): string {
+  return slot === undefined ? screenName(screen) : t('lobby.where.screenAndSlot', { screen: screenName(screen), slot: slotName(screen, slot) });
+}
+
 /** Where a player sits: "Display 1, top left". */
 export function whereOf(snap: SetupSnapshot, p: SetupPlayer): string {
   const screen = snap.screens.find((s) => s.index === p.screenIndex);
-  if (!screen) return 'a screen';
-  const slot = slotOfPlayer(screen, p.id);
-  return slot === undefined ? screenName(screen) : `${screenName(screen)}, ${slotName(screen, slot)}`;
+  if (!screen) return t('lobby.where.unknownScreen');
+  return placeName(screen, slotOfPlayer(screen, p.id));
 }
+
+const CORNERS: readonly (readonly [MessageKey, MessageKey])[] = [
+  ['lobby.slots.topLeft', 'lobby.slots.topRight'],
+  ['lobby.slots.bottomLeft', 'lobby.slots.bottomRight'],
+];
 
 /** Name of a slot in its grid: "top left", "left", "row 2, column 3". */
 export function slotName(screen: SetupScreen, index: number): string {
   const { rows, columns } = screen;
-  if (rows * columns <= 1) return 'full screen';
+  if (rows * columns <= 1) return t('lobby.slots.fullScreen');
   const row = Math.floor(index / columns);
   const col = index % columns;
-  if (rows === 1 && columns === 2) return col === 0 ? 'left' : 'right';
-  if (rows === 2 && columns === 1) return row === 0 ? 'top' : 'bottom';
-  if (rows === 2 && columns === 2) return `${row === 0 ? 'top' : 'bottom'} ${col === 0 ? 'left' : 'right'}`;
-  return `row ${row + 1}, column ${col + 1}`;
+  if (rows === 1 && columns === 2) return t(col === 0 ? 'lobby.slots.left' : 'lobby.slots.right');
+  if (rows === 2 && columns === 1) return t(row === 0 ? 'lobby.slots.top' : 'lobby.slots.bottom');
+  if (rows === 2 && columns === 2) return t(CORNERS[row]![col]!);
+  return t('lobby.slots.grid', { row: row + 1, column: col + 1 });
 }
 
 // ---------------------------------------------------------------- layouts
 
-export const PRESETS: ReadonlyArray<{ layout: ScreenLayout; icon: IconName; label: string }> = [
-  { layout: 'fullScreen', icon: 'layout-1', label: 'One player, full screen' },
-  { layout: 'dualHorizontal', icon: 'layout-2h', label: 'Two players, top and bottom' },
-  { layout: 'dualVertical', icon: 'layout-2v', label: 'Two players, side by side' },
-  { layout: 'fourPlayers', icon: 'layout-4', label: 'Four players, 2 × 2' },
+/** The layouts with a button of their own. `label` is a key: translate it where it shows. */
+export const PRESETS: ReadonlyArray<{ layout: ScreenLayout; icon: IconName; label: MessageKey }> = [
+  { layout: 'fullScreen', icon: 'layout-1', label: 'lobby.layouts.fullScreen.label' },
+  { layout: 'dualHorizontal', icon: 'layout-2h', label: 'lobby.layouts.dualHorizontal.label' },
+  { layout: 'dualVertical', icon: 'layout-2v', label: 'lobby.layouts.dualVertical.label' },
+  { layout: 'fourPlayers', icon: 'layout-4', label: 'lobby.layouts.fourPlayers.label' },
 ];
 
-export const MORE_LAYOUTS: ReadonlyArray<{ layout: ScreenLayout; label: string; short: string; description: string }> = [
-  { layout: 'sixPlayers', label: 'Six players', short: '6 players', description: '2 rows, 3 columns' },
-  { layout: 'eightPlayers', label: 'Eight players', short: '8 players', description: '2 rows, 4 columns' },
-  { layout: 'sixteenPlayers', label: 'Sixteen players', short: '16 players', description: '4 rows, 4 columns' },
-  { layout: 'custom', label: 'Custom grid', short: 'Custom', description: 'Rows and columns from Settings, Layout' },
-  { layout: 'manual', label: 'Manual', short: 'Manual', description: 'Drop players anywhere on the screen' },
+/** The layouts of the "More" menu, as keys. */
+export const MORE_LAYOUTS: ReadonlyArray<{ layout: ScreenLayout; label: MessageKey; short: MessageKey; description: MessageKey }> = [
+  { layout: 'sixPlayers', label: 'lobby.layouts.sixPlayers.label', short: 'lobby.layouts.sixPlayers.short', description: 'lobby.layouts.sixPlayers.description' },
+  {
+    layout: 'eightPlayers',
+    label: 'lobby.layouts.eightPlayers.label',
+    short: 'lobby.layouts.eightPlayers.short',
+    description: 'lobby.layouts.eightPlayers.description',
+  },
+  {
+    layout: 'sixteenPlayers',
+    label: 'lobby.layouts.sixteenPlayers.label',
+    short: 'lobby.layouts.sixteenPlayers.short',
+    description: 'lobby.layouts.sixteenPlayers.description',
+  },
+  { layout: 'custom', label: 'lobby.layouts.custom.label', short: 'lobby.layouts.custom.short', description: 'lobby.layouts.custom.description' },
+  { layout: 'manual', label: 'lobby.layouts.manual.label', short: 'lobby.layouts.manual.short', description: 'lobby.layouts.manual.description' },
 ];
 
-export function layoutLabel(layout: ScreenLayout): string {
-  return (PRESETS.find((p) => p.layout === layout)?.label ?? MORE_LAYOUTS.find((l) => l.layout === layout)?.label ?? layout).toLowerCase();
+/** Name of a layout ("Six players"), or its id when unknown. */
+export function layoutName(layout: ScreenLayout): string {
+  const key = MORE_LAYOUTS.find((l) => l.layout === layout)?.label ?? PRESETS.find((p) => p.layout === layout)?.label;
+  return key ? t(key) : layout;
 }
 
 // ---------------------------------------------------------------- geometry
@@ -174,22 +215,30 @@ export const ART_VIEW: ReadonlyArray<readonly [string, string]> = [
 
 // ---------------------------------------------------------------- hints
 
-/** The host's hint, in the lobby's words when the code is known. */
+const WAITING_FOR_PLAYER: Record<DeviceGroup, MessageKey> = {
+  gamepad: 'setup.hints.profileWaitingForPlayer.gamepad',
+  keyboard: 'setup.hints.profileWaitingForPlayer.keyboard',
+  mouse: 'setup.hints.profileWaitingForPlayer.mouse',
+  keyboardMouse: 'setup.hints.profileWaitingForPlayer.keyboardMouse',
+};
+
+/** The host's hint, in the lobby's words when the code is known (the host's own text otherwise). */
 export function hintText(hint: SetupHint | undefined): string | undefined {
   if (!hint) return undefined;
   switch (hint.code) {
     case 'pressButtonToIdentify':
-      return 'Press a button on each gamepad so Nucleus can tell them apart.';
+      return t('setup.hints.pressButtonToIdentify');
     case 'dragPlayersToScreens':
-      return 'Press Start on a controller to join, or drag a device onto a screen.';
+      return t('setup.hints.dragPlayersToScreens');
     case 'profileWaitingForPlayer': {
       const [n, kind] = hint.args;
-      return n && kind ? `Player ${n} of the profile: press a button on a ${deviceNoun(kind as DeviceKind)}.` : hint.text;
+      const number = Number(n);
+      return n && kind && Number.isFinite(number) ? t(WAITING_FOR_PLAYER[deviceGroup(kind as DeviceKind)], { number }) : hint.text;
     }
     case 'profileReady':
-      return 'Every player of the profile is here. Launch when you are ready.';
+      return t('setup.hints.profileReady');
     case 'readyToPlay':
-      return 'Everyone is in. Launch when you are ready.';
+      return t('setup.hints.readyToPlay');
     default:
       return hint.text;
   }

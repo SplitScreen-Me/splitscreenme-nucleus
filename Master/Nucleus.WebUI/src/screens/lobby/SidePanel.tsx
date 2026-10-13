@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import type { CheckState, SetupCheck, SetupPlayer, SetupSnapshot } from '@/bridge';
+import type { CheckState, SetupCheck, SetupPlayer, SetupSnapshot, SetupStep, SetupStepKind } from '@/bridge';
+import { useT, type MessageKey, type TFunction } from '@/i18n';
 import { deviceIcon, isGamepadKind } from '@/lib/devices';
 import { Button, cn, Icon, MiniField, MiniInput, MiniSelect, Pane, PlayerTag, playerClass, Spinner, Switch, type IconName } from '@/ui';
 import type { LobbyCommands } from './commands';
@@ -15,26 +16,23 @@ export interface SidePanelProps {
 
 /** Side column: players with their identity and audio, then the pre-launch checks. Scrolls on its own. */
 export function SidePanel({ snap, commands, pings, announce }: SidePanelProps) {
+  const t = useT();
   const max = snap.capabilities.maxPlayers;
   const seats = seatCount(snap);
   const freeRevealed = snap.devices.filter((d) => isFree(d) && d.revealed);
   const note =
     seats >= max
-      ? `Full. ${snap.gameName} supports up to ${max} players.`
-      : freeRevealed.length
-        ? `${max - seats} more can join. Press Start on a free controller, or any key on a free keyboard.`
-        : `${max - seats} more can join. Plug in a controller, then press Start on it.`;
+      ? t('lobby.players.full', { game: snap.gameName, count: max })
+      : t(freeRevealed.length ? 'lobby.players.moreCanJoinFree' : 'lobby.players.moreCanJoin', { count: max - seats });
 
   return (
     <Pane className="min-h-0 overflow-y-auto">
       <section aria-labelledby="lobby-players-title" className="border-b border-line px-[18px] py-4">
         <div className="flex items-baseline justify-between gap-3">
           <h2 id="lobby-players-title" className="type-h3">
-            Players
+            {t('lobby.players.title')}
           </h2>
-          <span className="data text-15 text-ink-2">
-            {seats} of {max}
-          </span>
+          <span className="data text-15 text-ink-2">{t('lobby.players.count', { seats, max })}</span>
         </div>
         <ol className="m-0 mt-2 list-none p-0">
           {byNumber(snap.players).map((p) => (
@@ -45,13 +43,13 @@ export function SidePanel({ snap, commands, pings, announce }: SidePanelProps) {
         {snap.capabilities.gamepads && (
           <label className="mt-3 flex items-start justify-between gap-3 text-13 leading-[1.4] text-ink-2">
             <span>
-              <b className="block font-[650] text-ink">Identify gamepads by slot</b>
-              Places gamepads by their controller number, without a button press. Some handlers ignore it.
+              <b className="block font-[650] text-ink">{t('lobby.players.apiIndex.label')}</b>
+              {t('lobby.players.apiIndex.description')}
             </span>
             <Switch
               checked={snap.useApiIndex}
               onChange={(on) => void commands.setUseApiIndex(on)}
-              aria-label="Identify gamepads by slot"
+              aria-label={t('lobby.players.apiIndex.label')}
               className="mt-0.5"
             />
           </label>
@@ -60,7 +58,7 @@ export function SidePanel({ snap, commands, pings, announce }: SidePanelProps) {
 
       <section aria-labelledby="lobby-checks-title" className="px-[18px] py-4">
         <h2 id="lobby-checks-title" className="type-h3">
-          Before you launch
+          {t('setup.checks.title')}
         </h2>
         <ul className="m-0 mt-2.5 list-none p-0">
           {snap.checks.map((c) => (
@@ -85,6 +83,7 @@ function PlayerRow({
   ping: number;
   announce: (message: string) => void;
 }) {
+  const t = useT();
   const tag = useRef<HTMLSpanElement>(null);
   const [nick, setNick] = useState<string | null>(null);
   const [steam, setSteam] = useState<string | null>(null);
@@ -94,7 +93,7 @@ function PlayerRow({
   const canAddGuest = p.maxGuests > guests.length && freePads.length > 0;
   const audioChoices = snap.audioOutputs.some((a) => a.value === 'Default')
     ? snap.audioOutputs
-    : [{ value: 'Default', label: 'Default output' }, ...snap.audioOutputs];
+    : [{ value: 'Default', label: t('lobby.player.defaultAudio') }, ...snap.audioOutputs];
 
   useEffect(() => {
     if (!ping || !tag.current || reduceMotion()) return;
@@ -114,7 +113,7 @@ function PlayerRow({
     await commands.setIdentity(p.id, { steamId: value });
   };
   const removeAll = async () => {
-    if (await commands.removePlayer(p)) announce(`${playerName(p)} left. Their devices are back in the tray.`);
+    if (await commands.removePlayer(p)) announce(t('lobby.announce.playerLeft', { player: playerName(p) }));
   };
 
   return (
@@ -125,7 +124,7 @@ function PlayerRow({
         ref={tag}
         draggable
         onDragStart={(e) => startDrag(e, { kind: 'player', id: p.id })}
-        title="Drag onto a screen to move this player"
+        title={t('lobby.player.dragHint')}
         className="mt-1.5 inline-flex cursor-grab self-start active:cursor-grabbing"
       >
         <PlayerTag n={p.number} size="lg" />
@@ -134,8 +133,8 @@ function PlayerRow({
         <div className="flex items-center gap-1">
           <input
             value={nick ?? p.nickname ?? ''}
-            placeholder={`Player ${p.number}`}
-            aria-label={`Player ${p.number} nickname`}
+            placeholder={t('lobby.player.name', { number: p.number })}
+            aria-label={t('lobby.player.nicknameLabel', { number: p.number })}
             spellCheck={false}
             maxLength={24}
             onChange={(e) => setNick(e.target.value)}
@@ -154,15 +153,22 @@ function PlayerRow({
             <Button
               variant="quiet"
               size="icon-sm"
-              aria-label={`Grow or shrink player ${p.number}`}
-              title="Grow over the free neighbouring places, or shrink back"
+              aria-label={t('lobby.player.expandLabel', { number: p.number })}
+              title={t('lobby.player.expandHint')}
               onClick={() => void commands.toggleExpand(p.id)}
               className="text-ink-3"
             >
               <Icon name="layers" />
             </Button>
           )}
-          <Button variant="quiet" size="icon-sm" aria-label={`Take out player ${p.number}`} title="Take out" onClick={() => void removeAll()} className="text-ink-3">
+          <Button
+            variant="quiet"
+            size="icon-sm"
+            aria-label={t('lobby.player.removeLabel', { number: p.number })}
+            title={t('lobby.player.remove')}
+            onClick={() => void removeAll()}
+            className="text-ink-3"
+          >
             <Icon name="x" />
           </Button>
         </div>
@@ -174,8 +180,8 @@ function PlayerRow({
               {devices.length > 1 && (
                 <button
                   type="button"
-                  aria-label={`Remove ${d.name} from player ${p.number}`}
-                  title="Remove this device"
+                  aria-label={t('lobby.player.removeDeviceLabel', { device: d.name, number: p.number })}
+                  title={t('lobby.player.removeDevice')}
                   onClick={() => void commands.unassign(d.id)}
                   className="grid size-5 shrink-0 place-items-center rounded border-0 bg-transparent text-ink-3 hover:bg-pane-3 hover:text-ink"
                 >
@@ -187,11 +193,11 @@ function PlayerRow({
           {guests.map((d) => (
             <li key={d.id} className="flex items-center gap-1.5 whitespace-nowrap">
               <Icon name="users" className="size-4 shrink-0 text-ink-3" />
-              <span className="min-w-0 truncate">Guest: {d.name}</span>
+              <span className="min-w-0 truncate">{t('lobby.player.guest', { device: d.name })}</span>
               <button
                 type="button"
-                aria-label={`Remove guest ${d.name}`}
-                title="Remove the guest"
+                aria-label={t('lobby.player.removeGuestLabel', { device: d.name })}
+                title={t('lobby.player.removeGuest')}
                 onClick={() => void commands.removeGuest(d.id)}
                 className="grid size-5 shrink-0 place-items-center rounded border-0 bg-transparent text-ink-3 hover:bg-pane-3 hover:text-ink"
               >
@@ -202,10 +208,10 @@ function PlayerRow({
           <li className="text-ink-3">{whereOf(snap, p)}</li>
         </ul>
         <div className="grid grid-cols-[1.15fr_1fr] gap-1.5">
-          <MiniField title={snap.customAudio ? 'Audio output of this player' : 'Audio output (choosing one turns per-player audio on)'}>
+          <MiniField title={t(snap.customAudio ? 'lobby.player.audioHint' : 'lobby.player.audioHintOff')}>
             <Icon name={p.audioDeviceId && p.audioDeviceId !== 'Default' ? 'headphones' : 'speaker'} />
             <MiniSelect
-              aria-label={`Player ${p.number} audio output`}
+              aria-label={t('lobby.player.audioLabel', { number: p.number })}
               value={p.audioDeviceId ?? 'Default'}
               onChange={(e) => void commands.setAudio(p.id, e.target.value)}
             >
@@ -216,13 +222,13 @@ function PlayerRow({
               ))}
             </MiniSelect>
           </MiniField>
-          <MiniField title="Steam ID used in game (17 digits)">
+          <MiniField title={t('lobby.player.steamIdHint')}>
             Steam
             <MiniInput
               value={steam ?? p.steamId ?? ''}
-              placeholder="Default"
+              placeholder={t('common.default')}
               inputMode="numeric"
-              aria-label={`Player ${p.number} Steam ID`}
+              aria-label={t('lobby.player.steamIdLabel', { number: p.number })}
               spellCheck={false}
               onChange={(e) => setSteam(e.target.value)}
               onBlur={() => void commitSteam()}
@@ -231,14 +237,14 @@ function PlayerRow({
           </MiniField>
         </div>
         {canAddGuest && (
-          <MiniField className="mt-1.5" title="A guest plays in this player's copy of the game">
+          <MiniField className="mt-1.5" title={t('lobby.player.addGuestHint')}>
             <Icon name="users" />
             <MiniSelect
-              aria-label={`Add a guest gamepad to player ${p.number}`}
+              aria-label={t('lobby.player.addGuestLabel', { number: p.number })}
               value=""
               onChange={(e) => e.target.value && void commands.addGuest(p.id, e.target.value)}
             >
-              <option value="">Add a guest gamepad…</option>
+              <option value="">{t('lobby.player.addGuest')}</option>
               {freePads.map((d) => (
                 <option key={d.id} value={d.id}>
                   {d.name}
@@ -260,14 +266,21 @@ const CHECK_TONE: Record<CheckState, string> = {
   info: 'bg-pane-3 text-ink-2',
   busy: 'bg-pane-3 text-ink-2',
 };
-const CHECK_WORD: Record<CheckState, string> = { ok: 'Done', warning: 'Warning', blocking: 'Blocking', info: 'Note', busy: 'In progress' };
+const CHECK_WORD: Record<CheckState, MessageKey> = {
+  ok: 'setup.checks.state.ok',
+  warning: 'setup.checks.state.warning',
+  blocking: 'setup.checks.state.blocking',
+  info: 'setup.checks.state.info',
+  busy: 'setup.checks.state.busy',
+};
 
 function CheckRow({ check: c, busy, onAction }: { check: SetupCheck; busy: boolean; onAction: () => void }) {
+  const t = useT();
   const state: CheckState = busy ? 'busy' : c.state;
   return (
     <li className="grid grid-cols-[22px_minmax(0,1fr)_auto] items-start gap-x-2.5 py-2">
       <span className={cn('grid size-[22px] place-items-center rounded-full', CHECK_TONE[state])}>
-        <Icon name={CHECK_ICON[state]} strokeWidth={2.4} className={cn('size-[13px]', state === 'busy' && 'animate-spin')} label={CHECK_WORD[state]} />
+        <Icon name={CHECK_ICON[state]} strokeWidth={2.4} className={cn('size-[13px]', state === 'busy' && 'animate-spin')} label={t(CHECK_WORD[state])} />
       </span>
       <div className="min-w-0">
         <div className="text-14 leading-[1.35] font-semibold">{c.title}</div>
@@ -293,6 +306,7 @@ export function LaunchPane({
   launching: boolean;
   onLaunch: () => void;
 }) {
+  const t = useT();
   const { flow } = snap;
   const step = flow.steps[flow.current];
   const nextStep = flow.steps[flow.current + 1];
@@ -304,28 +318,28 @@ export function LaunchPane({
   const reasonId = 'lobby-launch-reason';
 
   let note: ReactNode;
-  if (launching) note = <span>Starting the copies…</span>;
+  if (launching) note = <span>{t('setup.launch.starting')}</span>;
   else if (blocking)
     note = (
       <>
         <Icon name="warning" className="size-4 shrink-0 text-danger" />
-        <span>{blocking.title}. Fix it in "Before you launch".</span>
+        <span>{t('setup.launch.blocking', { check: blocking.title, section: t('setup.checks.title') })}</span>
       </>
     );
   else if (busy)
     note = (
       <>
         <Spinner />
-        <span>{busy.title}: working on it…</span>
+        <span>{t('setup.launch.busy', { check: busy.title })}</span>
       </>
     );
-  else if (!flow.canPlay && nextStep && flow.canGoNext) note = <span>Next: {nextStep.title.toLowerCase()}. Then launch.</span>;
-  else if (!flow.canPlay) note = <span>{hint ?? (n === 0 ? 'Press Start on a controller to join.' : 'Finish this step to launch.')}</span>;
+  else if (!flow.canPlay && nextStep && flow.canGoNext) note = <span>{nextLabel(t, nextStep)}</span>;
+  else if (!flow.canPlay) note = <span>{hint ?? t(n === 0 ? 'setup.launch.noPlayers' : 'setup.launch.finishStep')}</span>;
   else if (warning)
     note = (
       <>
         <Icon name="warning" className="size-4 shrink-0 text-warn" />
-        <span>{warning.title}. You can still launch.</span>
+        <span>{t('setup.launch.warning', { check: warning.title })}</span>
       </>
     );
   else
@@ -336,14 +350,14 @@ export function LaunchPane({
             <PlayerTag key={p.id} n={p.number} size="sm" />
           ))}
         </span>
-        <span>{hint ?? `${n} ${n === 1 ? 'copy' : 'copies'} of ${snap.gameName}.`}</span>
+        <span>{hint ?? t('setup.launch.ready', { count: n, game: snap.gameName })}</span>
       </>
     );
 
   return (
-    <Pane as="section" aria-label="Launch" className="grid gap-3 px-4 pt-3.5 pb-4">
+    <Pane as="section" aria-label={t('setup.launch.label')} className="grid gap-3 px-4 pt-3.5 pb-4">
       {flow.steps.length > 1 && (
-        <ol aria-label="Steps" className="m-0 flex list-none gap-1 p-0">
+        <ol aria-label={t('setup.flow.stepsLabel')} className="m-0 flex list-none gap-1 p-0">
           {flow.steps.map((s, i) => (
             <li
               key={`${s.kind}-${s.customStepIndex ?? i}`}
@@ -353,7 +367,7 @@ export function LaunchPane({
             >
               <span className={cn('h-1 rounded-full', i < flow.current ? 'bg-ink-2' : i === flow.current ? 'bg-ink' : 'bg-pane-3')} />
               <span className={cn('truncate text-12 font-[650]', i === flow.current ? 'text-ink' : 'text-ink-3')}>
-                {i + 1}. {s.title}
+                {t('setup.flow.step', { number: i + 1, title: s.title })}
               </span>
             </li>
           ))}
@@ -366,11 +380,11 @@ export function LaunchPane({
         <div className={cn('grid gap-2', nextStep ? 'grid-cols-2' : 'grid-cols-1')}>
           <Button variant="ghost" disabled={!flow.canGoBack} onClick={() => void commands.back()} data-nav>
             <Icon name="arrow-l" />
-            Back{nextStep ? '' : ` to ${flow.steps[flow.current - 1]?.title.toLowerCase() ?? 'the previous step'}`}
+            {nextStep ? t('common.back') : backLabel(t, flow.steps[flow.current - 1])}
           </Button>
           {nextStep && (
             <Button variant="default" disabled={!flow.canGoNext} onClick={() => void commands.next()} data-nav>
-              Next
+              {t('setup.flow.next')}
               <Icon name="arrow-r" />
             </Button>
           )}
@@ -386,17 +400,34 @@ export function LaunchPane({
         className="w-full [&_svg]:size-4"
       >
         {launching ? <Spinner /> : <Icon name="play" />}
-        {launching ? 'Launching…' : n === 0 ? 'Launch' : n === 1 ? 'Launch 1 player' : `Launch ${n} players`}
+        {launching ? t('setup.launch.launching') : t('setup.launch.button', { count: n })}
       </Button>
       <label className="flex items-center justify-between gap-3 text-13 text-ink-2">
-        <span>Save a profile when the session starts</span>
+        <span>{t('setup.launch.saveProfile')}</span>
         <Switch
           checked={snap.saveProfileOnLaunch}
           onChange={(on) => void commands.setSaveProfileOnLaunch(on)}
-          aria-label="Save a profile when the session starts"
+          aria-label={t('setup.launch.saveProfile')}
         />
       </label>
-      {step?.kind !== 'players' && <span className="sr-only">Current step: {step?.title}</span>}
+      {step?.kind !== 'players' && <span className="sr-only">{t('setup.flow.currentStep', { step: step?.title ?? '' })}</span>}
     </Pane>
   );
+}
+
+// The app's own steps are named by the UI, in the middle of a sentence; a handler's step goes by its title.
+const NEXT_STEP: Partial<Record<SetupStepKind, MessageKey>> = { players: 'setup.launch.nextPlayers', options: 'setup.launch.nextOptions' };
+const BACK_TO_STEP: Partial<Record<SetupStepKind, MessageKey>> = { players: 'setup.flow.backToPlayers', options: 'setup.flow.backToOptions' };
+
+/** "Next: options. Then launch." */
+function nextLabel(t: TFunction, next: SetupStep): string {
+  const key = NEXT_STEP[next.kind];
+  return key ? t(key) : t('setup.launch.nextStep', { step: next.title });
+}
+
+/** The back button of the last step: "Back to" the previous one. */
+function backLabel(t: TFunction, previous: SetupStep | undefined): string {
+  if (!previous) return t('setup.flow.backToPrevious');
+  const key = BACK_TO_STEP[previous.kind];
+  return key ? t(key) : t('setup.flow.backTo', { step: previous.title });
 }

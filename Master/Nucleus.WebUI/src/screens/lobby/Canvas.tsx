@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type DragEvent, type FocusEvent as ReactFocusEvent, type KeyboardEvent, type ReactNode } from 'react';
 import type { Edge, ScreenLayout, SetupDevice, SetupPlayer, SetupScreen, SetupSnapshot } from '@/bridge';
+import { T, useT, type MessageKey } from '@/i18n';
 import { deviceIcon, isGamepadKind, isKeyboardKind } from '@/lib/devices';
 import { Button, cn, Icon, MenuButton, Pane, useConfirm } from '@/ui';
 import type { LobbyCommands } from './commands';
@@ -11,7 +12,9 @@ import {
   guestsOf,
   hiddenInputs,
   isFree,
+  layoutName,
   MORE_LAYOUTS,
+  placeName,
   playerById,
   playerName,
   PRESETS,
@@ -19,14 +22,13 @@ import {
   relative,
   screenName,
   seatCount,
-  slotName,
   slotOfPlayer,
   trayDevices,
   whereOf,
   type Box,
 } from './model';
 import { PlayerRegion, SlotCell } from './Region';
-import { arrowResize, cornerName, otherCorner, stepFracOf, type Corner } from './resize-core';
+import { arrowResize, otherCorner, stepFracOf, type Corner } from './resize-core';
 
 /** A player being resized with the keyboard or a gamepad, and the corner the arrows move. */
 export interface ResizeMode {
@@ -63,6 +65,7 @@ const viaKey = (e: KeyboardEvent<HTMLElement>): Via => (e.nativeEvent.isTrusted 
 /** Screen canvas: the monitors, to scale, split into slots and player areas; devices waiting below. */
 export function Canvas(props: CanvasProps) {
   const { snap, commands, announce, resizing, onResizing, spot, onPickSpot, onCancelSpot } = props;
+  const t = useT();
   const confirm = useConfirm();
   const rigRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
@@ -116,16 +119,16 @@ export function Canvas(props: CanvasProps) {
   const liftedPlayer = playerById(snap, lifted ?? undefined);
 
   // ---------- Resizing a player: edge handles (mouse), resize mode (keyboard and gamepads) ----------
-  const sizeOf = (p: SetupPlayer) => `${p.bounds.width} by ${p.bounds.height}`;
+  const sizeOf = (p: SetupPlayer) => ({ player: playerName(p), width: String(p.bounds.width), height: String(p.bounds.height) });
   const resizeBy = async (p: SetupPlayer, edge: Edge, steps: number) => {
     const next = await commands.resize(p.id, edge, steps);
     const after = next && playerById(next, p.id);
-    if (after) announce(`${playerName(after)}: ${sizeOf(after)}.`);
+    if (after) announce(t('lobby.resize.size', sizeOf(after)));
   };
   const startResizing = (p: SetupPlayer) => {
     setLifted(null);
     onResizing({ playerId: p.id, corner: 'bottomRight' });
-    announce(`Resizing ${playerName(p)}, ${sizeOf(p)}. Arrows move the bottom right corner, X switches corners, Enter when done.`);
+    announce(t('lobby.resize.started', sizeOf(p)));
   };
   const resizeKeys = (p: SetupPlayer, mode: ResizeMode, e: KeyboardEvent<HTMLDivElement>) => {
     const move = arrowResize(mode.corner, e.key);
@@ -136,11 +139,11 @@ export function Canvas(props: CanvasProps) {
       e.preventDefault();
       const corner = otherCorner(mode.corner);
       onResizing({ ...mode, corner });
-      announce(`Arrows move the ${cornerName(corner)} corner.`);
+      announce(t(corner === 'bottomRight' ? 'lobby.resize.cornerBottomRight' : 'lobby.resize.cornerTopLeft'));
     } else if (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape') {
       e.preventDefault();
       onResizing(null);
-      announce(`Done resizing ${playerName(p)}.`);
+      announce(t('lobby.resize.done', { player: playerName(p) }));
     } else if (e.key === 'Tab') {
       onResizing(null);
       return;
@@ -163,7 +166,7 @@ export function Canvas(props: CanvasProps) {
   };
   const takeOut = async (p: SetupPlayer) => {
     setLifted((l) => (l === p.id ? null : l));
-    if (await commands.removePlayer(p)) announce(`${playerName(p)} left. Their devices are back in the tray.`);
+    if (await commands.removePlayer(p)) announce(t('lobby.announce.playerLeft', { player: playerName(p) }));
   };
 
   // ---------- Keyboard: pick up, place, take out, move focus ----------
@@ -177,7 +180,7 @@ export function Canvas(props: CanvasProps) {
       e.preventDefault();
       e.stopPropagation();
       setLifted(null);
-      announce('Move cancelled.');
+      announce(t('lobby.move.cancelled'));
       return true;
     }
     if (e.key.startsWith('Arrow')) {
@@ -202,16 +205,16 @@ export function Canvas(props: CanvasProps) {
       e.preventDefault();
       if (!liftedPlayer) {
         setLifted(p.id);
-        announce(`Picked up ${playerName(p)}. Move to another place and press Enter. Escape cancels.`);
+        announce(t('lobby.move.pickedUp', { player: playerName(p) }));
       } else if (liftedPlayer.id === p.id) {
         setLifted(null);
-        announce('Put back.');
+        announce(t('lobby.move.putBack'));
       } else {
         const slot = slotOfPlayer(screen, p.id);
         setLifted(null);
         if (slot !== undefined) void commands.movePlayer(liftedPlayer, screen.index, slot);
         else if (screen.layout === 'manual') void commands.movePlayerAt(liftedPlayer, screen.index, 0.5, 0.5);
-        announce(`${playerName(liftedPlayer)} and ${playerName(p)} swapped.`);
+        announce(t('lobby.move.swapped', { first: playerName(liftedPlayer), second: playerName(p) }));
       }
     } else if (e.key === 'Delete' || e.key === 'Backspace') {
       e.preventDefault();
@@ -226,7 +229,7 @@ export function Canvas(props: CanvasProps) {
     if (liftedPlayer) {
       setLifted(null);
       void commands.movePlayer(liftedPlayer, screen.index, slotIndex);
-      announce(`${playerName(liftedPlayer)} moved to ${screenName(screen)}, ${slotName(screen, slotIndex)}.`);
+      announce(t('lobby.move.moved', { player: playerName(liftedPlayer), place: placeName(screen, slotIndex) }));
     } else if (sameSpot(spot, { screenIndex: screen.index, slotIndex })) {
       onCancelSpot();
     } else if (via === 'keyboard' && freeKeyboard) {
@@ -301,12 +304,12 @@ export function Canvas(props: CanvasProps) {
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <h2 id="lobby-screens-title" className="type-h3">
-            Screens
+            {t('lobby.canvas.title')}
           </h2>
-          <p className="mt-1 text-small text-ink-2">Drag a player onto another place to swap them, or onto the tray to take them out.</p>
+          <p className="mt-1 text-small text-ink-2">{t('lobby.canvas.description')}</p>
         </div>
         <span className="shrink-0 text-15 font-semibold whitespace-nowrap text-ink-2" aria-live="polite">
-          <b className="font-[750] text-ink">{seats}</b> of {snap.capabilities.maxPlayers} players
+          <T k="lobby.canvas.seats" values={{ seats, count: snap.capabilities.maxPlayers }} tags={{ b: (c) => <b className="font-[750] text-ink">{c}</b> }} />
         </span>
       </div>
 
@@ -326,8 +329,8 @@ export function Canvas(props: CanvasProps) {
                     data-region
                     aria-label={
                       manualSpot
-                        ? `${screenName(screen)}: waiting for a controller. Press a button on a free controller to place it here. Escape cancels.`
-                        : `${screenName(screen)}, manual layout: drop a player anywhere${liftedPlayer ? ', Enter places the player in the middle' : ', or activate and press a button on a free controller'}.`
+                        ? t('lobby.spot.label', { place: screenName(screen) })
+                        : t(liftedPlayer ? 'lobby.manual.labelMoving' : 'lobby.manual.label', { screen: screenName(screen) })
                     }
                     onKeyDown={onManualKey(screen)}
                     onClick={(e) => {
@@ -351,7 +354,7 @@ export function Canvas(props: CanvasProps) {
                     )}
                   >
                     <span className={cn('px-3', (players.length > 0 || manualSpot) && 'sr-only')}>
-                      Manual layout: drop a player anywhere on this screen, or click a spot and press a button on a controller.
+                      {t('lobby.manual.hint')}
                     </span>
                     {manualSpot && <WaitingMarker x={manualSpot.x} y={manualSpot.y} />}
                   </div>
@@ -361,7 +364,7 @@ export function Canvas(props: CanvasProps) {
                     .filter((slot) => !slot.playerId)
                     .map((slot) => {
                       const key = `s${screen.index}:${slot.index}`;
-                      const where = `${screenName(screen)}, ${slotName(screen, slot.index)}`;
+                      const where = placeName(screen, slot.index);
                       const waiting = !liftedPlayer && sameSpot(spot, { screenIndex: screen.index, slotIndex: slot.index });
                       return (
                         <SlotCell
@@ -369,8 +372,8 @@ export function Canvas(props: CanvasProps) {
                           frac={relative(slot.bounds, screen.bounds)}
                           label={
                             waiting
-                              ? `${where}: waiting for a controller. Press a button on a free controller to place it here. Escape cancels.`
-                              : `${where}: ${slot.expected ? 'the profile expects a player here' : 'empty'}. ${liftedPlayer ? 'Enter moves the player here.' : 'Press Start on a free controller to join, or activate to wait for a controller here.'}`
+                              ? t('lobby.spot.label', { place: where })
+                              : t(slotLabel(slot.expected, Boolean(liftedPlayer)), { place: where })
                           }
                           expected={slot.expected}
                           dropMode={Boolean(liftedPlayer)}
@@ -444,7 +447,7 @@ export function Canvas(props: CanvasProps) {
                   animate={ready}
                   onSetLayout={async (layout) => {
                     const done = await commands.setLayout(screen.index, layout);
-                    if (done) announce(`${screenName(screen)} set to ${MORE_LAYOUTS.find((l) => l.layout === layout)?.label ?? PRESETS.find((p) => p.layout === layout)?.label ?? layout}.`);
+                    if (done) announce(t('lobby.layouts.changed', { screen: screenName(screen), layout: layoutName(layout) }));
                   }}
                 />
               ))}
@@ -471,22 +474,22 @@ export function Canvas(props: CanvasProps) {
         )}
       >
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-          <h3 className="text-15 font-[680]">Waiting to join</h3>
+          <h3 className="text-15 font-[680]">{t('lobby.tray.title')}</h3>
           <p className="min-w-0 flex-1 truncate text-13 text-ink-3">
             {draggingPlayer ? (
-              <b className="font-[650] text-ink">Drop here to take this player out</b>
+              <b className="font-[650] text-ink">{t('lobby.tray.dropToRemove')}</b>
             ) : waiting.length > 0 ? (
-              joinSentence(waiting)
+              t(joinSentence(waiting))
             ) : keyboardsSupported && hidden.length > 0 ? (
-              'Keyboards and mice appear here once you use them.'
+              t('lobby.tray.hiddenInputs')
             ) : (
-              'Every device has joined. Plug in another controller to add a player.'
+              t('lobby.tray.allJoined')
             )}
           </p>
           <div className="flex shrink-0 gap-1.5">
             <Button variant="quiet" size="sm" className="min-h-[30px] px-2.5 text-13 [&_svg]:size-4" onClick={() => void commands.refreshDevices()} data-nav>
               <Icon name="refresh" />
-              Rescan
+              {t('lobby.tray.rescan')}
             </Button>
             <Button
               variant="quiet"
@@ -497,7 +500,7 @@ export function Canvas(props: CanvasProps) {
               data-nav
             >
               <Icon name="users" />
-              Place everyone
+              {t('lobby.tray.placeEveryone')}
             </Button>
             <Button
               variant="quiet"
@@ -506,17 +509,17 @@ export function Canvas(props: CanvasProps) {
               disabled={snap.players.length === 0 && !snap.profile.loaded}
               onClick={async () => {
                 const ok = await confirm({
-                  title: 'Take everyone out?',
-                  message: `Every player goes back to the tray${snap.profile.loaded ? ' and the profile is unloaded' : ''}.`,
-                  confirmLabel: 'Take everyone out',
+                  title: t('lobby.tray.clearConfirm.title'),
+                  message: t(snap.profile.loaded ? 'lobby.tray.clearConfirm.messageProfile' : 'lobby.tray.clearConfirm.message'),
+                  confirmLabel: t('lobby.tray.clearConfirm.confirm'),
                   danger: true,
                 });
-                if (ok && (await commands.clearAll(snap.players.flatMap((p) => [...p.deviceIds, ...p.guestDeviceIds])))) announce('Every player left.');
+                if (ok && (await commands.clearAll(snap.players.flatMap((p) => [...p.deviceIds, ...p.guestDeviceIds])))) announce(t('lobby.tray.cleared'));
               }}
               data-nav
             >
               <Icon name="x" />
-              Clear
+              {t('lobby.tray.clear')}
             </Button>
           </div>
         </div>
@@ -536,7 +539,7 @@ export function Canvas(props: CanvasProps) {
             />
           ))}
           {waiting.length > 0 && keyboardsSupported && hidden.length > 0 && (
-            <span className="shrink-0 text-13 whitespace-nowrap text-ink-3">Keyboards and mice appear once you use them.</span>
+            <span className="shrink-0 text-13 whitespace-nowrap text-ink-3">{t('lobby.tray.hiddenInputsShort')}</span>
           )}
         </div>
       </div>
@@ -546,6 +549,7 @@ export function Canvas(props: CanvasProps) {
 
 /** The spot of a manual screen waiting for a controller. */
 function WaitingMarker({ x, y }: { x: number; y: number }) {
+  const t = useT();
   return (
     <span
       aria-hidden="true"
@@ -553,26 +557,34 @@ function WaitingMarker({ x, y }: { x: number; y: number }) {
       className="pointer-events-none absolute z-[3] grid max-w-[90%] -translate-x-1/2 -translate-y-1/2 justify-items-center gap-1 rounded-ctl border-[1.5px] border-ink bg-pane-3 px-3 py-2 text-center animate-wait"
     >
       <Icon name="pad" className="size-5 text-ink" />
-      <strong className="text-13 leading-tight font-[650] text-ink">Press a button on a controller</strong>
-      <span className="text-12 text-ink-3">B or Esc cancels</span>
+      <strong className="text-13 leading-tight font-[650] text-ink">{t('lobby.spot.pressButton')}</strong>
+      <span className="text-12 text-ink-3">{t('lobby.spot.cancelHint')}</span>
     </span>
   );
 }
 
 /** How the devices of the tray join: Start on a controller, any key on a keyboard, or a drag. */
-function joinSentence(devices: readonly SetupDevice[]): string {
+function joinSentence(devices: readonly SetupDevice[]): MessageKey {
   const pads = devices.some((d) => isGamepadKind(d.kind));
   const keyboards = devices.some((d) => isKeyboardKind(d.kind));
-  if (pads && keyboards) return 'Press Start on a controller, or any key on a keyboard, to join. Or drag a device onto a screen.';
-  if (pads) return 'Press Start on one of these to join, or drag it onto a screen.';
-  if (keyboards) return 'Press any key on one of these to join, or drag it onto a screen.';
-  return 'Drag one of these onto a screen.';
+  if (pads && keyboards) return 'lobby.tray.joinPadsAndKeyboards';
+  if (pads) return 'lobby.tray.joinPads';
+  if (keyboards) return 'lobby.tray.joinKeyboards';
+  return 'lobby.tray.joinDrag';
+}
+
+/** Label of an empty slot: whether the profile expects a player there, and whether a picked-up player can move there. */
+function slotLabel(expected: boolean, moving: boolean) {
+  if (expected) return moving ? 'lobby.slot.labelExpectedMoving' : 'lobby.slot.labelExpected';
+  return moving ? 'lobby.slot.labelMoving' : 'lobby.slot.label';
 }
 
 const boxStyle = (b: Box | undefined) =>
   b ? { left: b.left, top: b.top, width: b.width, height: b.height } : { left: 0, top: 0, width: 0, height: 0, visibility: 'hidden' as const };
 
 function Monitor({ screen, box, animate, children }: { screen: SetupScreen; box: Box | undefined; animate: boolean; children: ReactNode }) {
+  const t = useT();
+  const size = { screen: screenName(screen), width: String(screen.bounds.width), height: String(screen.bounds.height) };
   return (
     <div
       style={boxStyle(box)}
@@ -580,7 +592,7 @@ function Monitor({ screen, box, animate, children }: { screen: SetupScreen; box:
     >
       <div
         role="group"
-        aria-label={`${screenName(screen)}, ${screen.bounds.width} by ${screen.bounds.height}${screen.isPrimary ? ', primary' : ''}`}
+        aria-label={t(screen.isPrimary ? 'lobby.monitor.labelPrimary' : 'lobby.monitor.label', size)}
         className="absolute inset-0 overflow-hidden rounded-[9px] bg-bezel outline outline-1 outline-offset-[3px] outline-line-strong"
       >
         {children}
@@ -601,9 +613,10 @@ function Caption({
   animate: boolean;
   onSetLayout: (layout: ScreenLayout) => void;
 }) {
+  const t = useT();
   const locked = screen.layoutLocked;
   const other = MORE_LAYOUTS.find((l) => l.layout === screen.layout);
-  const lockNote = 'The loaded profile sets this layout. Unload the profile to change it.';
+  const lockNote = t('lobby.layouts.lockedNote');
   return (
     <div
       style={box ? { left: box.left, width: Math.max(box.width, 240) } : undefined}
@@ -614,17 +627,17 @@ function Caption({
         <span className="data text-14 text-ink-2">
           {screen.bounds.width} × {screen.bounds.height}
         </span>
-        {screen.isPrimary && <span className="text-13 text-ink-3">Primary</span>}
-        {locked && <Icon name="lock" className="size-3.5 self-center text-ink-3" label="Layout set by the profile" />}
+        {screen.isPrimary && <span className="text-13 text-ink-3">{t('lobby.monitor.primary')}</span>}
+        {locked && <Icon name="lock" className="size-3.5 self-center text-ink-3" label={t('lobby.layouts.lockedIcon')} />}
       </div>
-      <div role="group" aria-label={`${screenName(screen)} layout`} className="flex items-center gap-1" title={locked ? lockNote : undefined}>
+      <div role="group" aria-label={t('lobby.layouts.groupLabel', { screen: screenName(screen) })} className="flex items-center gap-1" title={locked ? lockNote : undefined}>
         {PRESETS.map((p) => (
           <button
             key={p.layout}
             type="button"
             aria-pressed={screen.layout === p.layout}
-            aria-label={p.label}
-            title={locked ? lockNote : p.label}
+            aria-label={t(p.label)}
+            title={locked ? lockNote : t(p.label)}
             disabled={locked}
             data-nav
             onClick={() => onSetLayout(p.layout)}
@@ -637,15 +650,15 @@ function Caption({
           </button>
         ))}
         {locked ? (
-          <span className="ml-1 truncate text-12 text-ink-3">{other ? other.short : 'Set by the profile'}</span>
+          <span className="ml-1 truncate text-12 text-ink-3">{t(other ? other.short : 'lobby.layouts.setByProfile')}</span>
         ) : (
           <MenuButton
-            label={other ? other.short : 'More'}
-            menuLabel={`More layouts for ${screenName(screen)}`}
+            label={t(other ? other.short : 'common.more')}
+            menuLabel={t('lobby.layouts.moreMenu', { screen: screenName(screen) })}
             variant={other ? 'primary' : 'quiet'}
             className="min-h-[30px] px-2.5 text-12"
             align="start"
-            items={MORE_LAYOUTS.map((l) => ({ id: l.layout, label: l.label, description: l.description, checked: screen.layout === l.layout }))}
+            items={MORE_LAYOUTS.map((l) => ({ id: l.layout, label: t(l.label), description: t(l.description), checked: screen.layout === l.layout }))}
             onSelect={(id) => onSetLayout(id as ScreenLayout)}
           />
         )}
@@ -669,6 +682,7 @@ function WaitingDevice({
   onDragStart: (e: DragEvent<HTMLButtonElement>) => void;
   onDragEnd: () => void;
 }) {
+  const t = useT();
   const icon = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     if (!flash || !icon.current || reduceMotion()) return;
@@ -692,7 +706,7 @@ function WaitingDevice({
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
         aria-disabled={identify || undefined}
-        aria-label={identify ? `${d.name}: press a button on it to identify it.` : `${d.name}: waiting. Activate to join, or drag it onto a screen.`}
+        aria-label={t(identify ? 'lobby.tray.device.identifyLabel' : 'lobby.tray.device.joinLabel', { device: d.name })}
         className={cn(
           'group/wd flex h-[52px] shrink-0 items-center gap-2.5 rounded-[10px] border-0 bg-pane-2 pl-2 text-left whitespace-nowrap transition-colors duration-(--dur-1)',
           pad ? 'pr-11' : 'pr-4',
@@ -712,7 +726,15 @@ function WaitingDevice({
         <span className="min-w-0">
           <strong className="block max-w-[190px] truncate text-14 font-[650]">{d.name}</strong>
           <span className="block text-12 text-ink-3">
-            {identify ? 'Press a button to identify it' : isKeyboardKind(d.kind) ? 'Press any key to join' : d.kind === 'rawMouse' ? 'Drag onto a keyboard player' : 'Press Start to join'}
+            {t(
+              identify
+                ? 'lobby.tray.device.identify'
+                : isKeyboardKind(d.kind)
+                  ? 'lobby.tray.device.pressKey'
+                  : d.kind === 'rawMouse'
+                    ? 'lobby.tray.device.dragMouse'
+                    : 'lobby.tray.device.pressStart',
+            )}
           </span>
         </span>
       </button>
@@ -722,8 +744,8 @@ function WaitingDevice({
           onClick={onRumble}
           // Sits over the device button; a pad finds itself by pressing a button anyway.
           data-nav="off"
-          aria-label={`Make ${d.name} vibrate`}
-          title="Vibrate, to find which one it is"
+          aria-label={t('lobby.tray.device.vibrateLabel', { device: d.name })}
+          title={t('lobby.tray.device.vibrateHint')}
           className="absolute top-1/2 right-2 grid size-7 -translate-y-1/2 place-items-center rounded-md border-0 bg-transparent text-ink-3 hover:bg-pane-3 hover:text-ink"
         >
           <Icon name="bolt" className="size-4" />
