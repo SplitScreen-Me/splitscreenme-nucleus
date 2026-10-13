@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from 'node:url';
-import { defineConfig, type Plugin } from 'vite';
+import { defineConfig, searchForWorkspaceRoot, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
@@ -61,6 +61,7 @@ export default defineConfig({
     assetsInlineLimit: 0,
     sourcemap: false,
   },
-  server: { port: 5173, strictPort: true },
+  // English is imported from Master/i18n/en.json, outside this folder: the dev server may serve it.
+  server: { port: 5173, strictPort: true, fs: { allow: [searchForWorkspaceRoot(process.cwd()), fileURLToPath(new URL('../i18n', import.meta.url))] } },
   preview: { port: 4173, strictPort: true },
 });

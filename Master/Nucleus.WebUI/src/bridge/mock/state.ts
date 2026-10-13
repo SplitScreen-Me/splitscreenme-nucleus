@@ -22,6 +22,7 @@ import type {
 import { createInstalledHandlers, createLibrary, type HandlerInfo } from './fixtures.ts';
 import { createProfiles } from './fixtures-profiles.ts';
 import { createPlayers, createSettingsValues } from './fixtures-settings.ts';
+import { initialMockLanguage } from './i18n.ts';
 import type { TimerSet } from './timers.ts';
 
 /** A game in the library: the summary the UI lists, plus what the game page and its menu show. */
@@ -200,14 +201,18 @@ export interface MockState {
   notices: AppNotice[];
   /** Last notice id number. */
   noticeSeq: number;
+  /** Language of the app, and whether the user has chosen it (`i18n`, the language setting). */
+  language: { locale: string; chosen: boolean };
 }
 
 /** Creates the startup state: a library of 13 games, profiles for two of them, default settings, no setup. */
 export function createMockState(): MockState {
   const handlers = createInstalledHandlers();
-  const settings = createSettingsValues();
+  const language = initialMockLanguage();
+  const settings = { ...createSettingsValues(), 'misc.appLanguage': language.locale };
   const players = createPlayers();
   return {
+    language,
     games: createLibrary(handlers),
     handlers,
     preferences: { sort: 'lastPlayed', favoritesOnly: false, filterGamepads: false, filterKeyboard: false, filterMultipleKeyboards: false },

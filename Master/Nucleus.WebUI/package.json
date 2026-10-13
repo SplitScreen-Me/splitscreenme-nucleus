@@ -14,7 +14,10 @@
     "preview": "vite preview",
     "bridge:gen": "node scripts/bridge-gen.mjs",
     "bridge:check": "node scripts/bridge-gen.mjs --check",
-    "test:bridge": "node --test \"src/bridge/__tests__/*.test.ts\""
+    "test:bridge": "node --test \"src/bridge/__tests__/*.test.ts\"",
+    "i18n:gen": "node scripts/i18n.ts gen",
+    "i18n:check": "node scripts/i18n.ts check",
+    "i18n:lint": "node scripts/i18n.ts lint"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "5.3.0",

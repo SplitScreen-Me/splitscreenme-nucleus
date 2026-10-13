@@ -9,6 +9,7 @@
     "jsx": "react-jsx",
     "types": ["vite/client"],
     "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
     "skipLibCheck": true,

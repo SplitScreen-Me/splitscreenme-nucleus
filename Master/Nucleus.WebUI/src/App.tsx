@@ -4,8 +4,9 @@ import { createHashRouter, Navigate } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import { BridgeProvider, type BridgeError, type BridgeMismatch } from '@/bridge';
 import { AddGameProvider } from '@/features/add-game';
+import { I18nProvider, useT, type RichTags } from '@/i18n';
 import { AppShell } from '@/shell/AppShell';
-import { ConfirmProvider, Icon, LogoMark, Spinner, ToastProvider } from '@/ui';
+import { ConfirmProvider, Icon, Kbd, LogoMark, Spinner, ToastProvider } from '@/ui';
 import { NotFound } from '@/screens/NotFound';
 
 const LibraryScreen = lazy(() => import('@/screens/library/LibraryScreen'));
@@ -45,27 +46,34 @@ const router = createHashRouter([
   },
 ]);
 
+// Tags of translated strings rendered by the design system (<T>, <RichText>); see docs/webui/i18n.md.
+const RICH_TAGS: RichTags = { kbd: (children) => <Kbd>{children}</Kbd> };
+
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BridgeProvider connecting={<Splash />} renderMismatch={(m) => <Mismatch {...m} />} renderError={(e) => <HostDown error={e} />}>
-        <ToastProvider>
-          <ConfirmProvider>
-            <AddGameProvider>
-              <RouterProvider router={router} />
-            </AddGameProvider>
-          </ConfirmProvider>
-        </ToastProvider>
+        <I18nProvider loading={<Splash />} tags={RICH_TAGS}>
+          <ToastProvider>
+            <ConfirmProvider>
+              <AddGameProvider>
+                <RouterProvider router={router} />
+              </AddGameProvider>
+            </ConfirmProvider>
+          </ToastProvider>
+        </I18nProvider>
       </BridgeProvider>
     </QueryClientProvider>
   );
 }
 
+// Before the host answers, screens use the language of the last start (kept by the i18n store), else English.
 function Splash() {
+  const t = useT();
   return (
     <div className="grid h-screen place-items-center bg-bezel" role="status">
       <span className="inline-flex items-center gap-3 text-small text-ink-2">
-        <Spinner /> Starting Nucleus Co-op
+        <Spinner /> {t('shell.startup.starting')}
       </span>
     </div>
   );
@@ -85,24 +93,29 @@ function Blocker({ title, children }: { title: string; children: ReactNode }) {
 
 /** The webui folder was built from another contract than the app (stale install). */
 function Mismatch({ ui, host }: BridgeMismatch) {
+  const t = useT();
   return (
-    <Blocker title="UI and app versions don't match">
-      <p className="text-ink-2">
-        The interface files of this install were not built for Nucleus Co-op {host.appVersion}. Reinstall Nucleus Co-op to get matching files.
-      </p>
+    <Blocker title={t('shell.startup.mismatchTitle')}>
+      <p className="text-ink-2">{t('shell.startup.mismatchMessage', { version: host.appVersion })}</p>
       <p className="data text-13 text-ink-3">
-        UI contract {ui.contractHash} (protocol {ui.protocolVersion}), app contract {host.contractHash} (protocol {host.protocolVersion})
+        {t('shell.startup.mismatchDetails', {
+          uiContract: ui.contractHash,
+          uiProtocol: String(ui.protocolVersion),
+          appContract: host.contractHash,
+          appProtocol: String(host.protocolVersion),
+        })}
       </p>
     </Blocker>
   );
 }
 
 function HostDown({ error }: { error: BridgeError }) {
+  const t = useT();
   return (
-    <Blocker title="Nucleus Co-op did not answer">
+    <Blocker title={t('shell.startup.hostDownTitle')}>
       <p className="flex items-start gap-2 text-ink-2">
         <Icon name="warning" className="mt-0.5 size-5 text-warn" />
-        The interface could not reach the app ({error.message}). Close Nucleus Co-op and start it again.
+        {t('shell.startup.hostDownMessage', { error: error.message })}
       </p>
     </Blocker>
   );

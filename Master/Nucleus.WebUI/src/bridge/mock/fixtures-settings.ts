@@ -1,6 +1,7 @@
 // Settings schema of the mock host, modelled on Settings.ini, with the initial values and player identities.
 import type { PlayerIdentities, SettingChoice, SettingCondition, SettingField, SettingsSchema } from '../generated/contract.ts';
 import { AUDIO_OUTPUTS, MERGER_RESOLUTIONS, NETWORKS, SPLIT_COLORS } from './fixtures-setup.ts';
+import { MOCK_LANGUAGES } from './i18n.ts';
 
 /**
  * Gamepad buttons, by the value stored in a combination (XInput button flags; Guide and the triggers are Nucleus
@@ -67,6 +68,14 @@ export const SETTINGS_SCHEMA: SettingsSchema = {
       title: 'General',
       description: 'Nicknames, language, network and profiles.',
       fields: [
+        // First of all, like the host's catalog: the app's language (i18n.setLanguage does the same).
+        choice(
+          'misc.appLanguage',
+          'Language',
+          'en',
+          MOCK_LANGUAGES.map((l) => ({ value: l.locale, label: l.nativeName === l.englishName ? l.nativeName : `${l.nativeName} (${l.englishName})` })),
+          { description: "Language of Nucleus Co-op's windows and messages. Handler notes and game names stay as their authors wrote them." },
+        ),
         toggle('misc.useNicksInGame', 'Use nicknames in game', true, {
           description: "Players' nicknames replace the default names in games that support it.",
         }),

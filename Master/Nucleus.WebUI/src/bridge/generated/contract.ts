@@ -11,7 +11,7 @@ export const protocolVersion = 1;
 /**
  * Hash of the contract this file was generated from. `app.hello` returns the host's: the UI refuses to run when they differ.
  */
-export const contractHash = '2cc44896ad07f675';
+export const contractHash = '3396420b39cfe196';
 
 /** JSON-RPC error code of each kind of error the host returns. */
 export const bridgeErrorCodes = {
@@ -724,6 +724,12 @@ export interface GameSummary {
   executableFound: boolean;
 }
 
+/** Parameters of `i18n.getStrings`. */
+export interface GetLanguageStringsRequest {
+  /** Language, as listed in `LanguageState.languages`. */
+  locale: string;
+}
+
 /** A handler that can run an executable. */
 export interface HandlerCandidate {
   /** Game id of the handler. */
@@ -830,6 +836,48 @@ export interface InstalledHandler {
   version?: number;
   /** Whether a game uses it in the library. */
   inLibrary: boolean;
+}
+
+/**
+ * The language in use changed (Settings, first-launch picker). The UI loads the new strings and refetches every bridge query, since host texts are built in the language in use.
+ */
+export interface LanguageChanged {
+  /** Language now in use. */
+  locale: string;
+}
+
+/** Answer to `i18n.getState`. */
+export interface LanguageState {
+  /** Language in use. Until the user chooses, the one matching Windows. */
+  current: string;
+  /** The available language that matches the Windows display language (English when none does). */
+  detected: string;
+  /** Whether the user has chosen a language. False on the first launch: the UI asks. */
+  chosen: boolean;
+  /** Available languages, English first, then by English name. */
+  languages: LanguageSummary[];
+}
+
+/** Answer to `i18n.getStrings`. */
+export interface LanguageStrings {
+  /** Language of the strings. */
+  locale: string;
+  /** Strings by dotted key; keys the file lacks are absent (the UI uses English for them). */
+  strings: Record<string, string>;
+}
+
+/** A language the app can use: a file of the i18n folder. */
+export interface LanguageSummary {
+  /** BCP 47 tag, the file name: `en`, `fr`, `pt-BR`. */
+  locale: string;
+  /** Name in English, for example "French". */
+  englishName: string;
+  /** Name in the language itself, for example "Français". */
+  nativeName: string;
+  /** Written right to left. */
+  rightToLeft: boolean;
+  /** Share of the English strings it translates, 0 to 100 (100 for English). */
+  completion: number;
 }
 
 /** Games were added, removed, reloaded or changed (favourite, update found, play time, artwork). */
@@ -1282,6 +1330,12 @@ export interface SetFavoriteRequest {
   favorite: boolean;
 }
 
+/** Parameters of `i18n.setLanguage`. */
+export interface SetLanguageRequest {
+  /** Language to use, as listed in `LanguageState.languages` (case doesn't matter). */
+  locale: string;
+}
+
 /** Parameters of `setup.setLayout`. */
 export interface SetLayoutRequest {
   /** Monitor index. */
@@ -1730,6 +1784,16 @@ export interface BridgeMethods {
   'handlers.screenshots': { params: HubHandlerRequest; result: string[] };
   /** Updates the handler of a library game to the hub's current version. */
   'handlers.update': { params: GameRequest; result: InstallResult };
+  /** The available languages, the one in use, the one matching Windows, and whether the user has chosen one. */
+  'i18n.getState': { params: void; result: LanguageState };
+  /**
+   * The strings a language file defines, by dotted key (`common.ok`, plural forms as `key_one`...), without the English fallback. `notFound` for a language that is not available.
+   */
+  'i18n.getStrings': { params: GetLanguageStringsRequest; result: LanguageStrings };
+  /**
+   * Saves the user's choice in Settings.ini and switches to it; emits `LanguageChanged` when the language in use changes. `invalidParams` for a language that is not available.
+   */
+  'i18n.setLanguage': { params: SetLanguageRequest; result: void };
   /**
    * Adds a game from its executable. When several handlers match, returns them and adds nothing: call again with `AddGameRequest.handlerGameId`.
    */
@@ -1934,6 +1998,21 @@ export interface BridgeHandlers {
     screenshots: (params: HubHandlerRequest) => Awaitable<string[]>;
     /** Updates the handler of a library game to the hub's current version. */
     update: (params: GameRequest) => Awaitable<InstallResult>;
+  };
+  /**
+   * Languages of the app (docs/webui/i18n.md). The language files are `i18n\<locale>.json` next to NucleusCoop.exe; the UI carries the English strings itself and falls back to them per key. Texts the host builds (settings labels, notices, setup hints) come in the language in use: after `LanguageChanged`, the UI fetches them again.
+   */
+  i18n: {
+    /** The available languages, the one in use, the one matching Windows, and whether the user has chosen one. */
+    getState: () => Awaitable<LanguageState>;
+    /**
+     * The strings a language file defines, by dotted key (`common.ok`, plural forms as `key_one`...), without the English fallback. `notFound` for a language that is not available.
+     */
+    getStrings: (params: GetLanguageStringsRequest) => Awaitable<LanguageStrings>;
+    /**
+     * Saves the user's choice in Settings.ini and switches to it; emits `LanguageChanged` when the language in use changes. `invalidParams` for a language that is not available.
+     */
+    setLanguage: (params: SetLanguageRequest) => Awaitable<void>;
   };
   /** The user's games: list, details, favourites, the per-game menu, adding and removing games, artwork. */
   library: {
@@ -2148,6 +2227,11 @@ export const bridgeServices = {
     screenshots: { params: true },
     update: { params: true },
   },
+  i18n: {
+    getState: { params: false },
+    getStrings: { params: true },
+    setLanguage: { params: true },
+  },
   library: {
     addGame: { params: true },
     downloadArtwork: { params: true },
@@ -2237,6 +2321,10 @@ export interface BridgeEvents {
   'handlers.changed': HandlersChanged;
   /** Progress of an install or update. */
   'handlers.progress': HandlerProgress;
+  /**
+   * The language in use changed (Settings, first-launch picker). The UI loads the new strings and refetches every bridge query, since host texts are built in the language in use.
+   */
+  'i18n.languageChanged': LanguageChanged;
   /** Progress of `library.downloadArtwork`. */
   'library.artworkProgress': ArtworkProgress;
   /** Games were added, removed, reloaded or changed (favourite, update found, play time, artwork). */
@@ -2272,6 +2360,7 @@ export const eventInvalidations: { readonly [E in keyof BridgeEvents]: readonly 
   'app.hubStatusChanged': ['app.getInfo'],
   'handlers.changed': ['handlers.listInstalled', 'library.list', 'library.get'],
   'handlers.progress': [],
+  'i18n.languageChanged': ['i18n.getState', 'i18n.getStrings'],
   'library.artworkProgress': [],
   'library.changed': ['library.list', 'library.get', 'library.getMenu', 'handlers.listInstalled'],
   'notices.changed': ['notices.list'],

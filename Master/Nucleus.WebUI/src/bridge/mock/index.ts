@@ -4,6 +4,7 @@ import { createMockTransport, type MockContext, type MockTransport, type MockTra
 import { createAppMock } from './app.ts';
 import { createDialogsMock } from './dialogs.ts';
 import { createHandlersMock } from './handlers.ts';
+import { createI18nMock } from './i18n.ts';
 import { createLibraryMock } from './library.ts';
 import { createNoticesMock, seedNotices } from './notices.ts';
 import { createProfilesMock } from './profiles.ts';
@@ -31,6 +32,7 @@ export function createMockBridgeTransport({ notices = readNoticesFlag(), ...opti
       app: createAppMock(context, state),
       dialogs: createDialogsMock(),
       handlers: createHandlersMock(context, state),
+      i18n: createI18nMock(context, state),
       library: createLibraryMock(context, state),
       notices: createNoticesMock(context, state),
       profiles: createProfilesMock(context, state),

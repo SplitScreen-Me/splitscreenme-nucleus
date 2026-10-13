@@ -1,6 +1,7 @@
 // UI glue around the bridge: error wording, refusal reasons, and commands that toast their failures.
 import { useCallback } from 'react';
 import { BridgeError } from '@/bridge';
+import { t } from '@/i18n';
 import { useToast } from '@/ui';
 
 /** `data.reason` of a refused command (`conflict`, sometimes `notFound`), for example `slotOccupied`. */
@@ -21,19 +22,20 @@ export function errorMessage(error: unknown): string {
   if (BridgeError.is(error)) {
     switch (error.kind) {
       case 'timeout':
-        return 'Nucleus Co-op did not answer in time. Try again.';
+        return t('common.errors.timeout');
       case 'internal':
-        return 'Something went wrong in Nucleus Co-op. The details are in the app log.';
+        return t('common.errors.internal');
       case 'methodNotFound':
-        return 'This version of Nucleus Co-op cannot do that yet.';
+        return t('common.errors.methodNotFound');
       case 'cancelled':
-        return 'Cancelled.';
+        return t('common.errors.cancelled');
       default:
-        return error.message || 'That did not work. Try again.';
+        // Host messages are built in the language in use.
+        return error.message || t('common.errors.failed');
     }
   }
   if (error instanceof Error && error.message) return error.message;
-  return 'Something went wrong. Try again.';
+  return t('common.errors.unknown');
 }
 
 export interface RunOptions {
