@@ -116,14 +116,298 @@ export interface MessageParamsMap {
   'common.update': undefined;
   /** Yes */
   'common.yes': undefined;
+  /** Nucleus version: {version} Nucleus failed setting up the handler. An attempt to clean up will be made. [Typ... */
+  'engine.crashReport.debug': { help: ParamValue; message: ParamValue; stackTrace: ParamValue; type: ParamValue; version: ParamValue };
+  /** Nucleus Co-op doesn't have the necessary permissions or is trying to access a file that is already in use, ... */
+  'engine.crashReport.help.access': { suggestedFolder: ParamValue };
+  /** Nucleus Co-op can't find the game's configuration file, make sure you ran your main game at least once with... */
+  'engine.crashReport.help.fileNotFound': undefined;
+  /** -Nucleus version: {version} -Install location: {installPath} -OneDrive: {oneDrive} Nucleus failed setting u... */
+  'engine.crashReport.release': { help: ParamValue; installPath: ParamValue; message: ParamValue; oneDrive: ParamValue; type: ParamValue; version: ParamValue };
+  /** Something went wrong :( */
+  'engine.crashReport.title': undefined;
+  /** Click "Yes" if you want to enable debug logging. Start the game once again to generate a debug log. Click "... */
+  'engine.debugLog.enable.message': undefined;
+  /** Enable debug log */
+  'engine.debugLog.enable.title': undefined;
+  /** Nucleus - Delete Files In Config Path */
+  'engine.deleteFiles.configPathTitle': undefined;
+  /** Are you sure you want to delete '{file}'? */
+  'engine.deleteFiles.confirm': { file: ParamValue };
+  /** Nucleus - Delete Files In Save Path */
+  'engine.deleteFiles.savePathTitle': undefined;
+  /** NucleusCoop - Custom Prompt */
+  'engine.dialogs.customPrompt.windowTitle': undefined;
+  /** (DO NOT USE - Already assigned in Nucleus) {process} */
+  'engine.dialogs.processPicker.alreadyAssigned': { process: ParamValue };
+  /** Select a process for Nucleus to use for process manipulation. */
+  'engine.dialogs.processPicker.description': undefined;
+  /** No process has been selected. */
+  'engine.dialogs.processPicker.noSelection': undefined;
+  /** Refresh */
+  'engine.dialogs.processPicker.refresh': undefined;
+  /** Process Picker */
+  'engine.dialogs.processPicker.windowTitle': undefined;
+  /** NucleusCoop - Prompt */
+  'engine.dialogs.prompt.windowTitle': undefined;
+  /** Downloading {file}. */
+  'engine.downloader.windowTitle': { file: ParamValue };
+  /** Error: {error} Something went wrong during drives compatibility check! */
+  'engine.drives.checkFailed': { error: ParamValue };
+  /** "exFat" is not a supported drive format. Move your Nucleus install folder to a NTFS formatted drive, or for... */
+  'engine.drives.exFat.message': undefined;
+  /** Incompatible drive format! */
+  'engine.drives.exFat.title': undefined;
+  /** Nucleus could not find an installed plugin for "{plugin}" in FlawlessWidescreen. FlawlessWidescreen will no... */
+  'engine.flawlessWidescreen.pluginMissing.message': { plugin: ParamValue };
+  /** Nucleus - Use Flawless Widescreen */
+  'engine.flawlessWidescreen.pluginMissing.title': undefined;
+  /** One or more files in {path} are locked by the system or used by another program, and Nucleus could not unlo... */
+  'engine.gameContent.lockedFiles.message': { path: ParamValue };
+  /** Risk of crash! */
+  'engine.gameContent.lockedFiles.title': undefined;
+  /** Directory not found: {path} */
+  'engine.gameFiles.directoryNotFound': { path: ParamValue };
+  /** The file path is too long. {path} Limit is {limit} characters and the file path is {count} characters long.... */
+  'engine.gameFiles.pathTooLong.message': { count: number; limit: ParamValue; path: ParamValue };
+  /** File path is too long! */
+  'engine.gameFiles.pathTooLong.title': undefined;
+  /** No file path has been added to "{option}" */
+  'engine.goldberg.customDllPathMissing': { option: ParamValue };
+  /** Goldberg was unable to locate steam_interfaces.txt or create one. Process will continue without using this ... */
+  'engine.goldberg.interfacesMissing': undefined;
+  /** Goldberg Lobby Connect: Could not find lobby ID. */
+  'engine.goldberg.lobbyConnect.lobbyNotFound': undefined;
+  /** Goldberg Lobby Connect output data error. {error} */
+  'engine.goldberg.lobbyConnect.outputError': { error: ParamValue };
+  /** Goldberg Lobby Connect: Press OK after you are hosting a game. */
+  'engine.goldberg.lobbyConnect.waitForHost': undefined;
+  /** Goldberg was unable to locate a steam_api(64).dll file. The built-in Goldberg will not be used. */
+  'engine.goldberg.steamApiMissing': undefined;
+  /** Error with handler {file} */
+  'engine.handlers.errorTitle': { file: ParamValue };
+  /** {file} has errors and could not be reloaded. */
+  'engine.handlers.reloadFailed': { file: ParamValue };
+  /** Error at line {line} {message} */
+  'engine.handlers.scriptError.atLine': { line: ParamValue; message: ParamValue };
+  /** There is an error in the game handler {file}. The game this handler is for will not appear in the list. If ... */
+  'engine.handlers.scriptError.message': { details: ParamValue; file: ParamValue };
+  /** Error in handler */
+  'engine.handlers.scriptError.title': undefined;
+  /** A fatal error occurred: {message} {stackTrace} */
+  'engine.host.fatalError.message': { message: ParamValue; stackTrace: ParamValue };
+  /** Fatal Error */
+  'engine.host.fatalError.title': undefined;
+  /** The Nucleus Co-op interface stopped unexpectedly. It will be reloaded. */
+  'engine.host.interface.crashed': undefined;
+  /** The Nucleus Co-op interface keeps stopping unexpectedly and will close. Details are in {logFile}. If this k... */
+  'engine.host.interface.keepsCrashing': { logFile: ParamValue };
+  /** The Nucleus Co-op interface is not responding. Reload it now? Click No to keep waiting. */
+  'engine.host.interface.notResponding': undefined;
+  /** Nucleus Co-op needs the Microsoft Edge WebView2 Runtime to show its interface, and it is not installed. Ope... */
+  'engine.host.interface.runtimeMissing': undefined;
+  /** The Nucleus Co-op interface could not be started. {error} Close any other Nucleus Co-op window, then click ... */
+  'engine.host.interface.startFailed': { error: ParamValue };
+  /** Error registering hotkeys {error} */
+  'engine.hotkeys.registerFailed': { error: ParamValue };
+  /** Error unregistering hotkeys {error} */
+  'engine.hotkeys.unregisterFailed': { error: ParamValue };
+  /** We failed so hard we failed while trying to record the reason we failed initially. Sorry. */
+  'engine.launch.errorReportFailed': undefined;
+  /** Some handlers will require you to press the {key} key to lock input. Remember to unlock input by pressing {... */
+  'engine.launch.inputLockReminder': { key: ParamValue };
+  /** Zip file doesn't exist, is corrupted or in an unsupported format. */
+  'engine.launch.invalidZip': undefined;
+  /** Select the executable to be the launcher */
+  'engine.launch.pickLauncher.dialogTitle': undefined;
+  /** Select the executable, {file}, as the launcher */
+  'engine.launch.pickLauncher.dialogTitleNamed': { file: ParamValue };
+  /** Game Launcher Executable Files */
+  'engine.launch.pickLauncher.fileType': undefined;
+  /** Press OK after selecting the game launcher executable, and you're ready to continue. */
+  'engine.launch.pickLauncher.message': undefined;
+  /** Press OK after selecting the game launcher executable ({file}), and you're ready to continue. */
+  'engine.launch.pickLauncher.messageNamed': { file: ParamValue };
+  /** Press OK when game has launched. */
+  'engine.launch.waitForOk.gameLaunched': undefined;
+  /** {text} File path: {path} */
+  'engine.launch.waitForOk.handlerTextWithPath': { path: ParamValue; text: ParamValue };
+  /** Press OK when ready to install hooks and/or start sending fake messages. */
+  'engine.launch.waitForOk.installHooks': undefined;
+  /** Press OK when game instance {number} has been launched and/or you wish to continue. */
+  'engine.launch.waitForOk.instanceLaunched': { number: ParamValue };
+  /** Press OK when ready to launch {file} */
+  'engine.launch.waitForOk.launchFile': { file: ParamValue };
+  /** Press OK when ready to proceed with launching the game instance {file} */
+  'engine.launch.waitForOk.launchGameAfterFile': { file: ParamValue };
+  /** Press OK when ready to launch instance {number}. */
+  'engine.launch.waitForOk.launchInstance': { number: ParamValue };
+  /** Press OK when ready to launch the rest of the instances. */
+  'engine.launch.waitForOk.launchRest': undefined;
+  /** Press OK when ready to make changes to game processes. */
+  'engine.launch.waitForOk.processChanges': undefined;
+  /** Press OK when ready for Nucleus to search for game process. */
+  'engine.launch.waitForOk.searchProcess': undefined;
+  /** ChangeWindowTitle: Could not find main window handle for {process} (pid:{pid}) */
+  'engine.launch.windowNotFound.changeWindowTitle': { pid: ParamValue; process: ParamValue };
+  /** IdInWindowTitle: Could not find main window handle for {process} (pid:{pid}) */
+  'engine.launch.windowNotFound.idInWindowTitle': { pid: ParamValue; process: ParamValue };
+  /** WARNING: This feature is highly experimental! Your computer's IP is about to be changed. You may receive a ... */
+  'engine.network.changeIp.message': { dhcp: ParamValue; dns: ParamValue; dynamicDns: ParamValue; gateway: ParamValue; ip: ParamValue; networkInterface: ParamValue; subnetMask: ParamValue };
+  /** Nucleus - Change IP Per Instance */
+  'engine.network.changeIp.title': undefined;
+  /** Obtaining default IP settings error. {error} */
+  'engine.network.defaultSettingsError': { error: ParamValue };
+  /** Unable to resolve network interface */
+  'engine.network.interfaceNotFound': undefined;
+  /** Reverting IP settings back to normal. You may receive another prompt to action it. */
+  'engine.network.reverting': undefined;
+  /** Can't Be Used Now */
+  'engine.osd.cantBeUsedNow': undefined;
+  /** Custom Hotkey {number} */
+  'engine.osd.customHotkey': { number: ParamValue };
+  /** Cutscenes Mode Off */
+  'engine.osd.cutscenesModeOff': undefined;
+  /** Cutscenes Mode On */
+  'engine.osd.cutscenesModeOn': undefined;
+  /** Inputs Locked */
+  'engine.osd.inputsLocked': undefined;
+  /** Inputs Unlocked */
+  'engine.osd.inputsUnlocked': undefined;
+  /** Starting {game} instance for {nickname} as Player #{number} */
+  'engine.osd.playerStarting': { game: ParamValue; nickname: ParamValue; number: ParamValue };
+  /** Resetting game windows. Please wait... */
+  'engine.osd.resettingWindows': undefined;
+  /** Session Ended */
+  'engine.osd.sessionEnded': undefined;
+  /** Switching Layouts */
+  'engine.osd.switchingLayouts': undefined;
+  /** Unlock Inputs First */
+  'engine.osd.unlockInputsFirst': undefined;
+  /** Unlock Inputs First (Press {key} Key) */
+  'engine.osd.unlockInputsFirstKey': { key: ParamValue };
+  /** Wait For Game Windows To Be Reset */
+  'engine.osd.waitForReset': undefined;
+  /** {nickname} Window Focused */
+  'engine.osd.windowFocused': { nickname: ParamValue };
+  /** Game Windows Minimized */
+  'engine.osd.windowsMinimized': undefined;
+  /** Game Windows Reset */
+  'engine.osd.windowsReset': undefined;
+  /** Game Windows Restored */
+  'engine.osd.windowsRestored': undefined;
+  /** Game Windows Unfocused */
+  'engine.osd.windowsUnfocused': undefined;
+  /** P{number} */
+  'engine.overlay.badge': { number: ParamValue };
+  /** Controller */
+  'engine.overlay.device.controller': undefined;
+  /** Keyboard */
+  'engine.overlay.device.keyboard': undefined;
+  /** Keyboard & mouse */
+  'engine.overlay.device.keyboardMouse': undefined;
+  /** Mouse */
+  'engine.overlay.device.mouse': undefined;
+  /** {device} + {count} more */
+  'engine.overlay.device.withGuests': { count: number; device: ParamValue };
+  /** Player {number} */
+  'engine.overlay.playerFallback': { number: ParamValue };
+  /** Ready */
+  'engine.overlay.ready': undefined;
+  /** Starting… */
+  'engine.overlay.starting': undefined;
+  /** Nucleus Co-op player {number} */
+  'engine.overlay.windowTitle': { number: ParamValue };
+  /** This PC has {count} cores: use numbers up to {count}, separated by commas. */
+  'engine.profileSettings.errors.affinity': { count: number };
+  /** The delay can't be negative. */
+  'engine.profileSettings.errors.delayNegative': undefined;
+  /** Use 0 to 5 horizontal lines. */
+  'engine.profileSettings.errors.horizontalLines': undefined;
+  /** This PC has {count} cores: use * or a number up to {count}. */
+  'engine.profileSettings.errors.idealProcessor': { count: number };
+  /** The custom layout needs at least 1 player. */
+  'engine.profileSettings.errors.maxPlayers': undefined;
+  /** The resolution must look like {example}. */
+  'engine.profileSettings.errors.mergerResolution': { example: ParamValue };
+  /** Nicknames can't be empty. */
+  'engine.profileSettings.errors.nicknameEmpty': undefined;
+  /** The pause can't be negative. */
+  'engine.profileSettings.errors.pauseNegative': undefined;
+  /** The priority must be Normal, AboveNormal, High or RealTime. */
+  'engine.profileSettings.errors.priorityClass': undefined;
+  /** Each player needs a different Steam ID. */
+  'engine.profileSettings.errors.steamIdDuplicate': undefined;
+  /** A Steam ID must be 17 digits, for example {example}. */
+  'engine.profileSettings.errors.steamIdFormat': { example: ParamValue };
+  /** Unknown colour. */
+  'engine.profileSettings.errors.unknownColor': undefined;
+  /** Use 0 to 5 vertical lines. */
+  'engine.profileSettings.errors.verticalLines': undefined;
+  /** The profile can't be loaded. If the error persists delete the profile and create a new one. [Error] {error} */
+  'engine.profiles.loadFailed': { error: ParamValue };
+  /** Handler Profile "{title}" Loaded */
+  'engine.profiles.loaded': { title: ParamValue };
+  /** Handler Profile N°{number} Loaded */
+  'engine.profiles.loadedNumber': { number: ParamValue };
+  /** Not Enough Active Screens */
+  'engine.profiles.notEnoughScreens': undefined;
+  /** Handler Profile Saved. Setup Finished */
+  'engine.profiles.savedSetupFinished': undefined;
+  /** Setup Finished */
+  'engine.profiles.setupFinished': undefined;
+  /** Oops! Something went wrong, profile has been unloaded. */
+  'engine.profiles.unloaded.message': undefined;
+  /** Profile unloaded */
+  'engine.profiles.unloaded.title': undefined;
+  /** Handler Profile "{title}" Updated */
+  'engine.profiles.updated': { title: ParamValue };
+  /** Handler Profile N°{number} Updated */
+  'engine.profiles.updatedNumber': { number: ParamValue };
+  /** ProtoInput failed to runtime inject */
+  'engine.protoInput.runtimeInjectFailed': undefined;
+  /** ProtoInput failed to startup inject */
+  'engine.protoInput.startupInjectFailed': undefined;
+  /** Nucleus is unable to load its settings. Do not edit settings.ini manually. Try re-extracting Nucleus with 7... */
+  'engine.settingsLoad.message': undefined;
+  /** Error loading Nucleus settings! Error: {error} StackTrace: {stackTrace} */
+  'engine.settingsLoad.title': { error: ParamValue; stackTrace: ParamValue };
   /** Nucleus Co-op is already running. If you don't see its window, it may be running in the background: close t... */
   'engine.startChecks.alreadyRunning.message': undefined;
   /** Nucleus Co-op is already running */
   'engine.startChecks.alreadyRunning.title': undefined;
+  /** Error while checking the user environment. */
+  'engine.startChecks.environmentError.title': undefined;
+  /** Nucleus Co-op should not be installed here. Do NOT install it in any of these folders: - A folder containin... */
+  'engine.startChecks.installFolder.message': { example: ParamValue; programFiles: ParamValue; programFilesX86: ParamValue; users: ParamValue; windows: ParamValue };
+  /** Unable to check Nucleus installation path. */
+  'engine.startChecks.installPathUnknown.message': undefined;
   /** {file} is missing from your Nucleus Co-op folder. Check that your antivirus program is not deleting or bloc... */
   'engine.startChecks.missingFile.message': { file: ParamValue };
   /** Missing file */
   'engine.startChecks.missingFile.title': undefined;
+  /** Using OneDrive as default documents path will break many handlers because Nucleus can't access its storage.... */
+  'engine.startChecks.oneDrive.message': undefined;
+  /** OneDrive must be disabled */
+  'engine.startChecks.oneDrive.title': undefined;
+  /** Downloading Microsoft Visual C++ 2015 - 2022 Redistributable {architecture} version */
+  'engine.startChecks.vcRedist.downloading': { architecture: ParamValue };
+  /** Please install Microsoft Visual C++ 2015 - 2022 Redistributable {architecture} Do you want to download and ... */
+  'engine.startChecks.vcRedist.message': { architecture: ParamValue };
+  /** Downloading Microsoft WebView2 Runtime */
+  'engine.startChecks.webView2.downloading': undefined;
+  /** Do you want to download and install Microsoft WebView2 Runtime now? Without it you will be unable to downlo... */
+  'engine.startChecks.webView2.message': undefined;
+  /** Microsoft WebView2 Runtime is not installed. */
+  'engine.startChecks.webView2.title': undefined;
+  /** Nucleus was unable to launch and/or find the proper process for this instance. Please close Nucleus and try... */
+  'engine.startGame.launchFailed': undefined;
+  /** Error */
+  'engine.titles.error': undefined;
+  /** Info */
+  'engine.titles.info': undefined;
+  /** Warning */
+  'engine.titles.warning': undefined;
   /** Language of Nucleus Co-op's windows and messages. Handler notes and game names stay as their authors wrote ... */
   'host.settings.fields.misc.appLanguage.description': undefined;
   /** Language */
