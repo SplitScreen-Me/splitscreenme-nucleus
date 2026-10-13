@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using Nucleus.Bridge.Contracts;
 using Nucleus.Coop.Services.Startup;
 using Nucleus.Gaming;
+using Nucleus.Gaming.Localization;
 using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Generic.Step;
@@ -410,7 +411,7 @@ namespace Nucleus.Coop.Services.Setup
             if (current.Kind == SetupStepKind.Custom)
             {
                 SetupCustomStep step = snapshot.CustomSteps[current.CustomStepIndex ?? 0];
-                return step.SelectedIndex == null ? Hint("pickStepItem", $"Pick one: {step.Title}", step.Title) : null;
+                return step.SelectedIndex == null ? Hint("pickStepItem", I18n.T("host.setup.hints.pickStepItem", new { step = step.Title }), step.Title) : null;
             }
 
             if (current.Kind != SetupStepKind.Players)
@@ -421,12 +422,12 @@ namespace Nucleus.Coop.Services.Setup
             if (snapshot.Profile.Loaded && !snapshot.Profile.Ready && snapshot.Profile.AwaitingPlayer.HasValue)
             {
                 string number = snapshot.Profile.AwaitingPlayer.Value.ToString();
-                return Hint("profileWaitingForPlayer", $"Player {number}: press a button or a key on the device to use.", number);
+                return Hint("profileWaitingForPlayer", I18n.T("host.setup.hints.profileWaitingForPlayer", new { number }), number);
             }
 
             if (snapshot.Devices.Count(d => !d.IsVirtual) == 0)
             {
-                return Hint("noDevices", "Plug in a controller.");
+                return Hint("noDevices", I18n.T("host.setup.hints.noDevices"));
             }
 
             PlayerInfo? unidentified = UnidentifiedPad(GameProfile.Instance?.DevicesList, DateTime.UtcNow);
@@ -437,8 +438,8 @@ namespace Nucleus.Coop.Services.Setup
                 bool slotModeWorks = gen != null && !gen.UseDevReorder && !gen.CreateSingleDeviceFile;
 
                 return Hint("padNotIdentified", slotModeWorks
-                    ? "A gamepad was pressed, but Nucleus couldn't tell which device it is. Press Start on that gamepad alone. If it keeps failing, close tools that duplicate gamepads (DS4Windows without HidHide, Steam Input) or turn on \"Identify gamepads by slot\"."
-                    : "A gamepad was pressed, but Nucleus couldn't tell which device it is. Press Start on that gamepad alone. If it keeps failing, close tools that duplicate gamepads (DS4Windows without HidHide, Steam Input).",
+                    ? I18n.T("host.setup.hints.padNotIdentifiedSlotMode")
+                    : I18n.T("host.setup.hints.padNotIdentified"),
                     KeyOf(unidentified));
             }
 
@@ -446,8 +447,8 @@ namespace Nucleus.Coop.Services.Setup
             {
                 bool anyRevealed = snapshot.Devices.Any(d => d.Revealed && !d.IsVirtual);
                 return anyRevealed
-                    ? Hint("dragPlayersToScreens", "Drag a device to a screen to add a player.")
-                    : Hint("pressButtonToIdentify", "Press a button on a controller (or use a keyboard) to show it.");
+                    ? Hint("dragPlayersToScreens", I18n.T("host.setup.hints.dragPlayersToScreens"))
+                    : Hint("pressButtonToIdentify", I18n.T("host.setup.hints.pressButtonToIdentify"));
             }
 
             return null;

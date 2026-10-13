@@ -1623,6 +1623,27 @@
         "general": {
           "title": "General",
           "description": "Language, network and Windows user accounts used by game instances."
+        },
+        "players": {
+          "title": "Players",
+          "description": "How gamepads are assigned to players. Nicknames and Steam IDs are edited with the player list."
+        },
+        "hotkeys": {
+          "title": "Keyboard shortcuts",
+          "description": "Shortcuts available during a game session. Changes apply from the next session."
+        },
+        "gamepad": {
+          "title": "Gamepad shortcuts",
+          "description": "Button combinations available during a game session (XInput gamepads). Steam Input may interfere with them. The Nucleus window itself works with any gamepad: D-pad or left stick to move, A to select, B to go back, right stick to scroll."
+        },
+        "audio": {
+          "title": "Audio",
+          "description": "Playback device of each game instance. This may not work with every game.",
+          "descriptionWithDefault": "Playback device of each game instance. This may not work with every game. Default playback device: {device}."
+        },
+        "layout": {
+          "title": "Layout",
+          "description": "Defaults of the custom screen layout, split-screen background, cutscenes mode and Windows merger. Profiles keep their own copy."
         }
       },
       "fields": {
@@ -1630,8 +1651,637 @@
           "appLanguage": {
             "label": "Language",
             "description": "Language of Nucleus Co-op's windows and messages. Handler notes and game names stay as their authors wrote them."
+          },
+          "steamLanguage": {
+            "label": "Steam language",
+            "description": "Language reported by the Steam emulator. A game can override it from its menu.",
+            "automatic": "Automatic (Steam client language)"
+          },
+          "epicLanguage": {
+            "label": "Epic / GOG language",
+            "description": "Language reported by the Epic and GOG emulators."
+          },
+          "network": {
+            "label": "Network adapter",
+            "description": "Adapter used by handlers that change the IP address of each instance."
+          },
+          "useNicknames": {
+            "label": "Use nicknames in game",
+            "description": "Player nicknames are passed to the game when the handler supports it."
+          },
+          "keepAccounts": {
+            "label": "Keep Nucleus user accounts",
+            "description": "Keeps the Windows user accounts Nucleus creates for some games. When off, the next game that uses them deletes them with their files and saves.",
+            "confirm": {
+              "title": "Turn off Keep Nucleus user accounts?",
+              "message": "The next time you run a game that uses separate Windows user accounts, Nucleus deletes every account it created, with their files and saves.",
+              "confirmLabel": "Turn off"
+            }
+          },
+          "nucleusAccountPassword": {
+            "label": "Nucleus user accounts password",
+            "description": "Password of the Windows accounts Nucleus creates. Stored in plain text in Settings.ini. 12345 or empty uses the built-in password."
+          },
+          "autoDesktopScaling": {
+            "label": "Set desktop scale to 100% during sessions",
+            "description": "Some games need 100% display scaling to place their windows correctly."
+          },
+          "fastLaunch": {
+            "label": "Fast launch",
+            "description": "Starts each instance as soon as the previous one is ready instead of always waiting the handler's full pauses. Turn it off if a game stops launching correctly."
+          },
+          "ignoreInputLockReminder": {
+            "label": "Don't remind me to lock inputs",
+            "description": "When off, a message at launch explains how to lock keyboard and mouse input."
+          },
+          "debugLog": {
+            "label": "Enable debug log",
+            "description": "Writes debug-log.txt in the Nucleus folder. Turned off automatically when the log grows past 150 KB."
+          },
+          "disableGameProfiles": {
+            "label": "Disable game profiles",
+            "description": "Nucleus uses these global settings instead of per-game profiles."
+          }
+        },
+        "players": {
+          "assignGamepadsByIndex": {
+            "label": "Assign gamepads by index",
+            "description": "Default for new games: profiles store gamepad API indexes instead of hardware ids (some handlers turn it off). Switching modes can prevent older profiles from loading."
+          },
+          "assignGamepadsOnButtonPress": {
+            "label": "Assign gamepads on button press",
+            "description": "Default for new games: profiles assign gamepads when players press a button instead of reusing the saved ones. Works well with custom nicknames."
+          }
+        },
+        "hotkeys": {
+          "closeApp": {
+            "label": "Close Nucleus"
+          },
+          "stopSession": {
+            "label": "Stop session"
+          },
+          "topMost": {
+            "label": "Toggle top most"
+          },
+          "setFocus": {
+            "label": "Toggle unfocus"
+          },
+          "resetWindows": {
+            "label": "Reset windows"
+          },
+          "cutscenesMode": {
+            "label": "Cutscenes mode"
+          },
+          "switchLayout": {
+            "label": "Switch layout"
+          },
+          "shortcutsReminder": {
+            "label": "Show shortcuts reminder"
+          },
+          "switchMergerWindow": {
+            "label": "Switch merged window",
+            "description": "With the Windows merger: each press brings another game window to the front (like Alt+Tab)."
+          },
+          "lockInputs": {
+            "label": "Lock inputs key",
+            "description": "Locks and unlocks keyboard and mouse input during a session (no modifier)."
+          }
+        },
+        "gamepad": {
+          "setFocus": {
+            "label": "Toggle unfocus"
+          },
+          "close": {
+            "label": "Close Nucleus"
+          },
+          "stopSession": {
+            "label": "Stop session"
+          },
+          "topMost": {
+            "label": "Toggle top most"
+          },
+          "resetWindows": {
+            "label": "Reset windows"
+          },
+          "cutscenesMode": {
+            "label": "Cutscenes mode"
+          },
+          "switchLayout": {
+            "label": "Switch layout"
+          },
+          "lockInputs": {
+            "label": "Lock / unlock inputs"
+          },
+          "releaseCursor": {
+            "description": "Sends Alt+Tab to get the cursor out of a game window."
+          },
+          "type": {
+            "label": "Gamepad type",
+            "description": "Button names and pictures shown for the shortcuts."
+          }
+        },
+        "audio": {
+          "mode": {
+            "label": "Playback devices",
+            "choices": {
+              "sameDevice": "Use the default playback device for every instance",
+              "perInstance": "Choose a device for each instance"
+            }
+          },
+          "instance": {
+            "label": "Instance {number}",
+            "description": "Used when \"Choose a device for each instance\" is selected."
+          }
+        },
+        "layout": {
+          "verticalLines": {
+            "label": "Vertical divisions",
+            "description": "Columns of the custom layout grid, minus one."
+          },
+          "horizontalLines": {
+            "label": "Horizontal divisions",
+            "description": "Rows of the custom layout grid, minus one. Maximum players = (horizontal + 1) × (vertical + 1)."
+          },
+          "splitDiv": {
+            "label": "Split-screen division",
+            "description": "Fills the screen behind the game windows with a colour. May not work for all games."
+          },
+          "splitDivColor": {
+            "label": "Background colour"
+          },
+          "hideDesktopOnly": {
+            "label": "Hide desktop only",
+            "description": "Only shows the background window, without resizing or moving the game windows."
+          },
+          "cutscenesMuteAudioOnly": {
+            "label": "Cutscenes mode: mute audio only",
+            "description": "Can't be combined with the two options below."
+          },
+          "cutscenesKeepAspectRatio": {
+            "label": "Cutscenes mode: keep original window size"
+          },
+          "cutscenesUnfocus": {
+            "label": "Cutscenes mode: unfocus windows"
+          },
+          "windowsMerger": {
+            "label": "Windows merger",
+            "description": "Merges the game windows into one window, so Lossless Scaling can be used. Multiple monitors are not supported yet."
+          },
+          "losslessHook": {
+            "label": "Lossless hook",
+            "description": "Lossless Scaling keeps upscaling when another window gets the focus (for games that need real focus to receive input)."
+          },
+          "mergerResolution": {
+            "label": "Windows merger resolution",
+            "description": "Size of the merged window. Defaults to the primary screen.",
+            "choice": "{width} × {height} ({screens})"
           }
         }
+      },
+      "colors": {
+        "black": "Black",
+        "gray": "Gray",
+        "white": "White",
+        "darkBlue": "Dark Blue",
+        "blue": "Blue",
+        "purple": "Purple",
+        "pink": "Pink",
+        "red": "Red",
+        "orange": "Orange",
+        "yellow": "Yellow",
+        "green": "Green"
+      },
+      "gamepadButtons": {
+        "dpadUp": "D-pad Up",
+        "dpadDown": "D-pad Down",
+        "dpadLeft": "D-pad Left",
+        "dpadRight": "D-pad Right",
+        "leftStick": "Left Stick",
+        "rightStick": "Right Stick",
+        "cross": "Cross",
+        "circle": "Circle",
+        "square": "Square",
+        "triangle": "Triangle"
+      },
+      "rules": {
+        "gamepadAssignment": "\"Assign gamepads by index\" and \"Assign gamepads on button press\" can't both be on.",
+        "cutscenesMuteAudioOnly": "\"Mute audio only\" can't be combined with the other cutscenes mode options."
+      },
+      "reminderImage": {
+        "keyboardTitle": "Keyboard shortcuts",
+        "gamepadTitle": "Gamepad shortcuts",
+        "rows": {
+          "closeApp": "Close Nucleus",
+          "stopSession": "Stop session",
+          "topMost": "Toggle top most",
+          "setFocus": "Toggle unfocus",
+          "resetWindows": "Reset windows",
+          "cutscenesMode": "Cutscenes mode",
+          "switchLayout": "Switch layout",
+          "shortcutsReminder": "Shortcuts reminder",
+          "switchMergerWindow": "Switch merged window",
+          "lockInputs": "Lock / unlock inputs"
+        }
+      },
+      "errors": {
+        "unknownSetting": "Unknown setting.",
+        "invalidValue": "Invalid value.",
+        "alreadyUsed": "Already used by \"{label}\".",
+        "toggle": "Use true or false.",
+        "wholeNumber": "Enter a whole number.",
+        "numberRange": "Enter a number between {min} and {max}.",
+        "choice": "Choose one of the listed values.",
+        "maxLength_one": "Use at most {count} character.",
+        "maxLength_other": "Use at most {count} characters.",
+        "lineBreaks": "Line breaks are not allowed.",
+        "codePage": "Some characters can't be saved in Settings.ini on this PC (it uses the system code page).",
+        "hotkeyFormat": "Use one modifier and one key, for example Ctrl+Q.",
+        "hotkeyModifier": "The modifier must be Ctrl, Alt or Shift.",
+        "hotkeyKey": "The key must be a single letter or digit.",
+        "singleButton": "Use a single button.",
+        "twoButtons": "Use a combination of two buttons, for example Guide + Y.",
+        "unknownButton": "'{code}' is not a gamepad button code.",
+        "differentButtons": "Use two different buttons.",
+        "bothTriggers": "Both triggers can't be combined: use a trigger with a button.",
+        "noGamepad": "No XInput gamepad is connected.",
+        "noButtonPressed": "No gamepad button was pressed."
+      },
+      "players": {
+        "errors": {
+          "numberRange": "Player numbers go from 1 to {max}.",
+          "listedTwice": "Player {number} is listed twice.",
+          "steamIdFormat": "A Steam ID is 17 digits, for example 76561199075562883.",
+          "nicknameInUse": "This nickname is already used by player {number}.",
+          "steamIdInUse": "This Steam ID is already used by player {number}.",
+          "nicknameCharacters": "Nicknames are used as folder names: avoid \\ / : * ? \" < > |."
+        }
+      }
+    },
+    "errors": {
+      "gameNotFound": "Game not found.",
+      "fileNotFound": "The file does not exist.",
+      "folderNotFound": "The folder does not exist."
+    },
+    "library": {
+      "gameMenu": {
+        "notes": {
+          "label": "Handler Author's Notes",
+          "description": "Shows the notes written by the handler's author."
+        },
+        "details": {
+          "label": "Nucleus Game Details",
+          "description": "Executable, architecture, handler file, content folder and supported inputs."
+        },
+        "openHandler": {
+          "label": "Open Game Handler",
+          "description": "Opens the handler script in your text editor."
+        },
+        "openExeFolder": {
+          "label": "Open Original Exe Path",
+          "description": "Opens the folder of the game executable."
+        },
+        "openContentFolder": {
+          "label": "Open Nucleus Content Folder",
+          "description": "Opens the folder that holds the game instances."
+        },
+        "deleteContentFolder": {
+          "label": "Delete Game Content Folder",
+          "description": "Closes leftover game processes and deletes the game instances.",
+          "confirm": "Are you sure you want to delete '{folder}' and all its contents? Running {game} processes are closed first."
+        },
+        "openUserConfig": {
+          "label": "Open UserProfile Config Path"
+        },
+        "deleteUserConfig": {
+          "label": "Delete UserProfile Config Path"
+        },
+        "openUserSave": {
+          "label": "Open UserProfile Save Path"
+        },
+        "deleteUserSave": {
+          "label": "Delete UserProfile Save Path"
+        },
+        "openDocumentsConfig": {
+          "label": "Open Document Config Path"
+        },
+        "deleteDocumentsConfig": {
+          "label": "Delete Document Config Path"
+        },
+        "openDocumentsSave": {
+          "label": "Open Document Save Path"
+        },
+        "deleteDocumentsSave": {
+          "label": "Delete Document Save Path"
+        },
+        "deleteFolderConfirm": "Are you sure you want to delete '{folder}' and all its contents?",
+        "nucleusFolder": "Nucleus: {name}",
+        "openBackup": {
+          "label": "Open Backup Folder",
+          "description": "Files the handler backs up for each player between sessions."
+        },
+        "deleteBackup": {
+          "label": "Delete Backup Folder",
+          "confirm": "Do you really want to delete {nickname}'s backup folder of {game}?"
+        },
+        "useApiIndex": {
+          "label": "Assign Gamepads By Index",
+          "description": "Profiles store gamepad API indexes instead of hardware ids. Turns off assignment on button press."
+        },
+        "useGamepadButtonPress": {
+          "label": "Assign Gamepads On Button Press (profile)",
+          "description": "Profiles assign gamepads by button press instead of reusing the saved ones. Turns off assignment by index."
+        },
+        "useApiIndexForGuests": {
+          "label": "Assign Gamepads By Index For Guests Only",
+          "description": "Only guest players (several players per instance) are assigned by API index."
+        },
+        "keepInstancesFolder": {
+          "label": "Keep Instances Content Folder",
+          "description": "Keeps the game instances when the game is selected again or the session ends, instead of rebuilding them."
+        },
+        "disableProfiles": {
+          "label": "Disable Profile",
+          "description": "Turns profiles off for this game: the global settings are used instead."
+        },
+        "disableHandlerUpdate": {
+          "label": "Disable Handler Update",
+          "description": "Stops checking the hub for newer versions of this handler."
+        },
+        "changeIcon": {
+          "label": "Change Game Icon",
+          "description": "Pick an image or an executable to use as the game icon.",
+          "filters": {
+            "imagesAndExecutables": "Images and executables",
+            "images": "Images",
+            "executables": "Executables"
+          }
+        },
+        "gameAssets": {
+          "label": "Game Assets",
+          "description": "Downloaded cover and screenshots."
+        },
+        "openCoverFolder": {
+          "label": "Open Cover Folder"
+        },
+        "openScreenshotsFolder": {
+          "label": "Open Screenshots Folder"
+        },
+        "steamLanguage": {
+          "label": "Steam Language",
+          "description": "Language reported by the Steam emulator for this game. \"{appSetting}\" uses the global setting."
+        },
+        "remove": {
+          "label": "Remove Game From List",
+          "description": "Removes the game from the library. The handler stays installed.",
+          "confirm": "Are you sure you want to remove {game} from your library? The handler stays installed."
+        }
+      },
+      "errors": {
+        "itemUnavailable": "This menu item is not available for this game.",
+        "exeFolderMissing": "Unable to open the original executable path for this game: the folder does not exist.",
+        "contentFilesLocked": "Some files of the content folder are locked by another program, and Nucleus could not delete them. Close that program or restart your computer, then try again.",
+        "invalidSteamLanguage": "Choose one of the listed Steam languages.",
+        "handlerFileMissing": "The handler file does not exist.",
+        "folderGone": "The folder does not exist anymore.",
+        "fileGone": "The file does not exist anymore.",
+        "sessionRunning": "Stop the running game session first.",
+        "sessionRunningReload": "Stop the running game session before reloading handlers.",
+        "deleteFailed": "'{folder}' could not be deleted: {error}",
+        "unsupportedIcon": "Use an image (png, jpg, gif, bmp, tif, ico) or an executable.",
+        "contextMissing": "The {game} handler expects {files} next to {executable}. Pick the executable inside the game's install folder.",
+        "noHandler": "No installed handler supports {executable}. Install the game's handler first.",
+        "alreadyInLibrary": "This executable is already used by {game} in your library.",
+        "noHubHandler": "This game's handler does not come from the hub: no artwork to download.",
+        "executableNotFound": "The executable does not exist.",
+        "exFat": "\"exFAT\" is not a supported drive format: it does not support symbolic links. Move the game to an NTFS drive, or format the drive to NTFS.",
+        "handlerNotFound": "Handler not found.",
+        "handlerMismatch": "{executable} does not match the {game} handler (it expects {expected}, with the files the handler checks next to it).",
+        "artworkFailed": "The artwork could not be downloaded: {error}"
+      }
+    },
+    "handlers": {
+      "errors": {
+        "unsupportedFile": "Unsupported file: use a handler archive (.nc, .zip) or a handler script (.js).",
+        "notAHandler": "This file is not a Nucleus handler (no Game.GameName or Game.ExecutableName).",
+        "notFromHub": "This handler does not come from the hub, so it can't be updated from there.",
+        "unknownToHub": "The hub does not know this handler.",
+        "noPackage": "This handler has no published package on the hub.",
+        "noChecksum": "The hub did not give the checksum of this handler's package, so it can't be verified. Try again later.",
+        "installFailed": "The handler could not be installed: {error}",
+        "alreadyInstalled": "A handler for {game} is already installed.",
+        "invalidHandler": "The handler was installed but could not be loaded: it has errors.",
+        "sessionRunning": "Stop the running game session before installing handlers."
+      },
+      "package": {
+        "unsafePath": "The archive contains an unsafe path: {path}",
+        "invalidArchive": "The file is not a valid handler archive (.nc or .zip).",
+        "noScript": "The archive has no handler.js: make sure it is a Nucleus handler package.",
+        "notAHandler": "The archive's script does not declare Game.GameName or Game.ExecutableName: it is not a Nucleus handler.",
+        "noGameName": "The handler has no usable game name."
+      }
+    },
+    "hub": {
+      "errors": {
+        "offline": "{hub} can't be reached.",
+        "offlineBecause": "{hub} can't be reached: {error}",
+        "unexpectedAnswer": "The hub sent an unexpected answer.",
+        "busy": "The hub is busy (too many requests from this address), try again later.",
+        "busyRetryIn_one": "The hub is busy (too many requests from this address), try again in {count} s.",
+        "busyRetryIn_other": "The hub is busy (too many requests from this address), try again in {count} s.",
+        "httpStatus": "The server answered {status} {reason}.",
+        "downloadBusy": "The download failed: the hub is busy (too many requests from this address), try again later.",
+        "downloadBusyRetryIn_one": "The download failed: the hub is busy (too many requests from this address), try again in {count} s.",
+        "downloadBusyRetryIn_other": "The download failed: the hub is busy (too many requests from this address), try again in {count} s.",
+        "downloadHttpStatus": "The download failed: the server answered {status} {reason}.",
+        "timeout": "The server did not answer in time.",
+        "unreachable": "The server could not be reached: {error}",
+        "checksumMismatch": "The downloaded package does not match the one published on the hub (SHA-256 {actual}, expected {expected}). It was not installed."
+      }
+    },
+    "setup": {
+      "steps": {
+        "players": "Position players",
+        "options": "Options"
+      },
+      "checks": {
+        "gameFound": {
+          "ok": "Game found",
+          "missing": "Game not found",
+          "action": "Locate"
+        },
+        "handler": {
+          "updating": "Updating the handler",
+          "updateAvailable": "Handler update available",
+          "version": "Version {version}",
+          "action": "Update",
+          "upToDate": "Handler up to date"
+        },
+        "oneDrive": {
+          "title": "Documents folder in OneDrive",
+          "detail": "This handler can't run when the Documents folder is in OneDrive ({folder})."
+        },
+        "gameLocation": {
+          "title": "Unsupported game location",
+          "detail": "This handler doesn't support games installed in C:\\Users (Documents, Desktop, Downloads…) or C:\\Windows."
+        },
+        "admin": {
+          "ok": "Administrator rights",
+          "needed": "Administrator rights needed",
+          "detail": "This handler requires Nucleus Co-op to run as administrator.",
+          "action": "Restart as administrator"
+        },
+        "nucleusLocation": {
+          "title": "Unsupported Nucleus Co-op location",
+          "detail": "Install Nucleus Co-op outside game folders, C:\\Users and protected folders, for example C:\\Nucleus."
+        },
+        "devices": {
+          "none": "No input device",
+          "noneDetail": "Plug in a controller.",
+          "count_one": "{count} input device",
+          "count_other": "{count} input devices"
+        },
+        "players": {
+          "count_one": "{count} player",
+          "count_other": "{count} players",
+          "waitingForProfile": "Waiting for the profile's players",
+          "profileMatched": "{matched} of {total} matched.",
+          "none": "No player placed",
+          "noneDetail": "Place at least one player on a screen."
+        },
+        "inputLock": {
+          "title": "Press {key} to lock inputs",
+          "detail": "Some handlers need the keyboard and mouse locked to the game windows. Press {key} again when you finish playing.",
+          "action": "Don't show again"
+        }
+      },
+      "hints": {
+        "pickStepItem": "Pick one: {step}",
+        "profileWaitingForPlayer": "Player {number}: press a button or a key on the device to use.",
+        "noDevices": "Plug in a controller.",
+        "padNotIdentified": "A gamepad was pressed, but Nucleus couldn't tell which device it is. Press Start on that gamepad alone. If it keeps failing, close tools that duplicate gamepads (DS4Windows without HidHide, Steam Input).",
+        "padNotIdentifiedSlotMode": "A gamepad was pressed, but Nucleus couldn't tell which device it is. Press Start on that gamepad alone. If it keeps failing, close tools that duplicate gamepads (DS4Windows without HidHide, Steam Input) or turn on \"Identify gamepads by slot\".",
+        "dragPlayersToScreens": "Drag a device to a screen to add a player.",
+        "pressButtonToIdentify": "Press a button on a controller (or use a keyboard) to show it."
+      },
+      "devices": {
+        "xinput": "XInput controller {number}",
+        "controllerNumber": "Controller {number}",
+        "controller": "Controller",
+        "dinput": "DirectInput controller {number}",
+        "keyboardMouse": "Keyboard and mouse",
+        "virtualMouse": "Virtual mouse",
+        "mouse": "Mouse",
+        "keyboard": "Keyboard",
+        "virtualKeyboard": "Virtual keyboard",
+        "withIds": "{device} ({vid}:{pid})"
+      },
+      "refusals": {
+        "invalidScreen": "There is no monitor with this index.",
+        "invalidSlot": "There is no slot with this index.",
+        "manualLayout": "The manual layout has no slots: place the player at a point.",
+        "profileLocked": "The loaded profile decides where players go.",
+        "deviceNotRevealed": "Press a button on this device first.",
+        "slotOccupied": "This place is taken.",
+        "notAssigned": "This device is not placed.",
+        "notAGamepad": "Guests must be gamepads, and so must their host.",
+        "guestsNotSupported": "This game doesn't support several players per instance.",
+        "guestLimitReached": "This instance can't take more guests.",
+        "alreadyGuest": "This gamepad is already a guest.",
+        "notAGuest": "This gamepad is not a guest.",
+        "cannotExpand": "This player can't grow or shrink here.",
+        "cannotResize": "This player can't be resized that way.",
+        "noFreeSlot": "No free slot.",
+        "nothingToPlace": "No revealed device is waiting to be placed.",
+        "full": "Every slot is taken and no monitor can be split further."
+      },
+      "errors": {
+        "noSetup": "No game setup is open.",
+        "sessionRunning": "A session is running.",
+        "libraryNotLoaded": "The game library is not loaded yet.",
+        "cannotGoNext": "This step isn't complete, or it is the last one.",
+        "firstStep": "This is the first step.",
+        "notAChoice": "This option is not a list of values.",
+        "noValue": "No value at this index.",
+        "notAText": "This option is not a text.",
+        "customStepNotFound": "Custom step not found.",
+        "noItem": "No item at this index.",
+        "noIdentitySlot": "This player has no identity slot.",
+        "emptyNickname": "Nicknames can't be empty.",
+        "steamIdLocked": "This handler sets the Steam IDs.",
+        "steamIdFormat": "A Steam ID must be 17 digits, for example 76561199075562883.",
+        "steamIdInUse": "Another player slot uses this Steam ID.",
+        "noAudioSlot_one": "Per-player audio is available for the first player.",
+        "noAudioSlot_other": "Per-player audio is available for the first {count} players.",
+        "audioOutputNotFound": "Audio output not found.",
+        "checkNotFound": "Check not found.",
+        "noFix": "This check has no fix.",
+        "needsPicker": "Choose the game executable.",
+        "adminCancelled": "Restart as administrator was cancelled.",
+        "updatesUnavailable": "Handler updates are not available.",
+        "updateBusy": "The handler is already being updated.",
+        "cannotVibrate": "This device can't vibrate.",
+        "deviceNotFound": "Device not found.",
+        "playerNotFound": "Player not found.",
+        "optionNotFound": "Option not found."
+      }
+    },
+    "profiles": {
+      "unreadable": "This profile can't be read.",
+      "errors": {
+        "disabled": "Profiles are turned off for this game.",
+        "notFound": "Profile not found.",
+        "cannotLoad": "The profile can't be loaded.",
+        "audioUnavailable": "This audio output is not available."
+      }
+    },
+    "session": {
+      "actions": {
+        "toggleTopmost": "Toggle always on top",
+        "setFocus": "Unfocus game windows",
+        "resetWindows": "Reset windows",
+        "cutscenesMode": "Cutscenes mode",
+        "switchLayout": "Switch layout",
+        "shortcutsReminder": "Shortcuts reminder",
+        "switchMergerForeground": "Next merged window"
+      },
+      "errors": {
+        "alreadyRunning": "A session is already running.",
+        "notReady": "The setup isn't ready to play.",
+        "startFailed": "The session couldn't start: {error}",
+        "notRunning": "No session is running.",
+        "inputsLocked": "Unlock the inputs first (press {key}).",
+        "stopLocked": "The session couldn't stop: inputs are locked.",
+        "launchFailed": "The launch failed.",
+        "actionUnavailable": "{action} isn't available now."
+      },
+      "osd": {
+        "windowsUnfocused": "Game Windows Unfocused"
+      }
+    },
+    "notices": {
+      "handlerError": "Handler error",
+      "setupError": "Setup error"
+    },
+    "i18n": {
+      "errors": {
+        "notAvailable": "This language is not available."
+      }
+    },
+    "app": {
+      "errors": {
+        "sessionRunning": "Stop the running session before restarting Nucleus Co-op.",
+        "adminDeclined": "Administrator rights were not granted.",
+        "adminFailed": "Nucleus Co-op could not be restarted as administrator.",
+        "invalidUrl": "Only absolute http and https URLs can be opened.",
+        "browserFailed": "The default browser could not be started.",
+        "invalidPath": "The path must be an absolute local path.",
+        "pathNotFound": "This file or folder does not exist.",
+        "explorerFailed": "File Explorer could not be started."
+      },
+      "dialogs": {
+        "selectFile": "Select a file",
+        "selectFolder": "Select a folder",
+        "allFiles": "All files"
       }
     }
   },

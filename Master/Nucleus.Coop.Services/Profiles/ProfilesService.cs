@@ -10,6 +10,7 @@ using Nucleus.Bridge;
 using Nucleus.Bridge.Contracts;
 using Nucleus.Coop.Services.Setup;
 using Nucleus.Gaming.App.Settings;
+using Nucleus.Gaming.Localization;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Tools.MonitorsDpiScaling;
 using Nucleus.Gaming.UI;
@@ -53,7 +54,7 @@ namespace Nucleus.Coop.Services.Profiles
 
             if (json == null)
             {
-                summary.Notes = "This profile can't be read.";
+                summary.Notes = I18n.T("host.profiles.unreadable");
                 return summary;
             }
 
@@ -115,12 +116,12 @@ namespace Nucleus.Coop.Services.Profiles
 
             if (ProfilesDisabled)
             {
-                throw SetupSession.Conflict("profilesDisabled", "Profiles are turned off for this game.");
+                throw SetupSession.Conflict("profilesDisabled", I18n.T("host.profiles.errors.disabled"));
             }
 
             if (!GameProfile.ReadProfiles().Any(p => p.Key == request.ProfileId))
             {
-                throw new BridgeException(BridgeErrorKind.NotFound, "Profile not found.", new { profileId = request.ProfileId });
+                throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.profiles.errors.notFound"), new { profileId = request.ProfileId });
             }
 
             //The error box of LoadGameProfile becomes the error of this call.
@@ -130,7 +131,7 @@ namespace Nucleus.Coop.Services.Profiles
 
             if (!loaded)
             {
-                throw SetupSession.Conflict("profileInvalid", errors.FirstOrDefault() ?? "The profile can't be loaded.");
+                throw SetupSession.Conflict("profileInvalid", errors.FirstOrDefault() ?? I18n.T("host.profiles.errors.cannotLoad"));
             }
 
             //Devices are matched to the profile players by the pump as they are detected or used; with AutoPlay the
@@ -154,7 +155,7 @@ namespace Nucleus.Coop.Services.Profiles
 
             if (!GameProfile.DeleteProfile(request.ProfileId))
             {
-                throw new BridgeException(BridgeErrorKind.NotFound, "Profile not found.", new { profileId = request.ProfileId });
+                throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.profiles.errors.notFound"), new { profileId = request.ProfileId });
             }
 
             //DeleteProfile renumbered the files and reset the setup, as the profiles list did.
@@ -198,7 +199,7 @@ namespace Nucleus.Coop.Services.Profiles
                 AudioChoices = session.Audio.Current.ToList(),
                 MergerResolutionChoices = MergerResolutionChoices(),
                 //the names ProfileSettingsModel validates against (the form's colour list)
-                SplitDividerColorChoices = BackgroundColors.ColorsDictionnary.Keys.Select(name => new SettingChoice { Value = name, Label = name }).ToList(),
+                SplitDividerColorChoices = BackgroundColors.ColorsDictionnary.Keys.Select(name => new SettingChoice { Value = name, Label = Settings.SettingsCatalog.SplitColorLabel(name) }).ToList(),
             };
 
             for (int i = 0; i < model.Slots.Count; i++)
@@ -286,7 +287,7 @@ namespace Nucleus.Coop.Services.Profiles
 
                 if (i < slots.Count && !session.Audio.IsKnown(value))
                 {
-                    errors.Add(new ValidationError { Field = "slots.audioDevice", Index = i, Message = "This audio output is not available." });
+                    errors.Add(new ValidationError { Field = "slots.audioDevice", Index = i, Message = I18n.T("host.profiles.errors.audioUnavailable") });
                 }
 
                 model.AudioInstances[key] = value;
@@ -320,7 +321,7 @@ namespace Nucleus.Coop.Services.Profiles
         /// <summary>"Automatic" then the up IPv4 network interfaces (ProfileSettings.RefreshCmbNetwork).</summary>
         private static List<SettingChoice> NetworkChoices()
         {
-            List<SettingChoice> choices = new List<SettingChoice> { new SettingChoice { Value = "Automatic", Label = "Automatic" } };
+            List<SettingChoice> choices = new List<SettingChoice> { new SettingChoice { Value = "Automatic", Label = I18n.T("common.automatic") } };
 
             try
             {

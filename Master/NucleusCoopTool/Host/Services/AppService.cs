@@ -3,6 +3,7 @@ using Nucleus.Bridge.Contracts;
 using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Localization;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -71,7 +72,7 @@ namespace Nucleus.Coop.Host.Services
             IGameHandler handler = GameProfile.I_GameHandler;
             if (handler != null && !handler.HasEnded)
             {
-                throw new BridgeException(BridgeErrorKind.Conflict, "Stop the running session before restarting Nucleus Co-op.");
+                throw new BridgeException(BridgeErrorKind.Conflict, I18n.T("host.app.errors.sessionRunning"));
             }
 
             ProcessStartInfo startInfo = new ProcessStartInfo(Application.ExecutablePath)
@@ -88,12 +89,12 @@ namespace Nucleus.Coop.Host.Services
             }
             catch (Win32Exception ex) when (ex.NativeErrorCode == ERROR_CANCELLED)
             {
-                throw new BridgeException(BridgeErrorKind.Unavailable, "Administrator rights were not granted.", new { reason = "declined" });
+                throw new BridgeException(BridgeErrorKind.Unavailable, I18n.T("host.app.errors.adminDeclined"), new { reason = "declined" });
             }
             catch (Exception ex)
             {
                 HostLog.Error("Restarting as administrator failed.", ex);
-                throw new BridgeException(BridgeErrorKind.Unavailable, "Nucleus Co-op could not be restarted as administrator.");
+                throw new BridgeException(BridgeErrorKind.Unavailable, I18n.T("host.app.errors.adminFailed"));
             }
 
             // The new instance waits a second before its single-instance check (StartChecks.IsAlreadyRunning).
@@ -139,12 +140,12 @@ namespace Nucleus.Coop.Host.Services
             Uri uri = ExternalLauncher.ParseWebUrl(request?.Url);
             if (uri == null)
             {
-                throw new BridgeException(BridgeErrorKind.InvalidParams, "Only absolute http and https URLs can be opened.", new { url = request?.Url });
+                throw new BridgeException(BridgeErrorKind.InvalidParams, I18n.T("host.app.errors.invalidUrl"), new { url = request?.Url });
             }
 
             if (!ExternalLauncher.TryOpenUrl(uri.AbsoluteUri))
             {
-                throw new BridgeException(BridgeErrorKind.Unavailable, "The default browser could not be started.");
+                throw new BridgeException(BridgeErrorKind.Unavailable, I18n.T("host.app.errors.browserFailed"));
             }
         }
 
@@ -153,12 +154,12 @@ namespace Nucleus.Coop.Host.Services
             string path = ExternalLauncher.NormalizeLocalPath(request?.Path);
             if (path == null)
             {
-                throw new BridgeException(BridgeErrorKind.InvalidParams, "The path must be an absolute local path.", new { path = request?.Path });
+                throw new BridgeException(BridgeErrorKind.InvalidParams, I18n.T("host.app.errors.invalidPath"), new { path = request?.Path });
             }
 
             if (!File.Exists(path) && !Directory.Exists(path))
             {
-                throw new BridgeException(BridgeErrorKind.NotFound, "This file or folder does not exist.", new { path });
+                throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.app.errors.pathNotFound"), new { path });
             }
 
             try
@@ -168,7 +169,7 @@ namespace Nucleus.Coop.Host.Services
             catch (Exception ex)
             {
                 HostLog.Warning($"Could not open {path} in File Explorer: {ex.Message}");
-                throw new BridgeException(BridgeErrorKind.Unavailable, "File Explorer could not be started.", new { path });
+                throw new BridgeException(BridgeErrorKind.Unavailable, I18n.T("host.app.errors.explorerFailed"), new { path });
             }
         }
 

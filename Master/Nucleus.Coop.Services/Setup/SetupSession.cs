@@ -8,6 +8,7 @@ using Nucleus.Bridge.Contracts;
 using Nucleus.Coop.Services.Handlers;
 using Nucleus.Coop.Services.Startup;
 using Nucleus.Gaming;
+using Nucleus.Gaming.Localization;
 using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.InputManagement.Gamepads;
@@ -115,7 +116,7 @@ namespace Nucleus.Coop.Services.Setup
         {
             if (!IsOpen)
             {
-                throw Conflict("noSetup", "No game setup is open.");
+                throw Conflict("noSetup", I18n.T("host.setup.errors.noSetup"));
             }
         }
 
@@ -125,7 +126,7 @@ namespace Nucleus.Coop.Services.Setup
 
             if (SessionActive)
             {
-                throw Conflict("sessionRunning", "A session is running.");
+                throw Conflict("sessionRunning", I18n.T("host.setup.errors.sessionRunning"));
             }
         }
 
@@ -386,7 +387,7 @@ namespace Nucleus.Coop.Services.Setup
         public SetupSnapshot CommitCommand()
         {
             Pump();
-            return Commit() ?? throw Conflict("noSetup", "No game setup is open.");
+            return Commit() ?? throw Conflict("noSetup", I18n.T("host.setup.errors.noSetup"));
         }
 
         /// <summary>Thread-safe: schedules a commit and a <c>setup.changed</c> event in about 100 ms (coalesced).</summary>

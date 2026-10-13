@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Nucleus.Gaming.Localization;
 
 namespace Nucleus.Coop.Services.Settings;
 
@@ -21,7 +22,7 @@ public static class HotkeyFormat
         string[] parts = (value ?? "").Split('+').Select(p => p.Trim()).ToArray();
         if (parts.Length != 2 || parts[0].Length == 0 || parts[1].Length == 0)
         {
-            error = "Use one modifier and one key, for example Ctrl+Q.";
+            error = I18n.T("host.settings.errors.hotkeyFormat");
             return null;
         }
 
@@ -34,14 +35,14 @@ public static class HotkeyFormat
         };
         if (modifier == null)
         {
-            error = "The modifier must be Ctrl, Alt or Shift.";
+            error = I18n.T("host.settings.errors.hotkeyModifier");
             return null;
         }
 
         string key = parts[1].ToUpperInvariant();
         if (key.Length != 1 || !((key[0] >= 'A' && key[0] <= 'Z') || (key[0] >= '0' && key[0] <= '9')))
         {
-            error = "The key must be a single letter or digit.";
+            error = I18n.T("host.settings.errors.hotkeyKey");
             return null;
         }
 
@@ -89,7 +90,10 @@ public static class GamepadComboFormat
     /// <summary>Whether a code is a known button.</summary>
     public static bool IsKnown(int code) => Buttons.Any(b => b.Code == code);
 
-    /// <summary>Name of a button for a gamepad type ("Xbox" or "Playstation").</summary>
+    /// <summary>
+    /// Name of a button for a gamepad type ("Xbox" or "Playstation"), in the language in use: the names printed on the
+    /// gamepads (A, LB, Start, L1, Options) stay as they are, the descriptive ones (D-pad Up, Left Stick, Cross) are translated.
+    /// </summary>
     public static string Name(int code, string? gamepadType)
     {
         var button = Buttons.FirstOrDefault(b => b.Code == code);
@@ -98,7 +102,21 @@ public static class GamepadComboFormat
             return code.ToString(CultureInfo.InvariantCulture);
         }
 
-        return string.Equals(gamepadType, "Playstation", StringComparison.OrdinalIgnoreCase) ? button.PlayStation : button.Xbox;
+        string name = string.Equals(gamepadType, "Playstation", StringComparison.OrdinalIgnoreCase) ? button.PlayStation : button.Xbox;
+        return name switch
+        {
+            "D-pad Up" => I18n.T("host.settings.gamepadButtons.dpadUp"),
+            "D-pad Down" => I18n.T("host.settings.gamepadButtons.dpadDown"),
+            "D-pad Left" => I18n.T("host.settings.gamepadButtons.dpadLeft"),
+            "D-pad Right" => I18n.T("host.settings.gamepadButtons.dpadRight"),
+            "Left Stick" => I18n.T("host.settings.gamepadButtons.leftStick"),
+            "Right Stick" => I18n.T("host.settings.gamepadButtons.rightStick"),
+            "Cross" => I18n.T("host.settings.gamepadButtons.cross"),
+            "Circle" => I18n.T("host.settings.gamepadButtons.circle"),
+            "Square" => I18n.T("host.settings.gamepadButtons.square"),
+            "Triangle" => I18n.T("host.settings.gamepadButtons.triangle"),
+            _ => name,
+        };
     }
 
     /// <summary>Parses a stored or captured combination of <paramref name="size"/> buttons (1 or 2). Null with a reason when invalid.</summary>
@@ -108,7 +126,7 @@ public static class GamepadComboFormat
         string[] parts = (value ?? "").Split('+').Select(p => p.Trim()).Where(p => p.Length > 0).ToArray();
         if (parts.Length != size)
         {
-            error = size == 1 ? "Use a single button." : "Use a combination of two buttons, for example Guide + Y.";
+            error = size == 1 ? I18n.T("host.settings.errors.singleButton") : I18n.T("host.settings.errors.twoButtons");
             return null;
         }
 
@@ -117,7 +135,7 @@ public static class GamepadComboFormat
         {
             if (!int.TryParse(parts[i], NumberStyles.Integer, CultureInfo.InvariantCulture, out codes[i]) || !IsKnown(codes[i]))
             {
-                error = $"'{parts[i]}' is not a gamepad button code.";
+                error = I18n.T("host.settings.errors.unknownButton", new { code = parts[i] });
                 return null;
             }
         }
@@ -126,13 +144,13 @@ public static class GamepadComboFormat
         {
             if (codes[0] == codes[1])
             {
-                error = "Use two different buttons.";
+                error = I18n.T("host.settings.errors.differentButtons");
                 return null;
             }
 
             if (codes.Contains(RightTrigger) && codes.Contains(LeftTrigger))
             {
-                error = "Both triggers can't be combined: use a trigger with a button.";
+                error = I18n.T("host.settings.errors.bothTriggers");
                 return null;
             }
         }

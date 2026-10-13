@@ -9,6 +9,7 @@ using Nucleus.Bridge;
 using Nucleus.Bridge.Contracts;
 using Nucleus.Coop.Services.Startup;
 using Nucleus.Gaming;
+using Nucleus.Gaming.Localization;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Controls.SetupScreen;
@@ -38,21 +39,21 @@ namespace Nucleus.Coop.Services.Setup
         {
             if (session.SessionActive)
             {
-                throw SetupSession.Conflict("sessionRunning", "A session is running.");
+                throw SetupSession.Conflict("sessionRunning", I18n.T("host.setup.errors.sessionRunning"));
             }
 
             GameManager? manager = GameManager.Instance;
 
             if (manager?.User?.Games == null)
             {
-                throw new BridgeException(BridgeErrorKind.Unavailable, "The game library is not loaded yet.");
+                throw new BridgeException(BridgeErrorKind.Unavailable, I18n.T("host.setup.errors.libraryNotLoaded"));
             }
 
             UserGameInfo? game = manager.User.Games.FirstOrDefault(g => string.Equals(g.GameGuid, request.GameId, StringComparison.OrdinalIgnoreCase) && g.Game != null);
 
             if (game == null)
             {
-                throw new BridgeException(BridgeErrorKind.NotFound, "Game not found.", new { gameId = request.GameId });
+                throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.errors.gameNotFound"), new { gameId = request.GameId });
             }
 
             session.Open(game);
@@ -68,7 +69,7 @@ namespace Nucleus.Coop.Services.Setup
 
             if (session.SessionActive)
             {
-                throw SetupSession.Conflict("sessionRunning", "A session is running.");
+                throw SetupSession.Conflict("sessionRunning", I18n.T("host.setup.errors.sessionRunning"));
             }
 
             session.Close();
@@ -85,7 +86,7 @@ namespace Nucleus.Coop.Services.Setup
 
             if (next == null)
             {
-                throw SetupSession.Conflict("cannotGoNext", "This step isn't complete, or it is the last one.");
+                throw SetupSession.Conflict("cannotGoNext", I18n.T("host.setup.errors.cannotGoNext"));
             }
 
             session.CurrentStep = next.Value;
@@ -102,7 +103,7 @@ namespace Nucleus.Coop.Services.Setup
 
             if (previous == null)
             {
-                throw SetupSession.Conflict("firstStep", "This is the first step.");
+                throw SetupSession.Conflict("firstStep", I18n.T("host.setup.errors.firstStep"));
             }
 
             GameProfile.Ready = false;//as GotoPrevStep: a loaded profile stops auto-advancing
@@ -215,14 +216,14 @@ namespace Nucleus.Coop.Services.Setup
 
             if (OptionsCodec.KindOf(option) != OptionKind.Choice)
             {
-                throw SetupSession.Conflict("notAChoice", "This option is not a list of values.");
+                throw SetupSession.Conflict("notAChoice", I18n.T("host.setup.errors.notAChoice"));
             }
 
             IList choices = OptionsCodec.Choices(option);
 
             if (request.Index < 0 || request.Index >= choices.Count)
             {
-                throw new BridgeException(BridgeErrorKind.InvalidParams, "No value at this index.", new { index = request.Index });
+                throw new BridgeException(BridgeErrorKind.InvalidParams, I18n.T("host.setup.errors.noValue"), new { index = request.Index });
             }
 
             //the original list item (or enum value), as PlayerOptionsControl stored it
@@ -239,7 +240,7 @@ namespace Nucleus.Coop.Services.Setup
 
             if (OptionsCodec.KindOf(option) != OptionKind.Text)
             {
-                throw SetupSession.Conflict("notAText", "This option is not a text.");
+                throw SetupSession.Conflict("notAText", I18n.T("host.setup.errors.notAText"));
             }
 
             GameProfile.Instance.Options[option.Key] = request.Text ?? "";
@@ -255,14 +256,14 @@ namespace Nucleus.Coop.Services.Setup
 
             if (request.StepIndex < 0 || request.StepIndex >= steps.Count || steps[request.StepIndex].Option?.List == null)
             {
-                throw new BridgeException(BridgeErrorKind.NotFound, "Custom step not found.", new { stepIndex = request.StepIndex });
+                throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.setup.errors.customStepNotFound"), new { stepIndex = request.StepIndex });
             }
 
             GameOption option = steps[request.StepIndex].Option;
 
             if (request.ItemIndex < 0 || request.ItemIndex >= option.List.Count || !(option.List[request.ItemIndex] is IDictionary<string, object>))
             {
-                throw new BridgeException(BridgeErrorKind.InvalidParams, "No item at this index.", new { itemIndex = request.ItemIndex });
+                throw new BridgeException(BridgeErrorKind.InvalidParams, I18n.T("host.setup.errors.noItem"), new { itemIndex = request.ItemIndex });
             }
 
             //the whole card object (ExpandoObject with the handler's fields), as JSUserInputControl stored it
@@ -297,7 +298,7 @@ namespace Nucleus.Coop.Services.Setup
 
             if (index < 0 || index >= Globals.NucleusMaxPlayers)
             {
-                throw SetupSession.Conflict("noIdentitySlot", "This player has no identity slot.");
+                throw SetupSession.Conflict("noIdentitySlot", I18n.T("host.setup.errors.noIdentitySlot"));
             }
 
             string? nickname = request.Nickname?.Trim();
@@ -305,7 +306,7 @@ namespace Nucleus.Coop.Services.Setup
 
             if (nickname != null && nickname.Length == 0)
             {
-                throw SetupSession.Conflict("invalidNickname", "Nicknames can't be empty.");
+                throw SetupSession.Conflict("invalidNickname", I18n.T("host.setup.errors.emptyNickname"));
             }
 
             if (steamId != null)
@@ -314,17 +315,17 @@ namespace Nucleus.Coop.Services.Setup
 
                 if (gen.UseHandlerSteamIds && gen.PlayerSteamIDs != null && index < gen.PlayerSteamIDs.Length)
                 {
-                    throw SetupSession.Conflict("steamIdLocked", "This handler sets the Steam IDs.");
+                    throw SetupSession.Conflict("steamIdLocked", I18n.T("host.setup.errors.steamIdLocked"));
                 }
 
                 if (!(steamId.Length == 0 || steamId == "-1" || (steamId.Length == 17 && Regex.IsMatch(steamId, "^[0-9]+$"))))
                 {
-                    throw SetupSession.Conflict("invalidSteamId", "A Steam ID must be 17 digits, for example 76561199075562883.");
+                    throw SetupSession.Conflict("invalidSteamId", I18n.T("host.setup.errors.steamIdFormat"));
                 }
 
                 if (steamId.Length == 17 && PlayersIdentityCache.PlayersSteamId.Where((sid, i) => i != index && sid == steamId).Any())
                 {
-                    throw SetupSession.Conflict("steamIdInUse", "Another player slot uses this Steam ID.");
+                    throw SetupSession.Conflict("steamIdInUse", I18n.T("host.setup.errors.steamIdInUse"));
                 }
             }
 
@@ -372,7 +373,7 @@ namespace Nucleus.Coop.Services.Setup
 
             if (index < 0 || index >= ProfileSettingsModel.AudioInstanceCount)
             {
-                throw SetupSession.Conflict("noAudioSlot", $"Per-player audio is available for the first {ProfileSettingsModel.AudioInstanceCount} players.");
+                throw SetupSession.Conflict("noAudioSlot", I18n.T("host.setup.errors.noAudioSlot", new { count = ProfileSettingsModel.AudioInstanceCount }));
             }
 
             string deviceId = string.IsNullOrEmpty(request.AudioDeviceId) ? AudioOutputs.Default : request.AudioDeviceId;
@@ -383,7 +384,7 @@ namespace Nucleus.Coop.Services.Setup
 
                 if (!session.Audio.IsKnown(deviceId))
                 {
-                    throw new BridgeException(BridgeErrorKind.NotFound, "Audio output not found.", new { audioDeviceId = deviceId });
+                    throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.setup.errors.audioOutputNotFound"), new { audioDeviceId = deviceId });
                 }
             }
 
@@ -402,24 +403,24 @@ namespace Nucleus.Coop.Services.Setup
 
             if (check == null)
             {
-                throw new BridgeException(BridgeErrorKind.NotFound, "Check not found.", new { checkId = request.CheckId });
+                throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.setup.errors.checkNotFound"), new { checkId = request.CheckId });
             }
 
             if (check.ActionLabel == null)
             {
-                throw SetupSession.Conflict("noAction", "This check has no fix.");
+                throw SetupSession.Conflict("noAction", I18n.T("host.setup.errors.noFix"));
             }
 
             switch (check.Id)
             {
                 case SetupChecks.GameFound:
                     //The file picker belongs to the UI: it opens it and calls library.setExecutable.
-                    throw SetupSession.Conflict("needsPicker", "Choose the game executable.");
+                    throw SetupSession.Conflict("needsPicker", I18n.T("host.setup.errors.needsPicker"));
 
                 case SetupChecks.Admin:
                     if (!SetupChecks.RestartAsAdministrator())
                     {
-                        throw SetupSession.Conflict("cancelled", "Restart as administrator was cancelled.");
+                        throw SetupSession.Conflict("cancelled", I18n.T("host.setup.errors.adminCancelled"));
                     }
 
                     return session.CommitCommand();
@@ -434,7 +435,7 @@ namespace Nucleus.Coop.Services.Setup
                     return session.CommitCommand();
 
                 default:
-                    throw SetupSession.Conflict("noAction", "This check has no fix.");
+                    throw SetupSession.Conflict("noAction", I18n.T("host.setup.errors.noFix"));
             }
         }
 
@@ -442,14 +443,14 @@ namespace Nucleus.Coop.Services.Setup
         {
             if (session.HandlerUpdater == null)
             {
-                throw SetupSession.Conflict("noAction", "Handler updates are not available.");
+                throw SetupSession.Conflict("noAction", I18n.T("host.setup.errors.updatesUnavailable"));
             }
 
             string gameId = session.Game!.GameGuid;
 
             if (!session.BusyChecks.Add(SetupChecks.HandlerUpToDate))
             {
-                throw SetupSession.Conflict("busy", "The handler is already being updated.");
+                throw SetupSession.Conflict("busy", I18n.T("host.setup.errors.updateBusy"));
             }
 
             session.RequestRefresh();
@@ -584,7 +585,7 @@ namespace Nucleus.Coop.Services.Setup
                     break;
 
                 default:
-                    throw SetupSession.Conflict("rumbleNotSupported", "This device can't vibrate.");
+                    throw SetupSession.Conflict("rumbleNotSupported", I18n.T("host.setup.errors.cannotVibrate"));
             }
         }
 
@@ -592,7 +593,7 @@ namespace Nucleus.Coop.Services.Setup
 
         private static PlayerInfo Device(string id)
         {
-            return SetupSnapshotBuilder.FindDevice(id) ?? throw new BridgeException(BridgeErrorKind.NotFound, "Device not found.", new { deviceId = id });
+            return SetupSnapshotBuilder.FindDevice(id) ?? throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.setup.errors.deviceNotFound"), new { deviceId = id });
         }
 
         /// <summary>The primary device of a player (a player id is the id of its first device; a partner's id is accepted too).</summary>
@@ -601,43 +602,48 @@ namespace Nucleus.Coop.Services.Setup
             PlayerInfo? device = SetupSnapshotBuilder.FindDevice(id);
             PlayerInfo? primary = device == null ? null : SetupSnapshotBuilder.PlayerOf(device);
 
-            return primary ?? throw new BridgeException(BridgeErrorKind.NotFound, "Player not found.", new { playerId = id });
+            return primary ?? throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.setup.errors.playerNotFound"), new { playerId = id });
         }
 
         private static GameOption VisibleOption(string key)
         {
             return GameProfile.Game.Options.FirstOrDefault(o => o.Key == key && !o.Hidden)
-                   ?? throw new BridgeException(BridgeErrorKind.NotFound, "Option not found.", new { key });
+                   ?? throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.setup.errors.optionNotFound"), new { key });
         }
 
-        private static readonly Dictionary<string, string> RefusalMessages = new Dictionary<string, string>
+        /// <summary>What a refusal reason of BoundsFunctions tells the user, in the language in use (the reason itself when unknown).</summary>
+        private static string RefusalMessage(string reason)
         {
-            [BoundsFunctions.Refusal.NoSetup] = "No game setup is open.",
-            [BoundsFunctions.Refusal.InvalidScreen] = "There is no monitor with this index.",
-            [BoundsFunctions.Refusal.InvalidSlot] = "There is no slot with this index.",
-            [BoundsFunctions.Refusal.ManualLayout] = "The manual layout has no slots: place the player at a point.",
-            [BoundsFunctions.Refusal.ProfileLocked] = "The loaded profile decides where players go.",
-            [BoundsFunctions.Refusal.DeviceNotRevealed] = "Press a button on this device first.",
-            [BoundsFunctions.Refusal.SlotOccupied] = "This place is taken.",
-            [BoundsFunctions.Refusal.NotAssigned] = "This device is not placed.",
-            [BoundsFunctions.Refusal.NotAGamepad] = "Guests must be gamepads, and so must their host.",
-            [BoundsFunctions.Refusal.GuestsNotSupported] = "This game doesn't support several players per instance.",
-            [BoundsFunctions.Refusal.GuestLimitReached] = "This instance can't take more guests.",
-            [BoundsFunctions.Refusal.AlreadyGuest] = "This gamepad is already a guest.",
-            [BoundsFunctions.Refusal.NotAGuest] = "This gamepad is not a guest.",
-            [BoundsFunctions.Refusal.CannotExpand] = "This player can't grow or shrink here.",
-            [BoundsFunctions.Refusal.CannotResize] = "This player can't be resized that way.",
-            [BoundsFunctions.Refusal.NoFreeSlot] = "No free slot.",
-            [BoundsFunctions.Refusal.NothingToPlace] = "No revealed device is waiting to be placed.",
-            ["full"] = "Every slot is taken and no monitor can be split further.",
-        };
+            switch (reason)
+            {
+                case BoundsFunctions.Refusal.NoSetup: return I18n.T("host.setup.errors.noSetup");
+                case BoundsFunctions.Refusal.InvalidScreen: return I18n.T("host.setup.refusals.invalidScreen");
+                case BoundsFunctions.Refusal.InvalidSlot: return I18n.T("host.setup.refusals.invalidSlot");
+                case BoundsFunctions.Refusal.ManualLayout: return I18n.T("host.setup.refusals.manualLayout");
+                case BoundsFunctions.Refusal.ProfileLocked: return I18n.T("host.setup.refusals.profileLocked");
+                case BoundsFunctions.Refusal.DeviceNotRevealed: return I18n.T("host.setup.refusals.deviceNotRevealed");
+                case BoundsFunctions.Refusal.SlotOccupied: return I18n.T("host.setup.refusals.slotOccupied");
+                case BoundsFunctions.Refusal.NotAssigned: return I18n.T("host.setup.refusals.notAssigned");
+                case BoundsFunctions.Refusal.NotAGamepad: return I18n.T("host.setup.refusals.notAGamepad");
+                case BoundsFunctions.Refusal.GuestsNotSupported: return I18n.T("host.setup.refusals.guestsNotSupported");
+                case BoundsFunctions.Refusal.GuestLimitReached: return I18n.T("host.setup.refusals.guestLimitReached");
+                case BoundsFunctions.Refusal.AlreadyGuest: return I18n.T("host.setup.refusals.alreadyGuest");
+                case BoundsFunctions.Refusal.NotAGuest: return I18n.T("host.setup.refusals.notAGuest");
+                case BoundsFunctions.Refusal.CannotExpand: return I18n.T("host.setup.refusals.cannotExpand");
+                case BoundsFunctions.Refusal.CannotResize: return I18n.T("host.setup.refusals.cannotResize");
+                case BoundsFunctions.Refusal.NoFreeSlot: return I18n.T("host.setup.refusals.noFreeSlot");
+                case BoundsFunctions.Refusal.NothingToPlace: return I18n.T("host.setup.refusals.nothingToPlace");
+                case "full": return I18n.T("host.setup.refusals.full");
+                default: return reason;
+            }
+        }
 
         /// <summary>Turns a refusal reason of BoundsFunctions into a conflict error.</summary>
         private static void Refuse(string? reason)
         {
             if (reason != null)
             {
-                throw SetupSession.Conflict(reason, RefusalMessages.TryGetValue(reason, out string message) ? message : reason);
+                throw SetupSession.Conflict(reason, RefusalMessage(reason));
             }
         }
     }

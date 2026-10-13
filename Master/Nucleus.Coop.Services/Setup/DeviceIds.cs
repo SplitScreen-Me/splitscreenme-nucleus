@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Nucleus.Bridge.Contracts;
 using Nucleus.Gaming.Coop.InputManagement.Gamepads;
+using Nucleus.Gaming.Localization;
 
 namespace Nucleus.Coop.Services.Setup
 {
@@ -82,7 +83,7 @@ namespace Nucleus.Coop.Services.Setup
 
         private static readonly Regex VidPid = new Regex(@"VID_([0-9A-F]{4}).*?PID_([0-9A-F]{4})", RegexOptions.IgnoreCase);
 
-        /// <summary>Label of a device: the product name when known, else a readable name from its kind and HID path.</summary>
+        /// <summary>Label of a device: the product name when known, else a readable name (in the language in use) from its kind and HID path.</summary>
         public static string Name(InputType type, int apiIndex, string? productName, string? hid)
         {
             if (!string.IsNullOrWhiteSpace(productName))
@@ -93,26 +94,28 @@ namespace Nucleus.Coop.Services.Setup
             switch (type)
             {
                 case InputType.XInput:
-                    return $"XInput controller {apiIndex + 1}";
+                    return I18n.T("host.setup.devices.xinput", new { number = apiIndex + 1 });
                 case InputType.SDL2:
-                    return apiIndex >= 0 ? $"Controller {apiIndex + 1}" : "Controller";
+                    return apiIndex >= 0 ? I18n.T("host.setup.devices.controllerNumber", new { number = apiIndex + 1 }) : I18n.T("host.setup.devices.controller");
                 case InputType.DInput:
-                    return $"DirectInput controller {apiIndex + 1}";
+                    return I18n.T("host.setup.devices.dinput", new { number = apiIndex + 1 });
                 case InputType.SingleKB:
-                    return "Keyboard and mouse";
+                    return I18n.T("host.setup.devices.keyboardMouse");
                 case InputType.Mouse:
-                    return hid == "MouseHandleZero" ? "Virtual mouse" : WithIds("Mouse", hid);
+                    return hid == "MouseHandleZero" ? I18n.T("host.setup.devices.virtualMouse") : WithIds(I18n.T("host.setup.devices.mouse"), hid);
                 case InputType.KBM:
-                    return WithIds("Keyboard and mouse", hid);
+                    return WithIds(I18n.T("host.setup.devices.keyboardMouse"), hid);
                 default:
-                    return hid == "KeyboardHandleZero" ? "Virtual keyboard" : WithIds("Keyboard", hid);
+                    return hid == "KeyboardHandleZero" ? I18n.T("host.setup.devices.virtualKeyboard") : WithIds(I18n.T("host.setup.devices.keyboard"), hid);
             }
         }
 
         private static string WithIds(string label, string? hid)
         {
             Match match = hid == null ? Match.Empty : VidPid.Match(hid);
-            return match.Success ? $"{label} ({match.Groups[1].Value.ToUpperInvariant()}:{match.Groups[2].Value.ToUpperInvariant()})" : label;
+            return match.Success
+                ? I18n.T("host.setup.devices.withIds", new { device = label, vid = match.Groups[1].Value.ToUpperInvariant(), pid = match.Groups[2].Value.ToUpperInvariant() })
+                : label;
         }
 
         /// <summary>Whether a raw device is one of the virtual entries that catch injected input (device handle 0).</summary>

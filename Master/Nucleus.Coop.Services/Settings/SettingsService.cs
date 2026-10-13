@@ -28,18 +28,23 @@ public sealed class SettingsService : ISettingsService
     private readonly object reminderGate = new object();
     private volatile LocalizedCatalog? localized;
 
-    /// <summary>Creates the service and draws the shortcut reminder images when they are missing.</summary>
+    /// <summary>Creates the service and draws the shortcut reminder images when they are missing or in another language.</summary>
     public SettingsService(NucleusCore core, IGamepadReader? gamepads = null)
     {
         this.core = core;
         this.gamepads = gamepads ?? new XInputGamepadReader();
 
-        bool keyboardMissing = !File.Exists(KeyboardReminderPath);
-        bool gamepadMissing = !File.Exists(GamepadReminderPath);
+        // The images hold texts: they are drawn again in the language in use, after a change of language and when the
+        // last drawing was made in another one (Windows language changed, files of an older version).
+        bool otherLanguage = !string.Equals(ReadReminderLocale(), I18n.Locale, StringComparison.OrdinalIgnoreCase);
+        bool keyboardMissing = otherLanguage || !File.Exists(KeyboardReminderPath);
+        bool gamepadMissing = otherLanguage || !File.Exists(GamepadReminderPath);
         if (keyboardMissing || gamepadMissing)
         {
             RenderRemindersInBackground(keyboardMissing, gamepadMissing);
         }
+
+        I18n.LanguageChanged += (_, _) => RenderRemindersInBackground(true, true);
     }
 
     /// <summary>
@@ -79,6 +84,22 @@ public sealed class SettingsService : ISettingsService
 
     private static string GamepadReminderPath => Path.Combine(NucleusPaths.Shortcuts, "XShortcutsReminder.jpeg");
 
+    // Language of the last drawing of both images.
+    private static string ReminderLocalePath => Path.Combine(NucleusPaths.Shortcuts, "ShortcutsReminder.language");
+
+    private static string? ReadReminderLocale()
+    {
+        try
+        {
+            return File.Exists(ReminderLocalePath) ? File.ReadAllText(ReminderLocalePath).Trim() : null;
+        }
+        catch (Exception e)
+        {
+            ServiceLog.Warn("the language of the shortcut reminder images could not be read", e);
+            return null;
+        }
+    }
+
     /// <inheritdoc />
     public SettingsSchema GetSchema()
     {
@@ -91,7 +112,7 @@ public sealed class SettingsService : ISettingsService
                 string? device = SystemChoices.DefaultAudioOutput();
                 if (device != null)
                 {
-                    dto.Description += $" Default playback device: {device}.";
+                    dto.Description = SettingsCatalog.AudioSectionDescription(device);
                 }
             }
 
@@ -231,7 +252,7 @@ public sealed class SettingsService : ISettingsService
 
         if (!GamepadComboCapture.AnyConnected(gamepads))
         {
-            throw new BridgeException(BridgeErrorKind.Unavailable, "No XInput gamepad is connected.", new { reason = "noGamepad" });
+            throw new BridgeException(BridgeErrorKind.Unavailable, I18n.T("host.settings.errors.noGamepad"), new { reason = "noGamepad" });
         }
 
         try
@@ -240,7 +261,7 @@ public sealed class SettingsService : ISettingsService
         }
         catch (TimeoutException)
         {
-            throw new BridgeException(BridgeErrorKind.Unavailable, "No gamepad button was pressed.", new { reason = "timeout" });
+            throw new BridgeException(BridgeErrorKind.Unavailable, I18n.T("host.settings.errors.noButtonPressed"), new { reason = "timeout" });
         }
     }
 
@@ -254,6 +275,7 @@ public sealed class SettingsService : ISettingsService
         {
             try
             {
+                string locale = I18n.Locale;
                 if (keyboard)
                 {
                     var rows = SettingsCatalog.KeyboardReminderRows.Select(r => (r.Label, values.TryGetValue(r.Key, out string? v) ? v : "")).ToList();
@@ -267,6 +289,11 @@ public sealed class SettingsService : ISettingsService
                         .ToList();
                     string images = Path.Combine(NucleusPaths.GamepadImages, type);
                     ShortcutsReminderRenderer.RenderGamepad(GamepadReminderPath, rows, type, images);
+                }
+
+                if (keyboard && gamepad)
+                {
+                    File.WriteAllText(ReminderLocalePath, locale);
                 }
             }
             catch (Exception e)
@@ -328,7 +355,7 @@ public sealed class SettingsService : ISettingsService
     {
         if (!string.IsNullOrEmpty(current) && field.Choices.All(c => c.Value != current))
         {
-            field.Choices.Add(new SettingChoice { Value = current, Label = current + " (not available)" });
+            field.Choices.Add(new SettingChoice { Value = current, Label = I18n.T("common.notAvailable", new { value = current }) });
         }
     }
 

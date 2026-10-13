@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System.IO;
 using System.Linq;
+using Nucleus.Gaming.Localization;
 
 namespace Nucleus.Coop.Services.Settings;
 
@@ -34,7 +35,7 @@ public static class ShortcutsReminderRenderer
     /// <summary>Keyboard shortcuts: label and combination ("Ctrl+Q", "End").</summary>
     public static void RenderKeyboard(string path, IReadOnlyList<(string Label, string Keys)> rows)
     {
-        Render(path, KeyboardSize, "Keyboard shortcuts", rows.Count, (g, i, rect, font) =>
+        Render(path, KeyboardSize, I18n.T("host.settings.reminderImage.keyboardTitle"), rows.Count, (g, i, rect, font) =>
         {
             DrawLabel(g, rows[i].Label, rect, font);
             string[] keys = rows[i].Keys.Split(new[] { '+' }, StringSplitOptions.RemoveEmptyEntries);
@@ -65,7 +66,7 @@ public static class ShortcutsReminderRenderer
                 }
             }
 
-            Render(path, GamepadSize, "Gamepad shortcuts", rows.Count, (g, i, rect, font) =>
+            Render(path, GamepadSize, I18n.T("host.settings.reminderImage.gamepadTitle"), rows.Count, (g, i, rect, font) =>
             {
                 DrawLabel(g, rows[i].Label, rect, font);
                 DrawKeycaps(g, rows[i].Buttons.Select(code => (GamepadComboFormat.Name(code, gamepadType), images.TryGetValue(code, out Image? image) ? image : null)).ToList(), rect, font);
