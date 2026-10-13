@@ -32,6 +32,14 @@ export interface MessageParamsMap {
   'common.delete': undefined;
   /** Details */
   'common.details': undefined;
+  /** gamepad */
+  'common.devices.gamepad': undefined;
+  /** keyboard */
+  'common.devices.keyboard': undefined;
+  /** keyboard and mouse */
+  'common.devices.keyboardMouse': undefined;
+  /** mouse */
+  'common.devices.mouse': undefined;
   /** Discard */
   'common.discard': undefined;
   /** Done */
@@ -44,6 +52,16 @@ export interface MessageParamsMap {
   'common.errors.cancelled': undefined;
   /** That did not work. Try again. */
   'common.errors.failed': undefined;
+  /** The Hub is busy right now. Try again in a moment. */
+  'common.errors.hub.busy': undefined;
+  /** The Hub is busy right now. Try again in {seconds} s. */
+  'common.errors.hub.busyRetryAfter': { seconds: ParamValue };
+  /** The Hub answered {status}. */
+  'common.errors.hub.status': { status: ParamValue };
+  /** The Hub is unreachable. Check your connection. */
+  'common.errors.hub.unreachable': undefined;
+  /** The Hub sent an unreadable answer. */
+  'common.errors.hub.unreadable': undefined;
   /** Something went wrong in Nucleus Co-op. The details are in the app log. */
   'common.errors.internal': undefined;
   /** This version of Nucleus Co-op cannot do that yet. */
@@ -52,12 +70,30 @@ export interface MessageParamsMap {
   'common.errors.timeout': undefined;
   /** Something went wrong. Try again. */
   'common.errors.unknown': undefined;
+  /** Someone */
+  'common.hubData.someone': undefined;
+  /** Unknown author */
+  'common.hubData.unknownAuthor': undefined;
+  /** Unknown game */
+  'common.hubData.unknownGame': undefined;
+  /** Untitled handler */
+  'common.hubData.untitledHandler': undefined;
   /** Controllers */
   'common.inputs.controllers': undefined;
   /** Keyboard and mouse */
   'common.inputs.keyboardMouse': undefined;
   /** Several keyboards and mice */
   'common.inputs.multiKeyboardMouse': undefined;
+  /** Controllers */
+  'common.inputs.summary.controllers': undefined;
+  /** Controllers, keyboard and mouse */
+  'common.inputs.summary.controllersKeyboardMouse': undefined;
+  /** Controllers, keyboards and mice */
+  'common.inputs.summary.controllersMultiKeyboardMouse': undefined;
+  /** Keyboard and mouse */
+  'common.inputs.summary.keyboardMouse': undefined;
+  /** Keyboards and mice */
+  'common.inputs.summary.multiKeyboardMouse': undefined;
   /** Input support unknown */
   'common.inputs.unknown': undefined;
   /** Install */

@@ -64,14 +64,44 @@
       "methodNotFound": "This version of Nucleus Co-op cannot do that yet.",
       "cancelled": "Cancelled.",
       "failed": "That did not work. Try again.",
-      "unknown": "Something went wrong. Try again."
+      "unknown": "Something went wrong. Try again.",
+      "hub": {
+        "unreachable": "The Hub is unreachable. Check your connection.",
+        "busy": "The Hub is busy right now. Try again in a moment.",
+        "busyRetryAfter": "The Hub is busy right now. Try again in {seconds} s.",
+        "status": "The Hub answered {status}.",
+        "_note": "status: an HTTP status code, such as 503.",
+        "unreadable": "The Hub sent an unreadable answer."
+      }
     },
     "inputs": {
       "_note": "The inputs a handler supports, as labels (filters, icons, tables).",
       "controllers": "Controllers",
       "keyboardMouse": "Keyboard and mouse",
       "multiKeyboardMouse": "Several keyboards and mice",
-      "unknown": "Input support unknown"
+      "unknown": "Input support unknown",
+      "summary": {
+        "_note": "One line saying which inputs a game supports (library).",
+        "controllersMultiKeyboardMouse": "Controllers, keyboards and mice",
+        "controllersKeyboardMouse": "Controllers, keyboard and mouse",
+        "controllers": "Controllers",
+        "multiKeyboardMouse": "Keyboards and mice",
+        "keyboardMouse": "Keyboard and mouse"
+      }
+    },
+    "devices": {
+      "_note": "Kinds of input device as they read inside a sentence (lower case in English).",
+      "gamepad": "gamepad",
+      "keyboard": "keyboard",
+      "mouse": "mouse",
+      "keyboardMouse": "keyboard and mouse"
+    },
+    "hubData": {
+      "_note": "Stand-ins when the Hub sends a handler or a comment without these fields.",
+      "untitledHandler": "Untitled handler",
+      "unknownAuthor": "Unknown author",
+      "unknownGame": "Unknown game",
+      "someone": "Someone"
     }
   },
   "shell": {

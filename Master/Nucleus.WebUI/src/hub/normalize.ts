@@ -1,4 +1,6 @@
-// API v3 answers → the shapes the UI uses. Pure (type imports only): the node tests load this file.
+// API v3 answers → the shapes the UI uses. Pure, relative imports only: the node tests load this file. Missing names
+// get stand-ins in the language in use when the answer is read.
+import { t } from '../i18n/store.ts';
 import type { HubComment, HubCommentRaw, HubCommentThread, HubHandler, HubHandlerDetailRaw } from './types.ts';
 
 const num = (v: unknown, fallback = 0) => (typeof v === 'number' && Number.isFinite(v) ? v : fallback);
@@ -13,13 +15,13 @@ export function normalizeHandler(raw: HubHandlerDetailRaw): HubHandler {
   const maxPlayers = num(raw.maxPlayers, 0);
   return {
     id: raw.id,
-    title: str(raw.title, str(raw.gameName, 'Untitled handler')),
+    title: str(raw.title, str(raw.gameName, t('common.hubData.untitledHandler'))),
     url: str(raw.url),
     authorId: opt(raw.authorId),
-    author: str(raw.authorName, 'Unknown author'),
+    author: str(raw.authorName, t('common.hubData.unknownAuthor')),
     authorUrl: opt(raw.authorUrl),
     description: str(raw.description),
-    gameName: str(raw.gameName, str(raw.title, 'Unknown game')),
+    gameName: str(raw.gameName, str(raw.title, t('common.hubData.unknownGame'))),
     gameSlug: str(raw.gameSlug),
     gameDescription: str(raw.gameDescription),
     igdbGameId: typeof raw.igdbGameId === 'number' ? raw.igdbGameId : undefined,
@@ -51,7 +53,7 @@ export function normalizeComment(raw: HubCommentRaw): HubComment {
   return {
     id: raw.id,
     authorId: opt(raw.authorId),
-    author: str(raw.authorName, 'Someone'),
+    author: str(raw.authorName, t('common.hubData.someone')),
     handlerId: str(raw.handlerId),
     createdAt: str(raw.createdAt, new Date(0).toISOString()),
     editedAt: opt(raw.editedAt),

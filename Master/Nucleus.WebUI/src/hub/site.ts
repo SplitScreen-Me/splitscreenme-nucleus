@@ -23,6 +23,7 @@ async function resolveSite(): Promise<string> {
   if (!connectAllowed(site, cspConnectSources(policy))) {
     const origin = new URL(site).origin;
     throw new HubError(
+      // i18n-ignore: developer setup only (a [Dev] HubUrl the build does not allow), with build variable names.
       `The Content-Security-Policy of this interface build does not allow ${origin} (Settings.ini [Dev] HubUrl). Rebuild the interface with NUCLEUS_HUB_ORIGINS=${origin}, or load it from the Vite dev server.`,
     );
   }
