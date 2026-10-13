@@ -4,6 +4,100 @@ import type { ParamValue } from '../core.ts';
 
 /** Placeholders of each string of en.json (`undefined`: none). Plural strings take a numeric `count`. */
 export interface MessageParamsMap {
+  /** In library */
+  'catalog.card.inLibrary': undefined;
+  /** Installed, the game is in your library */
+  'catalog.card.inLibraryTitle': undefined;
+  /** Installed */
+  'catalog.card.installed': undefined;
+  /** Handler installed, the game is not in your library yet */
+  'catalog.card.installedTitle': undefined;
+  /** Update */
+  'catalog.card.update': undefined;
+  /** A newer version of this handler is on the Hub */
+  'catalog.card.updateTitle': undefined;
+  /** Verified handler */
+  'catalog.card.verified': undefined;
+  /** Any number of players */
+  'catalog.filters.anyPlayers': undefined;
+  /** Clear all filters */
+  'catalog.filters.clearAll': undefined;
+  /** Genres */
+  'catalog.filters.genres': undefined;
+  /** Filters */
+  'catalog.filters.label': undefined;
+  /** Maximum players */
+  'catalog.filters.maxPlayers': undefined;
+  /** The most players the handler supports at once. */
+  'catalog.filters.maxPlayersHint': undefined;
+  /** {range} players */
+  'catalog.filters.playersRange': { range: ParamValue };
+  /** “{query}” */
+  'catalog.filters.queryToken': { query: ParamValue };
+  /** Remove filter {filter} */
+  'catalog.filters.remove': { filter: ParamValue };
+  /** Checked by Hub moderators */
+  'catalog.filters.verifiedHint': undefined;
+  /** Verified only */
+  'catalog.filters.verifiedOnly': undefined;
+  /** Verified */
+  'catalog.filters.verifiedToken': undefined;
+  /** Works with */
+  'catalog.filters.worksWith': undefined;
+  /** {count} games */
+  'catalog.genres.gameCount': { count: number };
+  /** Genres */
+  'catalog.genres.label': undefined;
+  /** Find a game to play together */
+  'catalog.heading': undefined;
+  /** Next section */
+  'catalog.hints.nextSection': undefined;
+  /** Previous section */
+  'catalog.hints.previousSection': undefined;
+  /** Every game here has a community handler. Pick one, install it in one click, and hand out the controllers. */
+  'catalog.intro': undefined;
+  /** Clear filters */
+  'catalog.noMatch.clear': undefined;
+  /** Request it on Discord */
+  'catalog.noMatch.request': undefined;
+  /** Try fewer filters, or ask the community for the game you want: handler authors pick requests from Discord. */
+  'catalog.noMatch.text': undefined;
+  /** No handler matches yet */
+  'catalog.noMatch.title': undefined;
+  /** Nothing for “{query}” with these filters. Check the spelling, try fewer filters, or ask the community: hand... */
+  'catalog.noMatch.withQuery': { query: ParamValue };
+  /** The Hub is unreachable. Showing the catalogue saved on <b>{date}</b>. */
+  'catalog.offlineCopy': { date: ParamValue };
+  /** All {count} games */
+  'catalog.results.all': { count: number };
+  /** {count} games */
+  'catalog.results.count': { count: number };
+  /** Loading the catalogue… */
+  'catalog.results.loading': undefined;
+  /** Show {count} more */
+  'catalog.results.showMore': { count: number };
+  /** Showing {shown} of {total} */
+  'catalog.results.showing': { shown: ParamValue; total: ParamValue };
+  /** Sort by */
+  'catalog.results.sortBy': undefined;
+  /** Sort games */
+  'catalog.results.sortLabel': undefined;
+  /** {shown} of {total} */
+  'catalog.search.filtered': { shown: ParamValue; total: ParamValue };
+  /** Search games */
+  'catalog.search.label': undefined;
+  /** Search by game or handler author */
+  'catalog.search.placeholder': undefined;
+  /** {count} games */
+  'catalog.search.total': { count: number };
+  /** Get games */
+  'catalog.title': undefined;
+  /** The catalogue could not be loaded. Your library still works offline. The catalogue appears here as soon as ... */
+  'catalog.unreachable.text': undefined;
+  /** The Hub is out of reach */
+  'catalog.unreachable.title': undefined;
+  /** {message} Your library still works offline. The catalogue appears here as soon as Nucleus Co-op reaches the... */
+  'catalog.unreachable.withMessage': { message: ParamValue };
   /** Add */
   'common.add': undefined;
   /** Apply */
@@ -116,6 +210,92 @@ export interface MessageParamsMap {
   'common.update': undefined;
   /** Yes */
   'common.yes': undefined;
+  /** Check for updates */
+  'downloads.checkUpdates': undefined;
+  /** Clear finished */
+  'downloads.clearFinished': undefined;
+  /** Update all */
+  'downloads.hints.updateAll': undefined;
+  /** The Hub is offline */
+  'downloads.hubOffline': undefined;
+  /** Handlers you install or update from the Hub. Games stay playable while their handler updates. */
+  'downloads.intro': undefined;
+  /** {count} items */
+  'downloads.list.count': { count: number };
+  /** Nothing downloaded since Nucleus Co-op started. Handlers you install from Get games, or drop on the window ... */
+  'downloads.list.empty': undefined;
+  /** Get games */
+  'downloads.list.getGames': undefined;
+  /** In progress */
+  'downloads.list.inProgress': undefined;
+  /** Recent downloads */
+  'downloads.list.recent': undefined;
+  /** Add the game */
+  'downloads.row.addGame': undefined;
+  /** Cancel the {game} download */
+  'downloads.row.cancelLabel': { game: ParamValue };
+  /** Handler */
+  'downloads.row.defaultName': undefined;
+  /** Failed: {error} */
+  'downloads.row.failed': { error: ParamValue };
+  /** Failed: the install did not finish. */
+  'downloads.row.failedUnknown': undefined;
+  /** From a file */
+  'downloads.row.file': undefined;
+  /** Handler */
+  'downloads.row.install': undefined;
+  /** Handler, version {version} */
+  'downloads.row.installVersion': { version: ParamValue };
+  /** Installed. The game is not in your library yet. */
+  'downloads.row.notInLibrary': undefined;
+  /** {game}: {stage} */
+  'downloads.row.progressLabel': { game: ParamValue; stage: ParamValue };
+  /** Try the {game} download again */
+  'downloads.row.retryLabel': { game: ParamValue };
+  /** Set up session */
+  'downloads.row.setUpSession': undefined;
+  /** {status} <when>{ago}</when> */
+  'downloads.row.statusWhen': { ago: ParamValue; status: ParamValue };
+  /** Handler update */
+  'downloads.row.update': undefined;
+  /** Handler update to version {version} */
+  'downloads.row.updateTo': { version: ParamValue };
+  /** Cancelled */
+  'downloads.stage.cancelled': undefined;
+  /** Installed */
+  'downloads.stage.done': undefined;
+  /** Downloading… */
+  'downloads.stage.downloading': undefined;
+  /** Downloading… {percent} */
+  'downloads.stage.downloadingPercent': { percent: ParamValue };
+  /** Installing… */
+  'downloads.stage.extracting': undefined;
+  /** Failed */
+  'downloads.stage.failed': undefined;
+  /** Waiting… */
+  'downloads.stage.queued': undefined;
+  /** Downloads */
+  'downloads.title': undefined;
+  /** Checked the Hub for handler updates */
+  'downloads.toasts.checked': undefined;
+  /** {game} handler updated */
+  'downloads.toasts.handlerUpdated': { game: ParamValue };
+  /** {game} handler updated to version {version} */
+  'downloads.toasts.handlerUpdatedTo': { game: ParamValue; version: ParamValue };
+  /** Handler update v{from} to v{to} */
+  'downloads.updates.fromTo': { from: ParamValue; to: ParamValue };
+  /** The Hub is offline. Updates work again as soon as Nucleus reaches it. */
+  'downloads.updates.offline': undefined;
+  /** Updates available */
+  'downloads.updates.title': undefined;
+  /** Handler update to v{to} */
+  'downloads.updates.to': { to: ParamValue };
+  /** Update all */
+  'downloads.updates.updateAll': undefined;
+  /** Update the {game} handler */
+  'downloads.updates.updateLabel': { game: ParamValue };
+  /** Updating… */
+  'downloads.updates.updating': undefined;
   /** Nucleus Co-op is already running. If you don't see its window, it may be running in the background: close t... */
   'engine.startChecks.alreadyRunning.message': undefined;
   /** Nucleus Co-op is already running */
@@ -124,6 +304,172 @@ export interface MessageParamsMap {
   'engine.startChecks.missingFile.message': { file: ParamValue };
   /** Missing file */
   'engine.startChecks.missingFile.title': undefined;
+  /** Add the game */
+  'handler.action.addGame': undefined;
+  /** {count} handlers */
+  'handler.action.authorHandlers': { count: number };
+  /** {handlers}, {downloads} */
+  'handler.action.authorStats': { downloads: ParamValue; handlers: ParamValue };
+  /** Cancel the {game} download */
+  'handler.action.cancelLabel': { game: ParamValue };
+  /** Comments */
+  'handler.action.facts.comments': undefined;
+  /** Downloads */
+  'handler.action.facts.downloads': undefined;
+  /** Stars */
+  'handler.action.facts.stars': undefined;
+  /** Updated */
+  'handler.action.facts.updated': undefined;
+  /** Version */
+  'handler.action.facts.version': undefined;
+  /** Installed, version {version}. {game} is in your library. */
+  'handler.action.inLibraryNote': { game: ParamValue; version: ParamValue };
+  /** Install handler */
+  'handler.action.install': undefined;
+  /** Downloads the handler from the Hub and adds {game} to your library. Nucleus asks once where the game is ins... */
+  'handler.action.installNote': { game: ParamValue };
+  /** Installing the {game} handler from the Hub. */
+  'handler.action.installingNote': { game: ParamValue };
+  /** Locate the game */
+  'handler.action.locate': undefined;
+  /** Installed, version {version}. Nucleus can't find {game} any more: show it where the game is. */
+  'handler.action.missingNote': { game: ParamValue; version: ParamValue };
+  /** The handler is installed, but {game} is not in your library yet. Show Nucleus where the game is. */
+  'handler.action.notInLibraryNote': { game: ParamValue };
+  /** The handler is installed (version {version}), but {game} is not in your library yet. Show Nucleus where the... */
+  'handler.action.notInLibraryNoteVersion': { game: ParamValue; version: ParamValue };
+  /** The Hub is offline. Installing works again as soon as Nucleus reaches it. */
+  'handler.action.offline': undefined;
+  /** Open on the Hub */
+  'handler.action.openOnHub': undefined;
+  /** Pick the {game} executable in the window Nucleus opened. */
+  'handler.action.pickNote': { game: ParamValue };
+  /** Handler not working after a game update? <link>Tell the author in the comments</link>. */
+  'handler.action.reportProblem': undefined;
+  /** Set up session */
+  'handler.action.setUpSession': undefined;
+  /** {game} handler installed */
+  'handler.action.toasts.installed': { game: ParamValue };
+  /** Handler installed. Show Nucleus where {game} is. */
+  'handler.action.toasts.showGame': { game: ParamValue };
+  /** {game} handler updated to version {version} */
+  'handler.action.toasts.updated': { game: ParamValue; version: ParamValue };
+  /** Version {version} is installed. The update keeps your profiles and settings. */
+  'handler.action.updateNote': { version: ParamValue };
+  /** Update to version {version} */
+  'handler.action.updateTo': { version: ParamValue };
+  /** Updating the handler. The game stays playable meanwhile. */
+  'handler.action.updatingNote': undefined;
+  /** Waiting for the game file… */
+  'handler.action.waitingForFile': undefined;
+  /** Comment on the Hub */
+  'handler.comments.commentOnHub': undefined;
+  /** Comments could not be loaded. */
+  'handler.comments.loadError': undefined;
+  /** Loading comments… */
+  'handler.comments.loading': undefined;
+  /** No comments yet. Played it? Share what worked for your group on the Hub. */
+  'handler.comments.none': undefined;
+  /** Show {count} more threads */
+  'handler.comments.showMore': { count: number };
+  /** Comments <count>{number}</count> */
+  'handler.comments.title': { number: ParamValue };
+  /** Controllers */
+  'handler.compat.controllers': undefined;
+  /** Keyboard and mouse */
+  'handler.compat.keyboardMouse': undefined;
+  /** Hub moderators */
+  'handler.compat.moderators': undefined;
+  /** Several keyboards and mice */
+  'handler.compat.multiKeyboardMouse': undefined;
+  /** Not stated */
+  'handler.compat.notStated': undefined;
+  /** Not supported */
+  'handler.compat.notSupported': undefined;
+  /** Not verified yet */
+  'handler.compat.notVerified': undefined;
+  /** One per player */
+  'handler.compat.onePerPlayer': undefined;
+  /** Players */
+  'handler.compat.players': undefined;
+  /** Supported */
+  'handler.compat.supported': undefined;
+  /** Compatibility */
+  'handler.compat.title': undefined;
+  /** Verified */
+  'handler.compat.verified': undefined;
+  /** Handler */
+  'handler.defaultTitle': undefined;
+  /** All games */
+  'handler.hero.allGames': undefined;
+  /** Handler “{title}” by {author}, version {version} */
+  'handler.hero.byline': { author: ParamValue; title: ParamValue; version: ParamValue };
+  /** {count} more seats */
+  'handler.hero.moreSeats': { count: number };
+  /** {game} split into {count} player views, the way Nucleus Co-op arranges the windows */
+  'handler.hero.previewLabel': { count: number; game: ParamValue };
+  /** Split-screen on one PC */
+  'handler.hero.splitScreen': undefined;
+  /** {players}. */
+  'handler.hero.summary': { players: ParamValue };
+  /** {players}, {inputs}. */
+  'handler.hero.summaryWithInputs': { inputs: ParamValue; players: ParamValue };
+  /** Up to {count} players on one PC */
+  'handler.hero.upToPlayers': { count: number };
+  /** Verified handler */
+  'handler.hero.verified': undefined;
+  /** Add the game */
+  'handler.hints.addGame': undefined;
+  /** Install handler */
+  'handler.hints.install': undefined;
+  /** Update handler */
+  'handler.hints.update': undefined;
+  /** Install this handler */
+  'handler.installPane': undefined;
+  /** Loading the handler */
+  'handler.loading': undefined;
+  /** About {game} */
+  'handler.notes.about': { game: ParamValue };
+  /** Loading notes… */
+  'handler.notes.loading': undefined;
+  /** {author} hasn't written notes for this handler yet. Nucleus shows any notes from the author before you laun... */
+  'handler.notes.none': { author: ParamValue };
+  /** Handler notes */
+  'handler.notes.title': undefined;
+  /** Browse all games */
+  'handler.related.browseAll': undefined;
+  /** Play these next */
+  'handler.related.title': undefined;
+  /** Follow the handler notes to link the windows: usually one player hosts and the others join. */
+  'handler.steps.connectBody': undefined;
+  /** Connect in game */
+  'handler.steps.connectTitle': undefined;
+  /** One click. Nucleus downloads it from the Hub and adds {game} to your library. */
+  'handler.steps.installBody': { game: ParamValue };
+  /** Install the handler */
+  'handler.steps.installTitle': undefined;
+  /** The first time, Nucleus finds {game} on this PC or asks once where it is installed. */
+  'handler.steps.locateBody': { game: ParamValue };
+  /** Point to the game */
+  'handler.steps.locateTitle': undefined;
+  /** Each player presses Start on their controller to join. Nucleus opens one window per player and tiles them. */
+  'handler.steps.seatBody': undefined;
+  /** Using keyboards and mice? Press <kbd>{key}</kbd> once everything is in place to give each window its own cu... */
+  'handler.steps.seatTip': { key: ParamValue };
+  /** Take a seat */
+  'handler.steps.seatTitle': undefined;
+  /** Play {game} together */
+  'handler.steps.title': { game: ParamValue };
+  /** Back to Get games */
+  'handler.unavailable.back': undefined;
+  /** Its author may have removed it or made it private. Other handlers for the same game may exist. */
+  'handler.unavailable.goneText': undefined;
+  /** This handler is not on the Hub any more */
+  'handler.unavailable.goneTitle': undefined;
+  /** Nucleus Co-op could not load this handler. Check your connection and try again. */
+  'handler.unavailable.offlineText': undefined;
+  /** The Hub is out of reach */
+  'handler.unavailable.offlineTitle': undefined;
   /** Language of Nucleus Co-op's windows and messages. Handler notes and game names stay as their authors wrote ... */
   'host.settings.fields.misc.appLanguage.description': undefined;
   /** Language */
@@ -132,6 +478,92 @@ export interface MessageParamsMap {
   'host.settings.sections.general.description': undefined;
   /** General */
   'host.settings.sections.general.title': undefined;
+  /** {downloads} downloads */
+  'hub.downloadCount': { count: number; downloads: ParamValue };
+  /** The Hub is busy right now. Try again in a moment. */
+  'hub.errors.busy': undefined;
+  /** The Hub is busy right now. Try again in {seconds} s. */
+  'hub.errors.busyRetryIn': { seconds: ParamValue };
+  /** The Content-Security-Policy of this interface build does not allow {origin} (Settings.ini [Dev] HubUrl). Re... */
+  'hub.errors.cspBlocked': { origin: ParamValue };
+  /** The Hub answered {status}. */
+  'hub.errors.status': { status: ParamValue };
+  /** The Hub is unreachable. Check your connection. */
+  'hub.errors.unreachable': undefined;
+  /** The Hub sent an unreadable answer. */
+  'hub.errors.unreadable': undefined;
+  /** Someone */
+  'hub.fallbacks.someone': undefined;
+  /** Unknown author */
+  'hub.fallbacks.unknownAuthor': undefined;
+  /** Unknown game */
+  'hub.fallbacks.unknownGame': undefined;
+  /** Untitled handler */
+  'hub.fallbacks.untitledHandler': undefined;
+  /** Adventure */
+  'hub.genres.adventure': undefined;
+  /** Arcade */
+  'hub.genres.arcade': undefined;
+  /** Card & Board Game */
+  'hub.genres.cardAndBoardGame': undefined;
+  /** Fighting */
+  'hub.genres.fighting': undefined;
+  /** Hack and slash */
+  'hub.genres.hackAndSlash': undefined;
+  /** Indie */
+  'hub.genres.indie': undefined;
+  /** MOBA */
+  'hub.genres.moba': undefined;
+  /** Music */
+  'hub.genres.music': undefined;
+  /** Pinball */
+  'hub.genres.pinball': undefined;
+  /** Platformer */
+  'hub.genres.platform': undefined;
+  /** Point-and-click */
+  'hub.genres.pointAndClick': undefined;
+  /** Puzzle */
+  'hub.genres.puzzle': undefined;
+  /** Quiz/Trivia */
+  'hub.genres.quizTrivia': undefined;
+  /** Racing */
+  'hub.genres.racing': undefined;
+  /** Real-time strategy */
+  'hub.genres.realTimeStrategy': undefined;
+  /** Role-playing */
+  'hub.genres.rolePlaying': undefined;
+  /** Shooter */
+  'hub.genres.shooter': undefined;
+  /** Simulation */
+  'hub.genres.simulator': undefined;
+  /** Sports */
+  'hub.genres.sport': undefined;
+  /** Strategy */
+  'hub.genres.strategy': undefined;
+  /** Tactical */
+  'hub.genres.tactical': undefined;
+  /** Turn-based strategy */
+  'hub.genres.turnBasedStrategy': undefined;
+  /** Visual Novel */
+  'hub.genres.visualNovel': undefined;
+  /** Controllers */
+  'hub.inputs.controllers': undefined;
+  /** Keyboard and mouse */
+  'hub.inputs.keyboardMouse': undefined;
+  /** Several keyboards and mice */
+  'hub.inputs.multiKeyboardMouse': undefined;
+  /** Any */
+  'hub.players.any': undefined;
+  /** A–Z */
+  'hub.sort.az': undefined;
+  /** Most downloaded */
+  'hub.sort.downloads': undefined;
+  /** Trending */
+  'hub.sort.trending': undefined;
+  /** Recently updated */
+  'hub.sort.updated': undefined;
+  /** Up to {count} players */
+  'hub.upToPlayers': { count: number };
   /** {percent} translated */
   'language.firstRun.completion': { percent: ParamValue };
   /** Continue in {language} */
@@ -144,6 +576,338 @@ export interface MessageParamsMap {
   'language.firstRun.listLabel': undefined;
   /** Choose your language */
   'language.firstRun.title': undefined;
+  /** {missing}, {updates}. */
+  'library.attention.both': { missing: ParamValue; updates: ParamValue };
+  /** {count} games not found */
+  'library.attention.gamesNotFound': { count: number };
+  /** {count} handler updates */
+  'library.attention.handlerUpdates': { count: number };
+  /** {item}. */
+  'library.attention.one': { item: ParamValue };
+  /** Add {game} to favourites */
+  'library.card.addFavourite': { game: ParamValue };
+  /** Add to favourites */
+  'library.card.addFavouriteTitle': undefined;
+  /** Executable missing */
+  'library.card.executableMissing': undefined;
+  /** Favourite */
+  'library.card.favouriteTitle': undefined;
+  /** Handler v{from} to v{to} */
+  'library.card.handlerUpdate': { from: ParamValue; to: ParamValue };
+  /** {game}, favourite */
+  'library.card.labelFavourite': { game: ParamValue };
+  /** {game}, favourite, new */
+  'library.card.labelFavouriteNew': { game: ParamValue };
+  /** {game}, favourite, handler update available */
+  'library.card.labelFavouriteUpdate': { game: ParamValue };
+  /** {game}, new */
+  'library.card.labelNew': { game: ParamValue };
+  /** {game}, handler update available */
+  'library.card.labelUpdate': { game: ParamValue };
+  /** Locate */
+  'library.card.locate': undefined;
+  /** {game}: game executable not found. Locate it */
+  'library.card.missingLabel': { game: ParamValue };
+  /** New */
+  'library.card.new': undefined;
+  /** Game not found */
+  'library.card.notFound': undefined;
+  /** Remove {game} from favourites */
+  'library.card.removeFavourite': { game: ParamValue };
+  /** Update the {game} handler to version {version} */
+  'library.card.updateLabel': { game: ParamValue; version: ParamValue };
+  /** Update to v{version} */
+  'library.card.updateTo': { version: ParamValue };
+  /** Updating handler, {percent} */
+  'library.card.updatingHandler': { percent: ParamValue };
+  /** v{version} */
+  'library.card.versionBadge': { version: ParamValue };
+  /** Architecture */
+  'library.details.architecture': undefined;
+  /** Game details */
+  'library.details.defaultTitle': undefined;
+  /** Executable */
+  'library.details.executable': undefined;
+  /** Handler file */
+  'library.details.handlerFile': undefined;
+  /** Handler version */
+  'library.details.handlerVersion': undefined;
+  /** The handler has options or setup steps */
+  'library.details.hasOptions': undefined;
+  /** Inputs */
+  'library.details.inputs': undefined;
+  /** Instances folder */
+  'library.details.instancesFolder': undefined;
+  /** Maintainer */
+  'library.details.maintainer': undefined;
+  /** None saved yet */
+  'library.details.noProfiles': undefined;
+  /** Not set */
+  'library.details.notSet': undefined;
+  /** Options */
+  'library.details.options': undefined;
+  /** Players */
+  'library.details.players': undefined;
+  /** Up to {count} */
+  'library.details.playersValue': { count: number };
+  /** {count} saved profiles */
+  'library.details.profileCount': { count: number };
+  /** Profiles */
+  'library.details.profiles': undefined;
+  /** Turned off */
+  'library.details.profilesOff': undefined;
+  /** Show in File Explorer */
+  'library.details.showInExplorer': undefined;
+  /** Steam app */
+  'library.details.steamApp': undefined;
+  /** {game}: details */
+  'library.details.title': { game: ParamValue };
+  /** {version} (version {latest} on the Hub) */
+  'library.details.versionWithLatest': { latest: ParamValue; version: ParamValue };
+  /** Add a game */
+  'library.empty.addGame': undefined;
+  /** Get games */
+  'library.empty.getGames': undefined;
+  /** Add the games Nucleus found on this PC, pick a handler on the Hub, or point Nucleus at a game you have. Eac... */
+  'library.empty.text': undefined;
+  /** Your library is empty */
+  'library.empty.title': undefined;
+  /** Game options */
+  'library.featured.gameOptions': undefined;
+  /** Last played */
+  'library.featured.lastPlayed': undefined;
+  /** Locate game */
+  'library.featured.locateGame': undefined;
+  /** Nucleus can't find this game's executable. It may have moved: locate it to play again. */
+  'library.featured.missing': undefined;
+  /** Not played yet. Hand out the controllers: everyone presses Start to join. */
+  'library.featured.notPlayed': undefined;
+  /** Not recorded */
+  'library.featured.notRecorded': undefined;
+  /** Play time */
+  'library.featured.playTime': undefined;
+  /** Set up session */
+  'library.featured.setUpSession': undefined;
+  /** Under a minute */
+  'library.featured.underAMinute': undefined;
+  /** Update to v{version} */
+  'library.featured.updateTo': { version: ParamValue };
+  /** Updating {percent} */
+  'library.featured.updating': { percent: ParamValue };
+  /** Your play */
+  'library.featured.yourPlay': undefined;
+  /** Controllers */
+  'library.filters.controllers': undefined;
+  /** Keyboard and mouse */
+  'library.filters.keyboard': undefined;
+  /** Several keyboards */
+  'library.filters.multipleKeyboards': undefined;
+  /** Add {count} games */
+  'library.found.addCount': { count: number };
+  /** Adding games… */
+  'library.found.addingGames': undefined;
+  /** Nothing new on this PC */
+  'library.found.emptyTitle': undefined;
+  /** Done. Games that need you are listed with what to do. */
+  'library.found.finished': undefined;
+  /** Add {game} */
+  'library.found.item.addLabel': { game: ParamValue };
+  /** {store}, {players} */
+  'library.found.item.meta': { players: ParamValue; store: ParamValue };
+  /** {store}, {players}, verified */
+  'library.found.item.metaVerified': { players: ParamValue; store: ParamValue };
+  /** players unknown */
+  'library.found.item.playersUnknown': undefined;
+  /** up to {count} players */
+  'library.found.item.upToPlayers': { count: number };
+  /** Matching with the Hub catalogue… */
+  'library.found.matching': undefined;
+  /** Nucleus looks for games installed through Steam and Epic. Install a game, then scan again. */
+  'library.found.noGames': undefined;
+  /** None of the {count} games installed through {stores} has a handler you don't already have. */
+  'library.found.noneNew': { count: number; stores: ParamValue };
+  /** None of the {count} games installed through your stores has a handler you don't already have. */
+  'library.found.noneNewAnyStore': { count: number };
+  /** The Hub is offline: handlers can't be downloaded right now. */
+  'library.found.offline': undefined;
+  /** Your game libraries could not be read */
+  'library.found.readError': undefined;
+  /** Reading your Steam and Epic libraries… */
+  'library.found.readingLibraries': undefined;
+  /** Installing handlers and adding games. Keep Nucleus open. */
+  'library.found.running': undefined;
+  /** Scan again */
+  'library.found.scanAgain': undefined;
+  /** Scanned {ago}. These games have a ready-made handler on the Hub. */
+  'library.found.scanned': { ago: ParamValue };
+  /** Scanned your {stores} libraries {ago}. These games have a ready-made handler on the Hub. */
+  'library.found.scannedStores': { count: number; ago: ParamValue; stores: ParamValue };
+  /** Select all */
+  'library.found.selectAll': undefined;
+  /** Select none */
+  'library.found.selectNone': undefined;
+  /** Select games to add */
+  'library.found.selectToAdd': undefined;
+  /** The game could not be added */
+  'library.found.steps.addFailed': undefined;
+  /** Add the game later from Your games */
+  'library.found.steps.addLater': undefined;
+  /** Added to your library */
+  'library.found.steps.added': undefined;
+  /** Adding */
+  'library.found.steps.adding': undefined;
+  /** Cancelled */
+  'library.found.steps.cancelled': undefined;
+  /** Failed */
+  'library.found.steps.failed': undefined;
+  /** Handler installed, game not added */
+  'library.found.steps.installed': undefined;
+  /** Installing the handler */
+  'library.found.steps.installing': undefined;
+  /** Installing the handler, {percent} */
+  'library.found.steps.installingProgress': { percent: ParamValue };
+  /** Pick the executable */
+  'library.found.steps.picking': undefined;
+  /** Looking for the game */
+  'library.found.steps.searching': undefined;
+  /** Waiting */
+  'library.found.steps.waiting': undefined;
+  /** Found on this PC */
+  'library.found.title': undefined;
+  /** {count} games added to your library */
+  'library.found.toasts.added': { count: number };
+  /** {count} games found with a handler on the Hub */
+  'library.found.toasts.found': { count: number };
+  /** No game was added */
+  'library.found.toasts.noneAdded': undefined;
+  /** Nothing new on this PC */
+  'library.found.toasts.nothingNew': undefined;
+  /** Nucleus Co-op could not read this game. */
+  'library.gameInfo.readError': undefined;
+  /** {action}: done */
+  'library.gameMenu.done': { action: ParamValue };
+  /** {action}: {game} */
+  'library.gameMenu.pickFileTitle': { action: ParamValue; game: ParamValue };
+  /** Add a game */
+  'library.games.addGame': undefined;
+  /** Every game is ready to play. Nothing needs your attention. */
+  'library.games.allReady': undefined;
+  /** {count} games */
+  'library.games.count': { count: number };
+  /** {shown} of {total} */
+  'library.games.countFiltered': { shown: ParamValue; total: ParamValue };
+  /** Favourites */
+  'library.games.favourites': undefined;
+  /** Filter games */
+  'library.games.filtersLabel': undefined;
+  /** Needs attention */
+  'library.games.needsAttention': undefined;
+  /** No game in your library matches these filters. */
+  'library.games.noMatch': undefined;
+  /** Show every game */
+  'library.games.showAll': undefined;
+  /** Sort */
+  'library.games.sort': undefined;
+  /** Sort games */
+  'library.games.sortLabel': undefined;
+  /** Your games */
+  'library.games.title': undefined;
+  /** Handler installed from a file */
+  'library.handlerLine.fromFile': undefined;
+  /** Hub handler */
+  'library.handlerLine.hub': undefined;
+  /** Handler version {version} */
+  'library.handlerLine.version': { version: ParamValue };
+  /** Handler version {version}, version {latest} on the Hub */
+  'library.handlerLine.versionWithLatest': { latest: ParamValue; version: ParamValue };
+  /** Favourite */
+  'library.hints.favourite': undefined;
+  /** Game options */
+  'library.hints.gameOptions': undefined;
+  /** Update handler */
+  'library.hints.updateHandler': undefined;
+  /** Open Get games */
+  'library.hubStrip.openGetGames': undefined;
+  /** {game} on the Hub */
+  'library.hubStrip.tileLabel': { game: ParamValue };
+  /** {players}, {downloads} */
+  'library.hubStrip.tileMeta': { downloads: ParamValue; players: ParamValue };
+  /** Popular for {count} players or more on the Hub */
+  'library.hubStrip.title': { count: number };
+  /** Controllers */
+  'library.inputs.controllers': undefined;
+  /** Controllers, keyboard and mouse */
+  'library.inputs.controllersKeyboardMouse': undefined;
+  /** Controllers, keyboards and mice */
+  'library.inputs.controllersKeyboardsMice': undefined;
+  /** Keyboard and mouse */
+  'library.inputs.keyboardMouse': undefined;
+  /** Keyboards and mice */
+  'library.inputs.keyboardsMice': undefined;
+  /** Input support unknown */
+  'library.inputs.unknown': undefined;
+  /** Your library could not be read */
+  'library.loadError': undefined;
+  /** Loading your library */
+  'library.loading': undefined;
+  /** Handler notes */
+  'library.notes.defaultTitle': undefined;
+  /** {file}, by {maintainer} */
+  'library.notes.metaBy': { file: ParamValue; maintainer: ParamValue };
+  /** {file}, by {maintainer}, version {version} */
+  'library.notes.metaByVersion': { file: ParamValue; maintainer: ParamValue; version: ParamValue };
+  /** {file}, version {version} */
+  'library.notes.metaVersion': { file: ParamValue; version: ParamValue };
+  /** This handler has no notes. */
+  'library.notes.none': undefined;
+  /** {game}: handler notes */
+  'library.notes.title': { game: ParamValue };
+  /** Game options */
+  'library.options.defaultTitle': undefined;
+  /** The game executable is missing. */
+  'library.options.executableMissing': undefined;
+  /** Handler page */
+  'library.options.handlerPage': undefined;
+  /** The options of this game could not be read. */
+  'library.options.loadError': undefined;
+  /** Loading the options of {game} */
+  'library.options.loading': { game: ParamValue };
+  /** Locate game */
+  'library.options.locateGame': undefined;
+  /** Set up session */
+  'library.options.setUpSession': undefined;
+  /** {handler}. Up to {count} players. */
+  'library.options.summary': { count: number; handler: ParamValue };
+  /** {game} options */
+  'library.options.title': { game: ParamValue };
+  /** Update handler to v{version} */
+  'library.options.updateTo': { version: ParamValue };
+  /** Updating {percent} */
+  'library.options.updating': { percent: ParamValue };
+  /** Last played */
+  'library.sort.lastPlayed': undefined;
+  /** Most players */
+  'library.sort.maxPlayers': undefined;
+  /** Name, A to Z */
+  'library.sort.name': undefined;
+  /** Name, Z to A */
+  'library.sort.nameDescending': undefined;
+  /** Most played */
+  'library.sort.playtime': undefined;
+  /** Library */
+  'library.title': undefined;
+  /** {game} added to favourites */
+  'library.toasts.favouriteAdded': { game: ParamValue };
+  /** {game} removed from favourites */
+  'library.toasts.favouriteRemoved': { game: ParamValue };
+  /** {game} removed from your library */
+  'library.toasts.gameRemoved': { game: ParamValue };
+  /** {game} handler updated */
+  'library.toasts.handlerUpdated': { game: ParamValue };
+  /** {game} handler updated to v{version} */
+  'library.toasts.handlerUpdatedTo': { game: ParamValue; version: ParamValue };
+  /** Up to {count} players */
+  'library.upToPlayers': { count: number };
   /** The interface could not reach the app ({error}). Close Nucleus Co-op and start it again. */
   'shell.startup.hostDownMessage': { error: ParamValue };
   /** Nucleus Co-op did not answer */
@@ -207,4 +971,4 @@ export interface MessageParamsMap {
 }
 
 /** Strings with tags (`<kbd>`, `<b>`...): render them with `<T>` to keep their markup; `t()` drops it. */
-export type RichMessageKey = never;
+export type RichMessageKey = 'catalog.offlineCopy' | 'downloads.row.statusWhen' | 'handler.action.reportProblem' | 'handler.comments.title' | 'handler.steps.seatTip';
