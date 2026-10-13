@@ -31,6 +31,8 @@
 
   <ItemGroup>
     <None Update="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Captured API v3 answers, shared with the web UI tests. -->
+    <None Include="..\Nucleus.WebUI\src\bridge\__tests__\fixtures\hub-handler.json" Link="Handlers\Fixtures\hub-handler.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

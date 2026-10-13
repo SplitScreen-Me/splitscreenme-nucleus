@@ -167,7 +167,7 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
         }
         catch (HubUnavailableException e)
         {
-            throw new BridgeException(BridgeErrorKind.Unavailable, "hub.splitscreen.me can't be reached: " + e.Message, new { reason = "offline" });
+            throw Offline(e);
         }
     }
 
@@ -182,14 +182,14 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
 
         try
         {
-            List<string> urls = await core.Hub.GetScreenshotUrlsAsync(handlerId, CancellationToken.None);
+            HubHandlerInfo? handler = await core.Hub.GetHandlerAsync(handlerId, CancellationToken.None);
             core.HubStatus.Report(true);
-            return urls.Select(u => HubClient.ScreenshotUrl(u, "t_screenshot_big")).ToList();
+            return handler?.ScreenshotIds.Select(id => HubClient.IgdbImageUrl(id, "t_screenshot_big")).ToList() ?? new List<string>();
         }
         catch (HubUnavailableException e)
         {
             core.HubStatus.Report(false);
-            throw new BridgeException(BridgeErrorKind.Unavailable, "hub.splitscreen.me can't be reached: " + e.Message, new { reason = "offline" });
+            throw Offline(e);
         }
     }
 
@@ -264,27 +264,38 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
             catch (HubUnavailableException e)
             {
                 core.HubStatus.Report(false);
-                throw new BridgeException(BridgeErrorKind.Unavailable, "hub.splitscreen.me can't be reached: " + e.Message, new { reason = "offline" });
+                throw Offline(e);
             }
 
-            if (handler.CurrentVersion < 0 || string.IsNullOrEmpty(handler.CurrentPackage))
+            HubPackageInfo? package = handler.Package;
+            if (package == null || package.Version < 1)
             {
                 throw new BridgeException(BridgeErrorKind.NotFound, "This handler has no published package on the hub.", new { handlerId });
             }
 
+            if (package.Sha256.Length == 0)
+            {
+                throw new BridgeException(BridgeErrorKind.Unavailable, "The hub did not give the checksum of this handler's package, so it can't be verified. Try again later.", new { reason = "downloadFailed" });
+            }
+
             string handlers = Manager.GetJsScriptsPath();
             work = NewWorkFolder(handlers);
-            string archive = Path.Combine(work, $"handler-{handler.Id}-v{handler.CurrentVersion}.nc");
+            string archive = Path.Combine(work, $"handler-{handler.Id}-v{package.Version}.nc");
 
-            // ?download=true: the hub counts real installs.
+            // The version read above, so the file matches its checksum; counted by the hub (a real install).
             var downloadProgress = new Progress<int?>(p => Progress(handlerId, gameId, HandlerInstallStage.Downloading, p));
             try
             {
-                await core.Hub.DownloadToFileAsync(HubClient.PackageUrl(handler, countDownload: true), archive, downloadProgress, cancellationToken);
+                await core.Hub.DownloadToFileAsync(core.Hub.PackageUrl(handler.Id, package.Version, countDownload: true), archive, package.Sha256, downloadProgress, cancellationToken);
             }
             catch (HubUnavailableException e)
             {
                 throw new BridgeException(BridgeErrorKind.Unavailable, e.Message, new { reason = "downloadFailed" });
+            }
+            catch (PackageChecksumException e)
+            {
+                ServiceLog.Warn($"handler {handler.Id} v{package.Version}: SHA-256 mismatch, expected {e.Expected}, got {e.Actual}");
+                throw new BridgeException(BridgeErrorKind.Conflict, e.Message, new { reason = "checksumMismatch" });
             }
 
             Progress(handlerId, gameId, HandlerInstallStage.Extracting, 0);
@@ -300,7 +311,7 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
                 return HandlerFiles.Install(extracted, handlers);
             });
 
-            InstallResult result = LoadInstalled(installed, handler.CurrentVersion);
+            InstallResult result = LoadInstalled(installed, Math.Max(handler.Version, package.Version));
             Progress(handlerId, gameId ?? result.GameId, HandlerInstallStage.Done, 100);
             return result;
         }
@@ -459,6 +470,9 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
             throw new BridgeException(BridgeErrorKind.Conflict, "Stop the running game session before installing handlers.", new { reason = "sessionRunning" });
         }
     }
+
+    private BridgeException Offline(HubUnavailableException e) =>
+        new BridgeException(BridgeErrorKind.Unavailable, core.Hub.DisplayName + " can't be reached: " + e.Message, new { reason = "offline" });
 
     private void Progress(string source, string? gameId, HandlerInstallStage stage, int? percent, string? error = null)
     {

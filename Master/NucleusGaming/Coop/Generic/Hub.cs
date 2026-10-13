@@ -50,46 +50,41 @@ namespace Nucleus.Gaming.Coop.Generic
             public string Id = "";
         }
 
+        /// <summary>
+        /// Whether the hub has a newer version than <see cref="_Handler.Version"/>: <c>GET /api/v3/handlers/{id}</c> on
+        /// <see cref="HubSite"/>, whose <c>version</c> is the current version. False when the hub can't be reached or does
+        /// not list the handler (404).
+        /// </summary>
         public bool CheckUpdateAvailable()
         {
-            if (Handler.Version < 0)
+            if (Handler.Version < 0 || string.IsNullOrEmpty(Handler.Id))
             {
                 return false;
             }
 
-            string id = Handler.Id;
-            int newVersion = -1;
+            string resp = Get(HubSite.ApiBase + "handlers/" + Uri.EscapeDataString(Handler.Id));
 
-            string resp = Get("https://hub.splitscreen.me/api/v1/" + "handler/" + id);
-
-            if (resp == null)
-            {
-                return false;
-            }
-            else if (resp == "{}")
+            if (string.IsNullOrEmpty(resp))
             {
                 return false;
             }
 
-            JObject jObject = JsonConvert.DeserializeObject(resp) as JObject;
-
-            if (jObject == null)
+            JObject jObject;
+            try
+            {
+                jObject = JsonConvert.DeserializeObject(resp) as JObject;
+            }
+            catch (JsonException)
             {
                 return false;
             }
 
-            JArray array = jObject["Handlers"] as JArray;
-
-            if (array == null)
-            {
-                return false;
-            }
-            else if (array.Count != 1)
+            if (jObject == null || jObject["version"] == null)
             {
                 return false;
             }
 
-            newVersion = int.TryParse(array[0]["currentVersion"].ToString(), out int _v) ? _v : -1;
+            int newVersion = int.TryParse(jObject["version"].ToString(), out int _v) ? _v : -1;
 
             return newVersion > Handler.Version;
         }

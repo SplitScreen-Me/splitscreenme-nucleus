@@ -4,10 +4,13 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Security;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Nucleus.Gaming;
 
 namespace Nucleus.Coop.Services.Handlers;
 
@@ -21,45 +24,92 @@ public sealed class HubUnavailableException : Exception
     }
 }
 
-/// <summary>A handler record of the hub API (<c>GET /api/v1/handler/{id}</c>), the fields the app uses.</summary>
+/// <summary>A downloaded package is not the file the hub published: its SHA-256 differs from the one of the API.</summary>
+public sealed class PackageChecksumException : Exception
+{
+    /// <summary>Creates the exception.</summary>
+    public PackageChecksumException(string expected, string actual)
+        : base($"The downloaded package does not match the one published on the hub (SHA-256 {actual}, expected {expected}). It was not installed.")
+    {
+        Expected = expected;
+        Actual = actual;
+    }
+
+    /// <summary>SHA-256 published by the hub (hex).</summary>
+    public string Expected { get; }
+
+    /// <summary>SHA-256 of the downloaded file (hex).</summary>
+    public string Actual { get; }
+}
+
+/// <summary>The current package of a handler: <c>currentVersion</c> of <c>GET /api/v3/handlers/{id}</c>.</summary>
+public sealed class HubPackageInfo
+{
+    /// <summary>Version number.</summary>
+    public int Version { get; set; } = -1;
+
+    /// <summary>SHA-256 of the <c>.nc</c> file, lower-case hex; empty when the hub sent none (or a malformed one).</summary>
+    public string Sha256 { get; set; } = "";
+
+    /// <summary>File size in bytes.</summary>
+    public long SizeBytes { get; set; }
+
+    /// <summary>File name (<c>handler-&lt;id&gt;-v&lt;version&gt;.nc</c>).</summary>
+    public string FileName { get; set; } = "";
+}
+
+/// <summary>A handler of the hub API v3 (<c>GET /api/v3/handlers/{id}</c>), the fields the services use.</summary>
 public sealed class HubHandlerInfo
 {
-    /// <summary>Hub handler id (<c>_id</c>).</summary>
+    /// <summary>Hub handler id (the legacy 17-character id, stored by installed handlers).</summary>
     public string Id { get; set; } = "";
+
+    /// <summary>Handler title.</summary>
+    public string Title { get; set; } = "";
 
     /// <summary>Game name.</summary>
     public string GameName { get; set; } = "";
 
     /// <summary>IGDB image id of the cover, may be empty.</summary>
-    public string GameCover { get; set; } = "";
+    public string CoverImageId { get; set; } = "";
 
-    /// <summary>Current version number.</summary>
-    public int CurrentVersion { get; set; } = -1;
+    /// <summary>Current version number (<c>version</c>), -1 when missing.</summary>
+    public int Version { get; set; } = -1;
 
-    /// <summary>Id of the current package in the hub storage.</summary>
-    public string CurrentPackage { get; set; } = "";
+    /// <summary>Web page of the handler on the site.</summary>
+    public string Url { get; set; } = "";
+
+    /// <summary>The current package, null when the answer has none.</summary>
+    public HubPackageInfo? Package { get; set; }
+
+    /// <summary>IGDB image ids of the game screenshots, in the hub's order.</summary>
+    public List<string> ScreenshotIds { get; set; } = new List<string>();
 }
 
 /// <summary>
-/// HTTP access to hub.splitscreen.me and the IGDB image CDN for the services. Unlike the legacy helpers it keeps the
-/// default TLS certificate validation (set per request, the process-wide accept-all callback set elsewhere is not
-/// used), and every call has a timeout.
+/// HTTP access to the hub API v3 (<see cref="HubSite"/>) and the IGDB image CDN for the services. Unlike the legacy
+/// helpers it keeps the default TLS certificate validation (set per request, the process-wide accept-all callback set
+/// elsewhere is not used), and every call has a timeout.
 /// </summary>
 public sealed class HubClient : IDisposable
 {
-    /// <summary>Hub site root (connectivity check).</summary>
-    public const string SiteUrl = "https://hub.splitscreen.me/";
-
-    /// <summary>Hub API root.</summary>
-    public const string ApiBase = "https://hub.splitscreen.me/api/v1/";
+    /// <summary>Root of the IGDB images: <c>&lt;root&gt;&lt;size&gt;/&lt;imageId&gt;.jpg</c>.</summary>
+    public const string IgdbImageRoot = "https://images.igdb.com/igdb/image/upload/";
 
     private static readonly Regex HubIdPattern = new Regex("^[A-Za-z0-9]{1,64}$", RegexOptions.CultureInvariant);
+    private static readonly Regex ImageIdPattern = new Regex("^[A-Za-z0-9_-]{1,64}$", RegexOptions.CultureInvariant);
+    private static readonly Regex Sha256Pattern = new Regex("^[0-9a-fA-F]{64}$", RegexOptions.CultureInvariant);
 
     private readonly HttpClient http;
 
-    /// <summary>Creates the client. <paramref name="handler"/> is for tests.</summary>
-    public HubClient(HttpMessageHandler? handler = null)
+    /// <summary>
+    /// Creates the client for a site root (<see cref="HubSite.Url"/> when null). <paramref name="handler"/> is for tests.
+    /// </summary>
+    public HubClient(string? siteUrl = null, HttpMessageHandler? handler = null)
     {
+        SiteUrl = siteUrl == null ? HubSite.Url : HubSite.Normalize(siteUrl) ?? throw new ArgumentException("Not an absolute http(s) URL.", nameof(siteUrl));
+        ApiBase = HubSite.ApiUrl(SiteUrl);
+
         EnsureTls12();
 
         if (handler == null)
@@ -74,8 +124,20 @@ public sealed class HubClient : IDisposable
         }
 
         http = new HttpClient(handler, disposeHandler: true) { Timeout = System.Threading.Timeout.InfiniteTimeSpan };
-        http.DefaultRequestHeaders.UserAgent.ParseAdd("NucleusCoop/" + Nucleus.Gaming.Globals.Version);
+        http.DefaultRequestHeaders.UserAgent.ParseAdd("NucleusCoop/" + Globals.Version);
     }
+
+    /// <summary>Site root, without a trailing slash (<c>https://v3.splitscreen.me</c>).</summary>
+    public string SiteUrl { get; }
+
+    /// <summary>API root, with a trailing slash (<c>https://v3.splitscreen.me/api/v3/</c>).</summary>
+    public string ApiBase { get; }
+
+    /// <summary>Host (and port) of the site, for messages: "v3.splitscreen.me can't be reached".</summary>
+    public string DisplayName => new Uri(SiteUrl).Authority;
+
+    /// <summary>Health check URL (<c>GET /health</c>, the app ping).</summary>
+    public string HealthUrl => ApiBase + "health";
 
     /// <summary>Timeout of API calls.</summary>
     public TimeSpan ApiTimeout { get; set; } = TimeSpan.FromSeconds(10);
@@ -89,82 +151,91 @@ public sealed class HubClient : IDisposable
     /// <summary>Whether a string looks like a hub id (also keeps it safe to put in a URL).</summary>
     public static bool IsValidHubId(string? id) => id != null && HubIdPattern.IsMatch(id);
 
-    /// <summary>Package URL of a handler version. <paramref name="countDownload"/> adds <c>?download=true</c>, which the hub counts as a download.</summary>
-    public static string PackageUrl(HubHandlerInfo handler, bool countDownload) =>
-        $"https://hub.splitscreen.me/cdn/storage/packages/{Uri.EscapeDataString(handler.CurrentPackage)}/original/handler-{Uri.EscapeDataString(handler.Id)}-v{handler.CurrentVersion}.nc"
-        + (countDownload ? "?download=true" : "");
-
-    /// <summary>Cover URL of an IGDB image id (size used by the legacy app).</summary>
-    public static string CoverUrl(string gameCover) => $"https://images.igdb.com/igdb/image/upload/t_cover_big/{Uri.EscapeDataString(gameCover)}.jpg";
+    /// <summary>Handler detail URL (<c>GET /handlers/{id}</c>).</summary>
+    public string HandlerUrl(string handlerId) => ApiBase + "handlers/" + Uri.EscapeDataString(handlerId);
 
     /// <summary>
-    /// Turns an IGDB screenshot URL of the hub (<c>//images.igdb.com/.../t_thumb/x.jpg</c>) into an absolute https URL
-    /// of another size (<c>t_screenshot_big</c>, <c>t_original</c>…).
+    /// Download URL of a handler version (<c>GET /handlers/{id}/download?version=n</c>). The hub counts a download once per
+    /// address, handler, version and day, unless <paramref name="countDownload"/> is false (<c>count=false</c>: tests,
+    /// previews).
     /// </summary>
-    public static string ScreenshotUrl(string hubUrl, string size)
+    public string PackageUrl(string handlerId, int version, bool countDownload) =>
+        HandlerUrl(handlerId) + "/download?version=" + version.ToString(System.Globalization.CultureInfo.InvariantCulture)
+        + (countDownload ? "" : "&count=false");
+
+    /// <summary>URL of an IGDB image at a size (<c>t_cover_big</c>, <c>t_screenshot_big</c>, <c>t_original</c>…).</summary>
+    public static string IgdbImageUrl(string imageId, string size) => $"{IgdbImageRoot}{size}/{Uri.EscapeDataString(imageId)}.jpg";
+
+    /// <summary>Cover URL of an IGDB image id (size used by the legacy app).</summary>
+    public static string CoverUrl(string coverImageId) => IgdbImageUrl(coverImageId, "t_cover_big");
+
+    /// <summary>A SHA-256 in lower-case hex, or null when <paramref name="value"/> is not 64 hex digits.</summary>
+    public static string? NormalizeSha256(string? value) =>
+        value != null && Sha256Pattern.IsMatch(value) ? value.ToLowerInvariant() : null;
+
+    /// <summary>Lower-case hex of a hash.</summary>
+    public static string ToHex(byte[] hash)
     {
-        string url = hubUrl.Replace("t_thumb", size);
-        if (url.StartsWith("//", StringComparison.Ordinal))
+        var text = new StringBuilder(hash.Length * 2);
+        foreach (byte b in hash)
         {
-            url = "https:" + url;
-        }
-        else if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
-        {
-            url = "https://" + url.Substring("http://".Length);
+            text.Append(b.ToString("x2", System.Globalization.CultureInfo.InvariantCulture));
         }
 
-        return url;
+        return text.ToString();
     }
 
-    /// <summary>Parses the hub answer of <c>/handler/{id}</c>: <c>{"Handlers":[{...}]}</c>. Null when empty.</summary>
+    /// <summary>Parses a handler detail of the API v3 (<c>HandlerDetail</c>). Null when it is not a handler.</summary>
     public static HubHandlerInfo? ParseHandler(string json)
     {
-        if (string.IsNullOrWhiteSpace(json))
+        if (string.IsNullOrWhiteSpace(json) || JToken.Parse(json) is not JObject h)
         {
             return null;
         }
 
-        var root = JToken.Parse(json) as JObject;
-        if (root?["Handlers"] is not JArray handlers || handlers.Count == 0 || handlers[0] is not JObject h)
+        string id = Text(h["id"]);
+        if (id.Length == 0)
         {
             return null;
         }
 
-        return new HubHandlerInfo
+        var info = new HubHandlerInfo
         {
-            Id = (string?)h["_id"] ?? "",
-            GameName = (string?)h["gameName"] ?? "",
-            GameCover = (string?)h["gameCover"] ?? "",
-            CurrentVersion = int.TryParse(h["currentVersion"]?.ToString(), out int version) ? version : -1,
-            CurrentPackage = (string?)h["currentPackage"] ?? "",
+            Id = id,
+            Title = Text(h["title"]),
+            GameName = Text(h["gameName"]),
+            CoverImageId = Text(h["coverImageId"]),
+            Version = Int(h["version"]),
+            Url = Text(h["url"]),
         };
-    }
 
-    /// <summary>Parses the hub answer of <c>/screenshots/{id}</c>: the raw <c>url</c> of each screenshot, in order.</summary>
-    public static List<string> ParseScreenshots(string json)
-    {
-        var urls = new List<string>();
-        if (string.IsNullOrWhiteSpace(json))
+        if (h["currentVersion"] is JObject package)
         {
-            return urls;
+            info.Package = new HubPackageInfo
+            {
+                Version = Int(package["version"]),
+                Sha256 = NormalizeSha256(Text(package["sha256"])) ?? "",
+                SizeBytes = long.TryParse(package["sizeBytes"]?.ToString(), out long size) ? size : 0,
+                FileName = Text(package["fileName"]),
+            };
         }
 
-        if (JToken.Parse(json) is JObject root && root["screenshots"] is JArray array)
+        if (h["screenshots"] is JArray screenshots)
         {
-            foreach (JToken item in array)
+            foreach (JToken item in screenshots)
             {
-                string? url = (string?)item["url"];
-                if (!string.IsNullOrEmpty(url))
+                string imageId = item is JObject shot ? Text(shot["imageId"]) : "";
+                if (ImageIdPattern.IsMatch(imageId))
                 {
-                    urls.Add(url!);
+                    info.ScreenshotIds.Add(imageId);
                 }
             }
         }
 
-        return urls;
+        return info;
     }
 
-    /// <summary>Handler record from the hub, or null when the hub does not know the id.</summary>
+    /// <summary>Handler from the hub, or null when the hub does not list the id (404).</summary>
     public async Task<HubHandlerInfo?> GetHandlerAsync(string handlerId, CancellationToken cancellationToken)
     {
         if (!IsValidHubId(handlerId))
@@ -172,7 +243,7 @@ public sealed class HubClient : IDisposable
             return null;
         }
 
-        string? json = await GetStringAsync(ApiBase + "handler/" + handlerId, ApiTimeout, cancellationToken).ConfigureAwait(false);
+        string? json = await GetStringAsync(HandlerUrl(handlerId), ApiTimeout, cancellationToken).ConfigureAwait(false);
         try
         {
             return json == null ? null : ParseHandler(json);
@@ -183,35 +254,15 @@ public sealed class HubClient : IDisposable
         }
     }
 
-    /// <summary>Raw screenshot URLs (IGDB, <c>t_thumb</c>, protocol-relative) of a hub handler's game.</summary>
-    public async Task<List<string>> GetScreenshotUrlsAsync(string handlerId, CancellationToken cancellationToken)
-    {
-        if (!IsValidHubId(handlerId))
-        {
-            return new List<string>();
-        }
-
-        string? json = await GetStringAsync(ApiBase + "screenshots/" + handlerId, ApiTimeout, cancellationToken).ConfigureAwait(false);
-        try
-        {
-            return json == null ? new List<string>() : ParseScreenshots(json);
-        }
-        catch (Exception e) when (e is Newtonsoft.Json.JsonException)
-        {
-            throw new HubUnavailableException("The hub sent an unexpected answer.", e);
-        }
-    }
-
-    /// <summary>Whether the hub answers (HEAD on the site root, like the startup check).</summary>
+    /// <summary>Whether the hub answers: <c>GET /api/v3/health</c> is 200 (503 when its database is down).</summary>
     public async Task<bool> PingAsync(CancellationToken cancellationToken)
     {
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(TimeSpan.FromSeconds(6));
         try
         {
-            using var request = new HttpRequestMessage(HttpMethod.Head, SiteUrl);
-            using HttpResponseMessage response = await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token).ConfigureAwait(false);
-            return (int)response.StatusCode < 500;
+            using HttpResponseMessage response = await http.GetAsync(HealthUrl, HttpCompletionOption.ResponseContentRead, timeout.Token).ConfigureAwait(false);
+            return response.IsSuccessStatusCode;
         }
         catch (Exception) when (!cancellationToken.IsCancellationRequested)
         {
@@ -234,7 +285,7 @@ public sealed class HubClient : IDisposable
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HubUnavailableException($"The server answered {(int)response.StatusCode} {response.ReasonPhrase}.");
+                throw new HubUnavailableException(FailureMessage("", response));
             }
 
             return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -255,7 +306,7 @@ public sealed class HubClient : IDisposable
             using HttpResponseMessage response = await http.GetAsync(url, HttpCompletionOption.ResponseContentRead, linked.Token).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
-                throw new HubUnavailableException($"The server answered {(int)response.StatusCode} {response.ReasonPhrase}.");
+                throw new HubUnavailableException(FailureMessage("", response));
             }
 
             return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
@@ -267,49 +318,65 @@ public sealed class HubClient : IDisposable
     }
 
     /// <summary>
-    /// Downloads a file. Reports the percentage when the size is known (null otherwise). The partial file is deleted
-    /// on failure or cancellation.
+    /// Downloads a package and checks its SHA-256 against <paramref name="expectedSha256"/> (hex, from the API). Reports
+    /// the percentage when the size is known (null otherwise). The file is deleted on failure, cancellation or a checksum
+    /// mismatch (<see cref="PackageChecksumException"/>).
     /// </summary>
-    public async Task DownloadToFileAsync(string url, string destination, IProgress<int?>? progress, CancellationToken cancellationToken)
+    public async Task DownloadToFileAsync(string url, string destination, string expectedSha256, IProgress<int?>? progress, CancellationToken cancellationToken)
     {
+        string expected = NormalizeSha256(expectedSha256) ?? throw new ArgumentException("Not a SHA-256 in hex.", nameof(expectedSha256));
+
         using var idle = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         idle.CancelAfter(DownloadIdleTimeout);
         try
         {
-            using HttpResponseMessage response = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, idle.Token).ConfigureAwait(false);
-            if (!response.IsSuccessStatusCode)
+            string actual;
+            using (HttpResponseMessage response = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, idle.Token).ConfigureAwait(false))
             {
-                throw new HubUnavailableException($"The download failed: the server answered {(int)response.StatusCode} {response.ReasonPhrase}.");
-            }
-
-            long? total = response.Content.Headers.ContentLength;
-            using Stream source = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-            using var target = new FileStream(destination, FileMode.Create, FileAccess.Write, FileShare.None, 81920, useAsync: true);
-
-            var buffer = new byte[81920];
-            long done = 0;
-            int lastPercent = -1;
-            progress?.Report(total > 0 ? 0 : (int?)null);
-            while (true)
-            {
-                idle.CancelAfter(DownloadIdleTimeout);
-                int read = await source.ReadAsync(buffer, 0, buffer.Length, idle.Token).ConfigureAwait(false);
-                if (read == 0)
+                if (!response.IsSuccessStatusCode)
                 {
-                    break;
+                    throw new HubUnavailableException(FailureMessage("The download failed: ", response));
                 }
 
-                await target.WriteAsync(buffer, 0, read, idle.Token).ConfigureAwait(false);
-                done += read;
-                if (total > 0)
+                long? total = response.Content.Headers.ContentLength;
+                using Stream source = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                using var target = new FileStream(destination, FileMode.Create, FileAccess.Write, FileShare.None, 81920, useAsync: true);
+                using var sha = SHA256.Create();
+
+                var buffer = new byte[81920];
+                long done = 0;
+                int lastPercent = -1;
+                progress?.Report(total > 0 ? 0 : (int?)null);
+                while (true)
                 {
-                    int percent = (int)Math.Min(100, done * 100 / total.Value);
-                    if (percent != lastPercent)
+                    idle.CancelAfter(DownloadIdleTimeout);
+                    int read = await source.ReadAsync(buffer, 0, buffer.Length, idle.Token).ConfigureAwait(false);
+                    if (read == 0)
                     {
-                        lastPercent = percent;
-                        progress?.Report(percent);
+                        break;
+                    }
+
+                    sha.TransformBlock(buffer, 0, read, null, 0);
+                    await target.WriteAsync(buffer, 0, read, idle.Token).ConfigureAwait(false);
+                    done += read;
+                    if (total > 0)
+                    {
+                        int percent = (int)Math.Min(100, done * 100 / total.Value);
+                        if (percent != lastPercent)
+                        {
+                            lastPercent = percent;
+                            progress?.Report(percent);
+                        }
                     }
                 }
+
+                sha.TransformFinalBlock(buffer, 0, 0);
+                actual = ToHex(sha.Hash);
+            }
+
+            if (!string.Equals(actual, expected, StringComparison.Ordinal))
+            {
+                throw new PackageChecksumException(expected, actual);
             }
         }
         catch (Exception e)
@@ -326,6 +393,29 @@ public sealed class HubClient : IDisposable
 
     /// <inheritdoc />
     public void Dispose() => http.Dispose();
+
+    private static string Text(JToken? token) => token != null && token.Type == JTokenType.String ? (string)token! : "";
+
+    private static int Int(JToken? token) =>
+        token != null && token.Type == JTokenType.Integer && int.TryParse(token.ToString(), out int value) ? value : -1;
+
+    /// <summary>Message of an HTTP failure; a 429 says when to try again (<c>Retry-After</c>).</summary>
+    private static string FailureMessage(string prefix, HttpResponseMessage response)
+    {
+        string reason;
+        if ((int)response.StatusCode == 429)
+        {
+            TimeSpan? wait = response.Headers.RetryAfter?.Delta;
+            reason = "the hub is busy (too many requests from this address)"
+                + (wait.HasValue ? $", try again in {Math.Max(1, (int)Math.Ceiling(wait.Value.TotalSeconds))} s." : ", try again later.");
+        }
+        else
+        {
+            reason = $"the server answered {(int)response.StatusCode} {response.ReasonPhrase}.";
+        }
+
+        return prefix.Length == 0 ? char.ToUpperInvariant(reason[0]) + reason.Substring(1) : prefix + reason;
+    }
 
     private static void EnsureTls12()
     {

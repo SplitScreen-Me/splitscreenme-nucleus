@@ -2,18 +2,19 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using Nucleus.Coop.Services.Handlers;
+using Nucleus.Gaming;
 using Xunit;
 
 namespace Nucleus.Coop.Services.Tests.Handlers;
 
 public sealed class HandlerFilesTests : IDisposable
 {
-    // A small real hub package (Mirage: Arcane Warfare, v6): handler.js + "Mirage Arcane Warfare/configs/*".
-    // Downloaded WITHOUT ?download=true so the test does not count as a hub download.
-    private const string SamplePackageUrl = "https://hub.splitscreen.me/cdn/storage/packages/y36G52ABCs7pjJd54/original/handler-ye9NKnb7eBFREecZc-v6.nc";
+    // A small real hub package (Mirage: Arcane Warfare, v6): handler.js + "Mirage Arcane Warfare/configs/*". Downloaded
+    // from the API v3 with count=false, so the test is never counted as a hub download, and checked against its SHA-256.
+    private const string SampleHandlerId = "ye9NKnb7eBFREecZc";
+    private const int SampleVersion = 6;
 
     private readonly string root = Path.Combine(Path.GetTempPath(), "nc-handler-tests-" + Guid.NewGuid().ToString("N"));
 
@@ -36,16 +37,23 @@ public sealed class HandlerFilesTests : IDisposable
     [Fact]
     public void Real_hub_package_extracts_and_installs_like_the_legacy_installer()
     {
-        string archive = Path.Combine(root, "download", "handler-ye9NKnb7eBFREecZc-v6.nc");
+        string archive = Path.Combine(root, "download", $"handler-{SampleHandlerId}-v{SampleVersion}.nc");
         Directory.CreateDirectory(Path.GetDirectoryName(archive)!);
-        try
+        using (var hub = new HubClient(HubSite.DefaultUrl))
         {
-            using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
-            File.WriteAllBytes(archive, http.GetByteArrayAsync(SamplePackageUrl).GetAwaiter().GetResult());
-        }
-        catch (Exception e) when (e is HttpRequestException || e is System.Threading.Tasks.TaskCanceledException)
-        {
-            return; // offline: nothing to test here
+            string? versions = null;
+            try
+            {
+                versions = hub.GetStringAsync(hub.HandlerUrl(SampleHandlerId) + "/versions", hub.ApiTimeout, CancellationToken.None).GetAwaiter().GetResult();
+            }
+            catch (HubUnavailableException)
+            {
+                return; // offline: nothing to test here
+            }
+
+            Assert.NotNull(versions); // the sample handler must stay listed
+            string sha256 = (string)Newtonsoft.Json.Linq.JObject.Parse(versions!)["items"]!.First(v => (int)v["version"]! == SampleVersion)["sha256"]!;
+            hub.DownloadToFileAsync(hub.PackageUrl(SampleHandlerId, SampleVersion, countDownload: false), archive, sha256, null, CancellationToken.None).GetAwaiter().GetResult();
         }
 
         string handlers = Path.Combine(root, "handlers");
@@ -194,47 +202,4 @@ public class HandlerScriptTests
     [InlineData(":?*", null)]
     [InlineData(null, null)]
     public void Titles_are_safe_file_names(string? gameName, string? expected) => Assert.Equal(expected, HandlerScript.ToTitle(gameName));
-}
-
-public class HubClientParsingTests
-{
-    [Fact]
-    public void Handler_record()
-    {
-        HubHandlerInfo info = HubClient.ParseHandler("{\"Handlers\":[{\"_id\":\"fcaL3FKqLTH62jLoM\",\"gameName\":\"ENDLESS Space 2\",\"gameCover\":\"co1x7j\",\"currentVersion\":3,\"currentPackage\":\"pzS4FWr3kQXckLKC5\"}]}")!;
-
-        Assert.Equal("fcaL3FKqLTH62jLoM", info.Id);
-        Assert.Equal(3, info.CurrentVersion);
-        Assert.Equal("pzS4FWr3kQXckLKC5", info.CurrentPackage);
-        Assert.Equal("co1x7j", info.GameCover);
-        Assert.Null(HubClient.ParseHandler("{}"));
-        Assert.Null(HubClient.ParseHandler("{\"Handlers\":[]}"));
-    }
-
-    [Fact]
-    public void Package_urls_count_downloads_only_when_asked()
-    {
-        var info = new HubHandlerInfo { Id = "fcaL3FKqLTH62jLoM", CurrentPackage = "pzS4FWr3kQXckLKC5", CurrentVersion = 3 };
-
-        Assert.Equal("https://hub.splitscreen.me/cdn/storage/packages/pzS4FWr3kQXckLKC5/original/handler-fcaL3FKqLTH62jLoM-v3.nc?download=true", HubClient.PackageUrl(info, countDownload: true));
-        Assert.EndsWith("-v3.nc", HubClient.PackageUrl(info, countDownload: false));
-    }
-
-    [Fact]
-    public void Screenshots()
-    {
-        var urls = HubClient.ParseScreenshots("{\"screenshots\":[{\"id\":1,\"url\":\"//images.igdb.com/igdb/image/upload/t_thumb/scu5kw.jpg\"},{\"id\":2}]}");
-
-        Assert.Equal(new[] { "//images.igdb.com/igdb/image/upload/t_thumb/scu5kw.jpg" }, urls.ToArray());
-        Assert.Equal("https://images.igdb.com/igdb/image/upload/t_screenshot_big/scu5kw.jpg", HubClient.ScreenshotUrl(urls[0], "t_screenshot_big"));
-        Assert.Empty(HubClient.ParseScreenshots("{}"));
-    }
-
-    [Theory]
-    [InlineData("fcaL3FKqLTH62jLoM", true)]
-    [InlineData("", false)]
-    [InlineData(null, false)]
-    [InlineData("../api", false)]
-    [InlineData("abc?x=1", false)]
-    public void Hub_ids(string? id, bool valid) => Assert.Equal(valid, HubClient.IsValidHubId(id));
 }

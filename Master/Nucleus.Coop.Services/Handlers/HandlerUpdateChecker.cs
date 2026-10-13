@@ -104,7 +104,7 @@ public sealed class HandlerUpdateChecker
                 HubHandlerInfo? info = await hub.GetHandlerAsync(target.HandlerId, cancellationToken).ConfigureAwait(false);
                 lock (results)
                 {
-                    results[target] = info?.CurrentVersion ?? -1;
+                    results[target] = info?.Version ?? -1;
                 }
             }
             catch (HubUnavailableException e)

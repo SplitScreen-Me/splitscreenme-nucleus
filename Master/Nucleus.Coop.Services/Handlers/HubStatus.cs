@@ -9,9 +9,9 @@ using Nucleus.Gaming.Coop.Generic;
 namespace Nucleus.Coop.Services.Handlers;
 
 /// <summary>
-/// Whether hub.splitscreen.me answers. Backed by the legacy static <c>Hub.Connected</c> (which the update checks of
-/// Nucleus.Gaming read and which the MainForm used to set); refreshed by a HEAD request at startup and, when it was
-/// offline, at most every 30 s when a feature needs the hub.
+/// Whether the hub (<see cref="HubClient.SiteUrl"/>) answers. Backed by the legacy static <c>Hub.Connected</c> (which
+/// the update checks of Nucleus.Gaming read and which the MainForm used to set); refreshed by <c>GET /api/v3/health</c>
+/// at startup and, when it was offline, at most every 30 s when a feature needs the hub.
 /// </summary>
 public sealed class HubStatus
 {
@@ -75,7 +75,7 @@ public sealed class HubStatus
             Hub.Connected = online;
         }
 
-        ServiceLog.Info("hub.splitscreen.me is " + (online ? "online" : "offline"));
+        ServiceLog.Info(client.DisplayName + " is " + (online ? "online" : "offline"));
         try
         {
             events?.Emit(new HubStatusChanged { Online = online });

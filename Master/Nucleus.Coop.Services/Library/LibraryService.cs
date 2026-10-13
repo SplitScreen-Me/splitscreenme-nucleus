@@ -407,8 +407,8 @@ public sealed class LibraryService : ILibraryService
             new { reason = "handlerMismatch", expected });
     }
 
-    private static BridgeException Offline() =>
-        new BridgeException(BridgeErrorKind.Unavailable, "hub.splitscreen.me can't be reached.", new { reason = "offline" });
+    private BridgeException Offline() =>
+        new BridgeException(BridgeErrorKind.Unavailable, core.Hub.DisplayName + " can't be reached.", new { reason = "offline" });
 
     // GameManager.TryAddGame without its quirks: the path keeps its case (InitializeDefault lowercases every 'I'),
     // and a game already in the library moves to the new executable instead of being listed twice.

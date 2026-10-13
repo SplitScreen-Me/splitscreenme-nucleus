@@ -1,0 +1,58 @@
+{
+  "id": "fDmTaAoYKJmiWi3s3",
+  "title": "Palworld",
+  "url": "https://v3.splitscreen.me/hub/palworld",
+  "gameName": "Palworld",
+  "gameSlug": "palworld",
+  "igdbGameId": 151665,
+  "coverImageId": "co7n02",
+  "genres": ["Shooter", "Role-playing (RPG)", "Hack and slash/Beat 'em up", "Adventure"],
+  "authorId": "AuthorAAAAAAAAAA1",
+  "authorName": "ExampleAuthor",
+  "authorUrl": "https://v3.splitscreen.me/hub/authors/ExampleAuthor",
+  "version": 6,
+  "verified": true,
+  "maxPlayers": 4,
+  "inputs": { "controllers": true, "keyboardMouse": true, "multiKeyboardMouse": true },
+  "downloads": 87215,
+  "stars": 18,
+  "comments": 2,
+  "trendScore": 372,
+  "createdAt": "2024-01-22T21:35:33.053Z",
+  "updatedAt": "2026-10-12T21:41:43.759Z",
+  "publishedAt": "2024-02-01T01:10:51.794Z",
+  "description": "READ ALL OF THESE NOTES!\n\nTHIS HANDLER IS FOR THE STEAM VERSION OF THE GAME!\n\n[Split-screen setup guide](https://www.splitscreen.me/docs/usage)",
+  "gameDescription": "Palworld is a multiplayer, open-world survival crafting game.",
+  "igdbUrl": "https://www.igdb.com/games/palworld",
+  "steamAppId": 1623730,
+  "releaseYear": 2024,
+  "screenshots": [
+    {
+      "imageId": "scaewu",
+      "width": 1920,
+      "height": 1080,
+      "url": "https://images.igdb.com/igdb/image/upload/t_screenshot_big/scaewu.jpg",
+      "thumbUrl": "https://images.igdb.com/igdb/image/upload/t_screenshot_med/scaewu.jpg"
+    },
+    {
+      "imageId": "sctlbq",
+      "width": 2560,
+      "height": 1440,
+      "url": "https://images.igdb.com/igdb/image/upload/t_screenshot_big/sctlbq.jpg",
+      "thumbUrl": "https://images.igdb.com/igdb/image/upload/t_screenshot_med/sctlbq.jpg"
+    }
+  ],
+  "currentVersion": {
+    "id": "6rryx5ow9GEGhTg2A",
+    "version": 6,
+    "releaseNotes": "Enabled OpenXinput",
+    "createdAt": "2026-07-14T14:45:23.419Z",
+    "verified": true,
+    "sizeBytes": 3567,
+    "sha256": "18fdd9eb1491175929de57eaa06635eb4d70c175caf23b1e6ea4055c2d700a29",
+    "fileName": "handler-fDmTaAoYKJmiWi3s3-v6.nc",
+    "downloads": 17475,
+    "downloadUrl": "https://v3.splitscreen.me/api/v3/handlers/fDmTaAoYKJmiWi3s3/download?version=6"
+  },
+  "isPrimary": true
+}

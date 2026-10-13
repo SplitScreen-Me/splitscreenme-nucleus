@@ -23,6 +23,7 @@ public sealed class NucleusCore : IDisposable
         Ui = ui;
         Events = events;
         Hub = new HubClient();
+        ServiceLog.Info("hub: " + Hub.SiteUrl + (HubSite.IsCustom ? $" (Settings.ini [{HubSite.SettingSection}] {HubSite.SettingKey})" : ""));
         HubStatus = new HubStatus(Hub, events);
         Notifier = new LibraryNotifier(events);
         UserProfile = new UserProfileStore();

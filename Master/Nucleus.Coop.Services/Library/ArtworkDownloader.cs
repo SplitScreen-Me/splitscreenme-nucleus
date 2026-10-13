@@ -34,15 +34,20 @@ public sealed class ArtworkDownloader
         bool wrote = false;
 
         HubHandlerInfo? handler = await hub.GetHandlerAsync(handlerId, cancellationToken).ConfigureAwait(false);
-        if (handler != null && !string.IsNullOrEmpty(handler.GameCover) && GameAssetFiles.FindCover(gameId) == null)
+        if (handler == null)
         {
-            byte[] cover = await hub.GetBytesAsync(HubClient.CoverUrl(handler.GameCover), cancellationToken).ConfigureAwait(false);
+            return false;
+        }
+
+        if (!string.IsNullOrEmpty(handler.CoverImageId) && GameAssetFiles.FindCover(gameId) == null)
+        {
+            byte[] cover = await hub.GetBytesAsync(HubClient.CoverUrl(handler.CoverImageId), cancellationToken).ConfigureAwait(false);
             Directory.CreateDirectory(Path.GetDirectoryName(GameAssetFiles.CoverPath(gameId))!);
             SaveAsJpeg(cover, GameAssetFiles.CoverPath(gameId));
             wrote = true;
         }
 
-        List<string> screenshots = await hub.GetScreenshotUrlsAsync(handlerId, cancellationToken).ConfigureAwait(false);
+        List<string> screenshots = handler.ScreenshotIds;
         for (int i = 0; i < Math.Min(MaxScreenshots, screenshots.Count); i++)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -52,7 +57,7 @@ public sealed class ArtworkDownloader
                 continue;
             }
 
-            byte[] image = await hub.GetBytesAsync(HubClient.ScreenshotUrl(screenshots[i], "t_original"), cancellationToken).ConfigureAwait(false);
+            byte[] image = await hub.GetBytesAsync(HubClient.IgdbImageUrl(screenshots[i], "t_original"), cancellationToken).ConfigureAwait(false);
             Directory.CreateDirectory(GameAssetFiles.ScreenshotsFolder(gameId));
             SaveAsJpeg(image, target);
             wrote = true;
