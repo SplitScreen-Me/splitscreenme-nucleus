@@ -1,4 +1,5 @@
 using Nucleus.Bridge.Contracts;
+using Nucleus.Gaming.Localization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,7 +31,7 @@ namespace Nucleus.Coop.Host.Services
             {
                 using (OpenFileDialog dialog = new OpenFileDialog())
                 {
-                    dialog.Title = string.IsNullOrWhiteSpace(request.Title) ? "Select a file" : request.Title;
+                    dialog.Title = string.IsNullOrWhiteSpace(request.Title) ? I18n.TPlain("host.app.dialogs.selectFile") : request.Title;
                     dialog.Filter = BuildFilter(request.Filters);
                     dialog.CheckFileExists = true;
                     dialog.CheckPathExists = true;
@@ -54,7 +55,7 @@ namespace Nucleus.Coop.Host.Services
             request = request ?? new PickFolderRequest();
             return ShowLater(() =>
             {
-                string title = string.IsNullOrWhiteSpace(request.Title) ? "Select a folder" : request.Title;
+                string title = string.IsNullOrWhiteSpace(request.Title) ? I18n.TPlain("host.app.dialogs.selectFolder") : request.Title;
                 string initial = ExistingDirectory(request.InitialDirectory);
 
                 try
@@ -140,7 +141,7 @@ namespace Nucleus.Coop.Host.Services
                 builder.Append(name).Append(" (").Append(pattern).Append(")|").Append(pattern);
             }
 
-            return builder.Length > 0 ? builder.ToString() : "All files (*.*)|*.*";
+            return builder.Length > 0 ? builder.ToString() : I18n.TPlain("host.app.dialogs.allFiles").Replace("|", " ") + " (*.*)|*.*";
         }
 
         private static string ExistingDirectory(string path)

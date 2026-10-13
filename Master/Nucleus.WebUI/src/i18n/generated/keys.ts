@@ -124,6 +124,28 @@ export interface MessageParamsMap {
   'engine.startChecks.missingFile.message': { file: ParamValue };
   /** Missing file */
   'engine.startChecks.missingFile.title': undefined;
+  /** All files */
+  'host.app.dialogs.allFiles': undefined;
+  /** Select a file */
+  'host.app.dialogs.selectFile': undefined;
+  /** Select a folder */
+  'host.app.dialogs.selectFolder': undefined;
+  /** Administrator rights were not granted. */
+  'host.app.errors.adminDeclined': undefined;
+  /** Nucleus Co-op could not be restarted as administrator. */
+  'host.app.errors.adminFailed': undefined;
+  /** The default browser could not be started. */
+  'host.app.errors.browserFailed': undefined;
+  /** File Explorer could not be started. */
+  'host.app.errors.explorerFailed': undefined;
+  /** The path must be an absolute local path. */
+  'host.app.errors.invalidPath': undefined;
+  /** Only absolute http and https URLs can be opened. */
+  'host.app.errors.invalidUrl': undefined;
+  /** This file or folder does not exist. */
+  'host.app.errors.pathNotFound': undefined;
+  /** Stop the running session before restarting Nucleus Co-op. */
+  'host.app.errors.sessionRunning': undefined;
   /** The file does not exist. */
   'host.errors.fileNotFound': undefined;
   /** The folder does not exist. */

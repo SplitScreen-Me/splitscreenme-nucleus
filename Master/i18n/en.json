@@ -778,6 +778,23 @@
       "errors": {
         "notAvailable": "This language is not available."
       }
+    },
+    "app": {
+      "errors": {
+        "sessionRunning": "Stop the running session before restarting Nucleus Co-op.",
+        "adminDeclined": "Administrator rights were not granted.",
+        "adminFailed": "Nucleus Co-op could not be restarted as administrator.",
+        "invalidUrl": "Only absolute http and https URLs can be opened.",
+        "browserFailed": "The default browser could not be started.",
+        "invalidPath": "The path must be an absolute local path.",
+        "pathNotFound": "This file or folder does not exist.",
+        "explorerFailed": "File Explorer could not be started."
+      },
+      "dialogs": {
+        "selectFile": "Select a file",
+        "selectFolder": "Select a folder",
+        "allFiles": "All files"
+      }
     }
   },
   "engine": {
