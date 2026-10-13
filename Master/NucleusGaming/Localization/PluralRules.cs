@@ -207,20 +207,19 @@ namespace Nucleus.Gaming.Localization
             return Array.IndexOf(Categories, suffix) >= 0 ? key.Substring(0, at) : key;
         }
 
+        // The tag, then its parents, as Intl.PluralRules (ICU) looks them up: pt-PT has its own rule, pt-BR gets the pt
+        // one, and so do pt-AO or pt-Latn-PT (ICU drops subtags from the end, it doesn't follow CLDR parent locales).
         private static Func<PluralOperands, string> Find(string locale)
         {
-            if (string.IsNullOrEmpty(locale))
+            for (string tag = locale?.Trim() ?? ""; tag.Length > 0; tag = LanguageDetector.Parent(tag))
             {
-                return null;
+                if (rules.TryGetValue(tag, out Func<PluralOperands, string> rule))
+                {
+                    return rule;
+                }
             }
 
-            if (rules.TryGetValue(locale, out Func<PluralOperands, string> rule))
-            {
-                return rule;
-            }
-
-            int dash = locale.IndexOf('-');
-            return dash > 0 && rules.TryGetValue(locale.Substring(0, dash), out rule) ? rule : null;
+            return null;
         }
 
         private static string EnglishRule(PluralOperands o) => o.I == 1 && o.V == 0 ? "one" : "other";

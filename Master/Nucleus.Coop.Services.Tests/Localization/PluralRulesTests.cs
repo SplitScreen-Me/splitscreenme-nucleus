@@ -12,8 +12,8 @@ namespace Nucleus.Coop.Services.Tests.Localization;
 public class PluralRulesTests
 {
     /// <summary>
-    /// Cases of the fixture shared with the web UI tests (src/i18n/__tests__/fixtures/plurals.json), where they are
-    /// checked against Intl.PluralRules: the host and the UI pick the same plural form.
+    /// Cases of the fixture shared with the web UI tests (Nucleus.WebUI/src/bridge/__tests__/fixtures/plurals.json), where
+    /// they are checked against Intl.PluralRules: the host and the UI pick the same plural form.
     /// </summary>
     public static IEnumerable<object[]> SharedCases()
     {
@@ -53,6 +53,19 @@ public class PluralRulesTests
         Assert.Equal("one", PluralRules.Select("xx", 1m));
         Assert.True(PluralRules.HasRule("fr-CA"));
         Assert.Equal("one", PluralRules.Select("fr-CA", 0m));
+    }
+
+    [Theory]
+    [InlineData("pt-BR", "one")] // pt: i = 0..1
+    [InlineData("pt-PT", "other")] // pt-PT: i = 1 and v = 0
+    [InlineData("PT-pt", "other")]
+    [InlineData("pt-PT-u-nu-latn", "other")]
+    [InlineData("pt-AO", "one")] // ICU drops subtags from the end: pt-AO gets the pt rule, as in Intl.PluralRules
+    [InlineData("pt", "one")]
+    public void Regions_use_their_own_rule_else_the_one_of_their_language(string locale, string expected)
+    {
+        Assert.True(PluralRules.HasRule(locale));
+        Assert.Equal(expected, PluralRules.Select(locale, 0m));
     }
 
     [Fact]

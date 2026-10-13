@@ -55,6 +55,14 @@ namespace Nucleus.Bridge.Contracts
         /// <summary>The available language that matches the Windows display language (English when none does).</summary>
         public string Detected { get; set; } = "";
 
+        /// <summary>
+        /// Whether <see cref="Detected"/> really matches the Windows display language (its tag, a parent, or another
+        /// region of the language). False when no language does and <see cref="Detected"/> is only the English
+        /// fallback (Italian Windows without an Italian file): the first-launch picker then preselects English without
+        /// calling it the Windows language.
+        /// </summary>
+        public bool DetectedMatchesWindows { get; set; }
+
         /// <summary>Whether the user has chosen a language. False on the first launch: the UI asks.</summary>
         public bool Chosen { get; set; }
 

@@ -1,5 +1,5 @@
 // First launch: the user picks the language of the app, the one matching Windows preselected (the app already shows
-// it). Afterwards the language is the first setting of Settings > General. See docs/webui/i18n.md.
+// it), else English. Afterwards the language is the first setting of Settings > General. See docs/webui/i18n.md.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { LanguageSummary } from '@/bridge';
 import { useI18n } from '@/i18n';
@@ -18,9 +18,11 @@ export function FirstRunLanguageDialog() {
     () => [...(state?.languages ?? [])].sort((a, b) => a.nativeName.localeCompare(b.nativeName)),
     [state?.languages],
   );
-  // Until the user picks, the app runs in the language matching Windows: it is the preselected one.
+  // Until the user picks, the app runs in the language matching Windows, else English: it is the preselected one.
   const selected = picked ?? state?.current ?? state?.detected;
   const selectedLanguage = languages.find((l) => l.locale === selected);
+  // "Your Windows language" only on a real match: English as the fallback (Italian Windows, no Italian file) isn't one.
+  const windowsLanguage = state?.detectedMatchesWindows ? state.detected : undefined;
 
   // Focus starts on the preselected language (the dialog would put it on its close button): keys and pads go from there.
   const list = useRef<HTMLUListElement>(null);
@@ -54,7 +56,7 @@ export function FirstRunLanguageDialog() {
               <LanguageOption
                 language={language}
                 selected={language.locale === selected}
-                detected={language.locale === state?.detected}
+                detected={language.locale === windowsLanguage}
                 completion={language.completion < 100 ? t('language.firstRun.completion', { percent: format.percent(language.completion / 100) }) : undefined}
                 detectedLabel={t('language.firstRun.detected')}
                 onPick={() => setPicked(language.locale)}

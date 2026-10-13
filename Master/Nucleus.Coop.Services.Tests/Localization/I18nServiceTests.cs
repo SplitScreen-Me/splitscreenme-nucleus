@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Nucleus.Bridge;
 using Nucleus.Bridge.Contracts;
@@ -33,6 +35,23 @@ public class I18nServiceTests
         Assert.Equal("Français", french.NativeName);
         Assert.Equal(50, french.Completion);
         Assert.Equal(100, state.Languages.Single(l => l.Locale == "en").Completion);
+    }
+
+    [Theory]
+    [InlineData("fr-FR", "fr", true)]
+    [InlineData("fr-CA", "fr", true)]
+    [InlineData("en-GB", "en", true)]
+    [InlineData("it-IT", "en", false)] // no Italian file: English, but not as the Windows language
+    public void State_says_whether_the_detected_language_matches_Windows(string windows, string detected, bool matches)
+    {
+        using var folder = LanguageFolder.WithEnglishAndFrench();
+        var service = new I18nService(new FakeEvents(), folder.Translator(), new MemoryLanguageStore());
+
+        LanguageState state = WithWindowsLanguage(windows, service.GetState);
+
+        Assert.Equal(detected, state.Detected);
+        Assert.Equal(matches, state.DetectedMatchesWindows);
+        Assert.Equal(detected, WithWindowsLanguage(windows, () => LanguageSettings.Detected(folder.Translator())));
     }
 
     [Fact]
@@ -105,6 +124,21 @@ public class I18nServiceTests
 
         Assert.False(LanguageSettings.IsChosen(translator, store));
         Assert.Equal(LanguageSettings.Detected(translator), LanguageSettings.StartupLocale(translator, store));
+    }
+
+    // The Windows display language, as the services see it: the UI culture of the calling thread.
+    private static T WithWindowsLanguage<T>(string culture, Func<T> action)
+    {
+        CultureInfo saved = CultureInfo.CurrentUICulture;
+        CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(culture);
+        try
+        {
+            return action();
+        }
+        finally
+        {
+            CultureInfo.CurrentUICulture = saved;
+        }
     }
 
     [Fact]

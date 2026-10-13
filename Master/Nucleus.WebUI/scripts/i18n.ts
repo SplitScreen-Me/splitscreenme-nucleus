@@ -3,15 +3,16 @@
 //
 //   node scripts/i18n.ts gen      npm run i18n:gen    src/i18n/generated/keys.ts from Master/i18n/en.json
 //   node scripts/i18n.ts check    npm run i18n:check  fails on a stale keys.ts, a malformed en.json, a translation with
-//                                                     unknown keys or other placeholders / tags than English, a C# T("…")
-//                                                     key missing from en.json
+//                                                     unknown keys, other placeholders / tags than English or other plural
+//                                                     forms than its language's, a C# T("…") key missing from en.json, a
+//                                                     language without a rule in the C# PluralRules
 //   node scripts/i18n.ts lint     npm run i18n:lint   hard-coded user-visible strings in src, counted by folder
 //        [--list] [--max=N] [--json] [paths...]       --list prints each one; --max fails above N; paths filter (src/shell)
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseSync } from 'vite';
-import { analyzeEnglish, checkTranslation, csharpKeys, generateKeysModule, type KeyInfo, type Problem } from './i18n/catalog.ts';
+import { analyzeEnglish, checkCsharpPluralRule, checkTranslation, csharpKeys, csharpPluralLocales, generateKeysModule, type KeyInfo, type Problem } from './i18n/catalog.ts';
 import { groupOf, lintProgram, type AstNode, type Finding } from './i18n/lint.ts';
 
 const webui = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -19,6 +20,7 @@ const master = resolve(webui, '..');
 const i18nDir = join(master, 'i18n');
 const englishFile = join(i18nDir, 'en.json');
 const keysFile = join(webui, 'src/i18n/generated/keys.ts');
+const pluralRulesFile = join(master, 'NucleusGaming/Localization/PluralRules.cs');
 
 const [command, ...args] = process.argv.slice(2);
 if (command === 'gen') gen();
@@ -83,6 +85,9 @@ function check(): void {
 
   const coverage: string[] = [];
   const base = new Set(keys.keys());
+  // Plural forms of the host texts: the C# PluralRules must know each language, as Intl does for the UI.
+  const csharpPlurals = existsSync(pluralRulesFile) ? csharpPluralLocales(readFileSync(pluralRulesFile, 'utf8')) : undefined;
+  if (!csharpPlurals) problems.push({ file: relative(master, pluralRulesFile), key: '', message: 'is missing: the language files cannot be checked against the C# plural rules.' });
   for (const name of readdirSync(i18nDir).filter((f) => f.endsWith('.json') && f !== 'en.json').sort()) {
     const { tree, problem } = readJson(join(i18nDir, name));
     if (problem) {
@@ -91,6 +96,7 @@ function check(): void {
     }
     const result = checkTranslation(name, tree, keys);
     problems.push(...result.problems);
+    if (csharpPlurals) problems.push(...checkCsharpPluralRule(name, csharpPlurals));
     coverage.push(`  ${name.padEnd(12)} ${result.translated}/${base.size} strings (${Math.floor((result.translated / Math.max(1, base.size)) * 100)}%)`);
   }
 

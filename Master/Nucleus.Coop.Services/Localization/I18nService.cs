@@ -28,13 +28,18 @@ public sealed class I18nService : II18nService, IDisposable
     }
 
     /// <inheritdoc />
-    public LanguageState GetState() => new LanguageState
+    public LanguageState GetState()
     {
-        Current = translator.Locale,
-        Detected = LanguageSettings.Detected(translator),
-        Chosen = LanguageSettings.IsChosen(translator, store),
-        Languages = translator.Available.Select(Summary).ToList(),
-    };
+        string? windows = LanguageSettings.WindowsMatch(translator);
+        return new LanguageState
+        {
+            Current = translator.Locale,
+            Detected = windows ?? LanguageSettings.Detected(translator),
+            DetectedMatchesWindows = windows != null,
+            Chosen = LanguageSettings.IsChosen(translator, store),
+            Languages = translator.Available.Select(Summary).ToList(),
+        };
+    }
 
     /// <inheritdoc />
     public LanguageStrings GetStrings(GetLanguageStringsRequest request)
