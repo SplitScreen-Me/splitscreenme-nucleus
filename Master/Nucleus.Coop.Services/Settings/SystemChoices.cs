@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -7,6 +8,7 @@ using System.Windows.Forms;
 using NAudio.CoreAudioApi;
 using Nucleus.Bridge.Contracts;
 using Nucleus.Coop.Services.Startup;
+using Nucleus.Gaming.Localization;
 using Nucleus.Gaming.Tools.MonitorsDpiScaling;
 
 namespace Nucleus.Coop.Services.Settings;
@@ -21,7 +23,7 @@ public static class SystemChoices
     /// <summary>"Automatic" plus the name of each adapter that is up with an IPv4 address.</summary>
     public static List<SettingChoice> NetworkAdapters()
     {
-        var choices = new List<SettingChoice> { new SettingChoice { Value = "Automatic", Label = "Automatic" } };
+        var choices = new List<SettingChoice> { new SettingChoice { Value = "Automatic", Label = I18n.T("common.automatic") } };
         try
         {
             foreach (NetworkInterface adapter in NetworkInterface.GetAllNetworkInterfaces())
@@ -45,7 +47,7 @@ public static class SystemChoices
     /// <summary>"Default" plus each active playback device: value = endpoint id (what Settings.ini stores), label = name. Duplicate names are dropped, as before.</summary>
     public static List<SettingChoice> AudioOutputs()
     {
-        var choices = new List<SettingChoice> { new SettingChoice { Value = "Default", Label = "Default" } };
+        var choices = new List<SettingChoice> { new SettingChoice { Value = "Default", Label = I18n.T("common.default") } };
         try
         {
             using var enumerator = new MMDeviceEnumerator();
@@ -119,7 +121,17 @@ public static class SystemChoices
         return resolutions
             .OrderByDescending(r => r.Width * r.Height)
             .ThenByDescending(r => r.Width)
-            .Select(r => new SettingChoice { Value = $"{r.Width}X{r.Height}", Label = $"{r.Width} × {r.Height} ({string.Join(", ", r.Screens)})" })
+            .Select(r => new SettingChoice
+            {
+                Value = $"{r.Width}X{r.Height}",
+                Label = I18n.T("host.settings.fields.layout.mergerResolution.choice", new
+                {
+                    // Strings: pixel sizes are printed without digit grouping.
+                    width = r.Width.ToString(CultureInfo.InvariantCulture),
+                    height = r.Height.ToString(CultureInfo.InvariantCulture),
+                    screens = string.Join(", ", r.Screens),
+                }),
+            })
             .ToList();
     }
 

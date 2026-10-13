@@ -87,12 +87,15 @@ public static class SettingsCatalog
     public static IReadOnlyList<SettingSectionDefinition> Sections => new[]
     {
         new SettingSectionDefinition { Id = "general", Title = T("host.settings.sections.general.title"), Description = T("host.settings.sections.general.description") },
-        new SettingSectionDefinition { Id = "players", Title = "Players", Description = "How gamepads are assigned to players. Nicknames and Steam IDs are edited with the player list." },
-        new SettingSectionDefinition { Id = "hotkeys", Title = "Keyboard shortcuts", Description = "Shortcuts available during a game session. Changes apply from the next session." },
-        new SettingSectionDefinition { Id = "gamepad", Title = "Gamepad shortcuts", Description = "Button combinations available during a game session (XInput gamepads). Steam Input may interfere with them. The Nucleus window itself works with any gamepad: D-pad or left stick to move, A to select, B to go back, right stick to scroll." },
-        new SettingSectionDefinition { Id = "audio", Title = "Audio", Description = "Playback device of each game instance. This may not work with every game." },
-        new SettingSectionDefinition { Id = "layout", Title = "Layout", Description = "Defaults of the custom screen layout, split-screen background, cutscenes mode and Windows merger. Profiles keep their own copy." },
+        new SettingSectionDefinition { Id = "players", Title = T("host.settings.sections.players.title"), Description = T("host.settings.sections.players.description") },
+        new SettingSectionDefinition { Id = "hotkeys", Title = T("host.settings.sections.hotkeys.title"), Description = T("host.settings.sections.hotkeys.description") },
+        new SettingSectionDefinition { Id = "gamepad", Title = T("host.settings.sections.gamepad.title"), Description = T("host.settings.sections.gamepad.description") },
+        new SettingSectionDefinition { Id = "audio", Title = T("host.settings.sections.audio.title"), Description = T("host.settings.sections.audio.description") },
+        new SettingSectionDefinition { Id = "layout", Title = T("host.settings.sections.layout.title"), Description = T("host.settings.sections.layout.description") },
     };
+
+    /// <summary>Description of the Audio section that also names the Windows default playback device.</summary>
+    public static string AudioSectionDescription(string defaultDevice) => T("host.settings.sections.audio.descriptionWithDefault", new { device = defaultDevice });
 
     /// <summary>Steam languages of the global setting (value, label).</summary>
     public static readonly IReadOnlyList<(string Value, string Label)> SteamLanguages = new[]
@@ -119,40 +122,60 @@ public static class SettingsCatalog
         "Numpad 0", "Numpad 1", "Numpad 2", "Numpad 3", "Numpad 4", "Numpad 5", "Numpad 6", "Numpad 7", "Numpad 8", "Numpad 9",
     };
 
-    /// <summary>Split-screen background colours (<c>BackgroundColors.ColorsDictionnary</c>).</summary>
+    /// <summary>Split-screen background colours (<c>BackgroundColors.ColorsDictionnary</c>): the values Settings.ini stores.</summary>
     public static readonly IReadOnlyList<string> SplitColors = new[] { "Black", "Gray", "White", "Dark Blue", "Blue", "Purple", "Pink", "Red", "Orange", "Yellow", "Green" };
 
-    /// <summary>Toggles that exclude each other.</summary>
-    public static readonly IReadOnlyList<ExclusiveRule> ExclusiveRules = new[]
+    /// <summary>Label of a split-screen background colour in the language in use (the stored value when it is not a known colour).</summary>
+    public static string SplitColorLabel(string color) => color switch
     {
-        new ExclusiveRule("players.assignGamepadsByIndex", new[] { "players.assignGamepadsOnButtonPress" }, "\"Assign gamepads by index\" and \"Assign gamepads on button press\" can't both be on."),
-        new ExclusiveRule("layout.cutscenesMuteAudioOnly", new[] { "layout.cutscenesKeepAspectRatio", "layout.cutscenesUnfocus" }, "\"Mute audio only\" can't be combined with the other cutscenes mode options."),
+        "Black" => T("host.settings.colors.black"),
+        "Gray" => T("host.settings.colors.gray"),
+        "White" => T("host.settings.colors.white"),
+        "Dark Blue" => T("host.settings.colors.darkBlue"),
+        "Blue" => T("host.settings.colors.blue"),
+        "Purple" => T("host.settings.colors.purple"),
+        "Pink" => T("host.settings.colors.pink"),
+        "Red" => T("host.settings.colors.red"),
+        "Orange" => T("host.settings.colors.orange"),
+        "Yellow" => T("host.settings.colors.yellow"),
+        "Green" => T("host.settings.colors.green"),
+        _ => color,
     };
 
-    /// <summary>Keyboard shortcut rows of the reminder image, in order: label, key.</summary>
-    public static readonly IReadOnlyList<(string Label, string Key)> KeyboardReminderRows = new[]
+    /// <summary>Toggles that exclude each other (messages in the language in use).</summary>
+    public static IReadOnlyList<ExclusiveRule> ExclusiveRules => new[]
     {
-        ("Close Nucleus", "hotkeys.closeApp"), ("Stop session", "hotkeys.stopSession"), ("Toggle top most", "hotkeys.topMost"),
-        ("Toggle unfocus", "hotkeys.setFocus"), ("Reset windows", "hotkeys.resetWindows"), ("Cutscenes mode", "hotkeys.cutscenesMode"),
-        ("Switch layout", "hotkeys.switchLayout"), ("Shortcuts reminder", "hotkeys.shortcutsReminder"), ("Switch merged window", "hotkeys.switchMergerWindow"),
-        ("Lock / unlock inputs", "hotkeys.lockInputs"),
+        new ExclusiveRule("players.assignGamepadsByIndex", new[] { "players.assignGamepadsOnButtonPress" }, T("host.settings.rules.gamepadAssignment")),
+        new ExclusiveRule("layout.cutscenesMuteAudioOnly", new[] { "layout.cutscenesKeepAspectRatio", "layout.cutscenesUnfocus" }, T("host.settings.rules.cutscenesMuteAudioOnly")),
     };
 
-    /// <summary>Gamepad shortcut rows of the reminder image, in order: label, key.</summary>
-    public static readonly IReadOnlyList<(string Label, string Key)> GamepadReminderRows = new[]
+    /// <summary>Keyboard shortcut rows of the reminder image, in order: label (in the language in use), key.</summary>
+    public static IReadOnlyList<(string Label, string Key)> KeyboardReminderRows => new[]
     {
-        ("Toggle unfocus", "gamepad.setFocus"), ("Close Nucleus", "gamepad.close"), ("Stop session", "gamepad.stopSession"),
-        ("Toggle top most", "gamepad.topMost"), ("Reset windows", "gamepad.resetWindows"), ("Cutscenes mode", "gamepad.cutscenesMode"),
-        ("Switch layout", "gamepad.switchLayout"), ("Lock / unlock inputs", "gamepad.lockInputs"), ("Alt+Tab", "gamepad.releaseCursor"),
+        (T("host.settings.reminderImage.rows.closeApp"), "hotkeys.closeApp"), (T("host.settings.reminderImage.rows.stopSession"), "hotkeys.stopSession"),
+        (T("host.settings.reminderImage.rows.topMost"), "hotkeys.topMost"), (T("host.settings.reminderImage.rows.setFocus"), "hotkeys.setFocus"),
+        (T("host.settings.reminderImage.rows.resetWindows"), "hotkeys.resetWindows"), (T("host.settings.reminderImage.rows.cutscenesMode"), "hotkeys.cutscenesMode"),
+        (T("host.settings.reminderImage.rows.switchLayout"), "hotkeys.switchLayout"), (T("host.settings.reminderImage.rows.shortcutsReminder"), "hotkeys.shortcutsReminder"),
+        (T("host.settings.reminderImage.rows.switchMergerWindow"), "hotkeys.switchMergerWindow"), (T("host.settings.reminderImage.rows.lockInputs"), "hotkeys.lockInputs"),
+    };
+
+    /// <summary>Gamepad shortcut rows of the reminder image, in order: label (in the language in use), key.</summary>
+    public static IReadOnlyList<(string Label, string Key)> GamepadReminderRows => new[]
+    {
+        (T("host.settings.reminderImage.rows.setFocus"), "gamepad.setFocus"), (T("host.settings.reminderImage.rows.closeApp"), "gamepad.close"),
+        (T("host.settings.reminderImage.rows.stopSession"), "gamepad.stopSession"), (T("host.settings.reminderImage.rows.topMost"), "gamepad.topMost"),
+        (T("host.settings.reminderImage.rows.resetWindows"), "gamepad.resetWindows"), (T("host.settings.reminderImage.rows.cutscenesMode"), "gamepad.cutscenesMode"),
+        (T("host.settings.reminderImage.rows.switchLayout"), "gamepad.switchLayout"), (T("host.settings.reminderImage.rows.lockInputs"), "gamepad.lockInputs"),
+        ("Alt+Tab", "gamepad.releaseCursor"), // key names: not translated
     };
 
     /// <summary>Asked before turning "Keep Nucleus user accounts" off (the legacy Settings window asked it too).</summary>
     public static SettingConfirmation KeepAccountsConfirmation => new SettingConfirmation
     {
         Values = { "false" },
-        Title = "Turn off Keep Nucleus user accounts?",
-        Message = "The next time you run a game that uses separate Windows user accounts, Nucleus deletes every account it created, with their files and saves.",
-        ConfirmLabel = "Turn off",
+        Title = T("host.settings.fields.misc.keepAccounts.confirm.title"),
+        Message = T("host.settings.fields.misc.keepAccounts.confirm.message"),
+        ConfirmLabel = T("host.settings.fields.misc.keepAccounts.confirm.confirmLabel"),
     };
 
     /// <summary>Builds the definitions, with labels and descriptions in the language in use (built again when it changes).</summary>
@@ -166,98 +189,101 @@ public static class SettingsCatalog
             Translator.DefaultLocale, new List<SettingChoice>(), () => I18n.Locale, v => LanguageSettings.Choose(v));
         language.DynamicChoices = () => I18nService.Choices(I18n.Current);
         list.Add(language);
-        list.Add(Choice("general", "misc.steamLanguage", "Steam language", "Language reported by the Steam emulator. A game can override it from its menu.", "Automatic",
-            SteamLanguages.Select(l => new SettingChoice { Value = l.Value, Label = l.Label }).ToList(),
+        // The emulator languages are what the game sees: their names stay as they are, only "Automatic" is a UI text.
+        list.Add(Choice("general", "misc.steamLanguage", T("host.settings.fields.misc.steamLanguage.label"), T("host.settings.fields.misc.steamLanguage.description"), "Automatic",
+            SteamLanguages.Select(l => new SettingChoice { Value = l.Value, Label = l.Value == "Automatic" ? T("host.settings.fields.misc.steamLanguage.automatic") : l.Label }).ToList(),
             () => App_Misc.SteamLang ?? "", v => App_Misc.SteamLang = v));
-        list.Add(Choice("general", "misc.epicLanguage", "Epic / GOG language", "Language reported by the Epic and GOG emulators.", "English",
+        list.Add(Choice("general", "misc.epicLanguage", T("host.settings.fields.misc.epicLanguage.label"), T("host.settings.fields.misc.epicLanguage.description"), "English",
             EpicLanguages.Select(l => new SettingChoice { Value = l, Label = l }).ToList(),
             () => App_Misc.EpicLang ?? "", v => App_Misc.EpicLang = v));
-        SettingDefinition network = Choice("general", "misc.network", "Network adapter", "Adapter used by handlers that change the IP address of each instance.", "Automatic",
+        SettingDefinition network = Choice("general", "misc.network", T("host.settings.fields.misc.network.label"), T("host.settings.fields.misc.network.description"), "Automatic",
             new List<SettingChoice>(), () => App_Misc.Network ?? "", v => App_Misc.Network = v);
         network.DynamicChoices = SystemChoices.NetworkAdapters;
         list.Add(network);
-        list.Add(Toggle("general", "misc.useNicknames", "Use nicknames in game", "Player nicknames are passed to the game when the handler supports it.", true,
+        list.Add(Toggle("general", "misc.useNicknames", T("host.settings.fields.misc.useNicknames.label"), T("host.settings.fields.misc.useNicknames.description"), true,
             () => App_Misc.UseNicksInGame, v => App_Misc.UseNicksInGame = v));
-        SettingDefinition keepAccounts = Toggle("general", "misc.keepAccounts", "Keep Nucleus user accounts",
-            "Keeps the Windows user accounts Nucleus creates for some games. When off, the next game that uses them deletes them with their files and saves.", false,
+        SettingDefinition keepAccounts = Toggle("general", "misc.keepAccounts", T("host.settings.fields.misc.keepAccounts.label"),
+            T("host.settings.fields.misc.keepAccounts.description"), false,
             () => App_Misc.KeepAccounts, v => App_Misc.KeepAccounts = v);
         keepAccounts.Field.Confirm = KeepAccountsConfirmation;
         list.Add(keepAccounts);
-        SettingDefinition password = Password("general", "misc.nucleusAccountPassword", "Nucleus user accounts password",
-            "Password of the Windows accounts Nucleus creates. Stored in plain text in Settings.ini. 12345 or empty uses the built-in password.", "12345", 127,
+        SettingDefinition password = Password("general", "misc.nucleusAccountPassword", T("host.settings.fields.misc.nucleusAccountPassword.label"),
+            T("host.settings.fields.misc.nucleusAccountPassword.description"), "12345", 127,
             () => App_Misc.NucleusAccountPassword ?? "", v => App_Misc.NucleusAccountPassword = v);
         list.Add(password);
-        list.Add(Toggle("general", "misc.autoDesktopScaling", "Set desktop scale to 100% during sessions", "Some games need 100% display scaling to place their windows correctly.", false,
+        list.Add(Toggle("general", "misc.autoDesktopScaling", T("host.settings.fields.misc.autoDesktopScaling.label"), T("host.settings.fields.misc.autoDesktopScaling.description"), false,
             () => App_Misc.AutoDesktopScaling, v => App_Misc.AutoDesktopScaling = v));
-        list.Add(Toggle("general", "misc.fastLaunch", "Fast launch",
-            "Starts each instance as soon as the previous one is ready instead of always waiting the handler's full pauses. Turn it off if a game stops launching correctly.", true,
+        list.Add(Toggle("general", "misc.fastLaunch", T("host.settings.fields.misc.fastLaunch.label"),
+            T("host.settings.fields.misc.fastLaunch.description"), true,
             () => App_Misc.FastLaunch, v => App_Misc.FastLaunch = v));
-        list.Add(Toggle("general", "misc.ignoreInputLockReminder", "Don't remind me to lock inputs", "When off, a message at launch explains how to lock keyboard and mouse input.", true,
+        list.Add(Toggle("general", "misc.ignoreInputLockReminder", T("host.settings.fields.misc.ignoreInputLockReminder.label"), T("host.settings.fields.misc.ignoreInputLockReminder.description"), true,
             () => App_Misc.IgnoreInputLockReminder, v => App_Misc.IgnoreInputLockReminder = v));
-        list.Add(Toggle("general", "misc.debugLog", "Enable debug log", "Writes debug-log.txt in the Nucleus folder. Turned off automatically when the log grows past 150 KB.", true,
+        list.Add(Toggle("general", "misc.debugLog", T("host.settings.fields.misc.debugLog.label"), T("host.settings.fields.misc.debugLog.description"), true,
             () => App_Misc.DebugLog, v => App_Misc.DebugLog = v));
-        SettingDefinition profiles = Toggle("general", "misc.disableGameProfiles", "Disable game profiles", "Nucleus uses these global settings instead of per-game profiles.", false,
+        SettingDefinition profiles = Toggle("general", "misc.disableGameProfiles", T("host.settings.fields.misc.disableGameProfiles.label"), T("host.settings.fields.misc.disableGameProfiles.description"), false,
             () => App_Misc.DisableGameProfiles, v => App_Misc.DisableGameProfiles = v);
         profiles.Effects = SettingEffects.GameProfiles;
         list.Add(profiles);
 
         // ---- Players tab options ----
-        list.Add(Toggle("players", "players.assignGamepadsByIndex", "Assign gamepads by index",
-            "Default for new games: profiles store gamepad API indexes instead of hardware ids (some handlers turn it off). Switching modes can prevent older profiles from loading.", false,
+        list.Add(Toggle("players", "players.assignGamepadsByIndex", T("host.settings.fields.players.assignGamepadsByIndex.label"),
+            T("host.settings.fields.players.assignGamepadsByIndex.description"), false,
             () => App_Misc.UseXinputIndex, v => App_Misc.UseXinputIndex = v));
-        list.Add(Toggle("players", "players.assignGamepadsOnButtonPress", "Assign gamepads on button press",
-            "Default for new games: profiles assign gamepads when players press a button instead of reusing the saved ones. Works well with custom nicknames.", false,
+        list.Add(Toggle("players", "players.assignGamepadsOnButtonPress", T("host.settings.fields.players.assignGamepadsOnButtonPress.label"),
+            T("host.settings.fields.players.assignGamepadsOnButtonPress.description"), false,
             () => App_Misc.ProfileAssignGamepadByButonPress, v => App_Misc.ProfileAssignGamepadByButonPress = v));
 
         // ---- Keyboard shortcuts ----
-        list.Add(Hotkey("hotkeys.closeApp", "Close Nucleus", "Ctrl+Q", () => App_Hotkeys.CloseApp, v => App_Hotkeys.CloseApp = v));
-        list.Add(Hotkey("hotkeys.stopSession", "Stop session", "Ctrl+E", () => App_Hotkeys.StopSession, v => App_Hotkeys.StopSession = v));
-        list.Add(Hotkey("hotkeys.topMost", "Toggle top most", "Ctrl+T", () => App_Hotkeys.TopMost, v => App_Hotkeys.TopMost = v));
-        list.Add(Hotkey("hotkeys.setFocus", "Toggle unfocus", "Ctrl+H", () => App_Hotkeys.SetFocus, v => App_Hotkeys.SetFocus = v));
-        list.Add(Hotkey("hotkeys.resetWindows", "Reset windows", "Ctrl+R", () => App_Hotkeys.ResetWindows, v => App_Hotkeys.ResetWindows = v));
-        list.Add(Hotkey("hotkeys.cutscenesMode", "Cutscenes mode", "Ctrl+M", () => App_Hotkeys.CutscenesMode, v => App_Hotkeys.CutscenesMode = v));
-        list.Add(Hotkey("hotkeys.switchLayout", "Switch layout", "Ctrl+N", () => App_Hotkeys.SwitchLayout, v => App_Hotkeys.SwitchLayout = v));
-        list.Add(Hotkey("hotkeys.shortcutsReminder", "Show shortcuts reminder", "Alt+R", () => App_Hotkeys.ShortcutsReminder, v => App_Hotkeys.ShortcutsReminder = v));
-        SettingDefinition merger = Hotkey("hotkeys.switchMergerWindow", "Switch merged window", "Alt+A", () => App_Hotkeys.SwitchMergerForeGroundChild, v => App_Hotkeys.SwitchMergerForeGroundChild = v);
-        merger.Field.Description = "With the Windows merger: each press brings another game window to the front (like Alt+Tab).";
+        list.Add(Hotkey("hotkeys.closeApp", T("host.settings.fields.hotkeys.closeApp.label"), "Ctrl+Q", () => App_Hotkeys.CloseApp, v => App_Hotkeys.CloseApp = v));
+        list.Add(Hotkey("hotkeys.stopSession", T("host.settings.fields.hotkeys.stopSession.label"), "Ctrl+E", () => App_Hotkeys.StopSession, v => App_Hotkeys.StopSession = v));
+        list.Add(Hotkey("hotkeys.topMost", T("host.settings.fields.hotkeys.topMost.label"), "Ctrl+T", () => App_Hotkeys.TopMost, v => App_Hotkeys.TopMost = v));
+        list.Add(Hotkey("hotkeys.setFocus", T("host.settings.fields.hotkeys.setFocus.label"), "Ctrl+H", () => App_Hotkeys.SetFocus, v => App_Hotkeys.SetFocus = v));
+        list.Add(Hotkey("hotkeys.resetWindows", T("host.settings.fields.hotkeys.resetWindows.label"), "Ctrl+R", () => App_Hotkeys.ResetWindows, v => App_Hotkeys.ResetWindows = v));
+        list.Add(Hotkey("hotkeys.cutscenesMode", T("host.settings.fields.hotkeys.cutscenesMode.label"), "Ctrl+M", () => App_Hotkeys.CutscenesMode, v => App_Hotkeys.CutscenesMode = v));
+        list.Add(Hotkey("hotkeys.switchLayout", T("host.settings.fields.hotkeys.switchLayout.label"), "Ctrl+N", () => App_Hotkeys.SwitchLayout, v => App_Hotkeys.SwitchLayout = v));
+        list.Add(Hotkey("hotkeys.shortcutsReminder", T("host.settings.fields.hotkeys.shortcutsReminder.label"), "Alt+R", () => App_Hotkeys.ShortcutsReminder, v => App_Hotkeys.ShortcutsReminder = v));
+        SettingDefinition merger = Hotkey("hotkeys.switchMergerWindow", T("host.settings.fields.hotkeys.switchMergerWindow.label"), "Alt+A", () => App_Hotkeys.SwitchMergerForeGroundChild, v => App_Hotkeys.SwitchMergerForeGroundChild = v);
+        merger.Field.Description = T("host.settings.fields.hotkeys.switchMergerWindow.description");
         list.Add(merger);
-        SettingDefinition lockKey = Choice("hotkeys", "hotkeys.lockInputs", "Lock inputs key", "Locks and unlocks keyboard and mouse input during a session (no modifier).", "End",
+        // Key names ("End", "F1", "Numpad 0") are key caps: not translated.
+        SettingDefinition lockKey = Choice("hotkeys", "hotkeys.lockInputs", T("host.settings.fields.hotkeys.lockInputs.label"), T("host.settings.fields.hotkeys.lockInputs.description"), "End",
             LockKeys.Select(k => new SettingChoice { Value = k, Label = k }).ToList(), () => App_Hotkeys.LockInputs ?? "", v => App_Hotkeys.LockInputs = v);
         lockKey.Effects = SettingEffects.KeyboardReminder;
         list.Add(lockKey);
 
         // ---- Gamepad shortcuts (XInputShortcutsSetup) ----
-        list.Add(Pad("gamepad.setFocus", "Toggle unfocus", "1024+32768", () => App_GamePadShortcuts.SetFocus, v => App_GamePadShortcuts.SetFocus = v));
-        list.Add(Pad("gamepad.close", "Close Nucleus", "1024+16", () => App_GamePadShortcuts.Close, v => App_GamePadShortcuts.Close = v));
-        list.Add(Pad("gamepad.stopSession", "Stop session", "1024+32", () => App_GamePadShortcuts.StopSession, v => App_GamePadShortcuts.StopSession = v));
-        list.Add(Pad("gamepad.topMost", "Toggle top most", "1024+16384", () => App_GamePadShortcuts.TopMost, v => App_GamePadShortcuts.TopMost = v));
-        list.Add(Pad("gamepad.resetWindows", "Reset windows", "1024+8", () => App_GamePadShortcuts.ResetWindows, v => App_GamePadShortcuts.ResetWindows = v));
-        list.Add(Pad("gamepad.cutscenesMode", "Cutscenes mode", "1024+8192", () => App_GamePadShortcuts.CutscenesMode, v => App_GamePadShortcuts.CutscenesMode = v));
-        list.Add(Pad("gamepad.switchLayout", "Switch layout", "1024+512", () => App_GamePadShortcuts.SwitchLayout, v => App_GamePadShortcuts.SwitchLayout = v));
-        list.Add(Pad("gamepad.lockInputs", "Lock / unlock inputs", "1024+128", () => App_GamePadShortcuts.LockInputs, v => App_GamePadShortcuts.LockInputs = v));
+        list.Add(Pad("gamepad.setFocus", T("host.settings.fields.gamepad.setFocus.label"), "1024+32768", () => App_GamePadShortcuts.SetFocus, v => App_GamePadShortcuts.SetFocus = v));
+        list.Add(Pad("gamepad.close", T("host.settings.fields.gamepad.close.label"), "1024+16", () => App_GamePadShortcuts.Close, v => App_GamePadShortcuts.Close = v));
+        list.Add(Pad("gamepad.stopSession", T("host.settings.fields.gamepad.stopSession.label"), "1024+32", () => App_GamePadShortcuts.StopSession, v => App_GamePadShortcuts.StopSession = v));
+        list.Add(Pad("gamepad.topMost", T("host.settings.fields.gamepad.topMost.label"), "1024+16384", () => App_GamePadShortcuts.TopMost, v => App_GamePadShortcuts.TopMost = v));
+        list.Add(Pad("gamepad.resetWindows", T("host.settings.fields.gamepad.resetWindows.label"), "1024+8", () => App_GamePadShortcuts.ResetWindows, v => App_GamePadShortcuts.ResetWindows = v));
+        list.Add(Pad("gamepad.cutscenesMode", T("host.settings.fields.gamepad.cutscenesMode.label"), "1024+8192", () => App_GamePadShortcuts.CutscenesMode, v => App_GamePadShortcuts.CutscenesMode = v));
+        list.Add(Pad("gamepad.switchLayout", T("host.settings.fields.gamepad.switchLayout.label"), "1024+512", () => App_GamePadShortcuts.SwitchLayout, v => App_GamePadShortcuts.SwitchLayout = v));
+        list.Add(Pad("gamepad.lockInputs", T("host.settings.fields.gamepad.lockInputs.label"), "1024+128", () => App_GamePadShortcuts.LockInputs, v => App_GamePadShortcuts.LockInputs = v));
         list.Add(Pad("gamepad.releaseCursor", "Alt+Tab", "1024+256", () => App_GamePadShortcuts.ReleaseCursor, v => App_GamePadShortcuts.ReleaseCursor = v,
-            "Sends Alt+Tab to get the cursor out of a game window."));
+            T("host.settings.fields.gamepad.releaseCursor.description")));
 
         // The legacy "Gamepad control of the Nucleus window" (mouse cursor on the left stick, its click buttons, dead zone,
         // "Lock UI control" and "On-screen keyboard" combos) is gone: it fought the web UI's own gamepad navigation.
-        SettingDefinition padType = Choice("gamepad", "gamepad.type", "Gamepad type", "Button names and pictures shown for the shortcuts.", "Xbox",
+        SettingDefinition padType = Choice("gamepad", "gamepad.type", T("host.settings.fields.gamepad.type.label"), T("host.settings.fields.gamepad.type.description"), "Xbox",
             new List<SettingChoice> { new SettingChoice { Value = "Xbox", Label = "Xbox" }, new SettingChoice { Value = "Playstation", Label = "PlayStation" } },
             () => App_GamePadNavigation.Type ?? "", v => App_GamePadNavigation.Type = v);
         padType.Effects = SettingEffects.GamepadReminder;
         list.Add(padType);
 
         // ---- Audio ----
-        list.Add(Choice("audio", "audio.mode", "Playback devices", null, "1",
+        list.Add(Choice("audio", "audio.mode", T("host.settings.fields.audio.mode.label"), null, "1",
             new List<SettingChoice>
             {
-                new SettingChoice { Value = "0", Label = "Use the default playback device for every instance" },
-                new SettingChoice { Value = "1", Label = "Choose a device for each instance" },
+                new SettingChoice { Value = "0", Label = T("host.settings.fields.audio.mode.choices.sameDevice") },
+                new SettingChoice { Value = "1", Label = T("host.settings.fields.audio.mode.choices.perInstance") },
             },
             () => App_Audio.Custom ?? "", v => App_Audio.Custom = v));
         for (int i = 1; i <= 8; i++)
         {
             string iniKey = "AudioInstance" + i;
-            SettingDefinition instance = Choice("audio", "audio.instance" + i, "Instance " + i, i == 1 ? "Used when \"Choose a device for each instance\" is selected." : null, "Default",
+            SettingDefinition instance = Choice("audio", "audio.instance" + i, T("host.settings.fields.audio.instance.label", new { number = i }),
+                i == 1 ? T("host.settings.fields.audio.instance.description") : null, "Default",
                 new List<SettingChoice>(),
                 () => App_Audio.Instances_AudioOutput.TryGetValue(iniKey, out string? device) && !string.IsNullOrEmpty(device) ? device : "Default",
                 v => App_Audio.SaveAudioOutput(iniKey, v));
@@ -266,31 +292,31 @@ public static class SettingsCatalog
         }
 
         // ---- Layout ----
-        SettingDefinition vertical = Number("layout", "layout.verticalLines", "Vertical divisions", "Columns of the custom layout grid, minus one.", "1", 0, 5, 1,
+        SettingDefinition vertical = Number("layout", "layout.verticalLines", T("host.settings.fields.layout.verticalLines.label"), T("host.settings.fields.layout.verticalLines.description"), "1", 0, 5, 1,
             () => App_Layouts.VerticalLines, v => App_Layouts.VerticalLines = v);
         vertical.Effects = SettingEffects.LayoutMaxPlayers;
         list.Add(vertical);
-        SettingDefinition horizontal = Number("layout", "layout.horizontalLines", "Horizontal divisions", "Rows of the custom layout grid, minus one. Maximum players = (horizontal + 1) × (vertical + 1).", "1", 0, 5, 1,
+        SettingDefinition horizontal = Number("layout", "layout.horizontalLines", T("host.settings.fields.layout.horizontalLines.label"), T("host.settings.fields.layout.horizontalLines.description"), "1", 0, 5, 1,
             () => App_Layouts.HorizontalLines, v => App_Layouts.HorizontalLines = v);
         horizontal.Effects = SettingEffects.LayoutMaxPlayers;
         list.Add(horizontal);
-        list.Add(Toggle("layout", "layout.splitDiv", "Split-screen division", "Fills the screen behind the game windows with a colour. May not work for all games.", false,
+        list.Add(Toggle("layout", "layout.splitDiv", T("host.settings.fields.layout.splitDiv.label"), T("host.settings.fields.layout.splitDiv.description"), false,
             () => App_Layouts.SplitDiv, v => App_Layouts.SplitDiv = v));
-        list.Add(Choice("layout", "layout.splitDivColor", "Background colour", null, "Black",
-            SplitColors.Select(c => new SettingChoice { Value = c, Label = c }).ToList(), () => App_Layouts.SplitDivColor ?? "", v => App_Layouts.SplitDivColor = v));
-        list.Add(Toggle("layout", "layout.hideDesktopOnly", "Hide desktop only", "Only shows the background window, without resizing or moving the game windows.", false,
+        list.Add(Choice("layout", "layout.splitDivColor", T("host.settings.fields.layout.splitDivColor.label"), null, "Black",
+            SplitColors.Select(c => new SettingChoice { Value = c, Label = SplitColorLabel(c) }).ToList(), () => App_Layouts.SplitDivColor ?? "", v => App_Layouts.SplitDivColor = v));
+        list.Add(Toggle("layout", "layout.hideDesktopOnly", T("host.settings.fields.layout.hideDesktopOnly.label"), T("host.settings.fields.layout.hideDesktopOnly.description"), false,
             () => App_Layouts.HideOnly, v => App_Layouts.HideOnly = v));
-        list.Add(Toggle("layout", "layout.cutscenesMuteAudioOnly", "Cutscenes mode: mute audio only", "Can't be combined with the two options below.", false,
+        list.Add(Toggle("layout", "layout.cutscenesMuteAudioOnly", T("host.settings.fields.layout.cutscenesMuteAudioOnly.label"), T("host.settings.fields.layout.cutscenesMuteAudioOnly.description"), false,
             () => App_Layouts.Cts_MuteAudioOnly, v => App_Layouts.Cts_MuteAudioOnly = v));
-        list.Add(Toggle("layout", "layout.cutscenesKeepAspectRatio", "Cutscenes mode: keep original window size", null, false,
+        list.Add(Toggle("layout", "layout.cutscenesKeepAspectRatio", T("host.settings.fields.layout.cutscenesKeepAspectRatio.label"), null, false,
             () => App_Layouts.Cts_KeepAspectRatio, v => App_Layouts.Cts_KeepAspectRatio = v));
-        list.Add(Toggle("layout", "layout.cutscenesUnfocus", "Cutscenes mode: unfocus windows", null, false,
+        list.Add(Toggle("layout", "layout.cutscenesUnfocus", T("host.settings.fields.layout.cutscenesUnfocus.label"), null, false,
             () => App_Layouts.Cts_Unfocus, v => App_Layouts.Cts_Unfocus = v));
-        list.Add(Toggle("layout", "layout.windowsMerger", "Windows merger", "Merges the game windows into one window, so Lossless Scaling can be used. Multiple monitors are not supported yet.", false,
+        list.Add(Toggle("layout", "layout.windowsMerger", T("host.settings.fields.layout.windowsMerger.label"), T("host.settings.fields.layout.windowsMerger.description"), false,
             () => App_Layouts.WindowsMerger, v => App_Layouts.WindowsMerger = v));
-        list.Add(Toggle("layout", "layout.losslessHook", "Lossless hook", "Lossless Scaling keeps upscaling when another window gets the focus (for games that need real focus to receive input).", true,
+        list.Add(Toggle("layout", "layout.losslessHook", T("host.settings.fields.layout.losslessHook.label"), T("host.settings.fields.layout.losslessHook.description"), true,
             () => App_Layouts.LosslessHook, v => App_Layouts.LosslessHook = v));
-        SettingDefinition mergerRes = Choice("layout", "layout.mergerResolution", "Windows merger resolution", "Size of the merged window. Defaults to the primary screen.", "",
+        SettingDefinition mergerRes = Choice("layout", "layout.mergerResolution", T("host.settings.fields.layout.mergerResolution.label"), T("host.settings.fields.layout.mergerResolution.description"), "",
             new List<SettingChoice>(),
             () => string.IsNullOrEmpty(App_Layouts.WindowsMergerRes) ? SystemChoices.PrimaryScreenResolution() : App_Layouts.WindowsMergerRes,
             v => App_Layouts.WindowsMergerRes = v);

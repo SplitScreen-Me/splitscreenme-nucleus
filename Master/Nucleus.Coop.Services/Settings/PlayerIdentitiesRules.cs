@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Nucleus.Bridge.Contracts;
+using Nucleus.Gaming.Localization;
 
 namespace Nucleus.Coop.Services.Settings;
 
@@ -52,13 +53,13 @@ public static class PlayerIdentitiesRules
             PlayerIdentity player = submitted[i];
             if (player == null || player.Number < 1 || player.Number > MaxPlayers)
             {
-                errors.Add(new ValidationError { Field = "number", Index = i, Message = $"Player numbers go from 1 to {MaxPlayers}." });
+                errors.Add(new ValidationError { Field = "number", Index = i, Message = I18n.T("host.settings.players.errors.numberRange", new { max = MaxPlayers }) });
                 continue;
             }
 
             if (submittedIndex.ContainsKey(player.Number))
             {
-                errors.Add(new ValidationError { Field = "number", Index = i, Message = $"Player {player.Number} is listed twice." });
+                errors.Add(new ValidationError { Field = "number", Index = i, Message = I18n.T("host.settings.players.errors.listedTwice", new { number = player.Number }) });
                 continue;
             }
 
@@ -79,7 +80,7 @@ public static class PlayerIdentitiesRules
             string steamId = (player.SteamId ?? "").Trim();
             if (steamId.Length > 0 && !SteamIdPattern.IsMatch(steamId))
             {
-                errors.Add(new ValidationError { Field = "steamId", Index = i, Message = "A Steam ID is 17 digits, for example 76561199075562883." });
+                errors.Add(new ValidationError { Field = "steamId", Index = i, Message = I18n.T("host.settings.players.errors.steamIdFormat") });
             }
             else
             {
@@ -88,8 +89,8 @@ public static class PlayerIdentitiesRules
         }
 
         // Duplicates (case-insensitive nicknames: they become folder names; effective Steam IDs: empty means the default).
-        ReportDuplicates(result, p => p.Nickname.ToUpperInvariant(), "nickname", "This nickname is already used by player {0}.", submittedIndex, errors);
-        ReportDuplicates(result, p => p.SteamId.Length == 0 ? DefaultSteamId(p.Number) : p.SteamId, "steamId", "This Steam ID is already used by player {0}.", submittedIndex, errors);
+        ReportDuplicates(result, p => p.Nickname.ToUpperInvariant(), "nickname", number => I18n.T("host.settings.players.errors.nicknameInUse", new { number }), submittedIndex, errors);
+        ReportDuplicates(result, p => p.SteamId.Length == 0 ? DefaultSteamId(p.Number) : p.SteamId, "steamId", number => I18n.T("host.settings.players.errors.steamIdInUse", new { number }), submittedIndex, errors);
 
         return (errors, result);
     }
@@ -98,23 +99,23 @@ public static class PlayerIdentitiesRules
     {
         if (nickname.Length > MaxNicknameLength)
         {
-            return $"Use at most {MaxNicknameLength} characters.";
+            return I18n.T("host.settings.errors.maxLength", new { count = MaxNicknameLength });
         }
 
         if (nickname.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
         {
-            return "Nicknames are used as folder names: avoid \\ / : * ? \" < > |.";
+            return I18n.T("host.settings.players.errors.nicknameCharacters");
         }
 
         if (!SettingsValidator.FitsIniCodePage(nickname))
         {
-            return "Some characters can't be saved in Settings.ini on this PC (it uses the system code page).";
+            return I18n.T("host.settings.errors.codePage");
         }
 
         return null;
     }
 
-    private static void ReportDuplicates(List<PlayerIdentity> players, Func<PlayerIdentity, string> identity, string field, string message, Dictionary<int, int> submittedIndex, List<ValidationError> errors)
+    private static void ReportDuplicates(List<PlayerIdentity> players, Func<PlayerIdentity, string> identity, string field, Func<int, string> message, Dictionary<int, int> submittedIndex, List<ValidationError> errors)
     {
         var firstByValue = new Dictionary<string, PlayerIdentity>();
         foreach (PlayerIdentity player in players)
@@ -129,11 +130,11 @@ public static class PlayerIdentitiesRules
             // Report on a submitted slot of the pair; pre-existing duplicates between untouched slots are left alone.
             if (submittedIndex.TryGetValue(player.Number, out int index))
             {
-                errors.Add(new ValidationError { Field = field, Index = index, Message = string.Format(message, first.Number) });
+                errors.Add(new ValidationError { Field = field, Index = index, Message = message(first.Number) });
             }
             else if (submittedIndex.TryGetValue(first.Number, out int firstIndex))
             {
-                errors.Add(new ValidationError { Field = field, Index = firstIndex, Message = string.Format(message, player.Number) });
+                errors.Add(new ValidationError { Field = field, Index = firstIndex, Message = message(player.Number) });
             }
         }
     }

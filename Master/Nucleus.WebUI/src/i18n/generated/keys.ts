@@ -124,14 +124,314 @@ export interface MessageParamsMap {
   'engine.startChecks.missingFile.message': { file: ParamValue };
   /** Missing file */
   'engine.startChecks.missingFile.title': undefined;
+  /** Black */
+  'host.settings.colors.black': undefined;
+  /** Blue */
+  'host.settings.colors.blue': undefined;
+  /** Dark Blue */
+  'host.settings.colors.darkBlue': undefined;
+  /** Gray */
+  'host.settings.colors.gray': undefined;
+  /** Green */
+  'host.settings.colors.green': undefined;
+  /** Orange */
+  'host.settings.colors.orange': undefined;
+  /** Pink */
+  'host.settings.colors.pink': undefined;
+  /** Purple */
+  'host.settings.colors.purple': undefined;
+  /** Red */
+  'host.settings.colors.red': undefined;
+  /** White */
+  'host.settings.colors.white': undefined;
+  /** Yellow */
+  'host.settings.colors.yellow': undefined;
+  /** Already used by "{label}". */
+  'host.settings.errors.alreadyUsed': { label: ParamValue };
+  /** Both triggers can't be combined: use a trigger with a button. */
+  'host.settings.errors.bothTriggers': undefined;
+  /** Choose one of the listed values. */
+  'host.settings.errors.choice': undefined;
+  /** Some characters can't be saved in Settings.ini on this PC (it uses the system code page). */
+  'host.settings.errors.codePage': undefined;
+  /** Use two different buttons. */
+  'host.settings.errors.differentButtons': undefined;
+  /** Use one modifier and one key, for example Ctrl+Q. */
+  'host.settings.errors.hotkeyFormat': undefined;
+  /** The key must be a single letter or digit. */
+  'host.settings.errors.hotkeyKey': undefined;
+  /** The modifier must be Ctrl, Alt or Shift. */
+  'host.settings.errors.hotkeyModifier': undefined;
+  /** Invalid value. */
+  'host.settings.errors.invalidValue': undefined;
+  /** Line breaks are not allowed. */
+  'host.settings.errors.lineBreaks': undefined;
+  /** Use at most {count} characters. */
+  'host.settings.errors.maxLength': { count: number };
+  /** No gamepad button was pressed. */
+  'host.settings.errors.noButtonPressed': undefined;
+  /** No XInput gamepad is connected. */
+  'host.settings.errors.noGamepad': undefined;
+  /** Enter a number between {min} and {max}. */
+  'host.settings.errors.numberRange': { max: ParamValue; min: ParamValue };
+  /** Use a single button. */
+  'host.settings.errors.singleButton': undefined;
+  /** Use true or false. */
+  'host.settings.errors.toggle': undefined;
+  /** Use a combination of two buttons, for example Guide + Y. */
+  'host.settings.errors.twoButtons': undefined;
+  /** '{code}' is not a gamepad button code. */
+  'host.settings.errors.unknownButton': { code: ParamValue };
+  /** Unknown setting. */
+  'host.settings.errors.unknownSetting': undefined;
+  /** Enter a whole number. */
+  'host.settings.errors.wholeNumber': undefined;
+  /** Used when "Choose a device for each instance" is selected. */
+  'host.settings.fields.audio.instance.description': undefined;
+  /** Instance {number} */
+  'host.settings.fields.audio.instance.label': { number: ParamValue };
+  /** Choose a device for each instance */
+  'host.settings.fields.audio.mode.choices.perInstance': undefined;
+  /** Use the default playback device for every instance */
+  'host.settings.fields.audio.mode.choices.sameDevice': undefined;
+  /** Playback devices */
+  'host.settings.fields.audio.mode.label': undefined;
+  /** Close Nucleus */
+  'host.settings.fields.gamepad.close.label': undefined;
+  /** Cutscenes mode */
+  'host.settings.fields.gamepad.cutscenesMode.label': undefined;
+  /** Lock / unlock inputs */
+  'host.settings.fields.gamepad.lockInputs.label': undefined;
+  /** Sends Alt+Tab to get the cursor out of a game window. */
+  'host.settings.fields.gamepad.releaseCursor.description': undefined;
+  /** Reset windows */
+  'host.settings.fields.gamepad.resetWindows.label': undefined;
+  /** Toggle unfocus */
+  'host.settings.fields.gamepad.setFocus.label': undefined;
+  /** Stop session */
+  'host.settings.fields.gamepad.stopSession.label': undefined;
+  /** Switch layout */
+  'host.settings.fields.gamepad.switchLayout.label': undefined;
+  /** Toggle top most */
+  'host.settings.fields.gamepad.topMost.label': undefined;
+  /** Button names and pictures shown for the shortcuts. */
+  'host.settings.fields.gamepad.type.description': undefined;
+  /** Gamepad type */
+  'host.settings.fields.gamepad.type.label': undefined;
+  /** Close Nucleus */
+  'host.settings.fields.hotkeys.closeApp.label': undefined;
+  /** Cutscenes mode */
+  'host.settings.fields.hotkeys.cutscenesMode.label': undefined;
+  /** Locks and unlocks keyboard and mouse input during a session (no modifier). */
+  'host.settings.fields.hotkeys.lockInputs.description': undefined;
+  /** Lock inputs key */
+  'host.settings.fields.hotkeys.lockInputs.label': undefined;
+  /** Reset windows */
+  'host.settings.fields.hotkeys.resetWindows.label': undefined;
+  /** Toggle unfocus */
+  'host.settings.fields.hotkeys.setFocus.label': undefined;
+  /** Show shortcuts reminder */
+  'host.settings.fields.hotkeys.shortcutsReminder.label': undefined;
+  /** Stop session */
+  'host.settings.fields.hotkeys.stopSession.label': undefined;
+  /** Switch layout */
+  'host.settings.fields.hotkeys.switchLayout.label': undefined;
+  /** With the Windows merger: each press brings another game window to the front (like Alt+Tab). */
+  'host.settings.fields.hotkeys.switchMergerWindow.description': undefined;
+  /** Switch merged window */
+  'host.settings.fields.hotkeys.switchMergerWindow.label': undefined;
+  /** Toggle top most */
+  'host.settings.fields.hotkeys.topMost.label': undefined;
+  /** Cutscenes mode: keep original window size */
+  'host.settings.fields.layout.cutscenesKeepAspectRatio.label': undefined;
+  /** Can't be combined with the two options below. */
+  'host.settings.fields.layout.cutscenesMuteAudioOnly.description': undefined;
+  /** Cutscenes mode: mute audio only */
+  'host.settings.fields.layout.cutscenesMuteAudioOnly.label': undefined;
+  /** Cutscenes mode: unfocus windows */
+  'host.settings.fields.layout.cutscenesUnfocus.label': undefined;
+  /** Only shows the background window, without resizing or moving the game windows. */
+  'host.settings.fields.layout.hideDesktopOnly.description': undefined;
+  /** Hide desktop only */
+  'host.settings.fields.layout.hideDesktopOnly.label': undefined;
+  /** Rows of the custom layout grid, minus one. Maximum players = (horizontal + 1) × (vertical + 1). */
+  'host.settings.fields.layout.horizontalLines.description': undefined;
+  /** Horizontal divisions */
+  'host.settings.fields.layout.horizontalLines.label': undefined;
+  /** Lossless Scaling keeps upscaling when another window gets the focus (for games that need real focus to rece... */
+  'host.settings.fields.layout.losslessHook.description': undefined;
+  /** Lossless hook */
+  'host.settings.fields.layout.losslessHook.label': undefined;
+  /** {width} × {height} ({screens}) */
+  'host.settings.fields.layout.mergerResolution.choice': { height: ParamValue; screens: ParamValue; width: ParamValue };
+  /** Size of the merged window. Defaults to the primary screen. */
+  'host.settings.fields.layout.mergerResolution.description': undefined;
+  /** Windows merger resolution */
+  'host.settings.fields.layout.mergerResolution.label': undefined;
+  /** Fills the screen behind the game windows with a colour. May not work for all games. */
+  'host.settings.fields.layout.splitDiv.description': undefined;
+  /** Split-screen division */
+  'host.settings.fields.layout.splitDiv.label': undefined;
+  /** Background colour */
+  'host.settings.fields.layout.splitDivColor.label': undefined;
+  /** Columns of the custom layout grid, minus one. */
+  'host.settings.fields.layout.verticalLines.description': undefined;
+  /** Vertical divisions */
+  'host.settings.fields.layout.verticalLines.label': undefined;
+  /** Merges the game windows into one window, so Lossless Scaling can be used. Multiple monitors are not support... */
+  'host.settings.fields.layout.windowsMerger.description': undefined;
+  /** Windows merger */
+  'host.settings.fields.layout.windowsMerger.label': undefined;
   /** Language of Nucleus Co-op's windows and messages. Handler notes and game names stay as their authors wrote ... */
   'host.settings.fields.misc.appLanguage.description': undefined;
   /** Language */
   'host.settings.fields.misc.appLanguage.label': undefined;
+  /** Some games need 100% display scaling to place their windows correctly. */
+  'host.settings.fields.misc.autoDesktopScaling.description': undefined;
+  /** Set desktop scale to 100% during sessions */
+  'host.settings.fields.misc.autoDesktopScaling.label': undefined;
+  /** Writes debug-log.txt in the Nucleus folder. Turned off automatically when the log grows past 150 KB. */
+  'host.settings.fields.misc.debugLog.description': undefined;
+  /** Enable debug log */
+  'host.settings.fields.misc.debugLog.label': undefined;
+  /** Nucleus uses these global settings instead of per-game profiles. */
+  'host.settings.fields.misc.disableGameProfiles.description': undefined;
+  /** Disable game profiles */
+  'host.settings.fields.misc.disableGameProfiles.label': undefined;
+  /** Language reported by the Epic and GOG emulators. */
+  'host.settings.fields.misc.epicLanguage.description': undefined;
+  /** Epic / GOG language */
+  'host.settings.fields.misc.epicLanguage.label': undefined;
+  /** Starts each instance as soon as the previous one is ready instead of always waiting the handler's full paus... */
+  'host.settings.fields.misc.fastLaunch.description': undefined;
+  /** Fast launch */
+  'host.settings.fields.misc.fastLaunch.label': undefined;
+  /** When off, a message at launch explains how to lock keyboard and mouse input. */
+  'host.settings.fields.misc.ignoreInputLockReminder.description': undefined;
+  /** Don't remind me to lock inputs */
+  'host.settings.fields.misc.ignoreInputLockReminder.label': undefined;
+  /** Turn off */
+  'host.settings.fields.misc.keepAccounts.confirm.confirmLabel': undefined;
+  /** The next time you run a game that uses separate Windows user accounts, Nucleus deletes every account it cre... */
+  'host.settings.fields.misc.keepAccounts.confirm.message': undefined;
+  /** Turn off Keep Nucleus user accounts? */
+  'host.settings.fields.misc.keepAccounts.confirm.title': undefined;
+  /** Keeps the Windows user accounts Nucleus creates for some games. When off, the next game that uses them dele... */
+  'host.settings.fields.misc.keepAccounts.description': undefined;
+  /** Keep Nucleus user accounts */
+  'host.settings.fields.misc.keepAccounts.label': undefined;
+  /** Adapter used by handlers that change the IP address of each instance. */
+  'host.settings.fields.misc.network.description': undefined;
+  /** Network adapter */
+  'host.settings.fields.misc.network.label': undefined;
+  /** Password of the Windows accounts Nucleus creates. Stored in plain text in Settings.ini. 12345 or empty uses... */
+  'host.settings.fields.misc.nucleusAccountPassword.description': undefined;
+  /** Nucleus user accounts password */
+  'host.settings.fields.misc.nucleusAccountPassword.label': undefined;
+  /** Automatic (Steam client language) */
+  'host.settings.fields.misc.steamLanguage.automatic': undefined;
+  /** Language reported by the Steam emulator. A game can override it from its menu. */
+  'host.settings.fields.misc.steamLanguage.description': undefined;
+  /** Steam language */
+  'host.settings.fields.misc.steamLanguage.label': undefined;
+  /** Player nicknames are passed to the game when the handler supports it. */
+  'host.settings.fields.misc.useNicknames.description': undefined;
+  /** Use nicknames in game */
+  'host.settings.fields.misc.useNicknames.label': undefined;
+  /** Default for new games: profiles store gamepad API indexes instead of hardware ids (some handlers turn it of... */
+  'host.settings.fields.players.assignGamepadsByIndex.description': undefined;
+  /** Assign gamepads by index */
+  'host.settings.fields.players.assignGamepadsByIndex.label': undefined;
+  /** Default for new games: profiles assign gamepads when players press a button instead of reusing the saved on... */
+  'host.settings.fields.players.assignGamepadsOnButtonPress.description': undefined;
+  /** Assign gamepads on button press */
+  'host.settings.fields.players.assignGamepadsOnButtonPress.label': undefined;
+  /** Circle */
+  'host.settings.gamepadButtons.circle': undefined;
+  /** Cross */
+  'host.settings.gamepadButtons.cross': undefined;
+  /** D-pad Down */
+  'host.settings.gamepadButtons.dpadDown': undefined;
+  /** D-pad Left */
+  'host.settings.gamepadButtons.dpadLeft': undefined;
+  /** D-pad Right */
+  'host.settings.gamepadButtons.dpadRight': undefined;
+  /** D-pad Up */
+  'host.settings.gamepadButtons.dpadUp': undefined;
+  /** Left Stick */
+  'host.settings.gamepadButtons.leftStick': undefined;
+  /** Right Stick */
+  'host.settings.gamepadButtons.rightStick': undefined;
+  /** Square */
+  'host.settings.gamepadButtons.square': undefined;
+  /** Triangle */
+  'host.settings.gamepadButtons.triangle': undefined;
+  /** Player {number} is listed twice. */
+  'host.settings.players.errors.listedTwice': { number: ParamValue };
+  /** Nicknames are used as folder names: avoid \ / : * ? " < > |. */
+  'host.settings.players.errors.nicknameCharacters': undefined;
+  /** This nickname is already used by player {number}. */
+  'host.settings.players.errors.nicknameInUse': { number: ParamValue };
+  /** Player numbers go from 1 to {max}. */
+  'host.settings.players.errors.numberRange': { max: ParamValue };
+  /** A Steam ID is 17 digits, for example 76561199075562883. */
+  'host.settings.players.errors.steamIdFormat': undefined;
+  /** This Steam ID is already used by player {number}. */
+  'host.settings.players.errors.steamIdInUse': { number: ParamValue };
+  /** Gamepad shortcuts */
+  'host.settings.reminderImage.gamepadTitle': undefined;
+  /** Keyboard shortcuts */
+  'host.settings.reminderImage.keyboardTitle': undefined;
+  /** Close Nucleus */
+  'host.settings.reminderImage.rows.closeApp': undefined;
+  /** Cutscenes mode */
+  'host.settings.reminderImage.rows.cutscenesMode': undefined;
+  /** Lock / unlock inputs */
+  'host.settings.reminderImage.rows.lockInputs': undefined;
+  /** Reset windows */
+  'host.settings.reminderImage.rows.resetWindows': undefined;
+  /** Toggle unfocus */
+  'host.settings.reminderImage.rows.setFocus': undefined;
+  /** Shortcuts reminder */
+  'host.settings.reminderImage.rows.shortcutsReminder': undefined;
+  /** Stop session */
+  'host.settings.reminderImage.rows.stopSession': undefined;
+  /** Switch layout */
+  'host.settings.reminderImage.rows.switchLayout': undefined;
+  /** Switch merged window */
+  'host.settings.reminderImage.rows.switchMergerWindow': undefined;
+  /** Toggle top most */
+  'host.settings.reminderImage.rows.topMost': undefined;
+  /** "Mute audio only" can't be combined with the other cutscenes mode options. */
+  'host.settings.rules.cutscenesMuteAudioOnly': undefined;
+  /** "Assign gamepads by index" and "Assign gamepads on button press" can't both be on. */
+  'host.settings.rules.gamepadAssignment': undefined;
+  /** Playback device of each game instance. This may not work with every game. */
+  'host.settings.sections.audio.description': undefined;
+  /** Playback device of each game instance. This may not work with every game. Default playback device: {device}. */
+  'host.settings.sections.audio.descriptionWithDefault': { device: ParamValue };
+  /** Audio */
+  'host.settings.sections.audio.title': undefined;
+  /** Button combinations available during a game session (XInput gamepads). Steam Input may interfere with them.... */
+  'host.settings.sections.gamepad.description': undefined;
+  /** Gamepad shortcuts */
+  'host.settings.sections.gamepad.title': undefined;
   /** Language, network and Windows user accounts used by game instances. */
   'host.settings.sections.general.description': undefined;
   /** General */
   'host.settings.sections.general.title': undefined;
+  /** Shortcuts available during a game session. Changes apply from the next session. */
+  'host.settings.sections.hotkeys.description': undefined;
+  /** Keyboard shortcuts */
+  'host.settings.sections.hotkeys.title': undefined;
+  /** Defaults of the custom screen layout, split-screen background, cutscenes mode and Windows merger. Profiles ... */
+  'host.settings.sections.layout.description': undefined;
+  /** Layout */
+  'host.settings.sections.layout.title': undefined;
+  /** How gamepads are assigned to players. Nicknames and Steam IDs are edited with the player list. */
+  'host.settings.sections.players.description': undefined;
+  /** Players */
+  'host.settings.sections.players.title': undefined;
   /** {percent} translated */
   'language.firstRun.completion': { percent: ParamValue };
   /** Continue in {language} */

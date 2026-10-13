@@ -135,6 +135,27 @@
         "general": {
           "title": "General",
           "description": "Language, network and Windows user accounts used by game instances."
+        },
+        "players": {
+          "title": "Players",
+          "description": "How gamepads are assigned to players. Nicknames and Steam IDs are edited with the player list."
+        },
+        "hotkeys": {
+          "title": "Keyboard shortcuts",
+          "description": "Shortcuts available during a game session. Changes apply from the next session."
+        },
+        "gamepad": {
+          "title": "Gamepad shortcuts",
+          "description": "Button combinations available during a game session (XInput gamepads). Steam Input may interfere with them. The Nucleus window itself works with any gamepad: D-pad or left stick to move, A to select, B to go back, right stick to scroll."
+        },
+        "audio": {
+          "title": "Audio",
+          "description": "Playback device of each game instance. This may not work with every game.",
+          "descriptionWithDefault": "Playback device of each game instance. This may not work with every game. Default playback device: {device}."
+        },
+        "layout": {
+          "title": "Layout",
+          "description": "Defaults of the custom screen layout, split-screen background, cutscenes mode and Windows merger. Profiles keep their own copy."
         }
       },
       "fields": {
@@ -142,7 +163,269 @@
           "appLanguage": {
             "label": "Language",
             "description": "Language of Nucleus Co-op's windows and messages. Handler notes and game names stay as their authors wrote them."
+          },
+          "steamLanguage": {
+            "label": "Steam language",
+            "description": "Language reported by the Steam emulator. A game can override it from its menu.",
+            "automatic": "Automatic (Steam client language)"
+          },
+          "epicLanguage": {
+            "label": "Epic / GOG language",
+            "description": "Language reported by the Epic and GOG emulators."
+          },
+          "network": {
+            "label": "Network adapter",
+            "description": "Adapter used by handlers that change the IP address of each instance."
+          },
+          "useNicknames": {
+            "label": "Use nicknames in game",
+            "description": "Player nicknames are passed to the game when the handler supports it."
+          },
+          "keepAccounts": {
+            "label": "Keep Nucleus user accounts",
+            "description": "Keeps the Windows user accounts Nucleus creates for some games. When off, the next game that uses them deletes them with their files and saves.",
+            "confirm": {
+              "title": "Turn off Keep Nucleus user accounts?",
+              "message": "The next time you run a game that uses separate Windows user accounts, Nucleus deletes every account it created, with their files and saves.",
+              "confirmLabel": "Turn off"
+            }
+          },
+          "nucleusAccountPassword": {
+            "label": "Nucleus user accounts password",
+            "description": "Password of the Windows accounts Nucleus creates. Stored in plain text in Settings.ini. 12345 or empty uses the built-in password."
+          },
+          "autoDesktopScaling": {
+            "label": "Set desktop scale to 100% during sessions",
+            "description": "Some games need 100% display scaling to place their windows correctly."
+          },
+          "fastLaunch": {
+            "label": "Fast launch",
+            "description": "Starts each instance as soon as the previous one is ready instead of always waiting the handler's full pauses. Turn it off if a game stops launching correctly."
+          },
+          "ignoreInputLockReminder": {
+            "label": "Don't remind me to lock inputs",
+            "description": "When off, a message at launch explains how to lock keyboard and mouse input."
+          },
+          "debugLog": {
+            "label": "Enable debug log",
+            "description": "Writes debug-log.txt in the Nucleus folder. Turned off automatically when the log grows past 150 KB."
+          },
+          "disableGameProfiles": {
+            "label": "Disable game profiles",
+            "description": "Nucleus uses these global settings instead of per-game profiles."
           }
+        },
+        "players": {
+          "assignGamepadsByIndex": {
+            "label": "Assign gamepads by index",
+            "description": "Default for new games: profiles store gamepad API indexes instead of hardware ids (some handlers turn it off). Switching modes can prevent older profiles from loading."
+          },
+          "assignGamepadsOnButtonPress": {
+            "label": "Assign gamepads on button press",
+            "description": "Default for new games: profiles assign gamepads when players press a button instead of reusing the saved ones. Works well with custom nicknames."
+          }
+        },
+        "hotkeys": {
+          "closeApp": {
+            "label": "Close Nucleus"
+          },
+          "stopSession": {
+            "label": "Stop session"
+          },
+          "topMost": {
+            "label": "Toggle top most"
+          },
+          "setFocus": {
+            "label": "Toggle unfocus"
+          },
+          "resetWindows": {
+            "label": "Reset windows"
+          },
+          "cutscenesMode": {
+            "label": "Cutscenes mode"
+          },
+          "switchLayout": {
+            "label": "Switch layout"
+          },
+          "shortcutsReminder": {
+            "label": "Show shortcuts reminder"
+          },
+          "switchMergerWindow": {
+            "label": "Switch merged window",
+            "description": "With the Windows merger: each press brings another game window to the front (like Alt+Tab)."
+          },
+          "lockInputs": {
+            "label": "Lock inputs key",
+            "description": "Locks and unlocks keyboard and mouse input during a session (no modifier)."
+          }
+        },
+        "gamepad": {
+          "setFocus": {
+            "label": "Toggle unfocus"
+          },
+          "close": {
+            "label": "Close Nucleus"
+          },
+          "stopSession": {
+            "label": "Stop session"
+          },
+          "topMost": {
+            "label": "Toggle top most"
+          },
+          "resetWindows": {
+            "label": "Reset windows"
+          },
+          "cutscenesMode": {
+            "label": "Cutscenes mode"
+          },
+          "switchLayout": {
+            "label": "Switch layout"
+          },
+          "lockInputs": {
+            "label": "Lock / unlock inputs"
+          },
+          "releaseCursor": {
+            "description": "Sends Alt+Tab to get the cursor out of a game window."
+          },
+          "type": {
+            "label": "Gamepad type",
+            "description": "Button names and pictures shown for the shortcuts."
+          }
+        },
+        "audio": {
+          "mode": {
+            "label": "Playback devices",
+            "choices": {
+              "sameDevice": "Use the default playback device for every instance",
+              "perInstance": "Choose a device for each instance"
+            }
+          },
+          "instance": {
+            "label": "Instance {number}",
+            "description": "Used when \"Choose a device for each instance\" is selected."
+          }
+        },
+        "layout": {
+          "verticalLines": {
+            "label": "Vertical divisions",
+            "description": "Columns of the custom layout grid, minus one."
+          },
+          "horizontalLines": {
+            "label": "Horizontal divisions",
+            "description": "Rows of the custom layout grid, minus one. Maximum players = (horizontal + 1) × (vertical + 1)."
+          },
+          "splitDiv": {
+            "label": "Split-screen division",
+            "description": "Fills the screen behind the game windows with a colour. May not work for all games."
+          },
+          "splitDivColor": {
+            "label": "Background colour"
+          },
+          "hideDesktopOnly": {
+            "label": "Hide desktop only",
+            "description": "Only shows the background window, without resizing or moving the game windows."
+          },
+          "cutscenesMuteAudioOnly": {
+            "label": "Cutscenes mode: mute audio only",
+            "description": "Can't be combined with the two options below."
+          },
+          "cutscenesKeepAspectRatio": {
+            "label": "Cutscenes mode: keep original window size"
+          },
+          "cutscenesUnfocus": {
+            "label": "Cutscenes mode: unfocus windows"
+          },
+          "windowsMerger": {
+            "label": "Windows merger",
+            "description": "Merges the game windows into one window, so Lossless Scaling can be used. Multiple monitors are not supported yet."
+          },
+          "losslessHook": {
+            "label": "Lossless hook",
+            "description": "Lossless Scaling keeps upscaling when another window gets the focus (for games that need real focus to receive input)."
+          },
+          "mergerResolution": {
+            "label": "Windows merger resolution",
+            "description": "Size of the merged window. Defaults to the primary screen.",
+            "choice": "{width} × {height} ({screens})"
+          }
+        }
+      },
+      "colors": {
+        "black": "Black",
+        "gray": "Gray",
+        "white": "White",
+        "darkBlue": "Dark Blue",
+        "blue": "Blue",
+        "purple": "Purple",
+        "pink": "Pink",
+        "red": "Red",
+        "orange": "Orange",
+        "yellow": "Yellow",
+        "green": "Green"
+      },
+      "gamepadButtons": {
+        "dpadUp": "D-pad Up",
+        "dpadDown": "D-pad Down",
+        "dpadLeft": "D-pad Left",
+        "dpadRight": "D-pad Right",
+        "leftStick": "Left Stick",
+        "rightStick": "Right Stick",
+        "cross": "Cross",
+        "circle": "Circle",
+        "square": "Square",
+        "triangle": "Triangle"
+      },
+      "rules": {
+        "gamepadAssignment": "\"Assign gamepads by index\" and \"Assign gamepads on button press\" can't both be on.",
+        "cutscenesMuteAudioOnly": "\"Mute audio only\" can't be combined with the other cutscenes mode options."
+      },
+      "reminderImage": {
+        "keyboardTitle": "Keyboard shortcuts",
+        "gamepadTitle": "Gamepad shortcuts",
+        "rows": {
+          "closeApp": "Close Nucleus",
+          "stopSession": "Stop session",
+          "topMost": "Toggle top most",
+          "setFocus": "Toggle unfocus",
+          "resetWindows": "Reset windows",
+          "cutscenesMode": "Cutscenes mode",
+          "switchLayout": "Switch layout",
+          "shortcutsReminder": "Shortcuts reminder",
+          "switchMergerWindow": "Switch merged window",
+          "lockInputs": "Lock / unlock inputs"
+        }
+      },
+      "errors": {
+        "unknownSetting": "Unknown setting.",
+        "invalidValue": "Invalid value.",
+        "alreadyUsed": "Already used by \"{label}\".",
+        "toggle": "Use true or false.",
+        "wholeNumber": "Enter a whole number.",
+        "numberRange": "Enter a number between {min} and {max}.",
+        "choice": "Choose one of the listed values.",
+        "maxLength_one": "Use at most {count} character.",
+        "maxLength_other": "Use at most {count} characters.",
+        "lineBreaks": "Line breaks are not allowed.",
+        "codePage": "Some characters can't be saved in Settings.ini on this PC (it uses the system code page).",
+        "hotkeyFormat": "Use one modifier and one key, for example Ctrl+Q.",
+        "hotkeyModifier": "The modifier must be Ctrl, Alt or Shift.",
+        "hotkeyKey": "The key must be a single letter or digit.",
+        "singleButton": "Use a single button.",
+        "twoButtons": "Use a combination of two buttons, for example Guide + Y.",
+        "unknownButton": "'{code}' is not a gamepad button code.",
+        "differentButtons": "Use two different buttons.",
+        "bothTriggers": "Both triggers can't be combined: use a trigger with a button.",
+        "noGamepad": "No XInput gamepad is connected.",
+        "noButtonPressed": "No gamepad button was pressed."
+      },
+      "players": {
+        "errors": {
+          "numberRange": "Player numbers go from 1 to {max}.",
+          "listedTwice": "Player {number} is listed twice.",
+          "steamIdFormat": "A Steam ID is 17 digits, for example 76561199075562883.",
+          "nicknameInUse": "This nickname is already used by player {number}.",
+          "steamIdInUse": "This Steam ID is already used by player {number}.",
+          "nicknameCharacters": "Nicknames are used as folder names: avoid \\ / : * ? \" < > |."
         }
       }
     }

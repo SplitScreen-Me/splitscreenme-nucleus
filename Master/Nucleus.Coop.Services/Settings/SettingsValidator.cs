@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using Nucleus.Bridge.Contracts;
+using Nucleus.Gaming.Localization;
 
 namespace Nucleus.Coop.Services.Settings;
 
@@ -88,7 +89,7 @@ public static class SettingsValidator
         {
             if (!byKey.TryGetValue(change.Key, out SettingRule? rule))
             {
-                errors.Add(Error(change.Key, "Unknown setting."));
+                errors.Add(Error(change.Key, I18n.T("host.settings.errors.unknownSetting")));
                 continue;
             }
 
@@ -96,7 +97,7 @@ public static class SettingsValidator
             string? normalized = Normalize(rule, change.Value, currentValue, out string? error);
             if (normalized == null)
             {
-                errors.Add(Error(change.Key, error ?? "Invalid value."));
+                errors.Add(Error(change.Key, error ?? I18n.T("host.settings.errors.invalidValue")));
                 continue;
             }
 
@@ -122,7 +123,7 @@ public static class SettingsValidator
                     {
                         string key = changed.Contains(rule.Key) ? rule.Key : other.Key;
                         string otherLabel = key == rule.Key ? other.Label : rule.Label;
-                        errors.Add(Error(key, $"Already used by \"{otherLabel}\"."));
+                        errors.Add(Error(key, I18n.T("host.settings.errors.alreadyUsed", new { label = otherLabel })));
                     }
                 }
                 else
@@ -158,19 +159,19 @@ public static class SettingsValidator
                     return flag ? "true" : "false";
                 }
 
-                error = "Use true or false.";
+                error = I18n.T("host.settings.errors.toggle");
                 return null;
 
             case SettingType.Number:
                 if (!int.TryParse(value.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out int number))
                 {
-                    error = "Enter a whole number.";
+                    error = I18n.T("host.settings.errors.wholeNumber");
                     return null;
                 }
 
                 if ((rule.Min.HasValue && number < rule.Min.Value) || (rule.Max.HasValue && number > rule.Max.Value))
                 {
-                    error = $"Enter a number between {rule.Min ?? int.MinValue} and {rule.Max ?? int.MaxValue}.";
+                    error = I18n.T("host.settings.errors.numberRange", new { min = rule.Min ?? int.MinValue, max = rule.Max ?? int.MaxValue });
                     return null;
                 }
 
@@ -182,7 +183,7 @@ public static class SettingsValidator
                     return value;
                 }
 
-                error = "Choose one of the listed values.";
+                error = I18n.T("host.settings.errors.choice");
                 return null;
 
             case SettingType.Hotkey:
@@ -195,19 +196,19 @@ public static class SettingsValidator
             default:
                 if (rule.MaxLength.HasValue && value.Length > rule.MaxLength.Value)
                 {
-                    error = $"Use at most {rule.MaxLength.Value} characters.";
+                    error = I18n.T("host.settings.errors.maxLength", new { count = rule.MaxLength.Value });
                     return null;
                 }
 
                 if (value.IndexOfAny(new[] { '\r', '\n', '\0' }) >= 0)
                 {
-                    error = "Line breaks are not allowed.";
+                    error = I18n.T("host.settings.errors.lineBreaks");
                     return null;
                 }
 
                 if (!FitsIniCodePage(value))
                 {
-                    error = "Some characters can't be saved in Settings.ini on this PC (it uses the system code page).";
+                    error = I18n.T("host.settings.errors.codePage");
                     return null;
                 }
 
