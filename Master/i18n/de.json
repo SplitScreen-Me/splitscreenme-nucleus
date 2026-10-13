@@ -102,7 +102,7 @@
       "playerNamed": "Spieler {number} ({nickname}): {devices}",
       "playerShort": "S{number}",
       "noDevice": "kein Gerät",
-      "vibrateHint": "{label}. Klicke, um das Gamepad vibrieren zu lassen.",
+      "vibrateHint": "{label}. Klick, um das Gamepad vibrieren zu lassen.",
       "vibrateLabel": "{label}. Vibrieren",
       "freeDevicesHint": "Frei: {names}",
       "freeDevicesLabel_one": "{count} frei: {names}",
@@ -124,7 +124,7 @@
     "skipToContent": "Zum Inhalt springen",
     "offlineBanner": {
       "title": "Der Hub ist offline.",
-      "message": "Deine Spiele funktionieren weiter; Handler installieren und aktualisieren geht erst wieder, wenn er zurück ist."
+      "message": "Deine Spiele funktionieren weiter; Handler kannst du erst wieder installieren und aktualisieren, wenn er wieder online ist."
     },
     "hintBar": {
       "label": "Steuerung",
@@ -176,13 +176,13 @@
     },
     "notFound": {
       "crumb": "Nicht gefunden",
-      "title": "Diesen Bildschirm gibt es nicht",
+      "title": "Diese Seite gibt es nicht",
       "message": "Der Link stammt vielleicht aus einer älteren Version von Nucleus Co-op.",
       "backToLibrary": "Zurück zur Bibliothek"
     },
     "crashed": {
-      "title": "Auf diesem Bildschirm ist etwas kaputtgegangen",
-      "message": "Nucleus Co-op läuft weiter. Geh zurück zur Bibliothek und versuch es noch mal; passiert es wieder, kopiere die Details unten in einen Fehlerbericht.",
+      "title": "Auf dieser Seite ist etwas kaputtgegangen",
+      "message": "Nucleus Co-op läuft weiter. Geh zurück zur Bibliothek und versuch es noch mal; passiert es wieder, kopier die Details unten in einen Fehlerbericht.",
       "unknownError": "Unbekannter Fehler",
       "backToLibrary": "Zurück zur Bibliothek"
     }
@@ -298,7 +298,7 @@
     },
     "empty": {
       "title": "Deine Bibliothek ist leer",
-      "text": "Füg die Spiele hinzu, die Nucleus auf diesem PC gefunden hat, wähle einen Handler im Hub oder zeig Nucleus ein Spiel, das du hast. Jedes Spiel bekommt ein fertiges Splitscreen-Setup.",
+      "text": "Füg die Spiele hinzu, die Nucleus auf diesem PC gefunden hat, wähl einen Handler im Hub oder zeig Nucleus ein Spiel, das du hast. Jedes Spiel bekommt ein fertiges Splitscreen-Setup.",
       "getGames": "Spiele holen",
       "addGame": "Spiel hinzufügen"
     },
@@ -371,6 +371,7 @@
       "maintainer": "Betreuer",
       "steamApp": "Steam-App",
       "players": "Spieler",
+      "playersValue_one": "Bis zu {count}",
       "playersValue_other": "Bis zu {count}",
       "inputs": "Eingaben",
       "profiles": "Profile",
@@ -385,6 +386,7 @@
       "showInExplorer": "Im Datei-Explorer anzeigen"
     },
     "hubStrip": {
+      "title_one": "Beliebt im Hub für {count} oder mehr Spieler",
       "title_other": "Beliebt im Hub für {count} oder mehr Spieler",
       "openGetGames": "„Spiele holen“ öffnen",
       "tileLabel": "{game} im Hub",
@@ -422,7 +424,7 @@
       "removeFavourite": "{game} aus den Favoriten entfernen",
       "favouriteTitle": "Favorit",
       "addFavouriteTitle": "Zu Favoriten hinzufügen",
-      "missingLabel": "{game}: ausführbare Datei nicht gefunden. Ort angeben",
+      "missingLabel": "{game}: ausführbare Datei nicht gefunden. Spiel finden",
       "notFound": "Spiel nicht gefunden",
       "locate": "Finden",
       "executableMissing": "Ausführbare Datei fehlt",
@@ -457,10 +459,10 @@
       "selectToAdd": "Spiele zum Hinzufügen auswählen",
       "scanAgain": "Erneut scannen",
       "emptyTitle": "Nichts Neues auf diesem PC",
-      "noneNew_one": "{count} Spiel über {stores} installiert, aber es hat keinen Handler, den du nicht schon hast.",
-      "noneNew_other": "{count} Spiele über {stores} installiert, aber keins davon hat einen Handler, den du nicht schon hast.",
-      "noneNewAnyStore_one": "{count} Spiel über deine Stores installiert, aber es hat keinen Handler, den du nicht schon hast.",
-      "noneNewAnyStore_other": "{count} Spiele über deine Stores installiert, aber keins davon hat einen Handler, den du nicht schon hast.",
+      "noneNew_one": "{count} Spiel über {stores} installiert, aber dafür gibt es keinen Handler, den du noch nicht hast.",
+      "noneNew_other": "{count} Spiele über {stores} installiert, aber für keins davon gibt es einen Handler, den du noch nicht hast.",
+      "noneNewAnyStore_one": "{count} Spiel über deine Stores installiert, aber dafür gibt es keinen Handler, den du noch nicht hast.",
+      "noneNewAnyStore_other": "{count} Spiele über deine Stores installiert, aber für keins davon gibt es einen Handler, den du noch nicht hast.",
       "noGames": "Nucleus sucht nach Spielen, die über Steam und Epic installiert wurden. Installiere ein Spiel und scanne dann erneut.",
       "steps": {
         "waiting": "Wartet",
@@ -532,19 +534,21 @@
     "offlineCopy": "Der Hub ist nicht erreichbar. Angezeigt wird der am <b>{date}</b> gespeicherte Katalog.",
     "results": {
       "loading": "Katalog wird geladen…",
+      "all_one": "{count} Spiel",
       "all_other": "Alle {count} Spiele",
       "count_zero": "Keine Spiele",
       "count_one": "{count} Spiel",
       "count_other": "{count} Spiele",
       "sortBy": "Sortieren nach",
       "sortLabel": "Spiele sortieren",
+      "showMore_one": "{count} weiteres anzeigen",
       "showMore_other": "{count} weitere anzeigen",
       "showing": "{shown} von {total} angezeigt"
     },
     "noMatch": {
       "title": "Noch kein passender Handler",
-      "withQuery": "Nichts für „{query}“ mit diesen Filtern. Prüf die Schreibweise, nutze weniger Filter oder frag die Community: Handler-Autoren nehmen Wünsche auf Discord auf.",
-      "text": "Nutze weniger Filter oder frag die Community nach dem Spiel, das du willst: Handler-Autoren nehmen Wünsche auf Discord auf.",
+      "withQuery": "Nichts für „{query}“ mit diesen Filtern. Prüf die Schreibweise, versuch es mit weniger Filtern oder frag die Community: Handler-Autoren nehmen Wünsche auf Discord auf.",
+      "text": "Versuch es mit weniger Filtern oder frag die Community nach dem Spiel, das du dir wünschst: Handler-Autoren nehmen Wünsche auf Discord auf.",
       "clear": "Filter entfernen",
       "request": "Auf Discord anfragen"
     },
@@ -574,7 +578,7 @@
       "offlineTitle": "Der Hub ist nicht erreichbar",
       "offlineText": "Nucleus Co-op konnte diesen Handler nicht laden. Prüf deine Verbindung und versuch es noch mal.",
       "goneTitle": "Dieser Handler ist nicht mehr im Hub",
-      "goneText": "Sein Autor hat ihn vielleicht entfernt oder auf privat gestellt. Möglicherweise gibt es andere Handler für dasselbe Spiel.",
+      "goneText": "Der Autor hat ihn vielleicht entfernt oder auf privat gestellt. Möglicherweise gibt es andere Handler für dasselbe Spiel.",
       "back": "Zurück zu „Spiele holen“"
     },
     "hero": {
@@ -622,7 +626,7 @@
       "moderators": "Hub-Moderatoren",
       "supported": "Unterstützt",
       "notSupported": "Nicht unterstützt",
-      "onePerPlayer": "Eine pro Spieler",
+      "onePerPlayer": "Ein Set pro Spieler",
       "verified": "Verifiziert",
       "notVerified": "Noch nicht verifiziert",
       "notStated": "Keine Angabe"
@@ -675,7 +679,7 @@
       "cancelLabel": "Download von {game} abbrechen",
       "updatingNote": "Der Handler wird aktualisiert. Das Spiel bleibt währenddessen spielbar.",
       "installingNote": "Handler für {game} wird aus dem Hub installiert.",
-      "waitingForFile": "Warte auf die Spieldatei…",
+      "waitingForFile": "Warten auf die Spieldatei…",
       "pickNote": "Wähl die ausführbare Datei von {game} in dem Fenster, das Nucleus geöffnet hat.",
       "locate": "Spiel finden",
       "missingNote": "Installiert, Version {version}. Nucleus findet {game} nicht mehr: Zeig ihm, wo das Spiel ist.",
@@ -746,8 +750,8 @@
     },
     "stage": {
       "queued": "Wartet…",
-      "downloading": "Wird heruntergeladen…",
-      "downloadingPercent": "Wird heruntergeladen… {percent}",
+      "downloading": "Lädt herunter…",
+      "downloadingPercent": "Lädt herunter… {percent}",
       "extracting": "Wird installiert…",
       "done": "Installiert",
       "failed": "Fehlgeschlagen",
@@ -822,7 +826,7 @@
     },
     "asideLabel": "Sitzung",
     "keys": {
-      "waiting": "Warte auf einen Controller: <b>{cancel}</b> bricht ab",
+      "waiting": "Warten auf einen Controller: <b>{cancel}</b> bricht ab",
       "help": "Tastatur: <b>{pickUp}</b> nimmt einen Spieler auf, <b>{resize}</b> ändert die Größe, <b>{remove}</b> nimmt ihn raus"
     },
     "hints": {
@@ -921,7 +925,7 @@
     },
     "canvas": {
       "title": "Bildschirme",
-      "description": "Zieh einen Spieler auf einen anderen Platz, um zu tauschen, oder in den Wartebereich, um ihn rauszunehmen.",
+      "description": "Zieh einen Spieler auf einen anderen Platz, um die Plätze zu tauschen, oder in den Wartebereich, um ihn rauszunehmen.",
       "seats_one": "<b>{seats}</b> von {count} Spieler",
       "seats_other": "<b>{seats}</b> von {count} Spielern"
     },
@@ -936,7 +940,7 @@
       "labelExpected": "{place}: Das Profil erwartet hier einen Spieler. Drück Start auf einem freien Controller, um beizutreten, oder aktiviere, um hier auf einen Controller zu warten.",
       "labelExpectedMoving": "{place}: Das Profil erwartet hier einen Spieler. Enter verschiebt den Spieler hierher.",
       "moveHere": "Hierher verschieben",
-      "expected": "Warte auf einen Spieler",
+      "expected": "Wartet auf einen Spieler",
       "expectedNote": "Vom Profil festgelegt",
       "join": "Drück Start zum Beitreten",
       "joinNote": "Oder wähl ihn aus und drück eine beliebige Taste"
@@ -944,17 +948,17 @@
     "spot": {
       "pressButton": "Drück eine Taste auf einem Controller",
       "cancelHint": "B oder Esc bricht ab",
-      "label": "{place}: Warte auf einen Controller. Drück eine Taste auf einem freien Controller, um ihn hier zu platzieren. Escape bricht ab.",
-      "waiting": "Warte auf einen Controller für {place}: Drück eine Taste darauf. Escape bricht ab.",
-      "waitingHere": "Warte auf einen Controller für diesen Platz: Drück eine Taste darauf. Escape bricht ab.",
+      "label": "{place}: wartet auf einen Controller. Drück eine Taste auf einem freien Controller, um ihn hier zu platzieren. Esc bricht ab.",
+      "waiting": "Warten auf einen Controller für {place}: Drück eine Taste darauf. Esc bricht ab.",
+      "waitingHere": "Warten auf einen Controller für diesen Platz: Drück eine Taste darauf. Esc bricht ab.",
       "cancelled": "Warten auf einen Controller beendet."
     },
     "move": {
-      "pickedUp": "{player} aufgenommen. Geh zu einem anderen Platz und drück Enter. Escape bricht ab.",
+      "pickedUp": "{player} aufgenommen. Geh zu einem anderen Platz und drück Enter. Esc bricht ab.",
       "putBack": "Zurückgelegt.",
       "cancelled": "Verschieben abgebrochen.",
       "swapped": "{first} und {second} getauscht.",
-      "moved": "{player} verschoben nach {place}."
+      "moved": "{player} nach {place} verschoben."
     },
     "resize": {
       "size": "{player}: {width} × {height}.",
@@ -965,7 +969,7 @@
     },
     "region": {
       "label": "Spieler {number}, {name}, {devices}, {place}. Enter zum Verschieben, Delete zum Rausnehmen.",
-      "labelResizable": "Spieler {number}, {name}, {devices}, {place}. Enter zum Verschieben, R für die Größe, Delete zum Rausnehmen.",
+      "labelResizable": "Spieler {number}, {name}, {devices}, {place}. Enter zum Verschieben, R zum Ändern der Größe, Delete zum Rausnehmen.",
       "resizingBottomRight": "Größe von Spieler {number}, {name} wird geändert: {width} × {height}. Pfeiltasten verschieben die Ecke unten rechts, X wechselt die Ecke, Enter zum Abschließen.",
       "resizingTopLeft": "Größe von Spieler {number}, {name} wird geändert: {width} × {height}. Pfeiltasten verschieben die Ecke oben links, X wechselt die Ecke, Enter zum Abschließen."
     },
@@ -1294,7 +1298,7 @@
           "help": "Die anderen Fenster behalten ihre Größe und werden nur stummgeschaltet."
         },
         "cutscenesUnfocus": {
-          "label": "Anderen Fenstern den Fokus nehmen"
+          "label": "Anderen Fenstern den Fokus entziehen"
         },
         "network": {
           "label": "Netzwerkschnittstelle",
@@ -1478,8 +1482,8 @@
     },
     "notes": {
       "title": "Handler-Hinweise",
-      "byMaintainer": "So verbindest du die Kopien, von {name}",
-      "byAuthor": "So verbindest du die Kopien, vom Handler-Autor",
+      "byMaintainer": "So verbindest du die Kopien (von {name})",
+      "byAuthor": "So verbindest du die Kopien (vom Handler-Autor)",
       "textLabel": "Text der Handler-Hinweise",
       "loading": "Hinweise werden gelesen…",
       "error": "Die Hinweise konnten nicht gelesen werden.",
@@ -1520,7 +1524,7 @@
       "hotkey": {
         "label": "{label}: {value}. Ändern",
         "labelNotSet": "{label}: nicht festgelegt. Ändern",
-        "listeningLabel": "{label}: Drück das Tastenkürzel, Escape bricht ab",
+        "listeningLabel": "{label}: Drück das Tastenkürzel, Esc bricht ab",
         "listening": "Drück das Tastenkürzel…",
         "cancelHint": "{key} bricht ab"
       },
@@ -1556,7 +1560,7 @@
     },
     "about": {
       "title": "Info",
-      "tagline": "Kostenloser Open-Source-Splitscreen für PC-Spiele. Von Spielern gemacht, für Sofas überall.",
+      "tagline": "Kostenloser Open-Source-Splitscreen für PC-Spiele. Von Spielern gemacht – für jede Couch.",
       "facts": {
         "version": "Version",
         "hub": "Hub",
@@ -1659,7 +1663,7 @@
           },
           "keepAccounts": {
             "label": "Nucleus-Benutzerkonten behalten",
-            "description": "Behält die Windows-Benutzerkonten, die Nucleus für manche Spiele erstellt. Wenn aus, löscht das nächste Spiel, das sie nutzt, sie samt ihren Dateien und Spielständen.",
+            "description": "Behält die Windows-Benutzerkonten, die Nucleus für manche Spiele erstellt. Ist das aus, löscht das nächste Spiel, das sie nutzt, die Konten samt ihren Dateien und Spielständen.",
             "confirm": {
               "title": "„Nucleus-Benutzerkonten behalten“ ausschalten?",
               "message": "Wenn du das nächste Mal ein Spiel startest, das separate Windows-Benutzerkonten nutzt, löscht Nucleus alle Konten, die es erstellt hat, samt ihren Dateien und Spielständen.",
@@ -1727,7 +1731,7 @@
             "label": "Kürzel-Übersicht anzeigen"
           },
           "switchMergerWindow": {
-            "label": "Zusammengeführtes Fenster wechseln",
+            "label": "Spielfenster wechseln",
             "description": "Mit der Fensterzusammenführung: Jeder Druck holt ein anderes Spielfenster nach vorn (wie Alt+Tab)."
           },
           "lockInputs": {
@@ -1809,11 +1813,11 @@
             "label": "Zwischensequenz-Modus: ursprüngliche Fenstergröße behalten"
           },
           "cutscenesUnfocus": {
-            "label": "Zwischensequenz-Modus: Fenstern den Fokus nehmen"
+            "label": "Zwischensequenz-Modus: Fenstern den Fokus entziehen"
           },
           "windowsMerger": {
             "label": "Fensterzusammenführung",
-            "description": "Führt die Spielfenster zu einem Fenster zusammen, damit Lossless Scaling genutzt werden kann. Mehrere Monitore werden noch nicht unterstützt."
+            "description": "Führt die Spielfenster zu einem Fenster zusammen, damit Lossless Scaling genutzt werden kann. Mehrere Bildschirme werden noch nicht unterstützt."
           },
           "losslessHook": {
             "label": "Lossless-Hook",
@@ -1821,7 +1825,7 @@
           },
           "mergerResolution": {
             "label": "Auflösung der Fensterzusammenführung",
-            "description": "Größe des zusammengeführten Fensters. Standard ist der Hauptbildschirm.",
+            "description": "Größe des zusammengeführten Fensters. Standard ist der primäre Bildschirm.",
             "choice": "{width} × {height} ({screens})"
           }
         }
@@ -1867,7 +1871,7 @@
           "cutscenesMode": "Zwischensequenz-Modus",
           "switchLayout": "Layout wechseln",
           "shortcutsReminder": "Kürzel-Übersicht",
-          "switchMergerWindow": "Zusammengeführtes Fenster wechseln",
+          "switchMergerWindow": "Spielfenster wechseln",
           "lockInputs": "Eingaben sperren/entsperren"
         }
       },
@@ -2132,14 +2136,14 @@
         "players": {
           "count_one": "{count} Spieler",
           "count_other": "{count} Spieler",
-          "waitingForProfile": "Warte auf die Spieler des Profils",
+          "waitingForProfile": "Warten auf die Spieler des Profils",
           "profileMatched": "{matched} von {total} zugeordnet.",
           "none": "Kein Spieler platziert",
           "noneDetail": "Platziere mindestens einen Spieler auf einem Bildschirm."
         },
         "inputLock": {
           "title": "Drück {key}, um die Eingaben zu sperren",
-          "detail": "Manche Handler brauchen Tastatur und Maus an die Spielfenster gebunden. Drück {key} erneut, wenn du fertig gespielt hast.",
+          "detail": "Bei manchen Handlern müssen Tastatur und Maus an die Spielfenster gebunden sein. Drück {key} erneut, wenn du fertig gespielt hast.",
           "action": "Nicht mehr anzeigen"
         }
       },
@@ -2165,7 +2169,7 @@
         "withIds": "{device} ({vid}:{pid})"
       },
       "refusals": {
-        "invalidScreen": "Es gibt keinen Monitor mit diesem Index.",
+        "invalidScreen": "Es gibt keinen Bildschirm mit diesem Index.",
         "invalidSlot": "Es gibt keinen Slot mit diesem Index.",
         "manualLayout": "Das manuelle Layout hat keine Slots: Platziere den Spieler an einem Punkt.",
         "profileLocked": "Das geladene Profil bestimmt, wo die Spieler hinkommen.",
@@ -2181,7 +2185,7 @@
         "cannotResize": "Die Größe dieses Spielers lässt sich so nicht ändern.",
         "noFreeSlot": "Kein freier Slot.",
         "nothingToPlace": "Kein erkanntes Gerät wartet darauf, platziert zu werden.",
-        "full": "Alle Slots sind belegt und kein Monitor kann weiter aufgeteilt werden."
+        "full": "Alle Slots sind belegt und kein Bildschirm lässt sich weiter aufteilen."
       },
       "errors": {
         "noSetup": "Keine Spieleinrichtung geöffnet.",
@@ -2226,12 +2230,12 @@
     "session": {
       "actions": {
         "toggleTopmost": "Im Vordergrund an/aus",
-        "setFocus": "Spielfenstern den Fokus nehmen",
+        "setFocus": "Spielfenstern den Fokus entziehen",
         "resetWindows": "Fenster zurücksetzen",
         "cutscenesMode": "Zwischensequenz-Modus",
         "switchLayout": "Layout wechseln",
         "shortcutsReminder": "Kürzel-Übersicht",
-        "switchMergerForeground": "Nächstes zusammengeführtes Fenster"
+        "switchMergerForeground": "Nächstes Spielfenster"
       },
       "errors": {
         "alreadyRunning": "Es läuft bereits eine Sitzung.",
@@ -2294,7 +2298,7 @@
       },
       "oneDrive": {
         "title": "OneDrive muss deaktiviert sein",
-        "message": "Wenn OneDrive als Standardpfad für Dokumente dient, funktionieren viele Handler nicht, weil Nucleus nicht auf dessen Speicher zugreifen kann. Um den Dokumente-Pfad zu ändern, melde dich in der OneDrive-App ab, klick im Datei-Explorer mit der rechten Maustaste auf deinen Dokumente-Ordner, öffne die Eigenschaften, wähle Pfad bzw. Speicherort und setze ihn auf den Windows-Standard zurück."
+        "message": "Wenn OneDrive als Standardpfad für Dokumente dient, funktionieren viele Handler nicht, weil Nucleus nicht auf dessen Speicher zugreifen kann. Um den Dokumente-Pfad zu ändern, melde dich in der OneDrive-App ab, klick im Datei-Explorer mit der rechten Maustaste auf deinen Dokumente-Ordner, öffne die Eigenschaften, wähl Pfad bzw. Speicherort und setz ihn auf den Windows-Standard zurück."
       },
       "installFolder": {
         "message": "Nucleus Co-op sollte nicht hier installiert werden.\n\nInstalliere es NICHT in einem dieser Ordner:\n- Ein Ordner mit Spieldateien\n- {programFiles} oder {programFilesX86}\n- {users} (auch Dokumente, Desktop oder Downloads)\n- Ein Ordner mit Sicherheitseinstellungen wie {windows}\n\nEin guter Ort ist {example}"
@@ -2330,7 +2334,7 @@
     },
     "settingsLoad": {
       "title": "Fehler beim Laden der Nucleus-Einstellungen! Fehler: {error}\nStackTrace:\n{stackTrace}",
-      "message": "Nucleus kann seine Einstellungen nicht laden.\nBearbeite settings.ini nicht von Hand.\nVersuch, Nucleus mit 7-Zip erneut zu entpacken.\nWenn das Problem bleibt, bitte auf unserem Discord-Server um Hilfe."
+      "message": "Nucleus kann seine Einstellungen nicht laden.\nBearbeite settings.ini nicht von Hand.\nVersuch, Nucleus mit 7-Zip erneut zu entpacken.\nWenn das Problem bleibt, frag auf unserem Discord-Server nach Hilfe."
     },
     "handlers": {
       "errorTitle": "Fehler im Handler {file}",
@@ -2477,7 +2481,7 @@
       }
     },
     "osd": {
-      "playerStarting": "Starte Instanz von {game} für {nickname} als Spieler #{number}",
+      "playerStarting": "Instanz von {game} für {nickname} als Spieler {number} wird gestartet",
       "inputsLocked": "Eingaben gesperrt",
       "inputsUnlocked": "Eingaben entsperrt",
       "unlockInputsFirst": "Erst Eingaben entsperren",
@@ -2490,7 +2494,7 @@
       "switchingLayouts": "Layout wird gewechselt",
       "cutscenesModeOn": "Zwischensequenz-Modus an",
       "cutscenesModeOff": "Zwischensequenz-Modus aus",
-      "resettingWindows": "Spielfenster werden zurückgesetzt. Bitte warten...",
+      "resettingWindows": "Spielfenster werden zurückgesetzt. Bitte warten…",
       "windowsReset": "Spielfenster zurückgesetzt",
       "waitForReset": "Warte, bis die Spielfenster zurückgesetzt sind",
       "windowsMinimized": "Spielfenster minimiert",
@@ -2523,7 +2527,7 @@
         "description": "Wähl einen Prozess, den Nucleus für die Prozessmanipulation verwenden soll.",
         "refresh": "Aktualisieren",
         "noSelection": "Es wurde kein Prozess ausgewählt.",
-        "alreadyAssigned": "(NICHT VERWENDEN - in Nucleus bereits zugewiesen) {process}"
+        "alreadyAssigned": "(NICHT VERWENDEN – in Nucleus bereits zugewiesen) {process}"
       }
     }
   }
