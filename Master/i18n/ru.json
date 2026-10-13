@@ -1,0 +1,2684 @@
+{
+  "_meta": {
+    "locale": "ru",
+    "englishName": "Russian",
+    "nativeName": "Русский",
+    "direction": "ltr"
+  },
+  "common": {
+    "ok": "ОК",
+    "cancel": "Отмена",
+    "close": "Закрыть",
+    "back": "Назад",
+    "save": "Сохранить",
+    "delete": "Удалить",
+    "retry": "Повторить",
+    "tryAgain": "Попробовать снова",
+    "loading": "Загрузка",
+    "edit": "Изменить",
+    "add": "Добавить",
+    "remove": "Убрать",
+    "rename": "Переименовать",
+    "search": "Поиск",
+    "select": "Выбрать",
+    "change": "Сменить",
+    "browse": "Обзор",
+    "open": "Открыть",
+    "openMenu": "Открыть меню",
+    "more": "Ещё",
+    "showMore": "Показать ещё",
+    "showLess": "Свернуть",
+    "yes": "Да",
+    "no": "Нет",
+    "continue": "Продолжить",
+    "done": "Готово",
+    "apply": "Применить",
+    "reset": "Сбросить",
+    "restart": "Перезапустить",
+    "discard": "Не сохранять",
+    "skip": "Пропустить",
+    "install": "Установить",
+    "update": "Обновить",
+    "download": "Скачать",
+    "launch": "Запустить",
+    "stop": "Остановить",
+    "copy": "Копировать",
+    "copied": "Скопировано",
+    "details": "Подробности",
+    "settings": "Настройки",
+    "learnMore": "Подробнее",
+    "on": "Вкл.",
+    "off": "Выкл.",
+    "none": "Нет",
+    "unknown": "Неизвестно",
+    "default": "По умолчанию",
+    "automatic": "Автоматически",
+    "notAvailable": "{value} (недоступно)",
+    "time": {
+      "justNow": "только что",
+      "inMonth": "{month}"
+    },
+    "errors": {
+      "timeout": "Nucleus Co-op не ответил вовремя. Попробуйте снова.",
+      "internal": "В Nucleus Co-op что-то пошло не так. Подробности — в журнале приложения.",
+      "methodNotFound": "Эта версия Nucleus Co-op пока так не умеет.",
+      "serviceFailed": "Эта часть Nucleus Co-op не запустилась. Перезапустите приложение. Подробности — в журнале приложения.",
+      "unreachable": "Интерфейсу не удалось связаться с Nucleus Co-op. Попробуйте снова.",
+      "cancelled": "Отменено.",
+      "failed": "Не получилось. Попробуйте снова.",
+      "unknown": "Что-то пошло не так. Попробуйте снова."
+    },
+    "inputs": {
+      "controllers": "Контроллеры",
+      "keyboardMouse": "Клавиатура и мышь",
+      "multiKeyboardMouse": "Несколько клавиатур и мышей",
+      "unknown": "Поддержка ввода неизвестна"
+    },
+    "devices": {
+      "gamepad": "геймпад",
+      "keyboard": "клавиатура",
+      "mouse": "мышь",
+      "keyboardMouse": "клавиатура и мышь"
+    }
+  },
+  "shell": {
+    "startup": {
+      "starting": "Запуск Nucleus Co-op",
+      "mismatchTitle": "Версии интерфейса и приложения не совпадают",
+      "mismatchMessage": "Файлы интерфейса этой установки собраны не для Nucleus Co-op {version}. Переустановите Nucleus Co-op, чтобы получить подходящие файлы.",
+      "mismatchDetails": "Контракт интерфейса {uiContract} (протокол {uiProtocol}), контракт приложения {appContract} (протокол {appProtocol})",
+      "hostDownTitle": "Nucleus Co-op не отвечает",
+      "hostDownMessage": "Интерфейсу не удалось связаться с приложением. Закройте Nucleus Co-op и запустите его снова.",
+      "hostDownTimeout": "Приложение не ответило интерфейсу вовремя. Закройте Nucleus Co-op и запустите его снова.",
+      "hostDownDetails": "Подробности: {error}"
+    },
+    "titleBar": {
+      "home": "Nucleus Co-op, перейти в библиотеку",
+      "breadcrumb": "Навигационная цепочка",
+      "documentTitle": "{screen} — Nucleus Co-op",
+      "search": "Поиск игр, хендлеров, настроек",
+      "setupDevices": "Игроки и устройства в этой конфигурации",
+      "player": "Игрок {number}: {devices}",
+      "playerNamed": "Игрок {number} ({nickname}): {devices}",
+      "playerShort": "И{number}",
+      "noDevice": "нет устройства",
+      "vibrateHint": "{label}. Нажмите, чтобы геймпад завибрировал.",
+      "vibrateLabel": "{label}. Вибрация",
+      "freeDevicesHint": "Свободны: {names}",
+      "freeDevicesLabel_one": "{count} свободное устройство: {names}",
+      "freeDevicesLabel_few": "{count} свободных устройства: {names}",
+      "freeDevicesLabel_many": "{count} свободных устройств: {names}",
+      "freeDevicesLabel_other": "{count} свободного устройства: {names}",
+      "freeDevices_one": "Свободно: {count}",
+      "freeDevices_few": "Свободно: {count}",
+      "freeDevices_many": "Свободно: {count}",
+      "freeDevices_other": "Свободно: {count}",
+      "controllers": "Подключённые контроллеры",
+      "controllerFallback": "Контроллер {number}",
+      "controllerConnected": "{name}, подключён",
+      "controllerShort": "Геймпад {number}",
+      "noController": "Нет контроллера",
+      "noControllerHint": "Контроллеров пока не видно. Нажмите кнопку на контроллере, чтобы он появился здесь."
+    },
+    "window": {
+      "minimize": "Свернуть",
+      "maximize": "Развернуть",
+      "restore": "Восстановить"
+    },
+    "skipToContent": "Перейти к содержимому",
+    "offlineBanner": {
+      "title": "Hub недоступен.",
+      "message": "Ваши игры по-прежнему работают; установка и обновление хендлеров станут доступны, когда Hub снова будет в сети."
+    },
+    "hintBar": {
+      "label": "Управление",
+      "hintsLabel": "Подсказки по кнопкам",
+      "version": "Nucleus Co-op {version}"
+    },
+    "rail": {
+      "label": "Основное меню",
+      "library": "Библиотека",
+      "games": "Найти игры",
+      "downloads": "Загрузки",
+      "settings": "Настройки",
+      "inProgress_one": "{label}, выполняется: {count}",
+      "inProgress_few": "{label}, выполняется: {count}",
+      "inProgress_many": "{label}, выполняется: {count}",
+      "inProgress_other": "{label}, выполняется: {count}"
+    },
+    "palette": {
+      "label": "Поиск",
+      "search": "Поиск игр, хендлеров, настроек",
+      "results": "Результаты",
+      "noMatch": "По запросу «{query}» ничего не найдено.",
+      "groups": {
+        "goTo": "Перейти",
+        "yourGames": "Ваши игры",
+        "getGames": "Найти игры",
+        "settings": "Настройки"
+      },
+      "screens": {
+        "library": "Библиотека",
+        "games": "Найти игры",
+        "gamesHint": "Все хендлеры на Hub",
+        "downloads": "Загрузки",
+        "settings": "Настройки",
+        "session": "Сессия: {game}",
+        "sessionUnnamed": "Игровая сессия",
+        "sessionHint": "Идёт сейчас"
+      },
+      "gameHint_one": "Настроить сессию, до {count} игрока",
+      "gameHint_few": "Настроить сессию, до {count} игроков",
+      "gameHint_many": "Настроить сессию, до {count} игроков",
+      "gameHint_other": "Настроить сессию, до {count} игрока",
+      "handlerHint": "Хендлер, автор: {author}",
+      "settings": {
+        "general": "Общие: языки, сеть, ники, журнал отладки",
+        "players": "Игроки: ники и Steam ID",
+        "hotkeys": "Сочетания клавиш и клавиша блокировки ввода",
+        "gamepad": "Сочетания кнопок геймпада и тип контроллера",
+        "audio": "Звук: устройство вывода для каждого экземпляра",
+        "layout": "Раскладка: своя сетка, фон, объединение окон",
+        "about": "О программе, папка хендлеров, обновления"
+      }
+    },
+    "notFound": {
+      "crumb": "Не найдено",
+      "title": "Такого экрана не существует",
+      "message": "Возможно, ссылка осталась от более старой версии Nucleus Co-op.",
+      "backToLibrary": "В библиотеку"
+    },
+    "crashed": {
+      "title": "На этом экране что-то сломалось",
+      "message": "Nucleus Co-op всё ещё работает. Вернитесь в библиотеку и попробуйте снова; если ошибка повторится, скопируйте подробности ниже в отчёт об ошибке.",
+      "unknownError": "Неизвестная ошибка",
+      "backToLibrary": "В библиотеку"
+    }
+  },
+  "ui": {
+    "compat": {
+      "playersUnknown": "Число игроков неизвестно",
+      "maxPlayers_one": "До {count} игрока",
+      "maxPlayers_few": "До {count} игроков",
+      "maxPlayers_many": "До {count} игроков",
+      "maxPlayers_other": "До {count} игрока",
+      "playsWith": "Управление: {inputs}",
+      "inputsInList": {
+        "controllers": "контроллеры",
+        "keyboardMouse": "клавиатура и мышь",
+        "multiKeyboardMouse": "несколько клавиатур и мышей"
+      },
+      "notSupported": "{input} (не поддерживается)"
+    },
+    "playerTag": "И{number}",
+    "verified": "Проверено",
+    "markdown": {
+      "image": "Изображение"
+    },
+    "glyph": {
+      "xbox": {
+        "a": "Кнопка A",
+        "b": "Кнопка B",
+        "x": "Кнопка X",
+        "y": "Кнопка Y",
+        "lb": "Левый бампер",
+        "rb": "Правый бампер",
+        "menu": "Кнопка «Меню»",
+        "view": "Кнопка «Просмотр»"
+      },
+      "playstation": {
+        "a": "Кнопка «Крест»",
+        "b": "Кнопка «Круг»",
+        "x": "Кнопка «Квадрат»",
+        "y": "Кнопка «Треугольник»",
+        "menu": "Кнопка Options",
+        "view": "Кнопка Create"
+      }
+    }
+  },
+  "features": {
+    "addGame": {
+      "picker": {
+        "title": "Выберите исполняемый файл игры",
+        "titleNamed": "Где находится {game}? Выберите исполняемый файл",
+        "titleWithFile": "Где находится {game}? Выберите {file}",
+        "filter": "Исполняемый файл игры",
+        "filterFiles": "Исполняемый файл игры ({files})",
+        "filterNamed": "Исполняемый файл {game} ({files})"
+      },
+      "added": "Игра {game} добавлена в библиотеку",
+      "located": "Игра {game} найдена. Можно играть.",
+      "chooser": {
+        "title": "Какая это игра?",
+        "message": "<b>{file}</b> запускают несколько установленных хендлеров. Выберите игру, к которой относится этот исполняемый файл."
+      }
+    },
+    "fileDrop": {
+      "replace": {
+        "title": "Заменить установленный хендлер?",
+        "message": "У игры {game} уже есть хендлер. Заменить его на {file}? Ваши профили и настройки сохранятся.",
+        "messageUnknownGame": "Хендлер для этой игры уже установлен. Заменить его на {file}? Ваши профили и настройки сохранятся.",
+        "confirm": "Заменить"
+      },
+      "installed": "Хендлер {game} установлен",
+      "wrongType": "Перетащите файл хендлера: .nc, .zip или .js.",
+      "noPath": "Nucleus Co-op не удалось определить, где находится этот файл. Сохраните его в папку и перетащите из Проводника.",
+      "overlay": {
+        "title": "Отпустите, чтобы установить хендлер",
+        "hint": "Файлы .nc, .zip или .js. Затем Nucleus спросит, где находится игра."
+      }
+    },
+    "notices": {
+      "position": "{current} из {total}"
+    }
+  },
+  "language": {
+    "firstRun": {
+      "title": "Выберите язык",
+      "description": "Nucleus Co-op будет показывать окна и сообщения на этом языке. Его можно сменить в любой момент в настройках.",
+      "listLabel": "Языки",
+      "detected": "Язык вашей Windows",
+      "completion": "Переведено: {percent}",
+      "confirm": "Продолжить: {language}"
+    }
+  },
+  "library": {
+    "title": "Библиотека",
+    "hints": {
+      "gameOptions": "Параметры игры",
+      "favourite": "В избранное",
+      "updateHandler": "Обновить хендлер"
+    },
+    "loading": "Загрузка библиотеки",
+    "loadError": "Не удалось прочитать библиотеку",
+    "toasts": {
+      "handlerUpdated": "Хендлер {game} обновлён",
+      "handlerUpdatedTo": "Хендлер {game} обновлён до v{version}",
+      "favouriteAdded": "Игра {game} добавлена в избранное",
+      "favouriteRemoved": "Игра {game} убрана из избранного",
+      "gameRemoved": "Игра {game} удалена из библиотеки"
+    },
+    "attention": {
+      "gamesNotFound_one": "{count} игра не найдена",
+      "gamesNotFound_few": "{count} игры не найдены",
+      "gamesNotFound_many": "{count} игр не найдено",
+      "gamesNotFound_other": "{count} игры не найдено",
+      "handlerUpdates_one": "{count} обновление хендлера",
+      "handlerUpdates_few": "{count} обновления хендлеров",
+      "handlerUpdates_many": "{count} обновлений хендлеров",
+      "handlerUpdates_other": "{count} обновления хендлеров",
+      "one": "{item}.",
+      "both": "{missing}, {updates}."
+    },
+    "empty": {
+      "title": "Ваша библиотека пуста",
+      "text": "Добавьте игры, которые Nucleus нашёл на этом ПК, выберите хендлер на Hub или укажите Nucleus путь к своей игре. Каждая игра получает готовую конфигурацию разделённого экрана.",
+      "getGames": "Найти игры",
+      "addGame": "Добавить игру"
+    },
+    "upToPlayers_one": "До {count} игрока",
+    "upToPlayers_few": "До {count} игроков",
+    "upToPlayers_many": "До {count} игроков",
+    "upToPlayers_other": "До {count} игрока",
+    "handlerLine": {
+      "hub": "Хендлер с Hub",
+      "fromFile": "Хендлер установлен из файла",
+      "version": "Версия хендлера {version}",
+      "versionWithLatest": "Версия хендлера {version}, на Hub — {latest}"
+    },
+    "inputs": {
+      "controllersKeyboardsMice": "Контроллеры, клавиатуры и мыши",
+      "controllersKeyboardMouse": "Контроллеры, клавиатура и мышь",
+      "controllers": "Контроллеры",
+      "keyboardsMice": "Клавиатуры и мыши",
+      "keyboardMouse": "Клавиатура и мышь"
+    },
+    "featured": {
+      "setUpSession": "Настроить сессию",
+      "gameOptions": "Параметры игры",
+      "locateGame": "Указать путь",
+      "updating": "Обновление {percent}",
+      "updateTo": "Обновить до v{version}",
+      "missing": "Nucleus не находит исполняемый файл этой игры. Возможно, он был перемещён: укажите его, чтобы снова играть.",
+      "yourPlay": "Ваша статистика",
+      "lastPlayed": "Последний запуск",
+      "notRecorded": "Нет данных",
+      "playTime": "Время в игре",
+      "underAMinute": "Меньше минуты",
+      "notPlayed": "Вы ещё не играли. Раздайте контроллеры: каждый нажимает Start, чтобы присоединиться."
+    },
+    "options": {
+      "title": "{game}: параметры",
+      "defaultTitle": "Параметры игры",
+      "summary_one": "{handler}. До {count} игрока.",
+      "summary_few": "{handler}. До {count} игроков.",
+      "summary_many": "{handler}. До {count} игроков.",
+      "summary_other": "{handler}. До {count} игрока.",
+      "executableMissing": "Исполняемый файл игры отсутствует.",
+      "setUpSession": "Настроить сессию",
+      "locateGame": "Указать путь",
+      "updating": "Обновление {percent}",
+      "updateTo": "Обновить хендлер до v{version}",
+      "handlerPage": "Страница хендлера",
+      "loading": "Загрузка параметров {game}",
+      "loadError": "Не удалось прочитать параметры этой игры."
+    },
+    "gameMenu": {
+      "pickFileTitle": "{action}: {game}",
+      "done": "{action}: готово"
+    },
+    "gameInfo": {
+      "readError": "Nucleus Co-op не удалось прочитать данные этой игры."
+    },
+    "notes": {
+      "title": "{game}: заметки к хендлеру",
+      "defaultTitle": "Заметки к хендлеру",
+      "metaBy": "{file}, автор: {maintainer}",
+      "metaVersion": "{file}, версия {version}",
+      "metaByVersion": "{file}, автор: {maintainer}, версия {version}",
+      "none": "У этого хендлера нет заметок."
+    },
+    "details": {
+      "title": "{game}: подробности",
+      "defaultTitle": "Подробности об игре",
+      "executable": "Исполняемый файл",
+      "architecture": "Архитектура",
+      "handlerFile": "Файл хендлера",
+      "handlerVersion": "Версия хендлера",
+      "versionWithLatest": "{version} (на Hub — {latest})",
+      "maintainer": "Сопровождающий",
+      "steamApp": "Приложение Steam",
+      "players": "Игроки",
+      "playersValue_one": "До {count}",
+      "playersValue_few": "До {count}",
+      "playersValue_many": "До {count}",
+      "playersValue_other": "До {count}",
+      "inputs": "Ввод",
+      "profiles": "Профили",
+      "profileCount_one": "{count} сохранённый профиль",
+      "profileCount_few": "{count} сохранённых профиля",
+      "profileCount_many": "{count} сохранённых профилей",
+      "profileCount_other": "{count} сохранённого профиля",
+      "noProfiles": "Пока нет сохранённых",
+      "profilesOff": "Отключены",
+      "options": "Параметры",
+      "hasOptions": "У хендлера есть параметры или шаги настройки",
+      "instancesFolder": "Папка экземпляров",
+      "notSet": "Не задана",
+      "showInExplorer": "Показать в Проводнике"
+    },
+    "hubStrip": {
+      "title_one": "Популярное на Hub для {count} игрока и более",
+      "title_few": "Популярное на Hub для {count} игроков и более",
+      "title_many": "Популярное на Hub для {count} игроков и более",
+      "title_other": "Популярное на Hub для {count} игрока и более",
+      "openGetGames": "Открыть «Найти игры»",
+      "tileLabel": "{game} на Hub",
+      "tileMeta": "{players}, {downloads}"
+    },
+    "games": {
+      "title": "Ваши игры",
+      "count_one": "{count} игра",
+      "count_few": "{count} игры",
+      "count_many": "{count} игр",
+      "count_other": "{count} игры",
+      "countFiltered": "{shown} из {total}",
+      "sort": "Сортировка",
+      "sortLabel": "Сортировка игр",
+      "addGame": "Добавить игру",
+      "filtersLabel": "Фильтр игр",
+      "favourites": "Избранное",
+      "needsAttention": "Требуют внимания",
+      "allReady": "Все игры готовы к запуску. Ничего не требует вашего внимания.",
+      "noMatch": "Ни одна игра в библиотеке не подходит под эти фильтры.",
+      "showAll": "Показать все игры"
+    },
+    "sort": {
+      "lastPlayed": "Последний запуск",
+      "name": "Название, А–Я",
+      "nameDescending": "Название, Я–А",
+      "maxPlayers": "Больше игроков",
+      "playtime": "Больше наиграно"
+    },
+    "filters": {
+      "controllers": "Контроллеры",
+      "keyboard": "Клавиатура и мышь",
+      "multipleKeyboards": "Несколько клавиатур"
+    },
+    "card": {
+      "addFavourite": "Добавить {game} в избранное",
+      "removeFavourite": "Убрать {game} из избранного",
+      "favouriteTitle": "Избранное",
+      "addFavouriteTitle": "В избранное",
+      "missingLabel": "{game}: исполняемый файл игры не найден. Укажите его",
+      "notFound": "Игра не найдена",
+      "locate": "Указать",
+      "executableMissing": "Нет исполняемого файла",
+      "labelFavourite": "{game}, в избранном",
+      "labelUpdate": "{game}, доступно обновление хендлера",
+      "labelNew": "{game}, новая",
+      "labelFavouriteUpdate": "{game}, в избранном, доступно обновление хендлера",
+      "labelFavouriteNew": "{game}, в избранном, новая",
+      "versionBadge": "v{version}",
+      "new": "Новая",
+      "updatingHandler": "Обновление хендлера, {percent}",
+      "handlerUpdate": "Хендлер v{from} → v{to}",
+      "updateLabel": "Обновить хендлер {game} до версии {version}",
+      "updateTo": "Обновить до v{version}"
+    },
+    "found": {
+      "title": "Найдено на этом ПК",
+      "selectNone": "Снять выбор",
+      "selectAll": "Выбрать все",
+      "readingLibraries": "Чтение библиотек Steam и Epic…",
+      "matching": "Сопоставление с каталогом Hub…",
+      "readError": "Не удалось прочитать ваши игровые библиотеки",
+      "running": "Установка хендлеров и добавление игр. Не закрывайте Nucleus.",
+      "finished": "Готово. Для игр, где нужно ваше участие, указано, что сделать.",
+      "scannedStores_one": "Библиотека {stores} просканирована {ago}. У этих игр есть готовый хендлер на Hub.",
+      "scannedStores_few": "Библиотеки {stores} просканированы {ago}. У этих игр есть готовый хендлер на Hub.",
+      "scannedStores_many": "Библиотеки {stores} просканированы {ago}. У этих игр есть готовый хендлер на Hub.",
+      "scannedStores_other": "Библиотеки {stores} просканированы {ago}. У этих игр есть готовый хендлер на Hub.",
+      "scanned": "Просканировано {ago}. У этих игр есть готовый хендлер на Hub.",
+      "offline": "Hub недоступен: сейчас нельзя скачать хендлеры.",
+      "addingGames": "Добавление игр…",
+      "addCount_one": "Добавить {count} игру",
+      "addCount_few": "Добавить {count} игры",
+      "addCount_many": "Добавить {count} игр",
+      "addCount_other": "Добавить {count} игры",
+      "selectToAdd": "Выберите игры для добавления",
+      "scanAgain": "Сканировать снова",
+      "emptyTitle": "На этом ПК ничего нового",
+      "noneNew_one": "Для {count} игры, установленной через {stores}, нет нового для вас хендлера.",
+      "noneNew_few": "Среди {count} игр, установленных через {stores}, нет ни одной с новым для вас хендлером.",
+      "noneNew_many": "Среди {count} игр, установленных через {stores}, нет ни одной с новым для вас хендлером.",
+      "noneNew_other": "Среди {count} игры, установленных через {stores}, нет ни одной с новым для вас хендлером.",
+      "noneNewAnyStore_one": "Для {count} игры, установленной через ваши магазины, нет нового для вас хендлера.",
+      "noneNewAnyStore_few": "Среди {count} игр, установленных через ваши магазины, нет ни одной с новым для вас хендлером.",
+      "noneNewAnyStore_many": "Среди {count} игр, установленных через ваши магазины, нет ни одной с новым для вас хендлером.",
+      "noneNewAnyStore_other": "Среди {count} игры, установленных через ваши магазины, нет ни одной с новым для вас хендлером.",
+      "noGames": "Nucleus ищет игры, установленные через Steam и Epic. Установите игру и запустите сканирование снова.",
+      "steps": {
+        "waiting": "Ожидание",
+        "installing": "Установка хендлера",
+        "installingProgress": "Установка хендлера, {percent}",
+        "searching": "Поиск игры",
+        "picking": "Выберите исполняемый файл",
+        "adding": "Добавление",
+        "added": "Добавлена в библиотеку",
+        "installed": "Хендлер установлен, игра не добавлена",
+        "failed": "Ошибка",
+        "cancelled": "Отменено",
+        "addLater": "Добавьте игру позже в разделе «Ваши игры»",
+        "addFailed": "Не удалось добавить игру"
+      },
+      "toasts": {
+        "added_one": "{count} игра добавлена в библиотеку",
+        "added_few": "{count} игры добавлены в библиотеку",
+        "added_many": "{count} игр добавлено в библиотеку",
+        "added_other": "{count} игры добавлено в библиотеку",
+        "noneAdded": "Ни одна игра не добавлена",
+        "found_one": "Найдена {count} игра с хендлером на Hub",
+        "found_few": "Найдены {count} игры с хендлерами на Hub",
+        "found_many": "Найдено {count} игр с хендлерами на Hub",
+        "found_other": "Найдено {count} игры с хендлерами на Hub",
+        "nothingNew": "На этом ПК ничего нового"
+      },
+      "item": {
+        "upToPlayers_one": "до {count} игрока",
+        "upToPlayers_few": "до {count} игроков",
+        "upToPlayers_many": "до {count} игроков",
+        "upToPlayers_other": "до {count} игрока",
+        "playersUnknown": "число игроков неизвестно",
+        "meta": "{store}, {players}",
+        "metaVerified": "{store}, {players}, проверено",
+        "addLabel": "Добавить {game}"
+      }
+    }
+  },
+  "catalog": {
+    "title": "Найти игры",
+    "hints": {
+      "previousSection": "Предыдущий раздел",
+      "nextSection": "Следующий раздел"
+    },
+    "heading": "Найдите игру, чтобы играть вместе",
+    "intro": "У каждой игры здесь есть хендлер от сообщества. Выберите игру, установите хендлер в один клик и раздайте контроллеры.",
+    "search": {
+      "placeholder": "Поиск по игре или автору хендлера",
+      "label": "Поиск игр",
+      "total_one": "{count} игра",
+      "total_few": "{count} игры",
+      "total_many": "{count} игр",
+      "total_other": "{count} игры",
+      "filtered": "{shown} из {total}"
+    },
+    "genres": {
+      "label": "Жанры",
+      "gameCount_one": "{count} игра",
+      "gameCount_few": "{count} игры",
+      "gameCount_many": "{count} игр",
+      "gameCount_other": "{count} игры"
+    },
+    "filters": {
+      "label": "Фильтры",
+      "maxPlayers": "Максимум игроков",
+      "playersRange": "Игроков: {range}",
+      "anyPlayers": "Любое число игроков",
+      "maxPlayersHint": "Наибольшее число игроков, которое хендлер поддерживает одновременно.",
+      "worksWith": "Поддерживает",
+      "verifiedOnly": "Только проверенные",
+      "verifiedHint": "Проверено модераторами Hub",
+      "genres": "Жанры",
+      "clearAll": "Сбросить все фильтры",
+      "queryToken": "«{query}»",
+      "verifiedToken": "Проверенные",
+      "remove": "Убрать фильтр {filter}"
+    },
+    "offlineCopy": "Hub недоступен. Показан каталог, сохранённый <b>{date}</b>.",
+    "results": {
+      "loading": "Загрузка каталога…",
+      "all_one": "Всего игр: {count}",
+      "all_few": "Всего игр: {count}",
+      "all_many": "Всего игр: {count}",
+      "all_other": "Всего игр: {count}",
+      "count_zero": "Нет игр",
+      "count_one": "{count} игра",
+      "count_few": "{count} игры",
+      "count_many": "{count} игр",
+      "count_other": "{count} игры",
+      "sortBy": "Сортировка",
+      "sortLabel": "Сортировка игр",
+      "showMore_one": "Показать ещё {count}",
+      "showMore_few": "Показать ещё {count}",
+      "showMore_many": "Показать ещё {count}",
+      "showMore_other": "Показать ещё {count}",
+      "showing": "Показано {shown} из {total}"
+    },
+    "noMatch": {
+      "title": "Подходящих хендлеров пока нет",
+      "withQuery": "По запросу «{query}» с этими фильтрами ничего не найдено. Проверьте написание, уберите часть фильтров или спросите сообщество: авторы хендлеров берут запросы из Discord.",
+      "text": "Уберите часть фильтров или попросите сообщество о нужной игре: авторы хендлеров берут запросы из Discord.",
+      "clear": "Сбросить фильтры",
+      "request": "Запросить в Discord"
+    },
+    "unreachable": {
+      "title": "Hub недоступен",
+      "withMessage": "{message} Ваша библиотека работает и без сети. Каталог появится здесь, как только Nucleus Co-op хотя бы раз свяжется с Hub.",
+      "text": "Не удалось загрузить каталог. Ваша библиотека работает и без сети. Каталог появится здесь, как только Nucleus Co-op хотя бы раз свяжется с Hub."
+    },
+    "card": {
+      "verified": "Проверенный хендлер",
+      "inLibrary": "В библиотеке",
+      "inLibraryTitle": "Установлен, игра в вашей библиотеке",
+      "installed": "Установлен",
+      "installedTitle": "Хендлер установлен, но игры ещё нет в библиотеке",
+      "updateTitle": "На Hub есть более новая версия этого хендлера"
+    }
+  },
+  "handler": {
+    "defaultTitle": "Хендлер",
+    "hints": {
+      "install": "Установить хендлер",
+      "update": "Обновить хендлер",
+      "addGame": "Добавить игру"
+    },
+    "loading": "Загрузка хендлера",
+    "unavailable": {
+      "offlineTitle": "Hub недоступен",
+      "offlineText": "Nucleus Co-op не удалось загрузить этот хендлер. Проверьте подключение и попробуйте снова.",
+      "goneTitle": "Этого хендлера больше нет на Hub",
+      "goneText": "Возможно, автор удалил его или сделал закрытым. Для этой игры могут найтись другие хендлеры.",
+      "back": "Назад в «Найти игры»"
+    },
+    "hero": {
+      "allGames": "Все игры",
+      "summary": {
+        "upTo": {
+          "none_one": "До {count} игрока на одном ПК.",
+          "none_few": "До {count} игроков на одном ПК.",
+          "none_many": "До {count} игроков на одном ПК.",
+          "none_other": "До {count} игрока на одном ПК.",
+          "controllers_one": "До {count} игрока на одном ПК, с контроллерами.",
+          "controllers_few": "До {count} игроков на одном ПК, с контроллерами.",
+          "controllers_many": "До {count} игроков на одном ПК, с контроллерами.",
+          "controllers_other": "До {count} игрока на одном ПК, с контроллерами.",
+          "keyboardMouse_one": "До {count} игрока на одном ПК, с клавиатурой и мышью.",
+          "keyboardMouse_few": "До {count} игроков на одном ПК, с клавиатурой и мышью.",
+          "keyboardMouse_many": "До {count} игроков на одном ПК, с клавиатурой и мышью.",
+          "keyboardMouse_other": "До {count} игрока на одном ПК, с клавиатурой и мышью.",
+          "multiKeyboardMouse_one": "До {count} игрока на одном ПК, с несколькими клавиатурами и мышами.",
+          "multiKeyboardMouse_few": "До {count} игроков на одном ПК, с несколькими клавиатурами и мышами.",
+          "multiKeyboardMouse_many": "До {count} игроков на одном ПК, с несколькими клавиатурами и мышами.",
+          "multiKeyboardMouse_other": "До {count} игрока на одном ПК, с несколькими клавиатурами и мышами.",
+          "controllersKeyboardMouse_one": "До {count} игрока на одном ПК, с контроллерами или клавиатурой и мышью.",
+          "controllersKeyboardMouse_few": "До {count} игроков на одном ПК, с контроллерами или клавиатурой и мышью.",
+          "controllersKeyboardMouse_many": "До {count} игроков на одном ПК, с контроллерами или клавиатурой и мышью.",
+          "controllersKeyboardMouse_other": "До {count} игрока на одном ПК, с контроллерами или клавиатурой и мышью.",
+          "controllersMultiKeyboardMouse_one": "До {count} игрока на одном ПК, с контроллерами или несколькими клавиатурами и мышами.",
+          "controllersMultiKeyboardMouse_few": "До {count} игроков на одном ПК, с контроллерами или несколькими клавиатурами и мышами.",
+          "controllersMultiKeyboardMouse_many": "До {count} игроков на одном ПК, с контроллерами или несколькими клавиатурами и мышами.",
+          "controllersMultiKeyboardMouse_other": "До {count} игрока на одном ПК, с контроллерами или несколькими клавиатурами и мышами.",
+          "keyboardMouseMultiKeyboardMouse_one": "До {count} игрока на одном ПК, с клавиатурой и мышью или несколькими клавиатурами и мышами.",
+          "keyboardMouseMultiKeyboardMouse_few": "До {count} игроков на одном ПК, с клавиатурой и мышью или несколькими клавиатурами и мышами.",
+          "keyboardMouseMultiKeyboardMouse_many": "До {count} игроков на одном ПК, с клавиатурой и мышью или несколькими клавиатурами и мышами.",
+          "keyboardMouseMultiKeyboardMouse_other": "До {count} игрока на одном ПК, с клавиатурой и мышью или несколькими клавиатурами и мышами.",
+          "all_one": "До {count} игрока на одном ПК, с контроллерами, клавиатурой и мышью или несколькими клавиатурами и мышами.",
+          "all_few": "До {count} игроков на одном ПК, с контроллерами, клавиатурой и мышью или несколькими клавиатурами и мышами.",
+          "all_many": "До {count} игроков на одном ПК, с контроллерами, клавиатурой и мышью или несколькими клавиатурами и мышами.",
+          "all_other": "До {count} игрока на одном ПК, с контроллерами, клавиатурой и мышью или несколькими клавиатурами и мышами."
+        },
+        "splitScreen": {
+          "none": "Разделённый экран на одном ПК.",
+          "controllers": "Разделённый экран на одном ПК, с контроллерами.",
+          "keyboardMouse": "Разделённый экран на одном ПК, с клавиатурой и мышью.",
+          "multiKeyboardMouse": "Разделённый экран на одном ПК, с несколькими клавиатурами и мышами.",
+          "controllersKeyboardMouse": "Разделённый экран на одном ПК, с контроллерами или клавиатурой и мышью.",
+          "controllersMultiKeyboardMouse": "Разделённый экран на одном ПК, с контроллерами или несколькими клавиатурами и мышами.",
+          "keyboardMouseMultiKeyboardMouse": "Разделённый экран на одном ПК, с клавиатурой и мышью или несколькими клавиатурами и мышами.",
+          "all": "Разделённый экран на одном ПК, с контроллерами, клавиатурой и мышью или несколькими клавиатурами и мышами."
+        }
+      },
+      "verified": "Проверенный хендлер",
+      "byline": "Хендлер «{title}», автор: {author}, версия {version}",
+      "previewLabel_one": "{game}: экран разделён на {count} окно игрока — так Nucleus Co-op расставляет окна",
+      "previewLabel_few": "{game}: экран разделён на {count} окна игроков — так Nucleus Co-op расставляет окна",
+      "previewLabel_many": "{game}: экран разделён на {count} окон игроков — так Nucleus Co-op расставляет окна",
+      "previewLabel_other": "{game}: экран разделён на {count} окна игроков — так Nucleus Co-op расставляет окна",
+      "moreSeats_one": "Ещё {count} место",
+      "moreSeats_few": "Ещё {count} места",
+      "moreSeats_many": "Ещё {count} мест",
+      "moreSeats_other": "Ещё {count} места"
+    },
+    "compat": {
+      "title": "Совместимость",
+      "players": "Игроки",
+      "moderators": "Модераторы Hub",
+      "supported": "Поддерживается",
+      "notSupported": "Не поддерживается",
+      "onePerPlayer": "По одному на игрока",
+      "verified": "Проверено",
+      "notVerified": "Ещё не проверено",
+      "notStated": "Не указано"
+    },
+    "notes": {
+      "title": "Заметки к хендлеру",
+      "loading": "Загрузка заметок…",
+      "none": "Автор {author} пока не добавил заметок к этому хендлеру. Nucleus показывает заметки автора перед запуском, а в комментариях ниже часто есть советы от других игроков.",
+      "about": "Об игре {game}"
+    },
+    "steps": {
+      "title": "Играйте в {game} вместе",
+      "installTitle": "Установите хендлер",
+      "installBody": "Один клик. Nucleus скачает его с Hub и добавит {game} в вашу библиотеку.",
+      "locateTitle": "Укажите игру",
+      "locateBody": "В первый раз Nucleus найдёт {game} на этом ПК или один раз спросит, куда игра установлена.",
+      "seatTitle": "Займите места",
+      "seatBody": "Каждый игрок нажимает Start на своём контроллере, чтобы присоединиться. Nucleus открывает по окну на игрока и расставляет их на экране.",
+      "seatTip": "Играете на клавиатурах и мышах? Когда всё будет на месте, нажмите <kbd>{key}</kbd>, чтобы у каждого окна был свой курсор.",
+      "connectTitle": "Подключитесь в игре",
+      "connectBody": "Следуйте заметкам к хендлеру, чтобы связать окна: обычно один игрок создаёт игру, а остальные присоединяются."
+    },
+    "installPane": "Установить этот хендлер",
+    "related": {
+      "title": "Во что сыграть дальше",
+      "browseAll": "Смотреть все игры"
+    },
+    "comments": {
+      "title": "Комментарии <count>{number}</count>",
+      "commentOnHub": "Комментировать на Hub",
+      "loading": "Загрузка комментариев…",
+      "loadError": "Не удалось загрузить комментарии.",
+      "none": "Комментариев пока нет. Играли? Расскажите на Hub, что сработало у вашей компании.",
+      "showMore_one": "Показать ещё {count} ветку",
+      "showMore_few": "Показать ещё {count} ветки",
+      "showMore_many": "Показать ещё {count} веток",
+      "showMore_other": "Показать ещё {count} ветки"
+    },
+    "action": {
+      "toasts": {
+        "updated": "Хендлер {game} обновлён до версии {version}",
+        "installed": "Хендлер {game} установлен",
+        "showGame": "Хендлер установлен. Укажите Nucleus, где находится {game}."
+      },
+      "facts": {
+        "version": "Версия",
+        "updated": "Обновлено",
+        "downloads": "Скачивания",
+        "stars": "Звёзды",
+        "comments": "Комментарии"
+      },
+      "cancelLabel": "Отменить загрузку {game}",
+      "updatingNote": "Обновление хендлера. Пока оно идёт, в игру можно играть.",
+      "installingNote": "Установка хендлера {game} с Hub.",
+      "waitingForFile": "Ожидание файла игры…",
+      "pickNote": "Выберите исполняемый файл {game} в окне, которое открыл Nucleus.",
+      "locate": "Указать путь к игре",
+      "missingNote": "Установлен, версия {version}. Nucleus больше не находит {game}: укажите, где находится игра.",
+      "setUpSession": "Настроить сессию",
+      "inLibraryNote": "Установлен, версия {version}. {game} в вашей библиотеке.",
+      "addGame": "Добавить игру",
+      "notInLibraryNote": "Хендлер установлен, но {game} ещё нет в вашей библиотеке. Укажите Nucleus, где находится игра.",
+      "notInLibraryNoteVersion": "Хендлер установлен (версия {version}), но {game} ещё нет в вашей библиотеке. Укажите Nucleus, где находится игра.",
+      "updateTo": "Обновить до версии {version}",
+      "install": "Установить хендлер",
+      "offline": "Hub недоступен. Установка снова заработает, как только Nucleus свяжется с ним.",
+      "updateNote": "Установлена версия {version}. Обновление сохранит ваши профили и настройки.",
+      "installNote": "Скачивает хендлер с Hub и добавляет {game} в вашу библиотеку. Nucleus один раз спросит, куда установлена игра.",
+      "openOnHub": "Открыть на Hub",
+      "authorHandlers_one": "{count} хендлер",
+      "authorHandlers_few": "{count} хендлера",
+      "authorHandlers_many": "{count} хендлеров",
+      "authorHandlers_other": "{count} хендлера",
+      "authorStats": "{handlers}, {downloads}",
+      "reportProblem": "Хендлер перестал работать после обновления игры? <link>Сообщите автору в комментариях</link>."
+    }
+  },
+  "downloads": {
+    "title": "Загрузки",
+    "intro": "Хендлеры, которые вы устанавливаете или обновляете с Hub. Пока хендлер обновляется, в игру можно играть.",
+    "hints": {
+      "updateAll": "Обновить все"
+    },
+    "toasts": {
+      "handlerUpdated": "Хендлер {game} обновлён",
+      "handlerUpdatedTo": "Хендлер {game} обновлён до версии {version}",
+      "checked": "Наличие обновлений хендлеров на Hub проверено"
+    },
+    "hubOffline": "Hub недоступен",
+    "checkUpdates": "Проверить обновления",
+    "clearFinished": "Убрать завершённые",
+    "updates": {
+      "title": "Доступны обновления",
+      "updating": "Обновление…",
+      "updateAll": "Обновить все",
+      "offline": "Hub недоступен. Обновления снова заработают, как только Nucleus свяжется с ним.",
+      "fromTo": "Обновление хендлера v{from} → v{to}",
+      "to": "Обновление хендлера до v{to}",
+      "updateLabel": "Обновить хендлер {game}"
+    },
+    "list": {
+      "inProgress": "Выполняется",
+      "recent": "Недавние загрузки",
+      "count_one": "{count} элемент",
+      "count_few": "{count} элемента",
+      "count_many": "{count} элементов",
+      "count_other": "{count} элемента",
+      "empty": "С момента запуска Nucleus Co-op ничего не скачивалось. Хендлеры, которые вы устанавливаете из раздела «Найти игры» или перетаскиваете в окно как файлы .nc, появятся здесь вместе с ходом загрузки.",
+      "getGames": "Найти игры"
+    },
+    "row": {
+      "defaultName": "Хендлер",
+      "update": "Обновление хендлера",
+      "updateTo": "Обновление хендлера до версии {version}",
+      "file": "Из файла",
+      "install": "Хендлер",
+      "installVersion": "Хендлер, версия {version}",
+      "cancelLabel": "Отменить загрузку {game}",
+      "addGame": "Добавить игру",
+      "setUpSession": "Настроить сессию",
+      "retryLabel": "Повторить загрузку {game}",
+      "progressLabel": "{game}: {stage}",
+      "failed": "Ошибка: {error}",
+      "failedUnknown": "Ошибка: установка не завершилась.",
+      "notInLibrary": "Установлен. Игры ещё нет в вашей библиотеке.",
+      "statusWhen": "{status} <when>{ago}</when>"
+    },
+    "stage": {
+      "queued": "Ожидание…",
+      "downloading": "Загрузка…",
+      "downloadingPercent": "Загрузка… {percent}",
+      "extracting": "Установка…",
+      "done": "Установлен",
+      "failed": "Ошибка",
+      "cancelled": "Отменено"
+    }
+  },
+  "hub": {
+    "upToPlayers_one": "До {count} игрока",
+    "upToPlayers_few": "До {count} игроков",
+    "upToPlayers_many": "До {count} игроков",
+    "upToPlayers_other": "До {count} игрока",
+    "downloadCount_one": "{downloads} скачивание",
+    "downloadCount_few": "{downloads} скачивания",
+    "downloadCount_many": "{downloads} скачиваний",
+    "downloadCount_other": "{downloads} скачивания",
+    "players": {
+      "any": "Любое"
+    },
+    "sort": {
+      "trending": "В тренде",
+      "downloads": "Больше скачиваний",
+      "updated": "Недавно обновлённые",
+      "az": "А–Я"
+    },
+    "genres": {
+      "adventure": "Приключения",
+      "arcade": "Аркада",
+      "cardAndBoardGame": "Карточные и настольные",
+      "fighting": "Файтинг",
+      "hackAndSlash": "Слэшер",
+      "indie": "Инди",
+      "moba": "MOBA",
+      "music": "Музыкальные",
+      "pinball": "Пинбол",
+      "platform": "Платформер",
+      "pointAndClick": "Квест",
+      "puzzle": "Головоломка",
+      "quizTrivia": "Викторина",
+      "racing": "Гонки",
+      "realTimeStrategy": "Стратегия в реальном времени",
+      "rolePlaying": "Ролевая игра",
+      "shooter": "Шутер",
+      "simulator": "Симулятор",
+      "sport": "Спорт",
+      "strategy": "Стратегия",
+      "tactical": "Тактика",
+      "turnBasedStrategy": "Пошаговая стратегия",
+      "visualNovel": "Визуальная новелла"
+    },
+    "fallbacks": {
+      "untitledHandler": "Хендлер без названия",
+      "unknownAuthor": "Неизвестный автор",
+      "unknownGame": "Неизвестная игра",
+      "someone": "Кто-то"
+    },
+    "errors": {
+      "unreachable": "Hub недоступен. Проверьте подключение.",
+      "busyRetryIn": "Hub сейчас перегружен. Попробуйте снова через {seconds} с.",
+      "busy": "Hub сейчас перегружен. Попробуйте чуть позже.",
+      "status": "Hub ответил кодом {status}.",
+      "unreadable": "Hub прислал нечитаемый ответ.",
+      "cspBlocked": "Content-Security-Policy этой сборки интерфейса не разрешает {origin} (Settings.ini [Dev] HubUrl). Пересоберите интерфейс с NUCLEUS_HUB_ORIGINS={origin} или загрузите его с dev-сервера Vite."
+    }
+  },
+  "lobby": {
+    "thisGame": "эта игра",
+    "backToLibrary": "В библиотеку",
+    "breadcrumbs": {
+      "library": "Библиотека",
+      "settingUp": "Настройка"
+    },
+    "opening": "Открывается настройка {game}",
+    "openingUnnamed": "Открывается настройка игры",
+    "openError": {
+      "title": "Эту игру нельзя настроить"
+    },
+    "asideLabel": "Сессия",
+    "keys": {
+      "waiting": "Ожидание контроллера: <b>{cancel}</b> — отмена",
+      "help": "Клавиатура: <b>{pickUp}</b> — взять игрока, <b>{resize}</b> — изменить размер, <b>{remove}</b> — убрать"
+    },
+    "hints": {
+      "join": "Присоединиться",
+      "resize": "Размер",
+      "arrowsKey": "Стрелки",
+      "moveCorner": "Двигать угол",
+      "otherCorner": "Другой угол"
+    },
+    "header": {
+      "label": "Игра",
+      "handlerVersion": "Версия хендлера {version}",
+      "handlerFromFile": "Хендлер установлен из файла",
+      "maintainer": "автор: {name}",
+      "maxPlayers_one": "До {count} игрока",
+      "maxPlayers_few": "До {count} игроков",
+      "maxPlayers_many": "До {count} игроков",
+      "maxPlayers_other": "До {count} игрока",
+      "playersPerCopy_one": "{count} игрок на копию",
+      "playersPerCopy_few": "{count} игрока на копию",
+      "playersPerCopy_many": "{count} игроков на копию",
+      "playersPerCopy_other": "{count} игрока на копию",
+      "notes": "Заметки к хендлеру"
+    },
+    "notes": {
+      "title": "Заметки к хендлеру",
+      "withVersion": "{game}, версия хендлера {version}",
+      "withMaintainer": "{game}, автор: {maintainer}",
+      "withVersionAndMaintainer": "{game}, версия хендлера {version}, автор: {maintainer}",
+      "empty": "У этого хендлера нет заметок."
+    },
+    "screen": {
+      "name": "Экран {number}"
+    },
+    "where": {
+      "screenAndSlot": "{screen}, {slot}",
+      "unknownScreen": "экран"
+    },
+    "slots": {
+      "fullScreen": "весь экран",
+      "left": "слева",
+      "right": "справа",
+      "top": "сверху",
+      "bottom": "снизу",
+      "topLeft": "вверху слева",
+      "topRight": "вверху справа",
+      "bottomLeft": "внизу слева",
+      "bottomRight": "внизу справа",
+      "grid": "строка {row}, столбец {column}"
+    },
+    "layouts": {
+      "fullScreen": {
+        "label": "Один игрок, весь экран"
+      },
+      "dualHorizontal": {
+        "label": "Два игрока, сверху и снизу"
+      },
+      "dualVertical": {
+        "label": "Два игрока, слева и справа"
+      },
+      "fourPlayers": {
+        "label": "Четыре игрока, 2 × 2"
+      },
+      "sixPlayers": {
+        "label": "Шесть игроков",
+        "short": "6 игроков",
+        "description": "2 строки, 3 столбца"
+      },
+      "eightPlayers": {
+        "label": "Восемь игроков",
+        "short": "8 игроков",
+        "description": "2 строки, 4 столбца"
+      },
+      "sixteenPlayers": {
+        "label": "Шестнадцать игроков",
+        "short": "16 игроков",
+        "description": "4 строки, 4 столбца"
+      },
+      "custom": {
+        "label": "Своя сетка",
+        "short": "Своя",
+        "description": "Строки и столбцы из раздела «Настройки» > «Раскладка»"
+      },
+      "manual": {
+        "label": "Вручную",
+        "short": "Вручную",
+        "description": "Размещайте игроков в любом месте экрана"
+      },
+      "groupLabel": "{screen}: раскладка",
+      "moreMenu": "Другие раскладки ({screen})",
+      "setByProfile": "Задано профилем",
+      "lockedIcon": "Раскладка задана профилем",
+      "lockedNote": "Эту раскладку задаёт загруженный профиль. Выгрузите профиль, чтобы её изменить.",
+      "changed": "{screen}: раскладка «{layout}»."
+    },
+    "monitor": {
+      "label": "{screen}, {width} на {height}",
+      "labelPrimary": "{screen}, {width} на {height}, основной",
+      "primary": "Основной"
+    },
+    "canvas": {
+      "title": "Экраны",
+      "description": "Перетащите игрока на другое место, чтобы поменять их местами, или в область ожидания, чтобы убрать его.",
+      "seats_one": "<b>{seats}</b> из {count} игрока",
+      "seats_few": "<b>{seats}</b> из {count} игроков",
+      "seats_many": "<b>{seats}</b> из {count} игроков",
+      "seats_other": "<b>{seats}</b> из {count} игрока"
+    },
+    "manual": {
+      "hint": "Ручная раскладка: перетащите игрока в любое место этого экрана или щёлкните по месту и нажмите кнопку на контроллере.",
+      "label": "{screen}, ручная раскладка: перетащите игрока в любое место или активируйте и нажмите кнопку на свободном контроллере.",
+      "labelMoving": "{screen}, ручная раскладка: перетащите игрока в любое место, Enter ставит игрока в центр."
+    },
+    "slot": {
+      "label": "{place}: пусто. Нажмите Start на свободном контроллере, чтобы присоединиться, или активируйте, чтобы ждать контроллер здесь.",
+      "labelMoving": "{place}: пусто. Enter перемещает игрока сюда.",
+      "labelExpected": "{place}: профиль ожидает здесь игрока. Нажмите Start на свободном контроллере, чтобы присоединиться, или активируйте, чтобы ждать контроллер здесь.",
+      "labelExpectedMoving": "{place}: профиль ожидает здесь игрока. Enter перемещает игрока сюда.",
+      "moveHere": "Переместить сюда",
+      "expected": "Ожидание игрока",
+      "expectedNote": "Задано профилем",
+      "join": "Нажмите Start, чтобы присоединиться",
+      "joinNote": "Или выберите место и нажмите любую кнопку"
+    },
+    "spot": {
+      "pressButton": "Нажмите кнопку на контроллере",
+      "cancelHint": "B или Esc — отмена",
+      "label": "{place}: ожидание контроллера. Нажмите кнопку на свободном контроллере, чтобы поставить его сюда. Escape — отмена.",
+      "waiting": "{place}: ожидание контроллера — нажмите на нём кнопку. Escape — отмена.",
+      "waitingHere": "Ожидание контроллера для этого места: нажмите на нём кнопку. Escape — отмена.",
+      "cancelled": "Ожидание контроллера отменено."
+    },
+    "move": {
+      "pickedUp": "Выбран: {player}. Перейдите на другое место и нажмите Enter. Escape — отмена.",
+      "putBack": "Возвращён на место.",
+      "cancelled": "Перемещение отменено.",
+      "swapped": "{first} и {second} поменялись местами.",
+      "moved": "{player}: новое место — {place}."
+    },
+    "resize": {
+      "size": "{player}: {width} на {height}.",
+      "started": "Изменение размера: {player}, {width} на {height}. Стрелки двигают правый нижний угол, X переключает углы, Enter — готово.",
+      "cornerBottomRight": "Стрелки двигают правый нижний угол.",
+      "cornerTopLeft": "Стрелки двигают левый верхний угол.",
+      "done": "Размер изменён: {player}."
+    },
+    "region": {
+      "label": "Игрок {number}, {name}, {devices}, {place}. Enter — переместить, Delete — убрать.",
+      "labelResizable": "Игрок {number}, {name}, {devices}, {place}. Enter — переместить, R — изменить размер, Delete — убрать.",
+      "resizingBottomRight": "Изменение размера игрока {number}, {name}: {width} на {height}. Стрелки двигают правый нижний угол, X переключает углы, Enter — готово.",
+      "resizingTopLeft": "Изменение размера игрока {number}, {name}: {width} на {height}. Стрелки двигают левый верхний угол, X переключает углы, Enter — готово."
+    },
+    "tray": {
+      "title": "Ожидают подключения",
+      "dropToRemove": "Перетащите сюда, чтобы убрать этого игрока",
+      "joinPadsAndKeyboards": "Нажмите Start на контроллере или любую клавишу на клавиатуре, чтобы присоединиться. Или перетащите устройство на экран.",
+      "joinPads": "Нажмите Start на одном из них, чтобы присоединиться, или перетащите его на экран.",
+      "joinKeyboards": "Нажмите любую клавишу на одной из них, чтобы присоединиться, или перетащите её на экран.",
+      "joinDrag": "Перетащите одно из устройств на экран.",
+      "hiddenInputs": "Клавиатуры и мыши появятся здесь, как только вы ими воспользуетесь.",
+      "hiddenInputsShort": "Клавиатуры и мыши появятся после использования.",
+      "allJoined": "Все устройства подключены. Подключите ещё один контроллер, чтобы добавить игрока.",
+      "rescan": "Обновить",
+      "rescanned": "Устройства просканированы заново",
+      "placeEveryone": "Расставить всех",
+      "clear": "Очистить",
+      "clearConfirm": {
+        "title": "Убрать всех?",
+        "message": "Все игроки вернутся в область ожидания.",
+        "messageProfile": "Все игроки вернутся в область ожидания, а профиль будет выгружен.",
+        "confirm": "Убрать всех"
+      },
+      "cleared": "Все игроки убраны.",
+      "device": {
+        "identifyLabel": "{device}: нажмите кнопку на этом устройстве, чтобы опознать его.",
+        "joinLabel": "{device}: ожидание. Активируйте, чтобы присоединиться, или перетащите на экран.",
+        "identify": "Нажмите кнопку, чтобы опознать",
+        "pressKey": "Нажмите любую клавишу, чтобы присоединиться",
+        "dragMouse": "Перетащите на игрока с клавиатурой",
+        "pressStart": "Нажмите Start, чтобы присоединиться",
+        "vibrateLabel": "Вибрация: {device}",
+        "vibrateHint": "Вибрация — чтобы понять, какой это"
+      }
+    },
+    "players": {
+      "title": "Игроки",
+      "count": "{seats} из {max}",
+      "full_one": "Мест нет. {game} поддерживает до {count} игрока.",
+      "full_few": "Мест нет. {game} поддерживает до {count} игроков.",
+      "full_many": "Мест нет. {game} поддерживает до {count} игроков.",
+      "full_other": "Мест нет. {game} поддерживает до {count} игрока.",
+      "moreCanJoinFree_one": "Может присоединиться ещё {count} игрок. Нажмите Start на свободном контроллере или любую клавишу на свободной клавиатуре.",
+      "moreCanJoinFree_few": "Могут присоединиться ещё {count} игрока. Нажмите Start на свободном контроллере или любую клавишу на свободной клавиатуре.",
+      "moreCanJoinFree_many": "Могут присоединиться ещё {count} игроков. Нажмите Start на свободном контроллере или любую клавишу на свободной клавиатуре.",
+      "moreCanJoinFree_other": "Могут присоединиться ещё {count} игрока. Нажмите Start на свободном контроллере или любую клавишу на свободной клавиатуре.",
+      "moreCanJoin_one": "Может присоединиться ещё {count} игрок. Подключите контроллер и нажмите на нём Start.",
+      "moreCanJoin_few": "Могут присоединиться ещё {count} игрока. Подключите контроллер и нажмите на нём Start.",
+      "moreCanJoin_many": "Могут присоединиться ещё {count} игроков. Подключите контроллер и нажмите на нём Start.",
+      "moreCanJoin_other": "Могут присоединиться ещё {count} игрока. Подключите контроллер и нажмите на нём Start.",
+      "apiIndex": {
+        "label": "Определять геймпады по слоту",
+        "description": "Расставляет геймпады по номеру контроллера, без нажатия кнопки. Некоторые хендлеры это игнорируют."
+      }
+    },
+    "player": {
+      "name": "Игрок {number}",
+      "short": "И{number}",
+      "noDevice": "Нет устройства",
+      "dragHint": "Перетащите на экран, чтобы переместить этого игрока",
+      "nicknameLabel": "Ник игрока {number}",
+      "expandLabel": "Расширить или сузить область игрока {number}",
+      "expandHint": "Занять свободные соседние места или вернуться к прежнему размеру",
+      "removeLabel": "Убрать игрока {number}",
+      "remove": "Убрать",
+      "removeDeviceLabel": "Отключить {device} от игрока {number}",
+      "removeDevice": "Отключить это устройство",
+      "guest": "Гость: {device}",
+      "removeGuestLabel": "Убрать гостя {device}",
+      "removeGuest": "Убрать гостя",
+      "audioLabel": "Аудиовыход игрока {number}",
+      "audioHint": "Аудиовыход этого игрока",
+      "audioHintOff": "Аудиовыход (выбор включает раздельный звук для игроков)",
+      "defaultAudio": "Выход по умолчанию",
+      "steamIdLabel": "Steam ID игрока {number}",
+      "steamIdHint": "Steam ID в игре (17 цифр)",
+      "addGuestLabel": "Добавить гостевой геймпад игроку {number}",
+      "addGuestHint": "Гость играет в копии игры этого игрока",
+      "addGuest": "Добавить гостевой геймпад…"
+    },
+    "announce": {
+      "playerLeft": "{player} выходит. Устройства игрока вернулись в область ожидания.",
+      "playersLeft_one": "{names} выходит.",
+      "playersLeft_few": "{names} выходят.",
+      "playersLeft_many": "{names} выходят.",
+      "playersLeft_other": "{names} выходят.",
+      "joined": "Подключение: {device} — {player}, игрок {number}.",
+      "controllerJoined": "Контроллер подключён: {player}, игрок {number}."
+    },
+    "deviceLost": {
+      "namedPlayer": "{nickname} (игрок {number})",
+      "gamepad": "{player}: геймпад потерян. Подключите его снова или нажмите Start на другом.",
+      "keyboard": "{player}: клавиатура потеряна. Подключите её снова или используйте другую.",
+      "mouse": "{player}: мышь потеряна. Подключите её снова или используйте другую.",
+      "keyboardMouse": "{player}: клавиатура и мышь потеряны. Подключите их снова или используйте другие.",
+      "unknownPlayer": {
+        "gamepad": "Игрок потерял геймпад. Подключите его снова или нажмите Start на другом.",
+        "keyboard": "Игрок потерял клавиатуру. Подключите её снова или используйте другую.",
+        "mouse": "Игрок потерял мышь. Подключите её снова или используйте другую.",
+        "keyboardMouse": "Игрок потерял клавиатуру и мышь. Подключите их снова или используйте другие."
+      }
+    }
+  },
+  "setup": {
+    "hints": {
+      "pressButtonToIdentify": "Нажмите кнопку на каждом геймпаде, чтобы Nucleus мог их различить.",
+      "dragPlayersToScreens": "Нажмите Start на контроллере, чтобы присоединиться, или перетащите устройство на экран.",
+      "profileWaitingForPlayer": {
+        "gamepad": "Игрок {number} профиля: нажмите кнопку на геймпаде.",
+        "keyboard": "Игрок {number} профиля: нажмите клавишу на клавиатуре.",
+        "mouse": "Игрок {number} профиля: нажмите кнопку мыши.",
+        "keyboardMouse": "Игрок {number} профиля: нажмите клавишу на клавиатуре или кнопку мыши."
+      },
+      "profileReady": "Все игроки профиля на месте. Запускайте, когда будете готовы.",
+      "readyToPlay": "Все на месте. Запускайте, когда будете готовы."
+    },
+    "options": {
+      "title": "Параметры хендлера",
+      "intro": "Автор хендлера предлагает эти варианты. Они применяются ко всем копиям {game}.",
+      "introFromProfile": "Автор хендлера предлагает эти варианты. Они применяются ко всем копиям {game} и взяты из загруженного профиля.",
+      "empty": "У этого хендлера нет параметров, которые можно изменить здесь.",
+      "choose": "Выбрать…",
+      "unsupported": "Используется значение хендлера по умолчанию"
+    },
+    "customStep": {
+      "required": "Выберите вариант, чтобы продолжить.",
+      "requiredFromProfile": "Выберите вариант, чтобы продолжить. Загруженный профиль уже выбрал за вас.",
+      "optional": "Необязательно: выберите вариант или продолжайте без него.",
+      "optionalFromProfile": "Необязательно: выберите вариант или продолжайте без него. Загруженный профиль уже выбрал за вас.",
+      "chosenByProfile": "Выбрано профилем"
+    },
+    "checks": {
+      "title": "Перед запуском",
+      "state": {
+        "ok": "Готово",
+        "warning": "Предупреждение",
+        "blocking": "Блокирует",
+        "info": "Примечание",
+        "busy": "Выполняется"
+      }
+    },
+    "flow": {
+      "stepsLabel": "Шаги",
+      "step": "{number}. {title}",
+      "backTo": "Назад: {step}",
+      "backToPlayers": "Назад к игрокам",
+      "backToOptions": "Назад к параметрам",
+      "backToPrevious": "Назад к предыдущему шагу",
+      "next": "Далее",
+      "currentStep": "Текущий шаг: {step}"
+    },
+    "launch": {
+      "label": "Запуск",
+      "starting": "Запуск копий…",
+      "blocking": "{check}. Исправьте это в разделе «{section}».",
+      "busy": "{check}: выполняется…",
+      "nextStep": "Далее: {step}. Затем запуск.",
+      "nextPlayers": "Далее: игроки. Затем запуск.",
+      "nextOptions": "Далее: параметры. Затем запуск.",
+      "noPlayers": "Нажмите Start на контроллере, чтобы присоединиться.",
+      "finishStep": "Завершите этот шаг, чтобы запустить игру.",
+      "warning": "{check}. Запустить всё равно можно.",
+      "ready_one": "{count} копия {game}.",
+      "ready_few": "{count} копии {game}.",
+      "ready_many": "{count} копий {game}.",
+      "ready_other": "{count} копии {game}.",
+      "launching": "Запуск…",
+      "button_zero": "Запустить",
+      "button_one": "Запустить ({count} игрок)",
+      "button_few": "Запустить ({count} игрока)",
+      "button_many": "Запустить ({count} игроков)",
+      "button_other": "Запустить ({count} игрока)",
+      "saveProfile": "Сохранить профиль при запуске сессии"
+    }
+  },
+  "profiles": {
+    "defaultTitle": "Профиль {number}",
+    "picker": {
+      "label": "Профиль",
+      "menuLabel": "Профили",
+      "unknown": "Профиль",
+      "none": "Без профиля",
+      "noneSaved": "Нет сохранённых профилей",
+      "noneDescription": "Свободная расстановка игроков",
+      "manage": "Управление профилями",
+      "manageHint": "Настройки профиля, удаление профиля",
+      "disabled": "Профили для этой игры отключены"
+    },
+    "summary": {
+      "players_one": "{count} игрок",
+      "players_few": "{count} игрока",
+      "players_many": "{count} игроков",
+      "players_other": "{count} игрока",
+      "gamepads_one": "{count} геймпад",
+      "gamepads_few": "{count} геймпада",
+      "gamepads_many": "{count} геймпадов",
+      "gamepads_other": "{count} геймпада",
+      "keyboardMice_one": "{count} клавиатура и мышь",
+      "keyboardMice_few": "{count} клавиатуры и мыши",
+      "keyboardMice_many": "{count} клавиатур и мышей",
+      "keyboardMice_other": "{count} клавиатуры и мыши",
+      "autoPlay": "автозапуск",
+      "withNotes": "{summary}. {notes}"
+    },
+    "status": {
+      "assigned": "На месте: {assigned} из {total}",
+      "assignedAutoPlay": "На месте: {assigned} из {total}, автозапуск"
+    },
+    "toasts": {
+      "loaded": "Загружено: {profile}. Игроки присоединяются, нажимая кнопку.",
+      "loadedUnnamed": "Профиль загружен. Игроки присоединяются, нажимая кнопку.",
+      "unloaded": "Профиль выгружен. Расставляйте игроков свободно."
+    },
+    "manager": {
+      "title": "{game}: профили",
+      "intro": "Профиль хранит раскладки, параметры и то, кто где играет. Загрузка профиля восстанавливает их; его игроки присоединяются, нажимая кнопку.",
+      "empty": "Сохранённых профилей пока нет.",
+      "listLabel": "Сохранённые профили",
+      "nextProfileSaveOn": "<b>Следующий профиль.</b> Следующая сессия сохранит эту конфигурацию как новый профиль с этими настройками.",
+      "nextProfileSaveOff": "<b>Следующий профиль.</b> Включите «{setting}», чтобы сохранить эту конфигурацию как новый профиль.",
+      "loaded": "Загружен",
+      "autoPlay": "Автозапуск",
+      "playersLabel": "Игроки: {profile}",
+      "load": "Загрузить",
+      "unload": "Выгрузить",
+      "settingsLabel": "Настройки: {profile}",
+      "settingsHint": "Загрузить и открыть его настройки",
+      "deleteLabel": "Удалить {profile}"
+    },
+    "delete": {
+      "title": "Удалить {profile}?",
+      "message": "{profile} будет удалён безвозвратно.",
+      "messageRenumbered": "{profile} будет удалён безвозвратно. Профили после него будут перенумерованы.",
+      "messageReset": "{profile} будет удалён безвозвратно. Настройка начнётся заново: все игроки вернутся в область ожидания.",
+      "messageRenumberedReset": "{profile} будет удалён безвозвратно. Профили после него будут перенумерованы. Настройка начнётся заново: все игроки вернутся в область ожидания.",
+      "done": "Удалено: {profile}"
+    },
+    "settings": {
+      "title": "Настройки: {profile}",
+      "titleUnnamed": "Настройки профиля",
+      "titleNext": "Настройки следующего профиля",
+      "intro": "{game}: эти настройки сохраняются в профиле.",
+      "introNext": "{game}: эти настройки получит следующий профиль, который сохранит сессия. Настройки отдельных игроков относятся к игрокам, расставленным сейчас.",
+      "loading": "Чтение настроек профиля…",
+      "loadError": "Не удалось прочитать настройки профиля.",
+      "fixErrors": "Исправьте поля, выделенные красным, и сохраните снова.",
+      "footer": "При сохранении профиль будет перезагружен.",
+      "footerNext": "Используется, когда сессия сохраняет эту конфигурацию как новый профиль.",
+      "saved": "Сохранено: {profile}. Его игроки снова присоединяются, нажимая кнопку.",
+      "savedUnnamed": "Профиль сохранён. Его игроки снова присоединяются, нажимая кнопку.",
+      "savedNext": "Настройки сохранены для следующего профиля",
+      "discard": {
+        "title": "Отменить изменения?",
+        "message": "Профиль сохранит прежние настройки.",
+        "messageNext": "Следующий профиль сохранит прежние настройки."
+      },
+      "notSet": "Не задано",
+      "range": "От {min} до {max}.",
+      "units": {
+        "milliseconds": "мс",
+        "seconds": "с"
+      },
+      "sections": {
+        "profile": "Профиль",
+        "players": "Игроки",
+        "windows": "Окна",
+        "customLayout": "Своя раскладка",
+        "customLayoutNote": "Используется, когда для экрана выбрана своя раскладка.",
+        "mergedWindow": "Объединённое окно",
+        "cutscenes": "Режим катсцен",
+        "network": "Сеть"
+      },
+      "fields": {
+        "title": {
+          "label": "Название",
+          "help": "Отображается в списке профилей. Если пусто — «Профиль» и его номер.",
+          "placeholder": "Профиль"
+        },
+        "notes": {
+          "label": "Заметки",
+          "placeholder": "Кто где играет, какой контроллер у кого…"
+        },
+        "autoPlay": {
+          "label": "Запускать автоматически",
+          "help": "Запуск, как только все игроки профиля присоединятся."
+        },
+        "useNicknames": {
+          "label": "Использовать ники в игре"
+        },
+        "customAudio": {
+          "label": "Раздельный звук",
+          "help": "Каждая копия игры выводит звук на устройство, выбранное для её игрока."
+        },
+        "windowSetupDelay": {
+          "label": "Задержка настройки окон",
+          "help": "Время, которое даётся каждому окну, прежде чем будет настроено следующее."
+        },
+        "pauseBetweenCopies": {
+          "label": "Пауза между копиями",
+          "help": "Ожидание между запусками двух копий игры."
+        },
+        "autoDesktopScaling": {
+          "label": "Подстраивать масштаб Windows",
+          "help": "Устанавливает масштаб экрана, нужный окнам игры во время сессии."
+        },
+        "splitDivider": {
+          "label": "Фон за окнами",
+          "help": "Заполняет пространство вокруг окон игры."
+        },
+        "splitDividerHideDesktopOnly": {
+          "label": "Только скрывать рабочий стол",
+          "help": "Скрывает рабочий стол вместо заливки цветом фона."
+        },
+        "splitDividerColor": {
+          "label": "Цвет фона"
+        },
+        "customLayoutHorizontalLines": {
+          "label": "Горизонтальные линии"
+        },
+        "customLayoutVerticalLines": {
+          "label": "Вертикальные линии"
+        },
+        "customLayoutMaxPlayers": {
+          "label": "Игроки",
+          "help": "Максимум игроков в своей раскладке."
+        },
+        "windowsMerger": {
+          "label": "Объединить окна игры",
+          "help": "Показывает все копии игры в одном окне."
+        },
+        "losslessHook": {
+          "label": "Хук Lossless",
+          "help": "Использует хук Lossless для объединённого окна."
+        },
+        "mergerResolution": {
+          "label": "Разрешение",
+          "help": "Размер объединённого окна."
+        },
+        "cutscenesKeepAspectRatio": {
+          "label": "Сохранять соотношение сторон"
+        },
+        "cutscenesMuteAudioOnly": {
+          "label": "Только отключать звук",
+          "help": "Остальные окна сохраняют размер, у них только отключается звук."
+        },
+        "cutscenesUnfocus": {
+          "label": "Снимать фокус с других окон"
+        },
+        "network": {
+          "label": "Сетевой интерфейс",
+          "help": "Подключение, которое используют копии игры."
+        }
+      },
+      "slots": {
+        "empty": "Расставьте игроков в лобби, чтобы задать их ник, Steam ID и аудиовыход.",
+        "nickname": "Ник",
+        "steamId": "Steam ID",
+        "audio": "Аудиовыход",
+        "steamIdLocked": "Steam ID для этой игры задаёт хендлер.",
+        "steamIdLockedLabel": "Steam ID игрока {number}, задан хендлером",
+        "advanced": "Процессор и приоритет",
+        "priority": "Приоритет",
+        "idealProcessor": "Идеальный процессор",
+        "idealProcessorHint": "* — выбор за Windows",
+        "affinity": "Привязка к ЦП",
+        "affinityHint": "Номера процессоров через запятую, пусто — все",
+        "priorityLabel": "Приоритет процесса игрока {number}",
+        "idealProcessorLabel": "Идеальный процессор игрока {number}, * — любой",
+        "affinityLabel": "Привязка к ЦП игрока {number}, номера через запятую",
+        "affinityPlaceholder": "Все процессоры"
+      },
+      "priority": {
+        "normal": "Обычный",
+        "aboveNormal": "Выше среднего",
+        "high": "Высокий",
+        "realTime": "Реального времени"
+      }
+    }
+  },
+  "session": {
+    "loading": "Загрузка сессии",
+    "player": "Игрок {number}",
+    "chrome": {
+      "library": "Библиотека",
+      "gameSession": "Сессия: {game}",
+      "unknownGameSession": "Игровая сессия",
+      "session": "Сессия"
+    },
+    "hints": {
+      "backToLibrary": "В библиотеку",
+      "lockInputs": "Заблокировать ввод",
+      "unlockInputs": "Разблокировать ввод",
+      "stop": "Остановить сессию"
+    },
+    "links": {
+      "lobby": "Назад в лобби",
+      "gameLobby": "Назад в лобби {game}",
+      "setUpGame": "Настроить {game}",
+      "openLobby": "Открыть лобби",
+      "playAgain": "Играть снова",
+      "library": "Библиотека",
+      "goToLibrary": "Перейти в библиотеку"
+    },
+    "outcome": {
+      "failed": "Не удалось начать сессию",
+      "stoppedEarly": "Сессия остановлена во время запуска",
+      "ended": "Сессия завершена"
+    },
+    "ended": {
+      "copiesClosed_one": "Закрыта {count} копия {game}. Настройка по-прежнему открыта: играйте снова с теми же игроками.",
+      "copiesClosed_few": "Закрыты {count} копии {game}. Настройка по-прежнему открыта: играйте снова с теми же игроками.",
+      "copiesClosed_many": "Закрыто {count} копий {game}. Настройка по-прежнему открыта: играйте снова с теми же игроками.",
+      "copiesClosed_other": "Закрыто {count} копии {game}. Настройка по-прежнему открыта: играйте снова с теми же игроками.",
+      "copiesClosedUnknownGame_one": "Закрыта {count} копия игры. Настройка по-прежнему открыта: играйте снова с теми же игроками.",
+      "copiesClosedUnknownGame_few": "Закрыты {count} копии игры. Настройка по-прежнему открыта: играйте снова с теми же игроками.",
+      "copiesClosedUnknownGame_many": "Закрыто {count} копий игры. Настройка по-прежнему открыта: играйте снова с теми же игроками.",
+      "copiesClosedUnknownGame_other": "Закрыто {count} копии игры. Настройка по-прежнему открыта: играйте снова с теми же игроками."
+    },
+    "idle": {
+      "title": "Нет запущенной сессии",
+      "lastLaunchFailed": "<b>Последний запуск не удался.</b> {error}",
+      "hint": "Выберите игру в библиотеке, пусть каждый нажмёт Start на своём контроллере, чтобы присоединиться, затем запускайте. Здесь появится каждая копия игры и ход её запуска."
+    },
+    "header": {
+      "untitled": "Сессия",
+      "elapsed": "Прошло времени: {time}",
+      "inputsLocked": "Ввод заблокирован",
+      "inputsUnlocked": "Ввод разблокирован",
+      "stopKeys": "Остановка: {keys}",
+      "status": {
+        "failed": "Запуск не удался",
+        "ended": "Сессия завершена",
+        "launching_one": "Запуск: {count} игрок",
+        "launching_few": "Запуск: {count} игрока",
+        "launching_many": "Запуск: {count} игроков",
+        "launching_other": "Запуск: {count} игрока",
+        "running_one": "В игре {count} игрок",
+        "running_few": "В игре {count} игрока",
+        "running_many": "В игре {count} игроков",
+        "running_other": "В игре {count} игрока",
+        "ending": "Остановка сессии",
+        "setup": "Настройка"
+      },
+      "note": {
+        "failed": "Запуск прервался до того, как все копии были готовы.",
+        "ended": "Все копии закрыты.",
+        "locked": "Ввод привязан к окнам игры. Нажмите {key}, чтобы разблокировать его.",
+        "lockedNoKey": "Ввод привязан к окнам игры. Нажмите клавишу блокировки, чтобы разблокировать его.",
+        "lockHint": "Когда все окна будут на месте, нажмите {key}, чтобы закрепить каждую клавиатуру и мышь за её игроком.",
+        "lockHintNoKey": "Когда все окна будут на месте, нажмите клавишу блокировки, чтобы закрепить каждую клавиатуру и мышь за её игроком.",
+        "pads": "Контроллеры остаются за окнами игры.",
+        "padsStopKey": "Контроллеры остаются за окнами игры. {key} также останавливает сессию."
+      }
+    },
+    "stop": {
+      "hold": "Удерживайте для остановки",
+      "holding": "Продолжайте удерживать",
+      "blocked": "Разблокируйте для остановки",
+      "stopping": "Остановка…",
+      "stopped": "Остановлено",
+      "hint": "Удерживайте одну секунду, чтобы закрыть все копии игры.",
+      "blockedHint": "Ввод заблокирован: сначала разблокируйте его клавишей блокировки."
+    },
+    "preview": {
+      "screenCount_one": "{count} экран",
+      "screenCount_few": "{count} экрана",
+      "screenCount_many": "{count} экранов",
+      "screenCount_other": "{count} экрана",
+      "display": "Экран {number}",
+      "windowsTitle": "Окна игры",
+      "resolution": "{width} × {height}",
+      "resolutionPrimary": "{resolution}, основной",
+      "caption": "<b>Экран {number}</b> {resolution}",
+      "captionPrimary": "<b>Экран {number}</b> {resolution}, основной",
+      "displayLabel": "Экран {number}, {resolution}",
+      "displayLabelPrimary": "Экран {number}, {resolution}, основной",
+      "windowCount_zero": "Окон пока нет",
+      "windowCount_one": "{count} окно",
+      "windowCount_few": "{count} окна",
+      "windowCount_many": "{count} окон",
+      "windowCount_other": "{count} окна",
+      "displayUnused": "Экран {number}: не используется",
+      "unused": "Не используется",
+      "noWindowOpened": "Ни одно окно игры не открылось.",
+      "preparing": "Подготовка экземпляров…"
+    },
+    "instance": {
+      "label": "Игрок {number}, {name}: {stage}",
+      "pid": "PID {pid}",
+      "noDevice": "Нет устройства",
+      "progress": "Ход запуска",
+      "stepDone": "{step}<sr>, выполнено</sr>",
+      "stepPending": "{step}<sr>, ожидает</sr>",
+      "steps": {
+        "waiting": "Ожидание",
+        "starting": "Запуск",
+        "ready": "Готово"
+      },
+      "stage": {
+        "closed": "Закрыто",
+        "waiting": "Ожидание запуска…",
+        "starting": "Запуск, размещение окна…",
+        "ready": "Готово"
+      }
+    },
+    "log": {
+      "title": "Журнал событий",
+      "count_one": "{count} событие",
+      "count_few": "{count} события",
+      "count_many": "{count} событий",
+      "count_other": "{count} события",
+      "copy": "Копировать журнал",
+      "listLabel": "События сессии",
+      "empty": "Пока ничего не записано. Здесь появится каждый шаг каждой копии.",
+      "playerPrefix": "Игрок {number}:",
+      "levels": {
+        "info": "Инфо",
+        "success": "Готово",
+        "warning": "Предупреждение",
+        "error": "Ошибка"
+      }
+    },
+    "summary": {
+      "game": "Игра",
+      "duration": "Длительность",
+      "played": "Время игры",
+      "timeRange": "{start} — {end}",
+      "players": "Игроки",
+      "guest": "Гость: {device}",
+      "noDevice": "Устройство не записано",
+      "noErrors": "В журнале сессии нет ошибок.",
+      "logErrors_one": "{count} ошибка в журнале сессии",
+      "logErrors_few": "{count} ошибки в журнале сессии",
+      "logErrors_many": "{count} ошибок в журнале сессии",
+      "logErrors_other": "{count} ошибки в журнале сессии",
+      "errors": "Ошибки",
+      "moreErrors_one": "И ещё {count}: полный журнал ниже.",
+      "moreErrors_few": "И ещё {count}: полный журнал ниже.",
+      "moreErrors_many": "И ещё {count}: полный журнал ниже.",
+      "moreErrors_other": "И ещё {count}: полный журнал ниже.",
+      "playerShort": "И{number}"
+    },
+    "errorDetails": {
+      "show": "Показать подробности",
+      "hide": "Скрыть подробности"
+    },
+    "notes": {
+      "title": "Заметки к хендлеру",
+      "byMaintainer": "Как связать копии, автор: {name}",
+      "byAuthor": "Как связать копии — от автора хендлера",
+      "textLabel": "Текст заметок к хендлеру",
+      "loading": "Чтение заметок…",
+      "error": "Не удалось прочитать заметки.",
+      "empty": "Автор хендлера не оставил заметок. Обычно один игрок создаёт кооперативную игру, а остальные присоединяются к ней через меню игры."
+    },
+    "controls": {
+      "title": "Управление",
+      "lockKey": "Заблокировать или разблокировать клавиатуры и мыши",
+      "stopKey": "Остановить сессию",
+      "empty": "Для этой сессии нет элементов управления.",
+      "keysHint": "Клавиши работают и тогда, когда фокус в окне игры.",
+      "unavailable": {
+        "ended": "Сессия завершена.",
+        "notRunning": "Доступно, когда запущены все копии.",
+        "notApplicable": "Не применяется к этой сессии.",
+        "locked": "Ввод заблокирован: сначала нажмите {key}.",
+        "lockedNoKey": "Ввод заблокирован: сначала нажмите клавишу блокировки."
+      }
+    },
+    "commands": {
+      "locked": "Ввод привязан к окнам игры. Сначала нажмите {key}, чтобы разблокировать его.",
+      "lockedNoKey": "Ввод привязан к окнам игры. Сначала нажмите клавишу блокировки, чтобы разблокировать его."
+    }
+  },
+  "settings": {
+    "title": "Настройки",
+    "loading": "Загрузка настроек",
+    "nav": "Разделы настроек",
+    "error": {
+      "title": "Не удалось прочитать настройки",
+      "message": "Nucleus Co-op не вернул свои настройки. Перезапустите приложение; если это повторится, проверьте журнал приложения."
+    },
+    "fields": {
+      "notSet": "Не задано",
+      "restartBadge": "Применится после перезапуска",
+      "showPassword": "Показать пароль",
+      "hidePassword": "Скрыть пароль",
+      "hotkey": {
+        "label": "{label}: {value}. Изменить",
+        "labelNotSet": "{label}: не задано. Изменить",
+        "listeningLabel": "{label}: нажмите сочетание клавиш, Escape — отмена",
+        "listening": "Нажмите сочетание…",
+        "cancelHint": "{key} — отмена"
+      },
+      "combo": {
+        "pressOne": "Нажмите кнопку на контроллере…",
+        "pressTwo": "Нажмите одновременно две кнопки на контроллере…"
+      },
+      "path": {
+        "pickFile": "{label}: выберите файл",
+        "pickFolder": "{label}: выберите папку"
+      }
+    },
+    "players": {
+      "title": "Игроки",
+      "description": "Ник и Steam ID, которые каждый номер игрока использует в игре.",
+      "loading": "Чтение слотов игроков…",
+      "error": "Не удалось прочитать слоты игроков.",
+      "editorTitle": "Ники и Steam ID",
+      "editorHint": "Игрок 1 всегда получает первый слот, игрок 2 — второй и так далее. Пусто — значение по умолчанию.",
+      "nickname": "Ник",
+      "steamId": "Steam ID",
+      "nicknameLabel": "Ник игрока {number}",
+      "steamIdLabel": "Steam ID игрока {number}",
+      "showFirst_one": "Показать первые {count}",
+      "showFirst_few": "Показать первые {count}",
+      "showFirst_many": "Показать первые {count}",
+      "showFirst_other": "Показать первые {count}",
+      "showAll_one": "Показать все {count}",
+      "showAll_few": "Показать все {count}",
+      "showAll_many": "Показать все {count}",
+      "showAll_other": "Показать все {count}",
+      "hiddenErrors_one": "(с ошибками: {count})",
+      "hiddenErrors_few": "(с ошибками: {count})",
+      "hiddenErrors_many": "(с ошибками: {count})",
+      "hiddenErrors_other": "(с ошибками: {count})",
+      "undo": "Отменить изменения",
+      "save": "Сохранить игроков",
+      "saved": "Игроки сохранены"
+    },
+    "about": {
+      "title": "О программе",
+      "tagline": "Бесплатный разделённый экран с открытым исходным кодом для игр на ПК. Сделано игроками — для диванов по всему миру.",
+      "facts": {
+        "version": "Версия",
+        "hub": "Hub",
+        "admin": "Администратор"
+      },
+      "hubOnline": "В сети",
+      "hubOffline": "Не в сети",
+      "folders": {
+        "install": "Папка установки",
+        "openInstall": "Открыть папку установки в Проводнике",
+        "handlers": "Папка хендлеров",
+        "openHandlers": "Открыть папку хендлеров в Проводнике"
+      },
+      "updates": {
+        "label": "Обновления хендлеров",
+        "description": "Запрашивает у Hub новые версии хендлеров ваших игр. Обновления затем появятся в библиотеке и в загрузках.",
+        "button": "Проверить сейчас",
+        "done": "Проверка обновлений завершена"
+      },
+      "reload": {
+        "label": "Перезагрузить хендлеры",
+        "description": "Заново читает все файлы хендлеров, например после правки одного из них.",
+        "button": "Перезагрузить",
+        "done": "Хендлеры перезагружены"
+      },
+      "artwork": {
+        "label": "Обложки и скриншоты",
+        "description": "Скачивает с Hub недостающие изображения для всех игр в библиотеке. Уже имеющиеся файлы сохраняются.",
+        "button": "Скачать для всех игр",
+        "starting": "Запуск…",
+        "progress_one": "{done} из {count} игры",
+        "progress_few": "{done} из {count} игр",
+        "progress_many": "{done} из {count} игр",
+        "progress_other": "{done} из {count} игры",
+        "done": "Обложки и скриншоты скачаны"
+      },
+      "admin": {
+        "label": "Права администратора",
+        "description": "Некоторые хендлеры работают, только если Nucleus Co-op запущен от имени администратора.",
+        "button": "Перезапустить от имени администратора",
+        "confirmTitle": "Перезапустить от имени администратора?",
+        "confirmMessage": "Nucleus Co-op закроется и снова откроется с правами администратора. Они нужны некоторым хендлерам. Windows попросит подтвердить это."
+      },
+      "links": {
+        "docs": "Документация",
+        "faq": "FAQ",
+        "hub": "Hub"
+      }
+    }
+  },
+  "host": {
+    "settings": {
+      "sections": {
+        "general": {
+          "title": "Общие",
+          "description": "Язык, сеть и учётные записи Windows, которые используют экземпляры игры."
+        },
+        "players": {
+          "title": "Игроки",
+          "description": "Как геймпады назначаются игрокам. Ники и Steam ID редактируются в списке игроков."
+        },
+        "hotkeys": {
+          "title": "Сочетания клавиш",
+          "description": "Сочетания, доступные во время игровой сессии. Изменения применяются со следующей сессии."
+        },
+        "gamepad": {
+          "title": "Сочетания кнопок геймпада",
+          "description": "Комбинации кнопок, доступные во время игровой сессии (геймпады XInput). Steam Input может им мешать. Само окно Nucleus работает с любым геймпадом: крестовина или левый стик — перемещение, A — выбор, B — назад, правый стик — прокрутка."
+        },
+        "audio": {
+          "title": "Звук",
+          "description": "Устройство воспроизведения для каждого экземпляра игры. Может работать не со всеми играми.",
+          "descriptionWithDefault": "Устройство воспроизведения для каждого экземпляра игры. Может работать не со всеми играми. Устройство воспроизведения по умолчанию: {device}."
+        },
+        "layout": {
+          "title": "Раскладка",
+          "description": "Значения по умолчанию для своей раскладки экрана, фона разделённого экрана, режима катсцен и объединения окон. Профили хранят свою копию."
+        }
+      },
+      "fields": {
+        "misc": {
+          "appLanguage": {
+            "label": "Язык",
+            "description": "Язык окон и сообщений Nucleus Co-op. Заметки к хендлерам и названия игр остаются такими, как их написали авторы."
+          },
+          "steamLanguage": {
+            "label": "Язык Steam",
+            "description": "Язык, который сообщает эмулятор Steam. Игра может переопределить его в своём меню.",
+            "automatic": "Автоматически (язык клиента Steam)"
+          },
+          "epicLanguage": {
+            "label": "Язык Epic / GOG",
+            "description": "Язык, который сообщают эмуляторы Epic и GOG."
+          },
+          "network": {
+            "label": "Сетевой адаптер",
+            "description": "Адаптер, который используют хендлеры, меняющие IP-адрес каждого экземпляра."
+          },
+          "useNicknames": {
+            "label": "Использовать ники в игре",
+            "description": "Ники игроков передаются в игру, если хендлер это поддерживает."
+          },
+          "keepAccounts": {
+            "label": "Сохранять учётные записи Nucleus",
+            "description": "Сохраняет учётные записи Windows, которые Nucleus создаёт для некоторых игр. Если выключено, следующая игра, которая их использует, удалит их вместе с файлами и сохранениями.",
+            "confirm": {
+              "title": "Отключить «Сохранять учётные записи Nucleus»?",
+              "message": "При следующем запуске игры, которая использует отдельные учётные записи Windows, Nucleus удалит все созданные им учётные записи вместе с их файлами и сохранениями.",
+              "confirmLabel": "Отключить"
+            }
+          },
+          "nucleusAccountPassword": {
+            "label": "Пароль учётных записей Nucleus",
+            "description": "Пароль учётных записей Windows, которые создаёт Nucleus. Хранится открытым текстом в Settings.ini. 12345 или пустое значение — встроенный пароль."
+          },
+          "autoDesktopScaling": {
+            "label": "Масштаб 100% во время сессий",
+            "description": "Некоторым играм нужен масштаб экрана 100%, чтобы правильно расположить окна."
+          },
+          "fastLaunch": {
+            "label": "Быстрый запуск",
+            "description": "Запускает каждый экземпляр, как только готов предыдущий, а не всегда выжидает все паузы хендлера. Отключите, если игра перестала нормально запускаться."
+          },
+          "ignoreInputLockReminder": {
+            "label": "Не напоминать о блокировке ввода",
+            "description": "Если выключено, при запуске появляется сообщение о том, как заблокировать ввод с клавиатуры и мыши."
+          },
+          "debugLog": {
+            "label": "Включить журнал отладки",
+            "description": "Записывает debug-log.txt в папку Nucleus. Отключается автоматически, когда журнал превышает 150 КБ."
+          },
+          "disableGameProfiles": {
+            "label": "Отключить профили игр",
+            "description": "Nucleus использует эти глобальные настройки вместо профилей отдельных игр."
+          }
+        },
+        "players": {
+          "assignGamepadsByIndex": {
+            "label": "Назначать геймпады по индексу",
+            "description": "По умолчанию для новых игр: профили хранят индексы API геймпадов вместо аппаратных ID (некоторые хендлеры это отключают). Смена режима может помешать загрузке старых профилей."
+          },
+          "assignGamepadsOnButtonPress": {
+            "label": "Назначать геймпады по нажатию кнопки",
+            "description": "По умолчанию для новых игр: профили назначают геймпады, когда игроки нажимают кнопку, а не используют сохранённые. Хорошо сочетается со своими никами."
+          }
+        },
+        "hotkeys": {
+          "closeApp": {
+            "label": "Закрыть Nucleus"
+          },
+          "stopSession": {
+            "label": "Остановить сессию"
+          },
+          "topMost": {
+            "label": "Поверх всех окон"
+          },
+          "setFocus": {
+            "label": "Снять/вернуть фокус"
+          },
+          "resetWindows": {
+            "label": "Сбросить окна"
+          },
+          "cutscenesMode": {
+            "label": "Режим катсцен"
+          },
+          "switchLayout": {
+            "label": "Сменить раскладку"
+          },
+          "shortcutsReminder": {
+            "label": "Показать памятку сочетаний"
+          },
+          "switchMergerWindow": {
+            "label": "Переключить объединённое окно",
+            "description": "При объединении окон: каждое нажатие выводит на передний план другое окно игры (как Alt+Tab)."
+          },
+          "lockInputs": {
+            "label": "Клавиша блокировки ввода",
+            "description": "Блокирует и разблокирует ввод с клавиатуры и мыши во время сессии (без модификатора)."
+          }
+        },
+        "gamepad": {
+          "setFocus": {
+            "label": "Снять/вернуть фокус"
+          },
+          "close": {
+            "label": "Закрыть Nucleus"
+          },
+          "stopSession": {
+            "label": "Остановить сессию"
+          },
+          "topMost": {
+            "label": "Поверх всех окон"
+          },
+          "resetWindows": {
+            "label": "Сбросить окна"
+          },
+          "cutscenesMode": {
+            "label": "Режим катсцен"
+          },
+          "switchLayout": {
+            "label": "Сменить раскладку"
+          },
+          "lockInputs": {
+            "label": "Блокировка ввода"
+          },
+          "releaseCursor": {
+            "description": "Отправляет Alt+Tab, чтобы вывести курсор из окна игры."
+          },
+          "type": {
+            "label": "Тип геймпада",
+            "description": "Названия и изображения кнопок, которые показываются для сочетаний."
+          }
+        },
+        "audio": {
+          "mode": {
+            "label": "Устройства воспроизведения",
+            "choices": {
+              "sameDevice": "Устройство по умолчанию для всех экземпляров",
+              "perInstance": "Выбрать устройство для каждого экземпляра"
+            }
+          },
+          "instance": {
+            "label": "Экземпляр {number}",
+            "description": "Используется, когда выбрано «Выбрать устройство для каждого экземпляра»."
+          }
+        },
+        "layout": {
+          "verticalLines": {
+            "label": "Вертикальные деления",
+            "description": "Число столбцов сетки своей раскладки минус один."
+          },
+          "horizontalLines": {
+            "label": "Горизонтальные деления",
+            "description": "Число строк сетки своей раскладки минус один. Максимум игроков = (горизонтальные + 1) × (вертикальные + 1)."
+          },
+          "splitDiv": {
+            "label": "Фон разделённого экрана",
+            "description": "Заливает экран за окнами игры цветом. Может работать не во всех играх."
+          },
+          "splitDivColor": {
+            "label": "Цвет фона"
+          },
+          "hideDesktopOnly": {
+            "label": "Только скрывать рабочий стол",
+            "description": "Показывает только фоновое окно, не меняя размер и положение окон игры."
+          },
+          "cutscenesMuteAudioOnly": {
+            "label": "Режим катсцен: только отключать звук",
+            "description": "Нельзя сочетать с двумя параметрами ниже."
+          },
+          "cutscenesKeepAspectRatio": {
+            "label": "Режим катсцен: сохранять исходный размер окна"
+          },
+          "cutscenesUnfocus": {
+            "label": "Режим катсцен: снимать фокус с окон"
+          },
+          "windowsMerger": {
+            "label": "Объединение окон",
+            "description": "Объединяет окна игры в одно окно, чтобы можно было использовать Lossless Scaling. Несколько мониторов пока не поддерживаются."
+          },
+          "losslessHook": {
+            "label": "Хук Lossless",
+            "description": "Lossless Scaling продолжает масштабирование, когда фокус получает другое окно (для игр, которым для ввода нужен настоящий фокус)."
+          },
+          "mergerResolution": {
+            "label": "Разрешение объединённого окна",
+            "description": "Размер объединённого окна. По умолчанию — как у основного экрана.",
+            "choice": "{width} × {height} ({screens})"
+          }
+        }
+      },
+      "colors": {
+        "black": "Чёрный",
+        "gray": "Серый",
+        "white": "Белый",
+        "darkBlue": "Тёмно-синий",
+        "blue": "Синий",
+        "purple": "Фиолетовый",
+        "pink": "Розовый",
+        "red": "Красный",
+        "orange": "Оранжевый",
+        "yellow": "Жёлтый",
+        "green": "Зелёный"
+      },
+      "gamepadButtons": {
+        "dpadUp": "Крестовина вверх",
+        "dpadDown": "Крестовина вниз",
+        "dpadLeft": "Крестовина влево",
+        "dpadRight": "Крестовина вправо",
+        "leftStick": "Левый стик",
+        "rightStick": "Правый стик",
+        "cross": "Крест",
+        "circle": "Круг",
+        "square": "Квадрат",
+        "triangle": "Треугольник"
+      },
+      "rules": {
+        "gamepadAssignment": "«Назначать геймпады по индексу» и «Назначать геймпады по нажатию кнопки» нельзя включить одновременно.",
+        "cutscenesMuteAudioOnly": "«Только отключать звук» нельзя сочетать с другими параметрами режима катсцен."
+      },
+      "reminderImage": {
+        "keyboardTitle": "Сочетания клавиш",
+        "gamepadTitle": "Сочетания кнопок геймпада",
+        "rows": {
+          "closeApp": "Закрыть Nucleus",
+          "stopSession": "Остановить сессию",
+          "topMost": "Поверх всех окон",
+          "setFocus": "Снять/вернуть фокус",
+          "resetWindows": "Сбросить окна",
+          "cutscenesMode": "Режим катсцен",
+          "switchLayout": "Сменить раскладку",
+          "shortcutsReminder": "Памятка сочетаний",
+          "switchMergerWindow": "Переключить объединённое окно",
+          "lockInputs": "Блокировка ввода"
+        }
+      },
+      "errors": {
+        "unknownSetting": "Неизвестный параметр.",
+        "invalidValue": "Недопустимое значение.",
+        "alreadyUsed": "Уже используется для «{label}».",
+        "toggle": "Используйте true или false.",
+        "wholeNumber": "Введите целое число.",
+        "numberRange": "Введите число от {min} до {max}.",
+        "choice": "Выберите одно из значений списка.",
+        "maxLength_one": "Не более {count} символа.",
+        "maxLength_few": "Не более {count} символов.",
+        "maxLength_many": "Не более {count} символов.",
+        "maxLength_other": "Не более {count} символа.",
+        "lineBreaks": "Переносы строк не допускаются.",
+        "codePage": "Некоторые символы нельзя сохранить в Settings.ini на этом ПК (используется системная кодовая страница).",
+        "hotkeyFormat": "Используйте один модификатор и одну клавишу, например Ctrl+Q.",
+        "hotkeyModifier": "Модификатор должен быть Ctrl, Alt или Shift.",
+        "hotkeyKey": "Клавиша должна быть одной буквой или цифрой.",
+        "singleButton": "Используйте одну кнопку.",
+        "twoButtons": "Используйте сочетание двух кнопок, например Guide + Y.",
+        "unknownButton": "«{code}» — не код кнопки геймпада.",
+        "differentButtons": "Используйте две разные кнопки.",
+        "bothTriggers": "Нельзя сочетать оба триггера: используйте триггер с кнопкой.",
+        "noGamepad": "Не подключено ни одного геймпада XInput.",
+        "noButtonPressed": "Ни одна кнопка геймпада не была нажата."
+      },
+      "players": {
+        "errors": {
+          "numberRange": "Номера игроков — от 1 до {max}.",
+          "listedTwice": "Игрок {number} указан дважды.",
+          "steamIdFormat": "Steam ID состоит из 17 цифр, например 76561199075562883.",
+          "nicknameInUse": "Этот ник уже использует игрок {number}.",
+          "steamIdInUse": "Этот Steam ID уже использует игрок {number}.",
+          "nicknameCharacters": "Ники используются как имена папок: не используйте \\ / : * ? \" < > |."
+        }
+      }
+    },
+    "errors": {
+      "gameNotFound": "Игра не найдена.",
+      "fileNotFound": "Файл не существует.",
+      "folderNotFound": "Папка не существует."
+    },
+    "library": {
+      "gameMenu": {
+        "notes": {
+          "label": "Заметки автора хендлера",
+          "description": "Показывает заметки, написанные автором хендлера."
+        },
+        "details": {
+          "label": "Сведения об игре в Nucleus",
+          "description": "Исполняемый файл, архитектура, файл хендлера, папка содержимого и поддерживаемый ввод."
+        },
+        "openHandler": {
+          "label": "Открыть хендлер игры",
+          "description": "Открывает скрипт хендлера в текстовом редакторе."
+        },
+        "openExeFolder": {
+          "label": "Открыть папку исполняемого файла",
+          "description": "Открывает папку исполняемого файла игры."
+        },
+        "openContentFolder": {
+          "label": "Открыть папку содержимого Nucleus",
+          "description": "Открывает папку с экземплярами игры."
+        },
+        "deleteContentFolder": {
+          "label": "Удалить папку содержимого игры",
+          "description": "Закрывает оставшиеся процессы игры и удаляет экземпляры игры.",
+          "confirm": "Вы действительно хотите удалить «{folder}» со всем содержимым? Запущенные процессы {game} сначала будут закрыты."
+        },
+        "openUserConfig": {
+          "label": "Открыть папку настроек в UserProfile"
+        },
+        "deleteUserConfig": {
+          "label": "Удалить папку настроек в UserProfile"
+        },
+        "openUserSave": {
+          "label": "Открыть папку сохранений в UserProfile"
+        },
+        "deleteUserSave": {
+          "label": "Удалить папку сохранений в UserProfile"
+        },
+        "openDocumentsConfig": {
+          "label": "Открыть папку настроек в «Документах»"
+        },
+        "deleteDocumentsConfig": {
+          "label": "Удалить папку настроек в «Документах»"
+        },
+        "openDocumentsSave": {
+          "label": "Открыть папку сохранений в «Документах»"
+        },
+        "deleteDocumentsSave": {
+          "label": "Удалить папку сохранений в «Документах»"
+        },
+        "deleteFolderConfirm": "Вы действительно хотите удалить «{folder}» со всем содержимым?",
+        "nucleusFolder": "Nucleus: {name}",
+        "openBackup": {
+          "label": "Открыть папку резервных копий",
+          "description": "Файлы, которые хендлер сохраняет для каждого игрока между сессиями."
+        },
+        "deleteBackup": {
+          "label": "Удалить папку резервных копий",
+          "confirm": "Вы действительно хотите удалить папку резервных копий {game} игрока {nickname}?"
+        },
+        "useApiIndex": {
+          "label": "Назначать геймпады по индексу",
+          "description": "Профили хранят индексы API геймпадов вместо аппаратных ID. Отключает назначение по нажатию кнопки."
+        },
+        "useGamepadButtonPress": {
+          "label": "Назначать геймпады по нажатию кнопки (профиль)",
+          "description": "Профили назначают геймпады по нажатию кнопки, а не используют сохранённые. Отключает назначение по индексу."
+        },
+        "useApiIndexForGuests": {
+          "label": "Назначать по индексу только геймпады гостей",
+          "description": "По индексу API назначаются только гостевые игроки (несколько игроков на экземпляр)."
+        },
+        "keepInstancesFolder": {
+          "label": "Сохранять папку экземпляров",
+          "description": "Сохраняет экземпляры игры при повторном выборе игры или завершении сессии, а не создаёт их заново."
+        },
+        "disableProfiles": {
+          "label": "Отключить профили",
+          "description": "Отключает профили для этой игры: вместо них используются глобальные настройки."
+        },
+        "disableHandlerUpdate": {
+          "label": "Отключить обновление хендлера",
+          "description": "Прекращает проверку новых версий этого хендлера на Hub."
+        },
+        "changeIcon": {
+          "label": "Сменить значок игры",
+          "description": "Выберите изображение или исполняемый файл для значка игры.",
+          "filters": {
+            "imagesAndExecutables": "Изображения и исполняемые файлы",
+            "images": "Изображения",
+            "executables": "Исполняемые файлы"
+          }
+        },
+        "gameAssets": {
+          "label": "Материалы игры",
+          "description": "Скачанные обложка и скриншоты."
+        },
+        "openCoverFolder": {
+          "label": "Открыть папку обложки"
+        },
+        "openScreenshotsFolder": {
+          "label": "Открыть папку скриншотов"
+        },
+        "steamLanguage": {
+          "label": "Язык Steam",
+          "description": "Язык, который эмулятор Steam сообщает этой игре. «{appSetting}» — использовать глобальную настройку.",
+          "appSetting": "Настройка приложения"
+        },
+        "remove": {
+          "label": "Убрать игру из списка",
+          "description": "Убирает игру из библиотеки. Хендлер остаётся установленным.",
+          "confirm": "Вы действительно хотите убрать {game} из библиотеки? Хендлер останется установленным."
+        }
+      },
+      "errors": {
+        "itemUnavailable": "Этот пункт меню недоступен для этой игры.",
+        "exeFolderMissing": "Не удалось открыть исходный путь к исполняемому файлу этой игры: папка не существует.",
+        "contentFilesLocked": "Некоторые файлы папки содержимого заблокированы другой программой, и Nucleus не удалось их удалить. Закройте эту программу или перезагрузите компьютер, затем попробуйте снова.",
+        "invalidSteamLanguage": "Выберите один из языков Steam в списке.",
+        "handlerFileMissing": "Файл хендлера не существует.",
+        "folderGone": "Папки больше не существует.",
+        "fileGone": "Файла больше не существует.",
+        "sessionRunning": "Сначала остановите запущенную игровую сессию.",
+        "sessionRunningReload": "Остановите запущенную игровую сессию перед перезагрузкой хендлеров.",
+        "deleteFailed": "Не удалось удалить «{folder}»: {error}",
+        "unsupportedIcon": "Используйте изображение (png, jpg, gif, bmp, tif, ico) или исполняемый файл.",
+        "contextMissing": "Хендлер {game} ожидает {files} рядом с {executable}. Выберите исполняемый файл в папке установки игры.",
+        "noHandler": "Ни один установленный хендлер не поддерживает {executable}. Сначала установите хендлер игры.",
+        "alreadyInLibrary": "Этот исполняемый файл уже используется игрой {game} в вашей библиотеке.",
+        "noHubHandler": "Хендлер этой игры не с Hub: скачивать изображения неоткуда.",
+        "executableNotFound": "Исполняемый файл не существует.",
+        "exFat": "Формат диска «exFAT» не поддерживается: в нём нет символических ссылок. Переместите игру на диск NTFS или отформатируйте диск в NTFS.",
+        "handlerNotFound": "Хендлер не найден.",
+        "handlerMismatch": "{executable} не соответствует хендлеру {game} (он ожидает {expected} и проверяемые хендлером файлы рядом с ним).",
+        "artworkFailed": "Не удалось скачать изображения: {error}"
+      }
+    },
+    "handlers": {
+      "errors": {
+        "unsupportedFile": "Неподдерживаемый файл: используйте архив хендлера (.nc, .zip) или скрипт хендлера (.js).",
+        "notAHandler": "Этот файл не является хендлером Nucleus (нет Game.GameName или Game.ExecutableName).",
+        "notFromHub": "Этот хендлер не с Hub, поэтому его нельзя обновить оттуда.",
+        "unknownToHub": "Hub не знает этот хендлер.",
+        "noPackage": "У этого хендлера нет опубликованного пакета на Hub.",
+        "noChecksum": "Hub не сообщил контрольную сумму пакета этого хендлера, поэтому его нельзя проверить. Попробуйте позже.",
+        "installFailed": "Не удалось установить хендлер: {error}",
+        "alreadyInstalled": "Хендлер для {game} уже установлен.",
+        "invalidHandler": "Хендлер установлен, но не загружается: в нём есть ошибки.",
+        "sessionRunning": "Остановите запущенную игровую сессию перед установкой хендлеров."
+      },
+      "package": {
+        "unsafePath": "Архив содержит небезопасный путь: {path}",
+        "invalidArchive": "Файл не является корректным архивом хендлера (.nc или .zip).",
+        "noScript": "В архиве нет handler.js: убедитесь, что это пакет хендлера Nucleus.",
+        "notAHandler": "Скрипт архива не объявляет Game.GameName или Game.ExecutableName: это не хендлер Nucleus.",
+        "noGameName": "У хендлера нет пригодного названия игры."
+      }
+    },
+    "hub": {
+      "errors": {
+        "offline": "{hub} недоступен.",
+        "offlineBecause": "{hub} недоступен: {error}",
+        "unexpectedAnswer": "Hub прислал неожиданный ответ.",
+        "busy": "Hub перегружен (слишком много запросов с этого адреса), попробуйте позже.",
+        "busyRetryIn_one": "Hub перегружен (слишком много запросов с этого адреса), попробуйте снова через {count} с.",
+        "busyRetryIn_few": "Hub перегружен (слишком много запросов с этого адреса), попробуйте снова через {count} с.",
+        "busyRetryIn_many": "Hub перегружен (слишком много запросов с этого адреса), попробуйте снова через {count} с.",
+        "busyRetryIn_other": "Hub перегружен (слишком много запросов с этого адреса), попробуйте снова через {count} с.",
+        "httpStatus": "Сервер ответил: {status} {reason}.",
+        "downloadBusy": "Загрузка не удалась: Hub перегружен (слишком много запросов с этого адреса), попробуйте позже.",
+        "downloadBusyRetryIn_one": "Загрузка не удалась: Hub перегружен (слишком много запросов с этого адреса), попробуйте снова через {count} с.",
+        "downloadBusyRetryIn_few": "Загрузка не удалась: Hub перегружен (слишком много запросов с этого адреса), попробуйте снова через {count} с.",
+        "downloadBusyRetryIn_many": "Загрузка не удалась: Hub перегружен (слишком много запросов с этого адреса), попробуйте снова через {count} с.",
+        "downloadBusyRetryIn_other": "Загрузка не удалась: Hub перегружен (слишком много запросов с этого адреса), попробуйте снова через {count} с.",
+        "downloadHttpStatus": "Загрузка не удалась: сервер ответил {status} {reason}.",
+        "timeout": "Сервер не ответил вовремя.",
+        "unreachable": "Не удалось связаться с сервером: {error}",
+        "checksumMismatch": "Скачанный пакет не совпадает с опубликованным на Hub (SHA-256 {actual}, ожидалось {expected}). Он не был установлен."
+      }
+    },
+    "setup": {
+      "steps": {
+        "players": "Расстановка игроков",
+        "options": "Параметры"
+      },
+      "checks": {
+        "gameFound": {
+          "ok": "Игра найдена",
+          "missing": "Игра не найдена",
+          "action": "Указать"
+        },
+        "handler": {
+          "updating": "Обновление хендлера",
+          "updateAvailable": "Доступно обновление хендлера",
+          "version": "Версия {version}",
+          "action": "Обновить",
+          "upToDate": "Хендлер актуален"
+        },
+        "oneDrive": {
+          "title": "Папка «Документы» в OneDrive",
+          "detail": "Этот хендлер не работает, когда папка «Документы» находится в OneDrive ({folder})."
+        },
+        "gameLocation": {
+          "title": "Неподдерживаемое расположение игры",
+          "detail": "Этот хендлер не поддерживает игры, установленные в C:\\Users («Документы», «Рабочий стол», «Загрузки»…) или C:\\Windows."
+        },
+        "admin": {
+          "ok": "Права администратора",
+          "needed": "Нужны права администратора",
+          "detail": "Этому хендлеру нужно, чтобы Nucleus Co-op был запущен от имени администратора.",
+          "action": "Перезапустить от имени администратора"
+        },
+        "nucleusLocation": {
+          "title": "Неподдерживаемое расположение Nucleus Co-op",
+          "detail": "Установите Nucleus Co-op вне папок игр, C:\\Users и защищённых папок, например в C:\\Nucleus."
+        },
+        "devices": {
+          "none": "Нет устройств ввода",
+          "noneDetail": "Подключите контроллер.",
+          "count_one": "{count} устройство ввода",
+          "count_few": "{count} устройства ввода",
+          "count_many": "{count} устройств ввода",
+          "count_other": "{count} устройства ввода"
+        },
+        "players": {
+          "count_one": "{count} игрок",
+          "count_few": "{count} игрока",
+          "count_many": "{count} игроков",
+          "count_other": "{count} игрока",
+          "waitingForProfile": "Ожидание игроков профиля",
+          "profileMatched": "Сопоставлено: {matched} из {total}.",
+          "none": "Игроки не расставлены",
+          "noneDetail": "Поставьте хотя бы одного игрока на экран."
+        },
+        "inputLock": {
+          "title": "Нажмите {key}, чтобы заблокировать ввод",
+          "detail": "Некоторым хендлерам нужно, чтобы клавиатура и мышь были привязаны к окнам игры. Нажмите {key} ещё раз, когда закончите играть.",
+          "action": "Больше не показывать"
+        }
+      },
+      "hints": {
+        "pickStepItem": "Выберите вариант: {step}",
+        "profileWaitingForPlayer": "Игрок {number}: нажмите кнопку или клавишу на нужном устройстве.",
+        "noDevices": "Подключите контроллер.",
+        "padNotIdentified": "Кнопка на геймпаде нажата, но Nucleus не смог определить, какое это устройство. Нажмите Start только на этом геймпаде. Если не получается, закройте программы, дублирующие геймпады (DS4Windows без HidHide, Steam Input).",
+        "padNotIdentifiedSlotMode": "Кнопка на геймпаде нажата, но Nucleus не смог определить, какое это устройство. Нажмите Start только на этом геймпаде. Если не получается, закройте программы, дублирующие геймпады (DS4Windows без HidHide, Steam Input), или включите «Определять геймпады по слоту».",
+        "dragPlayersToScreens": "Перетащите устройство на экран, чтобы добавить игрока.",
+        "pressButtonToIdentify": "Нажмите кнопку на контроллере (или воспользуйтесь клавиатурой), чтобы он появился."
+      },
+      "devices": {
+        "xinput": "Контроллер XInput {number}",
+        "controllerNumber": "Контроллер {number}",
+        "controller": "Контроллер",
+        "dinput": "Контроллер DirectInput {number}",
+        "keyboardMouse": "Клавиатура и мышь",
+        "virtualMouse": "Виртуальная мышь",
+        "mouse": "Мышь",
+        "keyboard": "Клавиатура",
+        "virtualKeyboard": "Виртуальная клавиатура",
+        "withIds": "{device} ({vid}:{pid})"
+      },
+      "refusals": {
+        "invalidScreen": "Монитора с таким индексом нет.",
+        "invalidSlot": "Слота с таким индексом нет.",
+        "manualLayout": "В ручной раскладке нет слотов: поставьте игрока в точку.",
+        "profileLocked": "Расстановку игроков определяет загруженный профиль.",
+        "deviceNotRevealed": "Сначала нажмите кнопку на этом устройстве.",
+        "slotOccupied": "Это место занято.",
+        "notAssigned": "Это устройство не размещено.",
+        "notAGamepad": "Гостем может быть только геймпад, и хозяином — тоже.",
+        "guestsNotSupported": "Эта игра не поддерживает несколько игроков на экземпляр.",
+        "guestLimitReached": "Этот экземпляр не может принять больше гостей.",
+        "alreadyGuest": "Этот геймпад уже гость.",
+        "notAGuest": "Этот геймпад не гость.",
+        "cannotExpand": "Здесь этого игрока нельзя расширить или сузить.",
+        "cannotResize": "Размер этого игрока нельзя изменить таким образом.",
+        "noFreeSlot": "Нет свободного слота.",
+        "nothingToPlace": "Нет опознанных устройств, ожидающих размещения.",
+        "full": "Все слоты заняты, и ни один монитор нельзя разделить дальше."
+      },
+      "errors": {
+        "noSetup": "Нет открытой настройки игры.",
+        "sessionRunning": "Идёт сессия.",
+        "libraryNotLoaded": "Библиотека игр ещё не загружена.",
+        "cannotGoNext": "Этот шаг не завершён или он последний.",
+        "firstStep": "Это первый шаг.",
+        "notAChoice": "Этот параметр не является списком значений.",
+        "noValue": "Нет значения с таким индексом.",
+        "notAText": "Этот параметр не является текстом.",
+        "customStepNotFound": "Пользовательский шаг не найден.",
+        "noItem": "Нет элемента с таким индексом.",
+        "noIdentitySlot": "У этого игрока нет слота идентификации.",
+        "emptyNickname": "Ник не может быть пустым.",
+        "steamIdLocked": "Steam ID задаёт этот хендлер.",
+        "steamIdFormat": "Steam ID должен состоять из 17 цифр, например 76561199075562883.",
+        "steamIdInUse": "Этот Steam ID использует другой слот игрока.",
+        "noAudioSlot_one": "Раздельный звук доступен игрокам с номерами не больше {count}.",
+        "noAudioSlot_few": "Раздельный звук доступен игрокам с номерами не больше {count}.",
+        "noAudioSlot_many": "Раздельный звук доступен игрокам с номерами не больше {count}.",
+        "noAudioSlot_other": "Раздельный звук доступен игрокам с номерами не больше {count}.",
+        "audioOutputNotFound": "Аудиовыход не найден.",
+        "checkNotFound": "Проверка не найдена.",
+        "noFix": "Для этой проверки нет исправления.",
+        "needsPicker": "Выберите исполняемый файл игры.",
+        "adminCancelled": "Перезапуск от имени администратора отменён.",
+        "updatesUnavailable": "Обновления хендлеров недоступны.",
+        "updateBusy": "Хендлер уже обновляется.",
+        "cannotVibrate": "Это устройство не поддерживает вибрацию.",
+        "deviceNotFound": "Устройство не найдено.",
+        "playerNotFound": "Игрок не найден.",
+        "optionNotFound": "Параметр не найден."
+      }
+    },
+    "profiles": {
+      "unreadable": "Не удаётся прочитать этот профиль.",
+      "errors": {
+        "disabled": "Профили для этой игры отключены.",
+        "notFound": "Профиль не найден.",
+        "cannotLoad": "Не удаётся загрузить профиль.",
+        "audioUnavailable": "Этот аудиовыход недоступен."
+      }
+    },
+    "session": {
+      "actions": {
+        "toggleTopmost": "Поверх всех окон",
+        "setFocus": "Снять фокус с окон игры",
+        "resetWindows": "Сбросить окна",
+        "cutscenesMode": "Режим катсцен",
+        "switchLayout": "Сменить раскладку",
+        "shortcutsReminder": "Памятка сочетаний",
+        "switchMergerForeground": "Следующее объединённое окно"
+      },
+      "errors": {
+        "alreadyRunning": "Сессия уже запущена.",
+        "notReady": "Настройка ещё не готова к игре.",
+        "startFailed": "Не удалось начать сессию: {error}",
+        "notRunning": "Нет запущенной сессии.",
+        "inputsLocked": "Сначала разблокируйте ввод (нажмите {key}).",
+        "stopLocked": "Не удалось остановить сессию: ввод заблокирован.",
+        "launchFailed": "Запуск не удался.",
+        "actionUnavailable": "«{action}» сейчас недоступно."
+      }
+    },
+    "notices": {
+      "handlerError": "Ошибка хендлера",
+      "setupError": "Ошибка настройки"
+    },
+    "i18n": {
+      "errors": {
+        "notAvailable": "Этот язык недоступен."
+      }
+    },
+    "app": {
+      "errors": {
+        "sessionRunning": "Остановите запущенную сессию перед перезапуском Nucleus Co-op.",
+        "adminDeclined": "Права администратора не предоставлены.",
+        "adminFailed": "Не удалось перезапустить Nucleus Co-op от имени администратора.",
+        "invalidUrl": "Можно открывать только абсолютные адреса http и https.",
+        "browserFailed": "Не удалось запустить браузер по умолчанию.",
+        "invalidPath": "Путь должен быть абсолютным локальным путём.",
+        "pathNotFound": "Этот файл или папка не существует.",
+        "explorerFailed": "Не удалось запустить Проводник."
+      },
+      "dialogs": {
+        "selectFile": "Выберите файл",
+        "selectFolder": "Выберите папку",
+        "allFiles": "Все файлы"
+      }
+    }
+  },
+  "engine": {
+    "titles": {
+      "error": "Ошибка",
+      "warning": "Предупреждение",
+      "info": "Информация"
+    },
+    "startChecks": {
+      "alreadyRunning": {
+        "title": "Nucleus Co-op уже запущен",
+        "message": "Nucleus Co-op уже запущен. Если вы не видите его окно, возможно, он работает в фоне: завершите процесс через Диспетчер задач."
+      },
+      "missingFile": {
+        "title": "Отсутствует файл",
+        "message": "В папке Nucleus Co-op отсутствует {file}. Убедитесь, что антивирус не удаляет и не блокирует файлы Nucleus Co-op: добавьте папку Nucleus Co-op в его исключения и распакуйте Nucleus Co-op заново. Нажмите ОК, чтобы узнать больше."
+      },
+      "environmentError": {
+        "title": "Ошибка при проверке пользовательской среды."
+      },
+      "installPathUnknown": {
+        "message": "Не удалось проверить путь установки Nucleus."
+      },
+      "oneDrive": {
+        "title": "Необходимо отключить OneDrive",
+        "message": "Если OneDrive используется как путь к документам по умолчанию, многие хендлеры не будут работать, потому что Nucleus не может получить доступ к его хранилищу. Чтобы изменить путь к документам, выйдите из приложения OneDrive, щёлкните правой кнопкой мыши по папке «Документы» в Проводнике, откройте «Свойства», перейдите на вкладку «Расположение» и восстановите путь Windows по умолчанию."
+      },
+      "installFolder": {
+        "message": "Nucleus Co-op не следует устанавливать сюда.\n\nНЕ устанавливайте его ни в одну из этих папок:\n- папку с любыми файлами игр;\n- {programFiles} или {programFilesX86};\n- {users} (включая «Документы», «Рабочий стол» и «Загрузки»);\n- любую папку с настройками безопасности, например {windows}.\n\nПодходящее место: {example}"
+      },
+      "vcRedist": {
+        "message": "Установите Microsoft Visual C++ 2015 - 2022 Redistributable {architecture}\n\nСкачать и установить Microsoft Visual C++ 2015 - 2022 Redistributable {architecture} сейчас?",
+        "downloading": "Загрузка Microsoft Visual C++ 2015 - 2022 Redistributable {architecture}"
+      },
+      "webView2": {
+        "title": "Microsoft WebView2 Runtime не установлен.",
+        "message": "Скачать и установить Microsoft WebView2 Runtime сейчас?\n\nБез него вы не сможете скачивать хендлеры из приложения.",
+        "downloading": "Загрузка Microsoft WebView2 Runtime"
+      }
+    },
+    "downloader": {
+      "windowTitle": "Загрузка {file}."
+    },
+    "startGame": {
+      "launchFailed": "Nucleus не удалось запустить и/или найти нужный процесс для этого экземпляра. Закройте Nucleus и попробуйте снова."
+    },
+    "host": {
+      "fatalError": {
+        "title": "Критическая ошибка",
+        "message": "Произошла критическая ошибка:\n{message} {stackTrace}"
+      },
+      "interface": {
+        "startFailed": "Не удалось запустить интерфейс Nucleus Co-op.\n\n{error}\n\nЗакройте другие окна Nucleus Co-op и нажмите «Повторить».",
+        "keepsCrashing": "Интерфейс Nucleus Co-op постоянно неожиданно останавливается и будет закрыт.\n\nПодробности — в {logFile}. Если это повторяется, восстановите или переустановите Microsoft Edge WebView2 Runtime.",
+        "crashed": "Интерфейс Nucleus Co-op неожиданно остановился. Он будет перезагружен.",
+        "notResponding": "Интерфейс Nucleus Co-op не отвечает.\n\nПерезагрузить его сейчас? Нажмите «Нет», чтобы подождать ещё.",
+        "runtimeMissing": "Для отображения интерфейса Nucleus Co-op нужен Microsoft Edge WebView2 Runtime, а он не установлен.\n\nОткрыть страницу загрузки сейчас?"
+      }
+    },
+    "settingsLoad": {
+      "title": "Ошибка загрузки настроек Nucleus! Ошибка: {error}\nStackTrace:\n{stackTrace}",
+      "message": "Nucleus не может загрузить свои настройки.\nНе редактируйте settings.ini вручную.\nПопробуйте заново распаковать Nucleus с помощью 7-Zip.\nЕсли проблема сохраняется, обратитесь за помощью на наш сервер Discord."
+    },
+    "handlers": {
+      "errorTitle": "Ошибка в хендлере {file}",
+      "reloadFailed": "В {file} есть ошибки, его не удалось перезагрузить.",
+      "scriptError": {
+        "title": "Ошибка в хендлере",
+        "message": "В хендлере игры {file} есть ошибка.\n\nИгра, для которой предназначен этот хендлер, не появится в списке. Если проблема исправлена,\nпопробуйте добавить игру заново.\n\nЧастые ошибки:\n- синтаксическая ошибка (например, пропущена ',' ';' или ']');\n- у другого хендлера такой же GUID (он должен быть уникальным!);\n- код находится не на своём месте или в неверном формате\n(например, методы, использующие Context, должны быть внутри функции Game.Play).\n\n{details}",
+        "atLine": "Ошибка в строке {line} {message}"
+      }
+    },
+    "launch": {
+      "inputLockReminder": "Некоторые хендлеры требуют нажать клавишу {key}, чтобы заблокировать ввод. Не забудьте разблокировать ввод, снова нажав {key}, когда закончите играть. Это сообщение можно отключить в настройках.",
+      "pickLauncher": {
+        "messageNamed": "Выберите исполняемый файл лаунчера игры ({file}) и нажмите ОК, чтобы продолжить.",
+        "message": "Выберите исполняемый файл лаунчера игры и нажмите ОК, чтобы продолжить.",
+        "dialogTitleNamed": "Выберите исполняемый файл лаунчера: {file}",
+        "dialogTitle": "Выберите исполняемый файл лаунчера",
+        "fileType": "Исполняемые файлы лаунчера игры"
+      },
+      "waitForOk": {
+        "gameLaunched": "Нажмите ОК, когда игра запустится.",
+        "processChanges": "Нажмите ОК, когда будете готовы изменить процессы игры.",
+        "launchRest": "Нажмите ОК, когда будете готовы запустить остальные экземпляры.",
+        "launchInstance": "Нажмите ОК, когда будете готовы запустить экземпляр {number}.",
+        "searchProcess": "Нажмите ОК, когда Nucleus может начать поиск процесса игры.",
+        "installHooks": "Нажмите ОК, когда будете готовы установить хуки и/или начать отправку поддельных сообщений.",
+        "instanceLaunched": "Нажмите ОК, когда экземпляр игры {number} запустится и/или вы захотите продолжить.",
+        "launchFile": "Нажмите ОК, когда будете готовы запустить {file}",
+        "launchGameAfterFile": "Нажмите ОК, когда будете готовы продолжить запуск экземпляра игры {file}",
+        "handlerTextWithPath": "{text} Путь к файлу: {path}"
+      },
+      "windowNotFound": {
+        "idInWindowTitle": "IdInWindowTitle: не удалось найти дескриптор главного окна {process} (pid:{pid})",
+        "changeWindowTitle": "ChangeWindowTitle: не удалось найти дескриптор главного окна {process} (pid:{pid})"
+      },
+      "invalidZip": "ZIP-файл не существует, повреждён или имеет неподдерживаемый формат.",
+      "errorReportFailed": "Мы сломались так сильно, что сломались даже при попытке записать причину первой поломки. Простите."
+    },
+    "crashReport": {
+      "title": "Что-то пошло не так :(",
+      "release": "-Версия Nucleus: {version}\n-Папка установки: {installPath}\n-OneDrive: {oneDrive}\n\nNucleus не удалось настроить хендлер. Будет выполнена попытка очистки.\n\n[Тип]\n\n{type}\n\n[Сообщение]\n\n{message}\n\n{help}",
+      "debug": "Версия Nucleus: {version}\n\nNucleus не удалось настроить хендлер. Будет выполнена попытка очистки.\n\n[Тип]\n\n{type}\n\n[Сообщение]\n\n{message}\n{help}\n\n[Трассировка стека]\n\n{stackTrace}",
+      "help": {
+        "fileNotFound": "Nucleus Co-op не может найти файл конфигурации игры. Убедитесь, что вы хотя бы раз запускали основную игру без Nucleus, изменили какие-нибудь настройки графики и применили их — так нужные файлы конфигурации точно будут созданы.\nЕсли ошибка всё равно появляется, выберите игру в интерфейсе Nucleus Co-op, откройте «Параметры игры» и выберите «Удалить папку настроек в UserProfile» для всех игроков. Также можно попробовать удалить папку содержимого Nucleus Co-op и добавить игру заново.",
+        "access": "У Nucleus Co-op нет необходимых прав или он обращается к файлу, который уже используется;\nтакже может отсутствовать какой-то файл (для помощников: при «IOException» проверьте, существуют ли все файлы, нужные в «Game.Play = function()»).\nУбедитесь, что Nucleus Co-op находится вне файлов игр и защищённых папок;\nчтобы избежать проблем с правами, рекомендуется поместить папку Nucleus Co-op в корень основного диска: {suggestedFolder}.\nУбедитесь, что другие приложения не используют файлы, к которым обращается Nucleus. Если ничего не помогает, запустите Nucleus Co-op с правами администратора."
+      }
+    },
+    "debugLog": {
+      "enable": {
+        "title": "Включить журнал отладки",
+        "message": "Нажмите «Да», чтобы включить журнал отладки. Затем снова запустите игру, чтобы создать журнал.\nНажмите «Нет», чтобы отключить этот запрос."
+      }
+    },
+    "hotkeys": {
+      "registerFailed": "Ошибка регистрации горячих клавиш {error}",
+      "unregisterFailed": "Ошибка отмены регистрации горячих клавиш {error}"
+    },
+    "protoInput": {
+      "startupInjectFailed": "ProtoInput: не удалось выполнить внедрение при запуске",
+      "runtimeInjectFailed": "ProtoInput: не удалось выполнить внедрение во время работы"
+    },
+    "gameContent": {
+      "lockedFiles": {
+        "title": "Риск сбоя!",
+        "message": "Один или несколько файлов в {path} заблокированы системой или используются другой программой, и Nucleus не удалось их разблокировать. Из-за этого игра может аварийно завершиться при запуске.\n\nЗакройте программу, которая их использует, удалите или разблокируйте файлы вручную либо перезагрузите компьютер. Можно также проигнорировать это сообщение и рискнуть сбоем или непредвиденным поведением."
+      }
+    },
+    "gameFiles": {
+      "directoryNotFound": "Папка не найдена:\n{path}",
+      "pathTooLong": {
+        "title": "Слишком длинный путь к файлу!",
+        "message_one": "Путь к файлу слишком длинный.\n{path}\nОграничение — {limit} символов, а длина пути — {count} символ.\nПопробуйте переместить игру в корень диска, чтобы сократить путь.",
+        "message_few": "Путь к файлу слишком длинный.\n{path}\nОграничение — {limit} символов, а длина пути — {count} символа.\nПопробуйте переместить игру в корень диска, чтобы сократить путь.",
+        "message_many": "Путь к файлу слишком длинный.\n{path}\nОграничение — {limit} символов, а длина пути — {count} символов.\nПопробуйте переместить игру в корень диска, чтобы сократить путь.",
+        "message_other": "Путь к файлу слишком длинный.\n{path}\nОграничение — {limit} символов, а длина пути — {count} символа.\nПопробуйте переместить игру в корень диска, чтобы сократить путь."
+      }
+    },
+    "flawlessWidescreen": {
+      "pluginMissing": {
+        "title": "Nucleus — используйте Flawless Widescreen",
+        "message": "Nucleus не нашёл установленный плагин для «{plugin}» в FlawlessWidescreen. Сейчас откроется FlawlessWidescreen. Установите плагин и внесите необходимые изменения. Когда вы закроете FlawlessWidescreen, Nucleus продолжит работу. Нажмите ОК, чтобы открыть FlawlessWidescreen"
+      }
+    },
+    "network": {
+      "interfaceNotFound": "Не удалось определить сетевой интерфейс",
+      "defaultSettingsError": "Ошибка получения IP-настроек по умолчанию. {error}",
+      "changeIp": {
+        "title": "Nucleus — смена IP для каждого экземпляра",
+        "message": "ВНИМАНИЕ: эта функция сильно экспериментальная!\n\nIP-адрес вашего компьютера сейчас будет изменён. Сразу после этого может появиться запрос на подтверждение. При обычном выходе из Nucleus настройки IP будут восстановлены. Однако если Nucleus аварийно завершится, восстановление настроек не гарантируется.\n\nНажмите ОК, когда будете готовы сменить IP.\n\nИсходные настройки:\nСетевой интерфейс: {networkInterface}\nIP: {ip}\nМаска подсети: {subnetMask}\nОсновной шлюз: {gateway}\nDHCP: {dhcp}\nДинамический DNS: {dynamicDns}\nDNS: {dns}"
+      },
+      "reverting": "Восстановление обычных настроек IP. Может появиться ещё один запрос на подтверждение."
+    },
+    "deleteFiles": {
+      "configPathTitle": "Nucleus — удаление файлов в папке настроек",
+      "savePathTitle": "Nucleus — удаление файлов в папке сохранений",
+      "confirm": "Вы действительно хотите удалить «{file}»?"
+    },
+    "goldberg": {
+      "interfacesMissing": "Goldberg не удалось найти или создать steam_interfaces.txt. Процесс продолжится без этого файла.",
+      "customDllPathMissing": "В «{option}» не указан путь к файлу",
+      "steamApiMissing": "Goldberg не удалось найти файл steam_api(64).dll.\nВстроенный Goldberg не будет использоваться.",
+      "lobbyConnect": {
+        "waitForHost": "Goldberg Lobby Connect: нажмите ОК, когда создадите игру.",
+        "lobbyNotFound": "Goldberg Lobby Connect: не удалось найти ID лобби.",
+        "outputError": "Ошибка выходных данных Goldberg Lobby Connect. {error}"
+      }
+    },
+    "drives": {
+      "exFat": {
+        "title": "Несовместимый формат диска!",
+        "message": "Формат диска «exFat» не поддерживается.\n\nПереместите папку установки Nucleus на диск в формате NTFS или отформатируйте диск в NTFS.\n\nПричины:\n\nexFat не поддерживает символические ссылки."
+      },
+      "checkFailed": "Ошибка: {error}\nЧто-то пошло не так при проверке совместимости дисков!"
+    },
+    "profiles": {
+      "loaded": "Профиль хендлера «{title}» загружен",
+      "loadedNumber": "Профиль хендлера № {number} загружен",
+      "updated": "Профиль хендлера «{title}» обновлён",
+      "updatedNumber": "Профиль хендлера № {number} обновлён",
+      "setupFinished": "Настройка завершена",
+      "savedSetupFinished": "Профиль хендлера сохранён. Настройка завершена",
+      "notEnoughScreens": "Недостаточно активных экранов",
+      "loadFailed": "Не удаётся загрузить профиль.\n\nЕсли ошибка повторяется, удалите профиль и создайте новый.\n\n[Ошибка]\n\n{error}",
+      "unloaded": {
+        "title": "Профиль выгружен",
+        "message": "Ой!\nЧто-то пошло не так, профиль выгружен."
+      }
+    },
+    "profileSettings": {
+      "errors": {
+        "nicknameEmpty": "Ник не может быть пустым.",
+        "steamIdFormat": "Steam ID должен состоять из 17 цифр, например {example}.",
+        "steamIdDuplicate": "У каждого игрока должен быть свой Steam ID.",
+        "idealProcessor_one": "На этом ПК {count} ядро: используйте * или число до {count}.",
+        "idealProcessor_few": "На этом ПК {count} ядра: используйте * или число до {count}.",
+        "idealProcessor_many": "На этом ПК {count} ядер: используйте * или число до {count}.",
+        "idealProcessor_other": "На этом ПК {count} ядра: используйте * или число до {count}.",
+        "affinity_one": "На этом ПК {count} ядро: используйте числа до {count} через запятую.",
+        "affinity_few": "На этом ПК {count} ядра: используйте числа до {count} через запятую.",
+        "affinity_many": "На этом ПК {count} ядер: используйте числа до {count} через запятую.",
+        "affinity_other": "На этом ПК {count} ядра: используйте числа до {count} через запятую.",
+        "priorityClass": "Приоритет должен быть Normal, AboveNormal, High или RealTime.",
+        "horizontalLines": "Допустимо от 0 до 5 горизонтальных линий.",
+        "verticalLines": "Допустимо от 0 до 5 вертикальных линий.",
+        "maxPlayers": "В своей раскладке должен быть хотя бы 1 игрок.",
+        "delayNegative": "Задержка не может быть отрицательной.",
+        "pauseNegative": "Пауза не может быть отрицательной.",
+        "unknownColor": "Неизвестный цвет.",
+        "mergerResolution": "Разрешение должно выглядеть так: {example}."
+      }
+    },
+    "osd": {
+      "playerStarting": "Запуск экземпляра {game} для {nickname} (игрок № {number})",
+      "inputsLocked": "Ввод заблокирован",
+      "inputsUnlocked": "Ввод разблокирован",
+      "unlockInputsFirst": "Сначала разблокируйте ввод",
+      "unlockInputsFirstKey": "Сначала разблокируйте ввод (клавиша {key})",
+      "windowsUnfocused": "Фокус с окон игры снят",
+      "sessionEnded": "Сессия завершена",
+      "customHotkey": "Своё сочетание {number}",
+      "windowFocused": "Фокус на окне: {nickname}",
+      "cantBeUsedNow": "Сейчас недоступно",
+      "switchingLayouts": "Смена раскладки",
+      "cutscenesModeOn": "Режим катсцен включён",
+      "cutscenesModeOff": "Режим катсцен выключен",
+      "resettingWindows": "Сброс окон игры. Подождите...",
+      "windowsReset": "Окна игры сброшены",
+      "waitForReset": "Дождитесь сброса окон игры",
+      "windowsMinimized": "Окна игры свёрнуты",
+      "windowsRestored": "Окна игры восстановлены"
+    },
+    "overlay": {
+      "device": {
+        "controller": "Контроллер",
+        "keyboard": "Клавиатура",
+        "mouse": "Мышь",
+        "keyboardMouse": "Клавиатура и мышь",
+        "withGuests_one": "{device} + ещё {count}",
+        "withGuests_few": "{device} + ещё {count}",
+        "withGuests_many": "{device} + ещё {count}",
+        "withGuests_other": "{device} + ещё {count}"
+      },
+      "playerFallback": "Игрок {number}",
+      "badge": "И{number}",
+      "starting": "Запуск…",
+      "ready": "Готово",
+      "windowTitle": "Nucleus Co-op, игрок {number}"
+    },
+    "dialogs": {
+      "prompt": {
+        "windowTitle": "NucleusCoop — запрос"
+      },
+      "customPrompt": {
+        "windowTitle": "NucleusCoop — пользовательский запрос"
+      },
+      "processPicker": {
+        "windowTitle": "Выбор процесса",
+        "description": "Выберите процесс, которым будет управлять Nucleus.",
+        "refresh": "Обновить",
+        "noSelection": "Процесс не выбран.",
+        "alreadyAssigned": "(НЕ ИСПОЛЬЗОВАТЬ — уже назначен в Nucleus) {process}"
+      }
+    }
+  }
+}
