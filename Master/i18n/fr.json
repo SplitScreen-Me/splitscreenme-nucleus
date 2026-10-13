@@ -1,0 +1,2609 @@
+{
+  "_meta": {
+    "locale": "fr",
+    "englishName": "French",
+    "nativeName": "Français",
+    "direction": "ltr"
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "back": "Retour",
+    "save": "Enregistrer",
+    "delete": "Supprimer",
+    "retry": "Réessayer",
+    "tryAgain": "Réessayer",
+    "loading": "Chargement",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "remove": "Retirer",
+    "rename": "Renommer",
+    "search": "Rechercher",
+    "select": "Sélectionner",
+    "change": "Modifier",
+    "browse": "Parcourir",
+    "open": "Ouvrir",
+    "openMenu": "Ouvrir le menu",
+    "more": "Plus",
+    "showMore": "Afficher plus",
+    "showLess": "Afficher moins",
+    "yes": "Oui",
+    "no": "Non",
+    "continue": "Continuer",
+    "done": "Terminé",
+    "apply": "Appliquer",
+    "reset": "Réinitialiser",
+    "restart": "Redémarrer",
+    "discard": "Abandonner",
+    "skip": "Passer",
+    "install": "Installer",
+    "update": "Mettre à jour",
+    "download": "Télécharger",
+    "launch": "Lancer",
+    "stop": "Arrêter",
+    "copy": "Copier",
+    "copied": "Copié",
+    "details": "Détails",
+    "settings": "Paramètres",
+    "learnMore": "En savoir plus",
+    "on": "Activé",
+    "off": "Désactivé",
+    "none": "Aucun",
+    "unknown": "Inconnu",
+    "default": "Par défaut",
+    "automatic": "Automatique",
+    "notAvailable": "{value} (non disponible)",
+    "time": {
+      "justNow": "à l’instant",
+      "inMonth": "en {month}"
+    },
+    "errors": {
+      "timeout": "Nucleus Co-op n’a pas répondu à temps. Réessayez.",
+      "internal": "Une erreur s’est produite dans Nucleus Co-op. Les détails figurent dans le journal de l’application.",
+      "methodNotFound": "Cette version de Nucleus Co-op ne permet pas encore de faire cela.",
+      "serviceFailed": "Cette partie de Nucleus Co-op n’a pas démarré. Redémarrez l’application. Les détails figurent dans le journal de l’application.",
+      "unreachable": "L’interface n’a pas pu joindre Nucleus Co-op. Réessayez.",
+      "cancelled": "Annulé.",
+      "failed": "Cela n’a pas fonctionné. Réessayez.",
+      "unknown": "Une erreur s’est produite. Réessayez."
+    },
+    "inputs": {
+      "controllers": "Manettes",
+      "keyboardMouse": "Clavier et souris",
+      "multiKeyboardMouse": "Plusieurs claviers et souris",
+      "unknown": "Prise en charge des entrées inconnue"
+    },
+    "devices": {
+      "gamepad": "manette",
+      "keyboard": "clavier",
+      "mouse": "souris",
+      "keyboardMouse": "clavier et souris"
+    }
+  },
+  "shell": {
+    "startup": {
+      "starting": "Démarrage de Nucleus Co-op",
+      "mismatchTitle": "Les versions de l’interface et de l’application ne correspondent pas",
+      "mismatchMessage": "Les fichiers d’interface de cette installation n’ont pas été conçus pour Nucleus Co-op {version}. Réinstallez Nucleus Co-op pour obtenir des fichiers correspondants.",
+      "mismatchDetails": "Contrat de l’interface {uiContract} (protocole {uiProtocol}), contrat de l’application {appContract} (protocole {appProtocol})",
+      "hostDownTitle": "Nucleus Co-op n’a pas répondu",
+      "hostDownMessage": "L’interface n’a pas pu joindre l’application. Fermez Nucleus Co-op et relancez-le.",
+      "hostDownTimeout": "L’application n’a pas répondu à temps à l’interface. Fermez Nucleus Co-op et relancez-le.",
+      "hostDownDetails": "Détails : {error}"
+    },
+    "titleBar": {
+      "home": "Nucleus Co-op, aller à la bibliothèque",
+      "breadcrumb": "Fil d’Ariane",
+      "documentTitle": "{screen} - Nucleus Co-op",
+      "search": "Rechercher des jeux, des handlers, des paramètres",
+      "setupDevices": "Joueurs et périphériques de cette configuration",
+      "player": "Joueur {number} : {devices}",
+      "playerNamed": "Joueur {number} ({nickname}) : {devices}",
+      "playerShort": "J{number}",
+      "noDevice": "aucun périphérique",
+      "vibrateHint": "{label}. Cliquez pour faire vibrer la manette.",
+      "vibrateLabel": "{label}. Faire vibrer",
+      "freeDevicesHint": "Libres : {names}",
+      "freeDevicesLabel_one": "{count} libre : {names}",
+      "freeDevicesLabel_many": "{count} libres : {names}",
+      "freeDevicesLabel_other": "{count} libres : {names}",
+      "freeDevices_one": "{count} libre",
+      "freeDevices_many": "{count} libres",
+      "freeDevices_other": "{count} libres",
+      "controllers": "Manettes connectées",
+      "controllerFallback": "Manette {number}",
+      "controllerConnected": "{name}, connectée",
+      "controllerShort": "Pad {number}",
+      "noController": "Aucune manette",
+      "noControllerHint": "Aucune manette détectée pour l’instant. Appuyez sur un bouton d’une manette pour l’afficher ici."
+    },
+    "window": {
+      "minimize": "Réduire",
+      "maximize": "Agrandir",
+      "restore": "Restaurer"
+    },
+    "skipToContent": "Aller au contenu",
+    "offlineBanner": {
+      "title": "Le Hub est hors ligne.",
+      "message": "Vos jeux fonctionnent toujours ; l’installation et la mise à jour des handlers reprendront à son retour."
+    },
+    "hintBar": {
+      "label": "Commandes",
+      "hintsLabel": "Indications des boutons",
+      "version": "Nucleus Co-op {version}"
+    },
+    "rail": {
+      "label": "Principale",
+      "library": "Bibliothèque",
+      "games": "Catalogue",
+      "downloads": "Téléchargements",
+      "settings": "Paramètres",
+      "inProgress_one": "{label}, {count} en cours",
+      "inProgress_many": "{label}, {count} en cours",
+      "inProgress_other": "{label}, {count} en cours"
+    },
+    "palette": {
+      "label": "Rechercher",
+      "search": "Rechercher des jeux, des handlers, des paramètres",
+      "results": "Résultats",
+      "noMatch": "Aucun résultat pour « {query} ».",
+      "groups": {
+        "goTo": "Aller à",
+        "yourGames": "Vos jeux",
+        "getGames": "Catalogue",
+        "settings": "Paramètres"
+      },
+      "screens": {
+        "library": "Bibliothèque",
+        "games": "Catalogue",
+        "gamesHint": "Parcourir tous les handlers du Hub",
+        "downloads": "Téléchargements",
+        "settings": "Paramètres",
+        "session": "Session de {game}",
+        "sessionUnnamed": "Session de jeu",
+        "sessionHint": "En cours"
+      },
+      "gameHint_one": "Configurer une session, jusqu’à {count} joueur",
+      "gameHint_many": "Configurer une session, jusqu’à {count} joueurs",
+      "gameHint_other": "Configurer une session, jusqu’à {count} joueurs",
+      "handlerHint": "Handler de {author}",
+      "settings": {
+        "general": "Général : langues, réseau, pseudos, journal de débogage",
+        "players": "Joueurs : pseudos et ID Steam",
+        "hotkeys": "Raccourcis clavier et touche de verrouillage des entrées",
+        "gamepad": "Raccourcis manette et type de manette",
+        "audio": "Audio : périphérique de lecture de chaque instance",
+        "layout": "Disposition : grille personnalisée, arrière-plan, fusion des fenêtres",
+        "about": "À propos, dossier des handlers, mises à jour"
+      }
+    },
+    "notFound": {
+      "crumb": "Introuvable",
+      "title": "Cet écran n’existe pas",
+      "message": "Le lien provient peut-être d’une ancienne version de Nucleus Co-op.",
+      "backToLibrary": "Retour à la bibliothèque"
+    },
+    "crashed": {
+      "title": "Un problème est survenu sur cet écran",
+      "message": "Nucleus Co-op fonctionne toujours. Revenez à la bibliothèque et réessayez ; si le problème se reproduit, copiez les détails ci-dessous dans un rapport de bug.",
+      "unknownError": "Erreur inconnue",
+      "backToLibrary": "Retour à la bibliothèque"
+    }
+  },
+  "ui": {
+    "compat": {
+      "playersUnknown": "Nombre de joueurs inconnu",
+      "maxPlayers_one": "Jusqu’à {count} joueur",
+      "maxPlayers_many": "Jusqu’à {count} joueurs",
+      "maxPlayers_other": "Jusqu’à {count} joueurs",
+      "playsWith": "Se joue avec : {inputs}",
+      "inputsInList": {
+        "controllers": "manettes",
+        "keyboardMouse": "clavier et souris",
+        "multiKeyboardMouse": "plusieurs claviers et souris"
+      },
+      "notSupported": "{input} (non pris en charge)"
+    },
+    "playerTag": "J{number}",
+    "verified": "Vérifié",
+    "markdown": {
+      "image": "Image"
+    },
+    "glyph": {
+      "xbox": {
+        "a": "Bouton A",
+        "b": "Bouton B",
+        "x": "Bouton X",
+        "y": "Bouton Y",
+        "lb": "Bouton bombé gauche",
+        "rb": "Bouton bombé droit",
+        "menu": "Bouton Menu",
+        "view": "Bouton Affichage"
+      },
+      "playstation": {
+        "a": "Touche Croix",
+        "b": "Touche Rond",
+        "x": "Touche Carré",
+        "y": "Touche Triangle",
+        "menu": "Touche Options",
+        "view": "Touche Create"
+      }
+    }
+  },
+  "features": {
+    "addGame": {
+      "picker": {
+        "title": "Choisissez l’exécutable du jeu",
+        "titleNamed": "Où se trouve {game} ? Choisissez son exécutable",
+        "titleWithFile": "Où se trouve {game} ? Choisissez {file}",
+        "filter": "Exécutable du jeu",
+        "filterFiles": "Exécutable du jeu ({files})",
+        "filterNamed": "Exécutable de {game} ({files})"
+      },
+      "added": "{game} est dans votre bibliothèque",
+      "located": "{game} : jeu trouvé. Prêt à jouer.",
+      "chooser": {
+        "title": "De quel jeu s’agit-il ?",
+        "message": "Plusieurs handlers installés lancent <b>{file}</b>. Choisissez le jeu auquel appartient cet exécutable."
+      }
+    },
+    "fileDrop": {
+      "replace": {
+        "title": "Remplacer le handler installé ?",
+        "message": "{game} a déjà un handler. Le remplacer par {file} ? Vos profils et vos paramètres sont conservés.",
+        "messageUnknownGame": "Un handler est déjà installé pour ce jeu. Le remplacer par {file} ? Vos profils et vos paramètres sont conservés.",
+        "confirm": "Remplacer"
+      },
+      "installed": "Handler de {game} installé",
+      "wrongType": "Déposez un fichier de handler : .nc, .zip ou .js.",
+      "noPath": "Nucleus Co-op n’a pas pu déterminer l’emplacement de ce fichier. Enregistrez-le dans un dossier, puis déposez-le depuis l’Explorateur de fichiers.",
+      "overlay": {
+        "title": "Déposez le fichier pour installer le handler",
+        "hint": "Fichiers .nc, .zip ou .js. Nucleus vous demandera ensuite où se trouve le jeu."
+      }
+    },
+    "notices": {
+      "position": "{current} sur {total}"
+    }
+  },
+  "language": {
+    "firstRun": {
+      "title": "Choisissez votre langue",
+      "description": "Nucleus Co-op affiche ses fenêtres et ses messages dans cette langue. Vous pouvez la changer à tout moment dans les paramètres.",
+      "listLabel": "Langues",
+      "detected": "Langue de Windows",
+      "completion": "Traduit à {percent}",
+      "confirm": "Continuer en {language}"
+    }
+  },
+  "library": {
+    "title": "Bibliothèque",
+    "hints": {
+      "gameOptions": "Options du jeu",
+      "favourite": "Favori",
+      "updateHandler": "Mettre à jour le handler"
+    },
+    "loading": "Chargement de votre bibliothèque",
+    "loadError": "Impossible de lire votre bibliothèque",
+    "toasts": {
+      "handlerUpdated": "Handler de {game} mis à jour",
+      "handlerUpdatedTo": "Handler de {game} mis à jour en v{version}",
+      "favouriteAdded": "{game} ajouté aux favoris",
+      "favouriteRemoved": "{game} retiré des favoris",
+      "gameRemoved": "{game} retiré de votre bibliothèque"
+    },
+    "attention": {
+      "gamesNotFound_one": "{count} jeu introuvable",
+      "gamesNotFound_many": "{count} jeux introuvables",
+      "gamesNotFound_other": "{count} jeux introuvables",
+      "handlerUpdates_one": "{count} mise à jour de handler",
+      "handlerUpdates_many": "{count} mises à jour de handlers",
+      "handlerUpdates_other": "{count} mises à jour de handlers",
+      "one": "{item}.",
+      "both": "{missing}, {updates}."
+    },
+    "empty": {
+      "title": "Votre bibliothèque est vide",
+      "text": "Ajoutez les jeux que Nucleus a trouvés sur ce PC, choisissez un handler sur le Hub ou indiquez à Nucleus un jeu que vous possédez. Chaque jeu reçoit une configuration en écran partagé prête à l’emploi.",
+      "getGames": "Voir le catalogue",
+      "addGame": "Ajouter un jeu"
+    },
+    "upToPlayers_one": "Jusqu’à {count} joueur",
+    "upToPlayers_many": "Jusqu’à {count} joueurs",
+    "upToPlayers_other": "Jusqu’à {count} joueurs",
+    "handlerLine": {
+      "hub": "Handler du Hub",
+      "fromFile": "Handler installé depuis un fichier",
+      "version": "Version du handler : {version}",
+      "versionWithLatest": "Version du handler : {version}, version {latest} sur le Hub"
+    },
+    "inputs": {
+      "controllersKeyboardsMice": "Manettes, claviers et souris",
+      "controllersKeyboardMouse": "Manettes, clavier et souris",
+      "controllers": "Manettes",
+      "keyboardsMice": "Claviers et souris",
+      "keyboardMouse": "Clavier et souris"
+    },
+    "featured": {
+      "setUpSession": "Configurer la session",
+      "gameOptions": "Options du jeu",
+      "locateGame": "Localiser le jeu",
+      "updating": "Mise à jour {percent}",
+      "updateTo": "Mettre à jour en v{version}",
+      "missing": "Nucleus ne trouve pas l’exécutable de ce jeu. Il a peut-être été déplacé : localisez-le pour pouvoir y rejouer.",
+      "yourPlay": "Votre activité",
+      "lastPlayed": "Dernière partie",
+      "notRecorded": "Non enregistrée",
+      "playTime": "Temps de jeu",
+      "underAMinute": "Moins d’une minute",
+      "notPlayed": "Pas encore joué. Distribuez les manettes : chacun appuie sur Start pour rejoindre la partie."
+    },
+    "options": {
+      "title": "Options de {game}",
+      "defaultTitle": "Options du jeu",
+      "summary_one": "{handler}. Jusqu’à {count} joueur.",
+      "summary_many": "{handler}. Jusqu’à {count} joueurs.",
+      "summary_other": "{handler}. Jusqu’à {count} joueurs.",
+      "executableMissing": "L’exécutable du jeu est introuvable.",
+      "setUpSession": "Configurer la session",
+      "locateGame": "Localiser le jeu",
+      "updating": "Mise à jour {percent}",
+      "updateTo": "Mettre à jour le handler en v{version}",
+      "handlerPage": "Page du handler",
+      "loading": "Chargement des options de {game}",
+      "loadError": "Impossible de lire les options de ce jeu."
+    },
+    "gameMenu": {
+      "pickFileTitle": "{action} : {game}",
+      "done": "{action} : terminé"
+    },
+    "gameInfo": {
+      "readError": "Nucleus Co-op n’a pas pu lire ce jeu."
+    },
+    "notes": {
+      "title": "{game} : notes du handler",
+      "defaultTitle": "Notes du handler",
+      "metaBy": "{file}, par {maintainer}",
+      "metaVersion": "{file}, version {version}",
+      "metaByVersion": "{file}, par {maintainer}, version {version}",
+      "none": "Ce handler n’a pas de notes."
+    },
+    "details": {
+      "title": "{game} : détails",
+      "defaultTitle": "Détails du jeu",
+      "executable": "Exécutable",
+      "architecture": "Architecture",
+      "handlerFile": "Fichier du handler",
+      "handlerVersion": "Version du handler",
+      "versionWithLatest": "{version} (version {latest} sur le Hub)",
+      "maintainer": "Mainteneur",
+      "steamApp": "Application Steam",
+      "players": "Joueurs",
+      "playersValue_one": "Jusqu’à {count}",
+      "playersValue_many": "Jusqu’à {count}",
+      "playersValue_other": "Jusqu’à {count}",
+      "inputs": "Entrées",
+      "profiles": "Profils",
+      "profileCount_one": "{count} profil enregistré",
+      "profileCount_many": "{count} profils enregistrés",
+      "profileCount_other": "{count} profils enregistrés",
+      "noProfiles": "Aucun pour l’instant",
+      "profilesOff": "Désactivés",
+      "options": "Options",
+      "hasOptions": "Le handler a des options ou des étapes de configuration",
+      "instancesFolder": "Dossier des instances",
+      "notSet": "Non défini",
+      "showInExplorer": "Afficher dans l’Explorateur de fichiers"
+    },
+    "hubStrip": {
+      "title_one": "Populaires sur le Hub pour {count} joueur ou plus",
+      "title_many": "Populaires sur le Hub pour {count} joueurs ou plus",
+      "title_other": "Populaires sur le Hub pour {count} joueurs ou plus",
+      "openGetGames": "Ouvrir le catalogue",
+      "tileLabel": "{game} sur le Hub",
+      "tileMeta": "{players}, {downloads}"
+    },
+    "games": {
+      "title": "Vos jeux",
+      "count_one": "{count} jeu",
+      "count_many": "{count} jeux",
+      "count_other": "{count} jeux",
+      "countFiltered": "{shown} sur {total}",
+      "sort": "Trier",
+      "sortLabel": "Trier les jeux",
+      "addGame": "Ajouter un jeu",
+      "filtersLabel": "Filtrer les jeux",
+      "favourites": "Favoris",
+      "needsAttention": "À vérifier",
+      "allReady": "Tous les jeux sont prêts. Rien ne requiert votre attention.",
+      "noMatch": "Aucun jeu de votre bibliothèque ne correspond à ces filtres.",
+      "showAll": "Afficher tous les jeux"
+    },
+    "sort": {
+      "lastPlayed": "Dernière partie",
+      "name": "Nom, de A à Z",
+      "nameDescending": "Nom, de Z à A",
+      "maxPlayers": "Le plus de joueurs",
+      "playtime": "Les plus joués"
+    },
+    "filters": {
+      "controllers": "Manettes",
+      "keyboard": "Clavier et souris",
+      "multipleKeyboards": "Plusieurs claviers"
+    },
+    "card": {
+      "addFavourite": "Ajouter {game} aux favoris",
+      "removeFavourite": "Retirer {game} des favoris",
+      "favouriteTitle": "Favori",
+      "addFavouriteTitle": "Ajouter aux favoris",
+      "missingLabel": "{game} : exécutable du jeu introuvable. Localisez-le",
+      "notFound": "Jeu introuvable",
+      "locate": "Localiser",
+      "executableMissing": "Exécutable manquant",
+      "labelFavourite": "{game}, favori",
+      "labelUpdate": "{game}, mise à jour du handler disponible",
+      "labelNew": "{game}, nouveau",
+      "labelFavouriteUpdate": "{game}, favori, mise à jour du handler disponible",
+      "labelFavouriteNew": "{game}, favori, nouveau",
+      "versionBadge": "v{version}",
+      "new": "Nouveau",
+      "updatingHandler": "Mise à jour du handler, {percent}",
+      "handlerUpdate": "Handler v{from} vers v{to}",
+      "updateLabel": "Mettre à jour le handler de {game} vers la version {version}",
+      "updateTo": "Mise à jour v{version}"
+    },
+    "found": {
+      "title": "Trouvés sur ce PC",
+      "selectNone": "Tout désélectionner",
+      "selectAll": "Tout sélectionner",
+      "readingLibraries": "Lecture de vos bibliothèques Steam et Epic…",
+      "matching": "Recherche dans le catalogue du Hub…",
+      "readError": "Impossible de lire vos bibliothèques de jeux",
+      "running": "Installation des handlers et ajout des jeux. Laissez Nucleus ouvert.",
+      "finished": "Terminé. Les jeux qui demandent votre intervention sont listés avec la marche à suivre.",
+      "scannedStores_one": "Votre bibliothèque {stores} a été analysée {ago}. Ces jeux ont un handler prêt à l’emploi sur le Hub.",
+      "scannedStores_many": "Vos bibliothèques {stores} ont été analysées {ago}. Ces jeux ont un handler prêt à l’emploi sur le Hub.",
+      "scannedStores_other": "Vos bibliothèques {stores} ont été analysées {ago}. Ces jeux ont un handler prêt à l’emploi sur le Hub.",
+      "scanned": "Analyse effectuée {ago}. Ces jeux ont un handler prêt à l’emploi sur le Hub.",
+      "offline": "Le Hub est hors ligne : impossible de télécharger des handlers pour le moment.",
+      "addingGames": "Ajout des jeux…",
+      "addCount_one": "Ajouter {count} jeu",
+      "addCount_many": "Ajouter {count} jeux",
+      "addCount_other": "Ajouter {count} jeux",
+      "selectToAdd": "Sélectionnez les jeux à ajouter",
+      "scanAgain": "Relancer l’analyse",
+      "emptyTitle": "Rien de nouveau sur ce PC",
+      "noneNew_one": "Le jeu installé via {stores} n’a pas de nouveau handler à vous proposer.",
+      "noneNew_many": "Aucun des {count} jeux installés via {stores} n’a de nouveau handler à vous proposer.",
+      "noneNew_other": "Aucun des {count} jeux installés via {stores} n’a de nouveau handler à vous proposer.",
+      "noneNewAnyStore_one": "Le jeu installé via vos boutiques n’a pas de nouveau handler à vous proposer.",
+      "noneNewAnyStore_many": "Aucun des {count} jeux installés via vos boutiques n’a de nouveau handler à vous proposer.",
+      "noneNewAnyStore_other": "Aucun des {count} jeux installés via vos boutiques n’a de nouveau handler à vous proposer.",
+      "noGames": "Nucleus recherche les jeux installés via Steam et Epic. Installez un jeu, puis relancez l’analyse.",
+      "steps": {
+        "waiting": "En attente",
+        "installing": "Installation du handler",
+        "installingProgress": "Installation du handler, {percent}",
+        "searching": "Recherche du jeu",
+        "picking": "Choisissez l’exécutable",
+        "adding": "Ajout",
+        "added": "Ajouté à votre bibliothèque",
+        "installed": "Handler installé, jeu non ajouté",
+        "failed": "Échec",
+        "cancelled": "Annulé",
+        "addLater": "Ajoutez le jeu plus tard depuis Vos jeux",
+        "addFailed": "Impossible d’ajouter le jeu"
+      },
+      "toasts": {
+        "added_one": "{count} jeu ajouté à votre bibliothèque",
+        "added_many": "{count} jeux ajoutés à votre bibliothèque",
+        "added_other": "{count} jeux ajoutés à votre bibliothèque",
+        "noneAdded": "Aucun jeu n’a été ajouté",
+        "found_one": "{count} jeu trouvé avec un handler sur le Hub",
+        "found_many": "{count} jeux trouvés avec un handler sur le Hub",
+        "found_other": "{count} jeux trouvés avec un handler sur le Hub",
+        "nothingNew": "Rien de nouveau sur ce PC"
+      },
+      "item": {
+        "upToPlayers_one": "jusqu’à {count} joueur",
+        "upToPlayers_many": "jusqu’à {count} joueurs",
+        "upToPlayers_other": "jusqu’à {count} joueurs",
+        "playersUnknown": "nombre de joueurs inconnu",
+        "meta": "{store}, {players}",
+        "metaVerified": "{store}, {players}, vérifié",
+        "addLabel": "Ajouter {game}"
+      }
+    }
+  },
+  "catalog": {
+    "title": "Catalogue",
+    "hints": {
+      "previousSection": "Section précédente",
+      "nextSection": "Section suivante"
+    },
+    "heading": "Trouvez un jeu auquel jouer ensemble",
+    "intro": "Chaque jeu de cette liste dispose d’un handler créé par la communauté. Choisissez-en un, installez-le en un clic et distribuez les manettes.",
+    "search": {
+      "placeholder": "Rechercher par jeu ou par auteur de handler",
+      "label": "Rechercher des jeux",
+      "total_one": "{count} jeu",
+      "total_many": "{count} jeux",
+      "total_other": "{count} jeux",
+      "filtered": "{shown} sur {total}"
+    },
+    "genres": {
+      "label": "Genres",
+      "gameCount_one": "{count} jeu",
+      "gameCount_many": "{count} jeux",
+      "gameCount_other": "{count} jeux"
+    },
+    "filters": {
+      "label": "Filtres",
+      "maxPlayers": "Joueurs max.",
+      "playersRange": "{range} joueurs",
+      "anyPlayers": "Nombre de joueurs indifférent",
+      "maxPlayersHint": "Le nombre maximal de joueurs simultanés pris en charge par le handler.",
+      "worksWith": "Compatible avec",
+      "verifiedOnly": "Vérifiés uniquement",
+      "verifiedHint": "Contrôlés par les modérateurs du Hub",
+      "genres": "Genres",
+      "clearAll": "Effacer tous les filtres",
+      "queryToken": "« {query} »",
+      "verifiedToken": "Vérifié",
+      "remove": "Retirer le filtre {filter}"
+    },
+    "offlineCopy": "Le Hub est injoignable. Affichage du catalogue enregistré le <b>{date}</b>.",
+    "results": {
+      "loading": "Chargement du catalogue…",
+      "all_one": "{count} jeu",
+      "all_many": "Les {count} jeux",
+      "all_other": "Les {count} jeux",
+      "count_zero": "Aucun jeu",
+      "count_one": "{count} jeu",
+      "count_many": "{count} jeux",
+      "count_other": "{count} jeux",
+      "sortBy": "Trier par",
+      "sortLabel": "Trier les jeux",
+      "showMore_one": "Afficher {count} de plus",
+      "showMore_many": "Afficher {count} de plus",
+      "showMore_other": "Afficher {count} de plus",
+      "showing": "{shown} sur {total} affichés"
+    },
+    "noMatch": {
+      "title": "Aucun handler ne correspond pour l’instant",
+      "withQuery": "Aucun résultat pour « {query} » avec ces filtres. Vérifiez l’orthographe, essayez avec moins de filtres ou demandez à la communauté : les auteurs de handlers choisissent leurs prochains jeux parmi les demandes sur Discord.",
+      "text": "Essayez avec moins de filtres ou demandez le jeu qui vous intéresse à la communauté : les auteurs de handlers choisissent leurs prochains jeux parmi les demandes sur Discord.",
+      "clear": "Effacer les filtres",
+      "request": "Le demander sur Discord"
+    },
+    "unreachable": {
+      "title": "Le Hub est injoignable",
+      "withMessage": "{message} Votre bibliothèque fonctionne toujours hors ligne. Le catalogue s’affichera ici dès que Nucleus Co-op aura pu joindre le Hub une première fois.",
+      "text": "Impossible de charger le catalogue. Votre bibliothèque fonctionne toujours hors ligne. Le catalogue s’affichera ici dès que Nucleus Co-op aura pu joindre le Hub une première fois."
+    },
+    "card": {
+      "verified": "Handler vérifié",
+      "inLibrary": "En bibliothèque",
+      "inLibraryTitle": "Installé, le jeu est dans votre bibliothèque",
+      "installed": "Installé",
+      "installedTitle": "Handler installé, le jeu n’est pas encore dans votre bibliothèque",
+      "updateTitle": "Une version plus récente de ce handler est disponible sur le Hub"
+    }
+  },
+  "handler": {
+    "defaultTitle": "Handler",
+    "hints": {
+      "install": "Installer le handler",
+      "update": "Mettre à jour le handler",
+      "addGame": "Ajouter le jeu"
+    },
+    "loading": "Chargement du handler",
+    "unavailable": {
+      "offlineTitle": "Le Hub est injoignable",
+      "offlineText": "Nucleus Co-op n’a pas pu charger ce handler. Vérifiez votre connexion et réessayez.",
+      "goneTitle": "Ce handler n’est plus sur le Hub",
+      "goneText": "Son auteur l’a peut-être supprimé ou rendu privé. D’autres handlers existent peut-être pour le même jeu.",
+      "back": "Retour au catalogue"
+    },
+    "hero": {
+      "allGames": "Tous les jeux",
+      "summary": {
+        "upTo": {
+          "none_one": "Jusqu’à {count} joueur sur un seul PC.",
+          "none_many": "Jusqu’à {count} joueurs sur un seul PC.",
+          "none_other": "Jusqu’à {count} joueurs sur un seul PC.",
+          "controllers_one": "Jusqu’à {count} joueur sur un seul PC, avec des manettes.",
+          "controllers_many": "Jusqu’à {count} joueurs sur un seul PC, avec des manettes.",
+          "controllers_other": "Jusqu’à {count} joueurs sur un seul PC, avec des manettes.",
+          "keyboardMouse_one": "Jusqu’à {count} joueur sur un seul PC, au clavier et à la souris.",
+          "keyboardMouse_many": "Jusqu’à {count} joueurs sur un seul PC, au clavier et à la souris.",
+          "keyboardMouse_other": "Jusqu’à {count} joueurs sur un seul PC, au clavier et à la souris.",
+          "multiKeyboardMouse_one": "Jusqu’à {count} joueur sur un seul PC, avec plusieurs claviers et souris.",
+          "multiKeyboardMouse_many": "Jusqu’à {count} joueurs sur un seul PC, avec plusieurs claviers et souris.",
+          "multiKeyboardMouse_other": "Jusqu’à {count} joueurs sur un seul PC, avec plusieurs claviers et souris.",
+          "controllersKeyboardMouse_one": "Jusqu’à {count} joueur sur un seul PC, avec des manettes ou au clavier et à la souris.",
+          "controllersKeyboardMouse_many": "Jusqu’à {count} joueurs sur un seul PC, avec des manettes ou au clavier et à la souris.",
+          "controllersKeyboardMouse_other": "Jusqu’à {count} joueurs sur un seul PC, avec des manettes ou au clavier et à la souris.",
+          "controllersMultiKeyboardMouse_one": "Jusqu’à {count} joueur sur un seul PC, avec des manettes ou plusieurs claviers et souris.",
+          "controllersMultiKeyboardMouse_many": "Jusqu’à {count} joueurs sur un seul PC, avec des manettes ou plusieurs claviers et souris.",
+          "controllersMultiKeyboardMouse_other": "Jusqu’à {count} joueurs sur un seul PC, avec des manettes ou plusieurs claviers et souris.",
+          "keyboardMouseMultiKeyboardMouse_one": "Jusqu’à {count} joueur sur un seul PC, avec un ou plusieurs claviers et souris.",
+          "keyboardMouseMultiKeyboardMouse_many": "Jusqu’à {count} joueurs sur un seul PC, avec un ou plusieurs claviers et souris.",
+          "keyboardMouseMultiKeyboardMouse_other": "Jusqu’à {count} joueurs sur un seul PC, avec un ou plusieurs claviers et souris.",
+          "all_one": "Jusqu’à {count} joueur sur un seul PC, avec des manettes ou un ou plusieurs claviers et souris.",
+          "all_many": "Jusqu’à {count} joueurs sur un seul PC, avec des manettes ou un ou plusieurs claviers et souris.",
+          "all_other": "Jusqu’à {count} joueurs sur un seul PC, avec des manettes ou un ou plusieurs claviers et souris."
+        },
+        "splitScreen": {
+          "none": "Écran partagé sur un seul PC.",
+          "controllers": "Écran partagé sur un seul PC, avec des manettes.",
+          "keyboardMouse": "Écran partagé sur un seul PC, au clavier et à la souris.",
+          "multiKeyboardMouse": "Écran partagé sur un seul PC, avec plusieurs claviers et souris.",
+          "controllersKeyboardMouse": "Écran partagé sur un seul PC, avec des manettes ou au clavier et à la souris.",
+          "controllersMultiKeyboardMouse": "Écran partagé sur un seul PC, avec des manettes ou plusieurs claviers et souris.",
+          "keyboardMouseMultiKeyboardMouse": "Écran partagé sur un seul PC, avec un ou plusieurs claviers et souris.",
+          "all": "Écran partagé sur un seul PC, avec des manettes ou un ou plusieurs claviers et souris."
+        }
+      },
+      "verified": "Handler vérifié",
+      "byline": "Handler « {title} » de {author}, version {version}",
+      "previewLabel_one": "{game} affiché dans {count} vue de joueur, selon la disposition des fenêtres de Nucleus Co-op",
+      "previewLabel_many": "{game} partagé en {count} vues de joueurs, selon la disposition des fenêtres de Nucleus Co-op",
+      "previewLabel_other": "{game} partagé en {count} vues de joueurs, selon la disposition des fenêtres de Nucleus Co-op",
+      "moreSeats_one": "{count} place de plus",
+      "moreSeats_many": "{count} places de plus",
+      "moreSeats_other": "{count} places de plus"
+    },
+    "compat": {
+      "title": "Compatibilité",
+      "players": "Joueurs",
+      "moderators": "Modérateurs du Hub",
+      "supported": "Pris en charge",
+      "notSupported": "Non pris en charge",
+      "onePerPlayer": "Un par joueur",
+      "verified": "Vérifié",
+      "notVerified": "Pas encore vérifié",
+      "notStated": "Non précisé"
+    },
+    "notes": {
+      "title": "Notes du handler",
+      "loading": "Chargement des notes…",
+      "none": "{author} n’a pas encore rédigé de notes pour ce handler. Nucleus affiche les notes de l’auteur avant le lancement, et les commentaires ci-dessous contiennent souvent des conseils d’autres joueurs.",
+      "about": "À propos de {game}"
+    },
+    "steps": {
+      "title": "Jouez à {game} ensemble",
+      "installTitle": "Installez le handler",
+      "installBody": "Un seul clic. Nucleus le télécharge depuis le Hub et ajoute {game} à votre bibliothèque.",
+      "locateTitle": "Indiquez le jeu",
+      "locateBody": "La première fois, Nucleus trouve {game} sur ce PC ou vous demande une seule fois où il est installé.",
+      "seatTitle": "Prenez place",
+      "seatBody": "Chaque joueur appuie sur Start de sa manette pour rejoindre la partie. Nucleus ouvre une fenêtre par joueur et les dispose en mosaïque.",
+      "seatTip": "Vous jouez avec des claviers et des souris ? Une fois que tout est en place, appuyez sur <kbd>{key}</kbd> pour donner à chaque fenêtre son propre curseur.",
+      "connectTitle": "Connectez-vous en jeu",
+      "connectBody": "Suivez les notes du handler pour relier les fenêtres : en général, un joueur héberge la partie et les autres la rejoignent."
+    },
+    "installPane": "Installer ce handler",
+    "related": {
+      "title": "À essayer ensuite",
+      "browseAll": "Parcourir tous les jeux"
+    },
+    "comments": {
+      "title": "Commentaires <count>{number}</count>",
+      "commentOnHub": "Commenter sur le Hub",
+      "loading": "Chargement des commentaires…",
+      "loadError": "Impossible de charger les commentaires.",
+      "none": "Aucun commentaire pour l’instant. Vous y avez joué ? Partagez sur le Hub ce qui a fonctionné pour votre groupe.",
+      "showMore_one": "Afficher {count} autre discussion",
+      "showMore_many": "Afficher {count} autres discussions",
+      "showMore_other": "Afficher {count} autres discussions"
+    },
+    "action": {
+      "toasts": {
+        "updated": "Handler de {game} mis à jour vers la version {version}",
+        "installed": "Handler de {game} installé",
+        "showGame": "Handler installé. Indiquez à Nucleus où se trouve {game}."
+      },
+      "facts": {
+        "version": "Version",
+        "updated": "Mis à jour",
+        "downloads": "Téléchargements",
+        "stars": "Étoiles",
+        "comments": "Commentaires"
+      },
+      "cancelLabel": "Annuler le téléchargement de {game}",
+      "updatingNote": "Mise à jour du handler. Le jeu reste jouable pendant ce temps.",
+      "installingNote": "Installation du handler de {game} depuis le Hub.",
+      "waitingForFile": "En attente du fichier du jeu…",
+      "pickNote": "Choisissez l’exécutable de {game} dans la fenêtre ouverte par Nucleus.",
+      "locate": "Localiser le jeu",
+      "missingNote": "Installé, version {version}. Nucleus ne trouve plus {game} : indiquez-lui où se trouve le jeu.",
+      "setUpSession": "Configurer la session",
+      "inLibraryNote": "Installé, version {version}. {game} est dans votre bibliothèque.",
+      "addGame": "Ajouter le jeu",
+      "notInLibraryNote": "Le handler est installé, mais {game} n’est pas encore dans votre bibliothèque. Indiquez à Nucleus où se trouve le jeu.",
+      "notInLibraryNoteVersion": "Le handler est installé (version {version}), mais {game} n’est pas encore dans votre bibliothèque. Indiquez à Nucleus où se trouve le jeu.",
+      "updateTo": "Passer à la version {version}",
+      "install": "Installer le handler",
+      "offline": "Le Hub est hors ligne. L’installation sera de nouveau possible dès que Nucleus pourra le joindre.",
+      "updateNote": "La version {version} est installée. La mise à jour conserve vos profils et vos paramètres.",
+      "installNote": "Télécharge le handler depuis le Hub et ajoute {game} à votre bibliothèque. Nucleus vous demande une seule fois où le jeu est installé.",
+      "openOnHub": "Ouvrir sur le Hub",
+      "authorHandlers_one": "{count} handler",
+      "authorHandlers_many": "{count} handlers",
+      "authorHandlers_other": "{count} handlers",
+      "authorStats": "{handlers}, {downloads}",
+      "reportProblem": "Le handler ne fonctionne plus après une mise à jour du jeu ? <link>Prévenez l’auteur dans les commentaires</link>."
+    }
+  },
+  "downloads": {
+    "title": "Téléchargements",
+    "intro": "Les handlers que vous installez ou mettez à jour depuis le Hub. Les jeux restent jouables pendant la mise à jour de leur handler.",
+    "hints": {
+      "updateAll": "Tout mettre à jour"
+    },
+    "toasts": {
+      "handlerUpdated": "Handler de {game} mis à jour",
+      "handlerUpdatedTo": "Handler de {game} mis à jour vers la version {version}",
+      "checked": "Mises à jour des handlers vérifiées sur le Hub"
+    },
+    "hubOffline": "Le Hub est hors ligne",
+    "checkUpdates": "Rechercher des mises à jour",
+    "clearFinished": "Effacer les terminés",
+    "updates": {
+      "title": "Mises à jour disponibles",
+      "updating": "Mise à jour…",
+      "updateAll": "Tout mettre à jour",
+      "offline": "Le Hub est hors ligne. Les mises à jour seront de nouveau possibles dès que Nucleus pourra le joindre.",
+      "fromTo": "Mise à jour du handler de v{from} à v{to}",
+      "to": "Mise à jour du handler vers v{to}",
+      "updateLabel": "Mettre à jour le handler de {game}"
+    },
+    "list": {
+      "inProgress": "En cours",
+      "recent": "Téléchargements récents",
+      "count_one": "{count} élément",
+      "count_many": "{count} éléments",
+      "count_other": "{count} éléments",
+      "empty": "Aucun téléchargement depuis le démarrage de Nucleus Co-op. Les handlers que vous installez depuis le catalogue, ou que vous déposez sur la fenêtre sous forme de fichiers .nc, apparaissent ici avec leur progression.",
+      "getGames": "Voir le catalogue"
+    },
+    "row": {
+      "defaultName": "Handler",
+      "update": "Mise à jour du handler",
+      "updateTo": "Mise à jour du handler vers la version {version}",
+      "file": "Depuis un fichier",
+      "install": "Handler",
+      "installVersion": "Handler, version {version}",
+      "cancelLabel": "Annuler le téléchargement de {game}",
+      "addGame": "Ajouter le jeu",
+      "setUpSession": "Configurer la session",
+      "retryLabel": "Relancer le téléchargement de {game}",
+      "progressLabel": "{game} : {stage}",
+      "failed": "Échec : {error}",
+      "failedUnknown": "Échec : l’installation ne s’est pas terminée.",
+      "notInLibrary": "Installé. Le jeu n’est pas encore dans votre bibliothèque.",
+      "statusWhen": "{status} <when>{ago}</when>"
+    },
+    "stage": {
+      "queued": "En attente…",
+      "downloading": "Téléchargement…",
+      "downloadingPercent": "Téléchargement… {percent}",
+      "extracting": "Installation…",
+      "done": "Installé",
+      "failed": "Échec",
+      "cancelled": "Annulé"
+    }
+  },
+  "hub": {
+    "upToPlayers_one": "Jusqu’à {count} joueur",
+    "upToPlayers_many": "Jusqu’à {count} joueurs",
+    "upToPlayers_other": "Jusqu’à {count} joueurs",
+    "downloadCount_one": "{downloads} téléchargement",
+    "downloadCount_many": "{downloads} téléchargements",
+    "downloadCount_other": "{downloads} téléchargements",
+    "players": {
+      "any": "Tous"
+    },
+    "sort": {
+      "trending": "Tendances",
+      "downloads": "Les plus téléchargés",
+      "updated": "Mis à jour récemment",
+      "az": "A–Z"
+    },
+    "genres": {
+      "adventure": "Aventure",
+      "arcade": "Arcade",
+      "cardAndBoardGame": "Cartes et société",
+      "fighting": "Combat",
+      "hackAndSlash": "Hack and slash",
+      "indie": "Indépendant",
+      "moba": "MOBA",
+      "music": "Musique",
+      "pinball": "Flipper",
+      "platform": "Plateformes",
+      "pointAndClick": "Point-and-click",
+      "puzzle": "Réflexion",
+      "quizTrivia": "Quiz",
+      "racing": "Course",
+      "realTimeStrategy": "Stratégie en temps réel",
+      "rolePlaying": "Jeu de rôle",
+      "shooter": "Tir",
+      "simulator": "Simulation",
+      "sport": "Sport",
+      "strategy": "Stratégie",
+      "tactical": "Tactique",
+      "turnBasedStrategy": "Stratégie au tour par tour",
+      "visualNovel": "Visual novel"
+    },
+    "fallbacks": {
+      "untitledHandler": "Handler sans titre",
+      "unknownAuthor": "Auteur inconnu",
+      "unknownGame": "Jeu inconnu",
+      "someone": "Quelqu’un"
+    },
+    "errors": {
+      "unreachable": "Le Hub est injoignable. Vérifiez votre connexion.",
+      "busyRetryIn": "Le Hub est surchargé pour le moment. Réessayez dans {seconds} s.",
+      "busy": "Le Hub est surchargé pour le moment. Réessayez dans un instant.",
+      "status": "Le Hub a renvoyé le code {status}.",
+      "unreadable": "Le Hub a envoyé une réponse illisible.",
+      "cspBlocked": "La Content-Security-Policy de cette version de l’interface n’autorise pas {origin} (Settings.ini [Dev] HubUrl). Recompilez l’interface avec NUCLEUS_HUB_ORIGINS={origin} ou chargez-la depuis le serveur de développement Vite."
+    }
+  },
+  "lobby": {
+    "thisGame": "ce jeu",
+    "backToLibrary": "Retour à la bibliothèque",
+    "breadcrumbs": {
+      "library": "Bibliothèque",
+      "settingUp": "Configuration"
+    },
+    "opening": "Ouverture de la configuration de {game}",
+    "openingUnnamed": "Ouverture de la configuration du jeu",
+    "openError": {
+      "title": "Impossible de configurer ce jeu"
+    },
+    "asideLabel": "Session",
+    "keys": {
+      "waiting": "En attente d’une manette : <b>{cancel}</b> pour annuler",
+      "help": "Clavier : <b>{pickUp}</b> pour prendre un joueur, <b>{resize}</b> pour le redimensionner, <b>{remove}</b> pour le retirer"
+    },
+    "hints": {
+      "join": "Rejoindre",
+      "resize": "Redimensionner",
+      "arrowsKey": "Flèches",
+      "moveCorner": "Déplacer le coin",
+      "otherCorner": "Autre coin"
+    },
+    "header": {
+      "label": "Jeu",
+      "handlerVersion": "Version du handler : {version}",
+      "handlerFromFile": "Handler installé depuis un fichier",
+      "maintainer": "par {name}",
+      "maxPlayers_one": "Jusqu’à {count} joueur",
+      "maxPlayers_many": "Jusqu’à {count} joueurs",
+      "maxPlayers_other": "Jusqu’à {count} joueurs",
+      "playersPerCopy_one": "{count} joueur par copie",
+      "playersPerCopy_many": "{count} joueurs par copie",
+      "playersPerCopy_other": "{count} joueurs par copie",
+      "notes": "Notes du handler"
+    },
+    "notes": {
+      "title": "Notes du handler",
+      "withVersion": "{game}, version du handler : {version}",
+      "withMaintainer": "{game}, par {maintainer}",
+      "withVersionAndMaintainer": "{game}, version du handler {version}, par {maintainer}",
+      "empty": "Ce handler n’a pas de notes."
+    },
+    "screen": {
+      "name": "Écran {number}"
+    },
+    "where": {
+      "screenAndSlot": "{screen}, {slot}",
+      "unknownScreen": "un écran"
+    },
+    "slots": {
+      "fullScreen": "plein écran",
+      "left": "à gauche",
+      "right": "à droite",
+      "top": "en haut",
+      "bottom": "en bas",
+      "topLeft": "en haut à gauche",
+      "topRight": "en haut à droite",
+      "bottomLeft": "en bas à gauche",
+      "bottomRight": "en bas à droite",
+      "grid": "ligne {row}, colonne {column}"
+    },
+    "layouts": {
+      "fullScreen": {
+        "label": "Un joueur, plein écran"
+      },
+      "dualHorizontal": {
+        "label": "Deux joueurs, en haut et en bas"
+      },
+      "dualVertical": {
+        "label": "Deux joueurs, côte à côte"
+      },
+      "fourPlayers": {
+        "label": "Quatre joueurs, 2 × 2"
+      },
+      "sixPlayers": {
+        "label": "Six joueurs",
+        "short": "6 joueurs",
+        "description": "2 lignes, 3 colonnes"
+      },
+      "eightPlayers": {
+        "label": "Huit joueurs",
+        "short": "8 joueurs",
+        "description": "2 lignes, 4 colonnes"
+      },
+      "sixteenPlayers": {
+        "label": "Seize joueurs",
+        "short": "16 joueurs",
+        "description": "4 lignes, 4 colonnes"
+      },
+      "custom": {
+        "label": "Grille personnalisée",
+        "short": "Personnalisée",
+        "description": "Lignes et colonnes définies dans Paramètres, Disposition"
+      },
+      "manual": {
+        "label": "Manuelle",
+        "short": "Manuelle",
+        "description": "Placez les joueurs n’importe où sur l’écran"
+      },
+      "groupLabel": "Disposition de {screen}",
+      "moreMenu": "Autres dispositions pour {screen}",
+      "setByProfile": "Définie par le profil",
+      "lockedIcon": "Disposition définie par le profil",
+      "lockedNote": "Le profil chargé définit cette disposition. Déchargez le profil pour la modifier.",
+      "changed": "Disposition de {screen} : {layout}."
+    },
+    "monitor": {
+      "label": "{screen}, {width} par {height}",
+      "labelPrimary": "{screen}, {width} par {height}, principal",
+      "primary": "Principal"
+    },
+    "canvas": {
+      "title": "Écrans",
+      "description": "Faites glisser un joueur vers un autre emplacement pour les échanger, ou vers la zone d’attente pour le retirer.",
+      "seats_one": "<b>{seats}</b> sur {count} joueur",
+      "seats_many": "<b>{seats}</b> sur {count} joueurs",
+      "seats_other": "<b>{seats}</b> sur {count} joueurs"
+    },
+    "manual": {
+      "hint": "Disposition manuelle : déposez un joueur n’importe où sur cet écran, ou cliquez sur un emplacement et appuyez sur un bouton d’une manette.",
+      "label": "{screen}, disposition manuelle : déposez un joueur n’importe où, ou activez cette zone puis appuyez sur un bouton d’une manette libre.",
+      "labelMoving": "{screen}, disposition manuelle : déposez un joueur n’importe où ; Enter place le joueur au centre."
+    },
+    "slot": {
+      "label": "{place} : vide. Appuyez sur Start d’une manette libre pour rejoindre, ou activez l’emplacement pour y attendre une manette.",
+      "labelMoving": "{place} : vide. Enter déplace le joueur ici.",
+      "labelExpected": "{place} : le profil attend un joueur ici. Appuyez sur Start d’une manette libre pour rejoindre, ou activez l’emplacement pour y attendre une manette.",
+      "labelExpectedMoving": "{place} : le profil attend un joueur ici. Enter déplace le joueur ici.",
+      "moveHere": "Déplacer ici",
+      "expected": "En attente d’un joueur",
+      "expectedNote": "Défini par le profil",
+      "join": "Appuyez sur Start pour rejoindre",
+      "joinNote": "Ou sélectionnez-le, puis appuyez sur un bouton"
+    },
+    "spot": {
+      "pressButton": "Appuyez sur un bouton d’une manette",
+      "cancelHint": "B ou Esc pour annuler",
+      "label": "{place} : en attente d’une manette. Appuyez sur un bouton d’une manette libre pour la placer ici. Esc pour annuler.",
+      "waiting": "En attente d’une manette pour {place} : appuyez sur l’un de ses boutons. Esc pour annuler.",
+      "waitingHere": "En attente d’une manette pour cet emplacement : appuyez sur l’un de ses boutons. Esc pour annuler.",
+      "cancelled": "Attente de manette annulée."
+    },
+    "move": {
+      "pickedUp": "Vous déplacez {player}. Allez à un autre emplacement et appuyez sur Enter. Esc pour annuler.",
+      "putBack": "Remis en place.",
+      "cancelled": "Déplacement annulé.",
+      "swapped": "{first} et {second} ont été échangés.",
+      "moved": "{player} déplacé vers {place}."
+    },
+    "resize": {
+      "size": "{player} : {width} par {height}.",
+      "started": "Redimensionnement de {player}, {width} par {height}. Les flèches déplacent le coin inférieur droit, X change de coin, Enter pour terminer.",
+      "cornerBottomRight": "Les flèches déplacent le coin inférieur droit.",
+      "cornerTopLeft": "Les flèches déplacent le coin supérieur gauche.",
+      "done": "Redimensionnement de {player} terminé."
+    },
+    "region": {
+      "label": "Joueur {number}, {name}, {devices}, {place}. Enter pour déplacer, Delete pour retirer.",
+      "labelResizable": "Joueur {number}, {name}, {devices}, {place}. Enter pour déplacer, R pour redimensionner, Delete pour retirer.",
+      "resizingBottomRight": "Redimensionnement du joueur {number}, {name} : {width} par {height}. Les flèches déplacent le coin inférieur droit, X change de coin, Enter pour terminer.",
+      "resizingTopLeft": "Redimensionnement du joueur {number}, {name} : {width} par {height}. Les flèches déplacent le coin supérieur gauche, X change de coin, Enter pour terminer."
+    },
+    "tray": {
+      "title": "En attente",
+      "dropToRemove": "Déposez ici pour retirer ce joueur",
+      "joinPadsAndKeyboards": "Appuyez sur Start d’une manette ou sur une touche d’un clavier pour rejoindre. Vous pouvez aussi faire glisser un périphérique sur un écran.",
+      "joinPads": "Appuyez sur Start de l’une d’elles pour rejoindre, ou faites-la glisser sur un écran.",
+      "joinKeyboards": "Appuyez sur une touche de l’un d’eux pour rejoindre, ou faites-le glisser sur un écran.",
+      "joinDrag": "Faites glisser l’un de ces périphériques sur un écran.",
+      "hiddenInputs": "Les claviers et les souris apparaissent ici dès que vous les utilisez.",
+      "hiddenInputsShort": "Les claviers et souris apparaissent dès leur utilisation.",
+      "allJoined": "Tous les périphériques ont rejoint la partie. Branchez une autre manette pour ajouter un joueur.",
+      "rescan": "Réanalyser",
+      "rescanned": "Périphériques réanalysés",
+      "placeEveryone": "Placer tout le monde",
+      "clear": "Vider",
+      "clearConfirm": {
+        "title": "Retirer tout le monde ?",
+        "message": "Tous les joueurs retournent dans la zone d’attente.",
+        "messageProfile": "Tous les joueurs retournent dans la zone d’attente et le profil est déchargé.",
+        "confirm": "Retirer tout le monde"
+      },
+      "cleared": "Tous les joueurs ont été retirés.",
+      "device": {
+        "identifyLabel": "{device} : appuyez sur l’un de ses boutons pour l’identifier.",
+        "joinLabel": "{device} : en attente. Activez pour rejoindre, ou faites glisser sur un écran.",
+        "identify": "Appuyez sur un bouton pour l’identifier",
+        "pressKey": "Appuyez sur une touche pour rejoindre",
+        "dragMouse": "Faites glisser sur un joueur au clavier",
+        "pressStart": "Appuyez sur Start pour rejoindre",
+        "vibrateLabel": "Faire vibrer {device}",
+        "vibrateHint": "Faire vibrer pour l’identifier"
+      }
+    },
+    "players": {
+      "title": "Joueurs",
+      "count": "{seats} sur {max}",
+      "full_one": "Complet. {game} prend en charge jusqu’à {count} joueur.",
+      "full_many": "Complet. {game} prend en charge jusqu’à {count} joueurs.",
+      "full_other": "Complet. {game} prend en charge jusqu’à {count} joueurs.",
+      "moreCanJoinFree_one": "Encore {count} joueur peut rejoindre la partie. Appuyez sur Start d’une manette libre ou sur une touche d’un clavier libre.",
+      "moreCanJoinFree_many": "Encore {count} joueurs peuvent rejoindre la partie. Appuyez sur Start d’une manette libre ou sur une touche d’un clavier libre.",
+      "moreCanJoinFree_other": "Encore {count} joueurs peuvent rejoindre la partie. Appuyez sur Start d’une manette libre ou sur une touche d’un clavier libre.",
+      "moreCanJoin_one": "Encore {count} joueur peut rejoindre la partie. Branchez une manette, puis appuyez sur Start.",
+      "moreCanJoin_many": "Encore {count} joueurs peuvent rejoindre la partie. Branchez une manette, puis appuyez sur Start.",
+      "moreCanJoin_other": "Encore {count} joueurs peuvent rejoindre la partie. Branchez une manette, puis appuyez sur Start.",
+      "apiIndex": {
+        "label": "Identifier les manettes par numéro",
+        "description": "Place les manettes selon leur numéro, sans appuyer sur un bouton. Certains handlers ignorent ce réglage."
+      }
+    },
+    "player": {
+      "name": "Joueur {number}",
+      "short": "J{number}",
+      "noDevice": "Aucun périphérique",
+      "dragHint": "Faites glisser sur un écran pour déplacer ce joueur",
+      "nicknameLabel": "Pseudo du joueur {number}",
+      "expandLabel": "Agrandir ou réduire le joueur {number}",
+      "expandHint": "S’étendre sur les emplacements libres voisins, ou revenir à la taille d’origine",
+      "removeLabel": "Retirer le joueur {number}",
+      "remove": "Retirer",
+      "removeDeviceLabel": "Retirer {device} du joueur {number}",
+      "removeDevice": "Retirer ce périphérique",
+      "guest": "Invité : {device}",
+      "removeGuestLabel": "Retirer l’invité {device}",
+      "removeGuest": "Retirer l’invité",
+      "audioLabel": "Sortie audio du joueur {number}",
+      "audioHint": "Sortie audio de ce joueur",
+      "audioHintOff": "Sortie audio (en choisir une active l’audio par joueur)",
+      "defaultAudio": "Sortie par défaut",
+      "steamIdLabel": "ID Steam du joueur {number}",
+      "steamIdHint": "ID Steam utilisé en jeu (17 chiffres)",
+      "addGuestLabel": "Ajouter une manette invitée au joueur {number}",
+      "addGuestHint": "Un invité joue dans la copie du jeu de ce joueur",
+      "addGuest": "Ajouter une manette invitée…"
+    },
+    "announce": {
+      "playerLeft": "{player} a quitté la partie. Ses périphériques sont de retour dans la zone d’attente.",
+      "playersLeft_one": "{names} a quitté la partie.",
+      "playersLeft_many": "{names} ont quitté la partie.",
+      "playersLeft_other": "{names} ont quitté la partie.",
+      "joined": "{device} a rejoint la partie : {player}, joueur {number}.",
+      "controllerJoined": "Une manette a rejoint la partie : {player}, joueur {number}."
+    },
+    "deviceLost": {
+      "namedPlayer": "{nickname} (joueur {number})",
+      "gamepad": "{player} a perdu sa manette. Rebranchez-la ou appuyez sur Start d’une autre manette.",
+      "keyboard": "{player} a perdu son clavier. Rebranchez-le ou utilisez-en un autre.",
+      "mouse": "{player} a perdu sa souris. Rebranchez-la ou utilisez-en une autre.",
+      "keyboardMouse": "{player} a perdu son clavier et sa souris. Rebranchez-les ou utilisez-en d’autres.",
+      "unknownPlayer": {
+        "gamepad": "Un joueur a perdu sa manette. Rebranchez-la ou appuyez sur Start d’une autre manette.",
+        "keyboard": "Un joueur a perdu son clavier. Rebranchez-le ou utilisez-en un autre.",
+        "mouse": "Un joueur a perdu sa souris. Rebranchez-la ou utilisez-en une autre.",
+        "keyboardMouse": "Un joueur a perdu son clavier et sa souris. Rebranchez-les ou utilisez-en d’autres."
+      }
+    }
+  },
+  "setup": {
+    "hints": {
+      "pressButtonToIdentify": "Appuyez sur un bouton de chaque manette pour que Nucleus puisse les distinguer.",
+      "dragPlayersToScreens": "Appuyez sur Start d’une manette pour rejoindre, ou faites glisser un périphérique sur un écran.",
+      "profileWaitingForPlayer": {
+        "gamepad": "Joueur {number} du profil : appuyez sur un bouton d’une manette.",
+        "keyboard": "Joueur {number} du profil : appuyez sur une touche d’un clavier.",
+        "mouse": "Joueur {number} du profil : appuyez sur un bouton d’une souris.",
+        "keyboardMouse": "Joueur {number} du profil : appuyez sur une touche du clavier ou un bouton de la souris."
+      },
+      "profileReady": "Tous les joueurs du profil sont là. Lancez quand vous êtes prêts.",
+      "readyToPlay": "Tout le monde est là. Lancez quand vous êtes prêts."
+    },
+    "options": {
+      "title": "Options du handler",
+      "intro": "L’auteur du handler propose ces choix. Ils s’appliquent à toutes les copies de {game}.",
+      "introFromProfile": "L’auteur du handler propose ces choix. Ils s’appliquent à toutes les copies de {game} et proviennent du profil chargé.",
+      "empty": "Ce handler n’a aucune option modifiable ici.",
+      "choose": "Choisir…",
+      "unsupported": "Utilise la valeur par défaut du handler"
+    },
+    "customStep": {
+      "required": "Faites un choix pour continuer.",
+      "requiredFromProfile": "Faites un choix pour continuer. Le profil chargé a déjà choisi pour vous.",
+      "optional": "Facultatif : faites un choix ou continuez sans.",
+      "optionalFromProfile": "Facultatif : faites un choix ou continuez sans. Le profil chargé a déjà choisi pour vous.",
+      "chosenByProfile": "Choisi par le profil"
+    },
+    "checks": {
+      "title": "Avant de lancer",
+      "state": {
+        "ok": "Terminé",
+        "warning": "Avertissement",
+        "blocking": "Bloquant",
+        "info": "Remarque",
+        "busy": "En cours"
+      }
+    },
+    "flow": {
+      "stepsLabel": "Étapes",
+      "step": "{number}. {title}",
+      "backTo": "Retour à {step}",
+      "backToPlayers": "Retour aux joueurs",
+      "backToOptions": "Retour aux options",
+      "backToPrevious": "Retour à l’étape précédente",
+      "next": "Suivant",
+      "currentStep": "Étape actuelle : {step}"
+    },
+    "launch": {
+      "label": "Lancer",
+      "starting": "Démarrage des copies…",
+      "blocking": "{check}. À corriger dans « {section} ».",
+      "busy": "{check} : en cours…",
+      "nextStep": "Prochaine étape : {step}, puis lancement.",
+      "nextPlayers": "Prochaine étape : joueurs, puis lancement.",
+      "nextOptions": "Prochaine étape : options, puis lancement.",
+      "noPlayers": "Appuyez sur Start d’une manette pour rejoindre.",
+      "finishStep": "Terminez cette étape pour lancer.",
+      "warning": "{check}. Vous pouvez quand même lancer.",
+      "ready_one": "{count} copie de {game}.",
+      "ready_many": "{count} copies de {game}.",
+      "ready_other": "{count} copies de {game}.",
+      "launching": "Lancement…",
+      "button_zero": "Lancer",
+      "button_one": "Lancer à {count} joueur",
+      "button_many": "Lancer à {count} joueurs",
+      "button_other": "Lancer à {count} joueurs",
+      "saveProfile": "Enregistrer un profil au démarrage de la session"
+    }
+  },
+  "profiles": {
+    "defaultTitle": "Profil {number}",
+    "picker": {
+      "label": "Profil",
+      "menuLabel": "Profils",
+      "unknown": "Profil",
+      "none": "Aucun profil",
+      "noneSaved": "Aucun profil enregistré",
+      "noneDescription": "Placez les joueurs librement",
+      "manage": "Gérer les profils",
+      "manageHint": "Paramètres des profils, supprimer un profil",
+      "disabled": "Les profils sont désactivés pour ce jeu"
+    },
+    "summary": {
+      "players_one": "{count} joueur",
+      "players_many": "{count} joueurs",
+      "players_other": "{count} joueurs",
+      "gamepads_one": "{count} manette",
+      "gamepads_many": "{count} manettes",
+      "gamepads_other": "{count} manettes",
+      "keyboardMice_one": "{count} clavier et souris",
+      "keyboardMice_many": "{count} claviers et souris",
+      "keyboardMice_other": "{count} claviers et souris",
+      "autoPlay": "démarrage automatique",
+      "withNotes": "{summary}. {notes}"
+    },
+    "status": {
+      "assigned": "{assigned} sur {total} présents",
+      "assignedAutoPlay": "{assigned} sur {total} présents, démarrage automatique"
+    },
+    "toasts": {
+      "loaded": "{profile} chargé. Les joueurs rejoignent la partie en appuyant sur un bouton.",
+      "loadedUnnamed": "Profil chargé. Les joueurs rejoignent la partie en appuyant sur un bouton.",
+      "unloaded": "Profil déchargé. Placez les joueurs librement."
+    },
+    "manager": {
+      "title": "Profils de {game}",
+      "intro": "Un profil conserve les dispositions, les options et la place de chaque joueur. Le charger les restaure ; ses joueurs rejoignent la partie en appuyant sur un bouton.",
+      "empty": "Aucun profil enregistré pour l’instant.",
+      "listLabel": "Profils enregistrés",
+      "nextProfileSaveOn": "<b>Prochain profil.</b> La prochaine session enregistrera cette configuration comme nouveau profil, avec ces paramètres.",
+      "nextProfileSaveOff": "<b>Prochain profil.</b> Activez « {setting} » pour enregistrer cette configuration comme nouveau profil.",
+      "loaded": "Chargé",
+      "autoPlay": "Démarrage automatique",
+      "playersLabel": "Joueurs de {profile}",
+      "load": "Charger",
+      "unload": "Décharger",
+      "settingsLabel": "Paramètres de {profile}",
+      "settingsHint": "Le charger et ouvrir ses paramètres",
+      "deleteLabel": "Supprimer {profile}"
+    },
+    "delete": {
+      "title": "Supprimer {profile} ?",
+      "message": "{profile} sera définitivement supprimé.",
+      "messageRenumbered": "{profile} sera définitivement supprimé. Les profils suivants seront renumérotés.",
+      "messageReset": "{profile} sera définitivement supprimé. La configuration repart de zéro : tous les joueurs retournent dans la zone d’attente.",
+      "messageRenumberedReset": "{profile} sera définitivement supprimé. Les profils suivants seront renumérotés. La configuration repart de zéro : tous les joueurs retournent dans la zone d’attente.",
+      "done": "{profile} supprimé"
+    },
+    "settings": {
+      "title": "Paramètres de {profile}",
+      "titleUnnamed": "Paramètres du profil",
+      "titleNext": "Paramètres du prochain profil",
+      "intro": "{game} : ces paramètres sont enregistrés dans le profil.",
+      "introNext": "{game} : le prochain profil enregistré par une session recevra ces paramètres. Les paramètres par joueur suivent les joueurs placés actuellement.",
+      "loading": "Lecture des paramètres du profil…",
+      "loadError": "Impossible de lire les paramètres du profil.",
+      "fixErrors": "Corrigez les champs en rouge, puis enregistrez à nouveau.",
+      "footer": "L’enregistrement recharge le profil.",
+      "footerNext": "Utilisés quand une session enregistre cette configuration comme nouveau profil.",
+      "saved": "{profile} enregistré. Ses joueurs rejoignent à nouveau la partie en appuyant sur un bouton.",
+      "savedUnnamed": "Profil enregistré. Ses joueurs rejoignent à nouveau la partie en appuyant sur un bouton.",
+      "savedNext": "Paramètres conservés pour le prochain profil",
+      "discard": {
+        "title": "Abandonner vos modifications ?",
+        "message": "Le profil conserve ses paramètres enregistrés.",
+        "messageNext": "Le prochain profil conserve les paramètres qu’il avait."
+      },
+      "notSet": "Non défini",
+      "range": "De {min} à {max}.",
+      "units": {
+        "milliseconds": "ms",
+        "seconds": "s"
+      },
+      "sections": {
+        "profile": "Profil",
+        "players": "Joueurs",
+        "windows": "Fenêtres",
+        "customLayout": "Disposition personnalisée",
+        "customLayoutNote": "Utilisée quand un écran a la disposition personnalisée.",
+        "mergedWindow": "Fenêtre fusionnée",
+        "cutscenes": "Mode cinématiques",
+        "network": "Réseau"
+      },
+      "fields": {
+        "title": {
+          "label": "Titre",
+          "help": "Affiché dans la liste des profils. Vide : « Profil » suivi de son numéro.",
+          "placeholder": "Profil"
+        },
+        "notes": {
+          "label": "Notes",
+          "placeholder": "Qui joue où, quelle manette va à qui…"
+        },
+        "autoPlay": {
+          "label": "Démarrer automatiquement",
+          "help": "Lance la session dès que tous les joueurs du profil ont rejoint la partie."
+        },
+        "useNicknames": {
+          "label": "Utiliser les pseudos en jeu"
+        },
+        "customAudio": {
+          "label": "Audio par joueur",
+          "help": "Chaque copie du jeu utilise la sortie audio choisie pour son joueur."
+        },
+        "windowSetupDelay": {
+          "label": "Délai de configuration des fenêtres",
+          "help": "Temps laissé à chaque fenêtre pour se stabiliser avant la configuration de la suivante."
+        },
+        "pauseBetweenCopies": {
+          "label": "Pause entre les copies",
+          "help": "Attente entre les lancements de deux copies du jeu."
+        },
+        "autoDesktopScaling": {
+          "label": "Ajuster la mise à l’échelle de Windows",
+          "help": "Applique la mise à l’échelle d’affichage dont les fenêtres du jeu ont besoin pendant la session."
+        },
+        "splitDivider": {
+          "label": "Arrière-plan derrière les fenêtres",
+          "help": "Remplit l’espace autour des fenêtres du jeu."
+        },
+        "splitDividerHideDesktopOnly": {
+          "label": "Masquer uniquement le bureau",
+          "help": "Masque le bureau au lieu d’afficher la couleur d’arrière-plan."
+        },
+        "splitDividerColor": {
+          "label": "Couleur d’arrière-plan"
+        },
+        "customLayoutHorizontalLines": {
+          "label": "Divisions horizontales"
+        },
+        "customLayoutVerticalLines": {
+          "label": "Divisions verticales"
+        },
+        "customLayoutMaxPlayers": {
+          "label": "Joueurs",
+          "help": "Nombre maximal de joueurs dans la disposition personnalisée."
+        },
+        "windowsMerger": {
+          "label": "Fusionner les fenêtres du jeu",
+          "help": "Affiche toutes les copies du jeu dans une seule fenêtre."
+        },
+        "losslessHook": {
+          "label": "Hook Lossless",
+          "help": "Utilise le hook Lossless avec la fenêtre fusionnée."
+        },
+        "mergerResolution": {
+          "label": "Résolution",
+          "help": "Taille de la fenêtre fusionnée."
+        },
+        "cutscenesKeepAspectRatio": {
+          "label": "Conserver le format d’image"
+        },
+        "cutscenesMuteAudioOnly": {
+          "label": "Couper uniquement le son",
+          "help": "Les autres fenêtres gardent leur taille, seul leur son est coupé."
+        },
+        "cutscenesUnfocus": {
+          "label": "Retirer le focus des autres fenêtres"
+        },
+        "network": {
+          "label": "Interface réseau",
+          "help": "La connexion utilisée par les copies du jeu."
+        }
+      },
+      "slots": {
+        "empty": "Placez les joueurs sur l’écran de configuration pour définir leur pseudo, leur ID Steam et leur sortie audio.",
+        "nickname": "Pseudo",
+        "steamId": "ID Steam",
+        "audio": "Sortie audio",
+        "steamIdLocked": "Le handler définit les ID Steam de ce jeu.",
+        "steamIdLockedLabel": "ID Steam du joueur {number}, défini par le handler",
+        "advanced": "Processeur et priorité",
+        "priority": "Priorité",
+        "idealProcessor": "Processeur idéal",
+        "idealProcessorHint": "* laisse Windows choisir",
+        "affinity": "Affinité",
+        "affinityHint": "Numéros de processeurs séparés par des virgules, vide pour tous",
+        "priorityLabel": "Priorité du processus du joueur {number}",
+        "idealProcessorLabel": "Processeur idéal du joueur {number}, * pour n’importe lequel",
+        "affinityLabel": "Affinité processeur du joueur {number}, numéros séparés par des virgules",
+        "affinityPlaceholder": "Tous les processeurs"
+      },
+      "priority": {
+        "normal": "Normale",
+        "aboveNormal": "Supérieure à la normale",
+        "high": "Haute",
+        "realTime": "Temps réel"
+      }
+    }
+  },
+  "session": {
+    "loading": "Chargement de la session",
+    "player": "Joueur {number}",
+    "chrome": {
+      "library": "Bibliothèque",
+      "gameSession": "Session de {game}",
+      "unknownGameSession": "Session de jeu",
+      "session": "Session"
+    },
+    "hints": {
+      "backToLibrary": "Retour à la bibliothèque",
+      "lockInputs": "Verrouiller les entrées",
+      "unlockInputs": "Déverrouiller les entrées",
+      "stop": "Arrêter la session"
+    },
+    "links": {
+      "lobby": "Retour à la configuration",
+      "gameLobby": "Retour à la configuration de {game}",
+      "setUpGame": "Configurer {game}",
+      "openLobby": "Ouvrir la configuration",
+      "playAgain": "Rejouer",
+      "library": "Bibliothèque",
+      "goToLibrary": "Aller à la bibliothèque"
+    },
+    "outcome": {
+      "failed": "La session n’a pas pu démarrer",
+      "stoppedEarly": "La session s’est arrêtée pendant le lancement",
+      "ended": "Session terminée"
+    },
+    "ended": {
+      "copiesClosed_one": "La copie de {game} est fermée. La configuration est toujours ouverte : rejouez avec les mêmes joueurs.",
+      "copiesClosed_many": "Les {count} copies de {game} sont fermées. La configuration est toujours ouverte : rejouez avec les mêmes joueurs.",
+      "copiesClosed_other": "Les {count} copies de {game} sont fermées. La configuration est toujours ouverte : rejouez avec les mêmes joueurs.",
+      "copiesClosedUnknownGame_one": "La copie du jeu est fermée. La configuration est toujours ouverte : rejouez avec les mêmes joueurs.",
+      "copiesClosedUnknownGame_many": "Les {count} copies du jeu sont fermées. La configuration est toujours ouverte : rejouez avec les mêmes joueurs.",
+      "copiesClosedUnknownGame_other": "Les {count} copies du jeu sont fermées. La configuration est toujours ouverte : rejouez avec les mêmes joueurs."
+    },
+    "idle": {
+      "title": "Aucune session en cours",
+      "lastLaunchFailed": "<b>Le dernier lancement a échoué.</b> {error}",
+      "hint": "Choisissez un jeu dans votre bibliothèque, laissez chacun appuyer sur Start de sa manette pour rejoindre la partie, puis lancez. Chaque copie du jeu et sa progression s’affichent ici."
+    },
+    "header": {
+      "untitled": "Session",
+      "elapsed": "Temps écoulé : {time}",
+      "inputsLocked": "Entrées verrouillées",
+      "inputsUnlocked": "Entrées déverrouillées",
+      "stopKeys": "Arrêt : {keys}",
+      "status": {
+        "failed": "Échec du lancement",
+        "ended": "Session terminée",
+        "launching_one": "Lancement à {count} joueur",
+        "launching_many": "Lancement à {count} joueurs",
+        "launching_other": "Lancement à {count} joueurs",
+        "running_one": "{count} joueur en jeu",
+        "running_many": "{count} joueurs en jeu",
+        "running_other": "{count} joueurs en jeu",
+        "ending": "Arrêt de la session",
+        "setup": "Configuration"
+      },
+      "note": {
+        "failed": "Le lancement s’est arrêté avant que toutes les copies soient prêtes.",
+        "ended": "Toutes les copies sont fermées.",
+        "locked": "Les entrées sont verrouillées sur les fenêtres du jeu. Appuyez sur {key} pour les déverrouiller.",
+        "lockedNoKey": "Les entrées sont verrouillées sur les fenêtres du jeu. Appuyez sur la touche de verrouillage pour les déverrouiller.",
+        "lockHint": "Une fois toutes les fenêtres en place, appuyez sur {key} pour attribuer chaque clavier et chaque souris à son joueur.",
+        "lockHintNoKey": "Une fois toutes les fenêtres en place, appuyez sur la touche de verrouillage pour attribuer chaque clavier et chaque souris à son joueur.",
+        "pads": "Les fenêtres du jeu conservent les manettes.",
+        "padsStopKey": "Les fenêtres du jeu conservent les manettes. {key} arrête aussi la session."
+      }
+    },
+    "stop": {
+      "hold": "Maintenir pour arrêter",
+      "holding": "Maintenez encore",
+      "blocked": "Déverrouillez pour arrêter",
+      "stopping": "Arrêt…",
+      "stopped": "Arrêtée",
+      "hint": "Maintenez une seconde pour fermer toutes les copies du jeu.",
+      "blockedHint": "Les entrées sont verrouillées : déverrouillez-les d’abord avec la touche de verrouillage."
+    },
+    "preview": {
+      "screenCount_one": "{count} écran",
+      "screenCount_many": "{count} écrans",
+      "screenCount_other": "{count} écrans",
+      "display": "Écran {number}",
+      "windowsTitle": "Fenêtres du jeu",
+      "resolution": "{width} × {height}",
+      "resolutionPrimary": "{resolution}, principal",
+      "caption": "<b>Écran {number}</b> {resolution}",
+      "captionPrimary": "<b>Écran {number}</b> {resolution}, principal",
+      "displayLabel": "Écran {number}, {resolution}",
+      "displayLabelPrimary": "Écran {number}, {resolution}, principal",
+      "windowCount_zero": "Aucune fenêtre pour l’instant",
+      "windowCount_one": "{count} fenêtre",
+      "windowCount_many": "{count} fenêtres",
+      "windowCount_other": "{count} fenêtres",
+      "displayUnused": "Écran {number} : non utilisé",
+      "unused": "Non utilisé",
+      "noWindowOpened": "Aucune fenêtre de jeu n’a été ouverte.",
+      "preparing": "Préparation des instances…"
+    },
+    "instance": {
+      "label": "Joueur {number}, {name} : {stage}",
+      "pid": "PID {pid}",
+      "noDevice": "Aucun périphérique",
+      "progress": "Progression du lancement",
+      "stepDone": "{step}<sr>, terminé</sr>",
+      "stepPending": "{step}<sr>, en attente</sr>",
+      "steps": {
+        "waiting": "En attente",
+        "starting": "Démarrage",
+        "ready": "Prêt"
+      },
+      "stage": {
+        "closed": "Fermé",
+        "waiting": "En attente du démarrage…",
+        "starting": "Démarrage, placement de la fenêtre…",
+        "ready": "Prêt"
+      }
+    },
+    "log": {
+      "title": "Journal",
+      "count_one": "{count} événement",
+      "count_many": "{count} événements",
+      "count_other": "{count} événements",
+      "copy": "Copier le journal",
+      "listLabel": "Événements de la session",
+      "empty": "Rien n’a encore été consigné. Chaque étape de chaque copie s’affiche ici.",
+      "playerPrefix": "Joueur {number} :",
+      "levels": {
+        "info": "Info",
+        "success": "Terminé",
+        "warning": "Avertissement",
+        "error": "Erreur"
+      }
+    },
+    "summary": {
+      "game": "Jeu",
+      "duration": "Durée",
+      "played": "Horaires",
+      "timeRange": "De {start} à {end}",
+      "players": "Joueurs",
+      "guest": "Invité : {device}",
+      "noDevice": "Aucun périphérique enregistré",
+      "noErrors": "Aucune erreur dans le journal de la session.",
+      "logErrors_one": "{count} erreur dans le journal de la session",
+      "logErrors_many": "{count} erreurs dans le journal de la session",
+      "logErrors_other": "{count} erreurs dans le journal de la session",
+      "errors": "Erreurs",
+      "moreErrors_one": "Et {count} autre : le journal complet figure ci-dessous.",
+      "moreErrors_many": "Et {count} autres : le journal complet figure ci-dessous.",
+      "moreErrors_other": "Et {count} autres : le journal complet figure ci-dessous.",
+      "playerShort": "J{number}"
+    },
+    "errorDetails": {
+      "show": "Afficher les détails",
+      "hide": "Masquer les détails"
+    },
+    "notes": {
+      "title": "Notes du handler",
+      "byMaintainer": "Comment connecter les copies, par {name}",
+      "byAuthor": "Comment connecter les copies, par l’auteur du handler",
+      "textLabel": "Texte des notes du handler",
+      "loading": "Lecture des notes…",
+      "error": "Impossible de lire les notes.",
+      "empty": "L’auteur du handler n’a laissé aucune note. En général, un joueur héberge une partie en coop et les autres la rejoignent depuis le menu du jeu."
+    },
+    "controls": {
+      "title": "Commandes",
+      "lockKey": "Verrouiller ou déverrouiller les claviers et les souris",
+      "stopKey": "Arrêter la session",
+      "empty": "Aucune commande pour cette session.",
+      "keysHint": "Les touches fonctionnent aussi quand une fenêtre de jeu a le focus.",
+      "unavailable": {
+        "ended": "La session est terminée.",
+        "notRunning": "Disponible une fois toutes les copies lancées.",
+        "notApplicable": "Ne s’applique pas à cette session.",
+        "locked": "Les entrées sont verrouillées : appuyez d’abord sur {key}.",
+        "lockedNoKey": "Les entrées sont verrouillées : appuyez d’abord sur la touche de verrouillage."
+      }
+    },
+    "commands": {
+      "locked": "Les entrées sont verrouillées sur les fenêtres du jeu. Appuyez d’abord sur {key} pour les déverrouiller.",
+      "lockedNoKey": "Les entrées sont verrouillées sur les fenêtres du jeu. Appuyez d’abord sur la touche de verrouillage pour les déverrouiller."
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "loading": "Chargement des paramètres",
+    "nav": "Sections des paramètres",
+    "error": {
+      "title": "Impossible de lire les paramètres",
+      "message": "Nucleus Co-op n’a pas renvoyé ses paramètres. Redémarrez l’application ; si le problème persiste, consultez le journal de l’application."
+    },
+    "fields": {
+      "notSet": "Non défini",
+      "restartBadge": "S’applique après un redémarrage",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe",
+      "hotkey": {
+        "label": "{label} : {value}. Modifier",
+        "labelNotSet": "{label} : non défini. Modifier",
+        "listeningLabel": "{label} : appuyez sur le raccourci, Esc pour annuler",
+        "listening": "Appuyez sur le raccourci…",
+        "cancelHint": "{key} pour annuler"
+      },
+      "combo": {
+        "pressOne": "Appuyez sur un bouton d’une manette…",
+        "pressTwo": "Appuyez simultanément sur deux boutons d’une manette…"
+      },
+      "path": {
+        "pickFile": "{label} : choisir un fichier",
+        "pickFolder": "{label} : choisir un dossier"
+      }
+    },
+    "players": {
+      "title": "Joueurs",
+      "description": "Le pseudo et l’ID Steam utilisés en jeu par chaque numéro de joueur.",
+      "loading": "Lecture des emplacements de joueurs…",
+      "error": "Impossible de lire les emplacements de joueurs.",
+      "editorTitle": "Pseudos et ID Steam",
+      "editorHint": "Le joueur 1 reçoit toujours le premier emplacement, le joueur 2 le deuxième, et ainsi de suite. Vide : valeur par défaut.",
+      "nickname": "Pseudo",
+      "steamId": "ID Steam",
+      "nicknameLabel": "Pseudo du joueur {number}",
+      "steamIdLabel": "ID Steam du joueur {number}",
+      "showFirst_one": "Afficher le premier",
+      "showFirst_many": "Afficher les {count} premiers",
+      "showFirst_other": "Afficher les {count} premiers",
+      "showAll_one": "Tout afficher ({count})",
+      "showAll_many": "Tout afficher ({count})",
+      "showAll_other": "Tout afficher ({count})",
+      "hiddenErrors_one": "({count} en erreur)",
+      "hiddenErrors_many": "({count} en erreur)",
+      "hiddenErrors_other": "({count} en erreur)",
+      "undo": "Annuler les modifications",
+      "save": "Enregistrer les joueurs",
+      "saved": "Joueurs enregistrés"
+    },
+    "about": {
+      "title": "À propos",
+      "tagline": "L’écran partagé libre et open source pour les jeux PC. Créé par des joueurs, pour tous les canapés du monde.",
+      "facts": {
+        "version": "Version",
+        "hub": "Hub",
+        "admin": "Administrateur"
+      },
+      "hubOnline": "En ligne",
+      "hubOffline": "Hors ligne",
+      "folders": {
+        "install": "Installé dans",
+        "openInstall": "Ouvrir le dossier d’installation dans l’Explorateur de fichiers",
+        "handlers": "Dossier des handlers",
+        "openHandlers": "Ouvrir le dossier des handlers dans l’Explorateur de fichiers"
+      },
+      "updates": {
+        "label": "Mises à jour des handlers",
+        "description": "Demande au Hub les nouvelles versions des handlers de vos jeux. Les mises à jour s’affichent ensuite dans la bibliothèque et dans Téléchargements.",
+        "button": "Vérifier",
+        "done": "Recherche de mises à jour terminée"
+      },
+      "reload": {
+        "label": "Recharger les handlers",
+        "description": "Relit tous les fichiers de handler, par exemple après en avoir modifié un.",
+        "button": "Recharger",
+        "done": "Handlers rechargés"
+      },
+      "artwork": {
+        "label": "Jaquettes et captures d’écran",
+        "description": "Télécharge depuis le Hub les illustrations manquantes de chaque jeu de votre bibliothèque. Les fichiers déjà présents sont conservés.",
+        "button": "Télécharger pour tous les jeux",
+        "starting": "Démarrage…",
+        "progress_one": "{done} sur {count} jeu",
+        "progress_many": "{done} sur {count} jeux",
+        "progress_other": "{done} sur {count} jeux",
+        "done": "Jaquettes et captures d’écran téléchargées"
+      },
+      "admin": {
+        "label": "Droits d’administrateur",
+        "description": "Certains handlers ne fonctionnent que si Nucleus Co-op est exécuté en tant qu’administrateur.",
+        "button": "Redémarrer en tant qu’administrateur",
+        "confirmTitle": "Redémarrer en tant qu’administrateur ?",
+        "confirmMessage": "Nucleus Co-op va se fermer puis se rouvrir avec les droits d’administrateur, dont certains handlers ont besoin. Windows vous demandera votre autorisation."
+      },
+      "links": {
+        "docs": "Documentation",
+        "faq": "FAQ",
+        "hub": "Le Hub"
+      }
+    }
+  },
+  "host": {
+    "settings": {
+      "sections": {
+        "general": {
+          "title": "Général",
+          "description": "Langue, réseau et comptes d’utilisateur Windows utilisés par les instances du jeu."
+        },
+        "players": {
+          "title": "Joueurs",
+          "description": "Attribution des manettes aux joueurs. Les pseudos et les ID Steam se modifient dans la liste des joueurs."
+        },
+        "hotkeys": {
+          "title": "Raccourcis clavier",
+          "description": "Raccourcis disponibles pendant une session de jeu. Les modifications s’appliquent à partir de la session suivante."
+        },
+        "gamepad": {
+          "title": "Raccourcis manette",
+          "description": "Combinaisons de boutons disponibles pendant une session de jeu (manettes XInput). Steam Input peut interférer avec elles. La fenêtre de Nucleus fonctionne avec n’importe quelle manette : croix directionnelle ou stick gauche pour se déplacer, A pour sélectionner, B pour revenir en arrière, stick droit pour faire défiler."
+        },
+        "audio": {
+          "title": "Audio",
+          "description": "Périphérique de lecture de chaque instance du jeu. Cela peut ne pas fonctionner avec tous les jeux.",
+          "descriptionWithDefault": "Périphérique de lecture de chaque instance du jeu. Cela peut ne pas fonctionner avec tous les jeux. Périphérique de lecture par défaut : {device}."
+        },
+        "layout": {
+          "title": "Disposition",
+          "description": "Valeurs par défaut de la disposition d’écran personnalisée, de l’arrière-plan de l’écran partagé, du mode cinématiques et de la fusion des fenêtres. Les profils conservent leur propre copie."
+        }
+      },
+      "fields": {
+        "misc": {
+          "appLanguage": {
+            "label": "Langue",
+            "description": "Langue des fenêtres et des messages de Nucleus Co-op. Les notes des handlers et les noms des jeux restent tels que leurs auteurs les ont écrits."
+          },
+          "steamLanguage": {
+            "label": "Langue Steam",
+            "description": "Langue transmise par l’émulateur Steam. Un jeu peut la remplacer depuis son menu.",
+            "automatic": "Automatique (langue du client Steam)"
+          },
+          "epicLanguage": {
+            "label": "Langue Epic / GOG",
+            "description": "Langue transmise par les émulateurs Epic et GOG."
+          },
+          "network": {
+            "label": "Carte réseau",
+            "description": "Carte utilisée par les handlers qui modifient l’adresse IP de chaque instance."
+          },
+          "useNicknames": {
+            "label": "Utiliser les pseudos en jeu",
+            "description": "Les pseudos des joueurs sont transmis au jeu quand le handler le permet."
+          },
+          "keepAccounts": {
+            "label": "Conserver les comptes d’utilisateur Nucleus",
+            "description": "Conserve les comptes d’utilisateur Windows que Nucleus crée pour certains jeux. Si cette option est désactivée, le prochain jeu qui les utilise les supprime avec leurs fichiers et leurs sauvegardes.",
+            "confirm": {
+              "title": "Désactiver « Conserver les comptes d’utilisateur Nucleus » ?",
+              "message": "La prochaine fois que vous lancerez un jeu qui utilise des comptes d’utilisateur Windows distincts, Nucleus supprimera tous les comptes qu’il a créés, avec leurs fichiers et leurs sauvegardes.",
+              "confirmLabel": "Désactiver"
+            }
+          },
+          "nucleusAccountPassword": {
+            "label": "Mot de passe des comptes d’utilisateur Nucleus",
+            "description": "Mot de passe des comptes Windows créés par Nucleus. Stocké en clair dans Settings.ini. 12345 ou vide : le mot de passe intégré est utilisé."
+          },
+          "autoDesktopScaling": {
+            "label": "Échelle du bureau à 100 % pendant les sessions",
+            "description": "Certains jeux ont besoin d’une mise à l’échelle de 100 % pour placer correctement leurs fenêtres."
+          },
+          "fastLaunch": {
+            "label": "Lancement rapide",
+            "description": "Démarre chaque instance dès que la précédente est prête, au lieu d’attendre systématiquement toutes les pauses prévues par le handler. Désactivez cette option si un jeu ne se lance plus correctement."
+          },
+          "ignoreInputLockReminder": {
+            "label": "Ne pas me rappeler de verrouiller les entrées",
+            "description": "Si cette option est désactivée, un message au lancement explique comment verrouiller les entrées clavier et souris."
+          },
+          "debugLog": {
+            "label": "Activer le journal de débogage",
+            "description": "Écrit debug-log.txt dans le dossier de Nucleus. Se désactive automatiquement quand le journal dépasse 150 Ko."
+          },
+          "disableGameProfiles": {
+            "label": "Désactiver les profils de jeu",
+            "description": "Nucleus utilise ces paramètres globaux au lieu des profils propres à chaque jeu."
+          }
+        },
+        "players": {
+          "assignGamepadsByIndex": {
+            "label": "Attribuer les manettes par index",
+            "description": "Valeur par défaut pour les nouveaux jeux : les profils enregistrent les index API des manettes au lieu de leurs identifiants matériels (certains handlers désactivent cette option). Changer de mode peut empêcher le chargement des anciens profils."
+          },
+          "assignGamepadsOnButtonPress": {
+            "label": "Attribuer les manettes à l’appui d’un bouton",
+            "description": "Valeur par défaut pour les nouveaux jeux : les profils attribuent les manettes quand les joueurs appuient sur un bouton, au lieu de réutiliser celles enregistrées. Fonctionne bien avec des pseudos personnalisés."
+          }
+        },
+        "hotkeys": {
+          "closeApp": {
+            "label": "Fermer Nucleus"
+          },
+          "stopSession": {
+            "label": "Arrêter la session"
+          },
+          "topMost": {
+            "label": "Basculer le premier plan"
+          },
+          "setFocus": {
+            "label": "Basculer le focus"
+          },
+          "resetWindows": {
+            "label": "Réinitialiser les fenêtres"
+          },
+          "cutscenesMode": {
+            "label": "Mode cinématiques"
+          },
+          "switchLayout": {
+            "label": "Changer de disposition"
+          },
+          "shortcutsReminder": {
+            "label": "Afficher le rappel des raccourcis"
+          },
+          "switchMergerWindow": {
+            "label": "Changer de fenêtre fusionnée",
+            "description": "Avec la fusion des fenêtres : chaque appui fait passer une autre fenêtre du jeu au premier plan (comme Alt+Tab)."
+          },
+          "lockInputs": {
+            "label": "Touche de verrouillage des entrées",
+            "description": "Verrouille et déverrouille les entrées clavier et souris pendant une session (sans modificateur)."
+          }
+        },
+        "gamepad": {
+          "setFocus": {
+            "label": "Basculer le focus"
+          },
+          "close": {
+            "label": "Fermer Nucleus"
+          },
+          "stopSession": {
+            "label": "Arrêter la session"
+          },
+          "topMost": {
+            "label": "Basculer le premier plan"
+          },
+          "resetWindows": {
+            "label": "Réinitialiser les fenêtres"
+          },
+          "cutscenesMode": {
+            "label": "Mode cinématiques"
+          },
+          "switchLayout": {
+            "label": "Changer de disposition"
+          },
+          "lockInputs": {
+            "label": "Verrouiller / déverrouiller les entrées"
+          },
+          "releaseCursor": {
+            "description": "Envoie Alt+Tab pour faire sortir le curseur d’une fenêtre de jeu."
+          },
+          "type": {
+            "label": "Type de manette",
+            "description": "Noms et images des boutons affichés pour les raccourcis."
+          }
+        },
+        "audio": {
+          "mode": {
+            "label": "Périphériques de lecture",
+            "choices": {
+              "sameDevice": "Utiliser le périphérique de lecture par défaut pour toutes les instances",
+              "perInstance": "Choisir un périphérique pour chaque instance"
+            }
+          },
+          "instance": {
+            "label": "Instance {number}",
+            "description": "Utilisé quand « Choisir un périphérique pour chaque instance » est sélectionné."
+          }
+        },
+        "layout": {
+          "verticalLines": {
+            "label": "Divisions verticales",
+            "description": "Colonnes de la grille de disposition personnalisée, moins une."
+          },
+          "horizontalLines": {
+            "label": "Divisions horizontales",
+            "description": "Lignes de la grille de disposition personnalisée, moins une. Nombre max. de joueurs = (horizontales + 1) × (verticales + 1)."
+          },
+          "splitDiv": {
+            "label": "Arrière-plan de l’écran partagé",
+            "description": "Remplit l’écran derrière les fenêtres du jeu avec une couleur. Peut ne pas fonctionner avec tous les jeux."
+          },
+          "splitDivColor": {
+            "label": "Couleur d’arrière-plan"
+          },
+          "hideDesktopOnly": {
+            "label": "Masquer uniquement le bureau",
+            "description": "Affiche uniquement la fenêtre d’arrière-plan, sans redimensionner ni déplacer les fenêtres du jeu."
+          },
+          "cutscenesMuteAudioOnly": {
+            "label": "Mode cinématiques : couper uniquement le son",
+            "description": "Ne peut pas être combiné avec les deux options ci-dessous."
+          },
+          "cutscenesKeepAspectRatio": {
+            "label": "Mode cinématiques : conserver la taille d’origine des fenêtres"
+          },
+          "cutscenesUnfocus": {
+            "label": "Mode cinématiques : retirer le focus des fenêtres"
+          },
+          "windowsMerger": {
+            "label": "Fusion des fenêtres",
+            "description": "Fusionne les fenêtres du jeu en une seule, pour pouvoir utiliser Lossless Scaling. Les configurations à plusieurs écrans ne sont pas encore prises en charge."
+          },
+          "losslessHook": {
+            "label": "Hook Lossless",
+            "description": "Lossless Scaling continue la mise à l’échelle quand une autre fenêtre obtient le focus (pour les jeux qui ont besoin d’un vrai focus pour recevoir les entrées)."
+          },
+          "mergerResolution": {
+            "label": "Résolution de la fusion des fenêtres",
+            "description": "Taille de la fenêtre fusionnée. Par défaut, celle de l’écran principal.",
+            "choice": "{width} × {height} ({screens})"
+          }
+        }
+      },
+      "colors": {
+        "black": "Noir",
+        "gray": "Gris",
+        "white": "Blanc",
+        "darkBlue": "Bleu foncé",
+        "blue": "Bleu",
+        "purple": "Violet",
+        "pink": "Rose",
+        "red": "Rouge",
+        "orange": "Orange",
+        "yellow": "Jaune",
+        "green": "Vert"
+      },
+      "gamepadButtons": {
+        "dpadUp": "D-pad haut",
+        "dpadDown": "D-pad bas",
+        "dpadLeft": "D-pad gauche",
+        "dpadRight": "D-pad droite",
+        "leftStick": "Stick gauche",
+        "rightStick": "Stick droit",
+        "cross": "Croix",
+        "circle": "Rond",
+        "square": "Carré",
+        "triangle": "Triangle"
+      },
+      "rules": {
+        "gamepadAssignment": "« Attribuer les manettes par index » et « Attribuer les manettes à l’appui d’un bouton » ne peuvent pas être activés en même temps.",
+        "cutscenesMuteAudioOnly": "« Couper uniquement le son » ne peut pas être combiné avec les autres options du mode cinématiques."
+      },
+      "reminderImage": {
+        "keyboardTitle": "Raccourcis clavier",
+        "gamepadTitle": "Raccourcis manette",
+        "rows": {
+          "closeApp": "Fermer Nucleus",
+          "stopSession": "Arrêter la session",
+          "topMost": "Basculer le premier plan",
+          "setFocus": "Basculer le focus",
+          "resetWindows": "Réinitialiser les fenêtres",
+          "cutscenesMode": "Mode cinématiques",
+          "switchLayout": "Changer de disposition",
+          "shortcutsReminder": "Rappel des raccourcis",
+          "switchMergerWindow": "Changer de fenêtre fusionnée",
+          "lockInputs": "Verrouiller / déverrouiller les entrées"
+        }
+      },
+      "errors": {
+        "unknownSetting": "Paramètre inconnu.",
+        "invalidValue": "Valeur non valide.",
+        "alreadyUsed": "Déjà utilisé par « {label} ».",
+        "toggle": "Utilisez true ou false.",
+        "wholeNumber": "Saisissez un nombre entier.",
+        "numberRange": "Saisissez un nombre entre {min} et {max}.",
+        "choice": "Choisissez l’une des valeurs proposées.",
+        "maxLength_one": "Utilisez au plus {count} caractère.",
+        "maxLength_many": "Utilisez au plus {count} caractères.",
+        "maxLength_other": "Utilisez au plus {count} caractères.",
+        "lineBreaks": "Les retours à la ligne ne sont pas autorisés.",
+        "codePage": "Certains caractères ne peuvent pas être enregistrés dans Settings.ini sur ce PC (il utilise la page de codes du système).",
+        "hotkeyFormat": "Utilisez un modificateur et une touche, par exemple Ctrl+Q.",
+        "hotkeyModifier": "Le modificateur doit être Ctrl, Alt ou Shift.",
+        "hotkeyKey": "La touche doit être une seule lettre ou un seul chiffre.",
+        "singleButton": "Utilisez un seul bouton.",
+        "twoButtons": "Utilisez une combinaison de deux boutons, par exemple Guide + Y.",
+        "unknownButton": "« {code} » n’est pas un code de bouton de manette.",
+        "differentButtons": "Utilisez deux boutons différents.",
+        "bothTriggers": "Les deux gâchettes ne peuvent pas être combinées : utilisez une gâchette avec un bouton.",
+        "noGamepad": "Aucune manette XInput n’est connectée.",
+        "noButtonPressed": "Aucun bouton de manette n’a été pressé."
+      },
+      "players": {
+        "errors": {
+          "numberRange": "Les numéros de joueur vont de 1 à {max}.",
+          "listedTwice": "Le joueur {number} figure deux fois dans la liste.",
+          "steamIdFormat": "Un ID Steam comporte 17 chiffres, par exemple 76561199075562883.",
+          "nicknameInUse": "Ce pseudo est déjà utilisé par le joueur {number}.",
+          "steamIdInUse": "Cet ID Steam est déjà utilisé par le joueur {number}.",
+          "nicknameCharacters": "Les pseudos servent de noms de dossiers : évitez \\ / : * ? \" < > |."
+        }
+      }
+    },
+    "errors": {
+      "gameNotFound": "Jeu introuvable.",
+      "fileNotFound": "Le fichier n’existe pas.",
+      "folderNotFound": "Le dossier n’existe pas."
+    },
+    "library": {
+      "gameMenu": {
+        "notes": {
+          "label": "Notes de l’auteur du handler",
+          "description": "Affiche les notes rédigées par l’auteur du handler."
+        },
+        "details": {
+          "label": "Détails du jeu Nucleus",
+          "description": "Exécutable, architecture, fichier du handler, dossier de contenu et entrées prises en charge."
+        },
+        "openHandler": {
+          "label": "Ouvrir le handler du jeu",
+          "description": "Ouvre le script du handler dans votre éditeur de texte."
+        },
+        "openExeFolder": {
+          "label": "Ouvrir l’emplacement de l’exe d’origine",
+          "description": "Ouvre le dossier de l’exécutable du jeu."
+        },
+        "openContentFolder": {
+          "label": "Ouvrir le dossier de contenu Nucleus",
+          "description": "Ouvre le dossier qui contient les instances du jeu."
+        },
+        "deleteContentFolder": {
+          "label": "Supprimer le dossier de contenu du jeu",
+          "description": "Ferme les processus du jeu restants et supprime les instances du jeu.",
+          "confirm": "Voulez-vous vraiment supprimer « {folder} » et tout son contenu ? Les processus de {game} en cours d’exécution seront d’abord fermés."
+        },
+        "openUserConfig": {
+          "label": "Ouvrir le dossier de configuration (UserProfile)"
+        },
+        "deleteUserConfig": {
+          "label": "Supprimer le dossier de configuration (UserProfile)"
+        },
+        "openUserSave": {
+          "label": "Ouvrir le dossier de sauvegarde (UserProfile)"
+        },
+        "deleteUserSave": {
+          "label": "Supprimer le dossier de sauvegarde (UserProfile)"
+        },
+        "openDocumentsConfig": {
+          "label": "Ouvrir le dossier de configuration (Documents)"
+        },
+        "deleteDocumentsConfig": {
+          "label": "Supprimer le dossier de configuration (Documents)"
+        },
+        "openDocumentsSave": {
+          "label": "Ouvrir le dossier de sauvegarde (Documents)"
+        },
+        "deleteDocumentsSave": {
+          "label": "Supprimer le dossier de sauvegarde (Documents)"
+        },
+        "deleteFolderConfirm": "Voulez-vous vraiment supprimer « {folder} » et tout son contenu ?",
+        "nucleusFolder": "Nucleus : {name}",
+        "openBackup": {
+          "label": "Ouvrir le dossier des copies de secours",
+          "description": "Fichiers que le handler conserve pour chaque joueur entre les sessions."
+        },
+        "deleteBackup": {
+          "label": "Supprimer le dossier des copies de secours",
+          "confirm": "Voulez-vous vraiment supprimer le dossier des copies de secours de {nickname} pour {game} ?"
+        },
+        "useApiIndex": {
+          "label": "Attribuer les manettes par index",
+          "description": "Les profils enregistrent les index API des manettes au lieu de leurs identifiants matériels. Désactive l’attribution à l’appui d’un bouton."
+        },
+        "useGamepadButtonPress": {
+          "label": "Attribuer les manettes à l’appui d’un bouton (profil)",
+          "description": "Les profils attribuent les manettes à l’appui d’un bouton au lieu de réutiliser celles enregistrées. Désactive l’attribution par index."
+        },
+        "useApiIndexForGuests": {
+          "label": "Attribuer les manettes par index (invités uniquement)",
+          "description": "Seuls les joueurs invités (plusieurs joueurs par instance) sont attribués par index API."
+        },
+        "keepInstancesFolder": {
+          "label": "Conserver le dossier de contenu des instances",
+          "description": "Conserve les instances du jeu quand le jeu est de nouveau sélectionné ou que la session se termine, au lieu de les reconstruire."
+        },
+        "disableProfiles": {
+          "label": "Désactiver les profils",
+          "description": "Désactive les profils pour ce jeu : les paramètres globaux sont utilisés à la place."
+        },
+        "disableHandlerUpdate": {
+          "label": "Désactiver la mise à jour du handler",
+          "description": "Arrête la recherche de nouvelles versions de ce handler sur le Hub."
+        },
+        "changeIcon": {
+          "label": "Changer l’icône du jeu",
+          "description": "Choisissez une image ou un exécutable à utiliser comme icône du jeu.",
+          "filters": {
+            "imagesAndExecutables": "Images et exécutables",
+            "images": "Images",
+            "executables": "Exécutables"
+          }
+        },
+        "gameAssets": {
+          "label": "Ressources du jeu",
+          "description": "Jaquette et captures d’écran téléchargées."
+        },
+        "openCoverFolder": {
+          "label": "Ouvrir le dossier de la jaquette"
+        },
+        "openScreenshotsFolder": {
+          "label": "Ouvrir le dossier des captures d’écran"
+        },
+        "steamLanguage": {
+          "label": "Langue Steam",
+          "description": "Langue transmise par l’émulateur Steam pour ce jeu. « {appSetting} » utilise le paramètre global.",
+          "appSetting": "Paramètre de l’application"
+        },
+        "remove": {
+          "label": "Retirer le jeu de la liste",
+          "description": "Retire le jeu de la bibliothèque. Le handler reste installé.",
+          "confirm": "Voulez-vous vraiment retirer {game} de votre bibliothèque ? Le handler reste installé."
+        }
+      },
+      "errors": {
+        "itemUnavailable": "Cet élément de menu n’est pas disponible pour ce jeu.",
+        "exeFolderMissing": "Impossible d’ouvrir l’emplacement de l’exécutable d’origine de ce jeu : le dossier n’existe pas.",
+        "contentFilesLocked": "Certains fichiers du dossier de contenu sont verrouillés par un autre programme et Nucleus n’a pas pu les supprimer. Fermez ce programme ou redémarrez votre ordinateur, puis réessayez.",
+        "invalidSteamLanguage": "Choisissez l’une des langues Steam proposées.",
+        "handlerFileMissing": "Le fichier du handler n’existe pas.",
+        "folderGone": "Le dossier n’existe plus.",
+        "fileGone": "Le fichier n’existe plus.",
+        "sessionRunning": "Arrêtez d’abord la session de jeu en cours.",
+        "sessionRunningReload": "Arrêtez la session de jeu en cours avant de recharger les handlers.",
+        "deleteFailed": "Impossible de supprimer « {folder} » : {error}",
+        "unsupportedIcon": "Utilisez une image (png, jpg, gif, bmp, tif, ico) ou un exécutable.",
+        "contextMissing": "Le handler de {game} attend {files} à côté de {executable}. Choisissez l’exécutable situé dans le dossier d’installation du jeu.",
+        "noHandler": "Aucun handler installé ne prend en charge {executable}. Installez d’abord le handler du jeu.",
+        "alreadyInLibrary": "Cet exécutable est déjà utilisé par {game} dans votre bibliothèque.",
+        "noHubHandler": "Le handler de ce jeu ne provient pas du Hub : aucune illustration à télécharger.",
+        "executableNotFound": "L’exécutable n’existe pas.",
+        "exFat": "« exFAT » n’est pas un format de disque pris en charge : il ne gère pas les liens symboliques. Déplacez le jeu sur un disque NTFS ou formatez le disque en NTFS.",
+        "handlerNotFound": "Handler introuvable.",
+        "handlerMismatch": "{executable} ne correspond pas au handler de {game} (il attend {expected}, accompagné des fichiers que le handler vérifie).",
+        "artworkFailed": "Impossible de télécharger les illustrations : {error}"
+      }
+    },
+    "handlers": {
+      "errors": {
+        "unsupportedFile": "Fichier non pris en charge : utilisez une archive de handler (.nc, .zip) ou un script de handler (.js).",
+        "notAHandler": "Ce fichier n’est pas un handler Nucleus (ni Game.GameName ni Game.ExecutableName).",
+        "notFromHub": "Ce handler ne provient pas du Hub : il ne peut donc pas être mis à jour depuis celui-ci.",
+        "unknownToHub": "Le Hub ne connaît pas ce handler.",
+        "noPackage": "Ce handler n’a aucun paquet publié sur le Hub.",
+        "noChecksum": "Le Hub n’a pas fourni la somme de contrôle du paquet de ce handler : il ne peut donc pas être vérifié. Réessayez plus tard.",
+        "installFailed": "Impossible d’installer le handler : {error}",
+        "alreadyInstalled": "Un handler pour {game} est déjà installé.",
+        "invalidHandler": "Le handler a été installé mais n’a pas pu être chargé : il contient des erreurs.",
+        "sessionRunning": "Arrêtez la session de jeu en cours avant d’installer des handlers."
+      },
+      "package": {
+        "unsafePath": "L’archive contient un chemin dangereux : {path}",
+        "invalidArchive": "Le fichier n’est pas une archive de handler valide (.nc ou .zip).",
+        "noScript": "L’archive ne contient pas de handler.js : vérifiez qu’il s’agit bien d’un paquet de handler Nucleus.",
+        "notAHandler": "Le script de l’archive ne déclare ni Game.GameName ni Game.ExecutableName : ce n’est pas un handler Nucleus.",
+        "noGameName": "Le handler n’a pas de nom de jeu utilisable."
+      }
+    },
+    "hub": {
+      "errors": {
+        "offline": "{hub} est injoignable.",
+        "offlineBecause": "{hub} est injoignable : {error}",
+        "unexpectedAnswer": "Le Hub a envoyé une réponse inattendue.",
+        "busy": "Le Hub est surchargé (trop de requêtes depuis cette adresse), réessayez plus tard.",
+        "busyRetryIn_one": "Le Hub est surchargé (trop de requêtes depuis cette adresse), réessayez dans {count} s.",
+        "busyRetryIn_many": "Le Hub est surchargé (trop de requêtes depuis cette adresse), réessayez dans {count} s.",
+        "busyRetryIn_other": "Le Hub est surchargé (trop de requêtes depuis cette adresse), réessayez dans {count} s.",
+        "httpStatus": "Le serveur a répondu {status} {reason}.",
+        "downloadBusy": "Le téléchargement a échoué : le Hub est surchargé (trop de requêtes depuis cette adresse), réessayez plus tard.",
+        "downloadBusyRetryIn_one": "Le téléchargement a échoué : le Hub est surchargé (trop de requêtes depuis cette adresse), réessayez dans {count} s.",
+        "downloadBusyRetryIn_many": "Le téléchargement a échoué : le Hub est surchargé (trop de requêtes depuis cette adresse), réessayez dans {count} s.",
+        "downloadBusyRetryIn_other": "Le téléchargement a échoué : le Hub est surchargé (trop de requêtes depuis cette adresse), réessayez dans {count} s.",
+        "downloadHttpStatus": "Le téléchargement a échoué : le serveur a répondu {status} {reason}.",
+        "timeout": "Le serveur n’a pas répondu à temps.",
+        "unreachable": "Impossible de joindre le serveur : {error}",
+        "checksumMismatch": "Le paquet téléchargé ne correspond pas à celui publié sur le Hub (SHA-256 {actual}, attendu {expected}). Il n’a pas été installé."
+      }
+    },
+    "setup": {
+      "steps": {
+        "players": "Placement des joueurs",
+        "options": "Options"
+      },
+      "checks": {
+        "gameFound": {
+          "ok": "Jeu trouvé",
+          "missing": "Jeu introuvable",
+          "action": "Localiser"
+        },
+        "handler": {
+          "updating": "Mise à jour du handler",
+          "updateAvailable": "Mise à jour du handler disponible",
+          "version": "Version {version}",
+          "action": "Mettre à jour",
+          "upToDate": "Handler à jour"
+        },
+        "oneDrive": {
+          "title": "Dossier Documents dans OneDrive",
+          "detail": "Ce handler ne peut pas fonctionner quand le dossier Documents se trouve dans OneDrive ({folder})."
+        },
+        "gameLocation": {
+          "title": "Emplacement du jeu non pris en charge",
+          "detail": "Ce handler ne prend pas en charge les jeux installés dans C:\\Users (Documents, Bureau, Téléchargements…) ou C:\\Windows."
+        },
+        "admin": {
+          "ok": "Droits d’administrateur",
+          "needed": "Droits d’administrateur requis",
+          "detail": "Ce handler nécessite que Nucleus Co-op soit exécuté en tant qu’administrateur.",
+          "action": "Redémarrer en tant qu’administrateur"
+        },
+        "nucleusLocation": {
+          "title": "Emplacement de Nucleus Co-op non pris en charge",
+          "detail": "Installez Nucleus Co-op en dehors des dossiers de jeux, de C:\\Users et des dossiers protégés, par exemple dans C:\\Nucleus."
+        },
+        "devices": {
+          "none": "Aucun périphérique d’entrée",
+          "noneDetail": "Branchez une manette.",
+          "count_one": "{count} périphérique d’entrée",
+          "count_many": "{count} périphériques d’entrée",
+          "count_other": "{count} périphériques d’entrée"
+        },
+        "players": {
+          "count_one": "{count} joueur",
+          "count_many": "{count} joueurs",
+          "count_other": "{count} joueurs",
+          "waitingForProfile": "En attente des joueurs du profil",
+          "profileMatched": "{matched} sur {total} associés.",
+          "none": "Aucun joueur placé",
+          "noneDetail": "Placez au moins un joueur sur un écran."
+        },
+        "inputLock": {
+          "title": "Appuyez sur {key} pour verrouiller les entrées",
+          "detail": "Certains handlers ont besoin que le clavier et la souris soient verrouillés sur les fenêtres du jeu. Appuyez de nouveau sur {key} quand vous avez fini de jouer.",
+          "action": "Ne plus afficher"
+        }
+      },
+      "hints": {
+        "pickStepItem": "Faites un choix : {step}",
+        "profileWaitingForPlayer": "Joueur {number} : appuyez sur un bouton ou une touche du périphérique à utiliser.",
+        "noDevices": "Branchez une manette.",
+        "padNotIdentified": "Un bouton de manette a été pressé, mais Nucleus n’a pas pu identifier le périphérique. Appuyez sur Start de cette manette, sans toucher aux autres. Si le problème persiste, fermez les outils qui dupliquent les manettes (DS4Windows sans HidHide, Steam Input).",
+        "padNotIdentifiedSlotMode": "Un bouton de manette a été pressé, mais Nucleus n’a pas pu identifier le périphérique. Appuyez sur Start de cette manette, sans toucher aux autres. Si le problème persiste, fermez les outils qui dupliquent les manettes (DS4Windows sans HidHide, Steam Input) ou activez « Identifier les manettes par numéro ».",
+        "dragPlayersToScreens": "Faites glisser un périphérique sur un écran pour ajouter un joueur.",
+        "pressButtonToIdentify": "Appuyez sur un bouton d’une manette (ou utilisez un clavier) pour l’afficher."
+      },
+      "devices": {
+        "xinput": "Manette XInput {number}",
+        "controllerNumber": "Manette {number}",
+        "controller": "Manette",
+        "dinput": "Manette DirectInput {number}",
+        "keyboardMouse": "Clavier et souris",
+        "virtualMouse": "Souris virtuelle",
+        "mouse": "Souris",
+        "keyboard": "Clavier",
+        "virtualKeyboard": "Clavier virtuel",
+        "withIds": "{device} ({vid}:{pid})"
+      },
+      "refusals": {
+        "invalidScreen": "Aucun écran ne correspond à cet index.",
+        "invalidSlot": "Aucun emplacement ne correspond à cet index.",
+        "manualLayout": "La disposition manuelle n’a pas d’emplacements : placez le joueur à un point précis.",
+        "profileLocked": "Le profil chargé décide de la place des joueurs.",
+        "deviceNotRevealed": "Appuyez d’abord sur un bouton de ce périphérique.",
+        "slotOccupied": "Cet emplacement est occupé.",
+        "notAssigned": "Ce périphérique n’est pas placé.",
+        "notAGamepad": "Les invités doivent utiliser une manette, tout comme le joueur qui les accueille.",
+        "guestsNotSupported": "Ce jeu ne prend pas en charge plusieurs joueurs par instance.",
+        "guestLimitReached": "Cette instance ne peut pas accueillir plus d’invités.",
+        "alreadyGuest": "Cette manette est déjà invitée.",
+        "notAGuest": "Cette manette n’est pas invitée.",
+        "cannotExpand": "Ce joueur ne peut pas être agrandi ou réduit ici.",
+        "cannotResize": "Ce joueur ne peut pas être redimensionné de cette façon.",
+        "noFreeSlot": "Aucun emplacement libre.",
+        "nothingToPlace": "Aucun périphérique identifié n’attend d’être placé.",
+        "full": "Tous les emplacements sont occupés et aucun écran ne peut être divisé davantage."
+      },
+      "errors": {
+        "noSetup": "Aucune configuration de jeu n’est ouverte.",
+        "sessionRunning": "Une session est en cours.",
+        "libraryNotLoaded": "La bibliothèque de jeux n’est pas encore chargée.",
+        "cannotGoNext": "Cette étape n’est pas terminée, ou c’est la dernière.",
+        "firstStep": "C’est la première étape.",
+        "notAChoice": "Cette option n’est pas une liste de valeurs.",
+        "noValue": "Aucune valeur à cet index.",
+        "notAText": "Cette option n’est pas un texte.",
+        "customStepNotFound": "Étape personnalisée introuvable.",
+        "noItem": "Aucun élément à cet index.",
+        "noIdentitySlot": "Ce joueur n’a pas d’emplacement d’identité.",
+        "emptyNickname": "Les pseudos ne peuvent pas être vides.",
+        "steamIdLocked": "Ce handler définit les ID Steam.",
+        "steamIdFormat": "Un ID Steam doit comporter 17 chiffres, par exemple 76561199075562883.",
+        "steamIdInUse": "Un autre emplacement de joueur utilise cet ID Steam.",
+        "noAudioSlot_one": "L’audio par joueur est disponible pour le premier joueur.",
+        "noAudioSlot_many": "L’audio par joueur est disponible pour les {count} premiers joueurs.",
+        "noAudioSlot_other": "L’audio par joueur est disponible pour les {count} premiers joueurs.",
+        "audioOutputNotFound": "Sortie audio introuvable.",
+        "checkNotFound": "Vérification introuvable.",
+        "noFix": "Cette vérification n’a pas de correctif.",
+        "needsPicker": "Choisissez l’exécutable du jeu.",
+        "adminCancelled": "Le redémarrage en tant qu’administrateur a été annulé.",
+        "updatesUnavailable": "Les mises à jour des handlers ne sont pas disponibles.",
+        "updateBusy": "Le handler est déjà en cours de mise à jour.",
+        "cannotVibrate": "Ce périphérique ne peut pas vibrer.",
+        "deviceNotFound": "Périphérique introuvable.",
+        "playerNotFound": "Joueur introuvable.",
+        "optionNotFound": "Option introuvable."
+      }
+    },
+    "profiles": {
+      "unreadable": "Ce profil est illisible.",
+      "errors": {
+        "disabled": "Les profils sont désactivés pour ce jeu.",
+        "notFound": "Profil introuvable.",
+        "cannotLoad": "Impossible de charger le profil.",
+        "audioUnavailable": "Cette sortie audio n’est pas disponible."
+      }
+    },
+    "session": {
+      "actions": {
+        "toggleTopmost": "Basculer le premier plan",
+        "setFocus": "Retirer le focus des fenêtres du jeu",
+        "resetWindows": "Réinitialiser les fenêtres",
+        "cutscenesMode": "Mode cinématiques",
+        "switchLayout": "Changer de disposition",
+        "shortcutsReminder": "Rappel des raccourcis",
+        "switchMergerForeground": "Fenêtre fusionnée suivante"
+      },
+      "errors": {
+        "alreadyRunning": "Une session est déjà en cours.",
+        "notReady": "La configuration n’est pas prête pour jouer.",
+        "startFailed": "La session n’a pas pu démarrer : {error}",
+        "notRunning": "Aucune session n’est en cours.",
+        "inputsLocked": "Déverrouillez d’abord les entrées (appuyez sur {key}).",
+        "stopLocked": "La session n’a pas pu s’arrêter : les entrées sont verrouillées.",
+        "launchFailed": "Le lancement a échoué.",
+        "actionUnavailable": "{action} n’est pas disponible pour le moment."
+      }
+    },
+    "notices": {
+      "handlerError": "Erreur du handler",
+      "setupError": "Erreur de configuration"
+    },
+    "i18n": {
+      "errors": {
+        "notAvailable": "Cette langue n’est pas disponible."
+      }
+    },
+    "app": {
+      "errors": {
+        "sessionRunning": "Arrêtez la session en cours avant de redémarrer Nucleus Co-op.",
+        "adminDeclined": "Les droits d’administrateur n’ont pas été accordés.",
+        "adminFailed": "Nucleus Co-op n’a pas pu être redémarré en tant qu’administrateur.",
+        "invalidUrl": "Seules les URL http et https absolues peuvent être ouvertes.",
+        "browserFailed": "Impossible de démarrer le navigateur par défaut.",
+        "invalidPath": "Le chemin doit être un chemin local absolu.",
+        "pathNotFound": "Ce fichier ou ce dossier n’existe pas.",
+        "explorerFailed": "Impossible de démarrer l’Explorateur de fichiers."
+      },
+      "dialogs": {
+        "selectFile": "Sélectionner un fichier",
+        "selectFolder": "Sélectionner un dossier",
+        "allFiles": "Tous les fichiers"
+      }
+    }
+  },
+  "engine": {
+    "titles": {
+      "error": "Erreur",
+      "warning": "Avertissement",
+      "info": "Information"
+    },
+    "startChecks": {
+      "alreadyRunning": {
+        "title": "Nucleus Co-op est déjà en cours d’exécution",
+        "message": "Nucleus Co-op est déjà en cours d’exécution. Si vous ne voyez pas sa fenêtre, il fonctionne peut-être en arrière-plan : fermez le processus avec le Gestionnaire des tâches."
+      },
+      "missingFile": {
+        "title": "Fichier manquant",
+        "message": "{file} est absent de votre dossier Nucleus Co-op. Vérifiez que votre antivirus ne supprime pas ou ne bloque pas les fichiers de Nucleus Co-op : ajoutez le dossier de Nucleus Co-op à ses exceptions et extrayez à nouveau Nucleus Co-op. Cliquez sur OK pour en savoir plus."
+      },
+      "environmentError": {
+        "title": "Erreur lors de la vérification de l’environnement utilisateur."
+      },
+      "installPathUnknown": {
+        "message": "Impossible de vérifier le chemin d’installation de Nucleus."
+      },
+      "oneDrive": {
+        "title": "OneDrive doit être désactivé",
+        "message": "Utiliser OneDrive comme emplacement par défaut des documents empêche de nombreux handlers de fonctionner, car Nucleus ne peut pas accéder à son stockage. Pour changer l’emplacement de vos documents, déconnectez-vous de l’application OneDrive, faites un clic droit sur votre dossier Documents dans l’Explorateur de fichiers, ouvrez Propriétés, sélectionnez l’onglet Emplacement et rétablissez l’emplacement par défaut de Windows."
+      },
+      "installFolder": {
+        "message": "Nucleus Co-op ne doit pas être installé ici.\n\nNe l’installez PAS dans l’un de ces dossiers :\n- Un dossier contenant des fichiers de jeu\n- {programFiles} ou {programFilesX86}\n- {users} (y compris Documents, Bureau ou Téléchargements)\n- Tout dossier doté de paramètres de sécurité, comme {windows}\n\nUn bon emplacement : {example}"
+      },
+      "vcRedist": {
+        "message": "Veuillez installer Microsoft Visual C++ 2015 - 2022 Redistributable {architecture}\n\nVoulez-vous télécharger et installer Microsoft Visual C++ 2015 - 2022 Redistributable {architecture} maintenant ?",
+        "downloading": "Téléchargement de Microsoft Visual C++ 2015 - 2022 Redistributable {architecture}"
+      },
+      "webView2": {
+        "title": "Microsoft WebView2 Runtime n’est pas installé.",
+        "message": "Voulez-vous télécharger et installer Microsoft WebView2 Runtime maintenant ?\n\nSans lui, vous ne pourrez pas télécharger de handlers depuis l’application.",
+        "downloading": "Téléchargement de Microsoft WebView2 Runtime"
+      }
+    },
+    "downloader": {
+      "windowTitle": "Téléchargement de {file}."
+    },
+    "startGame": {
+      "launchFailed": "Nucleus n’a pas pu lancer cette instance ou trouver son processus. Fermez Nucleus et réessayez."
+    },
+    "host": {
+      "fatalError": {
+        "title": "Erreur fatale",
+        "message": "Une erreur fatale s’est produite :\n{message} {stackTrace}"
+      },
+      "interface": {
+        "startFailed": "Impossible de démarrer l’interface de Nucleus Co-op.\n\n{error}\n\nFermez toute autre fenêtre de Nucleus Co-op, puis cliquez sur Réessayer.",
+        "keepsCrashing": "L’interface de Nucleus Co-op s’arrête sans cesse de manière inattendue et va se fermer.\n\nLes détails figurent dans {logFile}. Si le problème persiste, réparez ou réinstallez Microsoft Edge WebView2 Runtime.",
+        "crashed": "L’interface de Nucleus Co-op s’est arrêtée de manière inattendue. Elle va être rechargée.",
+        "notResponding": "L’interface de Nucleus Co-op ne répond pas.\n\nLa recharger maintenant ? Cliquez sur Non pour continuer d’attendre.",
+        "runtimeMissing": "Nucleus Co-op a besoin de Microsoft Edge WebView2 Runtime pour afficher son interface, et celui-ci n’est pas installé.\n\nOuvrir la page de téléchargement maintenant ?"
+      }
+    },
+    "settingsLoad": {
+      "title": "Erreur lors du chargement des paramètres de Nucleus ! Erreur : {error}\nStackTrace :\n{stackTrace}",
+      "message": "Nucleus ne parvient pas à charger ses paramètres.\nNe modifiez pas settings.ini à la main.\nEssayez d’extraire à nouveau Nucleus avec 7-Zip.\nSi le problème persiste, demandez de l’aide sur notre serveur Discord."
+    },
+    "handlers": {
+      "errorTitle": "Erreur dans le handler {file}",
+      "reloadFailed": "{file} contient des erreurs et n’a pas pu être rechargé.",
+      "scriptError": {
+        "title": "Erreur dans le handler",
+        "message": "Le handler de jeu {file} contient une erreur.\n\nLe jeu concerné par ce handler n’apparaîtra pas dans la liste. Si le problème a été corrigé,\nessayez d’ajouter à nouveau le jeu.\n\nErreurs courantes :\n- Une erreur de syntaxe (par exemple une « , », un « ; » ou un « ] » manquant)\n- Un autre handler a le même GUID (il doit être unique !)\n- Du code mal placé ou mal formé\n(par exemple : les méthodes qui utilisent Context doivent se trouver dans la fonction Game.Play)\n\n{details}",
+        "atLine": "Erreur à la ligne {line} {message}"
+      }
+    },
+    "launch": {
+      "inputLockReminder": "Certains handlers vous demanderont d’appuyer sur la touche {key} pour verrouiller les entrées. Pensez à les déverrouiller en appuyant de nouveau sur {key} quand vous avez fini de jouer. Vous pouvez désactiver ce message dans les paramètres.",
+      "pickLauncher": {
+        "messageNamed": "Appuyez sur OK après avoir sélectionné l’exécutable du lanceur du jeu ({file}) pour continuer.",
+        "message": "Appuyez sur OK après avoir sélectionné l’exécutable du lanceur du jeu pour continuer.",
+        "dialogTitleNamed": "Sélectionnez l’exécutable {file} comme lanceur",
+        "dialogTitle": "Sélectionnez l’exécutable à utiliser comme lanceur",
+        "fileType": "Exécutables de lanceur de jeu"
+      },
+      "waitForOk": {
+        "gameLaunched": "Appuyez sur OK quand le jeu est lancé.",
+        "processChanges": "Appuyez sur OK quand vous êtes prêt à modifier les processus du jeu.",
+        "launchRest": "Appuyez sur OK quand vous êtes prêt à lancer les autres instances.",
+        "launchInstance": "Appuyez sur OK quand vous êtes prêt à lancer l’instance {number}.",
+        "searchProcess": "Appuyez sur OK quand vous êtes prêt à laisser Nucleus rechercher le processus du jeu.",
+        "installHooks": "Appuyez sur OK quand vous êtes prêt à installer les hooks et/ou à commencer l’envoi de faux messages.",
+        "instanceLaunched": "Appuyez sur OK quand l’instance {number} du jeu est lancée et/ou que vous souhaitez continuer.",
+        "launchFile": "Appuyez sur OK quand vous êtes prêt à lancer {file}",
+        "launchGameAfterFile": "Appuyez sur OK quand vous êtes prêt à poursuivre le lancement de l’instance de jeu {file}",
+        "handlerTextWithPath": "{text} Chemin du fichier : {path}"
+      },
+      "windowNotFound": {
+        "idInWindowTitle": "IdInWindowTitle : impossible de trouver le handle de la fenêtre principale de {process} (pid:{pid})",
+        "changeWindowTitle": "ChangeWindowTitle : impossible de trouver le handle de la fenêtre principale de {process} (pid:{pid})"
+      },
+      "invalidZip": "Le fichier zip n’existe pas, est corrompu ou est dans un format non pris en charge.",
+      "errorReportFailed": "Nous avons tellement échoué que nous avons échoué en essayant d’enregistrer la raison de l’échec initial. Désolés."
+    },
+    "crashReport": {
+      "title": "Un problème est survenu :(",
+      "release": "-Version de Nucleus : {version}\n-Emplacement d’installation : {installPath}\n-OneDrive : {oneDrive}\n\nNucleus n’a pas réussi à configurer le handler. Une tentative de nettoyage va être effectuée.\n\n[Type]\n\n{type}\n\n[Message]\n\n{message}\n\n{help}",
+      "debug": "Version de Nucleus : {version}\n\nNucleus n’a pas réussi à configurer le handler. Une tentative de nettoyage va être effectuée.\n\n[Type]\n\n{type}\n\n[Message]\n\n{message}\n{help}\n\n[Stacktrace]\n\n{stackTrace}",
+      "help": {
+        "fileNotFound": "Nucleus Co-op ne trouve pas le fichier de configuration du jeu. Assurez-vous d’avoir lancé le jeu principal au moins une fois sans Nucleus et d’y avoir modifié puis appliqué quelques paramètres graphiques : vous serez ainsi sûr que les fichiers de configuration ont bien été générés.\nSi cette erreur persiste après cela, sélectionnez le jeu dans l’interface de Nucleus Co-op, cliquez sur Options du jeu et sélectionnez Supprimer le dossier de configuration (UserProfile) pour tous les joueurs. Vous pouvez aussi essayer de supprimer le dossier de contenu de Nucleus Co-op et d’ajouter à nouveau le jeu.",
+        "access": "Nucleus Co-op n’a pas les autorisations nécessaires ou tente d’accéder à un fichier déjà utilisé,\nou un fichier est peut-être manquant (pour l’assistance : en cas d’« IOException », vérifiez que tous les fichiers requis par « Game.Play = function() » existent.)\nAssurez-vous que Nucleus Co-op se trouve en dehors des fichiers de jeu et des dossiers protégés ;\nil est recommandé de placer le dossier de l’application Nucleus Co-op à la racine de votre disque principal pour éviter les problèmes d’autorisations : {suggestedFolder}.\nAssurez-vous qu’aucune autre application n’utilise les fichiers auxquels Nucleus tente d’accéder. Si rien ne fonctionne, exécutez Nucleus Co-op avec les droits d’administrateur."
+      }
+    },
+    "debugLog": {
+      "enable": {
+        "title": "Activer le journal de débogage",
+        "message": "Cliquez sur « Oui » pour activer le journal de débogage. Relancez ensuite le jeu pour générer un journal de débogage.\nCliquez sur « Non » pour désactiver ce message."
+      }
+    },
+    "hotkeys": {
+      "registerFailed": "Erreur lors de l’enregistrement des raccourcis {error}",
+      "unregisterFailed": "Erreur lors de la suppression des raccourcis {error}"
+    },
+    "protoInput": {
+      "startupInjectFailed": "Échec de l’injection de ProtoInput au démarrage",
+      "runtimeInjectFailed": "Échec de l’injection de ProtoInput en cours d’exécution"
+    },
+    "gameContent": {
+      "lockedFiles": {
+        "title": "Risque de plantage !",
+        "message": "Un ou plusieurs fichiers de {path} sont verrouillés par le système ou utilisés par un autre programme, et Nucleus n’a pas pu les déverrouiller. Le jeu risque de planter au démarrage.\n\nFermez le programme qui les utilise, supprimez ou déverrouillez les fichiers manuellement, ou redémarrez votre ordinateur. Vous pouvez aussi ignorer ce message, au risque d’un plantage ou d’un comportement inattendu."
+      }
+    },
+    "gameFiles": {
+      "directoryNotFound": "Dossier introuvable :\n{path}",
+      "pathTooLong": {
+        "title": "Le chemin du fichier est trop long !",
+        "message_one": "Le chemin du fichier est trop long.\n{path}\nLa limite est de {limit} caractères et le chemin du fichier compte {count} caractère.\nVous pouvez essayer de déplacer votre jeu à la racine de votre disque pour réduire sa longueur.",
+        "message_many": "Le chemin du fichier est trop long.\n{path}\nLa limite est de {limit} caractères et le chemin du fichier compte {count} caractères.\nVous pouvez essayer de déplacer votre jeu à la racine de votre disque pour réduire sa longueur.",
+        "message_other": "Le chemin du fichier est trop long.\n{path}\nLa limite est de {limit} caractères et le chemin du fichier compte {count} caractères.\nVous pouvez essayer de déplacer votre jeu à la racine de votre disque pour réduire sa longueur."
+      }
+    },
+    "flawlessWidescreen": {
+      "pluginMissing": {
+        "title": "Nucleus - Utiliser Flawless Widescreen",
+        "message": "Nucleus n’a trouvé aucun plugin installé pour « {plugin} » dans FlawlessWidescreen. FlawlessWidescreen va maintenant s’ouvrir. Installez le plugin et effectuez les modifications nécessaires. Nucleus reprendra quand vous fermerez FlawlessWidescreen. Appuyez sur OK pour ouvrir FlawlessWidescreen"
+      }
+    },
+    "network": {
+      "interfaceNotFound": "Impossible de déterminer l’interface réseau",
+      "defaultSettingsError": "Erreur lors de l’obtention des paramètres IP par défaut. {error}",
+      "changeIp": {
+        "title": "Nucleus - Changer l’IP par instance",
+        "message": "ATTENTION : cette fonctionnalité est très expérimentale !\n\nL’adresse IP de votre ordinateur va être modifiée. Une demande de confirmation peut s’afficher juste après pour finaliser cette action. Vos paramètres IP seront rétablis quand vous quitterez Nucleus normalement. En revanche, si Nucleus plante, le rétablissement de vos paramètres n’est pas garanti.\n\nAppuyez sur OK quand vous êtes prêt à modifier votre adresse IP.\n\nParamètres d’origine :\nInterface réseau : {networkInterface}\nIP : {ip}\nMasque de sous-réseau : {subnetMask}\nPasserelle par défaut : {gateway}\nDHCP : {dhcp}\nDNS dynamique : {dynamicDns}\nDNS : {dns}"
+      },
+      "reverting": "Rétablissement des paramètres IP d’origine. Une autre demande de confirmation peut s’afficher."
+    },
+    "deleteFiles": {
+      "configPathTitle": "Nucleus - Supprimer les fichiers du dossier de configuration",
+      "savePathTitle": "Nucleus - Supprimer les fichiers du dossier de sauvegarde",
+      "confirm": "Voulez-vous vraiment supprimer « {file} » ?"
+    },
+    "goldberg": {
+      "interfacesMissing": "Goldberg n’a pas pu trouver ni créer steam_interfaces.txt. Le processus continuera sans ce fichier.",
+      "customDllPathMissing": "Aucun chemin de fichier n’a été ajouté à « {option} »",
+      "steamApiMissing": "Goldberg n’a trouvé aucun fichier steam_api(64).dll.\nLe Goldberg intégré ne sera pas utilisé.",
+      "lobbyConnect": {
+        "waitForHost": "Goldberg Lobby Connect : appuyez sur OK une fois que vous hébergez une partie.",
+        "lobbyNotFound": "Goldberg Lobby Connect : ID du salon introuvable.",
+        "outputError": "Erreur dans les données de sortie de Goldberg Lobby Connect. {error}"
+      }
+    },
+    "drives": {
+      "exFat": {
+        "title": "Format de disque incompatible !",
+        "message": "« exFat » n’est pas un format de disque pris en charge.\n\nDéplacez votre dossier d’installation de Nucleus sur un disque formaté en NTFS, ou formatez le disque en NTFS.\n\nRaison :\n\nexFat ne prend pas en charge les liens symboliques."
+      },
+      "checkFailed": "Erreur : {error}\nUn problème est survenu lors de la vérification de la compatibilité des disques !"
+    },
+    "profiles": {
+      "loaded": "Profil de handler « {title} » chargé",
+      "loadedNumber": "Profil de handler n° {number} chargé",
+      "updated": "Profil de handler « {title} » mis à jour",
+      "updatedNumber": "Profil de handler n° {number} mis à jour",
+      "setupFinished": "Configuration terminée",
+      "savedSetupFinished": "Profil de handler enregistré. Configuration terminée",
+      "notEnoughScreens": "Pas assez d’écrans actifs",
+      "loadFailed": "Impossible de charger le profil.\n\nSi l’erreur persiste, supprimez le profil et créez-en un nouveau.\n\n[Erreur]\n\n{error}",
+      "unloaded": {
+        "title": "Profil déchargé",
+        "message": "Oups !\nUn problème est survenu, le profil a été déchargé."
+      }
+    },
+    "profileSettings": {
+      "errors": {
+        "nicknameEmpty": "Les pseudos ne peuvent pas être vides.",
+        "steamIdFormat": "Un ID Steam doit comporter 17 chiffres, par exemple {example}.",
+        "steamIdDuplicate": "Chaque joueur doit avoir un ID Steam différent.",
+        "idealProcessor_one": "Ce PC a {count} cœur : utilisez * ou un nombre jusqu’à {count}.",
+        "idealProcessor_many": "Ce PC a {count} cœurs : utilisez * ou un nombre jusqu’à {count}.",
+        "idealProcessor_other": "Ce PC a {count} cœurs : utilisez * ou un nombre jusqu’à {count}.",
+        "affinity_one": "Ce PC a {count} cœur : utilisez des nombres jusqu’à {count}, séparés par des virgules.",
+        "affinity_many": "Ce PC a {count} cœurs : utilisez des nombres jusqu’à {count}, séparés par des virgules.",
+        "affinity_other": "Ce PC a {count} cœurs : utilisez des nombres jusqu’à {count}, séparés par des virgules.",
+        "priorityClass": "La priorité doit être Normal, AboveNormal, High ou RealTime.",
+        "horizontalLines": "Utilisez de 0 à 5 divisions horizontales.",
+        "verticalLines": "Utilisez de 0 à 5 divisions verticales.",
+        "maxPlayers": "La disposition personnalisée doit accueillir au moins 1 joueur.",
+        "delayNegative": "Le délai ne peut pas être négatif.",
+        "pauseNegative": "La pause ne peut pas être négative.",
+        "unknownColor": "Couleur inconnue.",
+        "mergerResolution": "La résolution doit être au format {example}."
+      }
+    },
+    "osd": {
+      "playerStarting": "Démarrage de l’instance de {game} pour {nickname}, joueur n° {number}",
+      "inputsLocked": "Entrées verrouillées",
+      "inputsUnlocked": "Entrées déverrouillées",
+      "unlockInputsFirst": "Déverrouillez d’abord les entrées",
+      "unlockInputsFirstKey": "Déverrouillez d’abord les entrées (touche {key})",
+      "windowsUnfocused": "Focus retiré des fenêtres du jeu",
+      "sessionEnded": "Session terminée",
+      "customHotkey": "Raccourci personnalisé {number}",
+      "windowFocused": "Focus sur la fenêtre de {nickname}",
+      "cantBeUsedNow": "Indisponible pour le moment",
+      "switchingLayouts": "Changement de disposition",
+      "cutscenesModeOn": "Mode cinématiques activé",
+      "cutscenesModeOff": "Mode cinématiques désactivé",
+      "resettingWindows": "Réinitialisation des fenêtres du jeu. Veuillez patienter…",
+      "windowsReset": "Fenêtres du jeu réinitialisées",
+      "waitForReset": "Attendez la réinitialisation des fenêtres du jeu",
+      "windowsMinimized": "Fenêtres du jeu réduites",
+      "windowsRestored": "Fenêtres du jeu restaurées"
+    },
+    "overlay": {
+      "device": {
+        "controller": "Manette",
+        "keyboard": "Clavier",
+        "mouse": "Souris",
+        "keyboardMouse": "Clavier et souris",
+        "withGuests_one": "{device} + {count} autre",
+        "withGuests_many": "{device} + {count} autres",
+        "withGuests_other": "{device} + {count} autres"
+      },
+      "playerFallback": "Joueur {number}",
+      "badge": "J{number}",
+      "starting": "Démarrage…",
+      "ready": "Prêt",
+      "windowTitle": "Nucleus Co-op, joueur {number}"
+    },
+    "dialogs": {
+      "prompt": {
+        "windowTitle": "NucleusCoop - Demande"
+      },
+      "customPrompt": {
+        "windowTitle": "NucleusCoop - Demande personnalisée"
+      },
+      "processPicker": {
+        "windowTitle": "Sélecteur de processus",
+        "description": "Sélectionnez le processus que Nucleus doit manipuler.",
+        "refresh": "Actualiser",
+        "noSelection": "Aucun processus n’a été sélectionné.",
+        "alreadyAssigned": "(NE PAS UTILISER - Déjà attribué dans Nucleus) {process}"
+      }
+    }
+  }
+}
