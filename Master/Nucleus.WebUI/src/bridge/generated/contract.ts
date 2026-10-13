@@ -11,7 +11,7 @@ export const protocolVersion = 1;
 /**
  * Hash of the contract this file was generated from. `app.hello` returns the host's: the UI refuses to run when they differ.
  */
-export const contractHash = 'b3edecc7bafb0767';
+export const contractHash = '2cc44896ad07f675';
 
 /** JSON-RPC error code of each kind of error the host returns. */
 export const bridgeErrorCodes = {
@@ -466,7 +466,11 @@ export interface AppInfo {
   installPath: string;
   /** Folder that contains the installed handlers. */
   handlersPath: string;
-  /** Whether hub.splitscreen.me is reachable (last check; see `HubStatusChanged`). */
+  /**
+   * Root of the SplitScreen.Me site that serves the hub pages and the API v3 (`<hubUrl>/api/v3`), without a trailing slash: https://v3.splitscreen.me unless Settings.ini [Dev] HubUrl overrides it. The UI and the host use the same value.
+   */
+  hubUrl: string;
+  /** Whether the hub (`AppInfo.hubUrl`) is reachable (last check; see `HubStatusChanged`). */
   hubOnline: boolean;
   /** Version of the WebView2 runtime in use. */
   webViewVersion: string;
@@ -762,11 +766,11 @@ export interface HelloResponse {
 
 /** Identifies a handler on the hub. */
 export interface HubHandlerRequest {
-  /** Hub handler id (the `_id` of the hub API). */
+  /** Hub handler id (the `id` of the hub API, the legacy 17-character id). */
   handlerId: string;
 }
 
-/** hub.splitscreen.me became reachable or unreachable. */
+/** The hub (`AppInfo.hubUrl`) became reachable or unreachable. */
 export interface HubStatusChanged {
   /** Whether the hub is reachable. */
   online: boolean;
@@ -1713,7 +1717,7 @@ export interface BridgeMethods {
   /** Checks the hub for handler updates of every library game. Results arrive through `library.changed`. */
   'handlers.checkUpdates': { params: void; result: void };
   /**
-   * Downloads a handler from the hub and installs it (replacing an older version). Progress comes as `HandlerProgress`.
+   * Downloads a handler from the hub and installs it (replacing an older version). Progress comes as `HandlerProgress`. Throws `conflict` (reason `checksumMismatch`) when the package does not match the SHA-256 published by the hub.
    */
   'handlers.install': { params: InstallHandlerRequest; result: InstallResult };
   /**
@@ -1722,7 +1726,7 @@ export interface BridgeMethods {
   'handlers.installFromFile': { params: InstallFromFileRequest; result: InstallResult };
   /** Handlers installed on this PC. */
   'handlers.listInstalled': { params: void; result: InstalledHandler[] };
-  /** Screenshot URLs of a hub handler's game (proxy of the hub endpoint, which has no CORS). */
+  /** Screenshot URLs (IGDB) of a hub handler's game, from the handler detail of the hub API. */
   'handlers.screenshots': { params: HubHandlerRequest; result: string[] };
   /** Updates the handler of a library game to the hub's current version. */
   'handlers.update': { params: GameRequest; result: InstallResult };
@@ -1911,13 +1915,13 @@ export interface BridgeHandlers {
     pickFolder: (params: PickFolderRequest) => Awaitable<string | null>;
   };
   /**
-   * Installed handlers: install and update from the hub, install from a file, and the hub calls the browser cannot make (no CORS). The catalogue itself is read by the UI directly from the public hub API.
+   * Installed handlers: install and update from the hub (package checked against the SHA-256 of the API v3), install from a file, screenshots. The catalogue, handler pages and comments are read by the UI directly from the public hub API v3.
    */
   handlers: {
     /** Checks the hub for handler updates of every library game. Results arrive through `library.changed`. */
     checkUpdates: () => Awaitable<void>;
     /**
-     * Downloads a handler from the hub and installs it (replacing an older version). Progress comes as `HandlerProgress`.
+     * Downloads a handler from the hub and installs it (replacing an older version). Progress comes as `HandlerProgress`. Throws `conflict` (reason `checksumMismatch`) when the package does not match the SHA-256 published by the hub.
      */
     install: (params: InstallHandlerRequest) => Awaitable<InstallResult>;
     /**
@@ -1926,7 +1930,7 @@ export interface BridgeHandlers {
     installFromFile: (params: InstallFromFileRequest) => Awaitable<InstallResult>;
     /** Handlers installed on this PC. */
     listInstalled: () => Awaitable<InstalledHandler[]>;
-    /** Screenshot URLs of a hub handler's game (proxy of the hub endpoint, which has no CORS). */
+    /** Screenshot URLs (IGDB) of a hub handler's game, from the handler detail of the hub API. */
     screenshots: (params: HubHandlerRequest) => Awaitable<string[]>;
     /** Updates the handler of a library game to the hub's current version. */
     update: (params: GameRequest) => Awaitable<InstallResult>;
@@ -2227,7 +2231,7 @@ export const bridgeServices = {
 
 /** Every event, by name, with its payload. */
 export interface BridgeEvents {
-  /** hub.splitscreen.me became reachable or unreachable. */
+  /** The hub (`AppInfo.hubUrl`) became reachable or unreachable. */
   'app.hubStatusChanged': HubStatusChanged;
   /** Installed handlers changed. */
   'handlers.changed': HandlersChanged;

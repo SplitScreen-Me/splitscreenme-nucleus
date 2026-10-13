@@ -276,6 +276,7 @@
     <Compile Include="Forms\Overlay\OverlayStyle.cs" />
     <Compile Include="Forms\Overlay\PlayerCard.cs" />
     <Compile Include="Globals.cs" />
+    <Compile Include="HubSite.cs" />
     <Compile Include="InstallPaths.cs" />
     <Compile Include="Platform\IO\WinDirectoryUtil.cs" />
     <Compile Include="Platform\MachineSpecs\MachineSpecs.cs" />

@@ -57,6 +57,7 @@ namespace Nucleus.Coop.Host.Services
                 AppVersion = Globals.Version,
                 InstallPath = environment.InstallFolder,
                 HandlersPath = environment.HandlersFolder,
+                HubUrl = HubSite.Url,
                 HubOnline = Nucleus.Gaming.Coop.Generic.Hub.Connected, // live: kept current by the services (app.hubStatusChanged)
                 WebViewVersion = webViewVersion() ?? "",
                 IsAdmin = isAdmin.Value,

@@ -53,7 +53,14 @@ namespace Nucleus.Bridge.Contracts
         /// <summary>Folder that contains the installed handlers.</summary>
         public string HandlersPath { get; set; } = "";
 
-        /// <summary>Whether hub.splitscreen.me is reachable (last check; see <see cref="HubStatusChanged"/>).</summary>
+        /// <summary>
+        /// Root of the SplitScreen.Me site that serves the hub pages and the API v3 (<c>&lt;hubUrl&gt;/api/v3</c>), without a
+        /// trailing slash: https://v3.splitscreen.me unless Settings.ini [Dev] HubUrl overrides it. The UI and the host
+        /// use the same value.
+        /// </summary>
+        public string HubUrl { get; set; } = "";
+
+        /// <summary>Whether the hub (<see cref="HubUrl"/>) is reachable (last check; see <see cref="HubStatusChanged"/>).</summary>
         public bool HubOnline { get; set; }
 
         /// <summary>Version of the WebView2 runtime in use.</summary>
@@ -66,7 +73,7 @@ namespace Nucleus.Bridge.Contracts
         public string? StartupGameId { get; set; }
     }
 
-    /// <summary>hub.splitscreen.me became reachable or unreachable.</summary>
+    /// <summary>The hub (<see cref="AppInfo.HubUrl"/>) became reachable or unreachable.</summary>
     [BridgeEvent("app.hubStatusChanged", Invalidates = new[] { "app.getInfo" })]
     public sealed class HubStatusChanged
     {

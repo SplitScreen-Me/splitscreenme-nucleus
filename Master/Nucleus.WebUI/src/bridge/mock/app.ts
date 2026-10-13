@@ -2,6 +2,13 @@ import { contractHash, protocolVersion, type BridgeHandlers, type LogLevel } fro
 import { BridgeError } from '../errors.ts';
 import type { MockContext } from '../transports/mock.ts';
 import type { MockState } from './state.ts';
+import { DEFAULT_HUB_URL, normalizeHubUrl } from '../../hub/urls.ts';
+
+/**
+ * The real hub; VITE_HUB_URL (in .env.local) points the browser build at another site, a local one for instance.
+ * import.meta.env is undefined under node, where the bridge tests run the mock too.
+ */
+const MOCK_HUB_URL = normalizeHubUrl((import.meta as { env?: Record<string, string | undefined> }).env?.VITE_HUB_URL) ?? DEFAULT_HUB_URL;
 
 export const MOCK_APP_VERSION = '3.0.0-mock';
 
@@ -29,6 +36,7 @@ export function createAppMock({ emit }: MockContext, state: MockState): BridgeHa
       appVersion: MOCK_APP_VERSION,
       installPath: 'C:\\Nucleus Co-op',
       handlersPath: 'C:\\Nucleus Co-op\\handlers',
+      hubUrl: MOCK_HUB_URL,
       hubOnline: isOnline(),
       webViewVersion: globalThis.navigator?.userAgent.match(/Edg\/([\d.]+)/)?.[1] ?? 'browser',
       isAdmin: state.elevated,

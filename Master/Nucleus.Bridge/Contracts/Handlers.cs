@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 namespace Nucleus.Bridge.Contracts
 {
     /// <summary>
-    /// Installed handlers: install and update from the hub, install from a file, and the hub calls the browser cannot make (no CORS).
-    /// The catalogue itself is read by the UI directly from the public hub API.
+    /// Installed handlers: install and update from the hub (package checked against the SHA-256 of the API v3), install from a file, screenshots.
+    /// The catalogue, handler pages and comments are read by the UI directly from the public hub API v3.
     /// </summary>
     [BridgeService("handlers")]
     public interface IHandlersService
@@ -14,7 +14,10 @@ namespace Nucleus.Bridge.Contracts
         /// <summary>Handlers installed on this PC.</summary>
         List<InstalledHandler> ListInstalled();
 
-        /// <summary>Downloads a handler from the hub and installs it (replacing an older version). Progress comes as <see cref="HandlerProgress"/>.</summary>
+        /// <summary>
+        /// Downloads a handler from the hub and installs it (replacing an older version). Progress comes as <see cref="HandlerProgress"/>.
+        /// Throws <c>conflict</c> (reason <c>checksumMismatch</c>) when the package does not match the SHA-256 published by the hub.
+        /// </summary>
         Task<InstallResult> Install(InstallHandlerRequest request, CancellationToken cancellationToken);
 
         /// <summary>Updates the handler of a library game to the hub's current version.</summary>
@@ -26,14 +29,14 @@ namespace Nucleus.Bridge.Contracts
         /// <summary>Checks the hub for handler updates of every library game. Results arrive through <c>library.changed</c>.</summary>
         Task CheckUpdates();
 
-        /// <summary>Screenshot URLs of a hub handler's game (proxy of the hub endpoint, which has no CORS).</summary>
+        /// <summary>Screenshot URLs (IGDB) of a hub handler's game, from the handler detail of the hub API.</summary>
         Task<List<string>> Screenshots(HubHandlerRequest request);
     }
 
     /// <summary>Identifies a handler on the hub.</summary>
     public sealed class HubHandlerRequest
     {
-        /// <summary>Hub handler id (the <c>_id</c> of the hub API).</summary>
+        /// <summary>Hub handler id (the <c>id</c> of the hub API, the legacy 17-character id).</summary>
         public string HandlerId { get; set; } = "";
     }
 
