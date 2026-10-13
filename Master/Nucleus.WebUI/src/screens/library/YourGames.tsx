@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import type { GameSummary, LibraryPreferences, LibrarySort } from '@/bridge';
+import { useI18n, useT, type TFunction } from '@/i18n';
 import { downloadProgress, useActiveDownload } from '@/lib/downloads';
-import { plural } from '@/lib/format';
 import { gameStatus, setupPath } from '@/lib/library';
 import { Button, Chip, Cover, Icon, Pane, Select, Spinner, cn } from '@/ui';
 import { INPUT_FILTERS, SORT_OPTIONS, needsAttention, visibleGames } from './library-view';
@@ -22,6 +22,7 @@ export interface YourGamesProps {
 
 /** Every game of the library, sorted and filtered as the user saved it. */
 export function YourGames({ games, prefs, onPrefs, attentionOnly, onAttentionOnly, onAddGame, adding, onLocate, onUpdate, onFavorite }: YourGamesProps) {
+  const t = useT();
   const attention = games.filter(needsAttention).length;
   const favorites = games.filter((g) => g.favorite).length;
   const visible = visibleGames(games, prefs, attentionOnly);
@@ -31,42 +32,44 @@ export function YourGames({ games, prefs, onPrefs, attentionOnly, onAttentionOnl
     <Pane as="section" aria-labelledby="games-title" className="col-span-full px-6 pt-6 pb-7">
       <div className="mb-3.5 flex flex-wrap items-center gap-3.5">
         <h2 id="games-title" className="type-h2 mr-0.5">
-          Your games
+          {t('library.games.title')}
         </h2>
-        <span className="data text-16 text-ink-3">{filtered ? `${visible.length} of ${games.length}` : plural(games.length, 'game')}</span>
+        <span className="data text-16 text-ink-3">
+          {filtered ? t('library.games.countFiltered', { shown: visible.length, total: games.length }) : t('library.games.count', { count: games.length })}
+        </span>
         <div className="ml-auto flex items-center gap-2">
           <label className="flex items-center gap-2 text-small text-ink-3">
-            Sort
+            {t('library.games.sort')}
             <Select
               value={prefs.sort}
               onChange={(e) => onPrefs({ sort: e.target.value as LibrarySort })}
-              aria-label="Sort games"
+              aria-label={t('library.games.sortLabel')}
               data-nav
               data-hints="chip"
             >
               {SORT_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>
-                  {o.label}
+                  {t(o.label)}
                 </option>
               ))}
             </Select>
           </label>
           <Button variant="ghost" size="sm" onClick={onAddGame} disabled={adding} data-nav data-hints="add">
             {adding ? <Spinner /> : <Icon name="plus" />}
-            Add a game
+            {t('library.games.addGame')}
           </Button>
         </div>
       </div>
-      <div className="mb-5 flex flex-wrap gap-1.5" role="toolbar" aria-label="Filter games">
+      <div className="mb-5 flex flex-wrap gap-1.5" role="toolbar" aria-label={t('library.games.filtersLabel')}>
         <Chip pressed={prefs.favoritesOnly} count={favorites || undefined} onClick={() => onPrefs({ favoritesOnly: !prefs.favoritesOnly })} data-nav data-hints="chip">
           <Icon name="star" fill={prefs.favoritesOnly ? 'currentColor' : 'none'} />
-          Favourites
+          {t('library.games.favourites')}
         </Chip>
         <span aria-hidden="true" className="mx-1 my-1.5 w-px bg-line" />
         {INPUT_FILTERS.map((f) => (
           <Chip key={f.key} pressed={prefs[f.key]} onClick={() => onPrefs({ [f.key]: !prefs[f.key] })} data-nav data-hints="chip">
             <Icon name={f.icon} />
-            {f.label}
+            {t(f.label)}
           </Chip>
         ))}
         {(attention > 0 || attentionOnly) && (
@@ -74,7 +77,7 @@ export function YourGames({ games, prefs, onPrefs, attentionOnly, onAttentionOnl
             <span aria-hidden="true" className="mx-1 my-1.5 w-px bg-line" />
             <Chip pressed={attentionOnly} count={attention || undefined} onClick={() => onAttentionOnly(!attentionOnly)} data-nav data-hints="chip">
               <Icon name="warning" />
-              Needs attention
+              {t('library.games.needsAttention')}
             </Chip>
           </>
         )}
@@ -91,8 +94,8 @@ export function YourGames({ games, prefs, onPrefs, attentionOnly, onAttentionOnl
         <div className="grid justify-items-start gap-3 py-8">
           <p className="text-small text-ink-2">
             {attentionOnly && !needsAttentionAny(games)
-              ? 'Every game is ready to play. Nothing needs your attention.'
-              : 'No game in your library matches these filters.'}
+              ? t('library.games.allReady')
+              : t('library.games.noMatch')}
           </p>
           <Button
             variant="ghost"
@@ -103,7 +106,7 @@ export function YourGames({ games, prefs, onPrefs, attentionOnly, onAttentionOnl
             }}
             data-nav
           >
-            Show every game
+            {t('library.games.showAll')}
           </Button>
         </div>
       )}
@@ -130,12 +133,13 @@ function CoverOverlay({ children }: { children: ReactNode }) {
 }
 
 function FavoriteButton({ game: g, onFavorite }: { game: GameSummary; onFavorite: (g: GameSummary) => void }) {
+  const t = useT();
   return (
     <button
       type="button"
       aria-pressed={g.favorite}
-      aria-label={g.favorite ? `Remove ${g.name} from favourites` : `Add ${g.name} to favourites`}
-      title={g.favorite ? 'Favourite' : 'Add to favourites'}
+      aria-label={g.favorite ? t('library.card.removeFavourite', { game: g.name }) : t('library.card.addFavourite', { game: g.name })}
+      title={g.favorite ? t('library.card.favouriteTitle') : t('library.card.addFavouriteTitle')}
       onClick={() => onFavorite(g)}
       className={cn(
         'pointer-events-auto absolute top-2 right-2 grid size-8 place-items-center rounded-full border-0 bg-[rgba(7,8,10,0.72)] text-ink backdrop-blur-sm',
@@ -146,6 +150,14 @@ function FavoriteButton({ game: g, onFavorite }: { game: GameSummary; onFavorite
       <Icon name="star" fill={g.favorite ? 'currentColor' : 'none'} className="size-[17px]" />
     </button>
   );
+}
+
+/** What a screen reader says of a card: "Hades, favourite, handler update available". */
+function cardLabel(t: TFunction, g: GameSummary, flag: 'update' | 'new' | undefined): string {
+  const game = g.name;
+  if (flag === 'update') return g.favorite ? t('library.card.labelFavouriteUpdate', { game }) : t('library.card.labelUpdate', { game });
+  if (flag === 'new') return g.favorite ? t('library.card.labelFavouriteNew', { game }) : t('library.card.labelNew', { game });
+  return g.favorite ? t('library.card.labelFavourite', { game }) : game;
 }
 
 function GameCard({
@@ -159,6 +171,7 @@ function GameCard({
   onUpdate: (g: GameSummary) => void;
   onFavorite: (g: GameSummary) => void;
 }) {
+  const { t, format } = useI18n();
   const status = gameStatus(g);
   const updating = useActiveDownload({ gameId: g.id });
 
@@ -172,20 +185,20 @@ function GameCard({
           data-nav-frame="own"
           data-hints="missing"
           data-id={g.id}
-          aria-label={`${g.name}: game executable not found. Locate it`}
+          aria-label={t('library.card.missingLabel', { game: g.name })}
           className="group block w-full rounded-xl border-0 bg-transparent p-0 text-left text-inherit outline-none"
         >
           <Cover src={g.coverUrl} title={g.name} ratio="2/3" className={artClass} imgClassName="grayscale brightness-[0.45]">
             <div className="absolute inset-x-2 bottom-2 grid gap-2 rounded-ctl bg-[rgba(7,8,10,0.82)] p-2.5 text-13 leading-[1.3] text-ink backdrop-blur-sm">
               <span className="flex items-start gap-1.5">
                 <Icon name="warning" className="mt-px size-[15px] shrink-0 text-warn" />
-                Game not found
+                {t('library.card.notFound')}
               </span>
-              <span className="grid h-7 place-items-center rounded-md bg-ink text-13 font-bold text-on-light">Locate</span>
+              <span className="grid h-7 place-items-center rounded-md bg-ink text-13 font-bold text-on-light">{t('library.card.locate')}</span>
             </div>
           </Cover>
           <div className="mt-2.5 truncate text-15 leading-tight font-[650]">{g.name}</div>
-          <div className="data mt-0.5 text-13 text-warn">Executable missing</div>
+          <div className="data mt-0.5 text-13 text-warn">{t('library.card.executableMissing')}</div>
         </button>
         <CoverOverlay>
           <FavoriteButton game={g} onFavorite={onFavorite} />
@@ -195,7 +208,7 @@ function GameCard({
   }
 
   const update = status === 'update';
-  const progress = updating ? Math.round(downloadProgress(updating) * 100) : 0;
+  const progress = format.percent(updating ? downloadProgress(updating) : 0);
   return (
     <div className="group/card relative">
       <Link
@@ -204,19 +217,19 @@ function GameCard({
         data-nav-frame="own"
         data-hints={update ? 'update' : 'game'}
         data-id={g.id}
-        aria-label={`${g.name}${g.favorite ? ', favourite' : ''}${update ? ', handler update available' : status === 'new' ? ', new' : ''}`}
+        aria-label={cardLabel(t, g, update ? 'update' : status === 'new' ? 'new' : undefined)}
         className="group block rounded-xl text-inherit no-underline outline-none"
       >
         <Cover src={g.coverUrl} title={g.name} ratio="2/3" className={artClass}>
           {update && (
             <span className="absolute top-2 left-2 inline-flex h-6 items-center gap-[5px] rounded-tag bg-ink pr-[9px] pl-[7px] text-12 font-[750] text-on-light stretch-narrow">
               {updating ? <Spinner className="size-3 border-on-light/30 border-t-on-light" /> : <Icon name="update" strokeWidth={2.2} className="size-3.5" />}
-              {updating ? `${progress}%` : `v${g.latestHandlerVersion}`}
+              {updating ? progress : t('library.card.versionBadge', { version: String(g.latestHandlerVersion) })}
             </span>
           )}
           {status === 'new' && (
             <span className="absolute top-2 left-2 inline-flex h-6 items-center rounded-tag bg-pane px-[9px] text-12 font-[750] text-ink shadow-[inset_0_0_0_1px_var(--color-line-strong)] stretch-narrow">
-              New
+              {t('library.card.new')}
             </span>
           )}
         </Cover>
@@ -224,9 +237,9 @@ function GameCard({
         <div className={cn('data mt-0.5 text-13', update ? 'text-warn' : 'text-ink-3')}>
           {update
             ? updating
-              ? `Updating handler, ${progress}%`
-              : `Handler v${g.handlerVersion ?? '?'} to v${g.latestHandlerVersion}`
-            : `Up to ${g.maxPlayers} players`}
+              ? t('library.card.updatingHandler', { percent: progress })
+              : t('library.card.handlerUpdate', { from: g.handlerVersion !== undefined ? String(g.handlerVersion) : '?', to: String(g.latestHandlerVersion) })
+            : t('library.upToPlayers', { count: g.maxPlayers })}
         </div>
       </Link>
       <CoverOverlay>
@@ -235,10 +248,10 @@ function GameCard({
           <button
             type="button"
             onClick={() => onUpdate(g)}
-            aria-label={`Update the ${g.name} handler to version ${g.latestHandlerVersion}`}
+            aria-label={t('library.card.updateLabel', { game: g.name, version: String(g.latestHandlerVersion) })}
             className="pointer-events-auto absolute inset-x-2 bottom-2 grid h-8 place-items-center rounded-md border-0 bg-ink text-13 font-bold text-on-light opacity-0 transition-opacity duration-(--dur-1) group-hover/card:opacity-100 focus-visible:opacity-100"
           >
-            Update to v{g.latestHandlerVersion}
+            {t('library.card.updateTo', { version: String(g.latestHandlerVersion) })}
           </button>
         )}
       </CoverOverlay>

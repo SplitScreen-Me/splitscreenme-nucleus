@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 import { bridge, useBridgeQuery, type GameDetails } from '@/bridge';
 import { HandlerNotes } from '@/components/HandlerNotes';
+import { useT, type TFunction } from '@/i18n';
 import { useRun } from '@/lib/bridge-ui';
-import { plural } from '@/lib/format';
-import { inputsPhrase } from '@/lib/library';
 import { Button, Dialog, Icon, Spinner } from '@/ui';
+import { inputsPhrase } from './library-view';
 
 /** library.get of a game while a dialog shows it. */
 function useDetails(gameId: string | null) {
@@ -12,30 +12,44 @@ function useDetails(gameId: string | null) {
 }
 
 function Loading({ error }: { error?: boolean }) {
+  const t = useT();
   return (
     <p className="flex items-center gap-2.5 py-6 text-small text-ink-2">
       {error ? <Icon name="warning" className="size-4 text-warn" /> : <Spinner />}
-      {error ? 'Nucleus Co-op could not read this game.' : 'Loading'}
+      {error ? t('library.gameInfo.readError') : t('common.loading')}
     </p>
   );
 }
 
+/** "MyGame.js, by Someone, version 4" above the notes. */
+function notesMeta(t: TFunction, d: GameDetails): string {
+  const file = d.handlerFile;
+  const version = d.summary.handlerVersion !== undefined ? String(d.summary.handlerVersion) : undefined;
+  if (d.maintainer && version !== undefined) return t('library.notes.metaByVersion', { file, maintainer: d.maintainer, version });
+  if (d.maintainer) return t('library.notes.metaBy', { file, maintainer: d.maintainer });
+  if (version !== undefined) return t('library.notes.metaVersion', { file, version });
+  return file;
+}
+
 /** The handler notes of a game (Nucleus markup). */
 export function NotesDialog({ gameId, onClose }: { gameId: string | null; onClose: () => void }) {
+  const t = useT();
   const { data, isError } = useDetails(gameId);
   const d = data?.summary.id === gameId ? data : undefined;
   return (
-    <Dialog open={gameId !== null} onClose={onClose} title={d ? `${d.summary.name}: handler notes` : 'Handler notes'} icon="book" className="w-[min(760px,92vw)]">
+    <Dialog
+      open={gameId !== null}
+      onClose={onClose}
+      title={d ? t('library.notes.title', { game: d.summary.name }) : t('library.notes.defaultTitle')}
+      icon="book"
+      className="w-[min(760px,92vw)]"
+    >
       {!d ? (
         <Loading error={isError} />
       ) : (
         <div className="grid gap-4">
-          <p className="text-13 text-ink-3">
-            {d.handlerFile}
-            {d.maintainer ? `, by ${d.maintainer}` : ''}
-            {d.summary.handlerVersion !== undefined ? `, version ${d.summary.handlerVersion}` : ''}
-          </p>
-          {d.notes ? <HandlerNotes>{d.notes}</HandlerNotes> : <p className="text-ink-2">This handler has no notes.</p>}
+          <p className="text-13 text-ink-3">{notesMeta(t, d)}</p>
+          {d.notes ? <HandlerNotes>{d.notes}</HandlerNotes> : <p className="text-ink-2">{t('library.notes.none')}</p>}
         </div>
       )}
     </Dialog>
@@ -44,46 +58,60 @@ export function NotesDialog({ gameId, onClose }: { gameId: string | null; onClos
 
 /** Where a game lives and what its handler declares. */
 export function DetailsDialog({ gameId, onClose }: { gameId: string | null; onClose: () => void }) {
+  const t = useT();
   const { data, isError } = useDetails(gameId);
   const d = data?.summary.id === gameId ? data : undefined;
   return (
-    <Dialog open={gameId !== null} onClose={onClose} title={d ? `${d.summary.name}: details` : 'Game details'} icon="info" className="w-[min(720px,92vw)]">
+    <Dialog
+      open={gameId !== null}
+      onClose={onClose}
+      title={d ? t('library.details.title', { game: d.summary.name }) : t('library.details.defaultTitle')}
+      icon="info"
+      className="w-[min(720px,92vw)]"
+    >
       {!d ? <Loading error={isError} /> : <DetailsBody details={d} />}
     </Dialog>
   );
 }
 
 function DetailsBody({ details: d }: { details: GameDetails }) {
+  const t = useT();
   const s = d.summary;
   const version =
     s.handlerVersion === undefined
-      ? 'Unknown'
+      ? t('common.unknown')
       : s.updateAvailable && s.latestHandlerVersion !== undefined
-        ? `${s.handlerVersion} (version ${s.latestHandlerVersion} on the Hub)`
+        ? t('library.details.versionWithLatest', { version: String(s.handlerVersion), latest: String(s.latestHandlerVersion) })
         : String(s.handlerVersion);
   return (
     <dl className="m-0 grid border-t border-line">
-      <Row label="Executable">
+      <Row label={t('library.details.executable')}>
         <Path path={d.executablePath} missing={!s.executableFound} />
       </Row>
-      <Row label="Architecture">{d.architecture === 'unknown' ? 'Unknown' : d.architecture}</Row>
-      <Row label="Handler file">
+      <Row label={t('library.details.architecture')}>{d.architecture === 'unknown' ? t('common.unknown') : d.architecture}</Row>
+      <Row label={t('library.details.handlerFile')}>
         <span className="font-mono text-13">{d.handlerFile}</span>
       </Row>
-      <Row label="Handler version">
+      <Row label={t('library.details.handlerVersion')}>
         <span className="data">{version}</span>
       </Row>
-      {d.maintainer && <Row label="Maintainer">{d.maintainer}</Row>}
+      {d.maintainer && <Row label={t('library.details.maintainer')}>{d.maintainer}</Row>}
       {d.steamId && (
-        <Row label="Steam app">
+        <Row label={t('library.details.steamApp')}>
           <span className="data">{d.steamId}</span>
         </Row>
       )}
-      <Row label="Players">Up to {s.maxPlayers}</Row>
-      <Row label="Inputs">{inputsPhrase(s.inputs)}</Row>
-      <Row label="Profiles">{d.profilesEnabled ? (d.profileCount ? plural(d.profileCount, 'saved profile') : 'None saved yet') : 'Turned off'}</Row>
-      <Row label="Options">{d.hasOptions ? 'The handler has options or setup steps' : 'None'}</Row>
-      <Row label="Instances folder">
+      <Row label={t('library.details.players')}>{t('library.details.playersValue', { count: s.maxPlayers })}</Row>
+      <Row label={t('library.details.inputs')}>{inputsPhrase(t, s.inputs)}</Row>
+      <Row label={t('library.details.profiles')}>
+        {d.profilesEnabled
+          ? d.profileCount
+            ? t('library.details.profileCount', { count: d.profileCount })
+            : t('library.details.noProfiles')
+          : t('library.details.profilesOff')}
+      </Row>
+      <Row label={t('library.details.options')}>{d.hasOptions ? t('library.details.hasOptions') : t('common.none')}</Row>
+      <Row label={t('library.details.instancesFolder')}>
         <Path path={d.contentFolder} />
       </Row>
     </dl>
@@ -91,16 +119,17 @@ function DetailsBody({ details: d }: { details: GameDetails }) {
 }
 
 function Path({ path, missing }: { path: string; missing?: boolean }) {
+  const t = useT();
   const run = useRun();
   return (
     <span className="inline-flex max-w-full items-start justify-end gap-2">
-      <span className={missing ? 'font-mono text-13 break-all text-warn' : 'font-mono text-13 break-all text-ink-2'}>{path || 'Not set'}</span>
+      <span className={missing ? 'font-mono text-13 break-all text-warn' : 'font-mono text-13 break-all text-ink-2'}>{path || t('library.details.notSet')}</span>
       {path && !missing && (
         <Button
           variant="quiet"
           size="icon-sm"
-          title="Show in File Explorer"
-          aria-label="Show in File Explorer"
+          title={t('library.details.showInExplorer')}
+          aria-label={t('library.details.showInExplorer')}
           onClick={() => void run(() => bridge.app.openPath({ path }))}
         >
           <Icon name="folder" />

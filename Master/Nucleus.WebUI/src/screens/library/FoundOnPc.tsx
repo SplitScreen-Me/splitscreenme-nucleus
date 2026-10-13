@@ -2,10 +2,10 @@ import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { bridge, useBridgeQuery, type GameSummary, type InstallResult } from '@/bridge';
 import { useAddGame } from '@/features/add-game';
 import { useAllHandlers } from '@/hub';
+import { useI18n, type MessageKey } from '@/i18n';
 import { igdbImage } from '@/lib/art';
 import { errorMessage, isCancelled } from '@/lib/bridge-ui';
 import { downloadProgress, installHandler, useActiveDownload } from '@/lib/downloads';
-import { fmtAgo, listJoin, plural } from '@/lib/format';
 import { useInstalledHandlers } from '@/lib/library';
 import { useAppInfo } from '@/lib/live';
 import { Button, Checkbox, Icon, Pane, Spinner, cn, useToast, type IconName } from '@/ui';
@@ -13,15 +13,15 @@ import { STORE_NAMES, matchInstalledGames, storeArt, type FoundCandidate } from 
 
 type Step = 'waiting' | 'installing' | 'searching' | 'picking' | 'adding' | 'added' | 'installed' | 'failed';
 
-const STEP_TEXT: Record<Step, string> = {
-  waiting: 'Waiting',
-  installing: 'Installing the handler',
-  searching: 'Looking for the game',
-  picking: 'Pick the executable',
-  adding: 'Adding',
-  added: 'Added to your library',
-  installed: 'Handler installed, game not added',
-  failed: 'Failed',
+const STEP_TEXT: Record<Step, MessageKey> = {
+  waiting: 'library.found.steps.waiting',
+  installing: 'library.found.steps.installing',
+  searching: 'library.found.steps.searching',
+  picking: 'library.found.steps.picking',
+  adding: 'library.found.steps.adding',
+  added: 'library.found.steps.added',
+  installed: 'library.found.steps.installed',
+  failed: 'library.found.steps.failed',
 };
 
 /** Up to this many found games are selected by default. */
@@ -59,6 +59,7 @@ export function FoundOnPc({ library, onAdded }: { library: readonly GameSummary[
   const { data: info } = useAppInfo();
   const { pickExecutable, addGameAt } = useAddGame();
   const toast = useToast();
+  const { t, format } = useI18n();
   // Explicit choices; until the user picks, a short list is all selected and a long one none (each add installs a handler).
   const [choice, setChoice] = useState<ReadonlySet<string> | null>(null);
   const [batch, setBatch] = useState<FoundCandidate[] | null>(null);
@@ -82,7 +83,8 @@ export function FoundOnPc({ library, onAdded }: { library: readonly GameSummary[
   const list = useRef<HTMLUListElement>(null);
   const fade = useOverflowFade(list, shown.length);
   const offline = info ? !info.hubOnline : false;
-  const sources = listJoin([...new Set((scan.data ?? []).map((g) => STORE_NAMES[g.store]))]);
+  const stores = [...new Set((scan.data ?? []).map((g) => STORE_NAMES[g.store]))].filter(Boolean);
+  const sources = format.list(stores);
 
   const setStep = (key: string, step: Step, detail?: string) => setSteps((s) => ({ ...s, [key]: { step, detail } }));
 
@@ -97,7 +99,7 @@ export function FoundOnPc({ library, onAdded }: { library: readonly GameSummary[
         version: f.handler.version,
       });
     } catch (error) {
-      setStep(f.key, 'failed', isCancelled(error) ? 'Cancelled' : errorMessage(error));
+      setStep(f.key, 'failed', isCancelled(error) ? t('library.found.steps.cancelled') : errorMessage(error));
       return null;
     }
     if (result.inLibrary) {
@@ -118,12 +120,12 @@ export function FoundOnPc({ library, onAdded }: { library: readonly GameSummary[
       path = await pickExecutable({ gameName: result.gameName, executableNames: names, initialDirectory: f.game.installFolder });
     }
     if (!path) {
-      setStep(f.key, 'installed', 'Add the game later from Your games');
+      setStep(f.key, 'installed', t('library.found.steps.addLater'));
       return null;
     }
     setStep(f.key, 'adding');
     const game = await addGameAt(path, { handlerGameId: result.gameId, quiet: true });
-    setStep(f.key, game ? 'added' : 'failed', game ? undefined : 'The game could not be added');
+    setStep(f.key, game ? 'added' : 'failed', game ? undefined : t('library.found.steps.addFailed'));
     return game?.id ?? null;
   };
 
@@ -141,9 +143,9 @@ export function FoundOnPc({ library, onAdded }: { library: readonly GameSummary[
     }
     setRunning(false);
     if (added.length) {
-      toast(`${plural(added.length, 'game')} added to your library`);
+      toast(t('library.found.toasts.added', { count: added.length }));
       onAdded(added[0]!);
-    } else toast('No game was added', { icon: 'info' });
+    } else toast(t('library.found.toasts.noneAdded'), { icon: 'info' });
     // Keep the outcome on screen for a moment, then go back to what is left to add.
     clearTimer.current = window.setTimeout(() => {
       setBatch(null);
@@ -155,7 +157,7 @@ export function FoundOnPc({ library, onAdded }: { library: readonly GameSummary[
     const result = await scan.refetch();
     if (result.data && !result.isError) {
       const count = matchInstalledGames(result.data, hub, library, installedHandlers).length;
-      toast(count ? `${plural(count, 'game')} found with a handler on the Hub` : 'Nothing new on this PC', { icon: count ? 'check' : 'info' });
+      toast(count ? t('library.found.toasts.found', { count }) : t('library.found.toasts.nothingNew'), { icon: count ? 'check' : 'info' });
     }
   };
 
@@ -167,7 +169,7 @@ export function FoundOnPc({ library, onAdded }: { library: readonly GameSummary[
       <div className="absolute inset-0 flex flex-col px-5 pt-[22px] pb-5">
         <div className="mb-1.5 flex items-center gap-2">
           <h2 id="found-title" className="type-h3">
-            Found on this PC
+            {t('library.found.title')}
           </h2>
           {!batch && found.length > 1 && (
             <button
@@ -175,24 +177,24 @@ export function FoundOnPc({ library, onAdded }: { library: readonly GameSummary[
               onClick={() => setChoice(selected.length ? new Set() : new Set(found.map((f) => f.key)))}
               className="ml-auto rounded border-0 bg-transparent p-0 text-13 font-semibold text-ink-3 hover:text-ink"
             >
-              {selected.length ? 'Select none' : 'Select all'}
+              {selected.length ? t('library.found.selectNone') : t('library.found.selectAll')}
             </button>
           )}
         </div>
 
         {scan.isPending || matching ? (
           <p className="mb-4 flex items-center gap-2 text-small text-ink-3" role="status">
-            <Spinner /> {scan.isPending ? 'Reading your Steam and Epic libraries…' : 'Matching with the Hub catalogue…'}
+            <Spinner /> {scan.isPending ? t('library.found.readingLibraries') : t('library.found.matching')}
           </p>
         ) : scan.isError ? (
           <div className="my-auto grid justify-items-start gap-3 py-4">
             <p className="text-small text-ink-2">
-              <b className="mb-1 block text-16 text-ink">Your game libraries could not be read</b>
+              <b className="mb-1 block text-16 text-ink">{t('library.found.readError')}</b>
               {errorMessage(scan.error)}
             </p>
             <Button variant="ghost" data-nav data-hints="found-scan" onClick={() => void rescan()}>
               <Icon name="refresh" />
-              Try again
+              {t('common.tryAgain')}
             </Button>
           </div>
         ) : shown.length ? (
@@ -200,9 +202,11 @@ export function FoundOnPc({ library, onAdded }: { library: readonly GameSummary[
             <p className="mb-3 text-small leading-[1.45] text-ink-3" aria-live="polite">
               {batch
                 ? running
-                  ? 'Installing handlers and adding games. Keep Nucleus open.'
-                  : 'Done. Games that need you are listed with what to do.'
-                : `${sources ? `Scanned your ${sources} ${sources.includes(' and ') ? 'libraries' : 'library'}` : 'Scanned'} ${fmtAgo(new Date(scan.dataUpdatedAt).toISOString())}. These games have a ready-made handler on the Hub.`}
+                  ? t('library.found.running')
+                  : t('library.found.finished')
+                : stores.length
+                  ? t('library.found.scannedStores', { count: stores.length, stores: sources, ago: format.ago(scan.dataUpdatedAt) })
+                  : t('library.found.scanned', { ago: format.ago(scan.dataUpdatedAt) })}
             </p>
             <ul
               ref={list}
@@ -224,7 +228,7 @@ export function FoundOnPc({ library, onAdded }: { library: readonly GameSummary[
             {offline && !batch && (
               <p className="mb-3 flex items-start gap-2 text-13 leading-[1.4] text-ink-2">
                 <Icon name="offline" className="mt-px size-4 shrink-0 text-warn" />
-                The Hub is offline: handlers can't be downloaded right now.
+                {t('library.found.offline')}
               </p>
             )}
             <div className="mt-auto flex gap-2">
@@ -240,20 +244,26 @@ export function FoundOnPc({ library, onAdded }: { library: readonly GameSummary[
                   }}
                 >
                   <Icon name="check" />
-                  Done
+                  {t('common.done')}
                 </Button>
               ) : (
                 <Button className="flex-1" data-nav data-hints="found" disabled={!selected.length || running || offline} onClick={() => void add()}>
                   {running ? <Spinner /> : <Icon name="plus" />}
-                  <span>{running ? 'Adding games…' : selected.length ? `Add ${plural(selected.length, 'game')}` : 'Select games to add'}</span>
+                  <span>
+                    {running
+                      ? t('library.found.addingGames')
+                      : selected.length
+                        ? t('library.found.addCount', { count: selected.length })
+                        : t('library.found.selectToAdd')}
+                  </span>
                 </Button>
               )}
               <Button
                 variant="ghost"
                 size="icon"
                 className="size-11 min-h-11"
-                aria-label="Scan again"
-                title="Scan again"
+                aria-label={t('library.found.scanAgain')}
+                title={t('library.found.scanAgain')}
                 data-nav
                 data-hints="found-scan"
                 disabled={scanning || running}
@@ -266,14 +276,16 @@ export function FoundOnPc({ library, onAdded }: { library: readonly GameSummary[
         ) : (
           <>
             <p className="my-auto py-6 text-small text-ink-2" aria-live="polite">
-              <b className="mb-1 block text-16 text-ink">Nothing new on this PC</b>
+              <b className="mb-1 block text-16 text-ink">{t('library.found.emptyTitle')}</b>
               {(scan.data?.length ?? 0) > 0
-                ? `None of the ${plural(scan.data?.length ?? 0, 'game')} installed through ${sources || 'your stores'} has a handler you don't already have.`
-                : 'Nucleus looks for games installed through Steam and Epic. Install a game, then scan again.'}
+                ? stores.length
+                  ? t('library.found.noneNew', { count: scan.data?.length ?? 0, stores: sources })
+                  : t('library.found.noneNewAnyStore', { count: scan.data?.length ?? 0 })
+                : t('library.found.noGames')}
             </p>
             <Button variant="ghost" data-nav data-hints="found-scan" disabled={scanning} onClick={() => void rescan()} className="self-start">
               {scanning ? <Spinner /> : <Icon name="refresh" />}
-              Scan again
+              {t('library.found.scanAgain')}
             </Button>
           </>
         )}
@@ -293,10 +305,11 @@ function FoundItem({
   progress?: { step: Step; detail?: string };
   onChange: (on: boolean) => void;
 }) {
+  const { t, format } = useI18n();
   const [imgOk, setImgOk] = useState(true);
   const download = useActiveDownload({ handlerId: progress?.step === 'installing' ? f.handler.id : undefined });
   const art = storeArt(f.game) ?? igdbImage(f.handler.coverImageId, 'screenshot_med');
-  const players = f.handler.maxPlayers ? `up to ${f.handler.maxPlayers} players` : 'players unknown';
+  const players = f.handler.maxPlayers ? t('library.found.item.upToPlayers', { count: f.handler.maxPlayers }) : t('library.found.item.playersUnknown');
   const step = progress?.step;
   const busy = step === 'installing' || step === 'searching' || step === 'picking' || step === 'adding';
   const thumb =
@@ -319,13 +332,12 @@ function FoundItem({
           {progress.detail && step === 'failed'
             ? progress.detail
             : step === 'installing' && download
-              ? `${STEP_TEXT.installing}, ${Math.round(downloadProgress(download) * 100)}%`
-              : STEP_TEXT[progress.step]}
+              ? t('library.found.steps.installingProgress', { percent: format.percent(downloadProgress(download)) })
+              : t(STEP_TEXT[progress.step])}
         </span>
       ) : (
         <span className="data block truncate text-13 text-ink-3">
-          {STORE_NAMES[f.game.store]}, {players}
-          {f.handler.verified ? ', verified' : ''}
+          {t(f.handler.verified ? 'library.found.item.metaVerified' : 'library.found.item.meta', { store: STORE_NAMES[f.game.store], players })}
         </span>
       )}
     </span>
@@ -345,7 +357,7 @@ function FoundItem({
   return (
     <li>
       <label className="grid cursor-pointer grid-cols-[22px_88px_minmax(0,1fr)] items-center gap-3 rounded-[10px] py-1.5 pr-2 pl-1.5 hover:bg-pane-2">
-        <Checkbox checked={checked} onChange={(e) => onChange(e.target.checked)} data-nav data-hints="found-item" aria-label={`Add ${f.game.name}`} />
+        <Checkbox checked={checked} onChange={(e) => onChange(e.target.checked)} data-nav data-hints="found-item" aria-label={t('library.found.item.addLabel', { game: f.game.name })} />
         {thumb}
         {text}
       </label>

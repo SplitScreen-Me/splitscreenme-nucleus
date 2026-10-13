@@ -1,6 +1,7 @@
 // Sorting and filtering of the game list (the UI's job), with the saved preferences of library.getPreferences.
 import { useQueryClient } from '@tanstack/react-query';
-import { bridge, bridgeQueryKey, useBridgeQuery, type GameSummary, type LibraryPreferences, type LibrarySort } from '@/bridge';
+import { bridge, bridgeQueryKey, useBridgeQuery, type GameInputs, type GameSummary, type LibraryPreferences, type LibrarySort } from '@/bridge';
+import type { MessageKey, TFunction } from '@/i18n';
 import { useRun } from '@/lib/bridge-ui';
 import { gameStatus } from '@/lib/library';
 
@@ -12,21 +13,32 @@ export const DEFAULT_PREFERENCES: LibraryPreferences = {
   filterMultipleKeyboards: false,
 };
 
-export const SORT_OPTIONS: ReadonlyArray<{ value: LibrarySort; label: string }> = [
-  { value: 'lastPlayed', label: 'Last played' },
-  { value: 'name', label: 'Name, A to Z' },
-  { value: 'nameDescending', label: 'Name, Z to A' },
-  { value: 'maxPlayers', label: 'Most players' },
-  { value: 'playtime', label: 'Most played' },
+export const SORT_OPTIONS: ReadonlyArray<{ value: LibrarySort; label: MessageKey }> = [
+  { value: 'lastPlayed', label: 'library.sort.lastPlayed' },
+  { value: 'name', label: 'library.sort.name' },
+  { value: 'nameDescending', label: 'library.sort.nameDescending' },
+  { value: 'maxPlayers', label: 'library.sort.maxPlayers' },
+  { value: 'playtime', label: 'library.sort.playtime' },
 ];
 
 export type InputFilterKey = 'filterGamepads' | 'filterKeyboard' | 'filterMultipleKeyboards';
 
-export const INPUT_FILTERS: ReadonlyArray<{ key: InputFilterKey; label: string; icon: 'pad' | 'kbm' | 'multi'; test: (g: GameSummary) => boolean }> = [
-  { key: 'filterGamepads', label: 'Controllers', icon: 'pad', test: (g) => g.inputs.xInput || g.inputs.dInput },
-  { key: 'filterKeyboard', label: 'Keyboard and mouse', icon: 'kbm', test: (g) => g.inputs.keyboard },
-  { key: 'filterMultipleKeyboards', label: 'Several keyboards', icon: 'multi', test: (g) => g.inputs.multipleKeyboards },
+export const INPUT_FILTERS: ReadonlyArray<{ key: InputFilterKey; label: MessageKey; icon: 'pad' | 'kbm' | 'multi'; test: (g: GameSummary) => boolean }> = [
+  { key: 'filterGamepads', label: 'library.filters.controllers', icon: 'pad', test: (g) => g.inputs.xInput || g.inputs.dInput },
+  { key: 'filterKeyboard', label: 'library.filters.keyboard', icon: 'kbm', test: (g) => g.inputs.keyboard },
+  { key: 'filterMultipleKeyboards', label: 'library.filters.multipleKeyboards', icon: 'multi', test: (g) => g.inputs.multipleKeyboards },
 ];
+
+/** "Controllers, keyboard and mouse" from the inputs a handler supports. */
+export function inputsPhrase(t: TFunction, inputs: GameInputs): string {
+  const pads = inputs.xInput || inputs.dInput;
+  if (pads && inputs.multipleKeyboards) return t('library.inputs.controllersKeyboardsMice');
+  if (pads && inputs.keyboard) return t('library.inputs.controllersKeyboardMouse');
+  if (pads) return t('library.inputs.controllers');
+  if (inputs.multipleKeyboards) return t('library.inputs.keyboardsMice');
+  if (inputs.keyboard) return t('library.inputs.keyboardMouse');
+  return t('library.inputs.unknown');
+}
 
 const byName = (a: GameSummary, b: GameSummary) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' });
 const time = (iso: string | undefined) => (iso ? Date.parse(iso) || 0 : 0);

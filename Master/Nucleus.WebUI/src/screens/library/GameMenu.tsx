@@ -2,6 +2,7 @@
 // confirmations and file types. Ids are never interpreted here, except as keys.
 import { useState } from 'react';
 import { bridge, type GameMenuItem } from '@/bridge';
+import { useT } from '@/i18n';
 import { useRun } from '@/lib/bridge-ui';
 import { Icon, MiniField, MiniSelect, Spinner, Switch, cn, useConfirm, useToast } from '@/ui';
 
@@ -32,6 +33,7 @@ export function GameMenu(props: GameMenuProps) {
   const run = useRun();
   const confirm = useConfirm();
   const toast = useToast();
+  const t = useT();
   const [pending, setPending] = useState<ReadonlySet<string>>(new Set());
 
   const busy = (id: string, on: boolean) =>
@@ -58,7 +60,10 @@ export function GameMenu(props: GameMenuProps) {
     let picked = value;
     if (item.clientAction === 'pickFile') {
       const path = await run(() =>
-        bridge.dialogs.pickFile({ title: `${plainLabel(item.label)}: ${props.gameName}`, filters: item.fileFilters }, { timeoutMs: 0 }),
+        bridge.dialogs.pickFile(
+          { title: t('library.gameMenu.pickFileTitle', { action: plainLabel(item.label), game: props.gameName }), filters: item.fileFilters },
+          { timeoutMs: 0 },
+        ),
       );
       if (!path) return;
       picked = path;
@@ -68,7 +73,7 @@ export function GameMenu(props: GameMenuProps) {
       bridge.library.runMenuAction({ gameId: props.gameId, itemId: item.id, value: picked }, { timeoutMs: 120_000 }).then(() => true),
     );
     busy(item.id, false);
-    if (done && item.kind === 'action' && (item.danger || item.clientAction === 'pickFile')) toast(`${plainLabel(item.label)}: done`);
+    if (done && item.kind === 'action' && (item.danger || item.clientAction === 'pickFile')) toast(t('library.gameMenu.done', { action: plainLabel(item.label) }));
   };
 
   return <MenuList items={tidy(props.items)} pending={pending} onActivate={(item, value) => void activate(item, value)} depth={0} />;
