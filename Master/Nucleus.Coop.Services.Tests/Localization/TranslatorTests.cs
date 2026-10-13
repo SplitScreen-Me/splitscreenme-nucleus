@@ -82,6 +82,41 @@ public class TranslatorTests
         Assert.Equal("Press <kbd>End</kbd> to lock", t.T("library.lockHint", new { key = "End" }));
         Assert.Equal("Press End to lock", MessageFormat.StripTags(t.T("library.lockHint", new { key = "End" })));
         Assert.Equal("a\nb", MessageFormat.StripTags("a<br/>b"));
+        Assert.Equal("Press End to lock", t.TPlain("library.lockHint", new { key = "End" }));
+    }
+
+    [Fact]
+    public void Plain_text_keeps_tag_like_values()
+    {
+        using var folder = LanguageFolder.WithEnglishAndFrench();
+        Translator t = folder.Translator();
+
+        Assert.Equal("Press List<String> to lock", t.TPlain("library.lockHint", new { key = "List<String>" }));
+        Assert.Equal("Press <b>x</b> to lock", t.TPlain("library.lockHint", new { key = "<b>x</b>" }));
+        Assert.Equal("missing.key", t.TPlain("missing.key"));
+    }
+
+    [Fact]
+    public void Completes_an_older_en_json_with_the_built_in_English()
+    {
+        const string olderEnglish = @"{
+  ""_meta"": { ""locale"": ""en"", ""englishName"": ""English"", ""nativeName"": ""English"" },
+  ""common"": { ""ok"": ""Okay"" },
+  ""library"": { ""gameCount"": ""{count} game(s)"" }
+}";
+        using var folder = new LanguageFolder(("en.json", olderEnglish), ("fr.json", LanguageFolder.French));
+        Translator t = folder.Translator("en", () => LanguageFolder.English);
+
+        Assert.Equal("Okay", t.T("common.ok"));                                // the folder's English wins
+        Assert.Equal("Cancel", t.T("common.cancel"));                          // missing there: built in
+        Assert.Equal("2 game(s)", t.T("library.gameCount", new { count = 2 })); // its plural forms are not mixed with the built-in ones
+        Assert.Equal("1 game(s)", t.T("library.gameCount", new { count = 1 }));
+        Assert.Equal("Cancel", t.StringsOf("en")["common.cancel"]);
+        Assert.Contains(folder.Log, l => l.Contains("en.json lacks"));
+
+        Assert.True(t.SetLanguage("fr"));
+        Assert.Equal("Cancel", t.T("common.cancel"));                          // French falls back to the completed English
+        Assert.True(t.Has("library.title"));
     }
 
     [Fact]

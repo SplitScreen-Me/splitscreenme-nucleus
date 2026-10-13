@@ -40,13 +40,19 @@ namespace Nucleus.Gaming.Localization
         private readonly object gate = new object();
         private readonly ConcurrentDictionary<string, byte> reported = new ConcurrentDictionary<string, byte>(StringComparer.Ordinal);
         private Dictionary<string, LanguageFile> files = new Dictionary<string, LanguageFile>(StringComparer.OrdinalIgnoreCase);
+        private IReadOnlyDictionary<string, string> englishStrings;
+        private LanguageFile builtInFile;
+        private bool builtInRead;
         private string scanned;
         private volatile State state;
 
         /// <param name="folder">Folder of the language files (<c>i18n</c> next to NucleusCoop.exe).</param>
         /// <param name="locale">Language to use; English when it is not available.</param>
         /// <param name="log">Receives problems (unreadable files, missing keys); each missing key is reported once.</param>
-        /// <param name="builtInEnglish">English file to use when <c>en.json</c> is missing or broken.</param>
+        /// <param name="builtInEnglish">
+        /// English file to use when <c>en.json</c> is missing or broken, and for the keys <c>en.json</c> lacks (an older or
+        /// edited copy).
+        /// </param>
         public Translator(string folder, string locale = DefaultLocale, Action<string> log = null, Func<string> builtInEnglish = null)
         {
             this.folder = folder ?? "";
@@ -165,6 +171,11 @@ namespace Nucleus.Gaming.Localization
 
             lock (gate)
             {
+                if (IsEnglish(locale))
+                {
+                    return englishStrings;
+                }
+
                 return files.TryGetValue(locale ?? "", out LanguageFile file) ? file.Strings : new ReadOnlyDictionary<string, string>(new Dictionary<string, string>());
             }
         }
@@ -182,7 +193,16 @@ namespace Nucleus.Gaming.Localization
         /// plural form: <c>key_zero</c> for 0 when it exists, then <c>key_&lt;category&gt;</c>, <c>key_other</c>, <c>key</c>.
         /// A key missing in English too returns the key itself, logged once.
         /// </summary>
-        public string T(string key, object args = null)
+        public string T(string key, object args = null) => Translate(key, args, plain: false);
+
+        /// <summary>
+        /// Like <see cref="T"/>, without the tags meant for the web UI (<c>&lt;br/&gt;</c> becomes a line break): for
+        /// native windows and plain text. The tags are removed from the string before the placeholders are replaced, so
+        /// values keep their text (<c>List&lt;String&gt;</c> in an error message stays as it is).
+        /// </summary>
+        public string TPlain(string key, object args = null) => Translate(key, args, plain: true);
+
+        private string Translate(string key, object args, bool plain)
         {
             if (string.IsNullOrEmpty(key))
             {
@@ -207,7 +227,7 @@ namespace Nucleus.Gaming.Localization
                 return key;
             }
 
-            return MessageFormat.Format(template, arguments, current.Culture);
+            return MessageFormat.Format(plain ? MessageFormat.StripTags(template) : template, arguments, current.Culture);
         }
 
         private static string Find(IReadOnlyDictionary<string, string> strings, IEnumerable<string> keys)
@@ -304,12 +324,52 @@ namespace Nucleus.Gaming.Localization
                 }
             }
 
-            if (!found.ContainsKey(DefaultLocale))
+            if (!found.TryGetValue(DefaultLocale, out LanguageFile english))
             {
-                found[DefaultLocale] = LoadBuiltInEnglish();
+                english = BuiltInEnglishFile();
+                if (english == null)
+                {
+                    log($"no English strings in {folder}: keys are shown instead of texts");
+                    english = LanguageFile.Parse("{\"_meta\":{\"locale\":\"en\",\"englishName\":\"English\",\"nativeName\":\"English\"}}", DefaultLocale);
+                }
+
+                found[DefaultLocale] = english;
             }
 
             files = found;
+            englishStrings = CompleteEnglish(english);
+        }
+
+        // The English of the folder, completed by the built-in English for the keys it lacks: an en.json kept from an
+        // older version, or edited by hand, must not show keys where the app has a text.
+        private IReadOnlyDictionary<string, string> CompleteEnglish(LanguageFile english)
+        {
+            LanguageFile builtIn = BuiltInEnglishFile();
+            if (builtIn == null || ReferenceEquals(builtIn, english))
+            {
+                return english.Strings;
+            }
+
+            HashSet<string> defined = LanguageFile.BaseKeys(english.Strings.Keys);
+            var complete = english.Strings.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            HashSet<string> added = new HashSet<string>(StringComparer.Ordinal);
+            foreach (KeyValuePair<string, string> pair in builtIn.Strings)
+            {
+                string baseKey = PluralRules.BaseKey(pair.Key);
+                if (!defined.Contains(baseKey))
+                {
+                    complete[pair.Key] = pair.Value;
+                    added.Add(baseKey);
+                }
+            }
+
+            if (added.Count == 0)
+            {
+                return english.Strings;
+            }
+
+            log($"{Path.GetFileName(english.Info.Path ?? "en.json")} lacks {added.Count} strings of this version: using the built-in English for them (first: {added.First()})");
+            return new ReadOnlyDictionary<string, string>(complete);
         }
 
         private IEnumerable<string> SafeFiles(string directory)
@@ -325,12 +385,29 @@ namespace Nucleus.Gaming.Localization
             }
         }
 
-        private LanguageFile LoadBuiltInEnglish()
+        // The built-in English, read once (under the gate); null when there is none or it can't be read.
+        private LanguageFile BuiltInEnglishFile()
         {
+            if (!builtInRead)
+            {
+                builtInRead = true;
+                builtInFile = ReadBuiltInEnglish();
+            }
+
+            return builtInFile;
+        }
+
+        private LanguageFile ReadBuiltInEnglish()
+        {
+            if (builtInEnglish == null)
+            {
+                return null;
+            }
+
             string json = null;
             try
             {
-                json = builtInEnglish?.Invoke();
+                json = builtInEnglish();
             }
             catch (Exception e)
             {
@@ -349,8 +426,7 @@ namespace Nucleus.Gaming.Localization
                 }
             }
 
-            log($"no English strings in {folder}: keys are shown instead of texts");
-            return LanguageFile.Parse("{\"_meta\":{\"locale\":\"en\",\"englishName\":\"English\",\"nativeName\":\"English\"}}", DefaultLocale);
+            return null;
         }
 
         // Switches the snapshot to an available language (under the gate).
@@ -368,14 +444,13 @@ namespace Nucleus.Gaming.Localization
 
         private State Build(string locale)
         {
-            LanguageFile english = files[DefaultLocale];
             LanguageFile file = files[locale];
             return new State
             {
                 Info = file.Info,
                 Culture = CultureFor(file.Info.Locale),
-                English = english.Strings,
-                Strings = IsEnglish(file.Info.Locale) ? english.Strings : file.Strings,
+                English = englishStrings,
+                Strings = IsEnglish(file.Info.Locale) ? englishStrings : file.Strings,
             };
         }
 

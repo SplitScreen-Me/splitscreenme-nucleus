@@ -7,7 +7,7 @@ namespace Nucleus.Gaming.Localization
     /// <summary>
     /// The app's strings, in the language the user chose (docs/webui/i18n.md). Every process uses the same files:
     /// <c>i18n\&lt;locale&gt;.json</c> next to NucleusCoop.exe, English as the per-key fallback, and a copy of English built
-    /// into Nucleus.Gaming when <c>en.json</c> is missing.
+    /// into Nucleus.Gaming when <c>en.json</c> is missing or lacks a key.
     /// <code>
     /// using static Nucleus.Gaming.Localization.I18n;
     /// string title = T("engine.startChecks.missingFile.title");
@@ -71,8 +71,11 @@ namespace Nucleus.Gaming.Localization
         /// </summary>
         public static string T(string key, object args = null) => Current.T(key, args);
 
-        /// <summary>Like <see cref="T"/>, without the tags meant for the web UI: for native windows and plain text.</summary>
-        public static string TPlain(string key, object args = null) => MessageFormat.StripTags(Current.T(key, args));
+        /// <summary>
+        /// Like <see cref="T"/>, without the tags meant for the web UI: for native windows and plain text. Only the tags of
+        /// the string are removed; the values are inserted as they are.
+        /// </summary>
+        public static string TPlain(string key, object args = null) => Current.TPlain(key, args);
 
         /// <summary>Whether a key exists (in the language in use or in English).</summary>
         public static bool Has(string key) => Current.Has(key);
