@@ -10,6 +10,7 @@ using Nucleus.Coop.Services.Library;
 using Nucleus.Coop.Services.Startup;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Localization;
 
 namespace Nucleus.Coop.Services.Handlers;
 
@@ -74,13 +75,13 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
 
         if (!File.Exists(path))
         {
-            throw new BridgeException(BridgeErrorKind.NotFound, "The file does not exist.", new { path });
+            throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.errors.fileNotFound"), new { path });
         }
 
         string extension = Path.GetExtension(path).ToLowerInvariant();
         if (extension != ".nc" && extension != ".zip" && extension != ".js")
         {
-            throw new BridgeException(BridgeErrorKind.InvalidParams, "Unsupported file: use a handler archive (.nc, .zip) or a handler script (.js).", new { reason = "unsupportedFile" });
+            throw new BridgeException(BridgeErrorKind.InvalidParams, I18n.T("host.handlers.errors.unsupportedFile"), new { reason = "unsupportedFile" });
         }
 
         RefuseDuringSession();
@@ -96,7 +97,7 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
                 HandlerScriptInfo info = HandlerScript.ParseFile(path);
                 if (!info.IsHandler)
                 {
-                    throw new BridgeException(BridgeErrorKind.InvalidParams, "This file is not a Nucleus handler (no Game.GameName or Game.ExecutableName).", new { reason = "notAHandler" });
+                    throw new BridgeException(BridgeErrorKind.InvalidParams, I18n.T("host.handlers.errors.notAHandler"), new { reason = "notAHandler" });
                 }
 
                 string title = Path.GetFileNameWithoutExtension(path);
@@ -232,13 +233,13 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
 
         if (!Manager.Games.TryGetValue(gameId, out GenericGameInfo game))
         {
-            throw new BridgeException(BridgeErrorKind.NotFound, "Game not found.", new { gameId });
+            throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.errors.gameNotFound"), new { gameId });
         }
 
         string? handlerId = game.Hub?.Handler?.Id;
         if (!HubClient.IsValidHubId(handlerId))
         {
-            throw new BridgeException(BridgeErrorKind.Conflict, "This handler does not come from the hub, so it can't be updated from there.", new { reason = "notFromHub" });
+            throw new BridgeException(BridgeErrorKind.Conflict, I18n.T("host.handlers.errors.notFromHub"), new { reason = "notFromHub" });
         }
 
         return InstallFromHubAsync(handlerId!, game.GUID, cancellationToken);
@@ -258,7 +259,7 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
             try
             {
                 handler = await core.Hub.GetHandlerAsync(handlerId, cancellationToken)
-                    ?? throw new BridgeException(BridgeErrorKind.NotFound, "The hub does not know this handler.", new { handlerId });
+                    ?? throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.handlers.errors.unknownToHub"), new { handlerId });
                 core.HubStatus.Report(true);
             }
             catch (HubUnavailableException e)
@@ -270,12 +271,12 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
             HubPackageInfo? package = handler.Package;
             if (package == null || package.Version < 1)
             {
-                throw new BridgeException(BridgeErrorKind.NotFound, "This handler has no published package on the hub.", new { handlerId });
+                throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.handlers.errors.noPackage"), new { handlerId });
             }
 
             if (package.Sha256.Length == 0)
             {
-                throw new BridgeException(BridgeErrorKind.Unavailable, "The hub did not give the checksum of this handler's package, so it can't be verified. Try again later.", new { reason = "downloadFailed" });
+                throw new BridgeException(BridgeErrorKind.Unavailable, I18n.T("host.handlers.errors.noChecksum"), new { reason = "downloadFailed" });
             }
 
             string handlers = Manager.GetJsScriptsPath();
@@ -317,7 +318,7 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            Progress(handlerId, gameId, HandlerInstallStage.Failed, null, "Cancelled.");
+            Progress(handlerId, gameId, HandlerInstallStage.Failed, null, I18n.T("common.errors.cancelled"));
             throw;
         }
         catch (InvalidHandlerPackageException e)
@@ -327,7 +328,7 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
         }
         catch (Exception e)
         {
-            Progress(handlerId, gameId, HandlerInstallStage.Failed, null, e is BridgeException ? e.Message : "The handler could not be installed: " + e.Message);
+            Progress(handlerId, gameId, HandlerInstallStage.Failed, null, e is BridgeException ? e.Message : I18n.T("host.handlers.errors.installFailed", new { error = e.Message }));
             throw;
         }
         finally
@@ -355,7 +356,7 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
         if (!overwrite && (titleExists || sameGameTitle != null))
         {
             string name = sameGame?.GameName ?? title;
-            throw new BridgeException(BridgeErrorKind.Conflict, $"A handler for {name} is already installed.", new { reason = "alreadyInstalled", gameId = sameGame?.GUID, gameName = name });
+            throw new BridgeException(BridgeErrorKind.Conflict, I18n.T("host.handlers.errors.alreadyInstalled", new { game = name }), new { reason = "alreadyInstalled", gameId = sameGame?.GUID, gameName = name });
         }
 
         return sameGameTitle != null && !string.Equals(sameGameTitle, title, StringComparison.OrdinalIgnoreCase) ? sameGameTitle : null;
@@ -382,7 +383,7 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
         GenericGameInfo? info = manager.AddScript(installed.Title, new[] { false, false });
         if (info == null || string.IsNullOrEmpty(info.GUID))
         {
-            throw new BridgeException(BridgeErrorKind.Conflict, "The handler was installed but could not be loaded: it has errors.", new { reason = "invalidHandler", file = installed.Title + ".js" });
+            throw new BridgeException(BridgeErrorKind.Conflict, I18n.T("host.handlers.errors.invalidHandler"), new { reason = "invalidHandler", file = installed.Title + ".js" });
         }
 
         // The same file may have declared another GUID before: that game's parsed handler is gone from disk.
@@ -467,12 +468,12 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
     {
         if (NucleusCore.SessionRunning)
         {
-            throw new BridgeException(BridgeErrorKind.Conflict, "Stop the running game session before installing handlers.", new { reason = "sessionRunning" });
+            throw new BridgeException(BridgeErrorKind.Conflict, I18n.T("host.handlers.errors.sessionRunning"), new { reason = "sessionRunning" });
         }
     }
 
     private BridgeException Offline(HubUnavailableException e) =>
-        new BridgeException(BridgeErrorKind.Unavailable, core.Hub.DisplayName + " can't be reached: " + e.Message, new { reason = "offline" });
+        new BridgeException(BridgeErrorKind.Unavailable, I18n.T("host.hub.errors.offlineBecause", new { hub = core.Hub.DisplayName, error = e.Message }), new { reason = "offline" });
 
     private void Progress(string source, string? gameId, HandlerInstallStage stage, int? percent, string? error = null)
     {

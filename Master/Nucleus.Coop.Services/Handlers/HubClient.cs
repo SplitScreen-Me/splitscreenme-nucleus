@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Nucleus.Gaming;
+using Nucleus.Gaming.Localization;
 
 namespace Nucleus.Coop.Services.Handlers;
 
@@ -29,7 +30,7 @@ public sealed class PackageChecksumException : Exception
 {
     /// <summary>Creates the exception.</summary>
     public PackageChecksumException(string expected, string actual)
-        : base($"The downloaded package does not match the one published on the hub (SHA-256 {actual}, expected {expected}). It was not installed.")
+        : base(I18n.T("host.hub.errors.checksumMismatch", new { actual, expected }))
     {
         Expected = expected;
         Actual = actual;
@@ -250,7 +251,7 @@ public sealed class HubClient : IDisposable
         }
         catch (Exception e) when (e is Newtonsoft.Json.JsonException)
         {
-            throw new HubUnavailableException("The hub sent an unexpected answer.", e);
+            throw new HubUnavailableException(I18n.T("host.hub.errors.unexpectedAnswer"), e);
         }
     }
 
@@ -285,7 +286,7 @@ public sealed class HubClient : IDisposable
 
             if (!response.IsSuccessStatusCode)
             {
-                throw new HubUnavailableException(FailureMessage("", response));
+                throw new HubUnavailableException(FailureMessage(download: false, response));
             }
 
             return await response.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -306,7 +307,7 @@ public sealed class HubClient : IDisposable
             using HttpResponseMessage response = await http.GetAsync(url, HttpCompletionOption.ResponseContentRead, linked.Token).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode)
             {
-                throw new HubUnavailableException(FailureMessage("", response));
+                throw new HubUnavailableException(FailureMessage(download: false, response));
             }
 
             return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
@@ -335,7 +336,7 @@ public sealed class HubClient : IDisposable
             {
                 if (!response.IsSuccessStatusCode)
                 {
-                    throw new HubUnavailableException(FailureMessage("The download failed: ", response));
+                    throw new HubUnavailableException(FailureMessage(download: true, response));
                 }
 
                 long? total = response.Content.Headers.ContentLength;
@@ -399,22 +400,24 @@ public sealed class HubClient : IDisposable
     private static int Int(JToken? token) =>
         token != null && token.Type == JTokenType.Integer && int.TryParse(token.ToString(), out int value) ? value : -1;
 
-    /// <summary>Message of an HTTP failure; a 429 says when to try again (<c>Retry-After</c>).</summary>
-    private static string FailureMessage(string prefix, HttpResponseMessage response)
+    /// <summary>Message of an HTTP failure (of a package download or another request); a 429 says when to try again (<c>Retry-After</c>).</summary>
+    private static string FailureMessage(bool download, HttpResponseMessage response)
     {
-        string reason;
         if ((int)response.StatusCode == 429)
         {
             TimeSpan? wait = response.Headers.RetryAfter?.Delta;
-            reason = "the hub is busy (too many requests from this address)"
-                + (wait.HasValue ? $", try again in {Math.Max(1, (int)Math.Ceiling(wait.Value.TotalSeconds))} s." : ", try again later.");
-        }
-        else
-        {
-            reason = $"the server answered {(int)response.StatusCode} {response.ReasonPhrase}.";
+            if (wait.HasValue)
+            {
+                int count = Math.Max(1, (int)Math.Ceiling(wait.Value.TotalSeconds));
+                return download ? I18n.T("host.hub.errors.downloadBusyRetryIn", new { count }) : I18n.T("host.hub.errors.busyRetryIn", new { count });
+            }
+
+            return download ? I18n.T("host.hub.errors.downloadBusy") : I18n.T("host.hub.errors.busy");
         }
 
-        return prefix.Length == 0 ? char.ToUpperInvariant(reason[0]) + reason.Substring(1) : prefix + reason;
+        // The status code as a string: digits printed as they are.
+        var status = new { status = ((int)response.StatusCode).ToString(System.Globalization.CultureInfo.InvariantCulture), reason = response.ReasonPhrase ?? "" };
+        return download ? I18n.T("host.hub.errors.downloadHttpStatus", status) : I18n.T("host.hub.errors.httpStatus", status);
     }
 
     private static void EnsureTls12()
@@ -439,7 +442,9 @@ public sealed class HubClient : IDisposable
 
     private static HubUnavailableException Unavailable(Exception e, bool timedOut) =>
         e as HubUnavailableException
-        ?? new HubUnavailableException(timedOut || e is OperationCanceledException ? "The server did not answer in time." : "The server could not be reached: " + (e.InnerException?.Message ?? e.Message), e);
+        ?? new HubUnavailableException(timedOut || e is OperationCanceledException
+            ? I18n.T("host.hub.errors.timeout")
+            : I18n.T("host.hub.errors.unreachable", new { error = e.InnerException?.Message ?? e.Message }), e);
 
     private static void TryDelete(string path)
     {

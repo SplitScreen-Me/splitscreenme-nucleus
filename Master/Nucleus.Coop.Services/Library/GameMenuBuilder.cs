@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Nucleus.Bridge.Contracts;
+using static Nucleus.Gaming.Localization.I18n;
 
 namespace Nucleus.Coop.Services.Library;
 
@@ -199,24 +200,24 @@ public static class GameMenuBuilder
         var info = new List<GameMenuItem>();
         if (c.HasNotes)
         {
-            info.Add(ClientSide(Action(Ids.Notes, "Handler Author's Notes", "Shows the notes written by the handler's author."), GameMenuClientAction.ShowNotes));
+            info.Add(ClientSide(Action(Ids.Notes, T("host.library.gameMenu.notes.label"), T("host.library.gameMenu.notes.description")), GameMenuClientAction.ShowNotes));
         }
 
-        info.Add(ClientSide(Action(Ids.Details, "Nucleus Game Details", "Executable, architecture, handler file, content folder and supported inputs."), GameMenuClientAction.ShowDetails));
+        info.Add(ClientSide(Action(Ids.Details, T("host.library.gameMenu.details.label"), T("host.library.gameMenu.details.description")), GameMenuClientAction.ShowDetails));
         groups.Add(info);
 
         // Files.
         var files = new List<GameMenuItem>
         {
-            Action(Ids.OpenHandler, "Open Game Handler", "Opens the handler script in your text editor."),
-            Action(Ids.OpenExeFolder, "Open Original Exe Path", "Opens the folder of the game executable."),
+            Action(Ids.OpenHandler, T("host.library.gameMenu.openHandler.label"), T("host.library.gameMenu.openHandler.description")),
+            Action(Ids.OpenExeFolder, T("host.library.gameMenu.openExeFolder.label"), T("host.library.gameMenu.openExeFolder.description")),
         };
         if (c.ContentFolderExists)
         {
-            files.Add(Action(Ids.OpenContentFolder, "Open Nucleus Content Folder", "Opens the folder that holds the game instances."));
-            GameMenuItem delete = Action(Ids.DeleteContentFolder, "Delete Game Content Folder", "Closes leftover game processes and deletes the game instances.");
+            files.Add(Action(Ids.OpenContentFolder, T("host.library.gameMenu.openContentFolder.label"), T("host.library.gameMenu.openContentFolder.description")));
+            GameMenuItem delete = Action(Ids.DeleteContentFolder, T("host.library.gameMenu.deleteContentFolder.label"), T("host.library.gameMenu.deleteContentFolder.description"));
             delete.Danger = true;
-            delete.Confirm = $"Are you sure you want to delete '{c.ContentFolder}' and all its contents? Running {c.GameName} processes are closed first.";
+            delete.Confirm = T("host.library.gameMenu.deleteContentFolder.confirm", new { folder = c.ContentFolder, game = c.GameName });
             files.Add(delete);
         }
 
@@ -224,20 +225,20 @@ public static class GameMenuBuilder
 
         // Game files of each player (dynamic submenus, legacy order).
         var paths = new List<GameMenuItem>();
-        AddFolderSubmenus(paths, c.UserConfigFolders, Ids.OpenUserConfig, "Open UserProfile Config Path", Ids.DeleteUserConfig, "Delete UserProfile Config Path");
-        AddFolderSubmenus(paths, c.UserSaveFolders, Ids.OpenUserSave, "Open UserProfile Save Path", Ids.DeleteUserSave, "Delete UserProfile Save Path");
-        AddFolderSubmenus(paths, c.DocumentsConfigFolders, Ids.OpenDocumentsConfig, "Open Document Config Path", Ids.DeleteDocumentsConfig, "Delete Document Config Path");
-        AddFolderSubmenus(paths, c.DocumentsSaveFolders, Ids.OpenDocumentsSave, "Open Document Save Path", Ids.DeleteDocumentsSave, "Delete Document Save Path");
+        AddFolderSubmenus(paths, c.UserConfigFolders, Ids.OpenUserConfig, T("host.library.gameMenu.openUserConfig.label"), Ids.DeleteUserConfig, T("host.library.gameMenu.deleteUserConfig.label"));
+        AddFolderSubmenus(paths, c.UserSaveFolders, Ids.OpenUserSave, T("host.library.gameMenu.openUserSave.label"), Ids.DeleteUserSave, T("host.library.gameMenu.deleteUserSave.label"));
+        AddFolderSubmenus(paths, c.DocumentsConfigFolders, Ids.OpenDocumentsConfig, T("host.library.gameMenu.openDocumentsConfig.label"), Ids.DeleteDocumentsConfig, T("host.library.gameMenu.deleteDocumentsConfig.label"));
+        AddFolderSubmenus(paths, c.DocumentsSaveFolders, Ids.OpenDocumentsSave, T("host.library.gameMenu.openDocumentsSave.label"), Ids.DeleteDocumentsSave, T("host.library.gameMenu.deleteDocumentsSave.label"));
         if (c.BackupNicknames.Count > 0)
         {
-            var open = Submenu(Ids.OpenBackup, "Open Backup Folder", "Files the handler backs up for each player between sessions.");
-            var delete = Submenu(Ids.DeleteBackup, "Delete Backup Folder", null);
+            var open = Submenu(Ids.OpenBackup, T("host.library.gameMenu.openBackup.label"), T("host.library.gameMenu.openBackup.description"));
+            var delete = Submenu(Ids.DeleteBackup, T("host.library.gameMenu.deleteBackup.label"), null);
             foreach (string nickname in c.BackupNicknames)
             {
                 open.Children.Add(Action(Ids.OpenBackup + ":" + nickname, nickname, null));
                 GameMenuItem child = Action(Ids.DeleteBackup + ":" + nickname, nickname, null);
                 child.Danger = true;
-                child.Confirm = $"Do you really want to delete {nickname}'s backup folder of {c.GameName}?";
+                child.Confirm = T("host.library.gameMenu.deleteBackup.confirm", new { nickname, game = c.GameName });
                 delete.Children.Add(child);
             }
 
@@ -251,20 +252,20 @@ public static class GameMenuBuilder
         var gamepads = new List<GameMenuItem>();
         if (ShowUseApiIndex(c))
         {
-            gamepads.Add(Toggle(Ids.UseApiIndex, "Assign Gamepads By Index", c.UseApiIndex,
-                "Profiles store gamepad API indexes instead of hardware ids. Turns off assignment on button press."));
+            gamepads.Add(Toggle(Ids.UseApiIndex, T("host.library.gameMenu.useApiIndex.label"), c.UseApiIndex,
+                T("host.library.gameMenu.useApiIndex.description")));
         }
 
         if (ShowUseGamepadButtonPress(c))
         {
-            gamepads.Add(Toggle(Ids.UseGamepadButtonPress, "Assign Gamepads On Button Press (profile)", c.ProfileAssignGamepadByButtonPress,
-                "Profiles assign gamepads by button press instead of reusing the saved ones. Turns off assignment by index."));
+            gamepads.Add(Toggle(Ids.UseGamepadButtonPress, T("host.library.gameMenu.useGamepadButtonPress.label"), c.ProfileAssignGamepadByButtonPress,
+                T("host.library.gameMenu.useGamepadButtonPress.description")));
         }
 
         if (ShowUseApiIndexForGuests(c))
         {
-            gamepads.Add(Toggle(Ids.UseApiIndexForGuests, "Assign Gamepads By Index For Guests Only", c.UseApiIndexForGuests,
-                "Only guest players (several players per instance) are assigned by API index."));
+            gamepads.Add(Toggle(Ids.UseApiIndexForGuests, T("host.library.gameMenu.useApiIndexForGuests.label"), c.UseApiIndexForGuests,
+                T("host.library.gameMenu.useApiIndexForGuests.description")));
         }
 
         groups.Add(gamepads);
@@ -273,18 +274,18 @@ public static class GameMenuBuilder
         var behaviour = new List<GameMenuItem>();
         if (ShowKeepInstancesFolder(c))
         {
-            behaviour.Add(Toggle(Ids.KeepInstancesFolder, "Keep Instances Content Folder", c.KeepSymLink,
-                "Keeps the game instances when the game is selected again or the session ends, instead of rebuilding them."));
+            behaviour.Add(Toggle(Ids.KeepInstancesFolder, T("host.library.gameMenu.keepInstancesFolder.label"), c.KeepSymLink,
+                T("host.library.gameMenu.keepInstancesFolder.description")));
         }
 
         if (ShowDisableProfiles(c))
         {
-            behaviour.Add(Toggle(Ids.DisableProfiles, "Disable Profile", c.DisableProfiles,
-                "Turns profiles off for this game: the global settings are used instead."));
+            behaviour.Add(Toggle(Ids.DisableProfiles, T("host.library.gameMenu.disableProfiles.label"), c.DisableProfiles,
+                T("host.library.gameMenu.disableProfiles.description")));
         }
 
-        behaviour.Add(Toggle(Ids.DisableHandlerUpdate, "Disable Handler Update", !c.CheckUpdate,
-            "Stops checking the hub for newer versions of this handler."));
+        behaviour.Add(Toggle(Ids.DisableHandlerUpdate, T("host.library.gameMenu.disableHandlerUpdate.label"), !c.CheckUpdate,
+            T("host.library.gameMenu.disableHandlerUpdate.description")));
         groups.Add(behaviour);
 
         // Appearance and emulation.
@@ -292,15 +293,15 @@ public static class GameMenuBuilder
         {
             ChangeIconItem(),
         };
-        var assets = Submenu(Ids.GameAssets, "Game Assets", "Downloaded cover and screenshots.");
+        var assets = Submenu(Ids.GameAssets, T("host.library.gameMenu.gameAssets.label"), T("host.library.gameMenu.gameAssets.description"));
         if (c.CoverExists)
         {
-            assets.Children.Add(Action(Ids.OpenCoverFolder, "Open Cover Folder", null));
+            assets.Children.Add(Action(Ids.OpenCoverFolder, T("host.library.gameMenu.openCoverFolder.label"), null));
         }
 
         if (c.ScreenshotsExist)
         {
-            assets.Children.Add(Action(Ids.OpenScreenshotsFolder, "Open Screenshots Folder", null));
+            assets.Children.Add(Action(Ids.OpenScreenshotsFolder, T("host.library.gameMenu.openScreenshotsFolder.label"), null));
         }
 
         if (assets.Children.Count > 0)
@@ -314,8 +315,9 @@ public static class GameMenuBuilder
             {
                 Id = Ids.SteamLanguage,
                 Kind = GameMenuItemKind.Choice,
-                Label = "Steam Language",
-                Description = "Language reported by the Steam emulator for this game. \"App Setting\" uses the global setting.",
+                Label = T("host.library.gameMenu.steamLanguage.label"),
+                // The choices are the values stored in the game's metadata, shown as they are (no labels in the contract).
+                Description = T("host.library.gameMenu.steamLanguage.description", new { appSetting = AppSettingLanguage }),
                 Choices = SteamLanguages.ToList(),
                 Value = SteamLanguages.Contains(c.SteamLanguage) ? c.SteamLanguage : AppSettingLanguage,
             });
@@ -324,9 +326,9 @@ public static class GameMenuBuilder
         groups.Add(look);
 
         // Removal.
-        GameMenuItem remove = Action(Ids.Remove, "Remove Game From List", "Removes the game from the library. The handler stays installed.");
+        GameMenuItem remove = Action(Ids.Remove, T("host.library.gameMenu.remove.label"), T("host.library.gameMenu.remove.description"));
         remove.Danger = true;
-        remove.Confirm = $"Are you sure you want to remove {c.GameName} from your library? The handler stays installed.";
+        remove.Confirm = T("host.library.gameMenu.remove.confirm", new { game = c.GameName });
         groups.Add(new List<GameMenuItem> { remove });
 
         var menu = new GameMenu { GameId = c.GameId };
@@ -365,7 +367,7 @@ public static class GameMenuBuilder
             open.Children.Add(Action(openId + ":" + folder.Path, folder.Label, folder.Path));
             GameMenuItem child = Action(deleteId + ":" + folder.Path, folder.Label, folder.Path);
             child.Danger = true;
-            child.Confirm = $"Are you sure you want to delete '{folder.Path}' and all its contents?";
+            child.Confirm = T("host.library.gameMenu.deleteFolderConfirm", new { folder = folder.Path });
             delete.Children.Add(child);
         }
 
@@ -382,12 +384,12 @@ public static class GameMenuBuilder
     // Same file types as the legacy ChangeGameIcon dialog.
     private static GameMenuItem ChangeIconItem()
     {
-        GameMenuItem item = ClientSide(Action(Ids.ChangeIcon, "Change Game Icon", "Pick an image or an executable to use as the game icon."), GameMenuClientAction.PickFile);
+        GameMenuItem item = ClientSide(Action(Ids.ChangeIcon, T("host.library.gameMenu.changeIcon.label"), T("host.library.gameMenu.changeIcon.description")), GameMenuClientAction.PickFile);
         item.FileFilters = new List<FileFilter>
         {
-            new FileFilter { Name = "Images and executables", Extensions = new List<string> { "png", "jpg", "jpeg", "jfif", "gif", "bmp", "tif", "tiff", "ico", "exe" } },
-            new FileFilter { Name = "Images", Extensions = new List<string> { "png", "jpg", "jpeg", "jfif", "gif", "bmp", "tif", "tiff", "ico" } },
-            new FileFilter { Name = "Executables", Extensions = new List<string> { "exe" } },
+            new FileFilter { Name = T("host.library.gameMenu.changeIcon.filters.imagesAndExecutables"), Extensions = new List<string> { "png", "jpg", "jpeg", "jfif", "gif", "bmp", "tif", "tiff", "ico", "exe" } },
+            new FileFilter { Name = T("host.library.gameMenu.changeIcon.filters.images"), Extensions = new List<string> { "png", "jpg", "jpeg", "jfif", "gif", "bmp", "tif", "tiff", "ico" } },
+            new FileFilter { Name = T("host.library.gameMenu.changeIcon.filters.executables"), Extensions = new List<string> { "exe" } },
         };
         return item;
     }

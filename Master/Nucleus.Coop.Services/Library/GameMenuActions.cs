@@ -12,6 +12,7 @@ using Nucleus.Coop.Services.Startup;
 using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Localization;
 
 namespace Nucleus.Coop.Services.Library;
 
@@ -89,7 +90,7 @@ public sealed class GameMenuActions
         // Only items the menu offers right now (also checks dynamic targets: real paths and nicknames in the ids).
         if (!Contains(GameMenuBuilder.Build(context).Items, itemId))
         {
-            throw new BridgeException(BridgeErrorKind.NotFound, "This menu item is not available for this game.", new { reason = "itemUnavailable", itemId });
+            throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.library.errors.itemUnavailable"), new { reason = "itemUnavailable", itemId });
         }
 
         (string action, string? target) = GameMenuBuilder.ParseId(itemId);
@@ -107,7 +108,7 @@ public sealed class GameMenuActions
                 string? exeFolder = string.IsNullOrEmpty(entry.ExePath) ? null : Path.GetDirectoryName(entry.ExePath);
                 if (exeFolder == null || !Directory.Exists(exeFolder))
                 {
-                    throw new BridgeException(BridgeErrorKind.NotFound, "Unable to open the original executable path for this game: the folder does not exist.");
+                    throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.library.errors.exeFolderMissing"));
                 }
 
                 OpenFolder(exeFolder);
@@ -124,7 +125,7 @@ public sealed class GameMenuActions
                 if (!deleted)
                 {
                     throw new BridgeException(BridgeErrorKind.Conflict,
-                        "Some files of the content folder are locked by another program, and Nucleus could not delete them. Close that program or restart your computer, then try again.",
+                        I18n.T("host.library.errors.contentFilesLocked"),
                         new { reason = "filesLocked", path = game.Content_Folder });
                 }
 
@@ -210,7 +211,7 @@ public sealed class GameMenuActions
             case GameMenuBuilder.Ids.SteamLanguage:
                 if (value == null || !GameMenuBuilder.SteamLanguages.Contains(value))
                 {
-                    throw new BridgeException(BridgeErrorKind.InvalidParams, "Choose one of the listed Steam languages.", new { reason = "invalidValue" });
+                    throw new BridgeException(BridgeErrorKind.InvalidParams, I18n.T("host.library.errors.invalidSteamLanguage"), new { reason = "invalidValue" });
                 }
 
                 meta.SteamLanguage = value;
@@ -254,7 +255,7 @@ public sealed class GameMenuActions
     {
         if (!File.Exists(path))
         {
-            throw new BridgeException(BridgeErrorKind.NotFound, "The handler file does not exist.", new { path });
+            throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.library.errors.handlerFileMissing"), new { path });
         }
 
         string editor = App_Misc.TextEditorPath;
@@ -279,7 +280,7 @@ public sealed class GameMenuActions
     {
         if (!Directory.Exists(folder))
         {
-            throw new BridgeException(BridgeErrorKind.NotFound, "The folder does not exist anymore.", new { path = folder });
+            throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.library.errors.folderGone"), new { path = folder });
         }
 
         Process.Start(new ProcessStartInfo("explorer.exe", "\"" + folder + "\"") { UseShellExecute = true });
@@ -289,7 +290,7 @@ public sealed class GameMenuActions
     {
         if (!File.Exists(file))
         {
-            throw new BridgeException(BridgeErrorKind.NotFound, "The file does not exist anymore.", new { path = file });
+            throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.library.errors.fileGone"), new { path = file });
         }
 
         Process.Start(new ProcessStartInfo("explorer.exe", "/select,\"" + file + "\"") { UseShellExecute = true });
@@ -302,7 +303,7 @@ public sealed class GameMenuActions
     {
         if (NucleusCore.SessionRunning)
         {
-            throw new BridgeException(BridgeErrorKind.Conflict, "Stop the running game session first.", new { reason = "sessionRunning" });
+            throw new BridgeException(BridgeErrorKind.Conflict, I18n.T("host.library.errors.sessionRunning"), new { reason = "sessionRunning" });
         }
     }
 
@@ -320,7 +321,7 @@ public sealed class GameMenuActions
         }
         catch (Exception e) when (e is IOException || e is UnauthorizedAccessException)
         {
-            throw new BridgeException(BridgeErrorKind.Conflict, $"'{folder}' could not be deleted: {e.Message}", new { reason = "deleteFailed", path = folder });
+            throw new BridgeException(BridgeErrorKind.Conflict, I18n.T("host.library.errors.deleteFailed", new { folder, error = e.Message }), new { reason = "deleteFailed", path = folder });
         }
     }
 
@@ -360,11 +361,13 @@ public sealed class GameMenuActions
                 if (documents)
                 {
                     DirectoryInfo? parent = Directory.GetParent(trimmed);
-                    label = (parent?.Parent?.Name == "NucleusCoop" ? "Nucleus: " : "") + (parent?.Name ?? trimmed);
+                    string name = parent?.Name ?? trimmed;
+                    label = parent?.Parent?.Name == "NucleusCoop" ? I18n.T("host.library.gameMenu.nucleusFolder", new { name }) : name;
                 }
                 else
                 {
-                    label = (Directory.GetParent(trimmed)?.Name == "NucleusCoop" ? "Nucleus: " : "") + Path.GetFileName(trimmed);
+                    string name = Path.GetFileName(trimmed);
+                    label = Directory.GetParent(trimmed)?.Name == "NucleusCoop" ? I18n.T("host.library.gameMenu.nucleusFolder", new { name }) : name;
                 }
 
                 targets.Add(new MenuFolderTarget { Label = label, Path = path });
@@ -452,12 +455,12 @@ public sealed class GameMenuActions
 
         if (!IconExtensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase))
         {
-            throw new BridgeException(BridgeErrorKind.InvalidParams, "Use an image (png, jpg, gif, bmp, tif, ico) or an executable.", new { reason = "unsupportedFile" });
+            throw new BridgeException(BridgeErrorKind.InvalidParams, I18n.T("host.library.errors.unsupportedIcon"), new { reason = "unsupportedFile" });
         }
 
         if (!File.Exists(path))
         {
-            throw new BridgeException(BridgeErrorKind.NotFound, "The file does not exist.", new { path });
+            throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.errors.fileNotFound"), new { path });
         }
 
         entry.Game.MetaInfo.IconPath = path;

@@ -11,6 +11,7 @@ using Nucleus.Coop.Services.Startup;
 using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Localization;
 
 namespace Nucleus.Coop.Services.Library;
 
@@ -128,12 +129,12 @@ public sealed class LibraryService : ILibraryService
                 .Where(c => !File.Exists(Path.Combine(folder, c)) && !Directory.Exists(Path.Combine(folder, c)))
                 .ToList();
             return new BridgeException(BridgeErrorKind.NotFound,
-                $"The {byName.GameName} handler expects {string.Join(", ", missing)} next to {fileName}. Pick the executable inside the game's install folder.",
+                I18n.T("host.library.errors.contextMissing", new { game = byName.GameName, files = string.Join(", ", missing), executable = fileName }),
                 new { reason = "contextMissing", executable = fileName, gameId = byName.GUID, missing });
         }
 
         return new BridgeException(BridgeErrorKind.NotFound,
-            $"No installed handler supports {fileName}. Install the game's handler first.",
+            I18n.T("host.library.errors.noHandler", new { executable = fileName }),
             new { reason = "noHandler", executable = fileName });
     }
 
@@ -152,7 +153,7 @@ public sealed class LibraryService : ILibraryService
         UserGameInfo? other = Manager.User.Games.FirstOrDefault(g => g != entry && string.Equals(g.ExePath, path, StringComparison.OrdinalIgnoreCase));
         if (other != null)
         {
-            throw new BridgeException(BridgeErrorKind.Conflict, $"This executable is already used by {other.Game?.GameName ?? other.GameGuid} in your library.", new { reason = "alreadyInLibrary", gameId = other.GameGuid });
+            throw new BridgeException(BridgeErrorKind.Conflict, I18n.T("host.library.errors.alreadyInLibrary", new { game = other.Game?.GameName ?? other.GameGuid }), new { reason = "alreadyInLibrary", gameId = other.GameGuid });
         }
 
         entry.ExePath = path; // metaInfo, profiles and assets are keyed by the game id: nothing else moves
@@ -190,7 +191,7 @@ public sealed class LibraryService : ILibraryService
 
         if (!Directory.Exists(folder))
         {
-            throw new BridgeException(BridgeErrorKind.NotFound, "The folder does not exist.", new { path = folder });
+            throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.errors.folderNotFound"), new { path = folder });
         }
 
         return Task.Run(() => ExecutableFinder.Find(folder, name, CancellationToken.None));
@@ -205,7 +206,7 @@ public sealed class LibraryService : ILibraryService
             GenericGameInfo game = Find(request!.GameId).Game;
             if (!HubClient.IsValidHubId(game.Hub?.Handler?.Id))
             {
-                throw new BridgeException(BridgeErrorKind.Unavailable, "This game's handler does not come from the hub: no artwork to download.", new { reason = "noHubHandler" });
+                throw new BridgeException(BridgeErrorKind.Unavailable, I18n.T("host.library.errors.noHubHandler"), new { reason = "noHubHandler" });
             }
 
             targets = new List<(string, string)> { (game.GUID, game.Hub!.Handler.Id) };
@@ -232,7 +233,7 @@ public sealed class LibraryService : ILibraryService
     {
         if (NucleusCore.SessionRunning)
         {
-            throw new BridgeException(BridgeErrorKind.Conflict, "Stop the running game session before reloading handlers.", new { reason = "sessionRunning" });
+            throw new BridgeException(BridgeErrorKind.Conflict, I18n.T("host.library.errors.sessionRunningReload"), new { reason = "sessionRunning" });
         }
 
         await ReloadHandlersAsync(core);
@@ -359,7 +360,7 @@ public sealed class LibraryService : ILibraryService
         }
 
         return LibraryEntries().FirstOrDefault(g => string.Equals(g.GameGuid, gameId, StringComparison.OrdinalIgnoreCase))
-            ?? throw new BridgeException(BridgeErrorKind.NotFound, "Game not found.", new { gameId });
+            ?? throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.errors.gameNotFound"), new { gameId });
     }
 
     private static string CheckExecutable(string? rawPath)
@@ -381,13 +382,13 @@ public sealed class LibraryService : ILibraryService
 
         if (!File.Exists(path))
         {
-            throw new BridgeException(BridgeErrorKind.NotFound, "The executable does not exist.", new { reason = "fileNotFound", path });
+            throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.library.errors.executableNotFound"), new { reason = "fileNotFound", path });
         }
 
         if (DriveFormat.IsExFat(path))
         {
             throw new BridgeException(BridgeErrorKind.Conflict,
-                "\"exFAT\" is not a supported drive format: it does not support symbolic links. Move the game to an NTFS drive, or format the drive to NTFS.",
+                I18n.T("host.library.errors.exFat"),
                 new { reason = "exFat" });
         }
 
@@ -398,17 +399,17 @@ public sealed class LibraryService : ILibraryService
     {
         if (!Manager.Games.TryGetValue(handlerGameId, out GenericGameInfo handler))
         {
-            return new BridgeException(BridgeErrorKind.NotFound, "Handler not found.", new { reason = "handlerNotFound", gameId = handlerGameId });
+            return new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.library.errors.handlerNotFound"), new { reason = "handlerNotFound", gameId = handlerGameId });
         }
 
         string expected = handler.ExecutableNames?.Length > 0 ? string.Join(", ", handler.ExecutableNames) : handler.ExecutableName;
         return new BridgeException(BridgeErrorKind.NotFound,
-            $"{Path.GetFileName(path)} does not match the {handler.GameName} handler (it expects {expected}, with the files the handler checks next to it).",
+            I18n.T("host.library.errors.handlerMismatch", new { executable = Path.GetFileName(path), game = handler.GameName, expected }),
             new { reason = "handlerMismatch", expected });
     }
 
     private BridgeException Offline() =>
-        new BridgeException(BridgeErrorKind.Unavailable, core.Hub.DisplayName + " can't be reached.", new { reason = "offline" });
+        new BridgeException(BridgeErrorKind.Unavailable, I18n.T("host.hub.errors.offline", new { hub = core.Hub.DisplayName }), new { reason = "offline" });
 
     // GameManager.TryAddGame without its quirks: the path keeps its case (InitializeDefault lowercases every 'I'),
     // and a game already in the library moves to the new executable instead of being listed twice.
@@ -435,13 +436,13 @@ public sealed class LibraryService : ILibraryService
     {
         if (NucleusCore.SessionRunning && string.Equals(GameProfile.Game?.GUID, gameId, StringComparison.OrdinalIgnoreCase))
         {
-            throw new BridgeException(BridgeErrorKind.Conflict, "Stop the running game session first.", new { reason = "sessionRunning" });
+            throw new BridgeException(BridgeErrorKind.Conflict, I18n.T("host.library.errors.sessionRunning"), new { reason = "sessionRunning" });
         }
 
         int removed = Manager.User.Games.RemoveAll(g => string.Equals(g.GameGuid, gameId, StringComparison.OrdinalIgnoreCase));
         if (removed == 0)
         {
-            throw new BridgeException(BridgeErrorKind.NotFound, "Game not found.", new { gameId });
+            throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.errors.gameNotFound"), new { gameId });
         }
 
         _ = core.UserProfile.SaveAsync();
@@ -489,7 +490,7 @@ public sealed class LibraryService : ILibraryService
             if (throwWhenAllFail && failures == targets.Count && lastError != null)
             {
                 core.HubStatus.Report(!(lastError is HubUnavailableException));
-                throw new BridgeException(BridgeErrorKind.Unavailable, "The artwork could not be downloaded: " + lastError.Message, new { reason = "downloadFailed" });
+                throw new BridgeException(BridgeErrorKind.Unavailable, I18n.T("host.library.errors.artworkFailed", new { error = lastError.Message }), new { reason = "downloadFailed" });
             }
         }
         finally

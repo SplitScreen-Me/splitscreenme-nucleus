@@ -428,6 +428,187 @@
           "nicknameCharacters": "Nicknames are used as folder names: avoid \\ / : * ? \" < > |."
         }
       }
+    },
+    "errors": {
+      "gameNotFound": "Game not found.",
+      "fileNotFound": "The file does not exist.",
+      "folderNotFound": "The folder does not exist."
+    },
+    "library": {
+      "gameMenu": {
+        "notes": {
+          "label": "Handler Author's Notes",
+          "description": "Shows the notes written by the handler's author."
+        },
+        "details": {
+          "label": "Nucleus Game Details",
+          "description": "Executable, architecture, handler file, content folder and supported inputs."
+        },
+        "openHandler": {
+          "label": "Open Game Handler",
+          "description": "Opens the handler script in your text editor."
+        },
+        "openExeFolder": {
+          "label": "Open Original Exe Path",
+          "description": "Opens the folder of the game executable."
+        },
+        "openContentFolder": {
+          "label": "Open Nucleus Content Folder",
+          "description": "Opens the folder that holds the game instances."
+        },
+        "deleteContentFolder": {
+          "label": "Delete Game Content Folder",
+          "description": "Closes leftover game processes and deletes the game instances.",
+          "confirm": "Are you sure you want to delete '{folder}' and all its contents? Running {game} processes are closed first."
+        },
+        "openUserConfig": {
+          "label": "Open UserProfile Config Path"
+        },
+        "deleteUserConfig": {
+          "label": "Delete UserProfile Config Path"
+        },
+        "openUserSave": {
+          "label": "Open UserProfile Save Path"
+        },
+        "deleteUserSave": {
+          "label": "Delete UserProfile Save Path"
+        },
+        "openDocumentsConfig": {
+          "label": "Open Document Config Path"
+        },
+        "deleteDocumentsConfig": {
+          "label": "Delete Document Config Path"
+        },
+        "openDocumentsSave": {
+          "label": "Open Document Save Path"
+        },
+        "deleteDocumentsSave": {
+          "label": "Delete Document Save Path"
+        },
+        "deleteFolderConfirm": "Are you sure you want to delete '{folder}' and all its contents?",
+        "nucleusFolder": "Nucleus: {name}",
+        "openBackup": {
+          "label": "Open Backup Folder",
+          "description": "Files the handler backs up for each player between sessions."
+        },
+        "deleteBackup": {
+          "label": "Delete Backup Folder",
+          "confirm": "Do you really want to delete {nickname}'s backup folder of {game}?"
+        },
+        "useApiIndex": {
+          "label": "Assign Gamepads By Index",
+          "description": "Profiles store gamepad API indexes instead of hardware ids. Turns off assignment on button press."
+        },
+        "useGamepadButtonPress": {
+          "label": "Assign Gamepads On Button Press (profile)",
+          "description": "Profiles assign gamepads by button press instead of reusing the saved ones. Turns off assignment by index."
+        },
+        "useApiIndexForGuests": {
+          "label": "Assign Gamepads By Index For Guests Only",
+          "description": "Only guest players (several players per instance) are assigned by API index."
+        },
+        "keepInstancesFolder": {
+          "label": "Keep Instances Content Folder",
+          "description": "Keeps the game instances when the game is selected again or the session ends, instead of rebuilding them."
+        },
+        "disableProfiles": {
+          "label": "Disable Profile",
+          "description": "Turns profiles off for this game: the global settings are used instead."
+        },
+        "disableHandlerUpdate": {
+          "label": "Disable Handler Update",
+          "description": "Stops checking the hub for newer versions of this handler."
+        },
+        "changeIcon": {
+          "label": "Change Game Icon",
+          "description": "Pick an image or an executable to use as the game icon.",
+          "filters": {
+            "imagesAndExecutables": "Images and executables",
+            "images": "Images",
+            "executables": "Executables"
+          }
+        },
+        "gameAssets": {
+          "label": "Game Assets",
+          "description": "Downloaded cover and screenshots."
+        },
+        "openCoverFolder": {
+          "label": "Open Cover Folder"
+        },
+        "openScreenshotsFolder": {
+          "label": "Open Screenshots Folder"
+        },
+        "steamLanguage": {
+          "label": "Steam Language",
+          "description": "Language reported by the Steam emulator for this game. \"{appSetting}\" uses the global setting."
+        },
+        "remove": {
+          "label": "Remove Game From List",
+          "description": "Removes the game from the library. The handler stays installed.",
+          "confirm": "Are you sure you want to remove {game} from your library? The handler stays installed."
+        }
+      },
+      "errors": {
+        "itemUnavailable": "This menu item is not available for this game.",
+        "exeFolderMissing": "Unable to open the original executable path for this game: the folder does not exist.",
+        "contentFilesLocked": "Some files of the content folder are locked by another program, and Nucleus could not delete them. Close that program or restart your computer, then try again.",
+        "invalidSteamLanguage": "Choose one of the listed Steam languages.",
+        "handlerFileMissing": "The handler file does not exist.",
+        "folderGone": "The folder does not exist anymore.",
+        "fileGone": "The file does not exist anymore.",
+        "sessionRunning": "Stop the running game session first.",
+        "sessionRunningReload": "Stop the running game session before reloading handlers.",
+        "deleteFailed": "'{folder}' could not be deleted: {error}",
+        "unsupportedIcon": "Use an image (png, jpg, gif, bmp, tif, ico) or an executable.",
+        "contextMissing": "The {game} handler expects {files} next to {executable}. Pick the executable inside the game's install folder.",
+        "noHandler": "No installed handler supports {executable}. Install the game's handler first.",
+        "alreadyInLibrary": "This executable is already used by {game} in your library.",
+        "noHubHandler": "This game's handler does not come from the hub: no artwork to download.",
+        "executableNotFound": "The executable does not exist.",
+        "exFat": "\"exFAT\" is not a supported drive format: it does not support symbolic links. Move the game to an NTFS drive, or format the drive to NTFS.",
+        "handlerNotFound": "Handler not found.",
+        "handlerMismatch": "{executable} does not match the {game} handler (it expects {expected}, with the files the handler checks next to it).",
+        "artworkFailed": "The artwork could not be downloaded: {error}"
+      }
+    },
+    "handlers": {
+      "errors": {
+        "unsupportedFile": "Unsupported file: use a handler archive (.nc, .zip) or a handler script (.js).",
+        "notAHandler": "This file is not a Nucleus handler (no Game.GameName or Game.ExecutableName).",
+        "notFromHub": "This handler does not come from the hub, so it can't be updated from there.",
+        "unknownToHub": "The hub does not know this handler.",
+        "noPackage": "This handler has no published package on the hub.",
+        "noChecksum": "The hub did not give the checksum of this handler's package, so it can't be verified. Try again later.",
+        "installFailed": "The handler could not be installed: {error}",
+        "alreadyInstalled": "A handler for {game} is already installed.",
+        "invalidHandler": "The handler was installed but could not be loaded: it has errors.",
+        "sessionRunning": "Stop the running game session before installing handlers."
+      },
+      "package": {
+        "unsafePath": "The archive contains an unsafe path: {path}",
+        "invalidArchive": "The file is not a valid handler archive (.nc or .zip).",
+        "noScript": "The archive has no handler.js: make sure it is a Nucleus handler package.",
+        "notAHandler": "The archive's script does not declare Game.GameName or Game.ExecutableName: it is not a Nucleus handler.",
+        "noGameName": "The handler has no usable game name."
+      }
+    },
+    "hub": {
+      "errors": {
+        "offline": "{hub} can't be reached.",
+        "offlineBecause": "{hub} can't be reached: {error}",
+        "unexpectedAnswer": "The hub sent an unexpected answer.",
+        "busy": "The hub is busy (too many requests from this address), try again later.",
+        "busyRetryIn_one": "The hub is busy (too many requests from this address), try again in {count} s.",
+        "busyRetryIn_other": "The hub is busy (too many requests from this address), try again in {count} s.",
+        "httpStatus": "The server answered {status} {reason}.",
+        "downloadBusy": "The download failed: the hub is busy (too many requests from this address), try again later.",
+        "downloadBusyRetryIn_one": "The download failed: the hub is busy (too many requests from this address), try again in {count} s.",
+        "downloadBusyRetryIn_other": "The download failed: the hub is busy (too many requests from this address), try again in {count} s.",
+        "downloadHttpStatus": "The download failed: the server answered {status} {reason}.",
+        "timeout": "The server did not answer in time.",
+        "unreachable": "The server could not be reached: {error}",
+        "checksumMismatch": "The downloaded package does not match the one published on the hub (SHA-256 {actual}, expected {expected}). It was not installed."
+      }
     }
   },
   "engine": {

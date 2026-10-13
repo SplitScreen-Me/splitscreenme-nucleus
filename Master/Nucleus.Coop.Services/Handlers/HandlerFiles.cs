@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using Nucleus.Gaming.Localization;
 using System.Threading;
 
 namespace Nucleus.Coop.Services.Handlers;
@@ -88,7 +89,7 @@ public static class HandlerFiles
 
                 if (segments.Any(s => s == ".." || s.Contains(':')) || name.StartsWith("/", StringComparison.Ordinal))
                 {
-                    throw new InvalidHandlerPackageException($"The archive contains an unsafe path: {entry.FullName}");
+                    throw new InvalidHandlerPackageException(I18n.T("host.handlers.package.unsafePath", new { path = entry.FullName }));
                 }
 
                 bool isDirectory = name.EndsWith("/", StringComparison.Ordinal);
@@ -104,7 +105,7 @@ public static class HandlerFiles
                 string target = Path.GetFullPath(Path.Combine(workFolder, Path.Combine(segments)));
                 if (!target.StartsWith(workRoot, StringComparison.OrdinalIgnoreCase))
                 {
-                    throw new InvalidHandlerPackageException($"The archive contains an unsafe path: {entry.FullName}");
+                    throw new InvalidHandlerPackageException(I18n.T("host.handlers.package.unsafePath", new { path = entry.FullName }));
                 }
 
                 if (isDirectory)
@@ -128,21 +129,21 @@ public static class HandlerFiles
         }
         catch (InvalidDataException e)
         {
-            throw new InvalidHandlerPackageException("The file is not a valid handler archive (.nc or .zip).", e);
+            throw new InvalidHandlerPackageException(I18n.T("host.handlers.package.invalidArchive"), e);
         }
 
         string script = FindScript(workFolder, archivePath)
-            ?? throw new InvalidHandlerPackageException("The archive has no handler.js: make sure it is a Nucleus handler package.");
+            ?? throw new InvalidHandlerPackageException(I18n.T("host.handlers.package.noScript"));
 
         HandlerScriptInfo info = HandlerScript.ParseFile(script);
         if (!info.IsHandler)
         {
-            throw new InvalidHandlerPackageException("The archive's script does not declare Game.GameName or Game.ExecutableName: it is not a Nucleus handler.");
+            throw new InvalidHandlerPackageException(I18n.T("host.handlers.package.notAHandler"));
         }
 
         string title = HandlerScript.ToTitle(info.GameName)
             ?? HandlerScript.ToTitle(Path.GetFileNameWithoutExtension(archivePath))
-            ?? throw new InvalidHandlerPackageException("The handler has no usable game name.");
+            ?? throw new InvalidHandlerPackageException(I18n.T("host.handlers.package.noGameName"));
 
         return new ExtractedHandler
         {

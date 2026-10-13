@@ -124,6 +124,212 @@ export interface MessageParamsMap {
   'engine.startChecks.missingFile.message': { file: ParamValue };
   /** Missing file */
   'engine.startChecks.missingFile.title': undefined;
+  /** The file does not exist. */
+  'host.errors.fileNotFound': undefined;
+  /** The folder does not exist. */
+  'host.errors.folderNotFound': undefined;
+  /** Game not found. */
+  'host.errors.gameNotFound': undefined;
+  /** A handler for {game} is already installed. */
+  'host.handlers.errors.alreadyInstalled': { game: ParamValue };
+  /** The handler could not be installed: {error} */
+  'host.handlers.errors.installFailed': { error: ParamValue };
+  /** The handler was installed but could not be loaded: it has errors. */
+  'host.handlers.errors.invalidHandler': undefined;
+  /** The hub did not give the checksum of this handler's package, so it can't be verified. Try again later. */
+  'host.handlers.errors.noChecksum': undefined;
+  /** This handler has no published package on the hub. */
+  'host.handlers.errors.noPackage': undefined;
+  /** This file is not a Nucleus handler (no Game.GameName or Game.ExecutableName). */
+  'host.handlers.errors.notAHandler': undefined;
+  /** This handler does not come from the hub, so it can't be updated from there. */
+  'host.handlers.errors.notFromHub': undefined;
+  /** Stop the running game session before installing handlers. */
+  'host.handlers.errors.sessionRunning': undefined;
+  /** The hub does not know this handler. */
+  'host.handlers.errors.unknownToHub': undefined;
+  /** Unsupported file: use a handler archive (.nc, .zip) or a handler script (.js). */
+  'host.handlers.errors.unsupportedFile': undefined;
+  /** The file is not a valid handler archive (.nc or .zip). */
+  'host.handlers.package.invalidArchive': undefined;
+  /** The handler has no usable game name. */
+  'host.handlers.package.noGameName': undefined;
+  /** The archive has no handler.js: make sure it is a Nucleus handler package. */
+  'host.handlers.package.noScript': undefined;
+  /** The archive's script does not declare Game.GameName or Game.ExecutableName: it is not a Nucleus handler. */
+  'host.handlers.package.notAHandler': undefined;
+  /** The archive contains an unsafe path: {path} */
+  'host.handlers.package.unsafePath': { path: ParamValue };
+  /** The hub is busy (too many requests from this address), try again later. */
+  'host.hub.errors.busy': undefined;
+  /** The hub is busy (too many requests from this address), try again in {count} s. */
+  'host.hub.errors.busyRetryIn': { count: number };
+  /** The downloaded package does not match the one published on the hub (SHA-256 {actual}, expected {expected}).... */
+  'host.hub.errors.checksumMismatch': { actual: ParamValue; expected: ParamValue };
+  /** The download failed: the hub is busy (too many requests from this address), try again later. */
+  'host.hub.errors.downloadBusy': undefined;
+  /** The download failed: the hub is busy (too many requests from this address), try again in {count} s. */
+  'host.hub.errors.downloadBusyRetryIn': { count: number };
+  /** The download failed: the server answered {status} {reason}. */
+  'host.hub.errors.downloadHttpStatus': { reason: ParamValue; status: ParamValue };
+  /** The server answered {status} {reason}. */
+  'host.hub.errors.httpStatus': { reason: ParamValue; status: ParamValue };
+  /** {hub} can't be reached. */
+  'host.hub.errors.offline': { hub: ParamValue };
+  /** {hub} can't be reached: {error} */
+  'host.hub.errors.offlineBecause': { error: ParamValue; hub: ParamValue };
+  /** The server did not answer in time. */
+  'host.hub.errors.timeout': undefined;
+  /** The hub sent an unexpected answer. */
+  'host.hub.errors.unexpectedAnswer': undefined;
+  /** The server could not be reached: {error} */
+  'host.hub.errors.unreachable': { error: ParamValue };
+  /** This executable is already used by {game} in your library. */
+  'host.library.errors.alreadyInLibrary': { game: ParamValue };
+  /** The artwork could not be downloaded: {error} */
+  'host.library.errors.artworkFailed': { error: ParamValue };
+  /** Some files of the content folder are locked by another program, and Nucleus could not delete them. Close th... */
+  'host.library.errors.contentFilesLocked': undefined;
+  /** The {game} handler expects {files} next to {executable}. Pick the executable inside the game's install folder. */
+  'host.library.errors.contextMissing': { executable: ParamValue; files: ParamValue; game: ParamValue };
+  /** '{folder}' could not be deleted: {error} */
+  'host.library.errors.deleteFailed': { error: ParamValue; folder: ParamValue };
+  /** "exFAT" is not a supported drive format: it does not support symbolic links. Move the game to an NTFS drive... */
+  'host.library.errors.exFat': undefined;
+  /** Unable to open the original executable path for this game: the folder does not exist. */
+  'host.library.errors.exeFolderMissing': undefined;
+  /** The executable does not exist. */
+  'host.library.errors.executableNotFound': undefined;
+  /** The file does not exist anymore. */
+  'host.library.errors.fileGone': undefined;
+  /** The folder does not exist anymore. */
+  'host.library.errors.folderGone': undefined;
+  /** The handler file does not exist. */
+  'host.library.errors.handlerFileMissing': undefined;
+  /** {executable} does not match the {game} handler (it expects {expected}, with the files the handler checks ne... */
+  'host.library.errors.handlerMismatch': { executable: ParamValue; expected: ParamValue; game: ParamValue };
+  /** Handler not found. */
+  'host.library.errors.handlerNotFound': undefined;
+  /** Choose one of the listed Steam languages. */
+  'host.library.errors.invalidSteamLanguage': undefined;
+  /** This menu item is not available for this game. */
+  'host.library.errors.itemUnavailable': undefined;
+  /** No installed handler supports {executable}. Install the game's handler first. */
+  'host.library.errors.noHandler': { executable: ParamValue };
+  /** This game's handler does not come from the hub: no artwork to download. */
+  'host.library.errors.noHubHandler': undefined;
+  /** Stop the running game session first. */
+  'host.library.errors.sessionRunning': undefined;
+  /** Stop the running game session before reloading handlers. */
+  'host.library.errors.sessionRunningReload': undefined;
+  /** Use an image (png, jpg, gif, bmp, tif, ico) or an executable. */
+  'host.library.errors.unsupportedIcon': undefined;
+  /** Pick an image or an executable to use as the game icon. */
+  'host.library.gameMenu.changeIcon.description': undefined;
+  /** Executables */
+  'host.library.gameMenu.changeIcon.filters.executables': undefined;
+  /** Images */
+  'host.library.gameMenu.changeIcon.filters.images': undefined;
+  /** Images and executables */
+  'host.library.gameMenu.changeIcon.filters.imagesAndExecutables': undefined;
+  /** Change Game Icon */
+  'host.library.gameMenu.changeIcon.label': undefined;
+  /** Do you really want to delete {nickname}'s backup folder of {game}? */
+  'host.library.gameMenu.deleteBackup.confirm': { game: ParamValue; nickname: ParamValue };
+  /** Delete Backup Folder */
+  'host.library.gameMenu.deleteBackup.label': undefined;
+  /** Are you sure you want to delete '{folder}' and all its contents? Running {game} processes are closed first. */
+  'host.library.gameMenu.deleteContentFolder.confirm': { folder: ParamValue; game: ParamValue };
+  /** Closes leftover game processes and deletes the game instances. */
+  'host.library.gameMenu.deleteContentFolder.description': undefined;
+  /** Delete Game Content Folder */
+  'host.library.gameMenu.deleteContentFolder.label': undefined;
+  /** Delete Document Config Path */
+  'host.library.gameMenu.deleteDocumentsConfig.label': undefined;
+  /** Delete Document Save Path */
+  'host.library.gameMenu.deleteDocumentsSave.label': undefined;
+  /** Are you sure you want to delete '{folder}' and all its contents? */
+  'host.library.gameMenu.deleteFolderConfirm': { folder: ParamValue };
+  /** Delete UserProfile Config Path */
+  'host.library.gameMenu.deleteUserConfig.label': undefined;
+  /** Delete UserProfile Save Path */
+  'host.library.gameMenu.deleteUserSave.label': undefined;
+  /** Executable, architecture, handler file, content folder and supported inputs. */
+  'host.library.gameMenu.details.description': undefined;
+  /** Nucleus Game Details */
+  'host.library.gameMenu.details.label': undefined;
+  /** Stops checking the hub for newer versions of this handler. */
+  'host.library.gameMenu.disableHandlerUpdate.description': undefined;
+  /** Disable Handler Update */
+  'host.library.gameMenu.disableHandlerUpdate.label': undefined;
+  /** Turns profiles off for this game: the global settings are used instead. */
+  'host.library.gameMenu.disableProfiles.description': undefined;
+  /** Disable Profile */
+  'host.library.gameMenu.disableProfiles.label': undefined;
+  /** Downloaded cover and screenshots. */
+  'host.library.gameMenu.gameAssets.description': undefined;
+  /** Game Assets */
+  'host.library.gameMenu.gameAssets.label': undefined;
+  /** Keeps the game instances when the game is selected again or the session ends, instead of rebuilding them. */
+  'host.library.gameMenu.keepInstancesFolder.description': undefined;
+  /** Keep Instances Content Folder */
+  'host.library.gameMenu.keepInstancesFolder.label': undefined;
+  /** Shows the notes written by the handler's author. */
+  'host.library.gameMenu.notes.description': undefined;
+  /** Handler Author's Notes */
+  'host.library.gameMenu.notes.label': undefined;
+  /** Nucleus: {name} */
+  'host.library.gameMenu.nucleusFolder': { name: ParamValue };
+  /** Files the handler backs up for each player between sessions. */
+  'host.library.gameMenu.openBackup.description': undefined;
+  /** Open Backup Folder */
+  'host.library.gameMenu.openBackup.label': undefined;
+  /** Opens the folder that holds the game instances. */
+  'host.library.gameMenu.openContentFolder.description': undefined;
+  /** Open Nucleus Content Folder */
+  'host.library.gameMenu.openContentFolder.label': undefined;
+  /** Open Cover Folder */
+  'host.library.gameMenu.openCoverFolder.label': undefined;
+  /** Open Document Config Path */
+  'host.library.gameMenu.openDocumentsConfig.label': undefined;
+  /** Open Document Save Path */
+  'host.library.gameMenu.openDocumentsSave.label': undefined;
+  /** Opens the folder of the game executable. */
+  'host.library.gameMenu.openExeFolder.description': undefined;
+  /** Open Original Exe Path */
+  'host.library.gameMenu.openExeFolder.label': undefined;
+  /** Opens the handler script in your text editor. */
+  'host.library.gameMenu.openHandler.description': undefined;
+  /** Open Game Handler */
+  'host.library.gameMenu.openHandler.label': undefined;
+  /** Open Screenshots Folder */
+  'host.library.gameMenu.openScreenshotsFolder.label': undefined;
+  /** Open UserProfile Config Path */
+  'host.library.gameMenu.openUserConfig.label': undefined;
+  /** Open UserProfile Save Path */
+  'host.library.gameMenu.openUserSave.label': undefined;
+  /** Are you sure you want to remove {game} from your library? The handler stays installed. */
+  'host.library.gameMenu.remove.confirm': { game: ParamValue };
+  /** Removes the game from the library. The handler stays installed. */
+  'host.library.gameMenu.remove.description': undefined;
+  /** Remove Game From List */
+  'host.library.gameMenu.remove.label': undefined;
+  /** Language reported by the Steam emulator for this game. "{appSetting}" uses the global setting. */
+  'host.library.gameMenu.steamLanguage.description': { appSetting: ParamValue };
+  /** Steam Language */
+  'host.library.gameMenu.steamLanguage.label': undefined;
+  /** Profiles store gamepad API indexes instead of hardware ids. Turns off assignment on button press. */
+  'host.library.gameMenu.useApiIndex.description': undefined;
+  /** Assign Gamepads By Index */
+  'host.library.gameMenu.useApiIndex.label': undefined;
+  /** Only guest players (several players per instance) are assigned by API index. */
+  'host.library.gameMenu.useApiIndexForGuests.description': undefined;
+  /** Assign Gamepads By Index For Guests Only */
+  'host.library.gameMenu.useApiIndexForGuests.label': undefined;
+  /** Profiles assign gamepads by button press instead of reusing the saved ones. Turns off assignment by index. */
+  'host.library.gameMenu.useGamepadButtonPress.description': undefined;
+  /** Assign Gamepads On Button Press (profile) */
+  'host.library.gameMenu.useGamepadButtonPress.label': undefined;
   /** Black */
   'host.settings.colors.black': undefined;
   /** Blue */
