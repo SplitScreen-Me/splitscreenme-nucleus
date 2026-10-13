@@ -4,7 +4,15 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { parseSync } from 'vite';
-import { analyzeEnglish, checkTranslation, csharpKeys, generateKeysModule } from '../../../scripts/i18n/catalog.ts';
+import {
+  analyzeEnglish,
+  checkCsharpPluralRule,
+  checkTranslation,
+  csharpKeys,
+  csharpPluralLocales,
+  generateKeysModule,
+  pluralCategoriesOf,
+} from '../../../scripts/i18n/catalog.ts';
 import { groupOf, isUserText, lintProgram, type AstNode } from '../../../scripts/i18n/lint.ts';
 
 const ENGLISH = {
@@ -82,6 +90,49 @@ test('translations: unknown keys, plural misuse, placeholders and tags must foll
   assert.ok(messages.some((m) => m.startsWith('library.lockHint: ') && m.includes('same tags')));
   assert.ok(messages.some((m) => m.startsWith('_meta.locale: ')));
   assert.ok(messages.some((m) => m.startsWith('_meta.nativeName: ')));
+});
+
+test('plural strings have exactly the forms of their language, _zero optional; English may keep _other only', () => {
+  assert.deepEqual(pluralCategoriesOf('en'), ['one', 'other']);
+  assert.deepEqual(pluralCategoriesOf('fr'), ['one', 'many', 'other']);
+  assert.deepEqual(pluralCategoriesOf('pt-PT'), ['one', 'many', 'other']);
+  assert.deepEqual(pluralCategoriesOf('ru'), ['one', 'few', 'many', 'other']);
+  assert.deepEqual(pluralCategoriesOf('ja'), ['other']);
+  assert.deepEqual(pluralCategoriesOf('xx'), ['one', 'other'], 'a tag Intl does not know has the English forms');
+
+  const english = analyzeEnglish({ ...ENGLISH, library: { ...ENGLISH.library, upTo_other: 'Up to {count}', few_few: 'x', few_other: 'y' } });
+  assert.deepEqual(
+    english.problems.map((p) => `${p.key}: ${p.message}`),
+    ['library.few: has few_few: en only has few_one, few_other (few_zero optional).'],
+  );
+
+  const forms = (file: string, library: Record<string, string>) =>
+    checkTranslation(file, french({ library }, { locale: file.replace('.json', ''), englishName: 'X', nativeName: 'X' }), english.keys).problems.map((p) => `${p.key}: ${p.message}`);
+  assert.deepEqual(forms('ru.json', { gameCount_one: 'a', gameCount_few: 'b', gameCount_many: 'c', gameCount_other: 'd', upTo_zero: 'e', upTo_one: 'f', upTo_few: 'g', upTo_many: 'h', upTo_other: 'i' }), []);
+  assert.deepEqual(forms('ja.json', { gameCount_other: 'a', upTo_zero: 'b', upTo_other: 'c' }), []);
+  assert.deepEqual(forms('fr.json', { gameCount_one: 'a', gameCount_few: 'b', gameCount_other: 'c' }), [
+    'library.gameCount: has gameCount_few: fr only has gameCount_one, gameCount_many, gameCount_other (gameCount_zero optional).',
+    'library.gameCount: needs gameCount_many: the plural forms of fr are gameCount_one, gameCount_many, gameCount_other (gameCount_zero optional).',
+  ]);
+  assert.deepEqual(forms('ar.json', { gameCount_one: 'a', gameCount_two: 'b', gameCount_few: 'c', gameCount_many: 'd', gameCount_other: 'e' }), [
+    'library.gameCount: needs gameCount_zero: the plural forms of ar are gameCount_zero, gameCount_one, gameCount_two, gameCount_few, gameCount_many, gameCount_other.',
+  ]);
+  assert.deepEqual(forms('pt-BR.json', { upTo_one: 'a', upTo_other: 'b' }), [
+    'library.upTo: needs upTo_many: the plural forms of pt-BR are upTo_one, upTo_many, upTo_other (upTo_zero optional).',
+  ]);
+});
+
+test('every language with plural rules in Intl needs a rule in the C# PluralRules, its own or the one of its language', () => {
+  const registered = csharpPluralLocales(readFileSync(new URL('../../../../NucleusGaming/Localization/PluralRules.cs', import.meta.url), 'utf8'));
+  for (const locale of ['en', 'de', 'fr', 'es', 'it', 'pt', 'pt-pt', 'ru', 'pl', 'ja', 'zh', 'ar']) assert.ok(registered.has(locale), locale);
+  for (const category of ['zero', 'one', 'two', 'few', 'many', 'other']) assert.ok(!registered.has(category), category);
+
+  for (const file of ['fr.json', 'pt-BR.json', 'pt-PT.json', 'es-419.json', 'zh-Hant.json', 'en-GB.json', 'xx.json']) {
+    assert.deepEqual(checkCsharpPluralRule(file, registered), [], file);
+  }
+  const missing = checkCsharpPluralRule('lt.json', registered);
+  assert.equal(missing.length, 1);
+  assert.match(missing[0]!.message, /no rule for lt/);
 });
 
 test('C# keys are read from T("…") and TPlain("…") calls, not from comments', () => {

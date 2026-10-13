@@ -1,6 +1,6 @@
 // Rules of the language files (docs/webui/i18n.md), the typed keys module generated from en.json, and the checks of the
 // other languages. Pure functions: scripts/i18n.ts reads and writes the files, the bridge tests call them directly.
-import { baseKey, parseRich, placeholdersOf, pluralSuffix, PLURAL_CATEGORIES, tagsOf, type RichNode } from '../../src/i18n/core.ts';
+import { baseKey, DEFAULT_LOCALE, intlLocale, parseRich, placeholdersOf, pluralSuffix, PLURAL_CATEGORIES, tagsOf, type RichNode } from '../../src/i18n/core.ts';
 
 /** One problem found in a language file. */
 export interface Problem {
@@ -86,6 +86,39 @@ function tagProblems(file: string, key: string, text: string): Problem[] {
   return leftovers.length > 0 ? [{ file, key, message: 'has unbalanced tags (each <tag> needs its </tag>; <br/> closes itself).' }] : [];
 }
 
+/** The language tag of a language file: `pt-BR.json` → `pt-BR`. */
+const localeOf = (file: string) => file.replace(/\.json$/, '');
+
+/**
+ * Plural categories of a language as Intl.PluralRules gives them (CLDR), in the order of key suffixes: `one, other`
+ * for English, `one, many, other` for French, `one, few, many, other` for Russian. A tag Intl doesn't know gets the
+ * English ones, as at run time (`intlLocale`) and in C#.
+ */
+export function pluralCategoriesOf(locale: string): string[] {
+  const categories: readonly string[] = new Intl.PluralRules(intlLocale(locale)).resolvedOptions().pluralCategories;
+  return PLURAL_CATEGORIES.filter((category) => categories.includes(category));
+}
+
+/**
+ * Problems of the forms of one plural string: a form its language doesn't have (`_few` in French), and the forms it
+ * needs: every category of the language in a translation, `_other` in English (whose keys may keep `_other` only, for
+ * strings that vary in other languages). `_zero` is always allowed (the form of 0), required where it is a category.
+ */
+function pluralFormProblems(file: string, base: string, suffixes: Iterable<string>, every: boolean): Problem[] {
+  const locale = localeOf(file);
+  const categories = pluralCategoriesOf(locale);
+  const name = base.split('.').pop()!;
+  const list = (forms: readonly string[]) => forms.map((form) => `${name}_${form}`).join(', ');
+  const forms = new Set([...suffixes].filter(Boolean));
+  const optionalZero = categories.includes('zero') ? '' : ` (${name}_zero optional)`;
+  const problems: Problem[] = [];
+  const extra = [...forms].filter((form) => form !== 'zero' && !categories.includes(form));
+  if (extra.length > 0) problems.push({ file, key: base, message: `has ${list(extra)}: ${locale} only has ${list(categories)}${optionalZero}.` });
+  const missing = (every ? categories : ['other']).filter((form) => !forms.has(form));
+  if (missing.length > 0) problems.push({ file, key: base, message: `needs ${list(missing)}: the plural forms of ${locale} are ${list(categories)}${optionalZero}.` });
+  return problems;
+}
+
 /** Base keys of en.json with their placeholders, plural forms and tags; problems of the English file itself. */
 export function analyzeEnglish(tree: unknown, file = 'en.json'): { keys: Map<string, KeyInfo>; problems: Problem[] } {
   const { strings, problems } = readTree(file, tree);
@@ -103,7 +136,7 @@ export function analyzeEnglish(tree: unknown, file = 'en.json'): { keys: Map<str
   for (const [base, forms] of [...groups].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
     const plural = [...forms.keys()].some((suffix) => suffix !== '');
     if (plural && forms.has('')) problems.push({ file, key: base, message: 'is both a plain string and a plural string: keep the plural forms only.' });
-    if (plural && !forms.has('other')) problems.push({ file, key: base, message: `has plural forms but no ${base.split('.').pop()}_other.` });
+    if (plural) problems.push(...pluralFormProblems(file, base, forms.keys(), false));
     if ([...strings.keys()].some((k) => k.startsWith(`${base}.`))) problems.push({ file, key: base, message: 'is both a string and a namespace.' });
     const texts = [...forms.values()];
     const tagSets = new Set(texts.map((text) => tagsOf(text).join(' ')));
@@ -121,8 +154,9 @@ export function analyzeEnglish(tree: unknown, file = 'en.json'): { keys: Map<str
 
 /**
  * Problems of a translation against English: keys English doesn't have, plural forms on plain strings (or plain
- * strings for plural ones), placeholders English doesn't use (or English placeholders the translation drops), other
- * tags. Missing keys are not problems: they show in English. Also returns how many English keys it translates.
+ * strings for plural ones), plural strings without exactly the forms of the language (Intl.PluralRules categories,
+ * `_zero` optional), placeholders English doesn't use (or English placeholders the translation drops), other tags.
+ * Missing keys are not problems: they show in English. Also returns how many English keys it translates.
  */
 export function checkTranslation(file: string, tree: unknown, english: Map<string, KeyInfo>): { problems: Problem[]; translated: number } {
   const { strings, problems } = readTree(file, tree);
@@ -158,7 +192,7 @@ export function checkTranslation(file: string, tree: unknown, english: Map<strin
     }
     const missing = info.placeholders.filter((name) => !used.has(name) && !(info.plural && name === 'count'));
     if (missing.length > 0) problems.push({ file, key: base, message: `drops ${missing.map((n) => `{${n}}`).join(', ')}.` });
-    if (info.plural && !forms.has('other')) problems.push({ file, key: base, message: `needs ${base.split('.').pop()}_other.` });
+    if (info.plural) problems.push(...pluralFormProblems(file, base, forms.keys(), true));
   }
   return { problems, translated: groups.size };
 }
@@ -202,4 +236,40 @@ export function csharpKeys(source: string): string[] {
     .filter((line) => !line.trimStart().startsWith('//'))
     .join('\n');
   return Array.from(code.matchAll(/\bT(?:Plain)?\(\s*"([A-Za-z0-9_.]+)"/g), (m) => m[1]!);
+}
+
+/**
+ * Language tags with a rule of their own in the C# PluralRules (NucleusGaming/Localization/PluralRules.cs): the string
+ * literals of its code that are language tags, lowercased (`en`, `fr`, `pt-pt`...).
+ */
+export function csharpPluralLocales(source: string): Set<string> {
+  const code = source
+    .split('\n')
+    .filter((line) => !line.trimStart().startsWith('//'))
+    .join('\n');
+  const categories: readonly string[] = PLURAL_CATEGORIES;
+  return new Set(
+    Array.from(code.matchAll(/"([A-Za-z0-9-]+)"/g), (m) => m[1]!)
+      .filter((literal) => LOCALE_TAG.test(literal) && !categories.includes(literal))
+      .map((tag) => tag.toLowerCase()),
+  );
+}
+
+/**
+ * A translation whose language Intl knows but the C# PluralRules doesn't (neither its tag nor a parent: `pt-BR` →
+ * `pt`): the host would pick English plural forms for its texts while the UI picks the right ones.
+ */
+export function checkCsharpPluralRule(file: string, registered: ReadonlySet<string>): Problem[] {
+  const locale = localeOf(file);
+  if (intlLocale(locale) === DEFAULT_LOCALE) return []; // English, or a tag Intl doesn't know: English rules on both sides
+  for (let tag = locale.toLowerCase(); tag; tag = tag.includes('-') ? tag.slice(0, tag.lastIndexOf('-')) : '') {
+    if (registered.has(tag)) return [];
+  }
+  return [
+    {
+      file,
+      key: '',
+      message: `the C# PluralRules (NucleusGaming/Localization/PluralRules.cs) has no rule for ${locale}: host texts would use the English plural forms. Register its CLDR rule there and add its cases to src/bridge/__tests__/fixtures/plurals.json.`,
+    },
+  ];
 }
