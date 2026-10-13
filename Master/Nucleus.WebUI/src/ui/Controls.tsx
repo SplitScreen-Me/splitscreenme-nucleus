@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from 'react';
+import { useT } from '@/i18n';
 import { cn } from './cn';
 import { Icon } from './Icon';
 
@@ -105,11 +106,12 @@ export function Spinner({ className }: { className?: string }) {
 }
 
 /** Verified mark: a small white seal, not a colour. */
-export function Verified({ children = 'Verified', className }: { children?: ReactNode; className?: string }) {
+export function Verified({ children, className }: { children?: ReactNode; className?: string }) {
+  const t = useT();
   return (
     <span className={cn('inline-flex items-center gap-[5px] text-small font-semibold text-ink [&>svg]:size-4', className)}>
       <Icon name="seal" />
-      {children}
+      {children === undefined ? t('ui.verified') : children}
     </span>
   );
 }

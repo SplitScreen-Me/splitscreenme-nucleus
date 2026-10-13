@@ -65,6 +65,13 @@
       "cancelled": "Cancelled.",
       "failed": "That did not work. Try again.",
       "unknown": "Something went wrong. Try again."
+    },
+    "inputs": {
+      "_note": "The inputs a handler supports, as labels (filters, icons, tables).",
+      "controllers": "Controllers",
+      "keyboardMouse": "Keyboard and mouse",
+      "multiKeyboardMouse": "Several keyboards and mice",
+      "unknown": "Input support unknown"
     }
   },
   "shell": {
@@ -172,7 +179,58 @@
       "backToLibrary": "Back to library"
     }
   },
-  "ui": {},
+  "ui": {
+    "compat": {
+      "playersUnknown": "Players unknown",
+      "maxPlayers_one": "Up to {count} player",
+      "maxPlayers_other": "Up to {count} players",
+      "playsWith": "Plays with: {inputs}",
+      "_note": "playsWith: {inputs} is a list of the inputsInList texts.",
+      "inputsInList": {
+        "_note": "The inputs as they read inside the list of playsWith (lower case in English).",
+        "controllers": "controllers",
+        "keyboardMouse": "keyboard and mouse",
+        "multiKeyboardMouse": "several keyboards and mice"
+      },
+      "notSupported": "{input} (not supported)",
+      "withInputs": {
+        "_note": "The end of a sentence saying how a game is played, for example \"Up to 4 players on one PC, with controllers\".",
+        "controllers": "with controllers",
+        "keyboardMouse": "with keyboard and mouse",
+        "multiKeyboardMouse": "with several keyboards and mice",
+        "controllersKeyboardMouse": "with controllers or keyboard and mouse",
+        "controllersMultiKeyboardMouse": "with controllers or several keyboards and mice",
+        "keyboardMouseMultiKeyboardMouse": "with keyboard and mouse or several keyboards and mice",
+        "all": "with controllers, keyboard and mouse or several keyboards and mice"
+      }
+    },
+    "playerTag": "P{number}",
+    "verified": "Verified",
+    "markdown": {
+      "image": "Image"
+    },
+    "glyph": {
+      "_note": "Names of gamepad buttons read by screen readers. Button letters and L1 / R1 are key caps.",
+      "xbox": {
+        "a": "A button",
+        "b": "B button",
+        "x": "X button",
+        "y": "Y button",
+        "lb": "Left bumper",
+        "rb": "Right bumper",
+        "menu": "Menu button",
+        "view": "View button"
+      },
+      "playstation": {
+        "a": "Cross button",
+        "b": "Circle button",
+        "x": "Square button",
+        "y": "Triangle button",
+        "menu": "Options button",
+        "view": "Create button"
+      }
+    }
+  },
   "features": {},
   "language": {
     "firstRun": {

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { bridge } from '@/bridge';
+import { useT } from '@/i18n';
 import { cn } from '@/ui';
 
 /** "nexusmods.com/eldenring/mods/510" for a bare URL used as its own label. */
@@ -38,14 +39,19 @@ function ExternalLink({ href, children }: { href?: string; children?: ReactNode 
   );
 }
 
+/** Remote images in user content are not loaded; the link stays, named by its alt text. */
+function ImageLink({ src, alt }: { src?: unknown; alt?: string }) {
+  const t = useT();
+  return typeof src === 'string' ? <ExternalLink href={src}>{alt || t('ui.markdown.image')}</ExternalLink> : null;
+}
+
 const COMPONENTS: Components = {
   a: ({ href, children }) => <ExternalLink href={href}>{children}</ExternalLink>,
   // Authors' headings stay modest inside a pane.
   h1: ({ children }) => <h3>{children}</h3>,
   h2: ({ children }) => <h3>{children}</h3>,
   h3: ({ children }) => <h4>{children}</h4>,
-  // Remote images in user content are not loaded; the link stays.
-  img: ({ src, alt }) => (typeof src === 'string' ? <ExternalLink href={src}>{alt || 'Image'}</ExternalLink> : null),
+  img: ({ src, alt }) => <ImageLink src={src} alt={alt} />,
 };
 
 /**

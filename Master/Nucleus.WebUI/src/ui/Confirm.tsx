@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react';
+import { useT } from '@/i18n';
 import { Button } from './Button';
 import { Dialog } from './Dialog';
 import type { IconName } from './Icon';
@@ -23,6 +24,7 @@ const ConfirmContext = createContext<ConfirmFn>(async () => false);
 export function ConfirmProvider({ children }: { children: ReactNode }) {
   const [current, setCurrent] = useState<ConfirmOptions | null>(null);
   const resolver = useRef<((ok: boolean) => void) | null>(null);
+  const t = useT();
 
   const confirm = useCallback<ConfirmFn>(
     (options) =>
@@ -55,10 +57,10 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
             <div className="text-15 leading-[1.55] text-ink-2">{current.message}</div>
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={() => settle(false)} data-nav>
-                {current.cancelLabel ?? 'Cancel'}
+                {current.cancelLabel ?? t('common.cancel')}
               </Button>
               <Button variant={current.danger ? 'danger' : 'primary'} onClick={() => settle(true)} data-nav autoFocus>
-                {current.confirmLabel ?? 'Continue'}
+                {current.confirmLabel ?? t('common.continue')}
               </Button>
             </div>
           </div>

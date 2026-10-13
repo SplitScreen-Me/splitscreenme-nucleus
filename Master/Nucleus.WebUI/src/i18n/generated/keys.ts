@@ -52,6 +52,14 @@ export interface MessageParamsMap {
   'common.errors.timeout': undefined;
   /** Something went wrong. Try again. */
   'common.errors.unknown': undefined;
+  /** Controllers */
+  'common.inputs.controllers': undefined;
+  /** Keyboard and mouse */
+  'common.inputs.keyboardMouse': undefined;
+  /** Several keyboards and mice */
+  'common.inputs.multiKeyboardMouse': undefined;
+  /** Input support unknown */
+  'common.inputs.unknown': undefined;
   /** Install */
   'common.install': undefined;
   /** Launch */
@@ -294,6 +302,68 @@ export interface MessageParamsMap {
   'shell.window.minimize': undefined;
   /** Restore */
   'shell.window.restore': undefined;
+  /** controllers */
+  'ui.compat.inputsInList.controllers': undefined;
+  /** keyboard and mouse */
+  'ui.compat.inputsInList.keyboardMouse': undefined;
+  /** several keyboards and mice */
+  'ui.compat.inputsInList.multiKeyboardMouse': undefined;
+  /** Up to {count} players */
+  'ui.compat.maxPlayers': { count: number };
+  /** {input} (not supported) */
+  'ui.compat.notSupported': { input: ParamValue };
+  /** Players unknown */
+  'ui.compat.playersUnknown': undefined;
+  /** Plays with: {inputs} */
+  'ui.compat.playsWith': { inputs: ParamValue };
+  /** with controllers, keyboard and mouse or several keyboards and mice */
+  'ui.compat.withInputs.all': undefined;
+  /** with controllers */
+  'ui.compat.withInputs.controllers': undefined;
+  /** with controllers or keyboard and mouse */
+  'ui.compat.withInputs.controllersKeyboardMouse': undefined;
+  /** with controllers or several keyboards and mice */
+  'ui.compat.withInputs.controllersMultiKeyboardMouse': undefined;
+  /** with keyboard and mouse */
+  'ui.compat.withInputs.keyboardMouse': undefined;
+  /** with keyboard and mouse or several keyboards and mice */
+  'ui.compat.withInputs.keyboardMouseMultiKeyboardMouse': undefined;
+  /** with several keyboards and mice */
+  'ui.compat.withInputs.multiKeyboardMouse': undefined;
+  /** Cross button */
+  'ui.glyph.playstation.a': undefined;
+  /** Circle button */
+  'ui.glyph.playstation.b': undefined;
+  /** Options button */
+  'ui.glyph.playstation.menu': undefined;
+  /** Create button */
+  'ui.glyph.playstation.view': undefined;
+  /** Square button */
+  'ui.glyph.playstation.x': undefined;
+  /** Triangle button */
+  'ui.glyph.playstation.y': undefined;
+  /** A button */
+  'ui.glyph.xbox.a': undefined;
+  /** B button */
+  'ui.glyph.xbox.b': undefined;
+  /** Left bumper */
+  'ui.glyph.xbox.lb': undefined;
+  /** Menu button */
+  'ui.glyph.xbox.menu': undefined;
+  /** Right bumper */
+  'ui.glyph.xbox.rb': undefined;
+  /** View button */
+  'ui.glyph.xbox.view': undefined;
+  /** X button */
+  'ui.glyph.xbox.x': undefined;
+  /** Y button */
+  'ui.glyph.xbox.y': undefined;
+  /** Image */
+  'ui.markdown.image': undefined;
+  /** P{number} */
+  'ui.playerTag': { number: ParamValue };
+  /** Verified */
+  'ui.verified': undefined;
 }
 
 /** Strings with tags (`<kbd>`, `<b>`...): render them with `<T>` to keep their markup; `t()` drops it. */
