@@ -49,6 +49,15 @@ export function initialMockLanguage(): { locale: string; chosen: boolean } {
   return { locale: matchLocale(globalThis.navigator?.languages ?? [], available), chosen: false };
 }
 
+/**
+ * The mock's `detected` language: the browser's languages stand for Windows'. English when none matches, and then
+ * `detectedMatchesWindows` is false, as on an Italian Windows without an Italian file.
+ */
+export function detectMockLanguage(preferred: readonly string[]): { detected: string; detectedMatchesWindows: boolean } {
+  const match = matchLocale(preferred, MOCK_LANGUAGES.map((l) => l.locale), '');
+  return match ? { detected: match, detectedMatchesWindows: true } : { detected: DEFAULT_LOCALE, detectedMatchesWindows: false };
+}
+
 /** Saves and switches the mock's language, as `i18n.setLanguage` does; false for an unknown language. Shared with the settings mock. */
 export function setMockLanguage({ emit }: MockContext, state: MockState, requested: string): boolean {
   const locale = MOCK_LANGUAGES.find((l) => l.locale.toLowerCase() === requested.toLowerCase())?.locale;
@@ -70,7 +79,7 @@ export function createI18nMock(context: MockContext, state: MockState): BridgeHa
   return {
     getState: () => ({
       current: state.language.locale,
-      detected: matchLocale(globalThis.navigator?.languages ?? [], MOCK_LANGUAGES.map((l) => l.locale)),
+      ...detectMockLanguage(globalThis.navigator?.languages ?? []),
       chosen: state.language.chosen,
       languages: [...MOCK_LANGUAGES],
     }),

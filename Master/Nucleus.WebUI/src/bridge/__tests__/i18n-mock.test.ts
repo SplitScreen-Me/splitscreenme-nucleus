@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import { BridgeClient } from '../client.ts';
 import { BridgeError } from '../errors.ts';
 import { createMockBridgeTransport } from '../mock/index.ts';
-import { pseudoLocalize, PSEUDO_LOCALE } from '../mock/i18n.ts';
+import { detectMockLanguage, pseudoLocalize, PSEUDO_LOCALE } from '../mock/i18n.ts';
 import { createBridgeProxy } from '../proxy.ts';
 import { delay } from './helpers.ts';
 
@@ -25,6 +25,17 @@ test('the mock starts in English, not chosen yet, with the pseudo-language avail
   );
   const strings = await bridge.i18n.getStrings({ locale: 'en' });
   assert.equal(strings.strings['common.ok'], 'OK');
+});
+
+test('detected falls back to English, saying it does not match Windows (here the browser languages)', async () => {
+  assert.deepEqual(detectMockLanguage(['fr-FR', 'en-US']), { detected: 'en', detectedMatchesWindows: true });
+  assert.deepEqual(detectMockLanguage(['en-xa']), { detected: PSEUDO_LOCALE, detectedMatchesWindows: true });
+  assert.deepEqual(detectMockLanguage(['it-IT', 'it']), { detected: 'en', detectedMatchesWindows: false });
+  assert.deepEqual(detectMockLanguage([]), { detected: 'en', detectedMatchesWindows: false });
+
+  const { bridge } = mockBridge();
+  const { detected, detectedMatchesWindows } = await bridge.i18n.getState();
+  assert.deepEqual({ detected, detectedMatchesWindows }, detectMockLanguage(globalThis.navigator?.languages ?? []));
 });
 
 test('setLanguage saves the choice, switches and emits languageChanged; the setting follows', async () => {

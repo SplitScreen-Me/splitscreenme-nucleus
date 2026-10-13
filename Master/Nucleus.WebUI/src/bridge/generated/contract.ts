@@ -11,7 +11,7 @@ export const protocolVersion = 1;
 /**
  * Hash of the contract this file was generated from. `app.hello` returns the host's: the UI refuses to run when they differ.
  */
-export const contractHash = '0d82bf46c7eec969';
+export const contractHash = '47e9bef529eae88d';
 
 /** JSON-RPC error code of each kind of error the host returns. */
 export const bridgeErrorCodes = {
@@ -856,6 +856,10 @@ export interface LanguageState {
   current: string;
   /** The available language that matches the Windows display language (English when none does). */
   detected: string;
+  /**
+   * Whether `LanguageState.detected` really matches the Windows display language (its tag, a parent, or another region of the language). False when no language does and `LanguageState.detected` is only the English fallback (Italian Windows without an Italian file): the first-launch picker then preselects English without calling it the Windows language.
+   */
+  detectedMatchesWindows: boolean;
   /** Whether the user has chosen a language. False on the first launch: the UI asks. */
   chosen: boolean;
   /** Available languages, English first, then by English name. */

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
@@ -73,7 +74,14 @@ namespace Nucleus.Gaming.Localization
 
         /// <summary>The available language that matches the Windows display language (English when none does).</summary>
         public static string Detected(Translator translator) =>
-            LanguageDetector.Match(CultureInfo.CurrentUICulture, translator.Available.Select(l => l.Locale));
+            WindowsMatch(translator) ?? LanguageDetector.Match(Enumerable.Empty<string>(), Locales(translator));
+
+        /// <summary>
+        /// The available language that matches the Windows display language (its tag, a parent, or another region of
+        /// the language: see <see cref="LanguageDetector"/>), or null when none does (Italian Windows without it.json).
+        /// </summary>
+        public static string WindowsMatch(Translator translator) =>
+            LanguageDetector.Match(CultureInfo.CurrentUICulture, Locales(translator), fallback: null);
 
         /// <summary>The saved language when it is available, else <see cref="Detected"/>.</summary>
         public static string StartupLocale(Translator translator, ILanguageStore store = null) =>
@@ -95,5 +103,7 @@ namespace Nucleus.Gaming.Localization
             (store ?? Store).Save(resolved);
             return target.SetLanguage(resolved);
         }
+
+        private static IEnumerable<string> Locales(Translator translator) => translator.Available.Select(l => l.Locale);
     }
 }
