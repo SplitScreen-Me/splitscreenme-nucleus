@@ -23,7 +23,7 @@ async function resolveSite(): Promise<string> {
   const policy = document.querySelector<HTMLMetaElement>('meta[http-equiv="Content-Security-Policy"]')?.content;
   if (!connectAllowed(site, cspConnectSources(policy))) {
     const origin = new URL(site).origin;
-    throw new HubError(t('hub.errors.cspBlocked', { origin }));
+    throw new HubError(() => t('hub.errors.cspBlocked', { origin }));
   }
   return site;
 }

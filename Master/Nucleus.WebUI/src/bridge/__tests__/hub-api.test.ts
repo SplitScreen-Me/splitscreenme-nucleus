@@ -7,6 +7,8 @@ import { fetchCatalogue, fetchComments, fetchHandler, HubError } from '../../hub
 import { normalizeHandler, threadComments } from '../../hub/normalize.ts';
 import type { HubCatalogRaw, HubHandlerDetailRaw } from '../../hub/types.ts';
 import { connectAllowed, cspConnectSources, DEFAULT_HUB_URL, hubApiUrl, hubCatalogueUrl, normalizeHubUrl } from '../../hub/urls.ts';
+import { english } from '../../i18n/english.ts';
+import { activateLanguage } from '../../i18n/store.ts';
 
 const fixture = <T>(name: string): T => JSON.parse(readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8')) as T;
 
@@ -149,4 +151,23 @@ test('failures become HubErrors with a readable message', async () => {
     throw new TypeError('Failed to fetch');
   });
   await assert.rejects(fetchComments(SITE, 'abc'), (e: unknown) => e instanceof HubError && /unreachable/.test(e.message));
+});
+
+test('a HubError is worded in the language in use when it is read', async () => {
+  stubFetch(() => {
+    throw new TypeError('Failed to fetch');
+  });
+  const error = await fetchCatalogue(SITE).then(
+    () => assert.fail('the fetch should fail'),
+    (e: unknown) => e as HubError,
+  );
+  assert.ok(error instanceof HubError);
+  assert.match(error.message, /unreachable/);
+  try {
+    activateLanguage('fr', { 'hub.errors.unreachable': 'Le hub est injoignable.' });
+    assert.equal(error.message, 'Le hub est injoignable.');
+  } finally {
+    activateLanguage('en', english);
+  }
+  assert.match(error.message, /unreachable/);
 });

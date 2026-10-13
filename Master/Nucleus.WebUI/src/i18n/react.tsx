@@ -48,6 +48,9 @@ const BASE_TAGS: RichTags = {
 
 const I18nContext = createContext<Omit<I18nValue, keyof I18nSnapshot> | null>(null);
 
+/** Prefix of the hub queries (`hubKeys` in src/hub/queries.ts; not imported: src/hub imports this module). */
+const HUB_QUERIES = ['hub'] as const;
+
 /** Query keys of bridge methods whose answers hold host texts: all of them except the handshake and i18n itself. */
 function holdsHostText(query: Query): boolean {
   const [method] = query.queryKey;
@@ -87,6 +90,9 @@ export function I18nProvider({ children, loading = null, tags }: I18nProviderPro
 
   useBridgeEvent('i18n.languageChanged', () => {
     void queryClient.invalidateQueries({ predicate: holdsHostText });
+    // Hub data holds stand-ins worded when it was fetched (hub.fallbacks.*): fetch it again (the browser cache
+    // revalidates with the ETags). Hub errors word themselves when read (HubError).
+    void queryClient.invalidateQueries({ queryKey: HUB_QUERIES });
   });
 
   const setLanguage = useCallback(

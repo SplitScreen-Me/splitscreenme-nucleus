@@ -7,12 +7,17 @@ import { isHandler, normalizeComment, normalizeHandler } from './normalize.ts';
 import type { HubCatalogRaw, HubComment, HubCommentPageRaw, HubHandler } from './types.ts';
 import { hubApiUrl } from './urls.ts';
 
+/**
+ * A failed hub request. `describe` words it: `message` calls it each time it is read, so an error on screen follows a
+ * change of language (the screen re-renders through its i18n hook).
+ */
 export class HubError extends Error {
   readonly status?: number;
-  constructor(message: string, status?: number) {
-    super(message);
+  constructor(describe: () => string, status?: number) {
+    super(describe());
     this.name = 'HubError';
     this.status = status;
+    Object.defineProperty(this, 'message', { get: describe, configurable: true, enumerable: false });
   }
 }
 
@@ -26,18 +31,18 @@ async function getJson<T>(url: string, signal: AbortSignal | undefined, notFound
     res = await fetch(url, { signal, credentials: 'omit' });
   } catch (err) {
     if ((err as Error).name === 'AbortError') throw err;
-    throw new HubError(t('hub.errors.unreachable'));
+    throw new HubError(() => t('hub.errors.unreachable'));
   }
   if (res.status === 404 && notFound === 'null') return null;
   if (res.status === 429) {
     const wait = Number(res.headers.get('Retry-After'));
-    throw new HubError(wait > 0 ? t('hub.errors.busyRetryIn', { seconds: Math.ceil(wait) }) : t('hub.errors.busy'), 429);
+    throw new HubError(() => (wait > 0 ? t('hub.errors.busyRetryIn', { seconds: Math.ceil(wait) }) : t('hub.errors.busy')), 429);
   }
-  if (!res.ok) throw new HubError(t('hub.errors.status', { status: String(res.status) }), res.status);
+  if (!res.ok) throw new HubError(() => t('hub.errors.status', { status: String(res.status) }), res.status);
   try {
     return (await res.json()) as T;
   } catch {
-    throw new HubError(t('hub.errors.unreadable'));
+    throw new HubError(() => t('hub.errors.unreadable'));
   }
 }
 
