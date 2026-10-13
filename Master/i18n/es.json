@@ -72,7 +72,7 @@
       "controllers": "Mandos",
       "keyboardMouse": "Teclado y ratón",
       "multiKeyboardMouse": "Varios teclados y ratones",
-      "unknown": "Entradas desconocidas"
+      "unknown": "Compatibilidad de entradas desconocida"
     },
     "devices": {
       "gamepad": "mando",
@@ -337,7 +337,7 @@
       "notRecorded": "Sin registrar",
       "playTime": "Tiempo de juego",
       "underAMinute": "Menos de un minuto",
-      "notPlayed": "Aún no se ha jugado. Reparte los mandos: cada jugador presiona Start para unirse."
+      "notPlayed": "Aún no lo has jugado. Reparte los mandos: cada jugador presiona Start para unirse."
     },
     "options": {
       "title": "Opciones de {game}",
@@ -400,7 +400,7 @@
       "title_one": "Populares en el Hub para {count} jugador o más",
       "title_many": "Populares en el Hub para {count} jugadores o más",
       "title_other": "Populares en el Hub para {count} jugadores o más",
-      "openGetGames": "Abrir Obtener juegos",
+      "openGetGames": "Ir a Obtener juegos",
       "tileLabel": "{game} en el Hub",
       "tileMeta": "{players}, {downloads}"
     },
@@ -474,12 +474,12 @@
       "selectToAdd": "Selecciona juegos para añadir",
       "scanAgain": "Volver a analizar",
       "emptyTitle": "Nada nuevo en este PC",
-      "noneNew_one": "El único juego instalado mediante {stores} no tiene un handler que no tengas ya.",
-      "noneNew_many": "Ninguno de los {count} juegos instalados mediante {stores} tiene un handler que no tengas ya.",
-      "noneNew_other": "Ninguno de los {count} juegos instalados mediante {stores} tiene un handler que no tengas ya.",
-      "noneNewAnyStore_one": "El único juego instalado mediante tus tiendas no tiene un handler que no tengas ya.",
-      "noneNewAnyStore_many": "Ninguno de los {count} juegos instalados mediante tus tiendas tiene un handler que no tengas ya.",
-      "noneNewAnyStore_other": "Ninguno de los {count} juegos instalados mediante tus tiendas tiene un handler que no tengas ya.",
+      "noneNew_one": "El único juego instalado mediante {stores} no tiene ningún handler nuevo para ti.",
+      "noneNew_many": "Ninguno de los {count} juegos instalados mediante {stores} tiene un handler nuevo para ti.",
+      "noneNew_other": "Ninguno de los {count} juegos instalados mediante {stores} tiene un handler nuevo para ti.",
+      "noneNewAnyStore_one": "El único juego instalado mediante tus tiendas no tiene ningún handler nuevo para ti.",
+      "noneNewAnyStore_many": "Ninguno de los {count} juegos instalados mediante tus tiendas tiene un handler nuevo para ti.",
+      "noneNewAnyStore_other": "Ninguno de los {count} juegos instalados mediante tus tiendas tiene un handler nuevo para ti.",
       "noGames": "Nucleus busca juegos instalados mediante Steam y Epic. Instala un juego y vuelve a analizar.",
       "steps": {
         "waiting": "En espera",
@@ -804,7 +804,7 @@
     "downloadCount_many": "{downloads} descargas",
     "downloadCount_other": "{downloads} descargas",
     "players": {
-      "any": "Cualquiera"
+      "any": "Todos"
     },
     "sort": {
       "trending": "Tendencias",
@@ -923,7 +923,7 @@
         "label": "Dos jugadores, arriba y abajo"
       },
       "dualVertical": {
-        "label": "Dos jugadores, lado a lado"
+        "label": "Dos jugadores, izquierda y derecha"
       },
       "fourPlayers": {
         "label": "Cuatro jugadores, 2 × 2"
@@ -1026,8 +1026,8 @@
       "hiddenInputs": "Los teclados y ratones aparecen aquí en cuanto los usas.",
       "hiddenInputsShort": "Los teclados y ratones aparecen al usarlos.",
       "allJoined": "Todos los dispositivos se han unido. Conecta otro mando para añadir un jugador.",
-      "rescan": "Volver a buscar",
-      "rescanned": "Dispositivos buscados de nuevo",
+      "rescan": "Actualizar",
+      "rescanned": "Lista de dispositivos actualizada",
       "placeEveryone": "Colocar a todos",
       "clear": "Vaciar",
       "clearConfirm": {
@@ -1072,7 +1072,7 @@
       "dragHint": "Arrastra a una pantalla para mover a este jugador",
       "nicknameLabel": "Apodo del jugador {number}",
       "expandLabel": "Ampliar o reducir al jugador {number}",
-      "expandHint": "Ampliar sobre los lugares libres vecinos, o volver a reducir",
+      "expandHint": "Ocupar los lugares libres contiguos o volver a reducir",
       "removeLabel": "Sacar al jugador {number}",
       "remove": "Sacar",
       "removeDeviceLabel": "Quitar {device} del jugador {number}",
@@ -1122,8 +1122,8 @@
         "mouse": "Jugador {number} del perfil: presiona un botón de un ratón.",
         "keyboardMouse": "Jugador {number} del perfil: presiona una tecla o un botón de un teclado y ratón."
       },
-      "profileReady": "Todos los jugadores del perfil están aquí. Inicia cuando estés listo.",
-      "readyToPlay": "Ya están todos. Inicia cuando estés listo."
+      "profileReady": "Todos los jugadores del perfil están aquí. Inicia cuando quieras.",
+      "readyToPlay": "Ya están todos. Inicia cuando quieras."
     },
     "options": {
       "title": "Opciones del handler",
@@ -1163,8 +1163,8 @@
     "launch": {
       "label": "Iniciar",
       "starting": "Iniciando las copias…",
-      "blocking": "{check}. Corrígelo en \"{section}\".",
-      "busy": "{check}: en ello…",
+      "blocking": "{check}. Corrígelo en “{section}”.",
+      "busy": "{check}: en curso…",
       "nextStep": "Siguiente: {step}. Después, inicia.",
       "nextPlayers": "Siguiente: jugadores. Después, inicia.",
       "nextOptions": "Siguiente: opciones. Después, inicia.",
@@ -1205,12 +1205,12 @@
       "keyboardMice_one": "{count} teclado y ratón",
       "keyboardMice_many": "{count} teclados y ratones",
       "keyboardMice_other": "{count} teclados y ratones",
-      "autoPlay": "se inicia solo",
+      "autoPlay": "inicio automático",
       "withNotes": "{summary}. {notes}"
     },
     "status": {
-      "assigned": "{assigned} de {total} dentro",
-      "assignedAutoPlay": "{assigned} de {total} dentro, se inicia solo"
+      "assigned": "{assigned} de {total} presentes",
+      "assignedAutoPlay": "{assigned} de {total} presentes, inicio automático"
     },
     "toasts": {
       "loaded": "{profile} cargado. Los jugadores se unen al presionar un botón.",
@@ -1225,7 +1225,7 @@
       "nextProfileSaveOn": "<b>Siguiente perfil.</b> La próxima sesión guardará esta configuración como un perfil nuevo con estos ajustes.",
       "nextProfileSaveOff": "<b>Siguiente perfil.</b> Activa “{setting}” para guardar esta configuración como un perfil nuevo.",
       "loaded": "Cargado",
-      "autoPlay": "Se inicia solo",
+      "autoPlay": "Inicio automático",
       "playersLabel": "Jugadores de {profile}",
       "load": "Cargar",
       "unload": "Descargar",
@@ -1237,8 +1237,8 @@
       "title": "¿Eliminar {profile}?",
       "message": "{profile} se eliminará definitivamente.",
       "messageRenumbered": "{profile} se eliminará definitivamente. Los perfiles posteriores se volverán a numerar.",
-      "messageReset": "{profile} se eliminará definitivamente. La configuración vuelve a empezar: todos los jugadores vuelven a la bandeja.",
-      "messageRenumberedReset": "{profile} se eliminará definitivamente. Los perfiles posteriores se volverán a numerar. La configuración vuelve a empezar: todos los jugadores vuelven a la bandeja.",
+      "messageReset": "{profile} se eliminará definitivamente. La configuración empieza de cero: todos los jugadores vuelven a la bandeja.",
+      "messageRenumberedReset": "{profile} se eliminará definitivamente. Los perfiles posteriores se volverán a numerar. La configuración empieza de cero: todos los jugadores vuelven a la bandeja.",
       "done": "{profile} eliminado"
     },
     "settings": {
@@ -1246,7 +1246,7 @@
       "titleUnnamed": "Ajustes del perfil",
       "titleNext": "Ajustes del siguiente perfil",
       "intro": "{game}: estos ajustes se guardan en el perfil.",
-      "introNext": "{game}: el siguiente perfil que guarde una sesión recibirá estos ajustes. Los ajustes por jugador siguen a los jugadores colocados ahora.",
+      "introNext": "{game}: el siguiente perfil que guarde una sesión recibirá estos ajustes. Los ajustes por jugador se toman de los jugadores colocados ahora.",
       "loading": "Leyendo los ajustes del perfil…",
       "loadError": "No se pudieron leer los ajustes del perfil.",
       "fixErrors": "Corrige los campos en rojo y vuelve a guardar.",
@@ -1287,7 +1287,7 @@
           "placeholder": "Quién juega dónde, qué mando es de quién…"
         },
         "autoPlay": {
-          "label": "Iniciar solo",
+          "label": "Inicio automático",
           "help": "Se inicia en cuanto se han unido todos los jugadores del perfil."
         },
         "useNicknames": {
@@ -1456,7 +1456,7 @@
     },
     "stop": {
       "hold": "Mantén para detener",
-      "holding": "Sigue manteniendo",
+      "holding": "No sueltes",
       "blocked": "Desbloquea para detener",
       "stopping": "Deteniendo…",
       "stopped": "Detenida",
@@ -1523,7 +1523,7 @@
       "game": "Juego",
       "duration": "Duración",
       "played": "Jugado",
-      "timeRange": "De {start} a {end}",
+      "timeRange": "de {start} a {end}",
       "players": "Jugadores",
       "guest": "Invitado: {device}",
       "noDevice": "Ningún dispositivo registrado",
@@ -1543,8 +1543,8 @@
     },
     "notes": {
       "title": "Notas del handler",
-      "byMaintainer": "Cómo conectar las copias, de {name}",
-      "byAuthor": "Cómo conectar las copias, del autor del handler",
+      "byMaintainer": "Cómo conectar las copias, según {name}",
+      "byAuthor": "Cómo conectar las copias, según el autor del handler",
       "textLabel": "Texto de las notas del handler",
       "loading": "Leyendo las notas…",
       "error": "No se pudieron leer las notas.",
@@ -1604,7 +1604,7 @@
       "loading": "Leyendo las ranuras de jugador…",
       "error": "No se pudieron leer las ranuras de jugador.",
       "editorTitle": "Apodos e ID de Steam",
-      "editorHint": "El jugador 1 siempre recibe la primera ranura, el jugador 2 la segunda, y así sucesivamente. Vacío significa el valor predeterminado.",
+      "editorHint": "El jugador 1 siempre recibe la primera ranura, el jugador 2 la segunda, y así sucesivamente. Si se deja vacío, se usa el valor predeterminado.",
       "nickname": "Apodo",
       "steamId": "ID de Steam",
       "nicknameLabel": "Apodo del jugador {number}",
@@ -1737,7 +1737,7 @@
           },
           "nucleusAccountPassword": {
             "label": "Contraseña de las cuentas de usuario de Nucleus",
-            "description": "Contraseña de las cuentas de Windows que crea Nucleus. Se guarda como texto sin cifrar en Settings.ini. 12345 o vacío usa la contraseña integrada."
+            "description": "Contraseña de las cuentas de Windows que crea Nucleus. Se guarda como texto sin cifrar en Settings.ini. Con 12345 o vacía, se usa la contraseña integrada."
           },
           "autoDesktopScaling": {
             "label": "Escalado del escritorio al 100 % durante las sesiones",
@@ -1749,7 +1749,7 @@
           },
           "ignoreInputLockReminder": {
             "label": "No recordarme bloquear las entradas",
-            "description": "Si está desactivado, al iniciar un mensaje explica cómo bloquear la entrada de teclado y ratón."
+            "description": "Si está desactivado, al iniciar se muestra un mensaje que explica cómo bloquear la entrada de teclado y ratón."
           },
           "debugLog": {
             "label": "Activar registro de depuración",
@@ -1847,7 +1847,7 @@
           },
           "instance": {
             "label": "Instancia {number}",
-            "description": "Se usa cuando está seleccionado \"Elegir un dispositivo para cada instancia\"."
+            "description": "Se usa cuando está seleccionado “Elegir un dispositivo para cada instancia”."
           }
         },
         "layout": {
@@ -1860,7 +1860,7 @@
             "description": "Filas de la cuadrícula de la disposición personalizada, menos una. Máximo de jugadores = (horizontales + 1) × (verticales + 1)."
           },
           "splitDiv": {
-            "label": "Fondo de pantalla dividida",
+            "label": "Fondo de la pantalla dividida",
             "description": "Rellena con un color la pantalla detrás de las ventanas del juego. Puede que no funcione con todos los juegos."
           },
           "splitDivColor": {
@@ -1921,8 +1921,8 @@
         "triangle": "Triángulo"
       },
       "rules": {
-        "gamepadAssignment": "\"Asignar mandos por índice\" y \"Asignar mandos al presionar un botón\" no pueden estar activados a la vez.",
-        "cutscenesMuteAudioOnly": "\"Solo silenciar el audio\" no se puede combinar con las demás opciones del modo de cinemáticas."
+        "gamepadAssignment": "“Asignar mandos por índice” y “Asignar mandos al presionar un botón” no pueden estar activados a la vez.",
+        "cutscenesMuteAudioOnly": "“Solo silenciar el audio” no se puede combinar con las demás opciones del modo de cinemáticas."
       },
       "reminderImage": {
         "keyboardTitle": "Atajos de teclado",
@@ -1943,10 +1943,10 @@
       "errors": {
         "unknownSetting": "Ajuste desconocido.",
         "invalidValue": "Valor no válido.",
-        "alreadyUsed": "Ya lo usa \"{label}\".",
+        "alreadyUsed": "Ya lo usa “{label}”.",
         "toggle": "Usa true o false.",
-        "wholeNumber": "Introduce un número entero.",
-        "numberRange": "Introduce un número entre {min} y {max}.",
+        "wholeNumber": "Escribe un número entero.",
+        "numberRange": "Escribe un número entre {min} y {max}.",
         "choice": "Elige uno de los valores de la lista.",
         "maxLength_one": "Usa como máximo {count} carácter.",
         "maxLength_many": "Usa como máximo {count} caracteres.",
@@ -1958,7 +1958,7 @@
         "hotkeyKey": "La tecla debe ser una sola letra o un solo dígito.",
         "singleButton": "Usa un solo botón.",
         "twoButtons": "Usa una combinación de dos botones, por ejemplo Guide + Y.",
-        "unknownButton": "'{code}' no es un código de botón de mando.",
+        "unknownButton": "“{code}” no es un código de botón de mando.",
         "differentButtons": "Usa dos botones diferentes.",
         "bothTriggers": "No se pueden combinar los dos gatillos: usa un gatillo con un botón.",
         "noGamepad": "No hay ningún mando XInput conectado.",
@@ -2005,7 +2005,7 @@
         "deleteContentFolder": {
           "label": "Eliminar carpeta de contenido del juego",
           "description": "Cierra los procesos del juego que queden abiertos y elimina las instancias del juego.",
-          "confirm": "¿Seguro que quieres eliminar '{folder}' y todo su contenido? Primero se cierran los procesos de {game} en ejecución."
+          "confirm": "¿Seguro que quieres eliminar “{folder}” y todo su contenido? Primero se cierran los procesos de {game} en ejecución."
         },
         "openUserConfig": {
           "label": "Abrir ruta de configuración en UserProfile"
@@ -2031,7 +2031,7 @@
         "deleteDocumentsSave": {
           "label": "Eliminar ruta de guardado en Documentos"
         },
-        "deleteFolderConfirm": "¿Seguro que quieres eliminar '{folder}' y todo su contenido?",
+        "deleteFolderConfirm": "¿Seguro que quieres eliminar “{folder}” y todo su contenido?",
         "nucleusFolder": "Nucleus: {name}",
         "openBackup": {
           "label": "Abrir carpeta de copias de seguridad",
@@ -2086,7 +2086,7 @@
         },
         "steamLanguage": {
           "label": "Idioma de Steam",
-          "description": "Idioma que comunica el emulador de Steam para este juego. \"{appSetting}\" usa el ajuste global.",
+          "description": "Idioma que comunica el emulador de Steam para este juego. “{appSetting}” usa el ajuste global.",
           "appSetting": "Ajuste general"
         },
         "remove": {
@@ -2105,14 +2105,14 @@
         "fileGone": "El archivo ya no existe.",
         "sessionRunning": "Primero detén la sesión de juego en curso.",
         "sessionRunningReload": "Detén la sesión de juego en curso antes de recargar los handlers.",
-        "deleteFailed": "No se pudo eliminar '{folder}': {error}",
+        "deleteFailed": "No se pudo eliminar “{folder}”: {error}",
         "unsupportedIcon": "Usa una imagen (png, jpg, gif, bmp, tif, ico) o un ejecutable.",
         "contextMissing": "El handler de {game} espera {files} junto a {executable}. Elige el ejecutable dentro de la carpeta de instalación del juego.",
         "noHandler": "Ningún handler instalado admite {executable}. Primero instala el handler del juego.",
         "alreadyInLibrary": "{game} ya usa este ejecutable en tu biblioteca.",
         "noHubHandler": "El handler de este juego no proviene del Hub: no hay imágenes que descargar.",
         "executableNotFound": "El ejecutable no existe.",
-        "exFat": "\"exFAT\" no es un formato de unidad compatible: no admite enlaces simbólicos. Mueve el juego a una unidad NTFS o formatea la unidad en NTFS.",
+        "exFat": "“exFAT” no es un formato de unidad compatible: no admite enlaces simbólicos. Mueve el juego a una unidad NTFS o formatea la unidad en NTFS.",
         "handlerNotFound": "Handler no encontrado.",
         "handlerMismatch": "{executable} no coincide con el handler de {game} (espera {expected}, con los archivos que el handler comprueba a su lado).",
         "artworkFailed": "No se pudieron descargar las imágenes: {error}"
@@ -2175,7 +2175,7 @@
           "updateAvailable": "Actualización del handler disponible",
           "version": "Versión {version}",
           "action": "Actualizar",
-          "upToDate": "Handler actualizado"
+          "upToDate": "Handler al día"
         },
         "oneDrive": {
           "title": "Carpeta Documentos en OneDrive",
@@ -2221,8 +2221,8 @@
         "pickStepItem": "Elige una opción: {step}",
         "profileWaitingForPlayer": "Jugador {number}: presiona un botón o una tecla en el dispositivo que vas a usar.",
         "noDevices": "Conecta un mando.",
-        "padNotIdentified": "Se presionó un mando, pero Nucleus no pudo saber qué dispositivo es. Presiona Start solo en ese mando. Si sigue fallando, cierra las herramientas que duplican mandos (DS4Windows sin HidHide, Steam Input).",
-        "padNotIdentifiedSlotMode": "Se presionó un mando, pero Nucleus no pudo saber qué dispositivo es. Presiona Start solo en ese mando. Si sigue fallando, cierra las herramientas que duplican mandos (DS4Windows sin HidHide, Steam Input) o activa \"Identificar los mandos por ranura\".",
+        "padNotIdentified": "Se presionó un botón de un mando, pero Nucleus no pudo saber qué dispositivo es. Presiona Start en ese mando sin tocar los demás. Si sigue fallando, cierra las herramientas que duplican mandos (DS4Windows sin HidHide, Steam Input).",
+        "padNotIdentifiedSlotMode": "Se presionó un botón de un mando, pero Nucleus no pudo saber qué dispositivo es. Presiona Start en ese mando sin tocar los demás. Si sigue fallando, cierra las herramientas que duplican mandos (DS4Windows sin HidHide, Steam Input) o activa “Identificar los mandos por ranura”.",
         "dragPlayersToScreens": "Arrastra un dispositivo a una pantalla para añadir un jugador.",
         "pressButtonToIdentify": "Presiona un botón de un mando (o usa un teclado) para mostrarlo."
       },
@@ -2450,13 +2450,13 @@
       "debug": "Versión de Nucleus: {version}\n\nNucleus no pudo preparar el handler. Se intentará hacer una limpieza.\n\n[Tipo]\n\n{type}\n\n[Mensaje]\n\n{message}\n{help}\n\n[Stacktrace]\n\n{stackTrace}",
       "help": {
         "fileNotFound": "Nucleus Co-op no encuentra el archivo de configuración del juego. Asegúrate de haber ejecutado el juego principal al menos una vez sin Nucleus y de haber cambiado y aplicado algún ajuste gráfico; así te aseguras de que se generen los archivos de configuración adecuados.\nSi después de hacerlo sigues recibiendo este error, selecciona el juego en la interfaz de Nucleus Co-op, haz clic en Opciones del juego y selecciona Eliminar ruta de configuración en UserProfile para todos los jugadores. También puedes probar a eliminar la carpeta de contenido de Nucleus Co-op y volver a añadir el juego.",
-        "access": "Nucleus Co-op no tiene los permisos necesarios o intenta acceder a un archivo que ya está en uso,\npuede que falte un archivo (para quienes ayudan: en caso de \"IOException\", comprueba que existan todos los archivos requeridos en \"Game.Play = function()\").\nAsegúrate de que Nucleus Co-op esté fuera de cualquier carpeta de juego o carpeta protegida;\nse recomienda colocar la carpeta de la aplicación Nucleus Co-op en la raíz de tu unidad principal para evitar problemas de permisos: {suggestedFolder}.\nAsegúrate de que otras aplicaciones no estén usando ninguno de los archivos a los que Nucleus intenta acceder. Si nada de esto funciona, ejecuta Nucleus Co-op con permisos de administrador."
+        "access": "Nucleus Co-op no tiene los permisos necesarios o intenta acceder a un archivo que ya está en uso,\npuede que falte un archivo (para quienes ayudan: en caso de “IOException”, comprueba que existan todos los archivos requeridos en “Game.Play = function()”).\nAsegúrate de que Nucleus Co-op esté fuera de cualquier carpeta de juego o carpeta protegida;\nse recomienda colocar la carpeta de la aplicación Nucleus Co-op en la raíz de tu unidad principal para evitar problemas de permisos: {suggestedFolder}.\nAsegúrate de que otras aplicaciones no estén usando ninguno de los archivos a los que Nucleus intenta acceder. Si nada de esto funciona, ejecuta Nucleus Co-op con permisos de administrador."
       }
     },
     "debugLog": {
       "enable": {
         "title": "Activar el registro de depuración",
-        "message": "Haz clic en \"Sí\" si quieres activar el registro de depuración. Vuelve a iniciar el juego para generar un registro de depuración.\nHaz clic en \"No\" para desactivar este aviso."
+        "message": "Haz clic en “Sí” si quieres activar el registro de depuración. Vuelve a iniciar el juego para generar un registro de depuración.\nHaz clic en “No” para desactivar este aviso."
       }
     },
     "hotkeys": {
@@ -2485,7 +2485,7 @@
     "flawlessWidescreen": {
       "pluginMissing": {
         "title": "Nucleus - Usar Flawless Widescreen",
-        "message": "Nucleus no encontró ningún plugin instalado para \"{plugin}\" en FlawlessWidescreen. Ahora se abrirá FlawlessWidescreen. Asegúrate de instalar el plugin y de hacer los cambios necesarios. Cuando cierres FlawlessWidescreen, Nucleus continuará. Haz clic en Aceptar para abrir FlawlessWidescreen"
+        "message": "Nucleus no encontró ningún plugin instalado para “{plugin}” en FlawlessWidescreen. Ahora se abrirá FlawlessWidescreen. Asegúrate de instalar el plugin y de hacer los cambios necesarios. Cuando cierres FlawlessWidescreen, Nucleus continuará. Haz clic en Aceptar para abrir FlawlessWidescreen"
       }
     },
     "network": {
@@ -2500,11 +2500,11 @@
     "deleteFiles": {
       "configPathTitle": "Nucleus - Eliminar archivos de la ruta de configuración",
       "savePathTitle": "Nucleus - Eliminar archivos de la ruta de guardado",
-      "confirm": "¿Seguro que quieres eliminar '{file}'?"
+      "confirm": "¿Seguro que quieres eliminar “{file}”?"
     },
     "goldberg": {
       "interfacesMissing": "Goldberg no pudo encontrar ni crear steam_interfaces.txt. El proceso continuará sin usar este archivo.",
-      "customDllPathMissing": "No se ha añadido ninguna ruta de archivo a \"{option}\"",
+      "customDllPathMissing": "No se ha añadido ninguna ruta de archivo a “{option}”",
       "steamApiMissing": "Goldberg no pudo encontrar un archivo steam_api(64).dll.\nNo se usará el Goldberg integrado.",
       "lobbyConnect": {
         "waitForHost": "Goldberg Lobby Connect: haz clic en Aceptar cuando estés alojando una partida.",
@@ -2515,14 +2515,14 @@
     "drives": {
       "exFat": {
         "title": "¡Formato de unidad incompatible!",
-        "message": "\"exFat\" no es un formato de unidad compatible.\n\nMueve tu carpeta de instalación de Nucleus a una unidad con formato NTFS o formatea la unidad en NTFS.\n\nMotivos:\n\nexFat no admite enlaces simbólicos."
+        "message": "“exFat” no es un formato de unidad compatible.\n\nMueve tu carpeta de instalación de Nucleus a una unidad con formato NTFS o formatea la unidad en NTFS.\n\nMotivos:\n\nexFat no admite enlaces simbólicos."
       },
       "checkFailed": "Error: {error}\n¡Algo salió mal durante la comprobación de compatibilidad de las unidades!"
     },
     "profiles": {
-      "loaded": "Perfil del handler \"{title}\" cargado",
+      "loaded": "Perfil del handler “{title}” cargado",
       "loadedNumber": "Perfil del handler n.º {number} cargado",
-      "updated": "Perfil del handler \"{title}\" actualizado",
+      "updated": "Perfil del handler “{title}” actualizado",
       "updatedNumber": "Perfil del handler n.º {number} actualizado",
       "setupFinished": "Configuración terminada",
       "savedSetupFinished": "Perfil del handler guardado. Configuración terminada",
@@ -2568,7 +2568,7 @@
       "switchingLayouts": "Cambiando de disposición",
       "cutscenesModeOn": "Modo de cinemáticas activado",
       "cutscenesModeOff": "Modo de cinemáticas desactivado",
-      "resettingWindows": "Restableciendo las ventanas del juego. Espera...",
+      "resettingWindows": "Restableciendo las ventanas del juego. Espera…",
       "windowsReset": "Ventanas del juego restablecidas",
       "waitForReset": "Espera a que se restablezcan las ventanas del juego",
       "windowsMinimized": "Ventanas del juego minimizadas",
