@@ -64,15 +64,7 @@
       "methodNotFound": "This version of Nucleus Co-op cannot do that yet.",
       "cancelled": "Cancelled.",
       "failed": "That did not work. Try again.",
-      "unknown": "Something went wrong. Try again.",
-      "hub": {
-        "unreachable": "The Hub is unreachable. Check your connection.",
-        "busy": "The Hub is busy right now. Try again in a moment.",
-        "busyRetryAfter": "The Hub is busy right now. Try again in {seconds} s.",
-        "status": "The Hub answered {status}.",
-        "_note": "status: an HTTP status code, such as 503.",
-        "unreadable": "The Hub sent an unreadable answer."
-      }
+      "unknown": "Something went wrong. Try again."
     },
     "inputs": {
       "_note": "The inputs a handler supports, as labels (filters, icons, tables).",
@@ -95,13 +87,6 @@
       "keyboard": "keyboard",
       "mouse": "mouse",
       "keyboardMouse": "keyboard and mouse"
-    },
-    "hubData": {
-      "_note": "Stand-ins when the Hub sends a handler or a comment without these fields.",
-      "untitledHandler": "Untitled handler",
-      "unknownAuthor": "Unknown author",
-      "unknownGame": "Unknown game",
-      "someone": "Someone"
     }
   },
   "shell": {
@@ -307,11 +292,533 @@
       "confirm": "Continue in {language}"
     }
   },
-  "library": {},
-  "catalog": {},
-  "handler": {},
-  "downloads": {},
-  "hub": {},
+  "library": {
+    "title": "Library",
+    "hints": {
+      "gameOptions": "Game options",
+      "favourite": "Favourite",
+      "updateHandler": "Update handler"
+    },
+    "loading": "Loading your library",
+    "loadError": "Your library could not be read",
+    "toasts": {
+      "handlerUpdated": "{game} handler updated",
+      "handlerUpdatedTo": "{game} handler updated to v{version}",
+      "favouriteAdded": "{game} added to favourites",
+      "favouriteRemoved": "{game} removed from favourites",
+      "gameRemoved": "{game} removed from your library"
+    },
+    "attention": {
+      "_note": "Read by screen readers only. {item}, {missing} and {updates} are the gamesNotFound and handlerUpdates texts.",
+      "gamesNotFound_one": "{count} game not found",
+      "gamesNotFound_other": "{count} games not found",
+      "handlerUpdates_one": "{count} handler update",
+      "handlerUpdates_other": "{count} handler updates",
+      "one": "{item}.",
+      "both": "{missing}, {updates}."
+    },
+    "empty": {
+      "title": "Your library is empty",
+      "text": "Add the games Nucleus found on this PC, pick a handler on the Hub, or point Nucleus at a game you have. Each game gets a ready-made split-screen setup.",
+      "getGames": "Get games",
+      "addGame": "Add a game"
+    },
+    "upToPlayers_one": "Up to {count} player",
+    "upToPlayers_other": "Up to {count} players",
+    "handlerLine": {
+      "hub": "Hub handler",
+      "fromFile": "Handler installed from a file",
+      "version": "Handler version {version}",
+      "versionWithLatest": "Handler version {version}, version {latest} on the Hub"
+    },
+    "inputs": {
+      "controllersKeyboardsMice": "Controllers, keyboards and mice",
+      "controllersKeyboardMouse": "Controllers, keyboard and mouse",
+      "controllers": "Controllers",
+      "keyboardsMice": "Keyboards and mice",
+      "keyboardMouse": "Keyboard and mouse",
+      "unknown": "Input support unknown"
+    },
+    "featured": {
+      "setUpSession": "Set up session",
+      "gameOptions": "Game options",
+      "locateGame": "Locate game",
+      "updating": "Updating {percent}",
+      "updateTo": "Update to v{version}",
+      "missing": "Nucleus can't find this game's executable. It may have moved: locate it to play again.",
+      "yourPlay": "Your play",
+      "lastPlayed": "Last played",
+      "notRecorded": "Not recorded",
+      "playTime": "Play time",
+      "underAMinute": "Under a minute",
+      "notPlayed": "Not played yet. Hand out the controllers: everyone presses Start to join."
+    },
+    "options": {
+      "title": "{game} options",
+      "defaultTitle": "Game options",
+      "summary_one": "{handler}. Up to {count} player.",
+      "summary_other": "{handler}. Up to {count} players.",
+      "executableMissing": "The game executable is missing.",
+      "setUpSession": "Set up session",
+      "locateGame": "Locate game",
+      "updating": "Updating {percent}",
+      "updateTo": "Update handler to v{version}",
+      "handlerPage": "Handler page",
+      "loading": "Loading the options of {game}",
+      "loadError": "The options of this game could not be read."
+    },
+    "gameMenu": {
+      "pickFileTitle": "{action}: {game}",
+      "done": "{action}: done"
+    },
+    "gameInfo": {
+      "readError": "Nucleus Co-op could not read this game."
+    },
+    "notes": {
+      "title": "{game}: handler notes",
+      "defaultTitle": "Handler notes",
+      "metaBy": "{file}, by {maintainer}",
+      "metaVersion": "{file}, version {version}",
+      "metaByVersion": "{file}, by {maintainer}, version {version}",
+      "none": "This handler has no notes."
+    },
+    "details": {
+      "title": "{game}: details",
+      "defaultTitle": "Game details",
+      "executable": "Executable",
+      "architecture": "Architecture",
+      "handlerFile": "Handler file",
+      "handlerVersion": "Handler version",
+      "versionWithLatest": "{version} (version {latest} on the Hub)",
+      "maintainer": "Maintainer",
+      "steamApp": "Steam app",
+      "players": "Players",
+      "playersValue_other": "Up to {count}",
+      "inputs": "Inputs",
+      "profiles": "Profiles",
+      "profileCount_one": "{count} saved profile",
+      "profileCount_other": "{count} saved profiles",
+      "noProfiles": "None saved yet",
+      "profilesOff": "Turned off",
+      "options": "Options",
+      "hasOptions": "The handler has options or setup steps",
+      "instancesFolder": "Instances folder",
+      "notSet": "Not set",
+      "showInExplorer": "Show in File Explorer"
+    },
+    "hubStrip": {
+      "title_other": "Popular for {count} players or more on the Hub",
+      "openGetGames": "Open Get games",
+      "tileLabel": "{game} on the Hub",
+      "tileMeta": "{players}, {downloads}"
+    },
+    "games": {
+      "title": "Your games",
+      "count_one": "{count} game",
+      "count_other": "{count} games",
+      "countFiltered": "{shown} of {total}",
+      "sort": "Sort",
+      "sortLabel": "Sort games",
+      "addGame": "Add a game",
+      "filtersLabel": "Filter games",
+      "favourites": "Favourites",
+      "needsAttention": "Needs attention",
+      "allReady": "Every game is ready to play. Nothing needs your attention.",
+      "noMatch": "No game in your library matches these filters.",
+      "showAll": "Show every game"
+    },
+    "sort": {
+      "lastPlayed": "Last played",
+      "name": "Name, A to Z",
+      "nameDescending": "Name, Z to A",
+      "maxPlayers": "Most players",
+      "playtime": "Most played"
+    },
+    "filters": {
+      "controllers": "Controllers",
+      "keyboard": "Keyboard and mouse",
+      "multipleKeyboards": "Several keyboards"
+    },
+    "card": {
+      "addFavourite": "Add {game} to favourites",
+      "removeFavourite": "Remove {game} from favourites",
+      "favouriteTitle": "Favourite",
+      "addFavouriteTitle": "Add to favourites",
+      "missingLabel": "{game}: game executable not found. Locate it",
+      "notFound": "Game not found",
+      "locate": "Locate",
+      "executableMissing": "Executable missing",
+      "labelFavourite": "{game}, favourite",
+      "labelUpdate": "{game}, handler update available",
+      "labelNew": "{game}, new",
+      "labelFavouriteUpdate": "{game}, favourite, handler update available",
+      "labelFavouriteNew": "{game}, favourite, new",
+      "versionBadge": "v{version}",
+      "new": "New",
+      "updatingHandler": "Updating handler, {percent}",
+      "handlerUpdate": "Handler v{from} to v{to}",
+      "updateLabel": "Update the {game} handler to version {version}",
+      "updateTo": "Update to v{version}"
+    },
+    "found": {
+      "title": "Found on this PC",
+      "selectNone": "Select none",
+      "selectAll": "Select all",
+      "readingLibraries": "Reading your Steam and Epic libraries…",
+      "matching": "Matching with the Hub catalogue…",
+      "readError": "Your game libraries could not be read",
+      "running": "Installing handlers and adding games. Keep Nucleus open.",
+      "finished": "Done. Games that need you are listed with what to do.",
+      "_noteScanned": "{stores} is a list of stores (\"Steam and Epic\"), {count} how many; {ago} is a relative time (\"3 days ago\").",
+      "scannedStores_one": "Scanned your {stores} library {ago}. These games have a ready-made handler on the Hub.",
+      "scannedStores_other": "Scanned your {stores} libraries {ago}. These games have a ready-made handler on the Hub.",
+      "scanned": "Scanned {ago}. These games have a ready-made handler on the Hub.",
+      "offline": "The Hub is offline: handlers can't be downloaded right now.",
+      "addingGames": "Adding games…",
+      "addCount_one": "Add {count} game",
+      "addCount_other": "Add {count} games",
+      "selectToAdd": "Select games to add",
+      "scanAgain": "Scan again",
+      "emptyTitle": "Nothing new on this PC",
+      "noneNew_one": "None of the {count} game installed through {stores} has a handler you don't already have.",
+      "noneNew_other": "None of the {count} games installed through {stores} has a handler you don't already have.",
+      "noneNewAnyStore_one": "None of the {count} game installed through your stores has a handler you don't already have.",
+      "noneNewAnyStore_other": "None of the {count} games installed through your stores has a handler you don't already have.",
+      "noGames": "Nucleus looks for games installed through Steam and Epic. Install a game, then scan again.",
+      "steps": {
+        "waiting": "Waiting",
+        "installing": "Installing the handler",
+        "installingProgress": "Installing the handler, {percent}",
+        "searching": "Looking for the game",
+        "picking": "Pick the executable",
+        "adding": "Adding",
+        "added": "Added to your library",
+        "installed": "Handler installed, game not added",
+        "failed": "Failed",
+        "cancelled": "Cancelled",
+        "addLater": "Add the game later from Your games",
+        "addFailed": "The game could not be added"
+      },
+      "toasts": {
+        "added_one": "{count} game added to your library",
+        "added_other": "{count} games added to your library",
+        "noneAdded": "No game was added",
+        "found_one": "{count} game found with a handler on the Hub",
+        "found_other": "{count} games found with a handler on the Hub",
+        "nothingNew": "Nothing new on this PC"
+      },
+      "item": {
+        "upToPlayers_one": "up to {count} player",
+        "upToPlayers_other": "up to {count} players",
+        "playersUnknown": "players unknown",
+        "meta": "{store}, {players}",
+        "metaVerified": "{store}, {players}, verified",
+        "addLabel": "Add {game}"
+      }
+    }
+  },
+  "catalog": {
+    "title": "Get games",
+    "hints": {
+      "previousSection": "Previous section",
+      "nextSection": "Next section"
+    },
+    "heading": "Find a game to play together",
+    "intro": "Every game here has a community handler. Pick one, install it in one click, and hand out the controllers.",
+    "search": {
+      "placeholder": "Search by game or handler author",
+      "label": "Search games",
+      "total_one": "{count} game",
+      "total_other": "{count} games",
+      "filtered": "{shown} of {total}"
+    },
+    "genres": {
+      "label": "Genres",
+      "gameCount_one": "{count} game",
+      "gameCount_other": "{count} games"
+    },
+    "filters": {
+      "label": "Filters",
+      "maxPlayers": "Maximum players",
+      "playersRange": "{range} players",
+      "anyPlayers": "Any number of players",
+      "maxPlayersHint": "The most players the handler supports at once.",
+      "worksWith": "Works with",
+      "verifiedOnly": "Verified only",
+      "verifiedHint": "Checked by Hub moderators",
+      "genres": "Genres",
+      "clearAll": "Clear all filters",
+      "queryToken": "“{query}”",
+      "verifiedToken": "Verified",
+      "remove": "Remove filter {filter}"
+    },
+    "offlineCopy": "The Hub is unreachable. Showing the catalogue saved on <b>{date}</b>.",
+    "results": {
+      "loading": "Loading the catalogue…",
+      "all_other": "All {count} games",
+      "count_zero": "No games",
+      "count_one": "{count} game",
+      "count_other": "{count} games",
+      "sortBy": "Sort by",
+      "sortLabel": "Sort games",
+      "showMore_other": "Show {count} more",
+      "showing": "Showing {shown} of {total}"
+    },
+    "noMatch": {
+      "title": "No handler matches yet",
+      "withQuery": "Nothing for “{query}” with these filters. Check the spelling, try fewer filters, or ask the community: handler authors pick requests from Discord.",
+      "text": "Try fewer filters, or ask the community for the game you want: handler authors pick requests from Discord.",
+      "clear": "Clear filters",
+      "request": "Request it on Discord"
+    },
+    "unreachable": {
+      "title": "The Hub is out of reach",
+      "withMessage": "{message} Your library still works offline. The catalogue appears here as soon as Nucleus Co-op reaches the Hub once.",
+      "text": "The catalogue could not be loaded. Your library still works offline. The catalogue appears here as soon as Nucleus Co-op reaches the Hub once."
+    },
+    "card": {
+      "verified": "Verified handler",
+      "inLibrary": "In library",
+      "inLibraryTitle": "Installed, the game is in your library",
+      "installed": "Installed",
+      "installedTitle": "Handler installed, the game is not in your library yet",
+      "update": "Update",
+      "updateTitle": "A newer version of this handler is on the Hub"
+    }
+  },
+  "handler": {
+    "defaultTitle": "Handler",
+    "hints": {
+      "install": "Install handler",
+      "update": "Update handler",
+      "addGame": "Add the game"
+    },
+    "loading": "Loading the handler",
+    "unavailable": {
+      "offlineTitle": "The Hub is out of reach",
+      "offlineText": "Nucleus Co-op could not load this handler. Check your connection and try again.",
+      "goneTitle": "This handler is not on the Hub any more",
+      "goneText": "Its author may have removed it or made it private. Other handlers for the same game may exist.",
+      "back": "Back to Get games"
+    },
+    "hero": {
+      "allGames": "All games",
+      "upToPlayers_one": "Up to {count} player on one PC",
+      "upToPlayers_other": "Up to {count} players on one PC",
+      "splitScreen": "Split-screen on one PC",
+      "_noteSummary": "{players} is upToPlayers or splitScreen; {inputs} lists the supported inputs.",
+      "summary": "{players}.",
+      "summaryWithInputs": "{players}, {inputs}.",
+      "verified": "Verified handler",
+      "byline": "Handler “{title}” by {author}, version {version}",
+      "previewLabel_one": "{game} split into {count} player view, the way Nucleus Co-op arranges the windows",
+      "previewLabel_other": "{game} split into {count} player views, the way Nucleus Co-op arranges the windows",
+      "moreSeats_one": "{count} more seat",
+      "moreSeats_other": "{count} more seats"
+    },
+    "compat": {
+      "title": "Compatibility",
+      "players": "Players",
+      "controllers": "Controllers",
+      "keyboardMouse": "Keyboard and mouse",
+      "multiKeyboardMouse": "Several keyboards and mice",
+      "moderators": "Hub moderators",
+      "supported": "Supported",
+      "notSupported": "Not supported",
+      "onePerPlayer": "One per player",
+      "verified": "Verified",
+      "notVerified": "Not verified yet",
+      "notStated": "Not stated"
+    },
+    "notes": {
+      "title": "Handler notes",
+      "loading": "Loading notes…",
+      "none": "{author} hasn't written notes for this handler yet. Nucleus shows any notes from the author before you launch, and the comments below often have tips from other players.",
+      "about": "About {game}"
+    },
+    "steps": {
+      "title": "Play {game} together",
+      "installTitle": "Install the handler",
+      "installBody": "One click. Nucleus downloads it from the Hub and adds {game} to your library.",
+      "locateTitle": "Point to the game",
+      "locateBody": "The first time, Nucleus finds {game} on this PC or asks once where it is installed.",
+      "seatTitle": "Take a seat",
+      "seatBody": "Each player presses Start on their controller to join. Nucleus opens one window per player and tiles them.",
+      "seatTip": "Using keyboards and mice? Press <kbd>{key}</kbd> once everything is in place to give each window its own cursor.",
+      "connectTitle": "Connect in game",
+      "connectBody": "Follow the handler notes to link the windows: usually one player hosts and the others join."
+    },
+    "installPane": "Install this handler",
+    "related": {
+      "title": "Play these next",
+      "browseAll": "Browse all games"
+    },
+    "comments": {
+      "title": "Comments <count>{number}</count>",
+      "commentOnHub": "Comment on the Hub",
+      "loading": "Loading comments…",
+      "loadError": "Comments could not be loaded.",
+      "none": "No comments yet. Played it? Share what worked for your group on the Hub.",
+      "showMore_one": "Show {count} more thread",
+      "showMore_other": "Show {count} more threads"
+    },
+    "action": {
+      "toasts": {
+        "updated": "{game} handler updated to version {version}",
+        "installed": "{game} handler installed",
+        "showGame": "Handler installed. Show Nucleus where {game} is."
+      },
+      "facts": {
+        "version": "Version",
+        "updated": "Updated",
+        "downloads": "Downloads",
+        "stars": "Stars",
+        "comments": "Comments"
+      },
+      "cancelLabel": "Cancel the {game} download",
+      "updatingNote": "Updating the handler. The game stays playable meanwhile.",
+      "installingNote": "Installing the {game} handler from the Hub.",
+      "waitingForFile": "Waiting for the game file…",
+      "pickNote": "Pick the {game} executable in the window Nucleus opened.",
+      "locate": "Locate the game",
+      "missingNote": "Installed, version {version}. Nucleus can't find {game} any more: show it where the game is.",
+      "setUpSession": "Set up session",
+      "inLibraryNote": "Installed, version {version}. {game} is in your library.",
+      "addGame": "Add the game",
+      "notInLibraryNote": "The handler is installed, but {game} is not in your library yet. Show Nucleus where the game is.",
+      "notInLibraryNoteVersion": "The handler is installed (version {version}), but {game} is not in your library yet. Show Nucleus where the game is.",
+      "updateTo": "Update to version {version}",
+      "install": "Install handler",
+      "offline": "The Hub is offline. Installing works again as soon as Nucleus reaches it.",
+      "updateNote": "Version {version} is installed. The update keeps your profiles and settings.",
+      "installNote": "Downloads the handler from the Hub and adds {game} to your library. Nucleus asks once where the game is installed.",
+      "openOnHub": "Open on the Hub",
+      "authorHandlers_one": "{count} handler",
+      "authorHandlers_other": "{count} handlers",
+      "authorStats": "{handlers}, {downloads}",
+      "reportProblem": "Handler not working after a game update? <link>Tell the author in the comments</link>."
+    }
+  },
+  "downloads": {
+    "title": "Downloads",
+    "intro": "Handlers you install or update from the Hub. Games stay playable while their handler updates.",
+    "hints": {
+      "updateAll": "Update all"
+    },
+    "toasts": {
+      "handlerUpdated": "{game} handler updated",
+      "handlerUpdatedTo": "{game} handler updated to version {version}",
+      "checked": "Checked the Hub for handler updates"
+    },
+    "hubOffline": "The Hub is offline",
+    "checkUpdates": "Check for updates",
+    "clearFinished": "Clear finished",
+    "updates": {
+      "title": "Updates available",
+      "updating": "Updating…",
+      "updateAll": "Update all",
+      "offline": "The Hub is offline. Updates work again as soon as Nucleus reaches it.",
+      "fromTo": "Handler update v{from} to v{to}",
+      "to": "Handler update to v{to}",
+      "updateLabel": "Update the {game} handler"
+    },
+    "list": {
+      "inProgress": "In progress",
+      "recent": "Recent downloads",
+      "count_one": "{count} item",
+      "count_other": "{count} items",
+      "empty": "Nothing downloaded since Nucleus Co-op started. Handlers you install from Get games, or drop on the window as .nc files, show up here with their progress.",
+      "getGames": "Get games"
+    },
+    "row": {
+      "defaultName": "Handler",
+      "update": "Handler update",
+      "updateTo": "Handler update to version {version}",
+      "file": "From a file",
+      "install": "Handler",
+      "installVersion": "Handler, version {version}",
+      "cancelLabel": "Cancel the {game} download",
+      "addGame": "Add the game",
+      "setUpSession": "Set up session",
+      "retryLabel": "Try the {game} download again",
+      "progressLabel": "{game}: {stage}",
+      "failed": "Failed: {error}",
+      "failedUnknown": "Failed: the install did not finish.",
+      "notInLibrary": "Installed. The game is not in your library yet.",
+      "statusWhen": "{status} <when>{ago}</when>"
+    },
+    "stage": {
+      "queued": "Waiting…",
+      "downloading": "Downloading…",
+      "downloadingPercent": "Downloading… {percent}",
+      "extracting": "Installing…",
+      "done": "Installed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    }
+  },
+  "hub": {
+    "upToPlayers_one": "Up to {count} player",
+    "upToPlayers_other": "Up to {count} players",
+    "downloadCount_one": "{downloads} download",
+    "downloadCount_other": "{downloads} downloads",
+    "players": {
+      "any": "Any"
+    },
+    "inputs": {
+      "controllers": "Controllers",
+      "keyboardMouse": "Keyboard and mouse",
+      "multiKeyboardMouse": "Several keyboards and mice"
+    },
+    "sort": {
+      "trending": "Trending",
+      "downloads": "Most downloaded",
+      "updated": "Recently updated",
+      "az": "A–Z"
+    },
+    "genres": {
+      "_note": "IGDB genres, shortened for chips and lists.",
+      "adventure": "Adventure",
+      "arcade": "Arcade",
+      "cardAndBoardGame": "Card & Board Game",
+      "fighting": "Fighting",
+      "hackAndSlash": "Hack and slash",
+      "indie": "Indie",
+      "moba": "MOBA",
+      "music": "Music",
+      "pinball": "Pinball",
+      "platform": "Platformer",
+      "pointAndClick": "Point-and-click",
+      "puzzle": "Puzzle",
+      "quizTrivia": "Quiz/Trivia",
+      "racing": "Racing",
+      "realTimeStrategy": "Real-time strategy",
+      "rolePlaying": "Role-playing",
+      "shooter": "Shooter",
+      "simulator": "Simulation",
+      "sport": "Sports",
+      "strategy": "Strategy",
+      "tactical": "Tactical",
+      "turnBasedStrategy": "Turn-based strategy",
+      "visualNovel": "Visual Novel"
+    },
+    "fallbacks": {
+      "_note": "Stand-ins when the Hub sends a handler or a comment without these fields.",
+      "untitledHandler": "Untitled handler",
+      "unknownAuthor": "Unknown author",
+      "unknownGame": "Unknown game",
+      "someone": "Someone"
+    },
+    "errors": {
+      "unreachable": "The Hub is unreachable. Check your connection.",
+      "busyRetryIn": "The Hub is busy right now. Try again in {seconds} s.",
+      "busy": "The Hub is busy right now. Try again in a moment.",
+      "status": "The Hub answered {status}.",
+      "_note": "status: an HTTP status code, such as 503.",
+      "unreadable": "The Hub sent an unreadable answer.",
+      "cspBlocked": "The Content-Security-Policy of this interface build does not allow {origin} (Settings.ini [Dev] HubUrl). Rebuild the interface with NUCLEUS_HUB_ORIGINS={origin}, or load it from the Vite dev server."
+    }
+  },
   "lobby": {},
   "setup": {},
   "profiles": {},

@@ -1,5 +1,5 @@
-// API v3 answers → the shapes the UI uses. Pure, relative imports only: the node tests load this file. Missing names
-// get stand-ins in the language in use when the answer is read.
+// API v3 answers → the shapes the UI uses. Pure (relative imports only): the node tests load this file.
+// The fallbacks for missing fields are in the language in use when the answer arrives (and stay so in the saved copy).
 import { t } from '../i18n/store.ts';
 import type { HubComment, HubCommentRaw, HubCommentThread, HubHandler, HubHandlerDetailRaw } from './types.ts';
 
@@ -15,13 +15,13 @@ export function normalizeHandler(raw: HubHandlerDetailRaw): HubHandler {
   const maxPlayers = num(raw.maxPlayers, 0);
   return {
     id: raw.id,
-    title: str(raw.title, str(raw.gameName, t('common.hubData.untitledHandler'))),
+    title: str(raw.title, str(raw.gameName, t('hub.fallbacks.untitledHandler'))),
     url: str(raw.url),
     authorId: opt(raw.authorId),
-    author: str(raw.authorName, t('common.hubData.unknownAuthor')),
+    author: str(raw.authorName, t('hub.fallbacks.unknownAuthor')),
     authorUrl: opt(raw.authorUrl),
     description: str(raw.description),
-    gameName: str(raw.gameName, str(raw.title, t('common.hubData.unknownGame'))),
+    gameName: str(raw.gameName, str(raw.title, t('hub.fallbacks.unknownGame'))),
     gameSlug: str(raw.gameSlug),
     gameDescription: str(raw.gameDescription),
     igdbGameId: typeof raw.igdbGameId === 'number' ? raw.igdbGameId : undefined,
@@ -53,7 +53,7 @@ export function normalizeComment(raw: HubCommentRaw): HubComment {
   return {
     id: raw.id,
     authorId: opt(raw.authorId),
-    author: str(raw.authorName, t('common.hubData.someone')),
+    author: str(raw.authorName, t('hub.fallbacks.someone')),
     handlerId: str(raw.handlerId),
     createdAt: str(raw.createdAt, new Date(0).toISOString()),
     editedAt: opt(raw.editedAt),

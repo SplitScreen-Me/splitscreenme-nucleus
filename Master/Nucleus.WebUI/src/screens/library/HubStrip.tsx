@@ -2,15 +2,19 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import type { GameSummary } from '@/bridge';
 import { useAllHandlers, type HubHandler } from '@/hub';
+import { useI18n, useT } from '@/i18n';
 import { igdbImage } from '@/lib/art';
-import { fmtCount } from '@/lib/format';
 import { useInstalledHandlers } from '@/lib/library';
 import { igdbResize, useScreenshots } from '@/lib/screenshots';
 import { Pane } from '@/ui';
 import { nameKeys } from './found-matching';
 
+/** Handlers offered by the strip support at least this many players. */
+const MIN_PLAYERS = 4;
+
 /** Discover teaser: popular handlers for 4 players or more that the user doesn't have yet. */
 export function HubStrip({ owned, offered }: { owned: readonly GameSummary[]; offered: ReadonlySet<string> }) {
+  const t = useT();
   const { data: handlers = [] } = useAllHandlers();
   const { data: installed = [] } = useInstalledHandlers();
   const picks = useMemo(() => {
@@ -22,7 +26,7 @@ export function HubStrip({ owned, offered }: { owned: readonly GameSummary[]; of
       .sort((a, b) => b.trendScore - a.trendScore || b.downloads - a.downloads)
       .filter((h) => {
         const keys = nameKeys(h.gameName);
-        if ((h.maxPlayers ?? 0) < 4 || ownedIds.has(h.id) || keys.some((k) => ownedNames.has(k) || seen.has(k))) return false;
+        if ((h.maxPlayers ?? 0) < MIN_PLAYERS || ownedIds.has(h.id) || keys.some((k) => ownedNames.has(k) || seen.has(k))) return false;
         keys.forEach((k) => seen.add(k));
         return true;
       })
@@ -34,10 +38,10 @@ export function HubStrip({ owned, offered }: { owned: readonly GameSummary[]; of
     <Pane as="section" aria-labelledby="pop-title" className="col-span-full px-6 pt-[22px] pb-6">
       <div className="mb-4 flex items-center gap-3.5">
         <h2 id="pop-title" className="type-h3">
-          Popular for 4 players or more on the Hub
+          {t('library.hubStrip.title', { count: MIN_PLAYERS })}
         </h2>
         <Link to="/games?players=3-4" className="ml-auto rounded text-small font-semibold text-ink-2 no-underline hover:text-ink">
-          Open Get games
+          {t('library.hubStrip.openGetGames')}
         </Link>
       </div>
       <ul className="m-0 grid list-none grid-cols-4 gap-3 p-0 min-[1321px]:grid-cols-5">
@@ -52,6 +56,7 @@ export function HubStrip({ owned, offered }: { owned: readonly GameSummary[]; of
 }
 
 function HubTile({ handler: h }: { handler: HubHandler }) {
+  const { t, format } = useI18n();
   const { data: shots } = useScreenshots(h.id);
   const [failed, setFailed] = useState(false);
   const shot = igdbResize(shots?.[0], 'screenshot_big');
@@ -63,7 +68,7 @@ function HubTile({ handler: h }: { handler: HubHandler }) {
       data-nav-frame="own"
       data-hints="hub"
       data-hub-id={h.id}
-      aria-label={`${h.gameName} on the Hub`}
+      aria-label={t('library.hubStrip.tileLabel', { game: h.gameName })}
       className="group relative block aspect-video overflow-hidden rounded-cover bg-pane-2 text-ink no-underline outline-3 outline-offset-3 outline-transparent transition-[outline-color] duration-(--dur-1) nav-focus:outline-ink"
     >
       {src && (
@@ -84,7 +89,10 @@ function HubTile({ handler: h }: { handler: HubHandler }) {
       <span className="absolute inset-x-3 bottom-2.5 z-[1]">
         <b className="block truncate text-small leading-tight font-[650]">{h.gameName}</b>
         <span className="data mt-0.5 block text-12 text-ink-2">
-          Up to {h.maxPlayers} players, {fmtCount(h.downloads)} downloads
+          {t('library.hubStrip.tileMeta', {
+            players: t('hub.upToPlayers', { count: h.maxPlayers ?? 0 }),
+            downloads: t('hub.downloadCount', { count: h.downloads, downloads: format.compact(h.downloads) }),
+          })}
         </span>
       </span>
     </Link>

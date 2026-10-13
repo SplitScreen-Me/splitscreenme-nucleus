@@ -19,9 +19,9 @@ import {
   type SortKey,
 } from '@/hub';
 import { bridge } from '@/bridge';
+import { T, useI18n } from '@/i18n';
 import { LINKS } from '@/lib/links';
 import { igdbImage } from '@/lib/art';
-import { fmtDate, plural } from '@/lib/format';
 import { useInstalledHandlers, useLibrary } from '@/lib/library';
 import { useScreenChrome } from '@/shell/chrome';
 import { Button, Field, Icon, Pane, Segmented, Select, Spinner, Switch, cn } from '@/ui';
@@ -35,6 +35,7 @@ export default function CatalogScreen() {
   const { data: handlers, isPending, isError, error, refetch, isFetching, dataUpdatedAt } = useAllHandlers();
   const { data: installed = [] } = useInstalledHandlers();
   const { data: library = [] } = useLibrary();
+  const { t, format } = useI18n();
   const [params, setParams] = useSearchParams();
   const all = useMemo(() => handlers ?? [], [handlers]);
 
@@ -72,20 +73,23 @@ export default function CatalogScreen() {
     typing.current = window.setTimeout(() => update({ q: value.trim() }), 120);
   };
 
-  useScreenChrome([{ label: 'Get games' }], {
+  useScreenChrome([{ label: t('catalog.title') }], {
     base: [
-      { button: 'A', label: 'Select' },
-      { button: 'Y', label: 'Search', action: () => search.current?.focus() },
-      { button: 'LB', label: 'Previous section' },
-      { button: 'RB', label: 'Next section' },
+      { button: 'A', label: t('common.select') },
+      { button: 'Y', label: t('common.search'), action: () => search.current?.focus() },
+      { button: 'LB', label: t('catalog.hints.previousSection') },
+      { button: 'RB', label: t('catalog.hints.nextSection') },
     ],
   });
 
   const tokens: Array<{ key: string; label: string; clear: Partial<CatalogState> }> = [];
-  if (state.q) tokens.push({ key: 'q', label: `“${state.q}”`, clear: { q: '' } });
-  if (state.players) tokens.push({ key: 'players', label: `${PLAYERS.find((p) => p.key === state.players)?.label} players`, clear: { players: '' } });
-  for (const k of state.inputs) tokens.push({ key: `input-${k}`, label: INPUTS.find((i) => i.key === k)!.label, clear: { inputs: state.inputs.filter((x) => x !== k) } });
-  if (state.verified) tokens.push({ key: 'verified', label: 'Verified', clear: { verified: false } });
+  if (state.q) tokens.push({ key: 'q', label: t('catalog.filters.queryToken', { query: state.q }), clear: { q: '' } });
+  if (state.players) {
+    const range = PLAYERS.find((p) => p.key === state.players)?.range ?? state.players;
+    tokens.push({ key: 'players', label: t('catalog.filters.playersRange', { range }), clear: { players: '' } });
+  }
+  for (const k of state.inputs) tokens.push({ key: `input-${k}`, label: t(INPUTS.find((i) => i.key === k)!.label), clear: { inputs: state.inputs.filter((x) => x !== k) } });
+  if (state.verified) tokens.push({ key: 'verified', label: t('catalog.filters.verifiedToken'), clear: { verified: false } });
   if (state.genre) tokens.push({ key: 'genre', label: genreLabel(state.genre), clear: { genre: '' } });
 
   const clearAll = () => {
@@ -101,11 +105,9 @@ export default function CatalogScreen() {
       <Pane as="section" aria-labelledby="cat-title" className="grid gap-6 px-8 pt-10 pb-8">
         <div className="grid items-end gap-8 grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)]">
           <h1 id="cat-title" className="type-h1 max-w-[14ch]">
-            Find a game to play together
+            {t('catalog.heading')}
           </h1>
-          <p className="m-0 max-w-[46ch] justify-self-end text-ink-2">
-            Every game here has a community handler. Pick one, install it in one click, and hand out the controllers.
-          </p>
+          <p className="m-0 max-w-[46ch] justify-self-end text-ink-2">{t('catalog.intro')}</p>
         </div>
         <Field
           ref={search}
@@ -118,18 +120,18 @@ export default function CatalogScreen() {
             if (e.key === 'Enter') update({ q: q.trim() });
             if (e.key === 'ArrowDown') shelf.current?.querySelector<HTMLElement>('a')?.focus();
           }}
-          placeholder="Search by game or handler author"
+          placeholder={t('catalog.search.placeholder')}
           autoComplete="off"
-          aria-label="Search games"
+          aria-label={t('catalog.search.label')}
           aria-describedby="cat-count"
           trailing={
             <span id="cat-count" className="data shrink-0 text-15 whitespace-nowrap text-ink-2" aria-live="polite">
-              {total ? (list.length === total ? `${total} games` : `${list.length} of ${total}`) : ''}
+              {total ? (list.length === total ? t('catalog.search.total', { count: total }) : t('catalog.search.filtered', { shown: list.length, total })) : ''}
             </span>
           }
         />
         {genres.length > 0 && (
-          <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-0.5" role="group" aria-label="Genres">
+          <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-0.5" role="group" aria-label={t('catalog.genres.label')}>
             {genres.slice(0, SHORTCUTS).map(({ genre, count }) => (
               <GenreShortcut
                 key={genre}
@@ -146,23 +148,27 @@ export default function CatalogScreen() {
 
       {/* ---------- Body: filters + results ---------- */}
       <div className="grid items-start gap-gutter grid-cols-[272px_minmax(0,1fr)] min-[1400px]:grid-cols-[288px_minmax(0,1fr)]">
-        <Pane as="aside" aria-label="Filters" className="sticky top-0 grid max-h-[calc(100vh-88px)] gap-6 overflow-y-auto p-6">
+        <Pane as="aside" aria-label={t('catalog.filters.label')} className="sticky top-0 grid max-h-[calc(100vh-88px)] gap-6 overflow-y-auto p-6">
           <div role="group" aria-labelledby="f-players" className="grid min-w-0">
             <span id="f-players" className="mb-3 block text-small font-[650] text-ink">
-              Maximum players
+              {t('catalog.filters.maxPlayers')}
             </span>
             <Segmented
-              label="Maximum players"
+              label={t('catalog.filters.maxPlayers')}
               value={state.players}
               onChange={(players) => update({ players })}
-              options={PLAYERS.map((p) => ({ value: p.key, label: p.label, ariaLabel: p.key ? `${p.label} players` : 'Any number of players' }))}
+              options={PLAYERS.map((p) => ({
+                value: p.key,
+                label: p.key ? p.range : t('hub.players.any'),
+                ariaLabel: p.key ? t('catalog.filters.playersRange', { range: p.range }) : t('catalog.filters.anyPlayers'),
+              }))}
             />
-            <p className="mt-2 text-micro text-ink-3">The most players the handler supports at once.</p>
+            <p className="mt-2 text-micro text-ink-3">{t('catalog.filters.maxPlayersHint')}</p>
           </div>
 
           <div role="group" aria-labelledby="f-inputs" className="grid min-w-0 border-t border-line pt-6">
             <span id="f-inputs" className="mb-3 block text-small font-[650] text-ink">
-              Works with
+              {t('catalog.filters.worksWith')}
             </span>
             {INPUTS.map((i) => {
               const on = state.inputs.includes(i.key);
@@ -179,8 +185,8 @@ export default function CatalogScreen() {
                     <Icon name="check" strokeWidth={2.5} className={cn('size-3.5 text-on-light', !on && 'opacity-0')} />
                   </span>
                   <Icon name={i.icon} className="size-[18px] text-ink-3" />
-                  <span className={cn(on && 'text-ink')}>{i.label}</span>
-                  <span className="data ml-auto text-small text-ink-3">{n}</span>
+                  <span className={cn(on && 'text-ink')}>{t(i.label)}</span>
+                  <span className="data ml-auto text-small text-ink-3">{format.number(n)}</span>
                 </label>
               );
             })}
@@ -188,15 +194,15 @@ export default function CatalogScreen() {
 
           <div className="flex items-center justify-between gap-3 border-t border-line pt-6">
             <span id="f-verified" className="text-15 text-ink">
-              Verified only
-              <small className="block text-micro text-ink-3">Checked by Hub moderators</small>
+              {t('catalog.filters.verifiedOnly')}
+              <small className="block text-micro text-ink-3">{t('catalog.filters.verifiedHint')}</small>
             </span>
             <Switch checked={state.verified} onChange={(verified) => update({ verified })} aria-labelledby="f-verified" />
           </div>
 
           <div role="group" aria-labelledby="f-genres" className="grid min-w-0 border-t border-line pt-6">
             <span id="f-genres" className="mb-3 block text-small font-[650] text-ink">
-              Genres
+              {t('catalog.filters.genres')}
             </span>
             <ul className="m-0 grid list-none gap-0.5 p-0">
               {genres.map(({ genre }) => (
@@ -211,7 +217,7 @@ export default function CatalogScreen() {
                     )}
                   >
                     <span>{genreLabel(genre)}</span>
-                    <span className="data text-small text-ink-3">{countWith(index, state, { genre }, 'genre')}</span>
+                    <span className="data text-small text-ink-3">{format.number(countWith(index, state, { genre }, 'genre'))}</span>
                   </button>
                 </li>
               ))}
@@ -220,7 +226,7 @@ export default function CatalogScreen() {
 
           {tokens.length > 0 && (
             <button type="button" onClick={clearAll} className="justify-self-start border-0 bg-transparent p-0 text-small font-semibold text-ink-2 underline underline-offset-3 hover:text-ink">
-              Clear all filters
+              {t('catalog.filters.clearAll')}
             </button>
           )}
         </Pane>
@@ -230,43 +236,51 @@ export default function CatalogScreen() {
             <div role="status" className="mb-6 flex items-center gap-3 rounded-ctl bg-pane-2 px-4 py-3 text-small text-ink-2">
               <Icon name="offline" className="size-[18px] text-warn" />
               <span>
-                The Hub is unreachable. Showing the catalogue saved on <b className="font-semibold text-ink">{fmtDate(new Date(dataUpdatedAt).toISOString())}</b>.
+                <T
+                  k="catalog.offlineCopy"
+                  values={{ date: format.date(dataUpdatedAt, 'medium') }}
+                  tags={{ b: (c) => <b className="font-semibold text-ink">{c}</b> }}
+                />
               </span>
               <Button size="sm" variant="ghost" className="ml-auto" onClick={() => void refetch()} disabled={isFetching}>
                 {isFetching ? <Spinner /> : <Icon name="refresh" />}
-                Try again
+                {t('common.tryAgain')}
               </Button>
             </div>
           ) : null}
           <div className="mb-8 flex flex-wrap items-center gap-3">
             <p id="res-summary" className="text-15 text-ink-2" aria-live="polite">
               <b className="font-[650] text-ink">
-                {isPending ? 'Loading the catalogue…' : list.length === total ? `All ${total} games` : list.length ? plural(list.length, 'game') : 'No games'}
+                {isPending
+                  ? t('catalog.results.loading')
+                  : list.length === total
+                    ? t('catalog.results.all', { count: total })
+                    : t('catalog.results.count', { count: list.length })}
               </b>
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {tokens.map((t) => (
+              {tokens.map((token) => (
                 <button
-                  key={t.key}
+                  key={token.key}
                   type="button"
                   onClick={() => {
-                    if (t.key === 'q') setQ('');
-                    update(t.clear);
+                    if (token.key === 'q') setQ('');
+                    update(token.clear);
                   }}
-                  aria-label={`Remove filter ${t.label}`}
+                  aria-label={t('catalog.filters.remove', { filter: token.label })}
                   className="group/token inline-flex h-[30px] items-center gap-1.5 rounded-tag border-0 bg-pane-3 pr-2 pl-3 text-13 font-[560] text-ink"
                 >
-                  {t.label}
+                  {token.label}
                   <Icon name="x" className="size-3.5 text-ink-2 group-hover/token:text-ink" />
                 </button>
               ))}
             </div>
             <label className="ml-auto flex items-center gap-2 text-small text-ink-3">
-              Sort by
-              <Select value={state.sort} onChange={(e) => update({ sort: e.target.value as SortKey })} aria-label="Sort games">
+              {t('catalog.results.sortBy')}
+              <Select value={state.sort} onChange={(e) => update({ sort: e.target.value as SortKey })} aria-label={t('catalog.results.sortLabel')}>
                 {SORTS.map((s) => (
                   <option key={s.key} value={s.key}>
-                    {s.label}
+                    {t(s.label)}
                   </option>
                 ))}
               </Select>
@@ -307,11 +321,9 @@ export default function CatalogScreen() {
                   requestAnimationFrame(() => shelf.current?.children[first]?.querySelector<HTMLElement>('a')?.focus());
                 }}
               >
-                Show {Math.min(PAGE, left)} more
+                {t('catalog.results.showMore', { count: Math.min(PAGE, left) })}
               </Button>
-              <p className="text-small text-ink-3">
-                Showing {Math.min(shown, list.length)} of {list.length}
-              </p>
+              <p className="text-small text-ink-3">{t('catalog.results.showing', { shown: Math.min(shown, list.length), total: list.length })}</p>
             </div>
           )}
         </Pane>
@@ -331,6 +343,7 @@ function top3(all: HubHandler[], genre: string): string[] {
 }
 
 function GenreShortcut({ genre, count, covers, pressed, onClick }: { genre: string; count: number; covers: string[]; pressed: boolean; onClick: () => void }) {
+  const { t } = useI18n();
   return (
     <button
       type="button"
@@ -355,32 +368,29 @@ function GenreShortcut({ genre, count, covers, pressed, onClick }: { genre: stri
       </span>
       <span>
         <b className="block text-15 leading-tight font-[650]">{genreLabel(genre)}</b>
-        <small className={cn('data block text-micro', pressed ? 'text-black/60' : 'text-ink-3')}>{count} games</small>
+        <small className={cn('data block text-micro', pressed ? 'text-black/60' : 'text-ink-3')}>{t('catalog.genres.gameCount', { count })}</small>
       </span>
     </button>
   );
 }
 
 function NoMatch({ query, onClear }: { query: string; onClear: () => void }) {
+  const { t } = useI18n();
   return (
     <div className="grid max-w-[52ch] justify-items-start gap-4 py-12">
       <div aria-hidden="true" className="grid aspect-[16/10] w-[120px] grid-cols-2 gap-1">
         <i className="rounded-[5px] bg-pane-3" />
         <i className="rounded-[5px] shadow-[inset_0_0_0_1.5px_var(--color-line-strong)]" />
       </div>
-      <h2 className="type-h2 text-[1.5rem]">No handler matches yet</h2>
-      <p className="text-ink-2">
-        {query
-          ? `Nothing for “${query}” with these filters. Check the spelling, try fewer filters, or ask the community: handler authors pick requests from Discord.`
-          : 'Try fewer filters, or ask the community for the game you want: handler authors pick requests from Discord.'}
-      </p>
+      <h2 className="type-h2 text-[1.5rem]">{t('catalog.noMatch.title')}</h2>
+      <p className="text-ink-2">{query ? t('catalog.noMatch.withQuery', { query }) : t('catalog.noMatch.text')}</p>
       <div className="flex flex-wrap gap-2">
         <Button variant="primary" onClick={onClear} data-nav>
-          Clear filters
+          {t('catalog.noMatch.clear')}
         </Button>
         <Button variant="ghost" data-nav onClick={() => void bridge.app.openExternal({ url: LINKS.discord }).catch(() => undefined)}>
           <Icon name="discord" />
-          Request it on Discord
+          {t('catalog.noMatch.request')}
         </Button>
       </div>
     </div>
@@ -388,16 +398,15 @@ function NoMatch({ query, onClear }: { query: string; onClear: () => void }) {
 }
 
 function Unreachable({ message, onRetry, retrying }: { message?: string; onRetry: () => void; retrying: boolean }) {
+  const { t } = useI18n();
   return (
     <div className="grid max-w-[52ch] justify-items-start gap-4 py-12">
       <Icon name="offline" className="size-8 text-warn" />
-      <h2 className="type-h2 text-[1.5rem]">The Hub is out of reach</h2>
-      <p className="text-ink-2">
-        {message ?? 'The catalogue could not be loaded.'} Your library still works offline. The catalogue appears here as soon as Nucleus Co-op reaches the Hub once.
-      </p>
+      <h2 className="type-h2 text-[1.5rem]">{t('catalog.unreachable.title')}</h2>
+      <p className="text-ink-2">{message ? t('catalog.unreachable.withMessage', { message }) : t('catalog.unreachable.text')}</p>
       <Button variant="primary" onClick={onRetry} disabled={retrying} data-nav>
         {retrying ? <Spinner /> : <Icon name="refresh" />}
-        Try again
+        {t('common.tryAgain')}
       </Button>
     </div>
   );

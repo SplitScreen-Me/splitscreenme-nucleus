@@ -2,7 +2,6 @@
 // reads cookies. Plain GETs; the browser cache revalidates with the ETags. Screenshots go through the host
 // (`handlers.screenshots`, which also caches them for the library); packages are downloaded and checked by the host.
 // No bridge import: `site` is passed in (see site.ts), so the node tests load this file with a stubbed fetch.
-// Error messages are shown to the user (in the language in use when the call fails).
 import { t } from '../i18n/store.ts';
 import { isHandler, normalizeComment, normalizeHandler } from './normalize.ts';
 import type { HubCatalogRaw, HubComment, HubCommentPageRaw, HubHandler } from './types.ts';
@@ -27,18 +26,18 @@ async function getJson<T>(url: string, signal: AbortSignal | undefined, notFound
     res = await fetch(url, { signal, credentials: 'omit' });
   } catch (err) {
     if ((err as Error).name === 'AbortError') throw err;
-    throw new HubError(t('common.errors.hub.unreachable'));
+    throw new HubError(t('hub.errors.unreachable'));
   }
   if (res.status === 404 && notFound === 'null') return null;
   if (res.status === 429) {
     const wait = Number(res.headers.get('Retry-After'));
-    throw new HubError(wait > 0 ? t('common.errors.hub.busyRetryAfter', { seconds: Math.ceil(wait) }) : t('common.errors.hub.busy'), 429);
+    throw new HubError(wait > 0 ? t('hub.errors.busyRetryIn', { seconds: Math.ceil(wait) }) : t('hub.errors.busy'), 429);
   }
-  if (!res.ok) throw new HubError(t('common.errors.hub.status', { status: String(res.status) }), res.status);
+  if (!res.ok) throw new HubError(t('hub.errors.status', { status: String(res.status) }), res.status);
   try {
     return (await res.json()) as T;
   } catch {
-    throw new HubError(t('common.errors.hub.unreadable'));
+    throw new HubError(t('hub.errors.unreadable'));
   }
 }
 

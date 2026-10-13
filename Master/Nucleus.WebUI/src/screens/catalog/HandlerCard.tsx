@@ -1,18 +1,19 @@
 import { Link } from 'react-router';
 import { variant, type HubHandler } from '@/hub';
+import { useI18n, type MessageKey } from '@/i18n';
 import { igdbImage } from '@/lib/art';
-import { fmtCount, fmtNumber } from '@/lib/format';
 import { cn, Cover, Icon, InputSupport, Pips, type IconName } from '@/ui';
 import type { HandlerInstallStatus } from './install-state';
 
-const BADGES: Partial<Record<HandlerInstallStatus, { icon: IconName; label: string; title: string; solid: boolean }>> = {
-  library: { icon: 'check', label: 'In library', title: 'Installed, the game is in your library', solid: true },
-  installed: { icon: 'download', label: 'Installed', title: 'Handler installed, the game is not in your library yet', solid: false },
-  update: { icon: 'update', label: 'Update', title: 'A newer version of this handler is on the Hub', solid: true },
+const BADGES: Partial<Record<HandlerInstallStatus, { icon: IconName; label: MessageKey; title: MessageKey; solid: boolean }>> = {
+  library: { icon: 'check', label: 'catalog.card.inLibrary', title: 'catalog.card.inLibraryTitle', solid: true },
+  installed: { icon: 'download', label: 'catalog.card.installed', title: 'catalog.card.installedTitle', solid: false },
+  update: { icon: 'update', label: 'catalog.card.update', title: 'catalog.card.updateTitle', solid: true },
 };
 
 /** A game on the shelf: cover, name, author, downloads, seats and inputs. */
 export function HandlerCard({ handler: h, eager, status }: { handler: HubHandler; eager?: boolean; status?: HandlerInstallStatus }) {
+  const { t, format } = useI18n();
   const v = variant(h);
   const badge = status ? BADGES[status] : undefined;
   return (
@@ -30,20 +31,20 @@ export function HandlerCard({ handler: h, eager, status }: { handler: HubHandler
         className="transition-shadow duration-(--dur-1) ease-snap group-hover:shadow-[0_0_0_2px_var(--color-bezel),0_0_0_4px_var(--color-line-strong)] group-nav-focus:shadow-[0_0_0_2px_var(--color-bezel),0_0_0_4px_var(--color-ink)]"
       >
         {h.verified && (
-          <span title="Verified handler" className="absolute top-2 left-2 grid size-7 place-items-center rounded-ctl bg-black/75 text-ink backdrop-blur-sm">
-            <Icon name="seal" label="Verified handler" className="size-[17px]" />
+          <span title={t('catalog.card.verified')} className="absolute top-2 left-2 grid size-7 place-items-center rounded-ctl bg-black/75 text-ink backdrop-blur-sm">
+            <Icon name="seal" label={t('catalog.card.verified')} className="size-[17px]" />
           </span>
         )}
         {badge && (
           <span
-            title={badge.title}
+            title={t(badge.title)}
             className={cn(
               'absolute top-2 right-2 inline-flex h-6 items-center gap-1 rounded-tag pr-2 pl-1.5 text-12 font-[750] stretch-narrow',
               badge.solid ? 'bg-ink text-on-light' : 'bg-black/75 text-ink shadow-[inset_0_0_0_1px_var(--color-line-strong)] backdrop-blur-sm',
             )}
           >
             <Icon name={badge.icon} strokeWidth={2.4} className="size-3.5" />
-            {badge.label}
+            {t(badge.label)}
           </span>
         )}
       </Cover>
@@ -54,9 +55,9 @@ export function HandlerCard({ handler: h, eager, status }: { handler: HubHandler
         </h3>
         <div className="flex min-w-0 items-center justify-between gap-2">
           <span className="truncate text-small text-ink-3">{h.author}</span>
-          <span className="inline-flex shrink-0 items-center gap-1 text-small text-ink-2" title={`${fmtNumber(h.downloads)} downloads`}>
+          <span className="inline-flex shrink-0 items-center gap-1 text-small text-ink-2" title={t('hub.downloadCount', { count: h.downloads, downloads: format.number(h.downloads) })}>
             <Icon name="download" className="size-3.5" />
-            <span className="data">{fmtCount(h.downloads)}</span>
+            <span className="data">{format.compact(h.downloads)}</span>
           </span>
         </div>
         <div className="flex min-w-0 items-center justify-between gap-2">

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { bridge, useBridgeQuery, type GameSummary } from '@/bridge';
 import { useAddGame } from '@/features/add-game';
 import { useAllHandlers } from '@/hub';
+import { useI18n, useT } from '@/i18n';
 import { useRun, errorMessage, isCancelled } from '@/lib/bridge-ui';
 import { updateHandler } from '@/lib/downloads';
 import { gameStatus, useInstalledHandlers, useLibrary } from '@/lib/library';
@@ -31,6 +32,7 @@ export default function LibraryScreen() {
   const toast = useToast();
   const run = useRun();
   const { addGame, locateGame } = useAddGame();
+  const { t } = useI18n();
 
   // What "Found on this PC" offers, so the Hub strip doesn't offer it twice (same cached query).
   const scan = useBridgeQuery('library.scanInstalledGames', undefined, { staleTime: Infinity, gcTime: Infinity });
@@ -53,7 +55,11 @@ export default function LibraryScreen() {
     if (!g || !g.updateAvailable) return;
     try {
       const result = await updateHandler(g.id, { name: g.name, coverUrl: g.coverUrl, handlerId: g.handlerId, version: g.latestHandlerVersion });
-      toast(`${result.gameName} handler updated${g.latestHandlerVersion !== undefined ? ` to v${g.latestHandlerVersion}` : ''}`);
+      toast(
+        g.latestHandlerVersion !== undefined
+          ? t('library.toasts.handlerUpdatedTo', { game: result.gameName, version: String(g.latestHandlerVersion) })
+          : t('library.toasts.handlerUpdated', { game: result.gameName }),
+      );
       focusGame(g.id);
     } catch (e) {
       if (!isCancelled(e)) toast(errorMessage(e), { icon: 'warning', durationMs: 4200 });
@@ -78,7 +84,7 @@ export default function LibraryScreen() {
   const toggleFavorite = (g: GameSummary | undefined) => {
     if (!g) return;
     void run(() => bridge.library.setFavorite({ gameId: g.id, favorite: !g.favorite }), {
-      success: g.favorite ? `${g.name} removed from favourites` : `${g.name} added to favourites`,
+      success: g.favorite ? t('library.toasts.favouriteRemoved', { game: g.name }) : t('library.toasts.favouriteAdded', { game: g.name }),
     });
   };
 
@@ -86,17 +92,17 @@ export default function LibraryScreen() {
   const closeOptions = useCallback(() => setOptionsFor(null), []);
   // A presses whatever has focus, so it only says "Select". X and View act on the focused game (X: else the featured
   // one), whatever control of it has focus.
-  const select: Hint = { button: 'A', label: 'Select' };
-  const search: Hint = { button: 'Y', label: 'Search' };
-  const options: Hint = { button: 'X', label: 'Game options', action: openOptions };
-  const favourite: Hint = { button: 'View', label: 'Favourite', action: () => toggleFavorite(byId(focusedId())) };
+  const select: Hint = { button: 'A', label: t('common.select') };
+  const search: Hint = { button: 'Y', label: t('common.search') };
+  const options: Hint = { button: 'X', label: t('library.hints.gameOptions'), action: openOptions };
+  const favourite: Hint = { button: 'View', label: t('library.hints.favourite'), action: () => toggleFavorite(byId(focusedId())) };
   const plain = [select, search];
-  useScreenChrome([{ label: 'Library' }], {
+  useScreenChrome([{ label: t('library.title') }], {
     base: games?.length ? [select, options, search] : plain,
     byFocus: {
       options: plain,
       game: [select, options, favourite, search],
-      update: [select, { button: 'X', label: 'Update handler', action: () => void runUpdate(byId(focusedId())) }, favourite, search],
+      update: [select, { button: 'X', label: t('library.hints.updateHandler'), action: () => void runUpdate(byId(focusedId())) }, favourite, search],
       missing: [select, options, favourite, search],
       add: plain,
       found: plain,
@@ -119,7 +125,7 @@ export default function LibraryScreen() {
     return (
       <Pane className="grid h-full place-items-center text-small text-ink-2">
         <span className="inline-flex items-center gap-2.5" role="status">
-          <Spinner /> Loading your library
+          <Spinner /> {t('library.loading')}
         </span>
       </Pane>
     );
@@ -129,11 +135,11 @@ export default function LibraryScreen() {
       <Pane className="grid h-full place-items-center p-8 text-center">
         <div className="grid justify-items-center gap-3">
           <Icon name="warning" className="size-7 text-warn" />
-          <h1 className="type-h3">Your library could not be read</h1>
+          <h1 className="type-h3">{t('library.loadError')}</h1>
           <p className="max-w-[52ch] text-small text-ink-2">{errorMessage(error)}</p>
           <Button variant="ghost" onClick={() => void refetch()} data-nav>
             <Icon name="refresh" />
-            Try again
+            {t('common.tryAgain')}
           </Button>
         </div>
       </Pane>
@@ -186,14 +192,21 @@ export default function LibraryScreen() {
 
 /** Screen-reader summary of what needs attention (the cards say it visually). */
 function AttentionSummary({ games }: { games: GameSummary[] }) {
+  const t = useT();
   const missing = games.filter((g) => gameStatus(g) === 'missing').length;
   const updates = games.filter((g) => gameStatus(g) === 'update').length;
   if (!missing && !updates) return null;
-  const parts = [missing ? `${missing} game${missing === 1 ? '' : 's'} not found` : '', updates ? `${updates} handler update${updates === 1 ? '' : 's'}` : ''].filter(Boolean);
-  return <p className="sr-only">{parts.join(', ')}.</p>;
+  const missingText = t('library.attention.gamesNotFound', { count: missing });
+  const updatesText = t('library.attention.handlerUpdates', { count: updates });
+  const text =
+    missing && updates
+      ? t('library.attention.both', { missing: missingText, updates: updatesText })
+      : t('library.attention.one', { item: missing ? missingText : updatesText });
+  return <p className="sr-only">{text}</p>;
 }
 
 function EmptyLibrary({ adding, onAddGame }: { adding: boolean; onAddGame: () => void }) {
+  const t = useT();
   return (
     <Pane as="section" aria-labelledby="empty-title" className="flex min-h-[372px] flex-col justify-end gap-4 px-9 pt-8 pb-[30px]">
       <div aria-hidden="true" className="grid aspect-[16/10] w-[132px] grid-cols-2 gap-1">
@@ -201,20 +214,17 @@ function EmptyLibrary({ adding, onAddGame }: { adding: boolean; onAddGame: () =>
         <i className="rounded-[5px] shadow-[inset_0_0_0_1.5px_var(--color-line-strong)]" />
       </div>
       <h1 id="empty-title" className="type-h1 max-w-[16ch]">
-        Your library is empty
+        {t('library.empty.title')}
       </h1>
-      <p className="max-w-[54ch] text-ink-2">
-        Add the games Nucleus found on this PC, pick a handler on the Hub, or point Nucleus at a game you have. Each game gets a ready-made
-        split-screen setup.
-      </p>
+      <p className="max-w-[54ch] text-ink-2">{t('library.empty.text')}</p>
       <div className="flex flex-wrap gap-2.5">
         <ButtonLink to="/games" variant="primary" size="lg" data-nav data-autofocus>
           <Icon name="compass" />
-          Get games
+          {t('library.empty.getGames')}
         </ButtonLink>
         <Button variant="ghost" size="lg" data-nav data-hints="add" onClick={onAddGame} disabled={adding}>
           {adding ? <Spinner /> : <Icon name="plus" />}
-          Add a game
+          {t('library.empty.addGame')}
         </Button>
       </div>
     </Pane>

@@ -3,12 +3,12 @@ import { Link, useParams } from 'react-router';
 import { Markdown } from '@/components/Markdown';
 import { bridge } from '@/bridge';
 import { useAllHandlers, useHubComments, useHubHandler, variant, type HubCommentThread, type HubHandler } from '@/hub';
+import { T, useI18n, type MessageKey } from '@/i18n';
 import { igdbImage } from '@/lib/art';
-import { fmtAgo, fmtDate } from '@/lib/format';
 import { useInstalledHandlers, useLibrary } from '@/lib/library';
 import { igdbResize, useScreenshots } from '@/lib/screenshots';
 import { useScreenChrome } from '@/shell/chrome';
-import { Button, ButtonLink, Icon, InputSupport, inputSentence, Kbd, Pane, Pips, PlayerTag, Spinner, Verified, cn, playerClass, type IconName } from '@/ui';
+import { Button, ButtonLink, Icon, InputSupport, inputSentence, Pane, Pips, PlayerTag, Spinner, Verified, cn, playerClass, type IconName } from '@/ui';
 import { ActionPane } from './ActionPane';
 import { HandlerCard } from './HandlerCard';
 import { handlerInstallState, installStatuses } from './install-state';
@@ -19,18 +19,19 @@ export default function HandlerScreen() {
   const { data: all = [] } = useAllHandlers();
   const { data: installed = [] } = useInstalledHandlers();
   const { data: library = [] } = useLibrary();
+  const { t } = useI18n();
   const status = handler ? handlerInstallState(handler, installed, library).status : 'none';
   const installable = Boolean(handler) && (status === 'none' || status === 'update' || status === 'installed');
-  const actionLabel = status === 'update' ? 'Update handler' : status === 'installed' ? 'Add the game' : 'Install handler';
+  const actionLabel = status === 'update' ? t('handler.hints.update') : status === 'installed' ? t('handler.hints.addGame') : t('handler.hints.install');
 
-  useScreenChrome([{ label: 'Get games', to: '/games' }, { label: handler?.gameName ?? 'Handler' }], {
+  useScreenChrome([{ label: t('catalog.title'), to: '/games' }, { label: handler?.gameName ?? t('handler.defaultTitle') }], {
     base: [
-      { button: 'A', label: 'Select' },
+      { button: 'A', label: t('common.select') },
       ...(installable
         ? [{ button: 'X' as const, label: actionLabel, action: () => document.querySelector<HTMLButtonElement>('[data-install]:not(:disabled)')?.click() }]
         : []),
-      { button: 'B', label: 'Back' },
-      { button: 'Y', label: 'Search' },
+      { button: 'B', label: t('common.back') },
+      { button: 'Y', label: t('common.search') },
     ],
   });
 
@@ -38,7 +39,7 @@ export default function HandlerScreen() {
     return (
       <Pane className="grid h-full place-items-center text-small text-ink-2">
         <span className="inline-flex items-center gap-2.5">
-          <Spinner /> Loading the handler
+          <Spinner /> {t('handler.loading')}
         </span>
       </Pane>
     );
@@ -48,15 +49,11 @@ export default function HandlerScreen() {
       <Pane className="grid h-full place-items-center p-8">
         <div className="grid max-w-[48ch] justify-items-start gap-4">
           <Icon name={isError ? 'offline' : 'info'} className="size-8 text-ink-3" />
-          <h1 className="type-h2">{isError ? 'The Hub is out of reach' : 'This handler is not on the Hub any more'}</h1>
-          <p className="text-ink-2">
-            {isError
-              ? 'Nucleus Co-op could not load this handler. Check your connection and try again.'
-              : 'Its author may have removed it or made it private. Other handlers for the same game may exist.'}
-          </p>
+          <h1 className="type-h2">{isError ? t('handler.unavailable.offlineTitle') : t('handler.unavailable.goneTitle')}</h1>
+          <p className="text-ink-2">{isError ? t('handler.unavailable.offlineText') : t('handler.unavailable.goneText')}</p>
           <ButtonLink to="/games" variant="primary">
             <Icon name="arrow-l" />
-            Back to Get games
+            {t('handler.unavailable.back')}
           </ButtonLink>
         </div>
       </Pane>
@@ -66,9 +63,10 @@ export default function HandlerScreen() {
 }
 
 function HandlerDetail({ handler: h, all, refreshing }: { handler: HubHandler; all: HubHandler[]; refreshing: boolean }) {
+  const { t } = useI18n();
   const v = variant(h);
   const inputs = inputSentence(h.inputs);
-  const howMany = h.maxPlayers ? `Up to ${h.maxPlayers} players on one PC` : 'Split-screen on one PC';
+  const howMany = h.maxPlayers ? t('handler.hero.upToPlayers', { count: h.maxPlayers }) : t('handler.hero.splitScreen');
   const commentsRef = useRef<HTMLElement>(null);
 
   const byAuthor = useMemo(() => (h.authorId ? all.filter((x) => x.authorId === h.authorId) : [h]), [all, h]);
@@ -83,7 +81,7 @@ function HandlerDetail({ handler: h, all, refreshing }: { handler: HubHandler; a
         <Pane className="flex flex-col gap-6 px-8 pt-6 pb-8">
           <Link to="/games" className="inline-flex items-center gap-1.5 self-start rounded text-small text-ink-2 no-underline hover:text-ink">
             <Icon name="arrow-l" className="size-4" />
-            All games
+            {t('handler.hero.allGames')}
           </Link>
           <div className="mt-auto grid gap-4">
             <h1
@@ -97,24 +95,28 @@ function HandlerDetail({ handler: h, all, refreshing }: { handler: HubHandler; a
               {v && <span className="block font-[700] text-ink-2">{v}</span>}
             </h1>
             <p className="max-w-[40ch] text-17 text-ink-2">
-              {howMany}
-              {inputs ? `, ${inputs}` : ''}.
+              {inputs ? t('handler.hero.summaryWithInputs', { players: howMany, inputs }) : t('handler.hero.summary', { players: howMany })}
             </p>
             <div className="flex flex-wrap items-center gap-x-6 gap-y-4 border-t border-line pt-4">
               <Pips players={h.maxPlayers} size="lg" />
               <InputSupport flags={h.inputs} size="lg" />
-              {h.verified && <Verified>Verified handler</Verified>}
+              {h.verified && <Verified>{t('handler.hero.verified')}</Verified>}
             </div>
             <p className="text-small text-ink-3">
-              Handler “{h.title}” by{' '}
-              {h.authorUrl ? (
-                <ExternalText href={h.authorUrl} className="text-ink-2">
-                  {h.author}
-                </ExternalText>
-              ) : (
-                <span className="text-ink-2">{h.author}</span>
-              )}
-              , version {h.version}
+              <T
+                k="handler.hero.byline"
+                values={{
+                  title: h.title,
+                  author: h.authorUrl ? (
+                    <ExternalText href={h.authorUrl} className="text-ink-2">
+                      {h.author}
+                    </ExternalText>
+                  ) : (
+                    <span className="text-ink-2">{h.author}</span>
+                  ),
+                  version: String(h.version),
+                }}
+              />
             </p>
           </div>
         </Pane>
@@ -125,29 +127,27 @@ function HandlerDetail({ handler: h, all, refreshing }: { handler: HubHandler; a
         <div className="grid min-w-0 gap-gutter">
           <Pane as="section" aria-labelledby="h-compat" className="@container p-8">
             <h2 id="h-compat" className="type-h3 mb-6">
-              Compatibility
+              {t('handler.compat.title')}
             </h2>
             <Compat handler={h} />
           </Pane>
 
           <Pane as="section" aria-labelledby="h-notes" className="p-8">
             <h2 id="h-notes" className="type-h2 mb-6">
-              Handler notes
+              {t('handler.notes.title')}
             </h2>
             {h.description.trim() ? (
               <Markdown>{h.description}</Markdown>
             ) : refreshing ? (
               <p className="flex items-center gap-2 text-ink-2">
-                <Spinner /> Loading notes…
+                <Spinner /> {t('handler.notes.loading')}
               </p>
             ) : (
-              <p className="max-w-[68ch] text-ink-2">
-                {h.author} hasn't written notes for this handler yet. Nucleus shows any notes from the author before you launch, and the comments below often have tips from other players.
-              </p>
+              <p className="max-w-[68ch] text-ink-2">{t('handler.notes.none', { author: h.author })}</p>
             )}
             {h.gameDescription && (
               <div className="mt-8 border-t border-line pt-6">
-                <h3 className="mb-2 text-16">About {h.gameName}</h3>
+                <h3 className="mb-2 text-16">{t('handler.notes.about', { game: h.gameName })}</h3>
                 <p className="max-w-[68ch] text-ink-2">{h.gameDescription}</p>
               </div>
             )}
@@ -155,7 +155,7 @@ function HandlerDetail({ handler: h, all, refreshing }: { handler: HubHandler; a
 
           <Pane as="section" aria-labelledby="h-steps" className="@container p-8">
             <h2 id="h-steps" className="type-h2 mb-6">
-              Play {h.gameName} together
+              {t('handler.steps.title', { game: h.gameName })}
             </h2>
             <Steps handler={h} />
           </Pane>
@@ -163,7 +163,7 @@ function HandlerDetail({ handler: h, all, refreshing }: { handler: HubHandler; a
           <Comments handler={h} sectionRef={commentsRef} />
         </div>
 
-        <aside aria-label="Install this handler" className="sticky top-0">
+        <aside aria-label={t('handler.installPane')} className="sticky top-0">
           <ActionPane handler={h} byAuthor={byAuthor} onComments={() => commentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })} />
         </aside>
       </div>
@@ -172,10 +172,10 @@ function HandlerDetail({ handler: h, all, refreshing }: { handler: HubHandler; a
         <Pane as="section" aria-labelledby="h-related" className="p-8">
           <div className="mb-6 flex items-end justify-between gap-4">
             <h2 id="h-related" className="type-h2">
-              Play these next
+              {t('handler.related.title')}
             </h2>
             <Link to="/games" className="rounded text-small font-semibold text-ink-2 no-underline hover:text-ink">
-              Browse all games
+              {t('handler.related.browseAll')}
             </Link>
           </div>
           <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(152px,1fr))] gap-x-[18px] gap-y-[34px] p-0">
@@ -194,6 +194,7 @@ function HandlerDetail({ handler: h, all, refreshing }: { handler: HubHandler; a
 // ---------------------------------------------------------------- hero: the game split for its players
 
 function SplitPreview({ handler: h }: { handler: HubHandler }) {
+  const { t } = useI18n();
   const { data: shots } = useScreenshots(h.id);
   const seats = Math.min(h.maxPlayers ?? 2, 4);
   const views = Math.max(seats, 2);
@@ -207,7 +208,7 @@ function SplitPreview({ handler: h }: { handler: HubHandler }) {
   return (
     <div
       role="img"
-      aria-label={`${h.gameName} split into ${seats} player views, the way Nucleus Co-op arranges the windows`}
+      aria-label={t('handler.hero.previewLabel', { game: h.gameName, count: seats })}
       className={cn('grid gap-gutter', views === 2 ? 'grid-cols-1 grid-rows-2' : 'grid-cols-2 grid-rows-2')}
     >
       {Array.from({ length: views }, (_, i) => {
@@ -228,7 +229,7 @@ function SplitPreview({ handler: h }: { handler: HubHandler }) {
             <PlayerTag n={i + 1} className="absolute top-3 left-3 z-[1]" />
             {i === views - 1 && (h.maxPlayers ?? 0) > 4 && (
               <span className="absolute right-3 bottom-3 z-[1] rounded-tag bg-black/70 px-2.5 py-1 text-micro font-semibold text-ink backdrop-blur-sm">
-                {(h.maxPlayers ?? 0) - 4} more seats
+                {t('handler.hero.moreSeats', { count: (h.maxPlayers ?? 0) - 4 })}
               </span>
             )}
           </div>
@@ -241,27 +242,28 @@ function SplitPreview({ handler: h }: { handler: HubHandler }) {
 // ---------------------------------------------------------------- compatibility
 
 function Compat({ handler: h }: { handler: HubHandler }) {
-  const cell = (on: boolean | undefined, icon: IconName, label: string, yes: string, no: string, last = false) => (
+  const { t } = useI18n();
+  const cell = (on: boolean | undefined, icon: IconName, label: MessageKey, yes: MessageKey, no: MessageKey, last = false) => (
     <li className={cn('grid content-start gap-2.5 bg-pane p-4', last && 'col-span-2 @min-[840px]:col-span-1')}>
-      <span className="min-h-[2.6em] text-small leading-[1.3] text-ink-3">{label}</span>
+      <span className="min-h-[2.6em] text-small leading-[1.3] text-ink-3">{t(label)}</span>
       <span className={cn('flex items-center gap-2 font-[650]', !on && 'font-medium text-ink-3')}>
         <Icon name={icon} className={cn('size-[22px]', !on && 'opacity-40')} />
-        {on === undefined ? 'Not stated' : on ? yes : no}
+        {on === undefined ? t('handler.compat.notStated') : t(on ? yes : no)}
       </span>
     </li>
   );
   return (
     <ul className="m-0 grid list-none grid-cols-3 gap-px overflow-hidden rounded-[10px] bg-line p-px @min-[840px]:grid-cols-5">
       <li className="grid content-start gap-2.5 bg-pane p-4">
-        <span className="min-h-[2.6em] text-small leading-[1.3] text-ink-3">Players</span>
+        <span className="min-h-[2.6em] text-small leading-[1.3] text-ink-3">{t('handler.compat.players')}</span>
         <span className="flex items-center gap-2 font-[650]">
           <Pips players={h.maxPlayers} size="lg" />
         </span>
       </li>
-      {cell(h.inputs.controllers, 'pad', 'Controllers', 'Supported', 'Not supported')}
-      {cell(h.inputs.keyboardMouse, 'kbm', 'Keyboard and mouse', 'Supported', 'Not supported')}
-      {cell(h.inputs.multiKeyboardMouse, 'multi', 'Several keyboards and mice', 'One per player', 'Not supported')}
-      {cell(h.verified, 'seal', 'Hub moderators', 'Verified', 'Not verified yet', true)}
+      {cell(h.inputs.controllers, 'pad', 'handler.compat.controllers', 'handler.compat.supported', 'handler.compat.notSupported')}
+      {cell(h.inputs.keyboardMouse, 'kbm', 'handler.compat.keyboardMouse', 'handler.compat.supported', 'handler.compat.notSupported')}
+      {cell(h.inputs.multiKeyboardMouse, 'multi', 'handler.compat.multiKeyboardMouse', 'handler.compat.onePerPlayer', 'handler.compat.notSupported')}
+      {cell(h.verified, 'seal', 'handler.compat.moderators', 'handler.compat.verified', 'handler.compat.notVerified', true)}
     </ul>
   );
 }
@@ -269,24 +271,22 @@ function Compat({ handler: h }: { handler: HubHandler }) {
 // ---------------------------------------------------------------- steps
 
 function Steps({ handler: h }: { handler: HubHandler }) {
-  const steps: Array<{ title: string; body: ReactNode; tip?: ReactNode }> = [
-    { title: 'Install the handler', body: `One click. Nucleus downloads it from the Hub and adds ${h.gameName} to your library.` },
-    { title: 'Point to the game', body: `The first time, Nucleus finds ${h.gameName} on this PC or asks once where it is installed.` },
+  const { t } = useI18n();
+  const steps: Array<{ id: string; title: string; body: ReactNode; tip?: ReactNode }> = [
+    { id: 'install', title: t('handler.steps.installTitle'), body: t('handler.steps.installBody', { game: h.gameName }) },
+    { id: 'locate', title: t('handler.steps.locateTitle'), body: t('handler.steps.locateBody', { game: h.gameName }) },
     {
-      title: 'Take a seat',
-      body: 'Each player presses Start on their controller to join. Nucleus opens one window per player and tiles them.',
-      tip: h.inputs.multiKeyboardMouse ? (
-        <>
-          Using keyboards and mice? Press <Kbd>End</Kbd> once everything is in place to give each window its own cursor.
-        </>
-      ) : undefined,
+      id: 'seat',
+      title: t('handler.steps.seatTitle'),
+      body: t('handler.steps.seatBody'),
+      tip: h.inputs.multiKeyboardMouse ? <T k="handler.steps.seatTip" values={{ key: 'End' }} /> : undefined,
     },
-    { title: 'Connect in game', body: 'Follow the handler notes to link the windows: usually one player hosts and the others join.' },
+    { id: 'connect', title: t('handler.steps.connectTitle'), body: t('handler.steps.connectBody') },
   ];
   return (
     <ol className="m-0 grid list-none grid-cols-2 gap-6 p-0 @min-[860px]:grid-cols-4">
       {steps.map((s, i) => (
-        <li key={s.title} className="grid content-start gap-2">
+        <li key={s.id} className="grid content-start gap-2">
           <span aria-hidden="true" className="mb-2 grid size-9 place-items-center rounded-[10px] bg-pane-3 font-[800] text-ink stretch-wide">
             {i + 1}
           </span>
@@ -303,43 +303,44 @@ function Steps({ handler: h }: { handler: HubHandler }) {
 
 function Comments({ handler: h, sectionRef }: { handler: HubHandler; sectionRef: RefObject<HTMLElement | null> }) {
   const { data: threads, isPending, isError, refetch } = useHubComments(h.id);
+  const { t } = useI18n();
   const [all, setAll] = useState(false);
   const FIRST = 5;
-  const count = threads ? threads.reduce((n, t) => n + 1 + t.replies.length, 0) : h.comments;
+  const count = threads ? threads.reduce((n, thread) => n + 1 + thread.replies.length, 0) : h.comments;
   return (
     <Pane as="section" aria-labelledby="h-comments" className="scroll-mt-1 p-8" ref={sectionRef}>
       <div className="mb-6 flex flex-wrap items-baseline gap-3">
         <h2 id="h-comments" className="type-h3">
-          Comments <span className="data font-medium text-ink-3">{count}</span>
+          <T k="handler.comments.title" values={{ number: count }} tags={{ count: (c) => <span className="data font-medium text-ink-3">{c}</span> }} />
         </h2>
         <Button size="sm" variant="ghost" className="ml-auto" disabled={!h.url} onClick={() => void bridge.app.openExternal({ url: h.url }).catch(() => undefined)}>
           <Icon name="comment" />
-          Comment on the Hub
+          {t('handler.comments.commentOnHub')}
         </Button>
       </div>
       {isPending ? (
         <p className="flex items-center gap-2 text-small text-ink-2">
-          <Spinner /> Loading comments…
+          <Spinner /> {t('handler.comments.loading')}
         </p>
       ) : isError ? (
         <p className="flex items-center gap-3 text-small text-ink-2">
-          Comments could not be loaded.
+          {t('handler.comments.loadError')}
           <Button size="sm" variant="ghost" onClick={() => void refetch()}>
-            Try again
+            {t('common.tryAgain')}
           </Button>
         </p>
       ) : !threads?.length ? (
-        <p className="text-15 text-ink-2">No comments yet. Played it? Share what worked for your group on the Hub.</p>
+        <p className="text-15 text-ink-2">{t('handler.comments.none')}</p>
       ) : (
         <ul className="m-0 grid max-w-[76ch] list-none gap-6 p-0">
-          {(all ? threads : threads.slice(0, FIRST)).map((t) => (
-            <CommentItem key={t.id} comment={t} />
+          {(all ? threads : threads.slice(0, FIRST)).map((thread) => (
+            <CommentItem key={thread.id} comment={thread} />
           ))}
         </ul>
       )}
       {threads && threads.length > FIRST && !all && (
         <Button variant="ghost" className="mt-6" onClick={() => setAll(true)} data-nav>
-          Show {threads.length - FIRST} more {threads.length - FIRST === 1 ? 'thread' : 'threads'}
+          {t('handler.comments.showMore', { count: threads.length - FIRST })}
         </Button>
       )}
     </Pane>
@@ -347,14 +348,15 @@ function Comments({ handler: h, sectionRef }: { handler: HubHandler; sectionRef:
 }
 
 function CommentItem({ comment: c }: { comment: HubCommentThread }) {
+  const { format } = useI18n();
   return (
     <li className="grid grid-cols-[36px_minmax(0,1fr)] gap-3">
       <Avatar name={c.author} />
       <div className="min-w-0">
         <div className="flex flex-wrap items-baseline gap-2">
           <b className="text-15 font-[650]">{c.author}</b>
-          <time dateTime={c.createdAt} title={fmtDate(c.createdAt)} className="text-small text-ink-3">
-            {fmtAgo(c.createdAt)}
+          <time dateTime={c.createdAt} title={format.date(c.createdAt, 'medium')} className="text-small text-ink-3">
+            {format.ago(c.createdAt)}
           </time>
         </div>
         <Markdown compact className="mt-1">
@@ -368,8 +370,8 @@ function CommentItem({ comment: c }: { comment: HubCommentThread }) {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-baseline gap-2">
                     <b className="text-14 font-[650]">{r.author}</b>
-                    <time dateTime={r.createdAt} title={fmtDate(r.createdAt)} className="text-13 text-ink-3">
-                      {fmtAgo(r.createdAt)}
+                    <time dateTime={r.createdAt} title={format.date(r.createdAt, 'medium')} className="text-13 text-ink-3">
+                      {format.ago(r.createdAt)}
                     </time>
                   </div>
                   <Markdown compact className="mt-0.5 text-14">

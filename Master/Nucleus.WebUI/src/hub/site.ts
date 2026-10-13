@@ -2,6 +2,7 @@
 // runs), and checked against the page's Content-Security-Policy. The packaged UI only allows the default site
 // (plus the origins given in NUCLEUS_HUB_ORIGINS at build time, see vite.config.ts); the Vite dev server has no CSP.
 import { bridge } from '@/bridge';
+import { t } from '@/i18n';
 import { HubError } from './api';
 import { connectAllowed, cspConnectSources, DEFAULT_HUB_URL, normalizeHubUrl } from './urls';
 
@@ -22,10 +23,7 @@ async function resolveSite(): Promise<string> {
   const policy = document.querySelector<HTMLMetaElement>('meta[http-equiv="Content-Security-Policy"]')?.content;
   if (!connectAllowed(site, cspConnectSources(policy))) {
     const origin = new URL(site).origin;
-    throw new HubError(
-      // i18n-ignore: developer setup only (a [Dev] HubUrl the build does not allow), with build variable names.
-      `The Content-Security-Policy of this interface build does not allow ${origin} (Settings.ini [Dev] HubUrl). Rebuild the interface with NUCLEUS_HUB_ORIGINS=${origin}, or load it from the Vite dev server.`,
-    );
+    throw new HubError(t('hub.errors.cspBlocked', { origin }));
   }
   return site;
 }
