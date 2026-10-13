@@ -2,7 +2,7 @@ import { useMemo, useRef, useState, type ReactNode, type RefObject } from 'react
 import { Link, useParams } from 'react-router';
 import { Markdown } from '@/components/Markdown';
 import { bridge } from '@/bridge';
-import { hubHandlerUrl, hubUserUrl, useAllHandlers, useHubComments, useHubHandler, variant, type HubCommentThread, type HubHandler } from '@/hub';
+import { useAllHandlers, useHubComments, useHubHandler, variant, type HubCommentThread, type HubHandler } from '@/hub';
 import { igdbImage } from '@/lib/art';
 import { fmtAgo, fmtDate } from '@/lib/format';
 import { useInstalledHandlers, useLibrary } from '@/lib/library';
@@ -71,7 +71,7 @@ function HandlerDetail({ handler: h, all, refreshing }: { handler: HubHandler; a
   const howMany = h.maxPlayers ? `Up to ${h.maxPlayers} players on one PC` : 'Split-screen on one PC';
   const commentsRef = useRef<HTMLElement>(null);
 
-  const byAuthor = useMemo(() => all.filter((x) => x.ownerId === h.ownerId), [all, h.ownerId]);
+  const byAuthor = useMemo(() => (h.authorId ? all.filter((x) => x.authorId === h.authorId) : [h]), [all, h]);
   const related = useMemo(() => relatedHandlers(h, all), [h, all]);
   const { data: installed = [] } = useInstalledHandlers();
   const { data: library = [] } = useLibrary();
@@ -107,9 +107,13 @@ function HandlerDetail({ handler: h, all, refreshing }: { handler: HubHandler; a
             </div>
             <p className="text-small text-ink-3">
               Handler “{h.title}” by{' '}
-              <ExternalText href={hubUserUrl(h.ownerId)} className="text-ink-2">
-                {h.author}
-              </ExternalText>
+              {h.authorUrl ? (
+                <ExternalText href={h.authorUrl} className="text-ink-2">
+                  {h.author}
+                </ExternalText>
+              ) : (
+                <span className="text-ink-2">{h.author}</span>
+              )}
               , version {h.version}
             </p>
           </div>
@@ -308,7 +312,7 @@ function Comments({ handler: h, sectionRef }: { handler: HubHandler; sectionRef:
         <h2 id="h-comments" className="type-h3">
           Comments <span className="data font-medium text-ink-3">{count}</span>
         </h2>
-        <Button size="sm" variant="ghost" className="ml-auto" onClick={() => void bridge.app.openExternal({ url: hubHandlerUrl(h.id) }).catch(() => undefined)}>
+        <Button size="sm" variant="ghost" className="ml-auto" disabled={!h.url} onClick={() => void bridge.app.openExternal({ url: h.url }).catch(() => undefined)}>
           <Icon name="comment" />
           Comment on the Hub
         </Button>

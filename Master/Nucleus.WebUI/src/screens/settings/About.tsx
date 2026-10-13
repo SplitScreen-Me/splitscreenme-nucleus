@@ -1,5 +1,6 @@
 import { useRef, useState, type ReactNode } from 'react';
 import { bridge, useBridgeEvent, type ArtworkProgress } from '@/bridge';
+import { DEFAULT_HUB_URL, hubCatalogueUrl } from '@/hub';
 import { useRun } from '@/lib/bridge-ui';
 import { LINKS } from '@/lib/links';
 import { useAppInfo } from '@/lib/live';
@@ -17,7 +18,7 @@ export function About() {
     { label: 'Documentation', url: LINKS.docs, icon: 'book' },
     { label: 'FAQ', url: LINKS.faq, icon: 'info' },
     { label: 'Discord', url: LINKS.discord, icon: 'discord' },
-    { label: 'The Hub', url: LINKS.hub, icon: 'compass' },
+    { label: 'The Hub', url: hubCatalogueUrl(info?.hubUrl || DEFAULT_HUB_URL), icon: 'compass' },
   ];
 
   const once = async (what: 'updates' | 'reload', call: () => Promise<unknown>, success: string) => {
@@ -48,7 +49,7 @@ export function About() {
         <Fact label="WebView2">{info?.webViewVersion ?? '…'}</Fact>
         <Fact label="Hub">
           {info ? (
-            <span className="inline-flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-1.5" title={info.hubUrl}>
               <span aria-hidden="true" className={cn('size-2 rounded-full', info.hubOnline ? 'bg-ok' : 'bg-warn')} />
               {info.hubOnline ? 'Online' : 'Offline'}
             </span>

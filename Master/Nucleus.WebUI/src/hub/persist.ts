@@ -2,7 +2,9 @@
 // Every access is guarded: storage can be disabled, full, or wiped by the WebView profile.
 import type { HubHandler } from './types';
 
-const KEY = 'nucleus.hub.allhandlers.v1';
+const KEY = 'nucleus.hub.catalog.v3';
+// The API v1 copy (other field names), left by earlier builds: removed on the first read.
+const LEGACY_KEYS = ['nucleus.hub.allhandlers.v1'];
 
 interface Stored {
   savedAt: number;
@@ -11,6 +13,7 @@ interface Stored {
 
 export function loadCatalogue(): Stored | undefined {
   try {
+    LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
     const raw = localStorage.getItem(KEY);
     if (!raw) return undefined;
     const parsed = JSON.parse(raw) as Partial<Stored>;

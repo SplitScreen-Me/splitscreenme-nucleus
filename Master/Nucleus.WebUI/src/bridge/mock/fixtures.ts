@@ -48,7 +48,7 @@ The host must use the *Tiny Great Pot* to create a session. At that point, the o
 
 To use Mod Loader simply enable the launch option in Nucleus, as long as your mods are located in the original game folder's "mods" folder they should work.
 
-Handler by [PoundlandBacon]{https://hub.splitscreen.me/user/AdiAjSyfZPMvu3a4M} and [Talos91]{https://hub.splitscreen.me/user/eeL7HAz8zJovChWw4}, special thanks to LukeYui, TechieW and Mr Goldberg.`;
+Handler by [PoundlandBacon]{https://v3.splitscreen.me/hub/authors/PoundlandBacon} and [Talos91]{https://v3.splitscreen.me/hub/authors/Talos91}, special thanks to LukeYui, TechieW and Mr Goldberg.`;
 
 const MINECRAFT_NOTES = `Requires *Java 21|255,140,60* and an offline-capable launcher profile per instance.
 

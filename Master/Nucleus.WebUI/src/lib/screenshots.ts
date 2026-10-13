@@ -1,4 +1,4 @@
-// Hub screenshots: the hub endpoint has no CORS, so the host proxies it (`handlers.screenshots`, URLs).
+// Hub screenshots: the host reads them from the handler detail of the API v3 (`handlers.screenshots`, IGDB URLs).
 import { useBridgeQuery } from '@/bridge';
 import type { IgdbSize } from './art';
 

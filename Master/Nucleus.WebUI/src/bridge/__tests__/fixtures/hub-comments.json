@@ -1,0 +1,25 @@
+{
+  "items": [
+    {
+      "id": "tm9TwqHLxzvt2Ajo9",
+      "handlerId": "fDmTaAoYKJmiWi3s3",
+      "parentId": "xkCG2Yg7N3PAdWML4",
+      "authorId": "AuthorAAAAAAAAAA1",
+      "authorName": "ExampleAuthor",
+      "body": "The store version has different files.\nThis handler is for the Steam version.",
+      "createdAt": "2024-02-15T14:56:17.723Z",
+      "editedAt": null
+    },
+    {
+      "id": "xkCG2Yg7N3PAdWML4",
+      "handlerId": "fDmTaAoYKJmiWi3s3",
+      "parentId": null,
+      "authorId": null,
+      "authorName": "Deleted user",
+      "body": "Could this work with the store version too?",
+      "createdAt": "2024-02-13T23:05:46.905Z",
+      "editedAt": "2024-02-14T08:00:00.000Z"
+    }
+  ],
+  "nextCursor": null
+}

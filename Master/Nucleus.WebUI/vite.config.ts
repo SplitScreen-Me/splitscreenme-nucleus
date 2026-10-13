@@ -4,8 +4,27 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
 /**
+ * Origins the UI may fetch the hub API v3 from: the public site (src/hub/urls.ts DEFAULT_HUB_URL, HubSite.DefaultUrl in
+ * C#), plus NUCLEUS_HUB_ORIGINS at build time (space or comma separated, e.g. `http://localhost:3000`) for a build
+ * that talks to another site set in Settings.ini [Dev] HubUrl. The UI reports a clear error for a site this list
+ * does not allow (src/hub/site.ts); the dev server has no CSP.
+ */
+const HUB_ORIGINS = ['https://v3.splitscreen.me', ...extraHubOrigins(process.env.NUCLEUS_HUB_ORIGINS)];
+
+function extraHubOrigins(value: string | undefined): string[] {
+  return (value ?? '')
+    .split(/[\s,]+/)
+    .filter(Boolean)
+    .map((raw) => {
+      const url = new URL(raw);
+      if (url.protocol !== 'https:' && url.protocol !== 'http:') throw new Error(`NUCLEUS_HUB_ORIGINS: ${raw} is not an http(s) origin`);
+      return url.origin;
+    });
+}
+
+/**
  * Content Security Policy for the packaged UI (not the dev server, which needs inline HMR code).
- * Scripts and fonts are local; data comes from the host bridge and the public Hub API; images may be
+ * Scripts and fonts are local; data comes from the host bridge and the public hub API; images may be
  * remote game art (IGDB, Steam CDN) or local files on the assets virtual host.
  */
 const CSP = [
@@ -14,7 +33,7 @@ const CSP = [
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self'",
   "img-src 'self' data: blob: https:",
-  "connect-src 'self' https://hub.splitscreen.me",
+  `connect-src 'self' ${[...new Set(HUB_ORIGINS)].join(' ')}`,
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'none'",

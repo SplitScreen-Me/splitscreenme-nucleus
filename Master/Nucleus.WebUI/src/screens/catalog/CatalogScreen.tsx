@@ -393,7 +393,7 @@ function Unreachable({ message, onRetry, retrying }: { message?: string; onRetry
       <Icon name="offline" className="size-8 text-warn" />
       <h2 className="type-h2 text-[1.5rem]">The Hub is out of reach</h2>
       <p className="text-ink-2">
-        {message ?? 'The catalogue could not be loaded.'} Your library still works offline. The catalogue appears here as soon as Nucleus Co-op reaches hub.splitscreen.me once.
+        {message ?? 'The catalogue could not be loaded.'} Your library still works offline. The catalogue appears here as soon as Nucleus Co-op reaches the Hub once.
       </p>
       <Button variant="primary" onClick={onRetry} disabled={retrying} data-nav>
         {retrying ? <Spinner /> : <Icon name="refresh" />}

@@ -2,7 +2,7 @@
 import { useState, type ReactNode } from 'react';
 import { bridge } from '@/bridge';
 import { useAddGame } from '@/features/add-game';
-import { hubHandlerUrl, hubUserUrl, type HubHandler } from '@/hub';
+import type { HubHandler } from '@/hub';
 import { igdbImage } from '@/lib/art';
 import { useRun } from '@/lib/bridge-ui';
 import { cancelDownload, downloadProgress, installHandler, updateHandler, useActiveDownload, useDownloads } from '@/lib/downloads';
@@ -153,7 +153,7 @@ export function ActionPane({ handler: h, byAuthor, onComments }: { handler: HubH
     <Pane className="grid gap-4 p-6">
       {primary}
       <p className="-mt-1 text-small text-ink-2">{note}</p>
-      <Button variant="ghost" onClick={() => openExternal(hubHandlerUrl(h.id))}>
+      <Button variant="ghost" disabled={!h.url} onClick={() => openExternal(h.url)}>
         <Icon name="external" />
         Open on the Hub
       </Button>
@@ -167,7 +167,8 @@ export function ActionPane({ handler: h, byAuthor, onComments }: { handler: HubH
       </dl>
       <button
         type="button"
-        onClick={() => openExternal(hubUserUrl(h.ownerId))}
+        disabled={!h.authorUrl}
+        onClick={() => h.authorUrl && openExternal(h.authorUrl)}
         className="group flex items-center gap-3 rounded-ctl border-0 bg-transparent py-1 text-left text-ink"
       >
         <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-full bg-pane-3 font-[750] stretch-wide">

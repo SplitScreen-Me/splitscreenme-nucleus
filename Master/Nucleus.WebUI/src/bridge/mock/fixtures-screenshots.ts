@@ -1,5 +1,5 @@
-// IGDB screenshot image ids of hub handlers, by hub handler id (captured from /api/v1/screenshots/:id on 2026-10-11).
-// The real host proxies that endpoint, which has no CORS.
+// IGDB screenshot image ids of hub handlers, by hub handler id (captured 2026-10-11). The real host reads them from
+// the handler detail of the API v3 (`screenshots[].imageId` of GET /api/v3/handlers/:id, `handlers.screenshots`).
 const SCREENSHOT_IDS: Readonly<Record<string, readonly string[]>> = {
   rLSxwziuvTcuF3GTp: ['scxnim', 'scxj0w', 'scxj10', 'scxj0y'],
   QC7TTYjjZzaQ6Y6Nw: ['sclnvg', 'sctlac', 'sctlad', 'sc12xg1'],
