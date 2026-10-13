@@ -156,24 +156,52 @@ export function parseRich(template: string): RichNode[] {
   return root.children;
 }
 
+const parentTag = (tag: string) => (tag.includes('-') ? tag.slice(0, tag.lastIndexOf('-')) : '');
+const languageOf = (tag: string) => tag.split('-')[0]!.toLowerCase();
+const scriptOf = (tag: string) => {
+  const second = tag.split('-')[1];
+  return second && /^[A-Za-z]{4}$/.test(second) ? second.toLowerCase() : undefined;
+};
+
+/**
+ * The tag with its usual script when Chinese is written without one: `zh-TW` → `zh-Hant-TW`, `zh-CN` → `zh-Hans-CN`,
+ * `zh` → `zh-Hans`, and the old .NET names `zh-CHT` → `zh-Hant`, `zh-CHS` → `zh-Hans`. Other tags as they are. Same as
+ * the C# `LanguageDetector.WithScript`.
+ */
+export function withScript(tag: string): string {
+  const parts = tag.split('-');
+  if (parts[0]!.toLowerCase() !== 'zh' || scriptOf(tag)) return tag;
+  const second = parts[1]?.toUpperCase();
+  if (parts.length === 2 && second === 'CHT') return `${parts[0]}-Hant`;
+  if (parts.length === 2 && second === 'CHS') return `${parts[0]}-Hans`;
+  const script = second === 'TW' || second === 'HK' || second === 'MO' ? 'Hant' : 'Hans';
+  return [parts[0], script, ...parts.slice(1)].join('-');
+}
+
 /**
  * The available locale that best matches the preferred ones (Windows or browser languages, most preferred first): an
- * exact match, else a parent tag (`zh-Hant` for `zh-Hant-TW`, then `zh`), else another region of the same language
- * (`pt-BR` for `pt-PT`), else the next preferred one, else English. Same rules as the C# LanguageDetector.
+ * exact match, else a parent tag (`zh-Hant` for `zh-Hant-TW`, then `zh`; Chinese tags without a script get their usual
+ * one, so `zh-TW` reaches `zh-Hant`), else another region of the same language (`pt-BR` for `pt-PT`, the same script
+ * first), else the next preferred one, else English. Same rules as the C# LanguageDetector.
  */
 export function matchLocale(preferred: readonly string[], available: readonly string[], fallback = DEFAULT_LOCALE): string {
   const find = (tag: string) => available.find((l) => l.toLowerCase() === tag.toLowerCase());
-  const language = (tag: string) => tag.split('-')[0]!.toLowerCase();
   for (const raw of preferred) {
     const wanted = raw.trim().replace(/_/g, '-');
     if (!wanted) continue;
-    for (let tag = wanted; tag; tag = tag.includes('-') ? tag.slice(0, tag.lastIndexOf('-')) : '') {
+    // zh-TW → zh-TW, zh-Hant-TW, zh-Hant, zh: the tag, its form with a script and its parents, its own parents.
+    const candidates: string[] = [wanted];
+    for (let tag = withScript(wanted); tag; tag = parentTag(tag)) candidates.push(tag);
+    for (let tag = parentTag(wanted); tag; tag = parentTag(tag)) candidates.push(tag);
+    for (const tag of candidates) {
       const exact = find(tag);
       if (exact) return exact;
     }
+    const script = scriptOf(withScript(wanted));
+    const sameScript = (l: string) => (script !== undefined && scriptOf(withScript(l)) === script ? 0 : 1);
     const sibling = available
-      .filter((l) => language(l) === language(wanted))
-      .sort((a, b) => a.length - b.length || a.localeCompare(b))[0];
+      .filter((l) => languageOf(l) === languageOf(wanted))
+      .sort((a, b) => sameScript(a) - sameScript(b) || a.length - b.length || a.localeCompare(b))[0];
     if (sibling) return sibling;
   }
   return find(fallback) ?? fallback;

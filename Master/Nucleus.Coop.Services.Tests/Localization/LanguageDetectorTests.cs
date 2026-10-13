@@ -37,6 +37,41 @@ public class LanguageDetectorTests
         Assert.Equal("en", LanguageDetector.Match(CultureInfo.GetCultureInfo("ko-KR"), Available));
     }
 
+    private static readonly string[] BothChinese = { "en", "zh-Hans", "zh-Hant" };
+
+    // Windows cultures: .NET Framework chains zh-TW → zh-CHT → zh-Hant → zh, zh-CN → zh-CHS → zh-Hans → zh.
+    [Theory]
+    [InlineData("zh-TW", "zh-Hant")]
+    [InlineData("zh-HK", "zh-Hant")]
+    [InlineData("zh-MO", "zh-Hant")]
+    [InlineData("zh-CN", "zh-Hans")]
+    [InlineData("zh-SG", "zh-Hans")]
+    public void Reads_the_Chinese_script_of_a_Windows_culture(string culture, string expected) =>
+        Assert.Equal(expected, LanguageDetector.Match(CultureInfo.GetCultureInfo(culture), BothChinese));
+
+    // Browser and Windows tags often name the region only.
+    [Theory]
+    [InlineData("zh-TW", "zh-Hant")]
+    [InlineData("zh-HK", "zh-Hant")]
+    [InlineData("zh-CN", "zh-Hans")]
+    [InlineData("zh", "zh-Hans")]
+    [InlineData("zh-CHT", "zh-Hant")]
+    [InlineData("zh-CHS", "zh-Hans")]
+    [InlineData("zh-Hant-TW", "zh-Hant")]
+    public void Infers_the_Chinese_script_from_the_region(string preferred, string expected) =>
+        Assert.Equal(expected, LanguageDetector.Match(new[] { preferred }, BothChinese));
+
+    [Theory]
+    [InlineData("zh-HK", "zh-TW")]
+    [InlineData("zh-Hant", "zh-TW")]
+    [InlineData("zh-SG", "zh-CN")]
+    public void Prefers_a_region_written_in_the_same_script(string preferred, string expected) =>
+        Assert.Equal(expected, LanguageDetector.Match(new[] { preferred }, new[] { "en", "zh-CN", "zh-TW" }));
+
+    [Fact]
+    public void Tries_all_the_parents_of_a_culture_before_another_region() =>
+        Assert.Equal("zh-Hant", LanguageDetector.Match(CultureInfo.GetCultureInfo("zh-TW"), new[] { "en", "zh-CN", "zh-Hant" }));
+
     [Fact]
     public void Falls_back_to_English_even_when_nothing_is_available() =>
         Assert.Equal("en", LanguageDetector.Match(new[] { "fr" }, new string[0]));

@@ -14,6 +14,7 @@ import {
   parseRich,
   pluralCategory,
   stripTags,
+  withScript,
   type Messages,
 } from '../../i18n/core.ts';
 import { english } from '../../i18n/english.ts';
@@ -124,6 +125,27 @@ test('language matching: exact, parent tag, same language, next preferred, Engli
   ];
   for (const [preferred, expected] of cases) assert.equal(matchLocale(preferred, available), expected, preferred.join(','));
   assert.equal(matchLocale(['pt-AO'], ['en', 'pt-BR', 'pt']), 'pt');
+});
+
+test('language matching: the Chinese script follows the region', () => {
+  const both = ['en', 'zh-Hans', 'zh-Hant'];
+  const cases: [string[], string][] = [
+    [['zh-TW'], 'zh-Hant'],
+    [['zh-HK'], 'zh-Hant'],
+    [['zh-MO'], 'zh-Hant'],
+    [['zh-CN'], 'zh-Hans'],
+    [['zh-SG'], 'zh-Hans'],
+    [['zh'], 'zh-Hans'],
+    [['zh-CHT'], 'zh-Hant'],
+    [['zh-TW', 'zh-Hant', 'zh'], 'zh-Hant'],
+    [['zh-Hant-TW'], 'zh-Hant'],
+  ];
+  for (const [preferred, expected] of cases) assert.equal(matchLocale(preferred, both), expected, preferred.join(','));
+  // Another region: the same script first.
+  assert.equal(matchLocale(['zh-HK'], ['en', 'zh-CN', 'zh-TW']), 'zh-TW');
+  assert.equal(matchLocale(['zh-SG'], ['en', 'zh-CN', 'zh-TW']), 'zh-CN');
+  assert.equal(withScript('zh-TW'), 'zh-Hant-TW');
+  assert.equal(withScript('pt-BR'), 'pt-BR');
 });
 
 test('formatters follow the language', () => {
