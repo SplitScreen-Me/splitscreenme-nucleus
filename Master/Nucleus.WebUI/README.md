@@ -11,8 +11,11 @@ npm install
 npm run dev          # http://localhost:5173 — runs on the mock host in a normal browser
 npm run typecheck    # tsc -b, zero errors expected
 npm run build        # typecheck + production build into dist/
-npm run test:bridge  # bridge runtime and mock host tests (node --test)
+npm run test:bridge  # bridge runtime, mock host and i18n tests (node --test)
 npm run preview      # serve dist/ on http://localhost:4173
+npm run i18n:gen     # typed keys (src/i18n/generated/keys.ts) from Master/i18n/en.json
+npm run i18n:check   # stale keys, malformed language files, translations that don't match English, C# keys missing from en.json
+npm run i18n:lint    # hard-coded user-visible strings, counted by folder (-- --list [src/folder] to see them)
 ```
 
 Node 22.12+ (Vite 8 requirement).
@@ -57,9 +60,10 @@ Hot reload inside the app: run `npm run dev`, put `http://localhost:5173/` on th
 
 ```
 src/
-  main.tsx, App.tsx        entry, providers (QueryClient, BridgeProvider, toasts, confirm, add game), routes
+  main.tsx, App.tsx        entry, providers (QueryClient, BridgeProvider, I18nProvider, toasts, confirm, add game), routes
   bridge/                  bridge runtime, generated contract, mock host (owned by the bridge work)
-  features/                cross-screen flows: add a game / locate it, drop a handler file
+  i18n/                    translations: t, <T>, formatters, the provider following the host's language, generated keys
+  features/                cross-screen flows: add a game / locate it, drop a handler file, first-launch language picker
   hub/                     public hub API v3 client: site URL and CSP check, fetch, normalise, persist, TanStack hooks, catalogue filters
   lib/                     bridge helpers, live snapshots, library derivations, downloads store, formatting, art
   components/              app-level shared components (Markdown, HandlerNotes)
@@ -68,6 +72,8 @@ src/
   ui/                      design-system primitives (Button, Chip, PlayerTag, Field, Dialog, Confirm, Toast…)
   screens/                 one folder per route
   styles/index.css         tokens → Tailwind @theme, base layer, custom utilities and variants
+scripts/                   bridge-gen.mjs (contract.ts), i18n.ts + i18n/ (i18n:gen, i18n:check, i18n:lint)
+../i18n/                   the language files (en.json is the source of every string), copied next to the exe
 docs/
   ui-bridge-notes.md       what the UI does with each service, UI-side features, contract wishes
   screens/                 screenshots of each route: mock-*.png (browser + mock), app-*.png (in the app); local only, not versioned (30 MB)
@@ -95,5 +101,5 @@ docs/
 - **Layout**: panes (`Pane`, 14px radius) on the black bezel with the app gutter (`gap-gutter`, 4px). Screens must not overflow at 1280×720 and 1920×1080; the stage scrolls vertically when a screen is taller. Scrollbars are styled thumbs (no native bar).
 - **Couch-first**: every screen declares its breadcrumb and gamepad hints with `useScreenChrome(crumbs, { base, byFocus, aside })`. Arrow keys move between `data-nav` elements; the pad (`shell/couch-nav.tsx`, rules in `couch-nav-core.ts`) also reaches every focusable control, except under `data-nav="off"` (an element or a whole subtree: the title bar, mouse-only overlays). With nothing focused, the first move lands on `data-autofocus` (or the first target inside it), else on the stage. The right stick scrolls; d-pad up/down scrolls a page when nothing is that way. Pads belong to players in the lobby and the session: the running session calls `useSuspendCouchNav()`; the lobby calls `useSharedCouchNav()`, where every pad moves focus but only the pad that moved last (within 10 s) presses buttons and B never leaves the screen; joining comes from the host's device activity, on Start only, which never acts on the UI. An empty place clicked or activated waits for a controller: the lobby calls `useCapturedCouchNav()`, pads then only run hint actions (B cancels), and the next press of a free pad takes the place. Hints only name what a button does whatever has focus: A is always "Select".
 - **Accessibility**: focus is always visible (white frame), dialogs use native `<dialog>`, icons are decorative unless given a `label`, live regions announce lobby and toast changes, `prefers-reduced-motion` zeroes durations and animations globally.
-- **Copy**: English, sentence case, plain verbs; say what happens and what to do next.
+- **Copy**: English, sentence case, plain verbs; say what happens and what to do next. Every user-visible text is a key of `Master/i18n/en.json` used through `@/i18n` (`useI18n().t`, `<T>` for markup, `format` for numbers, dates, durations and sizes), never a literal in the code: guide in `docs/webui/i18n.md`. Before committing UI work: `npm run i18n:check` and `npm run i18n:lint`.
 - **User content**: hub markdown goes through `@/components/Markdown` (raw HTML skipped, remote images not loaded); handler notes (Nucleus markup) through `@/components/HandlerNotes`.

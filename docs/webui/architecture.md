@@ -128,6 +128,7 @@ const setup = useBridgeSnapshot('setup.get', 'setup.changed');    // query + liv
 - `client.ts`: request ids, pending map, timeouts (default 30 s, per call override), `AbortSignal` → `$/cancel`, `BridgeError` (`code`, `kind`, `data`), event dispatch, automatic invalidation.
 - Transports: `webview2.ts` (`window.chrome.webview`) and `mock.ts`. The mock implements the generated `BridgeHandlers` type, so the compiler forces every method to have a fake, and lets the UI run in a normal browser (`npm run dev`) and on the review URL.
 - `react.ts`: `useBridgeQuery`, `useBridgeMutation`, `useBridgeEvent`, `useBridgeSnapshot`, `BridgeProvider` (handshake + version mismatch screen).
+- Translations: every user-visible text goes through `src/i18n` (`t`, `<T>`, `format`) in the UI and `Nucleus.Gaming.Localization` (`I18n.T`) in C#, from the language files of `Master/i18n` (one per language, English as the per-key fallback). Format, key naming, namespaces and owners, plurals, rich text, how host texts reach the UI and the checks: [i18n.md](i18n.md).
 
 ## 6. Host window
 
@@ -158,6 +159,7 @@ const setup = useBridgeSnapshot('setup.get', 'setup.changed');    // query + liv
 | `profiles` | saved setups of the open game, profile settings; `profiles.changed` | queries + invalidation |
 | `session` | play, stop, live state; `session.changed`, `session.notice` | host-owned snapshot |
 | `notices` | out-of-game engine messages (handler load and script errors, setup and profile errors, locked game files), kept until dismissed; `notices.changed` | queries + invalidation |
+| `i18n` | languages of the `i18n` folder, the user's choice, the strings of a language; `i18n.languageChanged` (the UI then refetches every query: host texts are built in the language in use). See [i18n.md](i18n.md) | queries + invalidation |
 
 ### Engine prompts
 
