@@ -1,5 +1,6 @@
 // Catalogue filtering and sorting, ported from redesign-draft/style-1/web/games.html + catalog.js.
 // Pure functions over the normalised handler list; the screen keeps the state in the URL.
+import { t, type MessageKey } from '@/i18n';
 import type { HubHandler } from './types';
 
 export type PlayersFilter = '' | '2' | '3-4' | '5-8' | '9';
@@ -17,38 +18,59 @@ export interface CatalogState {
 
 export const EMPTY_FILTERS: Omit<CatalogState, 'sort'> = { q: '', players: '', inputs: [], verified: false, genre: '' };
 
-export const PLAYERS: ReadonlyArray<{ key: PlayersFilter; label: string; test: (n: number) => boolean }> = [
-  { key: '', label: 'Any', test: () => true },
-  { key: '2', label: '2', test: (n) => n <= 2 },
-  { key: '3-4', label: '3–4', test: (n) => n >= 3 && n <= 4 },
-  { key: '5-8', label: '5–8', test: (n) => n >= 5 && n <= 8 },
-  { key: '9', label: '9+', test: (n) => n >= 9 },
+/** Player ranges: `range` is digits ("3–4"), empty for any number (shown as `hub.players.any`). */
+export const PLAYERS: ReadonlyArray<{ key: PlayersFilter; range: string; test: (n: number) => boolean }> = [
+  { key: '', range: '', test: () => true },
+  { key: '2', range: '2', test: (n) => n <= 2 },
+  { key: '3-4', range: '3–4', test: (n) => n >= 3 && n <= 4 },
+  { key: '5-8', range: '5–8', test: (n) => n >= 5 && n <= 8 },
+  { key: '9', range: '9+', test: (n) => n >= 9 },
 ];
 
-export const INPUTS: ReadonlyArray<{ key: InputFilter; icon: 'pad' | 'kbm' | 'multi'; label: string; test: (h: HubHandler) => boolean }> = [
-  { key: 'pad', icon: 'pad', label: 'Controllers', test: (h) => h.inputs.controllers === true },
-  { key: 'kbm', icon: 'kbm', label: 'Keyboard and mouse', test: (h) => h.inputs.keyboardMouse === true },
-  { key: 'multi', icon: 'multi', label: 'Several keyboards and mice', test: (h) => h.inputs.multiKeyboardMouse === true },
+export const INPUTS: ReadonlyArray<{ key: InputFilter; icon: 'pad' | 'kbm' | 'multi'; label: MessageKey; test: (h: HubHandler) => boolean }> = [
+  { key: 'pad', icon: 'pad', label: 'hub.inputs.controllers', test: (h) => h.inputs.controllers === true },
+  { key: 'kbm', icon: 'kbm', label: 'hub.inputs.keyboardMouse', test: (h) => h.inputs.keyboardMouse === true },
+  { key: 'multi', icon: 'multi', label: 'hub.inputs.multiKeyboardMouse', test: (h) => h.inputs.multiKeyboardMouse === true },
 ];
 
-export const SORTS: ReadonlyArray<{ key: SortKey; label: string; compare: (a: HubHandler, b: HubHandler) => number }> = [
-  { key: 'trending', label: 'Trending', compare: (a, b) => b.trendScore - a.trendScore || b.downloads - a.downloads },
-  { key: 'downloads', label: 'Most downloaded', compare: (a, b) => b.downloads - a.downloads },
-  { key: 'updated', label: 'Recently updated', compare: (a, b) => b.publishedAt.localeCompare(a.publishedAt) },
-  { key: 'az', label: 'A–Z', compare: (a, b) => a.gameName.localeCompare(b.gameName, 'en') },
+export const SORTS: ReadonlyArray<{ key: SortKey; label: MessageKey; compare: (a: HubHandler, b: HubHandler) => number }> = [
+  { key: 'trending', label: 'hub.sort.trending', compare: (a, b) => b.trendScore - a.trendScore || b.downloads - a.downloads },
+  { key: 'downloads', label: 'hub.sort.downloads', compare: (a, b) => b.downloads - a.downloads },
+  { key: 'updated', label: 'hub.sort.updated', compare: (a, b) => b.publishedAt.localeCompare(a.publishedAt) },
+  { key: 'az', label: 'hub.sort.az', compare: (a, b) => a.gameName.localeCompare(b.gameName, 'en') },
 ];
 
-/** Hub genres are IGDB names; shorten the long ones for chips and lists. */
-const GENRE_LABELS: Record<string, string> = {
-  'Role-playing (RPG)': 'Role-playing',
-  "Hack and slash/Beat 'em up": 'Hack and slash',
-  'Real Time Strategy (RTS)': 'Real-time strategy',
-  'Turn-based strategy (TBS)': 'Turn-based strategy',
-  Platform: 'Platformer',
-  Sport: 'Sports',
-  Simulator: 'Simulation',
+/** Hub genres are IGDB names: translated (and the long ones shortened) for chips and lists; an unknown one shows as is. */
+const GENRE_LABELS: Record<string, MessageKey> = {
+  Adventure: 'hub.genres.adventure',
+  Arcade: 'hub.genres.arcade',
+  'Card & Board Game': 'hub.genres.cardAndBoardGame',
+  Fighting: 'hub.genres.fighting',
+  "Hack and slash/Beat 'em up": 'hub.genres.hackAndSlash',
+  Indie: 'hub.genres.indie',
+  MOBA: 'hub.genres.moba',
+  Music: 'hub.genres.music',
+  Pinball: 'hub.genres.pinball',
+  Platform: 'hub.genres.platform',
+  'Point-and-click': 'hub.genres.pointAndClick',
+  Puzzle: 'hub.genres.puzzle',
+  'Quiz/Trivia': 'hub.genres.quizTrivia',
+  Racing: 'hub.genres.racing',
+  'Real Time Strategy (RTS)': 'hub.genres.realTimeStrategy',
+  'Role-playing (RPG)': 'hub.genres.rolePlaying',
+  Shooter: 'hub.genres.shooter',
+  Simulator: 'hub.genres.simulator',
+  Sport: 'hub.genres.sport',
+  Strategy: 'hub.genres.strategy',
+  Tactical: 'hub.genres.tactical',
+  'Turn-based strategy (TBS)': 'hub.genres.turnBasedStrategy',
+  'Visual Novel': 'hub.genres.visualNovel',
 };
-export const genreLabel = (g: string) => GENRE_LABELS[g] ?? g;
+/** Label of a hub genre in the language in use (components calling it re-render through their own `useI18n`). */
+export const genreLabel = (g: string) => {
+  const key = Object.hasOwn(GENRE_LABELS, g) ? GENRE_LABELS[g] : undefined;
+  return key ? t(key) : g;
+};
 
 /** Lower case, accents stripped: "Pokémon" matches "pokemon". */
 export const norm = (s: string) =>
