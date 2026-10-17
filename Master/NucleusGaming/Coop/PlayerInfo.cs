@@ -42,6 +42,8 @@ namespace Nucleus.Gaming.Coop
         public string SID;
         public string Adapter;
         public string UserProfile;
+        public string StartArgs;
+        public string exepath;
         public List<PlayerInfo> InstanceGuests = new List<PlayerInfo>();
         public List<Guid> GuestsGuid = new List<Guid>();
 
