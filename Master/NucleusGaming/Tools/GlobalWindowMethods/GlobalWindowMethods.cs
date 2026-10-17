@@ -1281,7 +1281,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                             RestartThread.Start();
                         }
                     }
-
+                    
                     continue;
                 }
 
@@ -1318,7 +1318,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                     if (updatedHwnd)
                     {
                         if (data.Setted)
-                        {
+                         {
                             if (data.Process.HasExited)
                             {
                                 if (!RestartThreadIsRunning)
