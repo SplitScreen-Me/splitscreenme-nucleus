@@ -7,6 +7,7 @@ using Nucleus.Gaming.Coop.Generic;
 using Nucleus.Gaming.Coop.Generic.Cursor;
 using Nucleus.Gaming.Coop.InputManagement;
 using Nucleus.Gaming.Coop.InputManagement.Gamepads;
+using Nucleus.Gaming.Coop.InputManagement.Structs;
 using Nucleus.Gaming.Coop.ProtoInput;
 using Nucleus.Gaming.Forms;
 using Nucleus.Gaming.Platform.PCSpecs;
@@ -1504,8 +1505,9 @@ namespace Nucleus.Gaming
 
                 if (gen.XInputPlusDll?.Length > 0 && !gen.ProcessChangesAtEnd)
                 {
-                    bool isTranslatedKBM = gen.ProtoInput.TranslateMKBtoXinput && (player.IsRawMouse || player.IsRawKeyboard);
-                    XInputPlusDll.SetupXInputPlusDll(player, i, setupDll, isTranslatedKBM); //last bool is block Xinput. used to block real Xinput if translating
+                    if (gen.ProtoInput.TranslateMKBtoXinput && (player.IsRawMouse || player.IsRawKeyboard))
+                        XInputPlusDll.SetupXInputPlusDll(player, i, setupDll, true); //last bool is block Xinput
+                    else XInputPlusDll.SetupXInputPlusDll(player, i, setupDll, false);
                 }
                 
                 if (gen.UseDevReorder && !gen.ProcessChangesAtEnd)
@@ -2790,7 +2792,7 @@ namespace Nucleus.Gaming
                         }
                     }
                 }
-             
+
                 //Set up raw input window
                 //if (player.IsRawKeyboard || player.IsRawMouse)
                 {
@@ -3112,10 +3114,12 @@ namespace Nucleus.Gaming
                     setupDll = false;
                 }
 
-                if (gen.XInputPlusDll?.Length > 0)
+                if (gen.XInputPlusDll?.Length > 0 )
                 {
-                    bool isTranslatedKBM = gen.ProtoInput.TranslateMKBtoXinput && (player.IsRawMouse || player.IsRawKeyboard);
-                    XInputPlusDll.SetupXInputPlusDll(player, i, setupDll, isTranslatedKBM); //last bool is block Xinput. used to block real Xinput if translating
+                    //last bool is block Xinput. used to block real Xinput if translating
+                    if (gen.ProtoInput.TranslateMKBtoXinput && (player.IsRawMouse || player.IsRawKeyboard))
+                        XInputPlusDll.SetupXInputPlusDll(player, i, setupDll, true); 
+                    else XInputPlusDll.SetupXInputPlusDll(player, i, setupDll, false);
                 }
 
                 if (gen.UseDevReorder)
@@ -3635,7 +3639,7 @@ namespace Nucleus.Gaming
             hasEnded = true;
             IsRunning = false;
         }
-
+        
         public void Log(StreamWriter writer)
         {
         }

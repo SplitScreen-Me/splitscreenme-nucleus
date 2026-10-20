@@ -7,7 +7,7 @@
         DontReposition
     }
 
-
+   
 
     public enum MoveWindowHook
     {

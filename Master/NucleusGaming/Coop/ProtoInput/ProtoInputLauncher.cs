@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Coop.ProtoInput
 {
-
+    
     public static class ProtoInputLauncher
     {
         private static List<uint> trackedInstanceHandles = new List<uint>();
@@ -305,7 +305,6 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             ProtoInput.protoInput.SetSetWindowPosDontReposition(instanceHandle, gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontReposition);
             ProtoInput.protoInput.SetSetWindowPosSettings(instanceHandle, player.MonitorBounds.X, player.MonitorBounds.Y, player.MonitorBounds.Width, player.MonitorBounds.Height);
 
-          
             if (gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontResize || gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontReposition || gen.ProtoInput.SetWindowPosHook != 0)
             {
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.SetWindowPosHookID);
@@ -418,7 +417,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             if (gen.ProtoInput.TranslateXButtonOption == 0)
                 gen.ProtoInput.TranslateXButtonOption = (int)Key.Escape;
 
-            ProtoInput.protoInput.SetXinputtoMKBkeys(instanceHandle, gen.ProtoInput.TranslateXButtonA, gen.ProtoInput.TranslateXButtonB, gen.ProtoInput.TranslateXButtonX, gen.ProtoInput.TranslateXButtonY, gen.ProtoInput.TranslateXButtonRS, gen.ProtoInput.TranslateXButtonLS, gen.ProtoInput.TranslateXButtonRight, gen.ProtoInput.TranslateXButtonLeft, gen.ProtoInput.TranslateXButtonUp, gen.ProtoInput.TranslateXButtonDown, gen.ProtoInput.TranslateXStickR, gen.ProtoInput.TranslateXStickL, gen.ProtoInput.TranslateXStickRight, gen.ProtoInput.TranslateXStickLeft, gen.ProtoInput.TranslateXStickUp, gen.ProtoInput.TranslateXStickDown, gen.ProtoInput.TranslateXButtonOption, gen.ProtoInput.TranslateXButtonStart, gen.ProtoInput.TranslateXSensitivity, gen.ProtoInput.TranslateXAccelration, gen.ProtoInput.TranslateXDeadzone);
+            ProtoInput.protoInput.SetXinputtoMKBkeys(instanceHandle, gen.ProtoInput.TranslateXButtonA, gen.ProtoInput.TranslateXButtonB, gen.ProtoInput.TranslateXButtonX, gen.ProtoInput.TranslateXButtonY, gen.ProtoInput.TranslateXButtonRS, gen.ProtoInput.TranslateXButtonLS, gen.ProtoInput.TranslateXButtonRight, gen.ProtoInput.TranslateXButtonLeft, gen.ProtoInput.TranslateXButtonUp, gen.ProtoInput.TranslateXButtonDown, gen.ProtoInput.TranslateXStickR, gen.ProtoInput.TranslateXStickL, gen.ProtoInput.TranslateXStickRight, gen.ProtoInput.TranslateXStickLeft, gen.ProtoInput.TranslateXStickUp, gen.ProtoInput.TranslateXStickDown , gen.ProtoInput.TranslateXButtonOption, gen.ProtoInput.TranslateXButtonStart, gen.ProtoInput.TranslateXSensitivity, gen.ProtoInput.TranslateXAccelration, gen.ProtoInput.TranslateXDeadzone);
             ProtoInput.protoInput.SetXinputtoMKBCFG(instanceHandle, gen.ProtoInput.TranslateXSwapSticks, gen.ProtoInput.TranslateXScanner, gen.ProtoInput.TranslateXShouldersNextPoint, gen.ProtoInput.TranslateXAstatic, gen.ProtoInput.TranslateXAPointClick, gen.ProtoInput.TranslateXAPointMove, gen.ProtoInput.TranslateXBstatic, gen.ProtoInput.TranslateXBPointClick, gen.ProtoInput.TranslateXBPointMove, gen.ProtoInput.TranslateXXstatic, gen.ProtoInput.TranslateXXPointClick, gen.ProtoInput.TranslateXXPointMove, gen.ProtoInput.TranslateXYstatic, gen.ProtoInput.TranslateXYPointClick, gen.ProtoInput.TranslateXYPointMove);
             if (gen.ProtoInput.AdjustWindowRectHook)
             {
@@ -512,7 +511,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             }
         }
-
+        
         public static void NotifyInputLockChange()
         {
             bool freezeExternal = !LockInputRuntime.IsLocked;
