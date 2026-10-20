@@ -1,4 +1,4 @@
-﻿using Nucleus.Gaming.Coop.InputManagement;
+using Nucleus.Gaming.Coop.InputManagement;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -305,6 +305,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             ProtoInput.protoInput.SetSetWindowPosDontReposition(instanceHandle, gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontReposition);
             ProtoInput.protoInput.SetSetWindowPosSettings(instanceHandle, player.MonitorBounds.X, player.MonitorBounds.Y, player.MonitorBounds.Width, player.MonitorBounds.Height);
 
+          
             if (gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontResize || gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontReposition || gen.ProtoInput.SetWindowPosHook != 0)
             {
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.SetWindowPosHookID);
