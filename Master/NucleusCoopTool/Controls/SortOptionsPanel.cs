@@ -1,4 +1,5 @@
 ﻿using Nucleus.Coop.Tools;
+using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.UI;
@@ -54,7 +55,7 @@ namespace Nucleus.Coop.Controls
             Font = new Font(Theme_Settings.CustomFont, 9.75F, FontStyle.Regular, GraphicsUnit.Pixel, 0);
             Resize += On_Resize;
             AddCheckboxes();
-        }      
+        }
 
         private void AddCheckboxes()
         {
@@ -64,7 +65,6 @@ namespace Nucleus.Coop.Controls
             descending.Location = new Point(10, 15);
             descending.AutoSize = true;
             descending.SortOptions = SortOptions.Descending;
-
             descending.Checked = App_Misc.GamesSorting.Contains(descending.Name);
             Controls.Add(descending);
 
@@ -74,7 +74,7 @@ namespace Nucleus.Coop.Controls
             byMaxPlayer.Location = new Point(10, descending.Bottom + 2);
             byMaxPlayer.AutoSize = true;
             byMaxPlayer.SortOptions = SortOptions.MaxPLayer;
-            byMaxPlayer.Checked =  App_Misc.GamesSorting.Contains(byMaxPlayer.Name);
+            byMaxPlayer.Checked = App_Misc.GamesSorting.Contains(byMaxPlayer.Name);
             Controls.Add(byMaxPlayer);
 
             SortCheckBox byPlayTime = new SortCheckBox();
@@ -95,6 +95,14 @@ namespace Nucleus.Coop.Controls
             byLastPlayed.Checked = App_Misc.GamesSorting.Contains(byLastPlayed.Name);
             Controls.Add(byLastPlayed);
 
+            //SortCheckBox byUpdate = new SortCheckBox();
+            //byUpdate.Name = "Sort_5";
+            //byUpdate.Text = "Sort By Update Available";
+            //byUpdate.Location = new Point(10, byLastPlayed.Bottom + 2);
+            //byUpdate.AutoSize = true;
+            //byUpdate.SortOptions = SortOptions.Update;
+            //byUpdate.Checked = App_Misc.GamesSorting.Contains(byUpdate.Name);
+            //Controls.Add(byUpdate);
 
             SortCheckBox byGamepad = new SortCheckBox();
             byGamepad.Name = "Show_Type1";
@@ -129,19 +137,22 @@ namespace Nucleus.Coop.Controls
             foreach (SortCheckBox cb in Controls)
             {
                 cb.SelectionColor = Color.FromArgb(255, 31, 34, 35);
-                cb.CheckColor = Color.FromArgb(255,Theme_Settings.SelectedBackColor.R, Theme_Settings.SelectedBackColor.G, Theme_Settings.SelectedBackColor.B);
+                cb.CheckColor = Color.FromArgb(255, Theme_Settings.SelectedBackColor.R, Theme_Settings.SelectedBackColor.G, Theme_Settings.SelectedBackColor.B);
                 cb.BorderColor = Color.White;
                 cb.BackColor = Color.Transparent;
                 cb.CheckedChanged += CheckChanged;
 
-                if(cb.Checked)
+                if (cb.Checked)
                 {
                     sortOptions.Add(cb.SortOptions);
                     saveToIniList.Add(cb.Name);
                 }
             }
 
-            FormGraphicsUtil.CreateRoundedControlRegion(this, 0, 0, Width, Height, 20, 20);
+            if (Theme_Settings.WindowRoundedCorners)
+            {
+                FormGraphicsUtil.CreateRoundedControlRegion(this, 0, 0, Width, Height, 20, 20);
+            }
         }
 
         private void CheckChanged(object sender, object e)
@@ -171,14 +182,17 @@ namespace Nucleus.Coop.Controls
                 sortOptions.Remove(cb.SortOptions);        
             }
 
-            App_Misc.GamesSorting = saveToIniList;
-            SortGameFunction.SortGames(sortOptions);
+            App_Misc.GamesSorting = saveToIniList;         
+            Core_Interface.RefreshGamesList();
         }
 
         private void On_Resize(object sender, object e)
         {
             Height = last.Bottom + 15;
-            FormGraphicsUtil.CreateRoundedControlRegion(this, 0, 0, Width, Height, 20, 20);
+            if (Theme_Settings.WindowRoundedCorners)
+            {
+                FormGraphicsUtil.CreateRoundedControlRegion(this, 0, 0, Width, Height, 20, 20);
+            }
         }
 
         protected override void OnPaint(PaintEventArgs e)

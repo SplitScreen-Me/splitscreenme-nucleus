@@ -8,14 +8,43 @@ using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.App.Settings;
+using SharpDX.DirectInput;
+using System.ComponentModel;
 
 namespace Gamepads
 {
     unsafe public static class SDLManager
     {
+        public class SDLDevice_State
+        {/// <summary>
+         ///button[1] = DPAD_UP;
+         ///button[2] = DPAD_DOWN;
+         ///button[3] = DPAD_LEFT;
+         ///button[4] = DPAD_RIGHT;
+         ///button[5] = A;
+         ///button[6] = B;
+         ///button[7] = X;
+         ///button[8] = Y;
+         ///button[9] = LEFTSHOULDER;
+         ///button[10] = RIGHTSHOULDER;
+         ///Sticks Click
+         ///button[11] = LEFTSTICK;
+         ///button[12] = RIGHTSTICK;
+         ///Back/Start/Guide
+         ///button[13] = BACK;
+         ///button[14] = START;
+         ///button[15] = GUIDE;
+         /// </summary>
+         /// <param name="GameController"></param>
+         /// <returns></returns>
+            public byte[] Buttons = new byte[16];
+            public long RawState;
+        }
+
         private static bool logDeviceInfo = false;
 
         public static bool SDL_INITIALIZED { get; private set; }
+
         public static List<SDL_GameController> SDL2DevicesList = new List<SDL_GameController>();
         public static int JoystickCount => SDL2.NumJoysticks();
 
@@ -24,9 +53,24 @@ namespace Gamepads
         /// </summary>
         public const ushort Virtual_VendorID = 202;
 
+
+        public static void QUIT_SDL()
+        {
+            for (int i = 0; i < SDL2DevicesList.Count; i++)
+            {
+                SDL2.GameControllerClose(SDL2DevicesList[i]);
+                SDL2DevicesList[i] = IntPtr.Zero;
+            }
+
+            SDL2DevicesList.Clear();
+
+            SDL2.Quit();
+            SDL_INITIALIZED = false;
+        }
+
         #region INITIAL SETUP
 
-        public static void InitSDL(SynchronizationContext syncContext)
+        public static void InitSDL()
         {
             if (SDL_INITIALIZED)
             {
@@ -43,33 +87,23 @@ namespace Gamepads
 
             InitGameControllers();
 
-            Start_SDL_Eventsloop(syncContext);
+            Start_SDL_Eventsloop();
         }
 
-        private static void Start_SDL_Eventsloop(SynchronizationContext syncContext)
+        private static void Start_SDL_Eventsloop()
         {
-            Thread sdl_Loop = new Thread(() => SDL_Loop(syncContext));
+            Thread sdl_Loop = new Thread(() => SDL_Loop());
             sdl_Loop.IsBackground = true;
             SDL_INITIALIZED = true;
             sdl_Loop.Start();
         }
 
-        private static void Refresh_SDL_CallBack(SynchronizationContext syncContext)
-        {
-            // Post the method callback to DevicesFunctions thread(main thread)
-            syncContext.Post(_ =>
-            {
-                DevicesFunctions.RefreshSDL(syncContext);
-
-            }, null);
-        }
-
-        public static void Refresh(SynchronizationContext syncContext)
+        public static void Refresh()
         {
             for (int i = 0; i < SDL2DevicesList.Count; i++)
             {
-                SDL_GameController controller = SDL2DevicesList[i];
-                controller = IntPtr.Zero;
+                SDL2.GameControllerClose(SDL2DevicesList[i]);
+                SDL2DevicesList[i] = IntPtr.Zero;      
             }
 
             SDL2DevicesList.Clear();
@@ -80,58 +114,61 @@ namespace Gamepads
 
             SDL2.InitSubSystem(InitFlags.Video);
             SDL2.InitSubSystem(InitFlags.GameController);
-            
-            InitSDL(syncContext);
+
+            InitSDL();
         }
 
         private static void InitGameControllers()
         {
             int deviceCount = SDL2.NumJoysticks();
-            string deviceVar = deviceCount > 1 ? "Devices" : "Device";
+            //string deviceVar = deviceCount > 1 ? "Devices" : "Device";
 
             for (int i = 0; i < deviceCount; i++)
             {
                 SDL_GameController controller = SDL2.GameControllerOpen(i);
-                SDL2DevicesList.Add(controller);        
-                
-                if(logDeviceInfo)
+                SDL2DevicesList.Add(controller);
+
+                if (logDeviceInfo)
                 {
                     LogDeviceInfo(controller);
                 }
 
-                LoadControllerMapping(controller);           
+                LoadControllerMapping(controller);
             }
         }
-    
+
         #endregion
 
         #region SDL EVENTS LOOP
 
-        private static void SDL_Loop(SynchronizationContext syncContext)
+        private static void SDL_Loop()
         {
-            
-            Event _event;
-
-            while (SDL2.PollEvent(out _event) != -1 && SDL_INITIALIZED)
+            while (SDL2.PollEvent(out Event _event) != -1 && SDL_INITIALIZED)
             {
                 if (!SDL_INITIALIZED)
                 {
-                    Console.WriteLine("Exit SDL");
-                    return;
+                    //Console.WriteLine("Exit SDL");
+                    break;
                 }
 
                 if (_event.Type == EventType.ControllerDeviceAdded)
                 {
-                    if (_event.CDevice.Which > SDL2DevicesList.Count - 1 && !SDL2.JoystickGetDeviceVendor(_event.CDevice.Which).ToString().StartsWith(Virtual_VendorID.ToString()))
+                    //requires a proper check for vgm only gampepads
+                    if (_event.CDevice.Which > SDL2DevicesList.Count - 1 /*|| _event.CDevice.Which > SDL2DevicesList.Count - 1 && (App_Misc.VGMOnly && !SDL2.JoystickGetDeviceVendor(_event.CDevice.Which).ToString().StartsWith(Virtual_VendorID.ToString()))*/)
                     {
-                        Refresh_SDL_CallBack(syncContext);
-                        return;
+                        UIThread.Post(() =>
+                        {
+                            //Refresh everything, else controllers index will not match between Nucleus and the game. 
+                            Refresh();
+                        });
+
+                        break;
                     }
                 }
 
                 if (_event.Type == EventType.ControllerDeviceRemoved)
                 {
-                    RemoveSDLDevice();
+                    RemoveDisconnectedSDLDevices();
                 }
 
                 SDL2.GameControllerUpdate();
@@ -143,53 +180,25 @@ namespace Gamepads
         #endregion
 
         #region ADD/REMOVE SDL DEVICES FUNCTIONS
-
-        private static void AddNewSDLDevice()
+        private static void RemoveDisconnectedSDLDevices()
         {
-            int lastEntry = SDL2DevicesList.Count;
-
-            SDL_GameController controller = SDL2.GameControllerOpen(lastEntry);
-
-            if (controller != IntPtr.Zero)
-            {
-                if(!SDL2DevicesList.Contains(controller))
-                {
-                    SDL2DevicesList.Add(controller);
-                }             
-            }    
-        }
-
-        private static void RemoveSDLDevice()
-        {
-            List<SDL_GameController> toRemove = new List<SDL_GameController>();
-
             for (int i = 0; i < SDL2DevicesList.Count; i++)
             {
-                SDL_GameController isConnected = SDL2DevicesList[i];
-
-                if (SDL.SDL2.GameControllerGetAttached(isConnected) == false)
+                if (!SDL2.GameControllerGetAttached(SDL2DevicesList[i]))
                 {
-                    toRemove.Add(isConnected);
-                }
-            }
-
-            for (int i = 0; i < toRemove.Count; i++)
-            {
-                SDL_GameController disconnected = toRemove[i];
-
-                if (SDL2DevicesList.Contains(disconnected))
-                {
-                    SDL2DevicesList.Remove(disconnected);
+                    SDL2DevicesList.RemoveAt(i);
+                    if (i - 1 >= 0)
+                    {
+                        i--;
+                    }
                 }
             }
         }
-
 
         public static bool IsConnected(SDL_GameController controller)
         {
             if (controller == IntPtr.Zero || !SDL.SDL2.GameControllerGetAttached(controller))
             {
-                RemoveSDLDevice();
                 return false;
             }
 
@@ -197,7 +206,7 @@ namespace Gamepads
         }
 
         #endregion
-     
+
         public static bool QueryControllerStateAny(SDL_GameController GameController)
         {
             int anyState = 0;
@@ -223,7 +232,7 @@ namespace Gamepads
 
             bool queryGuide = false;
 
-            if(queryGuide)
+            if (queryGuide)
             {
                 anyState += SDL.SDL2.GameControllerGetButton(GameController, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_GUIDE);
             }
@@ -248,75 +257,82 @@ namespace Gamepads
                     return false;
                 }
 
-                SDL_DeviceInfo info = SDL_ControllerUtils.GetSDL_DeviceInfo(player.SDL2Joystick);
-
                 if (QueryControllerStateAny(player.SDL2Joystick))
                 {
-                    if (GameProfile.UseXinputIndex && !player.Vibrate)
+                    if (GameProfile.UseXinputIndex)
                     {
-                        SendRumble(player.SDL2Joystick);
-                        player.Vibrate = true;
-                        return true;
-                    }
-
-                    int pressedCount = 0;
-
-                    D_Joystick joystick = null;
-
-                    for (int i = 0; i < DInputManager.D_JoysticksList.Count; i++)
-                    {
-                        joystick = DInputManager.D_JoysticksList[i];
-
-                        if (App_Misc.VGMOnly)
-                        {
-                            if (!joystick.VendorId.StartsWith("202"))
-                            {
-                                continue;
-                            }
-                        }
-
-                        if (joystick.State.Buttons.Any(b => b == true))
-                        {
-                            player.DInputJoystick = joystick;
-                            ++pressedCount;
-                        }
-                    }
-
-                    if (pressedCount != 1)
-                    {
-                        return false;
-                    }
-
-                    if (player.DInputJoystick != null)
-                    {
-                        player.GamepadGuid = player.DInputJoystick.InstanceGuid;
-                        player.GamepadProductGuid = player.DInputJoystick.ProductGuid;
-                        player.GamepadName = player.DInputJoystick.InstanceName;
-                        player.RawHID = player.DInputJoystick.InterfacePath;
-                        
-                        int start = player.RawHID.IndexOf("hid#");
-                        int end = player.RawHID.LastIndexOf("#{");
-                        string fhid = player.RawHID.Substring(start, end - start).Replace('#', '\\').ToUpper();
-            
-                        player.HIDDeviceID = new string[] { fhid, "" };
-                        player.IsInputUsed = true;
-
                         if (!player.Vibrate)
                         {
                             SendRumble(player.SDL2Joystick);
                             player.Vibrate = true;
                         }
-                    }
 
-                    if (player.DInputJoystick != null)
-                    {
-                        player.IsInputUsed = true;
                         return true;
                     }
 
-                    return false;
-                }
+                    if (player.DInputJoystick == null)//only used as a fallback now if the device hid path hasn't been found beforehand
+                    {
+                        int pressedCount = 0;
 
+                        D_Joystick joystick = null;
+
+                        for (int i = 0; i < DInputManager.D_JoysticksList.Count; i++)
+                        {
+                            joystick = DInputManager.D_JoysticksList[i];
+
+                            if (App_Misc.VGMOnly)
+                            {
+                                if (!joystick.VendorId.StartsWith("202"))
+                                {
+                                    continue;
+                                }
+                            }
+
+                            if (joystick.State.Buttons.Any(b => b == true))
+                            {
+                                player.DInputJoystick = joystick;
+                                ++pressedCount;
+                            }
+                        }
+
+                        if (pressedCount != 1)
+                        {
+                            return false;
+                        }
+
+                        if (player.DInputJoystick != null)
+                        {
+                            player.GamepadGuid = player.DInputJoystick.InstanceGuid;
+                            player.GamepadProductGuid = player.DInputJoystick.ProductGuid;
+                            player.GamepadName = player.DInputJoystick.InstanceName;
+                            player.RawHID = player.DInputJoystick.InterfacePath;
+
+                            int start = player.RawHID.IndexOf("hid#");
+                            int end = player.RawHID.LastIndexOf("#{");
+                            string fhid = player.RawHID.Substring(start, end - start).Replace('#', '\\').ToUpper();
+
+                            player.HIDDeviceID = new string[] { fhid, "" };
+                            player.IsInputUsed = true;
+
+                            if (!player.Vibrate)
+                            {
+                                SendRumble(player.SDL2Joystick);
+                                player.Vibrate = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (!player.Vibrate)
+                        {
+                            SendRumble(player.SDL2Joystick);
+                            player.Vibrate = true;
+                        }
+
+                        player.IsInputUsed = true;
+                        return true;
+                    }
+                }
             }
             catch (Exception)
             {
@@ -326,5 +342,85 @@ namespace Gamepads
             return false;
         }
 
+
+
+
+        
+        public static SDLDevice_State ButtonsState(SDL.SDL_GameController GameController)
+        {
+            if (GameController == IntPtr.Zero)
+            {
+                return null;
+            }
+
+            byte[] button = new byte[16];
+            string stateString = "";
+            //D-pad
+            button[0] = 0;//Set a dummy else it's always 0 anyway(bug??)
+            button[1] = SDL.SDL2.GameControllerGetButton(GameController, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_UP);
+            button[2] = SDL.SDL2.GameControllerGetButton(GameController, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_DOWN);
+            button[3] = SDL.SDL2.GameControllerGetButton(GameController, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_LEFT);
+            button[4] = SDL.SDL2.GameControllerGetButton(GameController, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_DPAD_RIGHT);
+
+
+            //A,B, X, Y
+            button[5] = SDL.SDL2.GameControllerGetButton(GameController, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A);
+            button[6] = SDL.SDL2.GameControllerGetButton(GameController, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_B);
+            button[7] = SDL.SDL2.GameControllerGetButton(GameController, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_X);
+            button[8] = SDL.SDL2.GameControllerGetButton(GameController, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_Y);
+
+            //Shoulders
+            button[9] = SDL.SDL2.GameControllerGetButton(GameController, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_LEFTSHOULDER);
+            button[10] = SDL.SDL2.GameControllerGetButton(GameController, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_RIGHTSHOULDER);
+
+            //Sticks Click
+            button[11] = SDL.SDL2.GameControllerGetButton(GameController, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_LEFTSTICK);
+            button[12] = SDL.SDL2.GameControllerGetButton(GameController, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_RIGHTSTICK);
+
+            //Back/Start/Guide
+            button[13] = SDL.SDL2.GameControllerGetButton(GameController, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_BACK);
+            button[14] = SDL.SDL2.GameControllerGetButton(GameController, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_START);
+
+            button[15] = SDL.SDL2.GameControllerGetButton(GameController, SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_GUIDE);
+
+            foreach (byte b in button)
+            {
+                stateString += b.ToString();
+            }
+
+            SDLDevice_State state = new SDLDevice_State();
+            state.Buttons = button;
+            state.RawState = Convert.ToInt64(stateString); 
+            return state;
+        }
+
+
+        /// <summary>
+        /// Get the state of the triggers for a given SDL_GameController [0] left trigger, [1] right trigger
+        /// </summary>
+        /// <param name="GameController"></param>
+        /// <returns></returns>
+        public static short[] TriggersValue(SDL.SDL_GameController GameController)
+        {
+            short[] value = new short[2];
+
+            value[0] = SDL.SDL2.GameControllerGetAxis(GameController, SDL.GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERLEFT);
+            value[1] = SDL.SDL2.GameControllerGetAxis(GameController, SDL.GameControllerAxis.SDL_CONTROLLER_AXIS_TRIGGERRIGHT);
+
+            return value;
+        }
+
+
+        public static short[][] AxisValue(SDL.SDL_GameController GameController)
+        {
+            short[][] value = new short[2][];
+            value[0][0] = SDL.SDL2.GameControllerGetAxis(GameController, SDL.GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTX);
+            value[0][1] = SDL.SDL2.GameControllerGetAxis(GameController, SDL.GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTY);
+
+            value[1][0] = SDL.SDL2.GameControllerGetAxis(GameController, SDL.GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX);
+            value[1][1] = SDL.SDL2.GameControllerGetAxis(GameController, SDL.GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY);
+
+            return value;
+        }
     }
 }

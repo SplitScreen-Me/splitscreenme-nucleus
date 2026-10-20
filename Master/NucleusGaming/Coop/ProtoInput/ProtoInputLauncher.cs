@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
 
+
 namespace Nucleus.Gaming.Coop.ProtoInput
 {
+
     public static class ProtoInputLauncher
     {
         private static List<uint> trackedInstanceHandles = new List<uint>();
@@ -103,7 +105,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
         public static void SetProtoControllersIndex(PlayerInfo player, GenericGameInfo game)
         {
-            if(game.UseManualProtoControllersSetup)
+            if (game.UseManualProtoControllersSetup)
             {
                 GenericGameHandler.Instance?.Log("Force manual ProtoInput controller setup from Game.Play function.");
                 return;
@@ -149,6 +151,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             }
         }
 
+
         private static void SetupInstance(uint instanceHandle, int instanceIndex, GenericGameInfo gen, PlayerInfo player, int mouseHandle, int keyboardHandle, int controllerIndex, int controllerIndex2, int controllerIndex3, int controllerIndex4)
         {
             Debug.WriteLine("Setting up ProtoInput instance " + instanceIndex);
@@ -156,6 +159,18 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             player.ProtoInputInstanceHandle = instanceHandle;
 
             ProtoInput.protoInput.SetupState(instanceHandle, instanceIndex);
+
+            if (mouseHandle != -1)
+            {
+                ProtoInput.protoInput.AddSelectedMouseHandle(instanceHandle, (uint)mouseHandle);
+            }
+
+            if (keyboardHandle != -1)
+            {
+                ProtoInput.protoInput.AddSelectedKeyboardHandle(instanceHandle, (uint)keyboardHandle);
+            }
+
+            ProtoInput.protoInput.SetTranslateXinputtoMKB(instanceHandle, gen.ProtoInput.TranslateXinputtoMKB);
 
             if (gen.ProtoInput.RegisterRawInputHook)
             {
@@ -195,6 +210,20 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             if (gen.ProtoInput.GetKeyboardStateHook)
             {
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.GetKeyboardStateHookID);
+            }
+
+            if (gen.ProtoInput.ReRegisterInput)
+            {
+                ProtoInput.protoInput.SetReregisterinput(instanceHandle, gen.ProtoInput.ReRegisterInput);
+            }
+            if (gen.ProtoInput.PointerInMouse)
+            {
+                ProtoInput.protoInput.SetPointerInMouse(instanceHandle, gen.ProtoInput.PointerInMouse);
+            }
+
+            if (gen.ProtoInput.MessageSubWindows)
+            {
+                ProtoInput.protoInput.SetSendMessagesToSubWindows(instanceHandle, gen.ProtoInput.MessageSubWindows);
             }
 
             ProtoInput.protoInput.SetShowCursorWhenImageUpdated(instanceHandle, !gen.ProtoInput.DontShowCursorWhenImageUpdated);
@@ -240,7 +269,16 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.WindowStyleHookID);
             }
 
+            if (gen.ProtoInput.GetCursorInfoHook)
+            {
+                ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.GetCursorInfoID);
+            }
+            if (gen.ProtoInput.SetWindowsHookHook)
+            {
+                ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.SetWindowsHookHookID);
+            }
             ProtoInput.protoInput.SetUseOpenXinput(instanceHandle, gen.ProtoInput.UseOpenXinput);
+            ProtoInput.protoInput.SetTranslateMKBtoXinput(instanceHandle, gen.ProtoInput.TranslateMKBtoXinput);
             ProtoInput.protoInput.SetUseDinputRedirection(instanceHandle, gen.ProtoInput.UseDinputRedirection);
             if (gen.ProtoInput.XinputHook)
             {
@@ -262,11 +300,12 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.DinputOrderHookID);
             }
 
+
             ProtoInput.protoInput.SetSetWindowPosDontResize(instanceHandle, gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontResize);
             ProtoInput.protoInput.SetSetWindowPosDontReposition(instanceHandle, gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontReposition);
             ProtoInput.protoInput.SetSetWindowPosSettings(instanceHandle, player.MonitorBounds.X, player.MonitorBounds.Y, player.MonitorBounds.Width, player.MonitorBounds.Height);
-          
-            if(gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontResize || gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontReposition || gen.ProtoInput.SetWindowPosHook != 0)
+
+            if (gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontResize || gen.ProtoInput.SetWindowPosHook == SetWindowPosHook.DontReposition || gen.ProtoInput.SetWindowPosHook != 0)
             {
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.SetWindowPosHookID);
             }
@@ -314,21 +353,79 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             ProtoInput.protoInput.SetMoveWindowDontResize(instanceHandle, gen.ProtoInput.MoveWindowHook == MoveWindowHook.DontResize);
             ProtoInput.protoInput.SetMoveWindowDontReposition(instanceHandle, gen.ProtoInput.MoveWindowHook == MoveWindowHook.DontReposition);
             ProtoInput.protoInput.SetMoveWindowSettings(instanceHandle, player.MonitorBounds.X, player.MonitorBounds.Y, player.MonitorBounds.Width, player.MonitorBounds.Height);
-         
+
             if (gen.ProtoInput.MoveWindowHook == MoveWindowHook.DontResize || gen.ProtoInput.MoveWindowHook == MoveWindowHook.DontReposition || gen.ProtoInput.MoveWindowHook != 0)
             {
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.MoveWindowHookID);
             }
 
             ProtoInput.protoInput.SetAdjustWindowRectSettings(instanceHandle, player.MonitorBounds.X, player.MonitorBounds.Y, player.MonitorBounds.Width, player.MonitorBounds.Height);
-            
+
+            ProtoInput.protoInput.SetManualScaling(instanceHandle, gen.ProtoInput.ScaleFromX, gen.ProtoInput.ScaleFromY, player.MonitorBounds.Width, player.MonitorBounds.Height);
+
+            //standard values for XinputtoMKB
+            if (gen.ProtoInput.TranslateXSensitivity == 0)
+                gen.ProtoInput.TranslateXSensitivity = 12;
+
+            if (gen.ProtoInput.TranslateXAccelration == 0)
+                gen.ProtoInput.TranslateXAccelration = 4;
+
+            if (gen.ProtoInput.TranslateXButtonA == 0)
+                gen.ProtoInput.TranslateXButtonA = (int)Key.R;
+
+            if (gen.ProtoInput.TranslateXButtonB == 0)
+                gen.ProtoInput.TranslateXButtonB = (int)Key.C;
+
+            if (gen.ProtoInput.TranslateXButtonX == 0)
+                gen.ProtoInput.TranslateXButtonX = (int)Key.E;
+
+            if (gen.ProtoInput.TranslateXButtonY == 0)
+                gen.ProtoInput.TranslateXButtonY = (int)Key.G;
+
+            if (gen.ProtoInput.TranslateXButtonRS == 0)
+                gen.ProtoInput.TranslateXButtonRS = (int)Key.Space;
+
+            if (gen.ProtoInput.TranslateXButtonLS == 0)
+                gen.ProtoInput.TranslateXButtonLS = (int)Key.Control;
+
+            if (gen.ProtoInput.TranslateXButtonUp == 0)
+                gen.ProtoInput.TranslateXButtonUp = (int)Key.Up;
+
+            if (gen.ProtoInput.TranslateXButtonDown == 0)
+                gen.ProtoInput.TranslateXButtonDown = (int)Key.Down;
+
+            if (gen.ProtoInput.TranslateXButtonRight == 0)
+                gen.ProtoInput.TranslateXButtonRight = (int)Key.Right;
+
+            if (gen.ProtoInput.TranslateXButtonLeft == 0)
+                gen.ProtoInput.TranslateXButtonLeft = (int)Key.Left;
+
+            if (gen.ProtoInput.TranslateXStickUp == 0)
+                gen.ProtoInput.TranslateXStickUp = (int)Key.W;
+            if (gen.ProtoInput.TranslateXStickDown == 0)
+                gen.ProtoInput.TranslateXStickDown = (int)Key.S;
+
+            if (gen.ProtoInput.TranslateXStickRight == 0)
+                gen.ProtoInput.TranslateXStickRight = (int)Key.D;
+
+            if (gen.ProtoInput.TranslateXStickLeft == 0)
+                gen.ProtoInput.TranslateXStickLeft = (int)Key.A;
+
+            if (gen.ProtoInput.TranslateXButtonStart == 0)
+                gen.ProtoInput.TranslateXButtonStart = (int)Key.Return;
+
+            if (gen.ProtoInput.TranslateXButtonOption == 0)
+                gen.ProtoInput.TranslateXButtonOption = (int)Key.Escape;
+
+            ProtoInput.protoInput.SetXinputtoMKBkeys(instanceHandle, gen.ProtoInput.TranslateXButtonA, gen.ProtoInput.TranslateXButtonB, gen.ProtoInput.TranslateXButtonX, gen.ProtoInput.TranslateXButtonY, gen.ProtoInput.TranslateXButtonRS, gen.ProtoInput.TranslateXButtonLS, gen.ProtoInput.TranslateXButtonRight, gen.ProtoInput.TranslateXButtonLeft, gen.ProtoInput.TranslateXButtonUp, gen.ProtoInput.TranslateXButtonDown, gen.ProtoInput.TranslateXStickR, gen.ProtoInput.TranslateXStickL, gen.ProtoInput.TranslateXStickRight, gen.ProtoInput.TranslateXStickLeft, gen.ProtoInput.TranslateXStickUp, gen.ProtoInput.TranslateXStickDown, gen.ProtoInput.TranslateXButtonOption, gen.ProtoInput.TranslateXButtonStart, gen.ProtoInput.TranslateXSensitivity, gen.ProtoInput.TranslateXAccelration, gen.ProtoInput.TranslateXDeadzone);
+            ProtoInput.protoInput.SetXinputtoMKBCFG(instanceHandle, gen.ProtoInput.TranslateXSwapSticks, gen.ProtoInput.TranslateXScanner, gen.ProtoInput.TranslateXShouldersNextPoint, gen.ProtoInput.TranslateXAstatic, gen.ProtoInput.TranslateXAPointClick, gen.ProtoInput.TranslateXAPointMove, gen.ProtoInput.TranslateXBstatic, gen.ProtoInput.TranslateXBPointClick, gen.ProtoInput.TranslateXBPointMove, gen.ProtoInput.TranslateXXstatic, gen.ProtoInput.TranslateXXPointClick, gen.ProtoInput.TranslateXXPointMove, gen.ProtoInput.TranslateXYstatic, gen.ProtoInput.TranslateXYPointClick, gen.ProtoInput.TranslateXYPointMove);
             if (gen.ProtoInput.AdjustWindowRectHook)
             {
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.AdjustWindowRectHookID);
             }
 
             ProtoInput.protoInput.SetDontWaitWindowBorder(instanceHandle, gen.ProtoInput.SetRemoveBorderHook == SetRemoveBorderHook.DontWait);
-           
+
             if (gen.ProtoInput.SetRemoveBorderHook == SetRemoveBorderHook.DontWait || gen.ProtoInput.SetRemoveBorderHook != 0)
             {
                 ProtoInput.protoInput.InstallHook(instanceHandle, ProtoInput.ProtoHookIDs.RemoveBorderHookID);
@@ -386,15 +483,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                 }
             }
 
-            if (mouseHandle != -1)
-            {
-                ProtoInput.protoInput.AddSelectedMouseHandle(instanceHandle, (uint)mouseHandle);
-            }
 
-            if (keyboardHandle != -1)
-            {
-                ProtoInput.protoInput.AddSelectedKeyboardHandle(instanceHandle, (uint)keyboardHandle);
-            }
 
             ProtoInput.protoInput.SetControllerIndex(instanceHandle,
                 controllerIndex < 0 ? 0 : (uint)controllerIndex,
@@ -404,12 +493,22 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                 );
 
             //SetExternalFreezeFakeInput(instanceHandle, !isInputCurrentlyLocked && freezeGameInputWhileInputNotLocked);
+            if (gen.ForwardWindowToProtoInput)
+            {
+                ProtoInput.protoInput.UpdateMainWindowHandle(
+                (uint)instanceHandle,
+                    (ulong)GetMainWindow.NucleusGetMainWindowHandle(player.ProcessData?.Process)
+                );
+
+            }
 
             trackedInstanceHandles.Add(instanceHandle);
+
 
             if (gen.ProtoInput.FreezeExternalInputWhenInputNotLocked)
             {
                 NotifyInputLockChange();
+
             }
         }
 

@@ -1,38 +1,36 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.IO;
-using System.Net;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Nucleus.Gaming.Coop.Generic
 {
     public class Hub
     {
-        private bool updateAvailable = false;
+        public Action<bool> NotifyConnected;
 
-        private static bool connected;
-        public static bool Connected
+        private bool updateAvailable;
+        public bool UpdateAvailable
         {
-            get => connected;
-            set
+            get => updateAvailable;
+            private set
             {
-                connected = value;
-            }
+                updateAvailable = value;
+            }      
         }
 
-        public bool IsUpdateAvailable(bool fetch)
+        public async Task CheckForHandlerUpdate(bool fetch)
         {
-            if (!connected)
+            if(!fetch)
             {
-                return false;
+                return;
             }
 
-            if (fetch)
+            if (!Http_Client.Http_Client.HubConnected)
             {
-                updateAvailable = CheckUpdateAvailable();
+                return;
             }
 
-            return updateAvailable;
+            bool available = await CheckUpdateAvailable();
+            UpdateAvailable = available;
         }
 
         public _Maintainer Maintainer = new _Maintainer();
@@ -50,75 +48,28 @@ namespace Nucleus.Gaming.Coop.Generic
             public string Id = "";
         }
 
-        public bool CheckUpdateAvailable()
+        private async Task<bool> CheckUpdateAvailable()
         {
-            if (Handler.Version < 0)
-            {
+            if (Handler.Version < 0 || string.IsNullOrEmpty(Handler.Id)) 
+            { 
                 return false;
             }
 
             string id = Handler.Id;
             int newVersion = -1;
 
-            string resp = Get("https://hub.splitscreen.me/api/v1/" + "handler/" + id);
+            string url = "https://hub.splitscreen.me/api/v1/" + "handler/" + id;
 
-            if (resp == null)
-            {
-                return false;
-            }
-            else if (resp == "{}")
-            {
-                return false;
-            }
+            var result = await Http_Client.Http_Client.GetJsonPropertyAsync(url, "Handlers");
 
-            JObject jObject = JsonConvert.DeserializeObject(resp) as JObject;
-
-            if (jObject == null)
+            if(result == null)
             {
                 return false;
             }
 
-            JArray array = jObject["Handlers"] as JArray;
-
-            if (array == null)
-            {
-                return false;
-            }
-            else if (array.Count != 1)
-            {
-                return false;
-            }
-
-            newVersion = int.TryParse(array[0]["currentVersion"].ToString(), out int _v) ? _v : -1;
+            newVersion = int.TryParse(result[0]["currentVersion"].ToString(), out int _v) ? _v : -1;
 
             return newVersion > Handler.Version;
-        }
-
-        public string Get(string uri)
-        {
-            ServicePointManager.Expect100Continue = false;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-            ServicePointManager.DefaultConnectionLimit = 9999;
-
-            try
-            {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
-
-                request.Timeout = 2500;//lower values make the timeout too short for some "big" handlers (GTAIV)             
-                request.Method = "Get";
-
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                using (Stream stream = response.GetResponseStream())
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
-            catch (Exception)
-            {
-                return null;
-            }
         }
     }
 }

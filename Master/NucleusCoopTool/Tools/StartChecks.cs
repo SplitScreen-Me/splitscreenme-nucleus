@@ -46,6 +46,7 @@ namespace Nucleus.Coop
         public static bool IsAlreadyRunning()
         {
             Thread.Sleep(1000);//Put this here for the theme switch option.
+
             if (Process.GetProcessesByName("NucleusCoop").Length > 1)
             {
                 MessageBox.Show("Nucleus Co-op is already running, if you don't see the Nucleus Co-op window it might be running in the background, close the process using task manager.", "Nucleus Co-op is already running", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -58,8 +59,8 @@ namespace Nucleus.Coop
         public static bool IsInvalidDriveFormat()
         {
             return UserDriveInfo.IsExFat(Globals.NucleusInstallRoot, true);       
-        }       
-                   
+        }
+
         public static void CheckFilesIntegrity()
         {
             string[] ncFiles = {
@@ -119,23 +120,23 @@ namespace Nucleus.Coop
                     }
                 }
 
-            if (!Directory.Exists(Path.Combine(Application.StartupPath, @"gui\covers")))
-            {
-                Directory.CreateDirectory((Path.Combine(Application.StartupPath, @"gui\covers")));
-            }
+                if (!Directory.Exists(Path.Combine(Application.StartupPath, @"gui\covers")))
+                {
+                    Directory.CreateDirectory((Path.Combine(Application.StartupPath, @"gui\covers")));
+                }
 
-            if (!Directory.Exists(Path.Combine(Application.StartupPath, @"gui\screenshots")))
-            {
-                Directory.CreateDirectory((Path.Combine(Application.StartupPath, @"gui\screenshots")));
-            }
-         
+                if (!Directory.Exists(Path.Combine(Application.StartupPath, @"gui\screenshots")))
+                {
+                    Directory.CreateDirectory((Path.Combine(Application.StartupPath, @"gui\screenshots")));
+                }
+
                 if (Directory.Exists(Path.Combine(Application.StartupPath, $"gui\\descriptions")))//Not used anymore
                 {
                     Directory.Delete(Path.Combine(Application.StartupPath, $"gui\\descriptions"), true);
                 }
             }
-            catch 
-            {  
+            catch
+            {
             }
         }
 
@@ -239,7 +240,7 @@ namespace Nucleus.Coop
 
             if(exePath == null)
             {
-                MessageBox.Show($"Unable to check Nucleus installation path." ,"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Unable to check Nucleus Co-op installation path." ,"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 
@@ -254,9 +255,15 @@ namespace Nucleus.Coop
             {
                 string message = "Using OneDrive as default documents path will break many handlers because Nucleus can't access its storage." +
                                  "To change your documents path log out from the OneDrive app and right click your Documents folder in file explorer, go to properties, " +
-                                 "select path or location and set it to the default Windows."; /*one when done delete \"User Shell Folders.reg\" from \"utils\\backup\" if the file exists.";*/
+                                 "select path or location and set it to the default Windows.\n" +
+                                 "Click \"Yes\" to be redirected to the Nucleus FAQ for more details."; /*one when done delete \"User Shell Folders.reg\" from \"utils\\backup\" if the file exists.";*/
 
-                MessageBox.Show(message, "OneDrive must be disabled", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                DialogResult result = MessageBox.Show(message, "OneDrive must be disabled", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                if(result == DialogResult.Yes)
+                {
+                    Process.Start("https://www.splitscreen.me/docs/faq/#26--nucleus-co-op-shows-an-onedrive-error-messagechanged-the-location-of-my-documents-folder-why");
+                }
             }
 
             if (problematic)
@@ -348,50 +355,31 @@ namespace Nucleus.Coop
             string directDownloadLinkX64 = "https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/6e1e9052-dcb3-41e3-9aec-a7880afb75b2/MicrosoftEdgeWebView2RuntimeInstallerX64.exe";
             string x64FileName = "MicrosoftEdgeWebView2RuntimeInstallerX64.exe";
 
-            string webViewVer = null;
-
             try
             {
-                webViewVer = CoreWebView2Environment.GetAvailableBrowserVersionString(null);
-            }
-            catch(WebView2RuntimeNotFoundException)
-            {         
-            }
+               string webViewVer = CoreWebView2Environment.GetAvailableBrowserVersionString(null);
 
-            if (webViewVer == null)
+                if(string.IsNullOrEmpty(webViewVer))
+                {
+                    DialogResult dialogResultX64 = MessageBox.Show("Do you want to download and install Microsoft WebView2 Runtime now?\n\nWithout it you will be unable to download handlers from the application.", "Microsoft WebView2 Runtime is not installed.", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if (dialogResultX64 == DialogResult.Yes)
+                    {
+                        DependenciesDownloader dldp = new DependenciesDownloader(directDownloadLinkX64, "Downloading Microsoft WebView2 Runtime", x64FileName, "MicrosoftEdgeWebView2RuntimeInstallerX64");
+                        dldp.ShowDialog();
+                    }
+                }
+            }
+            catch
             {
                 DialogResult dialogResultX64 = MessageBox.Show("Do you want to download and install Microsoft WebView2 Runtime now?\n\nWithout it you will be unable to download handlers from the application.", "Microsoft WebView2 Runtime is not installed.", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
                 if (dialogResultX64 == DialogResult.Yes)
                 {
                     DependenciesDownloader dldp = new DependenciesDownloader(directDownloadLinkX64, "Downloading Microsoft WebView2 Runtime", x64FileName, "MicrosoftEdgeWebView2RuntimeInstallerX64");
-                    dldp.ShowDialog();           
+                    dldp.ShowDialog();
                 }
-            }
-        }
-        
-        public static bool CheckHubResponse()
-        {
-            try
-            {
-                ServicePointManager.Expect100Continue = false;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-                ServicePointManager.DefaultConnectionLimit = 9999;
-
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://hub.splitscreen.me/");
-                request.Timeout = 6000;
-                request.Method = "HEAD";
-
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                {
-                    return response.StatusCode == HttpStatusCode.OK;
-                }
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            }     
         }
 
         public static void CheckAppUpdate()
@@ -399,10 +387,24 @@ namespace Nucleus.Coop
             try
             {
                 if (File.Exists(Path.Combine(Application.StartupPath, "Updater.exe")))
+                {
                     Process.Start(Path.Combine(Application.StartupPath, "Updater.exe"));
+                }              
             }
-            catch 
-            {           
+            catch
+            {
+                string message = "The Nucleus Co-op Updater executable (Updater.exe) has probably been flagged as a threat by your antivirus." +
+                                 "Make sure to add the whole Nucleus Co-op installation directory to your antivirus exceptions list." +
+                                 "Click \"Yes\" to be redirected to the Nucleus Co-op FAQ for more details.";
+                                           
+
+
+                DialogResult result = MessageBox.Show(message, "Nucleus Co-op installation issue", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+                if (result == DialogResult.Yes)
+                {
+                    Process.Start("https://www.splitscreen.me/docs/faq/#8--does-nucleus-co-op-have-any-malware");
+                }
             }
         }
 

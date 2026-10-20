@@ -6,6 +6,7 @@ using Nucleus.Gaming.Controls;
 using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop.InputManagement;
 using Nucleus.Gaming.Forms;
+using Nucleus.Gaming.UI;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -35,10 +36,11 @@ namespace Nucleus.Gaming.Coop
 
         public static GameProfile Instance;
 
-        public static GenericGameInfo Game;
+        public static UserGameInfo Current_UserGameInfo;
+        public static GenericGameInfo Current_GenericGamInfo;
 
         public static Action OnReset;
-        public static Action OnUseXinputIndexChanged;
+        public static Action OnUseXinputIndexAssignMethodChanged;
         public static Action OnReadyAutoPlayTrigger;
 
         public static int TotalAssignedPlayers;//K&m player will count as one only if 2 devices(keyboard & mouse) do share the same bounds.
@@ -56,7 +58,7 @@ namespace Nucleus.Gaming.Coop
         public static string ModeText => modeText;
         public static bool IsNewProfile => modeText == "New Profile";
 
-        public static UserGameInfo GameInfo;
+        
 
         public static IGameHandler I_GameHandler;
 
@@ -68,7 +70,7 @@ namespace Nucleus.Gaming.Coop
 
         public static bool Loaded => totalProfilePlayers > 0;
 
-        public static bool AssignControllerOnButtonPress = true;
+        //public static bool AssignControllerOnButtonPress = true;
 
         private static bool gotAllGuestsOnce;
         public static bool GotAllGuest => gotAllGuestsOnce;
@@ -244,6 +246,8 @@ namespace Nucleus.Gaming.Coop
 
         public static bool Ready;
 
+        private static bool fallbackToUIOptionScreen;
+
         private static bool useXinputIndex;
         public static bool UseXinputIndex
         {
@@ -254,7 +258,7 @@ namespace Nucleus.Gaming.Coop
                 if(value != useXinputIndex)
                 {
                     useXinputIndex = value;
-                    OnUseXinputIndexChanged?.Invoke();
+                    OnUseXinputIndexAssignMethodChanged?.Invoke();
                 }          
             }
         }
@@ -267,10 +271,15 @@ namespace Nucleus.Gaming.Coop
             set => updating = value;
         }
 
+
         public static List<RectangleF> AllScreens = new List<RectangleF>();
         public static List<PlayerInfo> ProfilePlayersList = new List<PlayerInfo>();
         public static List<PlayerInfo> AssignedDevices = new List<PlayerInfo>();
         public static List<PlayerInfo> DevicesToMerge = new List<PlayerInfo>();
+
+        /// <summary>
+        /// List<(MonitorBounds, UIBounds)
+        /// </summary>
         public static List<(Rectangle, RectangleF)> GhostBounds = new List<(Rectangle, RectangleF)>();
 
         private List<PlayerInfo> GetDevicesList()
@@ -278,18 +287,11 @@ namespace Nucleus.Gaming.Coop
             return deviceList;       
         }
 
-        public static void InitializeHandlerStartup()
+        public static void InitializeHandlerStartup(UserGameInfo userGameInfo)
         {
             DevicesFunctions.DisposeGamePadTimer();
-
-            //reload the handler here so it can be edited/updated until play button get clicked
-            GameManager.Instance.AddScript(Path.GetFileNameWithoutExtension(Game.JsFileName), new bool[] { false, Game.UpdateAvailable });
-
-            var Current_GenericGameInfo = GameManager.Instance.GetGame(GameInfo.ExePath);
-            GameInfo.InitializeDefault(Current_GenericGameInfo,GameInfo.ExePath);
-
-            I_GameHandler = GameManager.Instance.MakeHandler(Current_GenericGameInfo);
-            I_GameHandler.Initialize(GameInfo,CleanClone(Instance), I_GameHandler);
+            I_GameHandler = GameManager.Instance.MakeHandler(userGameInfo);
+            I_GameHandler.Initialize(userGameInfo,CleanClone(Instance), I_GameHandler);
         }
 
         private void ListGameProfiles()
@@ -312,10 +314,12 @@ namespace Nucleus.Gaming.Coop
 
             if (setupScreen != null && setupScreen.IsHandleCreated)
             {
+                //UIThread.Post(() =>
                 setupScreen.Invoke((MethodInvoker)delegate ()
                 {
                     setupScreen.CanPlayUpdated(false, false);
-                });
+                });         
+                //});
             }
 
             bool profileDisabled = App_Misc.DisableGameProfiles;
@@ -326,6 +330,7 @@ namespace Nucleus.Gaming.Coop
             totalProfilePlayers = 0;
             AudioInstances.Clear();
 
+            fallbackToUIOptionScreen = false;
             showError = false;
             autoPlay = false;
             gotAllGuestsOnce = false;
@@ -369,7 +374,7 @@ namespace Nucleus.Gaming.Coop
                         player.Nickname = null;
                         player.InstanceGuests.Clear();
                         player.CurrentMaxGuests = 0;
-                        if(GameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress && (player.IsXInput || player.IsSDL2 ||player.IsDInput))
+                        if(Current_UserGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.ProfileAssignGamepadByButonPress && (player.IsXInput || player.IsSDL2 || player.IsSDL3 || player.IsDInput))
                         {
                             player.IsInputUsed = false;
                         }
@@ -380,7 +385,7 @@ namespace Nucleus.Gaming.Coop
 
                 options = new Dictionary<string, object>();
 
-                foreach (GameOption opt in Game.Options)
+                foreach (GameOption opt in Current_GenericGamInfo.Options)
                 {
                     options.Add(opt.Key, opt.Value);
                 }
@@ -390,7 +395,7 @@ namespace Nucleus.Gaming.Coop
                 AssignedDevices.Clear();
                 DevicesToMerge.Clear();
 
-                if (!GameInfo.Game.MetaInfo.DisableProfiles)
+                if (!Current_UserGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.DisableProfiles)
                 {
                     ListGameProfiles();
                 }
@@ -432,19 +437,19 @@ namespace Nucleus.Gaming.Coop
             if (options == null)
             {
                 options = new Dictionary<string, object>();
-
-                foreach (GameOption opt in Game.Options)
+                foreach (GameOption opt in Current_GenericGamInfo.Options)
                 {
                     options.Add(opt.Key, opt.Value);
                 }
             }
+            
         }
 
         public static void UpdateSharedSettings()
         {
             AutoDesktopScaling = App_Misc.AutoDesktopScaling;
             UseNicknames = App_Misc.UseNicksInGame;
-            UseXinputIndex = Game.MetaInfo.UseApiIndex && (!Game.UseDevReorder && !Game.CreateSingleDeviceFile);
+            UseXinputIndex = Current_GenericGamInfo.MetaInfo.UseApiIndex && (!Current_GenericGamInfo.UseDevReorder && !Current_GenericGamInfo.CreateSingleDeviceFile);
             network = App_Misc.Network;
 
             AudioCustomSettings = int.Parse(App_Audio.Custom) == 1;
@@ -466,7 +471,10 @@ namespace Nucleus.Gaming.Coop
 
             foreach(var output in App_Audio.Instances_AudioOutput)
             {
-                AudioInstances.Add(output);
+                if (!AudioInstances.Contains(output))
+                {
+                    AudioInstances.Add(output);
+                }
             }
         }
 
@@ -474,7 +482,7 @@ namespace Nucleus.Gaming.Coop
         {
             try
             {
-                string path = $"{Globals.GameProfilesFolder}\\{GameInfo.GameGuid}\\Profile[{_profileToLoad}].json";
+                string path = $"{Globals.GameProfilesFolder}\\{Current_UserGameInfo.GameGuid}\\Profile[{_profileToLoad}].json";
 
                 string jsonString = System.IO.File.ReadAllText(path);
 
@@ -491,12 +499,38 @@ namespace Nucleus.Gaming.Coop
                 }
 
                 JToken Joptions = Jprofile["Options"] as JToken;
+             
+                int c = Joptions.Count();
 
-                options = new Dictionary<string, object>();
-
-                foreach (JProperty Jopt in Joptions)
+                //check if the handler options were updated since the profile creation
+                Dictionary<string, object> tempOptDict = new Dictionary<string, object>();
+                
+                if (options.Count == Joptions.Count())
                 {
-                    options.Add((string)Jopt.Name, Jopt.Value.ToString());
+                    //compare handler options and profile options
+                    foreach (JProperty Jopt in Joptions)
+                    {
+                        bool exists = options.ContainsKey(Jopt.Name);
+
+                        if(exists)
+                        {
+                            tempOptDict.Add((string)Jopt.Name, Jopt.Value.ToString());
+                        }
+                        else
+                        {
+                            fallbackToUIOptionScreen = true;
+                        }
+                    }
+
+                    if(!fallbackToUIOptionScreen)
+                    {
+                        options = tempOptDict ;// new Dictionary<string, object>();
+                    }            
+                }
+                else
+                {
+                    //else fallback to the ui option screen
+                    fallbackToUIOptionScreen = true;
                 }
 
                 if (hWndInterval == 0)
@@ -531,7 +565,7 @@ namespace Nucleus.Gaming.Coop
 
                 bool _useXinputIndex = (bool)Jprofile["Use XInput Index"];
 
-                _useXinputIndex = Game.MetaInfo.UseApiIndex;
+                _useXinputIndex = Current_GenericGamInfo.MetaInfo.UseApiIndex;
 
                 if (_useXinputIndex != UseXinputIndex)
                 {
@@ -545,6 +579,7 @@ namespace Nucleus.Gaming.Coop
                 CustomLayout_Hor = (int)Jprofile["CustomLayout"]["Hor"];
                 CustomLayout_Max = (int)Jprofile["CustomLayout"]["Max"];
                 AutoPlay = (bool)Jprofile["AutoPlay"]["Enabled"];
+
                 Notes = (string)Jprofile["Notes"];
                 Title = (string)Jprofile["Title"];
 
@@ -614,6 +649,7 @@ namespace Nucleus.Gaming.Coop
                     player.IsDInput = (bool)JplayersInfos[i]["IsDInput"];
                     player.IsXInput = (bool)JplayersInfos[i]["IsXInput"];
                     player.IsSDL2 = JplayersInfos[i]["IsSDL2"] == null ? false : (bool)JplayersInfos[i]["IsSDL2"];
+                    player.IsSDL3 = JplayersInfos[i]["IsSDL3"] == null ? false : (bool)JplayersInfos[i]["IsSDL3"];
 
                     player.IsKeyboardPlayer = (bool)JplayersInfos[i]["IsKeyboardPlayer"];
                     player.IsRawMouse = (bool)JplayersInfos[i]["IsRawMouse"];
@@ -633,7 +669,7 @@ namespace Nucleus.Gaming.Coop
                     player.Affinity = (string)JplayersInfos[i]["Processor"]["ProcessorAffinity"];
                     player.PriorityClass = (string)JplayersInfos[i]["Processor"]["ProcessorPriorityClass"];
 
-                    if (player.IsXInput || player.IsDInput || player.IsSDL2)
+                    if (player.IsXInput || player.IsDInput || player.IsSDL2 || player.IsSDL3)
                     {
                         gamepadCount++;
                     }
@@ -675,6 +711,16 @@ namespace Nucleus.Gaming.Coop
                     AllScreens.Add(new RectangleF((float)JAllscreens[s]["X"], (float)JAllscreens[s]["Y"], (float)JAllscreens[s]["Width"], (float)JAllscreens[s]["Height"]));
                 }
 
+                int profileScr = AllScreens.Count;
+                int sysScr = ScreensUtil.AllScreens().Count();
+
+                if (profileScr > sysScr)
+                {
+                    Reset();
+                    Globals.MainOSD.Show(2000, $"*@{OSDHighlightColors.Warning}|Not Enough Active Screens@*");
+                    return false;
+                }
+
                 totalProfilePlayers = JplayersInfos.Count();
 
                 modeText = $"Profile n°{profileToSave}";
@@ -683,7 +729,7 @@ namespace Nucleus.Gaming.Coop
 
                 GetGhostBounds();
 
-                Globals.MainOSD.Show(1000, Title != "" ? $"Handler Profile \"{Title}\" Loaded" : $"Handler Profile N°{_profileToLoad} Loaded");
+                Globals.MainOSD.Show(1000, Title != "" ? $"Handler Profile *@{OSDHighlightColors.Confirm}|\"{Title}\" Settings Loaded@*" : $"Handler Profile *@{OSDHighlightColors.Confirm}|N°{_profileToLoad} Settings Loaded@*");
 
                 return true;
 
@@ -691,7 +737,7 @@ namespace Nucleus.Gaming.Coop
             catch (Exception ex)
             {
                 Reset();
-                NucleusMessageBox.Show("", "The profile can't be loaded.\n\n" +
+                NucleusMessageBox.Show("", "The profile settings can't be loaded.\n\n" +
                     "If the error persist delete the profile and create a new one.\n\n" +
                     "[Error]\n\n" + ex.Message, false);
 
@@ -701,7 +747,7 @@ namespace Nucleus.Gaming.Coop
 
         private static string GetGameProfilesPath()
         {
-            string path = $"{Globals.GameProfilesFolder}\\{GameInfo.GameGuid}";
+            string path = $"{Globals.GameProfilesFolder}\\{Current_UserGameInfo.GameGuid}";
             if (!Directory.Exists(path))
             {
                 return null;
@@ -712,7 +758,7 @@ namespace Nucleus.Gaming.Coop
 
         public static void UpdateGameProfile(GameProfile profile)
         {
-            string path = $"{Globals.GameProfilesFolder}\\{GameInfo.GameGuid}\\Profile[{profileToSave}].json";
+            string path = $"{Globals.GameProfilesFolder}\\{Current_UserGameInfo.GameGuid}\\Profile[{profileToSave}].json";
 
             JObject options = new JObject();
             foreach (KeyValuePair<string, object> opt in profile.Options)
@@ -798,7 +844,7 @@ namespace Nucleus.Gaming.Coop
             {
                 PlayerInfo player = ProfilePlayersList[i];
 
-                if (player.IsXInput || player.IsDInput || player.IsSDL2)
+                if (player.IsXInput || player.IsDInput || player.IsSDL2 || player.IsSDL3)
                 {
                     gamepadCount++;
                 }
@@ -866,6 +912,7 @@ namespace Nucleus.Gaming.Coop
                                  new JProperty("IsDInput", player.IsDInput),
                                  new JProperty("IsXInput", player.IsXInput),
                                  new JProperty("IsSDL2", player.IsSDL2),
+                                 new JProperty("IsSDL3", player.IsSDL3),
                                  new JProperty("Guests", JInstanceGuests),
                                  new JProperty("Processor", JProcessor),
                                  new JProperty("IsKeyboardPlayer", player.IsKeyboardPlayer),
@@ -937,7 +984,7 @@ namespace Nucleus.Gaming.Coop
 
             Updating = true;
 
-            Globals.MainOSD.Show(1500, Title != "" ? $"Handler Profile \"{Title}\" Updated" : $"Handler Profile N°{profileToSave} Updated");
+            Globals.MainOSD.Show(1500, Title != "" ? $"Handler Profile *@{OSDHighlightColors.Confirm}|\"{Title}\"@* Updated" : $"Handler Profile *@{OSDHighlightColors.Confirm}|N°{profileToSave} Updated@*");
         }
 
         public static void SaveGameProfile(GameProfile profile)
@@ -945,26 +992,26 @@ namespace Nucleus.Gaming.Coop
             string path;
             bool profileDisabled = App_Misc.DisableGameProfiles;
 
-            if (profileDisabled || GameInfo.Game.MetaInfo.DisableProfiles || !GameInfo.Game.MetaInfo.SaveProfile)
+            if (profileDisabled || Current_UserGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.DisableProfiles || (!Current_UserGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.SaveProfile && !Loaded))
             {
                 saved = true;
-                Globals.MainOSD.Show(1600, $"Setup Finished");
+                Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Confirm}|Setup Finished@*");
                 return;
             }
 
             if (profile.DevicesList.Count != TotalProfilePlayers || !Loaded || profilesCount == 0)
             {
                 profilesCount++;//increase to set new profile name
-                path = $"{Globals.GameProfilesFolder}\\{GameInfo.GameGuid}\\Profile[{profilesCount}].json";
+                path = $"{Globals.GameProfilesFolder}\\{Current_UserGameInfo.GameGuid}\\Profile[{profilesCount}].json";
             }
             else
             {
-                path = $"{Globals.GameProfilesFolder}\\{GameInfo.GameGuid}\\Profile[{profileToSave}].json";
+                path = $"{Globals.GameProfilesFolder}\\{Current_UserGameInfo.GameGuid}\\Profile[{profileToSave}].json";
             }
 
-            if (!Directory.Exists(Path.Combine($"{Globals.GameProfilesFolder}\\{GameInfo.GameGuid}")))
+            if (!Directory.Exists(Path.Combine($"{Globals.GameProfilesFolder}\\{Current_UserGameInfo.GameGuid}")))
             {
-                Directory.CreateDirectory($"{Globals.GameProfilesFolder}\\{GameInfo.GameGuid}");
+                Directory.CreateDirectory($"{Globals.GameProfilesFolder}\\{Current_UserGameInfo.GameGuid}");
             }
 
             JObject options = new JObject();
@@ -1050,7 +1097,7 @@ namespace Nucleus.Gaming.Coop
 
             for (int i = 0; i < players.Count(); i++)//build per players object
             {
-                if (players[i].IsXInput || players[i].IsDInput || players[i].IsSDL2)
+                if (players[i].IsXInput || players[i].IsDInput || players[i].IsSDL2 || players[i].IsSDL3)
                 {
                     gamepadCount++;
                 }
@@ -1115,6 +1162,7 @@ namespace Nucleus.Gaming.Coop
                                  new JProperty("IsDInput", players[i].IsDInput),
                                  new JProperty("IsXInput", players[i].IsXInput),
                                  new JProperty("IsSDL2", players[i].IsSDL2),
+                                 new JProperty("IsSDL3", players[i].IsSDL3),
                                  new JProperty("Guests", JInstanceGuests),
                                  new JProperty("Processor", JProcessor),
                                  new JProperty("IsKeyboardPlayer", players[i].IsKeyboardPlayer),
@@ -1191,14 +1239,14 @@ namespace Nucleus.Gaming.Coop
 
             LogManager.Log("Handler Profile Saved");
 
-            Globals.MainOSD.Show(1600, $"Handler Profile Saved. Setup Finished");
+            Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Confirm}|Handler Profile Saved. Setup Finished@*");
         }
 
         public static void FindProfilePlayers(PlayerInfo player)
         {
             if (AssignedDevices.Contains(player))
             {
-                if (GameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress && AssignedDevices.Count == ProfilePlayersList.Count)
+                if (Current_UserGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.ProfileAssignGamepadByButonPress && AssignedDevices.Count == ProfilePlayersList.Count)
                 {
                     var getFirstAwaiting = AssignedDevices.Where(ap => ap.InstanceGuests.Count != ap.CurrentMaxGuests);
 
@@ -1226,7 +1274,7 @@ namespace Nucleus.Gaming.Coop
                 if (TotalAssignedPlayers < 0 && !showError)
                 {
                     showError = true;
-                    NucleusMessageBox.Show("error", "Oops!\nSomething went wrong, profile has been unloaded.", false);
+                    NucleusMessageBox.Show("error", "Oops!\nSomething went wrong, profile settings unloaded.", false);
                     return;
                 }
             }
@@ -1251,7 +1299,7 @@ namespace Nucleus.Gaming.Coop
                 if (ProfilePlayersList.Any(pp => pp.ScreenIndex != profilePlayer.ScreenIndex) && scr.Item2 != profilePlayer.ScreenIndex)
                 {
                     Instance.Reset();
-                    Globals.MainOSD.Show(2000, $"Not Enough Active Screens");
+                    Globals.MainOSD.Show(2000, $"*@{OSDHighlightColors.Info}|Not Enough Active Screens@*");
                     scr.Item1.Type = UserScreenType.FullScreen;
                     return;
                 }
@@ -1281,7 +1329,7 @@ namespace Nucleus.Gaming.Coop
                 gotAllGuestsOnce = true;
             }
 
-            if (TotalAssignedPlayers == TotalProfilePlayers && Ready && AutoPlay && !Updating)
+            if (TotalAssignedPlayers == TotalProfilePlayers && Ready && AutoPlay && !Updating && !fallbackToUIOptionScreen)
             {
                 SetupScreenControl.Instance?.CanPlayUpdated(true, true);
                 OnReadyAutoPlayTrigger?.Invoke();
@@ -1291,7 +1339,9 @@ namespace Nucleus.Gaming.Coop
 
             if (TotalAssignedPlayers == TotalProfilePlayers)
             {
-                if (Ready && (!AutoPlay || Updating))
+                SetupScreenControl.Instance?.CanPlayUpdated(true, false);
+
+                if (Ready && (!AutoPlay || Updating || fallbackToUIOptionScreen))
                 {
                     SetupScreenControl.Instance?.CanPlayUpdated(true, true);
                     return;
@@ -1334,16 +1384,16 @@ namespace Nucleus.Gaming.Coop
 
         private static bool FindPlayersInstanceGuests()
         {
-            List<PlayerInfo> gamepadsOnly = Instance.deviceList.Where(pl => pl.IsDInput || pl.IsXInput || pl.IsSDL2).ToList();
+            List<PlayerInfo> gamepadsOnly = Instance.deviceList.Where(pl => pl.IsDInput || pl.IsXInput || pl.IsSDL2 || pl.IsSDL3).ToList();
             List<PlayerInfo> foundGuests = new List<PlayerInfo>();
 
             if (!gotAllGuestsOnce)
             {
-                if (GameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress && awaitedProfilePlayer != null)
+                if (Current_UserGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.ProfileAssignGamepadByButonPress && awaitedProfilePlayer != null)
                 {
                     bool foundAllGuests = false;
 
-                    if (!Game.MetaInfo.UseApiIndexForGuests)
+                    if (!Current_GenericGamInfo.MetaInfo.UseApiIndexForGuests)
                     {
                         foreach (Guid guestGuid in awaitedProfilePlayer.GuestsGuid)
                         {
@@ -1431,9 +1481,9 @@ namespace Nucleus.Gaming.Coop
                             continue;
                         }
 
-                        if (!Game.MetaInfo.UseApiIndex)
+                        if (!Current_GenericGamInfo.MetaInfo.UseApiIndex)
                         {
-                            if (!Game.MetaInfo.UseApiIndexForGuests)
+                            if (!Current_GenericGamInfo.MetaInfo.UseApiIndexForGuests)
                             {
                                 foreach (Guid guestGuid in player.GuestsGuid)
                                 {
@@ -1535,7 +1585,7 @@ namespace Nucleus.Gaming.Coop
             {
                 foreach (PlayerInfo pp in ProfilePlayersList)
                 {
-                    if (AssignedDevices.All(lp => lp.PlayerID != pp.PlayerID) && (pp.IsDInput || pp.IsXInput || pp.IsSDL2))
+                    if (AssignedDevices.All(lp => lp.PlayerID != pp.PlayerID) && (pp.IsDInput || pp.IsXInput || pp.IsSDL2 || pp.IsSDL3))
                     {
                         profilePlayer = pp;
                         skipGuid = true;
@@ -1545,13 +1595,13 @@ namespace Nucleus.Gaming.Coop
             }
 
             //DInput/XInput/SDL2 using GamepadGuid(do not follow gamepad api indexes)
-            if ((player.IsXInput || player.IsDInput || player.IsSDL2) && !skipGuid && !useXinputIndex)
+            if ((player.IsXInput || player.IsDInput || player.IsSDL2 || player.IsSDL3) && !skipGuid && !useXinputIndex)
             {
-                if(!GameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress)
+                if(!Current_UserGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.ProfileAssignGamepadByButonPress)
                 {
-                    profilePlayer = ProfilePlayersList.Where(pl => (pl.IsDInput || pl.IsXInput || pl.IsSDL2) && (pl.GamepadGuid == player.GamepadGuid)).FirstOrDefault();
+                    profilePlayer = ProfilePlayersList.Where(pl => (pl.IsDInput || pl.IsXInput || pl.IsSDL2 || pl.IsSDL3) && (pl.GamepadGuid == player.GamepadGuid)).FirstOrDefault();
                 }
-                else if(player.IsInputUsed && (awaitedProfilePlayer.IsXInput || awaitedProfilePlayer.IsSDL2 || awaitedProfilePlayer.IsDInput))
+                else if(player.IsInputUsed && (awaitedProfilePlayer.IsXInput || awaitedProfilePlayer.IsSDL2 || awaitedProfilePlayer.IsSDL3 || awaitedProfilePlayer.IsDInput))
                 {
                     profilePlayer = awaitedProfilePlayer;
                     SetProfilePlayerScreenLayout();
@@ -1641,7 +1691,7 @@ namespace Nucleus.Gaming.Coop
         {
             DevicesList.RemoveAll(p => p.IsRawMouse || p.IsRawKeyboard);
 
-            if (Game.SupportsMultipleKeyboardsAndMice)//Raw mice/keyboards
+            if (Current_GenericGamInfo.SupportsMultipleKeyboardsAndMice)//Raw mice/keyboards
             {
                 DevicesList.AddRange(RawInputManager.GetDeviceInputInfos());
             }
@@ -1785,7 +1835,7 @@ namespace Nucleus.Gaming.Coop
 
             int playerIndex = AssignedDevices.FindIndex(pl => pl == player);
 
-            bool getIdFromProfile = ProfilePlayersList.Count() > 0 && ProfilePlayersList.Count() > playerIndex && !GameInfo.Game.MetaInfo.DisableProfiles;
+            bool getIdFromProfile = ProfilePlayersList.Count() > 0 && ProfilePlayersList.Count() > playerIndex && !Current_UserGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.DisableProfiles;
 
             player.Nickname = getIdFromProfile ? ProfilePlayersList[playerIndex].Nickname :
                              PlayersIdentityCache.GetNicknameAt(playerIndex);
@@ -1800,18 +1850,18 @@ namespace Nucleus.Gaming.Coop
 
             if (getIdFromProfile)//get profile value
             {
-                if (Game.UseHandlerSteamIds)//get custom handler value anyway if Game.UseHandlerSteamIds 
+                if (Current_GenericGamInfo.UseHandlerSteamIds)//get custom handler value anyway if Game.UseHandlerSteamIds 
                 {                
-                    steamID = Game.PlayerSteamIDs[playerIndex];
+                    steamID = Current_GenericGamInfo.PlayerSteamIDs[playerIndex];
                 }
                 else
                 {
                     steamID = ProfilePlayersList[playerIndex].SteamID.ToString();
                 }
             }
-            else if(Game.UseHandlerSteamIds)//get custom handler value if Game.UseHandlerSteamIds
+            else if(Current_GenericGamInfo.UseHandlerSteamIds)//get custom handler value if Game.UseHandlerSteamIds
             {
-                steamID = Game.PlayerSteamIDs[playerIndex];
+                steamID = Current_GenericGamInfo.PlayerSteamIDs[playerIndex];
             }
             else if (PlayersIdentityCache.GetSteamIdAt(playerIndex) != "")//get custom user (ini) value
             {
@@ -1829,8 +1879,8 @@ namespace Nucleus.Gaming.Coop
 
         public static void GenMissingIdFromPlayerSteamIDs()
         {
-            string lastIdOfArray = Game.PlayerSteamIDs.Last();
-            List<string> newArray = Game.PlayerSteamIDs.ToList();
+            string lastIdOfArray = Current_GenericGamInfo.PlayerSteamIDs.Last();
+            List<string> newArray = Current_GenericGamInfo.PlayerSteamIDs.ToList();
 
             while (newArray.Count() < Globals.NucleusMaxPlayers)
             {
@@ -1850,7 +1900,7 @@ namespace Nucleus.Gaming.Coop
                 newArray.Add(convToLong.ToString());
             }
 
-            Game.PlayerSteamIDs = newArray.ToArray();
+            Current_GenericGamInfo.PlayerSteamIDs = newArray.ToArray();
         }
 
     }

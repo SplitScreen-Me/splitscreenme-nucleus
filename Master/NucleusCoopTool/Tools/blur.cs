@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Nucleus.Coop
 {
@@ -39,7 +40,7 @@ namespace Nucleus.Coop
             _blue = new int[_width * _height];
 
             // Process top and bottom colors
-            ProcessColors(source);
+            //ProcessColors(source);
 
             Parallel.For(0, source.Length, _pOptions, i =>
             {
@@ -100,6 +101,9 @@ namespace Nucleus.Coop
                 () => gaussBlur_4(_green, newGreen, radial),
                 () => gaussBlur_4(_blue, newBlue, radial)
             );
+
+            //ApplyVerticalColorBlend(newRed, newGreen, newBlue);
+            //ApplyCinematicFade(newAlpha, newRed, newGreen, newBlue);
 
             Parallel.For(0, dest.Length, _pOptions, i =>
             {
@@ -219,5 +223,69 @@ namespace Nucleus.Coop
                 }
             });
         }
+
+        private void ApplyCinematicFade(int[] alpha, int[] red, int[] green, int[] blue)
+        {
+            double centerX = _width / 2.0;
+            double centerY = _height / 2.0;
+
+            double radiusX = centerX;
+            double radiusY = centerY;
+
+            Parallel.For(0, _height, _pOptions, y =>
+            {
+                for (int x = 0; x < _width; x++)
+                {
+                    int index = y * _width + x;
+
+                    double dx = (x - centerX) / radiusX;
+                    double dy = (y - centerY) / radiusY;
+
+                    double dist = Math.Sqrt(dx * dx + dy * dy);
+
+                    // Elliptical fade
+                    double fade = 1.1 - dist;
+                    if (fade < 0) fade = 0;
+
+                    // Smoothstep (AAA fade curve)
+                    fade = fade * fade * (3 - 2 * fade);
+
+                    // Apply transparency
+                    alpha[index] = (int)(alpha[index] * fade);
+
+                    // Vignette darkening near edges
+                    double vignette = 0.7 + (fade * 0.3);
+
+                    red[index] = Clamp((int)(red[index] * vignette), 0, 255);
+                    green[index] = Clamp((int)(green[index] * vignette), 0, 255);
+                    blue[index] = Clamp((int)(blue[index] * vignette), 0, 255);
+                }
+            });
+        }
+
+        private void ApplyVerticalColorBlend(int[] red, int[] green, int[] blue)
+        {
+            int fadeHeight = _height / 3;
+
+            Parallel.For(0, _height, _pOptions, y =>
+            {
+                double blend = 0;
+
+                if (y < fadeHeight)
+                {
+                    blend = 1.0 - (double)y / fadeHeight;
+                }
+                else if (y > _height - fadeHeight)
+                {
+                    blend = 1.0 - (double)(_height - y) / fadeHeight;
+                }
+
+                blend = Math.Max(0, Math.Min(1, blend));
+
+            });
+        }
+
     }
+
+
 }

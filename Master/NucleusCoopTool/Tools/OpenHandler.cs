@@ -12,25 +12,31 @@ namespace Nucleus.Coop.Tools
         public static void OpenRawHandler(UserGameInfo currentGameInfo)
         {
             GameManager gameManager = GameManager.Instance;
-            string jsPath = Path.Combine(gameManager.GetJsScriptsPath(), currentGameInfo.Game.JsFileName);
 
-            if (File.Exists(jsPath))
+            if (File.Exists(currentGameInfo.FileFullPath))
             {
                 try
                 {
                     if (App_Misc.TextEditorPath != "Default")
                     {
-                        Process.Start(App_Misc.TextEditorPath, "\"" + jsPath + "\"");
+                        ProcessStartInfo editor = new ProcessStartInfo
+                        {
+                            FileName = App_Misc.TextEditorPath,
+                            Arguments = $"\"{currentGameInfo.FileFullPath}\"",
+                            UseShellExecute = true
+                        };
+
+                        Process.Start(editor);
                     }
                     else
                     {
-                        Process.Start("notepad++.exe", "\"" + jsPath + "\"");
+                        Process.Start("notepad++.exe",  currentGameInfo.FileFullPath );
                     }
 
                 }
                 catch (Exception)
                 {
-                    Process.Start("notepad.exe", jsPath);
+                    Process.Start("notepad.exe", currentGameInfo.FileFullPath);
                 }
             }
         }

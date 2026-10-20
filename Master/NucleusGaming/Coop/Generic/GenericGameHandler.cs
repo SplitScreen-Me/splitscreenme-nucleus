@@ -33,6 +33,7 @@ using Nucleus.Gaming.Tools.Steam;
 using Nucleus.Gaming.Tools.WindowFakeFocus;
 using Nucleus.Gaming.Tools.X360ce;
 using Nucleus.Gaming.Tools.XInputPlusDll;
+using Nucleus.Gaming.UI;
 using Nucleus.Gaming.Util;
 using Nucleus.Gaming.Windows;
 using Nucleus.Gaming.Windows.Interop;
@@ -56,7 +57,12 @@ namespace Nucleus.Gaming
 {
     public class GenericGameHandler : IGameHandler, ILogNode
     {
-        public  static bool IsRunning = false;
+        public static bool IsRunning
+        {
+            get;
+            private set;
+        }
+
         public List<WPFDiv> splitForms = new List<WPFDiv>();
         public List<ShortcutsReminder> shortcutsReminders = new List<ShortcutsReminder>();
         public List<Form> AllRuntimeForms = new List<Form>();
@@ -74,7 +80,6 @@ namespace Nucleus.Gaming
         public string[] folderUsers;
 
         private int prevProcId = 0;
-        public int plyrIndex = 0;
         public int kbi = 1;
         public int origWidth = 0;
         public int origHeight = 0;
@@ -114,6 +119,7 @@ namespace Nucleus.Gaming
         public Thread FakeFocus => WindowFakeFocus.fakeFocus;
 
         public event Action Ended;
+        public event Action InitializeEnd;
 
         private static GenericGameHandler instance;
         public static GenericGameHandler Instance => instance;
@@ -137,15 +143,22 @@ namespace Nucleus.Gaming
         private bool useDocs;
         private bool symlinkNeeded;
         private bool isPrevent;
-        private bool hasKeyboardPlayer = false;
-        public bool hasEnded;
-        public virtual bool HasEnded => hasEnded;
+        private bool hasKeyboardPlayer = false;      
         public bool gameIs64 { get; set; }
         public bool UsingNucleusAccounts;
         public bool isDebug;
         public bool dllResize = false;
         public bool dllRepos = false;
         public string error;
+        private bool hasEnded;
+        public bool HasEnded
+        {
+            get => hasEnded;
+            set
+            {
+                hasEnded = value;
+            }
+        }
 
         public bool Initialize(UserGameInfo game, GameProfile profile, IGameHandler handler)
         {
@@ -159,7 +172,7 @@ namespace Nucleus.Gaming
 
             List<PlayerInfo> players = profile.DevicesList;
 
-            gen = game.Game;
+            gen = game.HandlerInfo.GenericGameInfo;
             // see if we have any save game to backup
             if (gen == null)
             {
@@ -198,10 +211,10 @@ namespace Nucleus.Gaming
             };
 
             timerInterval = gen.HandlerInterval;
-
+       
             LogManager.RegisterForLogCallback(this);
 
-            JsFilename = gen.JsFileName;
+            JsFilename = gen.FileName;
             HandlerGUID = gen.GUID;
 
             UsingNucleusAccounts = gen.LaunchAsDifferentUsers || gen.LaunchAsDifferentUsersAlt;
@@ -262,6 +275,8 @@ namespace Nucleus.Gaming
 
         public string Play()
         {
+            IsRunning = true;
+
             if (!App_Misc.IgnoreInputLockReminder)
             {
                 MessageBox.Show("Some handlers will require you to press the End key to lock input. Remember to unlock input by pressing End again when you finish playing. You can disable this message in the Settings. ", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly, false);
@@ -309,7 +324,7 @@ namespace Nucleus.Gaming
                 }
 
                 MachineSpecs.GetPCspecs();
-                Log(string.Format("-Game: {0}, Arch: {1}, Executable: {2}, Launcher: {3}, SteamID: {4}, Handler: {5}, Content Folder: {6}", gen.GameName, garch, gen.ExecutableName, gen.LauncherExe, gen.SteamID, gen.JsFileName, gen.GUID));
+                Log(string.Format("-Game: {0}, Arch: {1}, Executable: {2}, Launcher: {3}, SteamID: {4}, Handler: {5}, Content Folder: {6}", gen.GameName, garch, gen.ExecutableName, gen.LauncherExe, gen.SteamID, gen.FileName, gen.GUID));
                 Log(string.Format("-Number of players: {0}", profile.DevicesList.Count) + "\n");
                 Log("--------------------- START ---------------------");
             }
@@ -418,7 +433,7 @@ namespace Nucleus.Gaming
                 Log("########## START OF HANDLER ##########" + "\n");
                 string line;
 
-                StreamReader file = new StreamReader(Path.Combine(GameManager.Instance.GetJsScriptsPath(), gen.JsFileName));
+                StreamReader file = new StreamReader(Path.Combine(GameManager.Instance.GetJsScriptsPath(), gen.FileName));
                 while ((line = file.ReadLine()) != null)
                 {
                     Log(line);
@@ -441,14 +456,12 @@ namespace Nucleus.Gaming
                     return string.Empty;
                 }
 
-                IsRunning = true;
                 Log($"********** Setting up player {i + 1} **********" + "\n");
 
                 PlayerInfo player = players[i];
 
                 player.PlayerID = i;
 
-                plyrIndex = i;
 
                 if (!GameProfile.UseNicknames)
                 {
@@ -745,11 +758,11 @@ namespace Nucleus.Gaming
                         linkBinFolder = Path.Combine(linkFolder, gen.BinariesFolder);
                     }
 
-                    exePath = Path.Combine(linkBinFolder, userGame.Game.ExecutableName);
+                    exePath = Path.Combine(linkBinFolder, userGame.HandlerInfo.GenericGameInfo.ExecutableName);
 
                     SetExeDpiAwareness(exePath);
 
-                    origExePath = Path.Combine(linkBinFolder, userGame.Game.ExecutableName);
+                    origExePath = Path.Combine(linkBinFolder, userGame.HandlerInfo.GenericGameInfo.ExecutableName);
 
                     if ((i == 0 && (gen.SymlinkGame || gen.HardlinkGame)) || gen.HardcopyGame)
                     {
@@ -801,10 +814,10 @@ namespace Nucleus.Gaming
                         if (ofdPath != null && !string.IsNullOrEmpty(ofdPath))
                         {
                             Log("User selected " + ofdPath + " as the launcher exe, updating handler file");
-                            string text = File.ReadAllText(Path.Combine(GameManager.Instance.GetJsScriptsPath(), gen.JsFileName));
+                            string text = File.ReadAllText(Path.Combine(GameManager.Instance.GetJsScriptsPath(), gen.FileName));
                             //text = text.Replace("Game.LauncherExe = \"NucleusDefined\"", "Game.LauncherExe = \"" + ofdPath + "\"");
                             text = Regex.Replace(text, @"Game.LauncherExe = (.*)", $"Game.LauncherExe = \"{ofdPath}\";");
-                            File.WriteAllText(Path.Combine(GameManager.Instance.GetJsScriptsPath(), gen.JsFileName), text);
+                            File.WriteAllText(Path.Combine(GameManager.Instance.GetJsScriptsPath(), gen.FileName), text);
 
                             Thread.Sleep(3000);
                         }
@@ -942,7 +955,7 @@ namespace Nucleus.Gaming
                     string[] fileCopiesArr = fileCopies.ToArray();
 
                     bool skipped = false;
-                    bool keepSymlink = gen.KeepSymLinkOnExit || userGame.Game.MetaInfo.KeepSymLink;
+                    bool keepSymlink = gen.KeepSymLinkOnExit || userGame.HandlerInfo.GenericGameInfo.MetaInfo.KeepSymLink;
 
                     if (gen.ForceSymlink || !keepSymlink || symlinkNeeded)
                     {
@@ -1491,9 +1504,10 @@ namespace Nucleus.Gaming
 
                 if (gen.XInputPlusDll?.Length > 0 && !gen.ProcessChangesAtEnd)
                 {
-                    XInputPlusDll.SetupXInputPlusDll(player, i, setupDll);
+                    bool isTranslatedKBM = gen.ProtoInput.TranslateMKBtoXinput && (player.IsRawMouse || player.IsRawKeyboard);
+                    XInputPlusDll.SetupXInputPlusDll(player, i, setupDll, isTranslatedKBM); //last bool is block Xinput. used to block real Xinput if translating
                 }
-
+                
                 if (gen.UseDevReorder && !gen.ProcessChangesAtEnd)
                 {
                     DevReorder.UseDevReorder(player, i, setupDll);
@@ -1514,9 +1528,9 @@ namespace Nucleus.Gaming
                     DirectX9Wrapper.UseDirectX9Wrapper(setupDll);
                 }
 
-                if(gen.Hook.SDL2Enabled)
+                if(gen.Hook.SDL2Enabled || gen.Hook.SDL3Enabled)
                 {
-                    SDL2Dll.SetupSDL2Dll(player, i, setupDll);
+                    SDL2Dll.SetupSDLDll(player, i, setupDll);
                 }
 
                 if (gen.CopyCustomUtils?.Length > 0)
@@ -1606,7 +1620,7 @@ namespace Nucleus.Gaming
                 }
                 else
                 {
-                    Globals.MainOSD.Show(1200, $"Starting {gen.GameName} instance for {player.Nickname} as Player #{player.PlayerID + 1}");
+                    Globals.MainOSD.Show(1200, $"Starting *@{OSDHighlightColors.Regular}|{gen.GameName}@* instance for *@{OSDHighlightColors.Regular}|{player.Nickname} as Player #{player.PlayerID + 1}@*");
                 }
 
                 if (context.NeedsSteamEmulation)
@@ -1730,13 +1744,15 @@ namespace Nucleus.Gaming
                                     cmd.StartInfo.EnvironmentVariables["LOCALAPPDATA"] = Globals.UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\AppData\Local";
                                     cmd.StartInfo.EnvironmentVariables["USERPROFILE"] = Globals.UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}";
                                     cmd.StartInfo.EnvironmentVariables["HOMEPATH"] = Environment.GetEnvironmentVariable("homepath") + $@"\NucleusCoop\{player.Nickname}";
-
+                                    cmd.StartInfo.EnvironmentVariables["TEMP"] = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Local\Temp";
+                                    cmd.StartInfo.EnvironmentVariables["TMP"] = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Local\Temp";
+                                    
                                     Directory.CreateDirectory(Globals.UserEnvironmentRoot + $@"\NucleusCoop");
                                     Directory.CreateDirectory(Globals.UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}");
                                     Directory.CreateDirectory(Globals.UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\Documents");
                                     Directory.CreateDirectory(Globals.UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\AppData\Roaming");
                                     Directory.CreateDirectory(Globals.UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\AppData\Local");
-
+                                    Directory.CreateDirectory(Globals.UserEnvironmentRoot + $@"\NucleusCoop\{player.Nickname}\AppData\Local\Temp");
                                     Directory.CreateDirectory(Path.GetDirectoryName(Globals.UserDocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents");
 
                                     if (gen.DocumentsConfigPath?.Length > 0 || gen.DocumentsSavePath?.Length > 0)
@@ -1761,11 +1777,14 @@ namespace Nucleus.Gaming
                                     cmd.StartInfo.EnvironmentVariables["LOCALAPPDATA"] = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                                     cmd.StartInfo.EnvironmentVariables["USERPROFILE"] = Globals.UserEnvironmentRoot;
                                     cmd.StartInfo.EnvironmentVariables["HOMEPATH"] = Environment.GetEnvironmentVariable("homepath");
+                                    cmd.StartInfo.EnvironmentVariables["TEMP"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp");
+                                    cmd.StartInfo.EnvironmentVariables["TMP"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp");
 
                                     Directory.CreateDirectory(Globals.UserEnvironmentRoot);
                                     Directory.CreateDirectory(Globals.UserDocumentsRoot);
                                     Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
                                     Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
+                                    Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp"));
                                 }
 
                                 Log(string.Format("Launching game as user: nucleusplayer{0}, using command: {1}", (i + 1), cmdLine));
@@ -1794,11 +1813,14 @@ namespace Nucleus.Gaming
                                     envVars["LOCALAPPDATA"] = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData); //$@"C:\Users\{username}\AppData\Local";
                                     envVars["USERPROFILE"] = Globals.UserEnvironmentRoot; //$@"C:\Users\{username}\";
                                     envVars["HOMEPATH"] = Environment.GetEnvironmentVariable("homepath"); //$@"\Users\{username}\";
-
+                                    envVars["TEMP"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp");
+                                    envVars["TMP"] = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp");
+                                    
                                     Directory.CreateDirectory(Globals.UserEnvironmentRoot); //$@"C:\Users\{username}");
                                     Directory.CreateDirectory(Globals.UserDocumentsRoot);//$@"C:\Users\{username}\Documents");
                                     Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));//$@"C:\Users\{username}\AppData\Roaming");
                                     Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));//$@"C:\Users\{username}\AppData\Local");
+                                    Directory.CreateDirectory(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Temp"));
 
                                     foreach (object envVarKey in envVars.Keys)
                                     {
@@ -1847,7 +1869,6 @@ namespace Nucleus.Gaming
                             {
                                 string scriptPath = Path.GetTempFileName().Replace(".tmp", ".cmd");
                                 StringBuilder scriptContent = new StringBuilder();
-                                string test = Globals.UserEnvironmentRoot.Replace("koumi", "Mickàél");
 
                                 string[] cmdOps = gen.CMDOptions;
 
@@ -1874,11 +1895,14 @@ namespace Nucleus.Gaming
                                         scriptContent.AppendLine($"set LOCALAPPDATA={Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}\\AppData\\Local");
                                         scriptContent.AppendLine($"set USERPROFILE={Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}");
                                         scriptContent.AppendLine($"set HOMEPATH=\\Users\\{username}\\NucleusCoop\\{player.Nickname}");
+                                        scriptContent.AppendLine($"set TEMP={Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}\\AppData\\Local\\Temp");
+                                        scriptContent.AppendLine($"set TMP={Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}\\AppData\\Local\\Temp");
 
                                         Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop");
                                         Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}");
                                         Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Roaming");
                                         Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Local");
+                                        Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Local\Temp");
                                         Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\Documents");
                                         Directory.CreateDirectory(Path.GetDirectoryName(Globals.UserDocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents");
 
@@ -1988,6 +2012,8 @@ namespace Nucleus.Gaming
 
                                         scriptContent.AppendLine($"set APPDATA={Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}\\AppData\\Roaming");
                                         scriptContent.AppendLine($"set LOCALAPPDATA={Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}\\AppData\\Local");
+                                        scriptContent.AppendLine($"set TEMP={Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}\\AppData\\Local\\Temp");
+                                        scriptContent.AppendLine($"set TMP={Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}\\AppData\\Local\\Temp");
                                         scriptContent.AppendLine($"set USERPROFILE={Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}");
                                         scriptContent.AppendLine($"set HOMEPATH=\\Users\\{Globals.UserEnvironmentRoot}\\NucleusCoop\\{player.Nickname}");
 
@@ -1995,6 +2021,7 @@ namespace Nucleus.Gaming
                                         Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop");
                                         Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Roaming");
                                         Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Local");
+                                        Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Local\Temp");
                                         Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}");
                                         Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\Documents");
                                         Directory.CreateDirectory(Path.GetDirectoryName(Globals.UserDocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents");
@@ -2388,7 +2415,7 @@ namespace Nucleus.Gaming
                             string proceName = Path.GetFileNameWithoutExtension(gen.ExecutableName).ToLower();
                             if (gen.ChangeExe)
                             {
-                                proceName = Path.GetFileNameWithoutExtension(userGame.Game.ExecutableName) + " - Player " + (i + 1) + ".exe";
+                                proceName = Path.GetFileNameWithoutExtension(userGame.HandlerInfo.GenericGameInfo.ExecutableName) + " - Player " + (i + 1) + ".exe";
                             }
 
                             Process[] procs = Process.GetProcesses();
@@ -2484,7 +2511,13 @@ namespace Nucleus.Gaming
                         }
                     }
                 }
-              
+
+                if (proc == null) 
+                {
+                    Log("ERROR - could not obtain game process"); End(false); 
+                    return "Could not find the game process"; 
+                }
+
                 Log(string.Format("Process details; Name: {0}, ID: {1}, MainWindowtitle: {2}, NucleusGetMainWindowHandle(): {3}", proc.ProcessName, proc.Id, proc.MainWindowTitle, proc.NucleusGetMainWindowHandle()));
 
                 if (gen.WriteToProcessMemory?.Length > 0)
@@ -3005,7 +3038,7 @@ namespace Nucleus.Gaming
 
                 LockInputRuntime.Lock(gen.LockInputSuspendsExplorer, gen.ProtoInput.FreezeExternalInputWhenInputNotLocked, gen?.ProtoInput);
 
-                Globals.MainOSD.Show(1600, "Inputs Locked");
+                Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Info}|Inputs Locked@*");
             }
 
             // Call the input lock/unlock callbacks, just in case they haven't been called with the players fully setup
@@ -3042,10 +3075,10 @@ namespace Nucleus.Gaming
                 GameProfile.SaveGameProfile(profile);         
             }
 
+            WindowsMerger.Instance?.InsertGameWindows();
+
             gen.OnFinishedSetup?.Invoke();
 
-            WindowsMerger.Instance?.InsertGameWindows();
-          
             Log("All done!");
 
             return string.Empty;
@@ -3081,7 +3114,8 @@ namespace Nucleus.Gaming
 
                 if (gen.XInputPlusDll?.Length > 0)
                 {
-                    XInputPlusDll.SetupXInputPlusDll(player, i, setupDll);
+                    bool isTranslatedKBM = gen.ProtoInput.TranslateMKBtoXinput && (player.IsRawMouse || player.IsRawKeyboard);
+                    XInputPlusDll.SetupXInputPlusDll(player, i, setupDll, isTranslatedKBM); //last bool is block Xinput. used to block real Xinput if translating
                 }
 
                 if (gen.UseDevReorder)
@@ -3094,9 +3128,9 @@ namespace Nucleus.Gaming
                     X360ce.UseX360ce(i, player, setupDll);
                 }
 
-                if (gen.Hook.SDL2Enabled)
+                if (gen.Hook.SDL2Enabled || gen.Hook.SDL3Enabled)
                 {
-                    SDL2Dll.SetupSDL2Dll(player, i, setupDll);
+                    SDL2Dll.SetupSDLDll(player, i, setupDll);
                 }
 
                 if (gen.PromptBetweenInstancesEnd)
@@ -3291,9 +3325,9 @@ namespace Nucleus.Gaming
                 GameProfile.SaveGameProfile(profile);
             }
 
-            gen.OnFinishedSetup?.Invoke();
+            WindowsMerger.Instance?.InsertGameWindows();
 
-            WindowsMerger.Instance?.InsertGameWindows();   
+            gen.OnFinishedSetup?.Invoke();          
         }
 
         struct UpdateTickThread
@@ -3352,6 +3386,7 @@ namespace Nucleus.Gaming
             if (!processingExit)
             {
                 processingExit = true;
+                InitializeEnd?.Invoke();
             }
             else
             {
@@ -3367,13 +3402,12 @@ namespace Nucleus.Gaming
             }
 
             gen.MetaInfo.StopGameplayTimerThread();
+
             GamepadNavigation.StartUINavigation();
 
             GlobalWindowMethods.ResetBools();
-           
-            WindowsMerger.Instance?.Dispose();
-           
-            if (splitForms.Count > 0)
+                 
+            if (splitForms?.Count > 0)
             {
                 foreach (WPFDiv backgroundForm in splitForms)
                 {
@@ -3391,7 +3425,7 @@ namespace Nucleus.Gaming
                 splitForms.Clear();
             }
 
-            if (shortcutsReminders.Count > 0)
+            if (shortcutsReminders?.Count > 0)
             {
                 foreach (ShortcutsReminder shortcutsReminder in shortcutsReminders)
                 {
@@ -3409,7 +3443,7 @@ namespace Nucleus.Gaming
                 shortcutsReminders.Clear();
             }
 
-            if (AllRuntimeForms.Count > 0)
+            if (AllRuntimeForms?.Count > 0)
             {
                 foreach (Form runtimeForm in AllRuntimeForms)
                 {
@@ -3434,6 +3468,8 @@ namespace Nucleus.Gaming
             ProcessUtil.KillRemainingProcess();
 
             Thread.Sleep(1000);
+
+            WindowsMerger.Instance?.Dispose();
 
             if (gen.CMDBatchClose?.Length > 0)
             {
@@ -3556,7 +3592,7 @@ namespace Nucleus.Gaming
                 }
             }
 
-            GameManager.Instance.ExecuteBackup(userGame.Game);
+            GameManager.Instance.ExecuteBackup(userGame.HandlerInfo.GenericGameInfo);
 
             LogManager.UnregisterForLogCallback(this);
 

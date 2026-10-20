@@ -1,6 +1,7 @@
 ﻿using Nucleus.Coop.Forms;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Tools.GlobalWindowMethods;
+using Nucleus.Gaming.UI;
 using Nucleus.Gaming.Windows;
 using SharpDX.XInput;
 using System;
@@ -50,7 +51,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                     Thread.Sleep(5000);
                 }
 
-                while (GenericGameHandler.Instance.hasEnded)
+                while (GenericGameHandler.Instance.HasEnded)
                 {
                     Thread.Sleep(5000);
                 }
@@ -110,7 +111,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                             }
                             else
                             {
-                                Globals.MainOSD.Show(1600, $"Unlock Inputs First");
+                                Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Info}|Unlock Inputs First@*");
                             }
                         }
                         else if (button == Close || rt == Close || lt == Close)///Close nucleus
@@ -121,10 +122,10 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                         {
                             if (!LockInputRuntime.IsLocked)
                             {
-                                Globals.MainOSD.Show(1000, "Inputs Locked");
+                                Globals.MainOSD.Show(1000, $"*@{OSDHighlightColors.Info}|Inputs Locked@*");
 
-                                LockInputRuntime.Lock(GenericGameHandler.Instance.CurrentGameInfo?.LockInputSuspendsExplorer ?? true, GenericGameHandler.Instance.CurrentGameInfo?.ProtoInput.FreezeExternalInputWhenInputNotLocked ?? true, GameProfile.Game?.ProtoInput);
-
+                                LockInputRuntime.Lock(GenericGameHandler.Instance.CurrentGameInfo.LockInputSuspendsExplorer, GenericGameHandler.Instance.CurrentGameInfo.ProtoInput.FreezeExternalInputWhenInputNotLocked, GenericGameHandler.Instance.CurrentGameInfo?.ProtoInput);
+       
                                 if (GenericGameHandler.Instance.CurrentGameInfo.ToggleUnfocusOnInputsLock)
                                 {
                                     GlobalWindowMethods.ChangeForegroundWindow();
@@ -135,7 +136,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                             else
                             {
                                 LockInputRuntime.Unlock(GenericGameHandler.Instance.CurrentGameInfo?.ProtoInput.FreezeExternalInputWhenInputNotLocked ?? true, GenericGameHandler.Instance.CurrentGameInfo?.ProtoInput);
-                                Globals.MainOSD.Show(1000, "Inputs Unlocked");
+                                Globals.MainOSD.Show(1000, $"*@{OSDHighlightColors.Confirm}|Inputs Unlocked@*");
                             }
                         }
                         else if (button == ReleaseCursor || rt == ReleaseCursor || lt == ReleaseCursor)///Try to release the cursor from game window by alt+tab inputs
@@ -186,21 +187,13 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
         public static void UpdateShortcutsValue()
         {
             SetFocus = App_GamePadShortcuts.SetFocus[0] + App_GamePadShortcuts.SetFocus[1];
-
             Close = App_GamePadShortcuts.Close[0] + App_GamePadShortcuts.Close[1];
-
             StopSession = App_GamePadShortcuts.StopSession[0] + App_GamePadShortcuts.StopSession[1];
-
             TopMost = App_GamePadShortcuts.TopMost[0] + App_GamePadShortcuts.TopMost[1];
-
             ResetWindows = App_GamePadShortcuts.ResetWindows[0] + App_GamePadShortcuts.ResetWindows[1];
-
             Cutscenes = App_GamePadShortcuts.CutscenesMode[0] + App_GamePadShortcuts.CutscenesMode[1];
-
             SwitchLayout = App_GamePadShortcuts.SwitchLayout[0] + App_GamePadShortcuts.SwitchLayout[1];
-
             LockInputs = App_GamePadShortcuts.LockInputs[0] + App_GamePadShortcuts.LockInputs[1];
-
             ReleaseCursor = App_GamePadShortcuts.TopMost[0] + App_GamePadShortcuts.TopMost[1];
         }
     }

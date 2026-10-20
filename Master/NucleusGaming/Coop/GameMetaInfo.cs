@@ -12,6 +12,7 @@ using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Coop
 {
+    //need a lock or saveasync whaterver make it thread safe and avoid spamming
     public class GameMetaInfo
     {
         private readonly string nucleusEnvironment = $@"{Globals.UserEnvironmentRoot}\NucleusCoop";
@@ -20,8 +21,6 @@ namespace Nucleus.Gaming.Coop
 #else
  private readonly string metaInfoJson = "metaInfo.json";
 #endif
-
-
         private ulong intervale = 20000;//milliseconds
         private bool stopped;
 

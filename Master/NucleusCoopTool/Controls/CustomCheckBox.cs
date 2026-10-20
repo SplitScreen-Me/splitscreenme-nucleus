@@ -1,4 +1,6 @@
 ﻿using Nucleus.Gaming;
+using Nucleus.Gaming.Controls.SetupScreen;
+using Nucleus.Gaming.UI;
 using Nucleus.Gaming.Windows;
 using System;
 using System.ComponentModel;
@@ -10,6 +12,8 @@ namespace Nucleus.Coop.Controls
 {
     public class CustomCheckBox : CheckBox
     {
+        private RectangleF tic; 
+
         private Color mBorderColor = Color.White;
         [EditorBrowsable(EditorBrowsableState.Always), Browsable(true)]
         [Category("Appearance"), Description("Border Color")]
@@ -78,6 +82,18 @@ namespace Nucleus.Coop.Controls
             Invalidate();
         }
 
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if (tic == null || tic == RectangleF.Empty)
+            {
+                return;
+            }
+
+            Cursor = tic.Contains(e.Location) ? Cursor = Theme_Settings.Hand_Cursor : Theme_Settings.Default_Cursor;
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -88,7 +104,7 @@ namespace Nucleus.Coop.Controls
             float locY = (((float)Height / 2) - (size.Height * _scale) / 2);
 
             float ratio = Height / (size.Height * _scale);
-            RectangleF tic = new RectangleF(0, locY - ratio, size.Height * _scale, size.Height * _scale);
+            tic = new RectangleF(0, locY - ratio, size.Height * _scale, size.Height * _scale);
 
             Pen outline = new Pen(BorderColor);
             e.Graphics.FillRectangle(brush, tic);

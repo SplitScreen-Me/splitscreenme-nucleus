@@ -40,6 +40,8 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
         private static ImageAttributes flashImageAttributes;
         private static ImageAttributes ExtraGamepadflashImage;
+        private static ImageAttributes Can_AddDeviceImageAttributes;
+        private static ImageAttributes Cant_AddDeviceImageAttributes;
 
         private static Font playerTextFont;
         public static Font PlayerCustomFont;
@@ -73,9 +75,10 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             clickCursor = ImageCache.GetImage(theme + "click.png");
             screenimg = ImageCache.GetImage(theme + "screen.png");
-
+            
             ///Flash image attributes
             {
+                //Yellow tint
                 ColorMatrix colorMatrix = new ColorMatrix(new[]
                 {
                     new float[] {1, 0, 0, 0, 0},
@@ -90,6 +93,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             }
 
             {
+                //Yellow tint
                 ColorMatrix colorMatrix = new ColorMatrix(new[]
                 {
                     new float[] {0.7f, 0, 0, 0, 0},
@@ -101,6 +105,37 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                 ExtraGamepadflashImage = new ImageAttributes();
                 ExtraGamepadflashImage.SetColorMatrix(colorMatrix);
+            }
+
+            {
+                //Green
+                ColorMatrix colorMatrix = new ColorMatrix(new[]
+                {
+                  new float[] {0.9f, 0f,   0f,   0f, 0f},
+                  new float[] {0f,   1.2f, 0f,   0f, 0f},
+                  new float[] {0f,   0f,   0.9f, 0f, 0f},
+                  new float[] {0f,   0f,   0f,   1f, 0f},
+                  new float[] {0f, 0.25f, 0f, 0f, 1f}
+                });
+
+                Can_AddDeviceImageAttributes = new ImageAttributes();
+                Can_AddDeviceImageAttributes.SetColorMatrix(colorMatrix);
+            }
+
+            
+            {
+                //Red
+                ColorMatrix colorMatrix = new ColorMatrix(new[]
+                {
+                  new float[] {1.4f, 0f,   0f,   0f, 0f},
+                  new float[] {0f,   0.6f, 0f,   0f, 0f},
+                  new float[] {0f,   0f,   0.6f, 0f, 0f},
+                  new float[] {0f,   0f,   0f,   1f, 0f},
+                  new float[] {0.55f, 0f, 0f, 0f, 1f}
+                });
+
+                Cant_AddDeviceImageAttributes = new ImageAttributes();
+                Cant_AddDeviceImageAttributes.SetColorMatrix(colorMatrix);
             }
         }
 
@@ -137,8 +172,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         foreach(KeyValuePair<RectangleF, RectangleF> sub in boundsToDraw)
                         {
                             g.DrawRectangles(positionScreenPen, new RectangleF[] { sub.Value });
-                        }
-                           
+                        }                  
                     }
                 }
 
@@ -176,7 +210,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     }
 
                     //show a swap type screen tip on each UI screen if its a new game
-                    if (parent.UserGameInfo.Game.MetaInfo.FirstLaunch &&
+                    if (parent.UserGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.FirstLaunch &&
                         s.Type == UserScreenType.FullScreen &&
                         interstcWithSwapTypeBound.Length == 0 &&
                         BoundsFunctions.ShowSwapTypeTip)
@@ -187,9 +221,96 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             }
         }
 
+        public static void DraggedPlayer(Graphics g)
+        {
+            //Don't draw if this gamepad is an instance guest
+            if (GameProfile.Instance.DevicesList.Any(pl => pl.InstanceGuests.Contains(BoundsFunctions.DraggedPlayer)))
+            {
+                return;
+            }
+
+            PlayerInfo player = BoundsFunctions.DraggedPlayer;
+
+            RectangleF s = player.EditBounds;
+
+            //g.Clip = new Region(new RectangleF(s.X, s.Y, s.Width + 2, s.Height + 1));
+
+            Rectangle gamepadRect = RectangleUtil.ScaleAndCenter(player.Image.Size, new Rectangle((int)s.X, (int)s.Y, (int)s.Width, (int)s.Height));
+
+            float height = player.EditBounds.Height / 2.8f > 0 ? (player.EditBounds.Height / 2.8f) : 1;
+
+            Font fontToScale = new Font(PlayerCustomFont.FontFamily, height, FontStyle.Regular, GraphicsUnit.Pixel);
+
+            RectangleF dib = player.DeviceImageBounds;
+
+            if (player.ScreenIndex != -1 && player.MonitorBounds != Rectangle.Empty)
+            {
+                g.DrawRectangle(positionPlayerScreenPen, new Rectangle((int)s.X + 1, (int)s.Y + 1, (int)s.Width, (int)s.Height));
+            }
+
+            if (BoundsFunctions.Screens.All(scr => !scr.UIBounds.IntersectsWith(player.EditBounds)))
+            {
+                g.DrawImage(player.Image, gamepadRect);
+            }
+            else if(BoundsFunctions.CanAddGuest)
+            {
+                g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, Can_AddDeviceImageAttributes);
+            }
+            else if(BoundsFunctions.CanAddPlayer)
+            {
+                g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, Can_AddDeviceImageAttributes);
+            }
+            else if (!BoundsFunctions.CanAddPlayer && !BoundsFunctions.CanAddGuest)                                                                                                                                                                                     //BoundsFunctions.DraggingScreen != -1 && BoundsFunctions.DraggedPlayer == player && !BoundsFunctions.CanAddPLayer && !BoundsFunctions.canAddGuest)
+            {
+                g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, Cant_AddDeviceImageAttributes);
+            }
+
+            string str = (player.GamepadId + 1).ToString();
+            SizeF size = g.MeasureString(str, fontToScale);
+            PointF loc = RectangleUtil.Center(size, gamepadRect);
+
+            switch (player.InputType)
+            {
+                case InputType.XInput:
+                    {      
+                        if (controllerIdentification && player.IsInputUsed)
+                        {
+                            loc.Y -= gamepadRect.Height * 0.10f;
+                            g.DrawString(str, fontToScale, Brushes.White, loc);
+                        }
+
+                        break;
+                    }
+                case InputType.SDL2:
+                case InputType.SDL3:
+                    {
+                        if (controllerIdentification && player.IsInputUsed)
+                        {
+                            loc.Y -= gamepadRect.Height * 0.10f;
+                            g.DrawString(str, fontToScale, Brushes.White, loc);
+                        }
+
+                        break;
+                    }
+                case InputType.DInput:
+                    {
+                        if (controllerIdentification && player.IsInputUsed)
+                        {       
+                            loc.Y -= gamepadRect.Height * 0.12f;
+                            g.DrawString(str, fontToScale, Brushes.White, loc);
+                        }
+
+                        break;
+                    }
+            }
+
+            //g.Clip.Dispose();
+            fontToScale.Dispose();
+        }
+
         public static void UIDevices(Graphics g, PlayerInfo player)
-        {           
-            //Don't draw this player, will draw with its guests instead
+        {
+            //Don't draw if this gamepad is an instance guest
             if (GameProfile.Instance.DevicesList.Any(pl => pl.InstanceGuests.Contains(player)))
             {
                 return;
@@ -202,7 +323,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             RectangleF s = player.EditBounds;
 
-            g.Clip = new Region(new RectangleF(s.X, s.Y, s.Width + 2, s.Height + 1));
+            //g.Clip = new Region(new RectangleF(s.X, s.Y, s.Width + 2, s.Height + 1));
 
             Rectangle gamepadRect = RectangleUtil.ScaleAndCenter(player.Image.Size, new Rectangle((int)s.X, (int)s.Y, (int)s.Width, (int)s.Height));
 
@@ -215,16 +336,14 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 g.DrawRectangle(positionPlayerScreenPen, new Rectangle((int)s.X + 1, (int)s.Y + 1, (int)s.Width, (int)s.Height));
             }
 
+            string str = (player.GamepadId + 1).ToString();
+            SizeF size = g.MeasureString(str, fontToScale);
+            PointF loc = RectangleUtil.Center(size, gamepadRect);
+
             switch (player.InputType)
             {
                 case InputType.XInput:
                     {
-                        string str = (player.GamepadId + 1).ToString();
-
-                        SizeF size = g.MeasureString(str, fontToScale);
-                        PointF loc = RectangleUtil.Center(size, s);
-                        loc.Y -= gamepadRect.Height * 0.10f;
-
                         if (player.ShouldFlash)
                         {
                             g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, flashImageAttributes);
@@ -236,26 +355,23 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         }
 
                         if (controllerIdentification && player.IsInputUsed)
-                        {
+                        {                   
+                            loc.Y -= gamepadRect.Height * 0.10f;
                             g.DrawString(str, fontToScale, Brushes.White, loc);
                         }
 
                         #region instance guests drawing
-                        if (userGameInfo.Game.PlayersPerInstance > 0 && player.ScreenIndex != -1)
+                        if (userGameInfo.HandlerInfo.GenericGameInfo.PlayersPerInstance > 0 && player.ScreenIndex != -1)
                         {
-                            DrawGuests(g, player, fontToScale);
+                            DrawGuests(g, player, fontToScale); 
                         }
                         #endregion
                         break;
                     }
                 case InputType.SDL2:
+                case InputType.SDL3:
+
                     {
-                        string str = (player.GamepadId + 1).ToString();
-
-                        SizeF size = g.MeasureString(str, fontToScale);
-                        PointF loc = RectangleUtil.Center(size, s);
-                        loc.Y -= gamepadRect.Height * 0.10f;
-
                         if (player.ShouldFlash)
                         {
                             g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, flashImageAttributes);
@@ -268,11 +384,12 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                         if (controllerIdentification && player.IsInputUsed)
                         {
+                            loc.Y -= gamepadRect.Height * 0.10f;
                             g.DrawString(str, fontToScale, Brushes.White, loc);
                         }
 
                         #region instance guests drawing
-                        if (userGameInfo.Game.PlayersPerInstance > 0 && player.ScreenIndex != -1)
+                        if (userGameInfo.HandlerInfo.GenericGameInfo.PlayersPerInstance > 0 && player.ScreenIndex != -1)
                         {
                             DrawGuests(g, player, fontToScale);
                         }
@@ -280,12 +397,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         break;
                     }
                 case InputType.DInput:
-                    {
-                        string str = (player.GamepadId + 1).ToString();
-                        SizeF size = g.MeasureString(str, fontToScale);
-                        PointF loc = RectangleUtil.Center(size, gamepadRect);
-                        loc.Y -= gamepadRect.Height * 0.12f;
-
+                    {                       
                         if (player.ShouldFlash)
                         {
                             g.DrawImage(player.Image, gamepadRect, 0, 0, player.Image.Width, player.Image.Height, GraphicsUnit.Pixel, flashImageAttributes);
@@ -295,9 +407,10 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             if (player.IsInputUsed)
                                 g.DrawImage(player.Image, gamepadRect);
                         }
-                       
+
                         if (controllerIdentification && player.IsInputUsed)
                         {
+                            loc.Y -= gamepadRect.Height * 0.12f;
                             g.DrawString(str, fontToScale, Brushes.White, loc);
                         }
 
@@ -350,14 +463,14 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                 try
                                 {
                                     Font virtualfontToScale = new Font("Franklin Gothic", 12.75F, FontStyle.Regular, GraphicsUnit.Pixel);
-                                    string str = "virtual";
+                                    str = "virtual";
 
-                                    SizeF size = g.MeasureString(str, virtualfontToScale);
-                                    Rectangle loc = RectangleUtil.Center(new Rectangle(0,0,(int)size.Width + 5,(int)size.Height + 5), new Rectangle((int)s.X, (int)s.Y, (int)s.Width, (int)s.Height));
-                                    loc.Y = (int)(gamepadRect.Top + 2);
+                                    size = g.MeasureString(str, virtualfontToScale);
+                                    Rectangle vLoc = RectangleUtil.Center(new Rectangle(0, 0, (int)size.Width + 5, (int)size.Height + 5), new Rectangle((int)s.X, (int)s.Y, (int)s.Width, (int)s.Height));
+                                    vLoc.Y = (int)(gamepadRect.Top + 2);
 
-                                    RectangleF gradientBrushbounds = new RectangleF(loc.X, loc.Y, size.Width, size.Height);
-                                    RectangleF bounds = new RectangleF(loc.X, loc.Y, size.Width, size.Height);
+                                    RectangleF gradientBrushbounds = new RectangleF(vLoc.X, vLoc.Y, size.Width, size.Height);
+                                    RectangleF bounds = new RectangleF(vLoc.X, vLoc.Y, size.Width, size.Height);
 
                                     Color vcolor = Color.FromArgb(150, 0, 0, 0);
                                     Color vcolor2 = Color.FromArgb(255, 0, 0, 0);
@@ -371,7 +484,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                         lgb.InterpolationColors = topcblend;
 
                                         g.FillRectangle(lgb, bounds);
-                                        g.DrawString(str, virtualfontToScale, Brushes.YellowGreen, loc);
+                                        g.DrawString(str, virtualfontToScale, Brushes.YellowGreen, vLoc);
 
                                         virtualfontToScale.Dispose();
                                     }
@@ -382,17 +495,21 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                 }
                             }
                         }
-
                         break;
                     }
             }
 
-            g.Clip.Dispose();
+            //g.Clip.Dispose();
             fontToScale.Dispose();
         }
 
         private static void DrawGuests(Graphics g, PlayerInfo player, Font fontToScale)
-        {
+        {  
+            if(player.EditBounds == player.SourceEditBounds)
+            {
+                return;
+            }
+
             RectangleF hostUIBounds = player.EditBounds;
             float guestsAreaHeight = (hostUIBounds.Height / 3) * 2.2f;
 
@@ -404,7 +521,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             float guestUIHeight = (guestsArea.Width / guestsPerRow) / (guestsArea.Width / guestsArea.Height);
             var playerInstanceGuests = player.InstanceGuests.Where(ig => ig.GamepadId != -1).ToList();
 
-            for (int ppi = 0; ppi < userGameInfo.Game.PlayersPerInstance; ppi++)
+            for (int ppi = 0; ppi < userGameInfo.HandlerInfo.GenericGameInfo.PlayersPerInstance; ppi++)
             {
                 PlayerInfo guest = null;
 
@@ -439,7 +556,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 {
                     if (ppi == playerInstanceGuests.Count)
                     {
-                        int freeSlots = ((userGameInfo.Game.PlayersPerInstance - 1) - playerInstanceGuests.Count);
+                        int freeSlots = ((userGameInfo.HandlerInfo.GenericGameInfo.PlayersPerInstance - 1) - playerInstanceGuests.Count);
 
                         if (freeSlots > 0)
                         {
@@ -454,7 +571,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
 
                             g.DrawString(gamepadIndex, fontToScale, guestIndexBrush, loc);
-                            if (player.WaitGuests)
+                            if (player.WaitGuests )
                             {
                                 int awaitCount = player.CurrentMaxGuests - player.InstanceGuests.Count();
                                 string infoText = "Await " + (awaitCount).ToString() + (awaitCount > 1 ? " Guests..." : " Guest...");
@@ -464,7 +581,8 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                 g.FillRectangles(guestBackBrush, new RectangleF[] { new RectangleF(loc.X, loc.Y, size.Width, size.Height) });
 
                                 g.DrawString(infoText, fontToScale, Brushes.Orange, loc);
-                            }
+                                fontToScale.Dispose();
+                            }              
                         }
                     }
 
@@ -481,11 +599,12 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         PointF loc = new PointF(sub.X + ((sub.Width / 2) - (size.Width / 2)) + 2, (sub.Y + ((sub.Height / 2) - (size.Height / 2))) + 2);
 
                         g.DrawString(gamepadIndex, fontToScale, guestIndexBrush, loc);
+                        fontToScale.Dispose();
                     }
-
+             
                     guest.GuestBounds = sub;
                 }
-            }
+            }         
         }
         
         private static void DrawGamepadShape(Graphics g,RectangleF sub,SolidBrush pollingBrush)
@@ -537,27 +656,19 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         {
             RectangleF s = guest.GuestBounds;
 
-            g.Clip = new Region(new RectangleF(s.X, s.Y, s.Width + 1, s.Height + 1));
+            //g.Clip = new Region(new RectangleF(s.X, s.Y, s.Width + 1, s.Height + 1));
 
-            string tag = $"Right click to remove ({guest.GamepadId + 1})";
+            string tag = $"Right click to remove guest ({guest.GamepadId + 1})";
 
             SizeF tagSize = g.MeasureString(tag, playerTextFont);
             Point tagLocation = new Point((int)s.Left, (int)s.Bottom);
             RectangleF tagBack = new RectangleF(tagLocation.X, tagLocation.Y, tagSize.Width, tagSize.Height);
 
-            while(tagBack.Right >= parent?.Right)
-            {
-                float adjustX = tagBack.X -= 1.0F;
-                tagBack.Location = new PointF(adjustX, tagBack.Y);
-            }
+            tagBack.X = Math.Min(tagBack.X, parent.Right - tagBack.Width);
 
-            g.Clip = new Region(tagBack);
+            //g.Clip = new Region(tagBack);
 
-            using (GraphicsPath backGp = FormGraphicsUtil.MakeRoundedRect(tagBack, 10, 10, true, true, true, true))
-            {
-                g.FillPath(guestRemovalBack, backGp);
-            }
-
+            g.FillRectangles(guestRemovalBack, new RectangleF[] { tagBack });
             g.DrawString(tag, playerTextFont, Brushes.Orange, tagBack.X, tagBack.Y);
         }
 
@@ -596,13 +707,14 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         }
 
         public static void DestinationBounds(Graphics g)
-        {
+        {        
             g.DrawRectangles(destEditBoundsPen, new RectangleF[] { BoundsFunctions.DestEditBounds });
+            //g.DrawRectangles(destEditBoundsPen, new RectangleF[] { BoundsFunctions.DraggedPlayer.DeviceImageBounds });
         }
 
         public static void PlayerBoundsInfo(Graphics g)
         {
-            string playerBoundsInfo = BoundsFunctions.PlayerBoundsInfoText(BoundsFunctions.SelectedPlayer);
+            string playerBoundsInfo = BoundsFunctions.PlayerBoundsInfoText();
             SizeF boundsRect = g.MeasureString(playerBoundsInfo, playerTextFont);
             Point location = new Point(((parent.Width / 2) - (int)boundsRect.Width / 2) , ((parent.Bottom - (int)boundsRect.Height)) );
             g.DrawString(playerBoundsInfo, playerTextFont, Brushes.GreenYellow, location.X - 3, location.Y - 6 );
@@ -612,22 +724,45 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         {
             RectangleF s = player.EditBounds;
 
-            g.Clip = new Region(new RectangleF(s.X, s.Y, s.Width + 1, s.Height + 1));
+            //using (Region r = new Region(new RectangleF(s.X, s.Y, s.Width + 1, s.Height + 1)))
+            //{
+            //g.SetClip(r, CombineMode.Replace);
+            //g.Clip = new Region(new RectangleF(s.X, s.Y, s.Width + 1, s.Height + 1));
             int playerIndex = GameProfile.AssignedDevices.FindIndex(pl => pl == player);
 
-            string tag = $"P{playerIndex + 1}: {player.Nickname}";
+            string tag = string.Empty;
+
+            bool drawClickText = false;
+            if (player.EditBounds.IntersectsWith(BoundsFunctions.GetHoveredSizer())
+                && !BoundsFunctions.Dragging
+                && player.EditBounds == BoundsFunctions.SelectedPlayer?.EditBounds)
+            {
+                tag = $"Right-click to resize";
+                drawClickText = true;
+            }
+            //else if(player.ImageBounds.Contains(BoundsFunctions.MousePos) && !BoundsFunctions.Dragging)
+            //{
+            //    tag = $"Right-click to auto resize";
+            //    drawClickText = true;
+            //}
+            else
+            {
+                tag = $"P{playerIndex + 1}: {player.Nickname}";
+            }
 
             SizeF tagSize = g.MeasureString(tag, playerTextFont);
-            Point tagLocation = new Point(((int)s.Left + (int)s.Width / 2) - ((int)tagSize.Width / 2), (int)(s.Bottom + 1 - tagSize.Height));
+            Point tagLocation = new Point(((int)s.Left + (int)s.Width / 2) - ((int)tagSize.Width / 2), (int)(s.Bottom - 3 - tagSize.Height));
             RectangleF tagBack = new RectangleF(tagLocation.X, tagLocation.Y, tagSize.Width, tagSize.Height);
             Rectangle tagBorder = new Rectangle(tagLocation.X, tagLocation.Y, (int)tagSize.Width, (int)tagSize.Height);
 
-            g.Clip = new Region(tagBack);
+            // g.Clip = new Region(tagBack);
 
             g.FillRectangle(tagBrush, tagBack);
-            g.DrawRectangle(positionPlayerScreenPen, tagBorder);
-            g.DrawString(tag, playerTextFont, Brushes.White, tagLocation.X, tagLocation.Y);
-            g.Clip.Dispose();
+            //g.DrawRectangle(drawClickText ? Pens.GreenYellow : positionPlayerScreenPen, tagBorder);
+            g.DrawString(tag, playerTextFont, drawClickText ? Brushes.GreenYellow : Brushes.White, tagLocation.X, tagLocation.Y - 1);
+            //g.Clip.Dispose();
+        
+            //}
         }
     }
 }

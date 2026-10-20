@@ -175,7 +175,7 @@ Game.XInputPlusNoIni = false;				//Do not copy XInputPlus' ini when using Game.X
 Game.XInputPlusOldDll = false;				//When using Game.XInputPlusDll, you can specify to use the previous version instead of latest (needed for some games).
 Game.Hook.SDL2Enabled = true;                           //Enables SDL2 gamepads in the Nucleus setup screen and all the related runtime setup afterwards.
 Game.SDLPaths = ["x86","x64"];                          //An array of strings to specify the sdl2 dll(s) paths if the sdl2 dll is not placed besides the game executable (or whatever initializes sdl2 in the game).
-Game.UseDI8CoopLvlUnlock = true;                        //Can help splitting cursor in some games. 
+Game.UseDI8CoopLvlUnlocker = true;                        //Can help splitting cursor in some games. 
 Game.UseManualProtoControllersSetup = true              //Use this if the game requires an uncommon or specific ProtoInput controller setup (without it, Nucleus automatically assigns controller indexes).
 
 #################### Goldberg Emulator ####################

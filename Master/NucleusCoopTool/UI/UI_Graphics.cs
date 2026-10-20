@@ -8,7 +8,6 @@ using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 using Nucleus.Gaming.UI;
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -24,18 +23,15 @@ namespace Nucleus.Coop.UI
 
         public static bool Refreshing;
         private static bool enableParticles = bool.Parse(Globals.ThemeConfigFile.IniReadValue("Misc", "EnableParticles"));
-        public static bool RainbowTimerRunning = false;
+        public static bool IsNotesTitleScrollTimerRunning = false;
 
-        public static System.Windows.Forms.Timer RainbowTimer;
+        public static System.Windows.Forms.Timer NotesTitleScrollTimer;
 
-        private static Color backGradient = Theme_Settings.BackgroundGradientColor;
+        public static Bitmap DefaultBackground =          
+           Theme_Settings.UseBackgroundImageEffect ?  ApplyBlur (new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "background.jpg"), new Size(1280, 720))) :
+            ImageCache.GetImage(Globals.ThemeFolder + "background.jpg");
 
-        public static Color GameBorderGradientTop;
-        public static Color GameBorderGradientBottom;
-
-        public static Bitmap DefaultBackground = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "background.jpg"), new Size(1280, 720));
-
-        private static Bitmap backgroundImg = new Bitmap(ImageCache.GetImage(Globals.ThemeFolder + "background.jpg"), new Size(1280, 720));
+        private static Bitmap backgroundImg = DefaultBackground;
         public static Bitmap BackgroundImg
         {
             get => backgroundImg;
@@ -45,129 +41,90 @@ namespace Nucleus.Coop.UI
             }
         }
 
-        private static SolidBrush borderBrush;
-        private static SolidBrush inputTextFillBrush;
-
         private static LinearGradientBrush homeScreenBrush;
-        private static LinearGradientBrush gameListContainerBrush;
-        private static LinearGradientBrush infoPanelBrush;
-
-        private static Pen inputTextOutlinePen;
-
-        private static DrawParticles playParticles;
-        private static DrawParticles bigLogoParticles;
+        private static SolidBrush topBrush;
 
         public static void HomeScreen_Paint(object sender, PaintEventArgs e)
         {
             DoubleBufferPanel homeScreen = (DoubleBufferPanel)sender;
 
-            if (Refreshing || backImgRect == null)
+            if (Theme_Settings.UseBackgroundImage)
             {
-                RectangleF client = homeScreen.ClientRectangle;
-                RectangleF img = new RectangleF(0, 0, BackgroundImg.Width, BackgroundImg.Height);
-
-                float ratio = 1.78f;
-
-                backImgRect = new RectangleF(0, 0, client.Width, client.Width / ratio);
-
-                if (client.Width / client.Height < ratio)
+                if (Refreshing || backImgRect == null)
                 {
-                    float multH = (float)client.Width / (float)backImgRect.Width;
-                    backImgRect.Height = client.Height * multH;
-                    backImgRect.Width = (backImgRect.Height * ratio) * multH;
+                    RectangleF client = new RectangleF(homeScreen.ClientRectangle.X, UI_Interface.WindowPanel.Bottom, homeScreen.Width, homeScreen.Height - UI_Interface.WindowPanel.Bottom);
+                    RectangleF img = new RectangleF(0, 0, BackgroundImg.Width, BackgroundImg.Height);
+
+                    float ratio = 1.78f;
+
+                    backImgRect = new RectangleF(0, 0, client.Width, client.Width / ratio);
+
+                    if (client.Width / client.Height < ratio)
+                    {
+                        float multH = (float)client.Width / (float)backImgRect.Width;
+                        backImgRect.Height = client.Height * multH;
+                        backImgRect.Width = (backImgRect.Height * ratio) * multH;
+                    }
+
+                    PointF loc = RectangleUtil.Center(backImgRect.Size, client);
+                    backImgRect.Location = loc;
                 }
 
-                PointF loc = RectangleUtil.Center(backImgRect.Size, client);
-                backImgRect.Location = loc;
+                e.Graphics.DrawImage(BackgroundImg, backImgRect);
             }
-
-            e.Graphics.DrawImage(BackgroundImg, backImgRect);
-
-            if (backGradient.A == 0)
-            {
-                return;
-            }
-
-            if (homeScreenBrush == null || Refreshing)
+            
+            if (Theme_Settings.UseBackgroundImageEffect)
             {
                 Rectangle gradientBrushbounds = new Rectangle(0, 0, homeScreen.ClientRectangle.Width, homeScreen.ClientRectangle.Height);
 
-                if (gradientBrushbounds.Width == 0 || gradientBrushbounds.Height == 0)
+                if (homeScreenBrush == null || Refreshing)
                 {
-                    return;
+                    if (gradientBrushbounds.Width == 0 || gradientBrushbounds.Height == 0)
+                    {
+                        return;
+                    }
+       
+                    Color color1 = Color.FromArgb(255, backGradient.R, backGradient.G, backGradient.B);
+                    Color color2 = Color.FromArgb(220, backGradient.R, backGradient.G, backGradient.B);
+                    Color color3 = Color.FromArgb(180, backGradient.R, backGradient.G, backGradient.B);
+                    Color color4 = Color.FromArgb(160, backGradient.R, backGradient.G, backGradient.B);
+                    Color color5 = Color.FromArgb(120, backGradient.R, backGradient.G, backGradient.B);
+                    Color color6 = Color.FromArgb(160, backGradient.R, backGradient.G, backGradient.B);
+                    Color color7 = Color.FromArgb(180, backGradient.R, backGradient.G, backGradient.B);
+                    Color color8 = Color.FromArgb(220, backGradient.R, backGradient.G, backGradient.B);
+                    Color color9 = Color.FromArgb(255, backGradient.R, backGradient.G, backGradient.B);
+
+                    homeScreenBrush = new LinearGradientBrush(gradientBrushbounds, color1, color5, 90f);
+
+                    ColorBlend topcblend = new ColorBlend(9);
+                    topcblend.Colors = new Color[9] { color1, color2, color3, color4, color5, color6, color7, color8, color9 };
+                    topcblend.Positions = new float[9] { 0f, 0.125f, 0.250f, 0.375f, 0.500f, 0.625f, 0.750f, 0.875f, 1.0f };
+
+                    homeScreenBrush.InterpolationColors = topcblend;
                 }
-
-                Color color1 = Color.FromArgb(245, backGradient.R, backGradient.G, backGradient.B);
-                Color color2 = Color.FromArgb(210, backGradient.R, backGradient.G, backGradient.B);
-                Color color3 = Color.FromArgb(170, backGradient.R, backGradient.G, backGradient.B);
-                Color color4 = Color.FromArgb(160, backGradient.R, backGradient.G, backGradient.B);
-                Color color5 = Color.FromArgb(150, backGradient.R, backGradient.G, backGradient.B);
-                Color color6 = Color.FromArgb(160, backGradient.R, backGradient.G, backGradient.B);
-                Color color7 = Color.FromArgb(170, backGradient.R, backGradient.G, backGradient.B);
-                Color color8 = Color.FromArgb(210, backGradient.R, backGradient.G, backGradient.B);
-                Color color9 = Color.FromArgb(245, backGradient.R, backGradient.G, backGradient.B);
-
-                homeScreenBrush =
-                    new LinearGradientBrush(gradientBrushbounds, color1, color5, 90f);
-
-                ColorBlend topcblend = new ColorBlend(9);
-                topcblend.Colors = new Color[9] { color1, color2, color3, color4, color5, color6, color7, color8, color9 };
-                topcblend.Positions = new float[9] { 0f, 0.125f, 0.250f, 0.375f, 0.500f, 0.625f, 0.750f, 0.875f, 1.0f };
-
-                homeScreenBrush.InterpolationColors = topcblend;
+                
+                e.Graphics.FillRectangle(homeScreenBrush, gradientBrushbounds);
             }
 
-            e.Graphics.FillRectangle(homeScreenBrush, homeScreen.ClientRectangle);
+            Rectangle topBanner = new Rectangle(UI_Interface.Logo.Left - 4, UI_Interface.WindowPanel.Top,
+                homeScreen.Width, UI_Interface.WindowPanel.Height);
+
+            if (topBrush == null)
+            {
+                topBrush = new SolidBrush(Theme_Settings.WindowPanelBackColor);
+            }
+
+            e.Graphics.FillRectangle(topBrush, topBanner);
 
             Refreshing = false;
         }
 
+        private static SolidBrush borderBrush;
+        public static Color GameBorderGradientTop;
+        public static Color GameBorderGradientBottom;
+
         public static void MainFormPaintBackground(PaintEventArgs e)
         {
-            //add sender and unpack it instead of calling the UI_Interface object
-            int edgingHeight = UI_Interface.HomeScreen.Location.Y - 3;
-            Rectangle topGradient = new Rectangle(0, 0, UI_Interface.MainForm.Width, edgingHeight);
-            Rectangle bottomGradient = new Rectangle(0, (UI_Interface.MainForm.Height - edgingHeight) - 1, UI_Interface.MainForm.Width, edgingHeight);
-
-            Color edgingColorTop;
-            Color edgingColorBottom;
-
-            if (!UI_Interface.WindowPanel.Enabled)
-            {
-                edgingColorTop = Color.Red;
-                edgingColorBottom = Color.Red;
-            }
-            else if (UI_Interface.WebView != null)
-            {
-                edgingColorTop = Color.FromArgb(255, 0, 98, 190);
-                edgingColorBottom = Color.FromArgb(255, 0, 98, 190);
-            }
-            else if (UI_Interface.SetupPanel.Visible)
-            {
-                edgingColorTop = GameBorderGradientTop;
-                edgingColorBottom = GameBorderGradientBottom;
-            }
-            else
-            {
-                edgingColorTop = Theme_Settings.DefaultBorderGradientColor;
-                edgingColorBottom = Theme_Settings.DefaultBorderGradientColor;
-            }
-
-            LinearGradientBrush topLinearGradientBrush = new LinearGradientBrush(topGradient, Color.Transparent, edgingColorTop, 0F);
-            LinearGradientBrush bottomLinearGradientBrush = new LinearGradientBrush(bottomGradient, Color.Transparent, edgingColorBottom, 0F);
-
-            ColorBlend topcblend = new ColorBlend(3);
-            topcblend.Colors = new Color[3] { Color.Transparent, edgingColorTop, Color.Transparent };
-            topcblend.Positions = new float[3] { 0f, 0.5f, 1f };
-
-            topLinearGradientBrush.InterpolationColors = topcblend;
-
-            ColorBlend bottomcblend = new ColorBlend(3);
-            bottomcblend.Colors = new Color[3] { Color.Transparent, edgingColorBottom, Color.Transparent };
-            bottomcblend.Positions = new float[3] { 0f, 0.5f, 1f };
-
-            bottomLinearGradientBrush.InterpolationColors = bottomcblend;
-
             Rectangle fill = new Rectangle(0, 0, UI_Interface.MainForm.Width, UI_Interface.MainForm.Height);
 
             if (borderBrush == null)
@@ -176,60 +133,52 @@ namespace Nucleus.Coop.UI
             }
 
             e.Graphics.FillRectangle(borderBrush, fill);
-            e.Graphics.FillRectangle(topLinearGradientBrush, topGradient);
-            e.Graphics.FillRectangle(bottomLinearGradientBrush, bottomGradient);
-
-            topLinearGradientBrush.Dispose();
-            bottomLinearGradientBrush.Dispose();
         }
 
         public static void WindowPanel_Paint(object sender, PaintEventArgs e)
         {
-            DoubleBufferPanel WindowPanel = (DoubleBufferPanel)sender;
-
-            UI_Interface.InputsTextLabel.Location = new Point(WindowPanel.Width / 2 - UI_Interface.InputsTextLabel.Width / 2, (WindowPanel.Bottom - UI_Interface.InputsTextLabel.Height) - 5);
-
-            if (inputTextOutlinePen == null)
-            {
-                inputTextOutlinePen = new Pen(Color.FromArgb(180, 100, 100, 100));
-                inputTextFillBrush = new SolidBrush(Color.FromArgb(20, 20, 20, 20));
-            }
+            DoubleBufferPanel windowPanel = (DoubleBufferPanel)sender;
+            //UI_Interface.InputsTextLabel.Location = new Point((windowPanel.Width - UI_Interface.InfoPanel.Width) / 2 - UI_Interface.InputsTextLabel.Width / 2, (windowPanel.Bottom - UI_Interface.InputsTextLabel.Height) - 5);
         }
 
         public static void SetupPanel_Paint(object sender, PaintEventArgs e)
         {
             if (GameProfile.Instance == null)
             {
-                UI_Interface.InputsTextLabel.SetText(new (string, Color)[]{});
+                UI_Interface.InputsTextLabel.SetText(new (string, Color,Font)[]{});
                 return;
             }
 
-            var inputText = Core_Interface.CurrentStepIndex == 0 ? InputsText.GetInputText() : new (string, Color)[] {( Core_Interface.CurrentStep?.Title, Theme_Settings.ControlsForeColor)};
-            
-           if (!UI_Interface.InputsTextLabel.Content.SequenceEqual(inputText))
-           {
+            var inputText = Core_Interface.CurrentStepIndex == 0 ? InputsText.GetInputText() : new (string, Color,Font)[] {( Core_Interface.CurrentStep?.Title, Theme_Settings.ControlsForeColor, UI_Interface.InputsTextLabel.Container.Font) };
+            UI_Interface.InputsTextLabel.Location = new Point(UI_Interface.SetupPanel.Width / 2 - UI_Interface.InputsTextLabel.Width / 2, 2/*(UI_Interface.WindowPanel.Bottom - UI_Interface.InputsTextLabel.Height) - 3*/);
+            if (!UI_Interface.InputsTextLabel.Content.SequenceEqual(inputText))
+            {
                 UI_Interface.InputsTextLabel.SetText(inputText);
-           }
+                
+            }
         }
+
+        private static Color backGradient = Theme_Settings.BackgroundGradientColor;
+        private static SolidBrush sortBackBrush;
+        private static LinearGradientBrush gameListContainerBrush;
 
         public static void GameListContainer_Paint(object sender, PaintEventArgs e)
         {
             DoubleBufferPanel gameListContainer = (DoubleBufferPanel)sender;
 
-            if (UI_Interface.HubButton != null && UI_Interface.SearchTextBox != null)
-            {
-                if (UI_Interface.SearchTextBox.Visible)
-                {
-                    Rectangle sortOptBack = new Rectangle(UI_Interface.SortGamesButton.Left - 10, UI_Interface.SearchTextBox.Top,
-                                                     (gameListContainer.Right - UI_Interface.SortGamesButton.Left) + 10, UI_Interface.SearchTextBox.Height);
+            //if (UI_Interface.HubButton != null && UI_Interface.SearchTextBox != null)
+            //{
+            //    Rectangle sortOptBack = new Rectangle(UI_Interface.SortGamesButton.Left - 20, UI_Interface.SearchTextBox.Top,
+            //                                   /*  (*/gameListContainer.Right /*- UI_Interface.SortGamesButton.Left) + 10*/, UI_Interface.SearchTextBox.ClientRectangle.Height);
 
-                    Color backCol = UI_Interface.SearchTextBox.BackColor;
-                    SolidBrush sortBrush = new SolidBrush(Color.FromArgb(255, backCol.R, backCol.G, backCol.B));
-                    e.Graphics.FillRectangle(sortBrush, sortOptBack);
-                    sortBrush.Dispose();
-                } 
+            //    Color backCol = UI_Interface.SearchTextBox.BackColor;
+            //    //if (sortBackBrush == null)
+            //    {
+            //        sortBackBrush = new SolidBrush(/*Color.FromArgb(255, backCol.R, backCol.G, backCol.B)*/Color.FromArgb(255,54, 57, 58));
+            //    }
 
-            }
+            //    e.Graphics.FillRectangle(sortBackBrush, sortOptBack);
+            //}
 
             if (backGradient.A == 0)
             {
@@ -238,30 +187,34 @@ namespace Nucleus.Coop.UI
 
             if (gameListContainerBrush == null || Refreshing)
             {
-                Rectangle gradientBrushbounds = new Rectangle(0, 0, gameListContainer.Width / 2, gameListContainer.Height);
+                //Rectangle gradientBrushbounds = new Rectangle(0, 0, gameListContainer.Width / 2, gameListContainer.Height);
 
-                if (gradientBrushbounds.Width == 0 || gradientBrushbounds.Height == 0)
-                {
-                    return;
-                }
+                //if (gradientBrushbounds.Width == 0 || gradientBrushbounds.Height == 0)
+                //{
+                //    return;
+                //}
 
-                Color color1 = Color.FromArgb(90, backGradient.R, backGradient.G, backGradient.B);
-                Color color2 = Color.FromArgb(150, backGradient.R, backGradient.G, backGradient.B);
-                Color color3 = Color.FromArgb(150, backGradient.R, backGradient.G, backGradient.B);
-                Color color4 = Color.FromArgb(90, backGradient.R, backGradient.G, backGradient.B);
+                //Color color1 = Color.FromArgb(90, backGradient.R, backGradient.G, backGradient.B);
+                //Color color2 = Color.FromArgb(150, backGradient.R, backGradient.G, backGradient.B);
+                //Color color3 = Color.FromArgb(150, backGradient.R, backGradient.G, backGradient.B);
+                //Color color4 = Color.FromArgb(90, backGradient.R, backGradient.G, backGradient.B);
 
-                gameListContainerBrush =
-                new LinearGradientBrush(gradientBrushbounds, Color.Transparent, color1, 90f);
+                //gameListContainerBrush =
+                //new LinearGradientBrush(gradientBrushbounds, Color.Transparent, color1, 90f);
 
-                ColorBlend topcblend = new ColorBlend(6);
-                topcblend.Colors = new Color[6] { Color.Transparent, color1, color2, color3, color4, Color.Transparent };
-                topcblend.Positions = new float[6] { 0f, 0.2f, 0.4f, 0.6f, 0.8f, 1.0f };
+                //ColorBlend topcblend = new ColorBlend(6);
+                //topcblend.Colors = new Color[6] { Color.Transparent, color1, color2, color3, color4, Color.Transparent };
+                //topcblend.Positions = new float[6] { 0f, 0.2f, 0.4f, 0.6f, 0.8f, 1.0f };
 
-                gameListContainerBrush.InterpolationColors = topcblend;
+                //gameListContainerBrush.InterpolationColors = topcblend;
             }
 
-            e.Graphics.FillRectangle(gameListContainerBrush, gameListContainer.ClientRectangle);
+            //e.Graphics.FillRectangle(gameListContainerBrush, gameListContainer.ClientRectangle);
+
+            //e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(255, 31, 34, 35)), gameListContainer.ClientRectangle);
         }
+
+        private static LinearGradientBrush infoPanelBrush;
 
         public static void InfoPanel_Paint(object sender, PaintEventArgs e)
         {
@@ -295,9 +248,9 @@ namespace Nucleus.Coop.UI
 
                 infoPanelBrush.InterpolationColors = topcblend;
             }
-
-            e.Graphics.FillRectangle(infoPanelBrush, infoPanel.ClientRectangle);
         }
+
+        private static DrawParticles bigLogoParticles;
 
         public static void BigLogo_Paint(object sender, PaintEventArgs e)
         {
@@ -310,9 +263,11 @@ namespace Nucleus.Coop.UI
                 }
 
                 if (bigLogo.Visible)
-                    bigLogoParticles.Draw(sender, sender as Control, e, 8, 100, new int[] { 255, 255, 255 });
+                    bigLogoParticles.Draw(sender, true, sender as Control, e, 8, 100, new int[] {255, 255, 255, 255 });
             }
         }
+
+        private static DrawParticles playParticles;
 
         public static void CoverFrame_Paint(object sender, PaintEventArgs e)
         {
@@ -327,7 +282,7 @@ namespace Nucleus.Coop.UI
 
                 if (UI_Interface.PlayButton.Visible)
                 {
-                    playParticles.Draw(sender, UI_Interface.PlayButton, e, 4, 140, new int[] { 100, 255, 100 });
+                    playParticles.Draw(sender, true, UI_Interface.PlayButton, e, 4, 140, new int[] {255, 100, 255, 100 });
                 }
             }
 
@@ -343,8 +298,6 @@ namespace Nucleus.Coop.UI
             }
         }
 
-        private static int blurValue = App_Misc.Blur;
-
         public static Bitmap ApplyBlur(Bitmap screenshot)
         {
             if (screenshot == null)
@@ -354,29 +307,34 @@ namespace Nucleus.Coop.UI
 
             GaussianBlur blur = new GaussianBlur(screenshot);
 
-            GameBorderGradientTop = blur.topColor;
-            GameBorderGradientBottom = blur.bottomColor;
-
             screenshot.Dispose();
 
-            return blur.Process(blurValue);
+            return blur.Process(App_Misc.Blur);
         }
+
+        private static Font virtualMouseToggle_Font;
+        private static ImageAttributes virtualMouseToggle_ImageAttributes;
+        private static Image virtualMouseToggle_Image;
+        private static ColorMatrix virtualMouseToggle_ColorMatrix;
 
         public static void VirtualMouseToggle_Paint(object sender, PaintEventArgs e)
         {
             PictureBox navPb = UI_Interface.ToggleVirtualMouse;
 
             string text;
-            ImageAttributes gpImageAttributes = new ImageAttributes();
+
+            if(virtualMouseToggle_ImageAttributes == null)
+            {
+                virtualMouseToggle_ImageAttributes = new ImageAttributes();
+            }
 
             Rectangle bounds = navPb.ClientRectangle;
-            ColorMatrix colorMatrix;
 
             if (App_GamePadNavigation.Enabled)
             {
                 if (GamepadNavigation.ReceiveInputs.Any(b => b == true))
                 {
-                    colorMatrix = new ColorMatrix(new[]//orange
+                    virtualMouseToggle_ColorMatrix = new ColorMatrix(new[]//orange
                     {
                        new float[] {1, 0, 0, 0, 0},  
                        new float[] {0, 1, 0, 0, 0},  
@@ -387,7 +345,7 @@ namespace Nucleus.Coop.UI
                 }
                 else
                 {
-                    colorMatrix = new ColorMatrix(new[]//green
+                    virtualMouseToggle_ColorMatrix = new ColorMatrix(new[]//green
                     {
                      new float[] {0, 0, 0, 0, 0},  
                      new float[] {0, 1, 0, 0, 0},  
@@ -396,14 +354,13 @@ namespace Nucleus.Coop.UI
                      new float[] {0, 0.6f, 0, 0, 1} 
                    });
                 }
-                gpImageAttributes = new ImageAttributes();
-                gpImageAttributes.SetColorMatrix(colorMatrix);
 
+                virtualMouseToggle_ImageAttributes.SetColorMatrix(virtualMouseToggle_ColorMatrix);
                 text = "ON";
             }
             else
             {
-                colorMatrix = new ColorMatrix(new[]
+                virtualMouseToggle_ColorMatrix = new ColorMatrix(new[]
                 {
                    new float[] {0.8f, 0.8f, 0.8f, 0, 0}, 
                    new float[] {0.8f, 0.8f, 0.8f, 0, 0},  
@@ -413,28 +370,28 @@ namespace Nucleus.Coop.UI
                  });
 
                 text = "OFF";
-
-                gpImageAttributes = new ImageAttributes();
-                gpImageAttributes.SetColorMatrix(colorMatrix);
+                virtualMouseToggle_ImageAttributes.SetColorMatrix(virtualMouseToggle_ColorMatrix);
             }
 
-            Image gpImg = ImageCache.GetImage(Globals.ThemeFolder + "xinput.png");
+            if(virtualMouseToggle_Image == null)
+            {
+                virtualMouseToggle_Image = ImageCache.GetImage(Globals.ThemeFolder + "xinput.png");
+            }
 
-            e.Graphics.DrawImage(gpImg, bounds, 0, 0, gpImg.Width, gpImg.Height, GraphicsUnit.Pixel, gpImageAttributes);
+            e.Graphics.DrawImage(virtualMouseToggle_Image, bounds, 0, 0, virtualMouseToggle_Image.Width, virtualMouseToggle_Image.Height, GraphicsUnit.Pixel, virtualMouseToggle_ImageAttributes);
 
-            Font font = new Font(UI_Interface.MainForm.Font.FontFamily, 7.0f, FontStyle.Bold);
+            if(virtualMouseToggle_Font == null)
+            {
+                virtualMouseToggle_Font = new Font(UI_Interface.MainForm.Font.FontFamily, 7.0f, FontStyle.Bold);
+            }
 
-            SizeF tagSize = e.Graphics.MeasureString(text, font);
+            SizeF tagSize = e.Graphics.MeasureString(text, virtualMouseToggle_Font);
             Point tagLocation = new Point(((int)bounds.Width / 2) - ((int)tagSize.Width / 2) - 2, ((int)bounds.Height / 2) - ((int)tagSize.Height / 2) - 3);
 
-            e.Graphics.DrawString(text, font, Brushes.White, tagLocation);
-
-            gpImageAttributes.Dispose();
-
-            font.Dispose();
+            e.Graphics.DrawString(text, virtualMouseToggle_Font, Brushes.White, tagLocation);
         }
 
-        private static System.Threading.Timer blink;
+        private static System.Threading.Timer blinkTimer;
         private static bool blinking;
 
         private static void Blink_Tick(object state)
@@ -443,14 +400,19 @@ namespace Nucleus.Coop.UI
 
             if(!stepBtn.Enabled)
             {
-                blink?.Dispose();
-                blink = null;
+                blinkTimer?.Dispose();
+                blinkTimer = null;
                 return;
             }
             
             blinking = !blinking;
             stepBtn.Invalidate();
         }
+
+        private static GraphicsPath gotoPrevGP;
+        private static Pen gotoPrevGPPen;
+        private static SolidBrush gotoPrevTextBrush;
+        private static SolidBrush gotoPrevBackBrush;
 
         public static void GotoPrevPaint(object sender, PaintEventArgs e)
         {
@@ -465,10 +427,21 @@ namespace Nucleus.Coop.UI
 
             Color backCol = Theme_Settings.InfoPanelBackColor;
 
-            SolidBrush textBrush = new SolidBrush(Color.FromArgb(255,Theme_Settings.SelectedBackColor.R, Theme_Settings.SelectedBackColor.G, Theme_Settings.SelectedBackColor.B));
-            SolidBrush sortBrush = new SolidBrush(Color.FromArgb(90, backCol.R, backCol.G, backCol.B));
-            GraphicsPath backGp = FormGraphicsUtil.MakeRoundedRect(bounds, 20, 20, true, false, false, true);
-            Pen pathPen = new Pen(Color.FromArgb(210, 50, 50, 50));
+            if (gotoPrevBackBrush == null)
+            {
+                gotoPrevTextBrush = new SolidBrush(Color.FromArgb(255, Theme_Settings.SelectedBackColor.R, Theme_Settings.SelectedBackColor.G, Theme_Settings.SelectedBackColor.B));
+                gotoPrevBackBrush = new SolidBrush(Color.FromArgb(90, backCol.R, backCol.G, backCol.B));
+            }
+
+            if (gotoPrevGP == null)
+            {
+                gotoPrevGP = FormGraphicsUtil.MakeRoundedRect(bounds, 20, 20, true, false, false, true);
+            }
+
+            if(gotoPrevGPPen == null)
+            {
+                gotoPrevGPPen = new Pen(Color.FromArgb(210, 50, 50, 50),2);
+            }
 
             StringBuilder sb = new StringBuilder();
 
@@ -484,24 +457,25 @@ namespace Nucleus.Coop.UI
 
             if (stepBtn.Enabled)
             {
-                e.Graphics.FillPath(sortBrush, backGp);
-                e.Graphics.DrawPath(pathPen, backGp);
-                e.Graphics.DrawString(sb.ToString(), stepBtn.Font, textBrush, ghostTagLocation.X, ghostTagLocation.Y);
+                e.Graphics.FillPath(gotoPrevBackBrush, gotoPrevGP);
+                e.Graphics.DrawPath(gotoPrevGPPen, gotoPrevGP);
+                e.Graphics.DrawString(sb.ToString(), stepBtn.Font, gotoPrevTextBrush, ghostTagLocation.X, ghostTagLocation.Y);
             }
-
-            sortBrush.Dispose();
-            textBrush.Dispose();
-            pathPen.Dispose();
-            backGp.Dispose();
         }
+
+        private static GraphicsPath gotoNextGP;
+        private static SolidBrush gotoNextTextBrush;
+        private static SolidBrush gotoNextBackBrush;
+        private static Pen gotoNextGPPen;
 
         public static void GotoNextPaint(object sender, PaintEventArgs e)
         {
             Button stepBtn = (Button)sender;
 
-            if(blink == null && stepBtn.Enabled)
+            if(blinkTimer == null && stepBtn.Enabled)
             {
-                blink = new System.Threading.Timer(Blink_Tick, sender, 400,400);
+                blinkTimer?.Dispose();
+                blinkTimer = new System.Threading.Timer(Blink_Tick, sender, 400,400);
             }
 
             Rectangle bounds = new Rectangle(stepBtn.ClientRectangle.X, stepBtn.ClientRectangle.Y, stepBtn.ClientRectangle.Width - 1, stepBtn.ClientRectangle.Height - 1 );
@@ -512,12 +486,28 @@ namespace Nucleus.Coop.UI
 
             Color backCol = Theme_Settings.InfoPanelBackColor;
 
-            SolidBrush  textBrush = blinking ? new SolidBrush(Color.White) : new SolidBrush(Color.FromArgb(255, Theme_Settings.SelectedBackColor.R, Theme_Settings.SelectedBackColor.G, Theme_Settings.SelectedBackColor.B));
- 
-            SolidBrush sortBrush = new SolidBrush(Color.FromArgb(90, backCol.R, backCol.G, backCol.B));
-            GraphicsPath backGp = FormGraphicsUtil.MakeRoundedRect(bounds, 20, 20, false, true, true, false);
-            Pen pathPen = new Pen(Color.FromArgb(210, 50, 50, 50));
+            if(gotoNextTextBrush == null)
+            {
+                gotoNextTextBrush = new SolidBrush(blinking ? Color.White : Color.FromArgb(255, Theme_Settings.SelectedBackColor.R, Theme_Settings.SelectedBackColor.G, Theme_Settings.SelectedBackColor.B));
+            }
+
+            gotoNextTextBrush.Color = blinking ? Color.White : Color.FromArgb(255, Theme_Settings.SelectedBackColor.R, Theme_Settings.SelectedBackColor.G, Theme_Settings.SelectedBackColor.B);
             
+            if(gotoNextBackBrush == null)
+            {
+                gotoNextBackBrush = new SolidBrush(Color.FromArgb(90, backCol.R, backCol.G, backCol.B));
+            }
+           
+            if(gotoNextGP == null)
+            {
+                gotoNextGP = FormGraphicsUtil.MakeRoundedRect(bounds, 20, 20, false, true, true, false);
+            }
+
+            if (gotoNextGPPen == null)
+            {
+                gotoNextGPPen = new Pen(Color.FromArgb(210, 50, 50, 50),2);
+            }
+
             StringBuilder sb = new StringBuilder();
 
             string text = (string)stepBtn.Tag;
@@ -533,45 +523,58 @@ namespace Nucleus.Coop.UI
 
             if (stepBtn.Enabled)
             {
-                e.Graphics.FillPath(sortBrush, backGp);
-                e.Graphics.DrawPath(pathPen, backGp);
-                e.Graphics.DrawString(sb.ToString(), stepBtn.Font, textBrush, textLocation.X, textLocation.Y);
+                e.Graphics.FillPath(gotoNextBackBrush, gotoNextGP);
+                e.Graphics.DrawPath(gotoNextGPPen, gotoNextGP);
+                e.Graphics.DrawString(sb.ToString(), stepBtn.Font, gotoNextTextBrush, textLocation.X, textLocation.Y);
             }
- 
-            sortBrush.Dispose();
-            textBrush.Dispose();
-            pathPen.Dispose();
-            backGp.Dispose();
         }
 
-        private static int r = 0;
-        private static int b = 0;
-        private static bool loop = false;
+        private static Label handlerNoteTitleCopy;
 
-        public static void RainbowTimerTick(object state, EventArgs eventArgs)
+        public static void NotesTitleScrollTimer_Tick(object state, EventArgs eventArgs)
         {
-            string text = UI_Interface.HandlerNoteTitle.Text;
+            var title = UI_Interface.HandlerNoteTitle;
+            int offset = 15;
 
-            if (text == "Handler Notes" || text == "Read First")
+            if (handlerNoteTitleCopy == null)
             {
-                if (!loop)
-                {
-                    UI_Interface.HandlerNoteTitle.Text = "Handler Notes";
-                    if (r < 200 && b < 200) { r += 3; b += 3; };
-                    if (b >= 200 && r >= 200)
-                        loop = true;
+                title.Location = new Point(title.Location.X, UI_Interface.ExpandHandlerNotesButton.Location.Y + (UI_Interface.ExpandHandlerNotesButton.Height / 2 - (title.Height / 2)));
+                title.Dock = DockStyle.None;
+                title.AutoSize = true;
+                handlerNoteTitleCopy = new Label();
+                handlerNoteTitleCopy.AutoSize = true;
+                handlerNoteTitleCopy.Location = new Point(title.Right + offset, title.Location.Y);
+                handlerNoteTitleCopy.Font = new Font(title.Font.FontFamily, title.Font.Size, FontStyle.Italic | FontStyle.Bold);
+                handlerNoteTitleCopy.ForeColor = Color.FromArgb(216, 107, 100);
+                handlerNoteTitleCopy.Text = "Read and follow them very carefully before asking for support.";
+                handlerNoteTitleCopy.BackColor = title.BackColor;
+                UI_Interface.HandlerNotesContainer.Controls.Add(handlerNoteTitleCopy);
+            }
 
-                    UI_Interface.HandlerNoteTitle.Font = new Font(UI_Interface.HandlerNoteTitle.Font.FontFamily, UI_Interface.HandlerNoteTitle.Font.Size, FontStyle.Bold);
-                }
-                else
-                {
-                    UI_Interface.HandlerNoteTitle.Text = "Read First";
-                    if (r > 0 && b > 0) { r -= 3; b -= 3; }
-                    if (b <= 0 && r <= 0)
-                        loop = false;
-                }
-
-                UI_Interface.HandlerNoteTitle.ForeColor = Color.FromArgb(r, r, 255, b);
+            if (title.Right > 0 && title.Left != handlerNoteTitleCopy.Right + offset)
+            {
+                title.Location = new Point(title.Location.X - 1, title.Location.Y);
+                handlerNoteTitleCopy.Location = new Point(title.Right + offset, title.Location.Y);
+            }
+            else if (title.Right == 0)
+            {
+                handlerNoteTitleCopy.Location = new Point(handlerNoteTitleCopy.Location.X - 1, title.Location.Y);
+                title.Location = new Point(handlerNoteTitleCopy.Right + offset, handlerNoteTitleCopy.Location.Y);
+            }
+            else if (handlerNoteTitleCopy.Right == 0)
+            {
+                title.Location = new Point(title.Location.X - 1, title.Location.Y);
+                handlerNoteTitleCopy.Location = new Point(handlerNoteTitleCopy.Right + offset, handlerNoteTitleCopy.Location.Y);
+            }
+            else if (title.Left == handlerNoteTitleCopy.Right + offset)
+            {
+                handlerNoteTitleCopy.Location = new Point(handlerNoteTitleCopy.Location.X - 1, title.Location.Y);
+                title.Location = new Point(handlerNoteTitleCopy.Right + offset, handlerNoteTitleCopy.Location.Y);
+            }
+            else if (handlerNoteTitleCopy.Left == title.Right + offset)
+            {
+                handlerNoteTitleCopy.Location = new Point(handlerNoteTitleCopy.Location.X - 1, title.Location.Y);
+                title.Location = new Point(handlerNoteTitleCopy.Right + offset, handlerNoteTitleCopy.Location.Y);
             }
         }
 
@@ -640,7 +643,7 @@ namespace Nucleus.Coop.UI
 
                                 if (text != "")
                                 {
-                                    tooltip.Show("Supported inputs:" + "\n" + text.Replace("Supports ", "-") /*+ "\n" + " "*/, pic, new Point(pic.Parent.ClientRectangle.Left,pic.Parent.ClientRectangle.Bottom),5000);                        
+                                    tooltip.Show("Supported inputs:" + "\n" + text.Replace("Supports ", "-"), pic, new Point(pic.Parent.ClientRectangle.Left,pic.Parent.ClientRectangle.Bottom),5000);                        
                                 }
                             }
                         }
@@ -662,7 +665,7 @@ namespace Nucleus.Coop.UI
 
                     if (tooltip != null && !blinkInputShowTooltip)
                     {
-                        tooltip.Show("Supported inputs:" + "\n" + sb.ToString() /*+ "\n" + " "*/, firstPb, firstPb.Parent.ClientRectangle.Left, firstPb.Parent.ClientRectangle.Bottom, 5000);
+                        tooltip.Show("Supported inputs:" + "\n" + sb.ToString(), firstPb, firstPb.Parent.ClientRectangle.Left, firstPb.Parent.ClientRectangle.Bottom, 5000);
                     }
                 }
 
@@ -688,6 +691,35 @@ namespace Nucleus.Coop.UI
                     pic.Invalidate();
                 }
             }
+        }
+
+        private static Pen noteTitleBorderPen;
+        private static SolidBrush noteTitleBackBrush;
+        private static SolidBrush noteTitleBackTextBrush;
+
+        public static void HandlerNotesContainer_Paint(object sender, PaintEventArgs e)
+        {          
+            DoubleBufferPanel container = sender as DoubleBufferPanel;
+            PictureBox expandBtn = UI_Interface.ExpandHandlerNotesButton;
+
+            if (noteTitleBorderPen == null)
+            {
+                noteTitleBorderPen = new Pen(Theme_Settings.HandlerNoteBorderColor);
+                noteTitleBackBrush = new SolidBrush(Theme_Settings.HandlerNoteTitleBackColor);
+                noteTitleBackTextBrush = new SolidBrush(Theme_Settings.HandlerNoteBackColor);
+            }
+
+            Rectangle rec = new Rectangle(0, 0, container.Width - 1, expandBtn.Height);
+            e.Graphics.FillRectangle(noteTitleBackBrush, rec);
+
+            e.Graphics.FillRectangle(noteTitleBackTextBrush, new Rectangle(0, rec.Bottom, rec.Width, (container.Height - rec.Height) - 2));
+
+            if (Theme_Settings.UseNotesBorder)
+            {
+                e.Graphics.DrawRectangle(noteTitleBorderPen, rec);
+                e.Graphics.DrawRectangle(noteTitleBorderPen, new Rectangle(0, rec.Bottom, rec.Width, (container.Height - rec.Height) - 2));
+            }
+
         }
     }
 }

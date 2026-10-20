@@ -2,6 +2,7 @@
 using Nucleus.Coop.Forms;
 using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
+using Nucleus.Gaming.Forms;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -12,7 +13,7 @@ namespace Nucleus.Coop.UI
 {
     public static class Generic_Functions
     {
-        public static void EnablePlay() => UI_Interface.PlayButton.Visible = true;
+        
 
         public static List<Control> ListAllFormControls(Form form)
         {
@@ -98,12 +99,28 @@ namespace Nucleus.Coop.UI
                 UI_Interface.ProfileSettings.BringToFront();
             }
 
-            if(!(sender is SortCheckBox) && !(sender is SortOptionsPanel))
+            if (GamePathForm.Instance != null)
+            {
+                GamePathForm.Instance.BringToFront();
+            }
+
+            //auto search games
+            if (SearchDisksForm.Instance != null)
+            {
+                SearchDisksForm.Instance.BringToFront();
+            }
+
+            if (!(sender is SortCheckBox) && !(sender is SortOptionsPanel))
             {
                 UI_Interface.SortOptionsPanel.Visible = false;
             }
 
-            if (sender != UI_Interface.TutorialButton && UI_Interface.Tutorial != null)
+            if (UI_Interface.ProfilesList.Visible)
+            {
+                UI_Functions.OnClickHideProfileList(null, null);
+            }
+
+            if (UI_Interface.Tutorial != null)
             {
                 DisposeTutorial();
             }
@@ -118,12 +135,15 @@ namespace Nucleus.Coop.UI
 
         public static void RefreshAll()
         {
-            UI_Interface.GameListContainer.Refresh();
-            UI_Interface.SetupPanel.Refresh();
-            UI_Interface.WindowPanel.Refresh();
-            UI_Interface.InfoPanel.Refresh();
-            UI_Interface.HomeScreen.Refresh();
-            UI_Interface.MainForm.Refresh();
+            UIThread.Post(() =>
+            {
+                UI_Interface.WindowPanel.Invalidate();
+                UI_Interface.GameListContainer.Invalidate();
+                UI_Interface.SetupPanel.Invalidate();
+                UI_Interface.InfoPanel.Invalidate();
+
+                UI_Interface.MainForm.Refresh();
+            });
         }
 
         public static void SizeAndScaleTuto()
@@ -179,12 +199,13 @@ namespace Nucleus.Coop.UI
                 return;
             }
 
+            Core_Interface.Current_UserGameInfo = null;
             UI_Interface.WebView = new HubWebView();
 
             UI_Interface.WebView.Disposed += WebviewDisposed;
             UI_Interface.HomeScreen.Controls.Add(UI_Interface.WebView);
 
-            UI_Interface.WebView.Size = UI_Interface.HomeScreen.Size;
+            UI_Interface.WebView.Size = new Size(UI_Interface.HomeScreen.Size.Width, UI_Interface.GameListContainer.Height);
             UI_Interface.WebView.Location = UI_Interface.GameListContainer.Location;
 
             UI_Interface.HubButton.Selected = true;
@@ -216,6 +237,7 @@ namespace Nucleus.Coop.UI
             }
 
             UI_Interface.HomeScreen.Controls.Remove(UI_Interface.WebView);
+
             UI_Interface.WebView.Dispose();
             UI_Interface.WebView = null;
 

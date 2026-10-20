@@ -2,6 +2,7 @@
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.InputManagement;
 using Nucleus.Gaming.Coop.ProtoInput;
+using Nucleus.Gaming.UI;
 using Nucleus.Gaming.Windows;
 using Nucleus.Gaming.Windows.Interop;
 using Nucleus.Interop.User32;
@@ -278,9 +279,9 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                         newHeight = (newWidth / handlerInstance.origRatio);
 
-                        if (newHeight > handlerInstance.playerBoundsWidth)
+                        if (newHeight > handlerInstance.playerBoundsHeight)
                         {
-                            newHeight = handlerInstance.playerBoundsWidth;
+                            newHeight = handlerInstance.playerBoundsHeight;
                         }
                     }
                 }
@@ -292,12 +293,13 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                         newWidth = (newHeight * handlerInstance.origRatio);
 
-                        if (newWidth > handlerInstance.playerBoundsHeight)
+                        if (newWidth > handlerInstance.playerBoundsWidth)
                         {
-                            newWidth = handlerInstance.playerBoundsHeight;
+                            newWidth = handlerInstance.playerBoundsWidth;
                         }
                     }
                 }
+
                 size.Width = (int)newWidth;
                 size.Height = (int)newHeight;
 
@@ -669,7 +671,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
             if (profile == null || !GameProfile.Saved || !canSwitchLayout || ResetingWindows)
             {
-                Globals.MainOSD.Show(1600, $"Can't Be Used Now");
+                Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Warning}|Can't Be Used Now@*");
                 return;
             }
 
@@ -1008,7 +1010,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
             if (handlerInstance.profile == null || !GameProfile.Saved || ResetingWindows)
             {
-                Globals.MainOSD.Show(1600, $"Can't Be Used Now");
+                Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Warning}|Can't Be Used Now@*");
                 return;
             }
 
@@ -1023,7 +1025,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                 if (data == null)
                 {
-                    Globals.MainOSD.Show(1600, $"Can't Be Used Now");
+                    Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Warning}|Can't Be Used Now@*");
                     return;
                 }
 
@@ -1073,7 +1075,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                     }
 
                     canSwitchLayout = false;
-                    Globals.MainOSD.Show(1600, "Cutscenes Mode On");
+                    Globals.MainOSD.Show(1600, $"Cutscenes Mode *@{OSDHighlightColors.Confirm}|On@*");
                 }
                 else//Reset all player windows and unmute
                 {
@@ -1103,7 +1105,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                     canSwitchLayout = true;
 
-                    Globals.MainOSD.Show(1600, "Cutscenes Mode Off");
+                    Globals.MainOSD.Show(1600, $"Cutscenes Mode *@{OSDHighlightColors.Warning}|Off@*");
 
                     if (handlerInstance.CurrentGameInfo.SetForegroundWindowElsewhere || GameProfile.Cts_Unfocus)
                     {
@@ -1597,9 +1599,9 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
             if (handlerInstance.exited == players.Count)
             {
-                if (!handlerInstance.hasEnded)
+                if (!handlerInstance.HasEnded)
                 {
-                    handlerInstance.hasEnded = true;
+                    handlerInstance.HasEnded = true;
                     handlerInstance.Log("Update method calling Handler End function");
                     handlerInstance.End(false);
                 }
@@ -1620,15 +1622,15 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 return;
             }
 
-            if (LockInputRuntime.IsLocked)
-            {
-                Globals.MainOSD.Show(1600, $"Unlock Inputs First (Press {App_Hotkeys.LockInputs} key)");
-                return;
-            }
+            //if (LockInputRuntime.IsLocked)
+            //{
+            //    Globals.MainOSD.Show(1600, $"*@255,175,61|Unlock Inputs First (Press@* *@78,131,239|{App_Hotkeys.LockInputs}@* *@255,175,61|key)@*");
+            //    return;
+            //}
 
             if (handlerInstance.profile.DevicesList.All(pl => pl.ProcessData == null))
             {
-                Globals.MainOSD.Show(1600, $"Can't Be Used Now");
+                Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Warning}|Can't Be Used Now@*");
                 return;//return until atleast 1 player processdata is set 
             }
 

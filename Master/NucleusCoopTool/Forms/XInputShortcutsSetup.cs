@@ -34,7 +34,7 @@ namespace Nucleus.Coop.Forms
         public XInputShortcutsSetup()
         {
             InitializeComponent();
-            bool roundedcorners = bool.Parse(Globals.ThemeConfigFile.IniReadValue("Misc", "UseRoundedCorners"));
+
             gamepadType = App_GamePadNavigation.Type;
 
             Cursor = Theme_Settings.Default_Cursor;
@@ -58,7 +58,7 @@ namespace Nucleus.Coop.Forms
             brush = new SolidBrush(Color.FromArgb(120, 0, 255, 60));
             switch15.KeyPress += Num_KeyPress;
 
-            if (roundedcorners)
+            if (Theme_Settings.WindowRoundedCorners)
             {
                 FormGraphicsUtil.CreateRoundedControlRegion(this, 0, 0, Width, Height, 20, 20);
             }
@@ -506,6 +506,8 @@ namespace Nucleus.Coop.Forms
 
         private void Close_Click(object sender, EventArgs e)
         {
+            refreshTimer?.Dispose();
+
             #region take a picture of the controller shortcuts
 
             Color defColor = shortContainer.BackColor;
@@ -563,7 +565,7 @@ namespace Nucleus.Coop.Forms
 
             GamepadShortcuts.UpdateShortcutsValue();
             GamepadNavigation.UpdateUINavSettings();
-
+  
             Visible = false;
         }
 

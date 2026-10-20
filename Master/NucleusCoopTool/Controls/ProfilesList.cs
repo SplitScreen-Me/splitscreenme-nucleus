@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Nucleus.Coop.Forms;
 using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
@@ -23,6 +24,21 @@ namespace Nucleus.Coop.Controls
     public partial class ProfilesList : ControlListBox
     {
         private float _scale => (float)User32Util.GetDpiForWindow(this.Handle) / (float)100;
+        private float scale
+        {
+            get
+            {
+                if(_scale < 1.0f)
+                {
+                    return 1.0f;
+                }
+                else
+                {
+                    return _scale;
+                }
+            }
+        }
+
         public static ProfilesList Instance;
 
         public static Action UIAction_OnUnload_Click;
@@ -38,8 +54,12 @@ namespace Nucleus.Coop.Controls
         private Control parentControl;
         private bool useGradient;
         private MouseEventArgs eventArgs;
+
         private Font titleFont;
         private Font previewFont;
+        private Font unloadFont;
+
+        private Button unloadButton;
 
         public ProfilesList(Control parent)
         {
@@ -47,43 +67,98 @@ namespace Nucleus.Coop.Controls
 
             InitializeComponent();
 
-            Name = "ProfilePanel";
+            Name = "ProfilesList";
             Size = new Size(300,1);
             Location = new Point(0, 0);
             Anchor = AnchorStyles.Top | AnchorStyles.Right;
             Visible = false;
-            BorderStyle = BorderStyle.None;
+            BorderStyle = BorderStyle.FixedSingle;
 
-            foreColor = Theme_Settings.ControlsForeColor;
+            foreColor = Theme_Settings.ControlsForeColor;          
+            BackColor = Color.FromArgb(255,Theme_Settings.WindowPanelBackColor.R, Theme_Settings.WindowPanelBackColor.G, Theme_Settings.WindowPanelBackColor.B);
 
-            if (Theme_Settings.BackgroundGradientColor.A == 1)
-            {
-                backGradient = Theme_Settings.BackgroundGradientColor;
-                BackColor = Color.Transparent;
-                useGradient = true;
-            }
-            else
-            {
-                backGradient = Color.FromArgb(0, 0, 0, 0);
-                BackColor = Theme_Settings.WindowPanelBackColor;
-            }
-
+            VisibleChanged += On_VisibleChanged;
+     
             eventArgs = new MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0);
 
             GameProfile.OnReset -= Update_Unload;
             GameProfile.OnReset += Update_Unload;
 
+            unloadButton = new Button();
+            unloadButton.Name = "unloadButton";
+            unloadButton.TextAlign = ContentAlignment.MiddleCenter;
+            unloadButton.ForeColor =  Theme_Settings.ControlsForeColor; 
+            unloadButton.BackColor = Theme_Settings.ButtonsBackColor;// this.BackColor;
+            unloadButton.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
+            unloadButton.FlatAppearance.BorderColor = Theme_Settings.ButtonsBorderColor;
+            unloadButton.FlatAppearance.BorderSize = 1;
+            unloadButton.Text = "Unload Profile";
+            unloadButton.FlatStyle = FlatStyle.Flat;
+            unloadButton.Cursor = Theme_Settings.Hand_Cursor;
+            unloadButton.Click += UnloadButton_Click;
+            unloadButton.KeyPress += UnloadButton_Click;
+            UI_Interface.ProfileButtonsPanel.Controls.Add(unloadButton);
+            UI_Interface.UnloadProfileButton = unloadButton;
+
+            Visible = false;
+
             Instance = this;
+        }
+
+        private void On_VisibleChanged(object sender,EventArgs e)
+        {
+            Control list = sender as Control;
+            
+            if(GameProfile.Loaded && Core_Interface.CurrentStepIndex != Core_Interface.StepsList.Count)
+            {
+                unloadButton.Visible = true;
+                BringToFront();
+            }
+            else
+            {
+                unloadButton.Visible = false;
+            }
+        }
+
+        private void UnloadButton_Click(object sender, EventArgs e)
+        {
+            //we don't want the profile to be unloaded while profile settings opened
+            if (Locked)
+            {
+                //So we bring the profile settings window to front
+                Generic_Functions.ClickAnyControl(null, null);
+                return;
+            }
+
+            unloadButton.Visible = false;
+            GameProfile.Instance.Reset();
+            Globals.MainOSD.Show(500, $"Handler Profile Settings *@{OSDHighlightColors.Confirm}|Unloaded@*");
+        }
+   
+        private void UpdateUnloadButton(bool visible)
+        {
+            unloadButton.Font = unloadFont;
+            
+            Control profBtn = UI_Interface.ProfileSettingsButton;
+            unloadButton.Size = new Size((int)(100 * scale), profBtn.Height);
+            unloadButton.Location = new Point(profBtn.Right + 5, profBtn.Top + (profBtn.Height/2) - unloadButton.Height/2);
+            unloadButton.ForeColor = Color.White;
+            unloadButton.BringToFront();
+            unloadButton.Visible = visible;
         }
 
         public void Update_Reload()
         {
-            string name = int.Parse(Regex.Match(GameProfile.ModeText, @"\d+").Value).ToString();
+            int index = int.Parse(Regex.Match(GameProfile.ModeText, @"\d+").Value);
+            
+            string[] texts = GetControlsText(index - 1);
+            string name = index.ToString();
 
             Label dummy = new Label
             {
                 Name = name,
-                Text = $"{PartialTitle} {name}"
+                Text = $"{PartialTitle} {name}",
+                Tag = texts[1]
             };
 
             ProfileBtn_CheckedChanged(dummy, eventArgs);
@@ -94,9 +169,14 @@ namespace Nucleus.Coop.Controls
 
         public void Update_Unload()
         {
-            Label dummy = new Label();
-            ProfileBtn_CheckedChanged(dummy, null);
-            dummy.Dispose();
+            CustomToolTips.SetToolTip(UI_Interface.ProfileSettingsButton, $"New profile settings", "profileSettingsButton", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+
+            foreach (Control c in Controls)
+            {
+                c.Controls[0].ForeColor = foreColor;
+            }
+
+            UpdateUnloadButton(false);
         }
 
         public void ProfileBtn_CheckedChanged(object sender, MouseEventArgs e)
@@ -106,68 +186,52 @@ namespace Nucleus.Coop.Controls
                 return;
             }
 
-            Label selected = (Label)sender;
-
-            if (e != null)
+            UIThread.Post(() =>
             {
-                if (e.Button == MouseButtons.Right)
-                {
-                    string dllPath = AssemblyUtil.GetStartFolder() + "\\pl.lib.dll";
+                CustomToolTips.SetToolTip(UI_Interface.ProfileSettingsButton, "New profile settings", "profileSettingsButton", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
 
-                    if (File.Exists(Application.StartupPath + "\\Profiles Launcher.exe") && File.Exists(dllPath))
+                Label selected = (Label)sender;
+
+                if (e != null)
+                {
+                    if (e.Button == MouseButtons.Right)
                     {
-                        DialogResult dialogResult = System.Windows.Forms.MessageBox.Show($"Do you want to export a desktop shortcut for this handler profile?", "Export handler profile shortcut", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                        string dllPath = AssemblyUtil.GetStartFolder() + "\\pl.lib.dll";
 
-                        if (dialogResult == DialogResult.Yes)
+                        if (File.Exists(Application.StartupPath + "\\Profiles Launcher.exe") && File.Exists(dllPath))
                         {
-                            string jsonString = File.ReadAllText(GameProfile.profilesPathList[int.Parse(selected.Name) - 1]);
-                            JObject Jprofile = (JObject)JsonConvert.DeserializeObject(jsonString);
-                            string userNotes = ((string)Jprofile["Notes"] != null && (string)Jprofile["Notes"] != "") ? (string)Jprofile["Notes"] : "";
+                            DialogResult dialogResult = System.Windows.Forms.MessageBox.Show($"Do you want to export a desktop shortcut for this handler profile?", "Export handler profile shortcut", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
-                            string shortcutTitle = selected.Text.StartsWith("Load profile:") ? selected.Text.Split(':')[1] : selected.Text;
-                            CreateShortcut(dllPath,GameProfile.GameInfo.GameGuid, shortcutTitle, selected.Name, userNotes, GameProfile.GameInfo.ExePath);
+                            if (dialogResult == DialogResult.Yes)
+                            {
+                                string jsonString = File.ReadAllText(GameProfile.profilesPathList[int.Parse(selected.Name) - 1]);
+                                JObject Jprofile = (JObject)JsonConvert.DeserializeObject(jsonString);
+                                string userNotes = ((string)Jprofile["Notes"] != null && (string)Jprofile["Notes"] != "") ? (string)Jprofile["Notes"] : "";
+
+                                string shortcutTitle = selected.Text.StartsWith("Load profile:") ? selected.Text.Split(':')[1] : selected.Text;
+                                CreateShortcut(dllPath, GameProfile.Current_UserGameInfo.GameGuid, shortcutTitle, selected.Name, userNotes, GameProfile.Current_UserGameInfo.ExePath);
+                            }
                         }
+
+                        return;
                     }
-
-                    return;
                 }
-            }
 
-            selected.BackColor = Color.Transparent;
-            foreach (Control c in Controls)
-            {
-                if (c != selected && c.Text != "Unload")
+                foreach (Control c in Controls)
                 {
-                    c.ForeColor = foreColor;
+                    if (c != selected)
+                    {
+                        c.Controls[0].ForeColor = foreColor;
+                    }
                 }
 
-                if (e == null && c.Text == "Unload")
+                if (GameProfile.Instance.LoadGameProfile(int.Parse(selected.Name)))//GameProfile auto reset on load
                 {
-                    c.ForeColor = Color.Gray;
-                    selected.Dispose();//dummy control use to reset the unload "button/label"
+                    Controls[int.Parse(selected.Name) - 1].Controls[0].ForeColor = Color.GreenYellow;
+                    UpdateUnloadButton(true);
+                    CustomToolTips.SetToolTip(UI_Interface.ProfileSettingsButton, $"Profile \"{selected.Tag}\" settings", "profileSettingsButton", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
                 }
-            }
-
-            if ((selected.Text == "Unload" && selected.ForeColor == Color.Gray) || e == null)
-            {
-                UIAction_OnUnload_Click?.Invoke();
-                return;
-            }
-
-            if (selected.Text == "Unload")
-            {
-                selected.ForeColor = Color.Gray;
-                GameProfile.Instance.Reset();
-                Globals.MainOSD.Show(500, "Handler Profile Unloaded");
-                return;
-            }
-
-            if (GameProfile.Instance.LoadGameProfile(int.Parse(selected.Name)))//GameProfile auto reset on load
-            {
-                Controls[int.Parse(selected.Name) - 1].ForeColor = Color.GreenYellow;
-                Label unloadBtn = Controls[Controls.Count - 1] as Label;
-                unloadBtn.ForeColor = Color.Orange;
-            }
+            });
         }
 
         private static void CreateShortcut(string dllPath, string gameGUID, string shortcutId, string profileId, string description,string iconPath)
@@ -185,52 +249,52 @@ namespace Nucleus.Coop.Controls
         {
             Visible = false;
 
-            foreach (Control control in Controls)
+            while (Controls.Count > 0)
             {
-                control.Dispose();
+                Controls[0].Dispose();
             }
-
-            Controls.Clear();
 
             List<int> sizes = new List<int>();
 
-            Size = new Size((int)(300 * _scale), (int)(1 * _scale));
+            Size = new Size((int)(300 * scale), (int)(1 * scale));
             int offset = 5;
 
             if (titleFont == null)
             {
-                titleFont = new Font(Theme_Settings.CustomFont,10F, FontStyle.Bold, GraphicsUnit.Pixel, 0);
+                titleFont = new Font(Theme_Settings.CustomFont, 10F, FontStyle.Bold, GraphicsUnit.Pixel, 0);
                 previewFont = new Font(Theme_Settings.CustomFont, 10F, FontStyle.Bold, GraphicsUnit.Pixel, 0);
+                unloadFont = unloadButton.Font = new Font(Theme_Settings.CustomFont, 10F, FontStyle.Bold, GraphicsUnit.Pixel, 0);
             }
 
-            for (int i = 0; i < GameProfile.profilesPathList.Count + 1; i++)
+            for (int i = 0; i < GameProfile.profilesPathList.Count; i++)
             {
                 string text;
-                offset = 5;
+                string tag = string.Empty;
 
-                if (i != GameProfile.profilesPathList.Count)
-                {
-                    string jsonString = File.ReadAllText(GameProfile.profilesPathList[i]);
-                    JObject Jprofile = (JObject)JsonConvert.DeserializeObject(jsonString);
+                offset = 10;
 
-                    if ((string)Jprofile["Title"] != null && (string)Jprofile["Title"] != "")
-                    {
-                        text = (string)Jprofile["Title"];
-                    }
-                    else
-                    {
-                        text = $"{PartialTitle} {i + 1}";
-                    }
-                }
-                else
+                string[] texts = GetControlsText(i);
+                text = texts[0];
+                tag = texts[1];
+
+                Panel cont = new Panel
                 {
-                    text = "Unload";
-                }
+                    Name = (i + 1).ToString(),
+                    BackgroundImageLayout = ImageLayout.Zoom,
+                    Font = titleFont,
+                    BackColor = Color.Transparent,
+                    ForeColor = foreColor,
+                    Text = text,
+                    Height = (int)(20 * scale),
+                    Cursor = Theme_Settings.Hand_Cursor,
+                };
+
+                Controls.Add(cont);
 
                 Label deleteBtn = new Label
                 {
                     Anchor = AnchorStyles.Right,
-                    Size = new Size((int)(20 * _scale), (int)(20 * _scale)),
+                    Size = new Size((int)(20 * scale), (int)(20 * scale)),
                     Font = new Font("Lucida Console", (float)12, FontStyle.Bold, GraphicsUnit.Pixel, 0),
                     ForeColor = Color.Red,
                     FlatStyle = FlatStyle.Flat,
@@ -242,12 +306,10 @@ namespace Nucleus.Coop.Controls
                 CustomToolTips.SetToolTip(deleteBtn, $"Delete handler profile {i + 1}.", $"Delete profile{i}.", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
                 deleteBtn.Click += DeleteBtn_Click;//Delete profile
 
-                offset += deleteBtn.Width;
-
                 Label previewBtn = new Label
                 {
                     Anchor = AnchorStyles.Right,
-                    Size = new Size((int)(13 * _scale), (int)(20 * _scale)),
+                    Size = new Size((int)(13 * scale), (int)(20 * scale)),
                     Font = previewFont,
                     BackgroundImageLayout = ImageLayout.Zoom,
                     BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "magnifier.png"),
@@ -261,8 +323,6 @@ namespace Nucleus.Coop.Controls
                 CustomToolTips.SetToolTip(previewBtn, "Show handler profile info .", $"previewBtn{i}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
                 previewBtn.Click += Profile_Preview;//view profile event 
 
-                offset += previewBtn.Width;
-
                 Label profileBtn = new Label
                 {
                     Name = (i + 1).ToString(),
@@ -273,60 +333,94 @@ namespace Nucleus.Coop.Controls
                     ForeColor = foreColor,
                     TextAlign = ContentAlignment.MiddleLeft,
                     Text = text,
-                    Height = (int)(20 * _scale),
-                    Cursor = Theme_Settings.Hand_Cursor
+                    Height = (int)(20 * scale),
+                    Cursor = Theme_Settings.Hand_Cursor,
+                    AutoSize = true
                 };
 
+                cont.Controls.Add(profileBtn);
+
+                profileBtn.Tag = tag;
                 string profileBtnToolTipText = File.Exists(Application.StartupPath + "\\Profiles Launcher.exe") ? $"Load handler profile {profileBtn.Name}. Right click to export a shortcut to desktop." : $"Load handler profile {profileBtn.Name}.";
 
                 profileBtn.MouseClick += ProfileBtn_CheckedChanged;
 
-                if (i != GameProfile.profilesPathList.Count)
-                {
-                    deleteBtn.Location = new Point(profileBtn.Right - deleteBtn.Width, profileBtn.Location.Y);
-                    previewBtn.Location = new Point(deleteBtn.Left - previewBtn.Width, deleteBtn.Location.Y);
+                cont.Controls.Add(deleteBtn);
+                deleteBtn.Location = new Point(cont.Right - deleteBtn.Width, profileBtn.Location.Y);
 
-                    profileBtn.Controls.Add(deleteBtn);
-                    profileBtn.Controls.Add(previewBtn);
+                cont.Controls.Add(previewBtn);
+                previewBtn.Location = new Point(deleteBtn.Left - previewBtn.Width, deleteBtn.Location.Y);      
+                
 
-                    CustomToolTips.SetToolTip(profileBtn, profileBtnToolTipText, $"{profileBtnToolTipText} {i}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
-                }
-                else
-                {
-                    profileBtn.ForeColor = Color.Gray;
-                    CustomToolTips.SetToolTip(profileBtn, "Unload current loaded handler profile.", $"Unload profile", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
-                }
+                profileBtn.Location = new Point(profileBtn.Left,(cont.Height / 2) - (profileBtn.Height / 2));
+                offset += deleteBtn.Width + previewBtn.Width;
 
-                using (Graphics graphics = Graphics.FromImage(new Bitmap(1, 1)))
-                {
-                   sizes.Add((int)graphics.MeasureString(profileBtn.Text, profileBtn.Font, Size.Width, StringFormat.GenericDefault).Width + 40);
-                   graphics.Dispose();
-                }
+                CustomToolTips.SetToolTip(profileBtn, profileBtnToolTipText, $"{profileBtnToolTipText} {i}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+
+                Graphics g = CreateGraphics();
+                sizes.Add((int)g.MeasureString(profileBtn.Text, profileBtn.Font, profileBtn.Width).Width + offset);
+                g.Dispose();
 
                 if (i <= 5)
                 {
-                    Height += profileBtn.Height+1;               
+                    Height += cont.Height + 1;
                 }
 
-                Controls.Add(profileBtn);
+                bool isVerticalVisible = VerticalScroll.Visible;
+               
+                if(!isVerticalVisible)
+                {
+                    Width -= SystemInformation.VerticalScrollBarWidth;
+                }
+               
             }
 
             var sortedSizes = sizes.OrderByDescending(x => x).ToList();//Sort profiles titles by Width so the list Width is set to the max value
-            Width = (int)((sortedSizes[0]) * _scale) + offset;
 
-            Location = new Point((parentControl.Right - Width) + 1, parentControl.Top);
+            if (sortedSizes.Count > 0)
+            {
+                Width = (int)((sortedSizes[0]) * scale) + offset;
+            }
+
+            Location = new Point(UI_Interface.InfoPanel.Left + UI_Interface.ProfileButtonsPanel.Left + 2, UI_Interface.InfoPanel.Top + UI_Interface.ProfileButtonsPanel.Bottom + 3);
+
+            if (Right > parentControl.Right)
+            {
+                Location = new Point(UI_Interface.InfoPanel.Right - Width + 1, UI_Interface.InfoPanel.Top + UI_Interface.ProfileButtonsPanel.Bottom + 3);
+            }
 
             BringToFront();
 
-            if (Controls.Count == 1)
+            if (Controls.Count == 0)
             {
                 Controls.Clear();
                 Visible = false;
+                unloadButton.Visible = false;
             }
             else
             {
                 Visible = true;
             }
+        }
+
+        private string[] GetControlsText(int index)
+        {
+            string jsonString = File.ReadAllText(GameProfile.profilesPathList[index]);
+            JObject Jprofile = (JObject)JsonConvert.DeserializeObject(jsonString);
+            string[] texts = new string[2];
+
+            if ((string)Jprofile["Title"] != null && (string)Jprofile["Title"] != "")
+            {
+                texts[0] = (string)Jprofile["Title"];
+                texts[1] = texts[0];
+            }
+            else
+            {
+                texts[0] = $"{PartialTitle} {index + 1}";
+                texts[1] = (index + 1).ToString();
+            }
+
+            return texts;
         }
 
         //Show profile config or user notes in handler note "zoomed" textbox
@@ -422,10 +516,25 @@ namespace Nucleus.Coop.Controls
                 sb.Append($" -Index: {(int)playerDatas["PlayerID"] + 1}\n");
                 sb.Append($" -Steam Id: {playerDatas["SteamID"]}\n");
 
-                bool isController = (bool)playerDatas["IsDInput"] || (bool)playerDatas["IsXInput"];
+                bool isSDL2 = false;
+                bool isSDL3 = false;
+
+                if(playerDatas["IsSDL2"] != null)
+                {
+                    isSDL2 = (bool)playerDatas["IsSDL2"];
+                }
+
+                if (playerDatas["IsSDL3"] != null)
+                {
+                    isSDL2 = (bool)playerDatas["IsSDL3"];
+                }
+
+                bool isController = (bool)playerDatas["IsDInput"] || (bool)playerDatas["IsXInput"] || isSDL2 || isSDL3;
+
                 if (isController)
                 {
                     sb.Append($" -Device Type: Gamepad\n");
+                    sb.Append($" -Gamepad GUID: {playerDatas["GamepadGuid"]}\n");
                 }
                 else
                 {
@@ -480,8 +589,8 @@ namespace Nucleus.Coop.Controls
 
             if (dialogResult == DialogResult.Yes)
             {
-                File.Delete(GameProfile.profilesPathList[int.Parse(deleteBtn.Parent.Name) - 1]);
-
+                //File.Delete(GameProfile.profilesPathList[int.Parse(deleteBtn.Parent.Name) - 1]);
+                FileUtil.SendToRecycleBin(GameProfile.profilesPathList[int.Parse(deleteBtn.Parent.Name) - 1]);
                 List<FileInfo> profilesPath = Directory.GetParent(GameProfile.profilesPathList[int.Parse(deleteBtn.Parent.Name) - 1]).
                                               EnumerateFiles().OrderBy(s => int.Parse(Regex.Match(s.Name, @"\d+").Value)).ToList();
 
@@ -505,35 +614,35 @@ namespace Nucleus.Coop.Controls
                     UI_Interface.ProfileListButton.Visible = false;
                 }
 
-                Globals.MainOSD.Show(500, "Handler Profile Deleted");
+                Globals.MainOSD.Show(500, $"Handler Profile *@{OSDHighlightColors.Confirm}|Deleted@*");
             }
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            Rectangle gradientBrushbounds = new Rectangle(0, 0, Width, Height);
+            //Rectangle gradientBrushbounds = new Rectangle(0, 0, Width, Height);
 
-            if (gradientBrushbounds.Width == 0 || gradientBrushbounds.Height == 0)
-            {
-                return;
-            }
+            //if (gradientBrushbounds.Width == 0 || gradientBrushbounds.Height == 0)
+            //{
+            //    return;
+            //}
 
-            Color color = Color.FromArgb(useGradient ? 100 : 0, backGradient.R, backGradient.G, backGradient.B);
-            Color color2 = Color.FromArgb(useGradient ? 120 : 0, backGradient.R, backGradient.G, backGradient.B);
-            LinearGradientBrush lgb =
-            new LinearGradientBrush(gradientBrushbounds, Color.Transparent, color, 90f);
+            //Color color = Color.FromArgb(useGradient ? 100 : 0, backGradient.R, backGradient.G, backGradient.B);
+            //Color color2 = Color.FromArgb(useGradient ? 120 : 0, backGradient.R, backGradient.G, backGradient.B);
+            //LinearGradientBrush lgb =
+            //new LinearGradientBrush(gradientBrushbounds, Color.Transparent, color, 90f);
 
-            ColorBlend topcblend = new ColorBlend(3);
-            topcblend.Colors = new Color[3] { Color.Transparent,color, color2};
-            topcblend.Positions = new float[3] { 0f, 0.5f, 1f };
+            //ColorBlend topcblend = new ColorBlend(3);
+            //topcblend.Colors = new Color[3] { Color.Transparent,color, color2};
+            //topcblend.Positions = new float[3] { 0f, 0.5f, 1f };
 
-            GraphicsPath graphicsPath = FormGraphicsUtil.MakeRoundedRect(gradientBrushbounds, 10, 10, false, false, false, true);
+            //GraphicsPath graphicsPath = FormGraphicsUtil.MakeRoundedRect(gradientBrushbounds, 10, 10, false, false, false, true);
             
-            lgb.InterpolationColors = topcblend;
-            e.Graphics.FillPath(lgb, graphicsPath);
+            //lgb.InterpolationColors = topcblend;
+            //e.Graphics.FillPath(lgb, graphicsPath);
 
-            lgb.Dispose();
-            graphicsPath.Dispose();
+            //lgb.Dispose();
+            //graphicsPath.Dispose();
         }
     }
 }

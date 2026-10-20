@@ -159,13 +159,15 @@ namespace Nucleus
                 cmd.StandardInput.WriteLine($@"set LOCALAPPDATA={UserEnvironmentRoot}\NucleusCoop\{playerNickname}\AppData\Local");
                 cmd.StandardInput.WriteLine($@"set USERPROFILE={UserEnvironmentRoot}\NucleusCoop\{playerNickname}");
                 cmd.StandardInput.WriteLine($@"set HOMEPATH=\Users\{username}\NucleusCoop\{playerNickname}");
+                cmd.StandardInput.WriteLine($@"set TEMP={UserEnvironmentRoot}\NucleusCoop\{playerNickname}\AppData\Local\Temp");
+                cmd.StandardInput.WriteLine($@"set TMP={UserEnvironmentRoot}\NucleusCoop\{playerNickname}\AppData\Local\Temp");
 
                 //Some games will crash if the directories don't exist
                 Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop");
                 Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop\{playerNickname}");
                 Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop\{playerNickname}\AppData\Roaming");
                 Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop\{playerNickname}\AppData\Local");
-
+                Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop\{playerNickname}\AppData\Local\Temp");
                 //Directory.CreateDirectory($@"\Users\{username}\NucleusCoop\{playerNickname}");
                 Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop\{playerNickname}\Documents");
 
@@ -521,7 +523,6 @@ namespace Nucleus
                             Log(string.Format("Killing process {0} (pid {1})", proc.ProcessName, proc.Id));
                             proc.Kill();
                         }
-
                     }
                     catch (Exception ex)
                     {
@@ -532,6 +533,49 @@ namespace Nucleus
             catch (Exception ex)
             {
                 Log(ex.InnerException + " " + ex.Message);
+            }
+        }
+
+        // Import required Windows API functions
+        [DllImport("kernel32.dll")]
+        private static extern IntPtr OpenThread(int dwDesiredAccess, bool bInheritHandle, uint dwThreadId);
+
+        [DllImport("kernel32.dll")]
+        private static extern uint SuspendThread(IntPtr hThread);
+
+        [DllImport("kernel32.dll")]
+        private static extern int ResumeThread(IntPtr hThread);
+
+        [DllImport("kernel32.dll")]
+        private static extern bool CloseHandle(IntPtr hHandle);
+
+        private const int THREAD_SUSPEND_RESUME = 0x0002;
+
+        public static void PauseProcess(int pid)
+        {
+            Process process = Process.GetProcessById(pid);
+            foreach (ProcessThread thread in process.Threads)
+            {
+                IntPtr pOpenThread = OpenThread(THREAD_SUSPEND_RESUME, false, (uint)thread.Id);
+                if (pOpenThread == IntPtr.Zero)
+                    continue;
+
+                SuspendThread(pOpenThread);
+                CloseHandle(pOpenThread);
+            }
+        }
+
+        public static void ResumeProcess(int pid)
+        {
+            Process process = Process.GetProcessById(pid);
+            foreach (ProcessThread thread in process.Threads)
+            {
+                IntPtr pOpenThread = OpenThread(THREAD_SUSPEND_RESUME, false, (uint)thread.Id);
+                if (pOpenThread == IntPtr.Zero)
+                    continue;
+
+                ResumeThread(pOpenThread);
+                CloseHandle(pOpenThread);
             }
         }
 

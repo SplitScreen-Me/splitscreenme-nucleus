@@ -1,11 +1,11 @@
-﻿using Microsoft.Win32;
-using Nucleus.Gaming;
+﻿using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Windows;
 using System;
 using System.IO;
 using System.Windows.Forms;
+using Nucleus.Gaming.Http_Client;
 
 namespace Nucleus.Coop
 {
@@ -13,6 +13,7 @@ namespace Nucleus.Coop
     {      
         public static bool Connected;
         public static bool ForcedBadPath;
+        public static Action<string> OnReachHub;
 
         [STAThread]
         static void Main(string[] args)
@@ -28,10 +29,11 @@ namespace Nucleus.Coop
             {
                 LogFatalError(ex);
                 MessageBox.Show($"A fatal error occurred:\n{ex.Message} {ex.StackTrace}", "Fatal Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Application.Exit();
             }     
         }
 
-        static void RunApplication(string[] args)
+        static void RunApplication(string[] args) 
         {
             // initialize DPIManager BEFORE setting 
             // the application to be DPI aware
@@ -64,8 +66,7 @@ namespace Nucleus.Coop
                     ForcedBadPath = true;
             }
 
-            Connected = StartChecks.CheckHubResponse();
-
+            Http_Client.StartPollingHub();
             StartChecks.CheckFilesIntegrity();
             StartChecks.CheckUserEnvironment();
             StartChecks.CheckAppUpdate();

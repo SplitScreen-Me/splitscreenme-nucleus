@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Windows.Forms;
+using Microsoft.VisualBasic.FileIO;
 
 namespace Nucleus.Gaming
 {
@@ -157,13 +160,13 @@ namespace Nucleus.Gaming
                     {
                         string destination_dir = linkFolder.TrimEnd('\\') + '\\' + utilPath;
 
-                        foreach (string dir in System.IO.Directory.GetDirectories(source_dir, "*", SearchOption.AllDirectories))
+                        foreach (string dir in System.IO.Directory.GetDirectories(source_dir, "*", System.IO.SearchOption.AllDirectories))
                         {
                             Directory.CreateDirectory(System.IO.Path.Combine(destination_dir, dir.Substring(source_dir.Length + 1)));
                         }
 
                         handlerInstance.Log("Copying user folder " + utilPath + " and all its contents to " + "Instance" + i + "\\" + utilPath);
-                        foreach (string file_name in System.IO.Directory.GetFiles(source_dir, "*", SearchOption.AllDirectories))
+                        foreach (string file_name in System.IO.Directory.GetFiles(source_dir, "*", System.IO.SearchOption.AllDirectories))
                         {
                             File.Copy(file_name, System.IO.Path.Combine(destination_dir, file_name.Substring(source_dir.Length + 1)));
                         }
@@ -334,5 +337,38 @@ namespace Nucleus.Gaming
             }
         }
 
+        public static void SendToRecycleBin(string path)
+        {
+            try
+            {
+                if (Directory.Exists(path))
+                {
+                    FileSystem.DeleteDirectory(path, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+                }
+                else if (File.Exists(path))
+                {
+                    FileSystem.DeleteFile(path, UIOption.OnlyErrorDialogs, RecycleOption.SendToRecycleBin);
+                }
+            }
+            catch (Exception ex)
+            {
+                DialogResult dialogResult = MessageBox.Show(ex.Message, "An error occured", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            }
+        }
+
+        public static string ComputeSHA256(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                return null;
+            }
+
+            using (var sha = new SHA256Managed())
+            using (var stream = File.OpenRead(filePath))
+            {
+                byte[] hash = sha.ComputeHash(stream);
+                return BitConverter.ToString(hash).Replace("-", "").ToLowerInvariant();
+            }
+        }
     }
 }

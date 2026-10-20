@@ -13,6 +13,14 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using Nucleus.Coop.UI;
+using System.IO;
+using Newtonsoft.Json.Linq;
+using Nucleus.Gaming.Http_Client;
+using Nucleus.Gaming.Forms;
+using Nucleus.Gaming.Windows;
+using System.Runtime.InteropServices;
+using Nucleus.Coop.UI.UI_Nav_V2;
+using Gamepads;
 
 namespace Nucleus.Coop
 {
@@ -20,88 +28,53 @@ namespace Nucleus.Coop
     /// Central UI class to the Nucleus Coop application
     /// </summary>
     public partial class MainForm : Form, IDynamicSized
-    {
+    {     
         private string[] startArgs;
 
         public Action<IntPtr> RawInputAction { get; set; }
 
         private bool canResize = false;
 
-        private System.Windows.Forms.Timer WebStatusTimer;
-
-        private static bool connected;
-        public bool Connected
-        {
-            get => connected;
-            set
-            {
-                connected = value;
-                Hub.Connected = value;
-
-                if (value)
-                {
-                    SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
-                    UI_Interface.DwldAssetsButton.Enabled = true;
-
-                    System.Threading.Tasks.Task.Run(() =>
-                    {
-                        foreach (KeyValuePair<string, GenericGameInfo> game in Core_Interface.GameManager.Games)
-                        {
-                            game.Value.UpdateAvailable = game.Value.Hub.IsUpdateAvailable(true);
-                        }
-                    });
-
-                    if (UI_Interface.HubButton != null)
-                    {
-                        UI_Interface.HubButton.Update(value);
-                    }
-                }
-            }
-        }
-
         public MainForm(string[] args)
         {
+            UIThread.Initialize();
+
             if (args != null && args.Length != 0)
             {
                 startArgs = args;
             }
-      
-            connected = Program.Connected;
-            Hub.Connected = connected;
 
             InitializeComponent();
 
             UI_Interface.MainForm = this;
             MainWindowFunc.FadeIn();
 
+            UI_Interface.ProfileButtonsPanel = ProfileButtonsPanel;
+            UI_Interface.InfoPanel = InfoPanel;
             UI_Interface.HomeScreen = HomeScreen;
             UI_Interface.WindowPanel = WindowPanel;
             UI_Interface.VersionTxt = txt_version;
             UI_Interface.CloseButton = closeBtn;
             UI_Interface.MinimizeButton = minimizeBtn;
             UI_Interface.MaximizeButton = maximizeBtn;
+            UI_Interface.SettingsButton = settingsButton;
             UI_Interface.DonationButton = donationBtn;
             UI_Interface.ToggleVirtualMouse = VirtualMouseToggle;
             UI_Interface.SocialMenuButton = btn_Links;
-            UI_Interface.MainButtonsPanel = MainButtonsPanel;
-            UI_Interface.InputsTextLabel = new MultiColorLabel(WindowPanel, new Point(WindowPanel.Width/ 2 , WindowPanel.Bottom -3 ));
-            UI_Interface.DwldAssetsButton = btn_downloadAssets;
-            UI_Interface.TutorialButton = Tutorial_btn;
-            UI_Interface.ExtractHandlerButton = btn_Extract;
-            UI_Interface.SearchGameButton = btnSearch;
-            UI_Interface.OpenLogButton = btn_debuglog;
+           
 
             UI_Interface.GameList = GameList;
             UI_Interface.GameListContainer = GameListContainer;
 
             UI_Interface.SortOptionsPanel = new SortOptionsPanel();
-            UI_Interface.InfoPanel = InfoPanel;
+            
             UI_Interface.IconsContainer = Icons_Container;
             UI_Interface.PlayTimePanel = PlayTimePanel;
-            UI_Interface.HandlerNoteTitle = HandlerNoteTitle;
-            UI_Interface.HandlerNotes = HandlerNotes;
+
             UI_Interface.HandlerNotesContainer = HandlerNotesContainer;
             UI_Interface.ExpandHandlerNotesButton = ExpandHandlerNotes_btn;
+            UI_Interface.HandlerNoteTitle = HandlerNoteTitle;
+            UI_Interface.HandlerNotes = HandlerNotes;
 
             UI_Interface.Cover = cover;
             UI_Interface.CoverFrame = coverFrame;
@@ -113,15 +86,17 @@ namespace Nucleus.Coop
             UI_Interface.ProfileSettingsButton = ProfileSettings_btn;
             UI_Interface.ProfileListButton = ProfilesList_btn;
 
-            UI_Interface.SettingsButton = SettingsButton;
+            UI_Interface.ManageGamesMenuButton = ManageGamesMenuButton;
+            UI_Interface.ManageGamesMenu = ManageGamesMenu;
 
             UI_Interface.GameOptionMenu = GameOptionMenu;
             UI_Interface.SocialMenu = socialLinksMenu;
+            UI_Interface.PatreonMenu = PatreonMenu;
             UI_Interface.SaveProfileSwitch = SaveProfileSwitch;
 
             UI_Interface.Logo = logo;
             UI_Interface.BigLogo = BigLogo;
-            UI_Interface.ProfileButtonsPanel = ProfileButtonsPanel;
+            
             UI_Interface.ProfileButtonPanelLockPb = ProfileButtonPanelLockPb;
 
             UI_Interface.SetupPanel = SetupPanel;
@@ -134,13 +109,20 @@ namespace Nucleus.Coop
 
             UI_Actions.InitUIActions();
 
-            Core_Interface.GameControlsInfo = new Dictionary<UserGameInfo, GameControl>();
             Core_Interface.GameManager = new GameManager();
             Core_Interface.OptionsControl = new PlayerOptionsControl();
 
+            UI_Interface.NewsFeed = new NewsFeed();
+            WindowPanel.Controls.Add(UI_Interface.NewsFeed);
+            //UI_Interface.NewsFeed.Width = 478;
+
+            UI_Interface.NewsFeed.Location = new Point(0, 5);
+            UI_Interface.NewsFeed.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            UI_Interface.NewsFeed.Size = new Size(WindowPanel.Width / 2, 20);
+
             SetCommonControlsAttributes();
 
-            SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
+            Core_Interface.RefreshGamesList();
             Core_Interface.InitializeGamepadThreads();
 
             if (!IsHandleCreated)//need this for custom scaling factors now(?) 
@@ -151,7 +133,7 @@ namespace Nucleus.Coop
             Globals.MainWindowHandle = Handle;
 
             DPIManager.Register(this);
-            DPIManager.AddForm(this);
+            DPIManager.AddForm(this);         
         }
 
         public void UpdateSize(float scale)
@@ -166,35 +148,29 @@ namespace Nucleus.Coop
 
             if (scale > 1.0f)
             {
-                foreach (Control button in UI_Interface.WindowPanel.Controls)
+                foreach (Control control in UI_Interface.WindowPanel.Controls)
                 {
-                    if (button != InputsTextLabel )
+                    if (control != InputsTextLabel)
                     {
-                        button.Font = new Font(Theme_Settings.CustomFont, mainButtonFrameFont, button.Font.Style, GraphicsUnit.Pixel, 0);
+                        control.Font = new Font(Theme_Settings.CustomFont, 9.0f, FontStyle.Bold, GraphicsUnit.Pixel, 0);
                     }
                 }
             }
 
             UI_Interface.GameOptionMenu.Font = new Font(GameOptionMenu.Font.FontFamily, 10.25f, UI_Interface.GameOptionMenu.Font.Style, GraphicsUnit.Pixel, 0);
-            UI_Interface.SocialMenu.Font = new Font(GameOptionMenu.Font.FontFamily, 10.25f, UI_Interface.SocialMenu.Font.Style, GraphicsUnit.Pixel, 0);
             UI_Interface.HandlerNotes.Font = new Font(Theme_Settings.CustomFont, 12 * scale, UI_Interface.HandlerNotes.Font.Style, GraphicsUnit.Pixel, 0);
 
-            UI_Interface.Logo.Location = new Point(UI_Interface.Logo.Location.X, UI_Interface.WindowPanel.Height / 2 - UI_Interface.Logo.Height / 2);
-            UI_Interface.VersionTxt.Location = new Point(UI_Interface.Logo.Right, UI_Interface.Logo.Location.Y + UI_Interface.Logo.Height / 2 - UI_Interface.VersionTxt.Height / 2);
-            UI_Interface.InputsTextLabel.Location = new Point(UI_Interface.WindowPanel.Width / 2 - UI_Interface.InputsTextLabel.Width / 2, (UI_Interface.WindowPanel.Bottom - UI_Interface.InputsTextLabel.Height) - 3);
-
-            UI_Interface.MainButtonsPanelButton.Location = new Point(UI_Interface.WindowPanel.Width / 2 - UI_Interface.MainButtonsPanelButton.Width / 2, 4);
-            UI_Interface.MainButtonsPanel.Location = new Point(UI_Interface.WindowPanel.Width / 2 - UI_Interface.MainButtonsPanel.Width / 2, 0);
-            UI_Interface.MainButtonsPanelButton.Size = new Size((int)(39 * scale), (int)(10 * scale));
-
+            UI_Interface.Logo.Location = new Point(UI_Interface.GameListContainer.Left + 5, UI_Interface.Logo.Location.Y);
+            UI_Interface.VersionTxt.Location = new Point(UI_Interface.Logo.Right, UI_Interface.Logo.Location.Y + ((UI_Interface.Logo.Height / 2) - (UI_Interface.VersionTxt.Height / 2)));
             UI_Interface.DefCoverLoc = UI_Interface.Cover.Location;
+            UI_Interface.Scale = scale;
         }
 
         private void SetCommonControlsAttributes()
         {
             foreach (Control control in Generic_Functions.ListAllFormControls(this))
             {
-                if(control.GetType() != typeof(DoubleBufferPanel))
+                if (control.GetType() != typeof(DoubleBufferPanel))
                 {
                     continue;
                 }
@@ -218,34 +194,15 @@ namespace Nucleus.Coop
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
-            WebStatusTimer = new System.Windows.Forms.Timer();
-            WebStatusTimer.Interval = (2000);
-            WebStatusTimer.Tick += WebStatusTimerTick;
-            WebStatusTimer.Start();
             DPIManager.ForceUpdate();
 
             if (startArgs != null)
             {
-                GameControl con = Core_Interface.GameControlsInfo?.Where(g => g.Value.GameInfo.GUID == startArgs[0]).FirstOrDefault().Value;
+                GameControl con = Core_Interface.GetGameControl(startArgs[0]);
                 if (con != null)
                 {
                     UI_Functions.GameList_SelectedChanged(con, null);
                 }
-            }
-
-            UI_Interface.HomeScreen.Focus();
-        }
-
-        private void WebStatusTimerTick(object Object, EventArgs EventArgs)
-        {
-            if (connected)
-            {
-                UI_Interface.DwldAssetsButton.Enabled = true;
-                WebStatusTimer.Dispose();
-            }
-            else
-            {
-                UI_Interface.DwldAssetsButton.Enabled = false;
             }
         }
 
@@ -325,10 +282,11 @@ namespace Nucleus.Coop
                     return;
                 }
             }
-
+       
             base.WndProc(ref m);
         }
 
+        
         protected override void OnPaintBackground(PaintEventArgs e)
         {
             UI_Graphics.MainFormPaintBackground(e);

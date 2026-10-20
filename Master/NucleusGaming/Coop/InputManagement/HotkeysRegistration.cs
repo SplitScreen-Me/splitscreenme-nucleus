@@ -24,6 +24,8 @@ namespace Nucleus.Gaming.Coop.InputManagement
         public const int Custom_Hotkey_2 = 11;
         public const int Custom_Hotkey_3 = 12;
 
+        //public const int Pause = 13;
+
         //Pass through input locked state       
         private static bool[] _chkPassThrough = new bool[] { false, false, false };
         public static bool[] ChkPassThrough => _chkPassThrough;
@@ -65,6 +67,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
                 User32Interop.RegisterHotKey(_formHandle, Switch_HotkeyID, GetMod(App_Hotkeys.SwitchLayout[0]), (int)Enum.Parse(typeof(Keys), App_Hotkeys.SwitchLayout[1]));
                 User32Interop.RegisterHotKey(_formHandle, Reminder_HotkeyID, GetMod(App_Hotkeys.ShortcutsReminder[0]), (int)Enum.Parse(typeof(Keys), App_Hotkeys.ShortcutsReminder[1]));
                 User32Interop.RegisterHotKey(_formHandle, MergerFocusSwitch_HotkeyID, GetMod(App_Hotkeys.SwitchMergerForeGroundChild[0]), (int)Enum.Parse(typeof(Keys), App_Hotkeys.SwitchMergerForeGroundChild[1]));
+                //User32Interop.RegisterHotKey(_formHandle, Pause,2, (int)Enum.Parse(typeof(Keys),  "K" ));
             }
             catch (Exception ex)
             {

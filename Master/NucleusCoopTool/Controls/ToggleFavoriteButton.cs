@@ -42,15 +42,14 @@ namespace Nucleus.Coop.Controls
 
         private void FavoriteOnly_Click(object sender, EventArgs e)
         {
-            if (GameManager.Instance.User.Games.All(g => g.Game.MetaInfo.Favorite == false) && !UI_Interface.ShowFavoriteOnly) { return; }
+            if (GameManager.Instance.User.Games.All(g => g.HandlerInfo.GenericGameInfo.MetaInfo.Favorite == false) && !UI_Interface.ShowFavoriteOnly) { return; }
 
             bool selected = Image.Equals(favorite_Selected);
 
             Image = selected ? favorite_Unselected : favorite_Selected;
             UI_Interface.ShowFavoriteOnly = !selected;
-
             App_Misc.ShowFavoriteOnly = UI_Interface.ShowFavoriteOnly;
-            SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
+            Core_Interface.RefreshGamesList();
             UI_Interface.MainForm.Invalidate(false);
         }
 
@@ -70,7 +69,7 @@ namespace Nucleus.Coop.Controls
 
         public void ToggleVisibility(bool visible)
         {
-            Visible = visible;
+            Visible = visible;        
         }
     }
 }

@@ -4,10 +4,14 @@ using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.InputManagement;
 using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 using SDL;
+using SharpDX.DirectInput;
+using SharpDX.XInput;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using static Nucleus.Gaming.Coop.OpenXinputController.NativeOpenXinput;
@@ -18,7 +22,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
     //This should not rely on UI at all in the future
     public class DevicesFunctions
     {     
-        private static SynchronizationContext _syncContext;
         private static SetupScreenControl parent;
         private static UserGameInfo userGameInfo;
         private static GameProfile profile;
@@ -26,6 +29,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         private static int testDinputPlayers = -1;// 16;
         private static int testXinputPlayers = -1;// 16;
         private static int testSDL2Players = -1;
+        private static int testSDL3Players = -1;
 
         public static System.Threading.Timer GamepadTimer;
         private static System.Threading.Timer PollingTimer;
@@ -35,7 +39,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         internal static bool insideGamepadTick = false;
         public static bool isDisconnected;
 
-        public static Action<SynchronizationContext, string> OnAssignedDeviceDisconnect;
+        public static Action<string> OnAssignedDeviceDisconnect;
 
         public static void Initialize(SetupScreenControl _parent, UserGameInfo _userGameInfo, GameProfile _profile)
         {
@@ -43,44 +47,45 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             userGameInfo = _userGameInfo;
             profile = _profile;
 
-            _syncContext = SynchronizationContext.Current ?? new SynchronizationContext();
+            if (userGameInfo != null)
+            {
+                UpdateDevices();
 
-            UpdateDevices();
+                UIThread.Post(() =>
+                {
+                    DInputManager.Init();
 
-            DInputManager.Init(_syncContext);
-            SDLManager.InitSDL(_syncContext);
+                    if (SDLManager.SDL_INITIALIZED && !userGameInfo.HandlerInfo.GenericGameInfo.Hook.SDL2Enabled && !userGameInfo.HandlerInfo.GenericGameInfo.Hook.SDL3Enabled)
+                    {
+                        SDLManager.QUIT_SDL();
+                    }
+                    else if (!SDLManager.SDL_INITIALIZED && userGameInfo.HandlerInfo.GenericGameInfo.Hook.SDL2Enabled || userGameInfo.HandlerInfo.GenericGameInfo.Hook.SDL3Enabled)
+                    {
+                        SDLManager.InitSDL();
+                    }
+                });
 
-            GamepadTimer = new System.Threading.Timer(GamepadTimer_Tick, null, 0, 300);
-            PollingTimer = new System.Threading.Timer(PollingTimer_Tick, null, 0, 150);
 
-            GameProfile.OnUseXinputIndexChanged -= UpdateUseGamepadApiIndex;
-            GameProfile.OnUseXinputIndexChanged += UpdateUseGamepadApiIndex;
+                GamepadTimer?.Dispose();
+                GamepadTimer = new System.Threading.Timer(GamepadTimer_Tick, null, 0, 150);
+
+                PollingTimer?.Dispose();
+                PollingTimer = new System.Threading.Timer(PollingTimer_Tick, null, 0, 60);
+            }
+
+            GameProfile.OnUseXinputIndexAssignMethodChanged -= UpdateUseGamepadApiIndex;
+            GameProfile.OnUseXinputIndexAssignMethodChanged += UpdateUseGamepadApiIndex;
         }
 
         private static void UpdateUseGamepadApiIndex()
-        {           
+        {
+            parent?.CanPlayUpdated(false, false);
             profile?.DevicesList.Clear();
             UpdateDevices();
-        }
+            GamepadTimer?.Dispose();
+            GamepadTimer = new System.Threading.Timer(GamepadTimer_Tick, null, 0, 150);
 
-        /// <summary>
-        /// We need this if a new controller is plugged after sdl initialization
-        /// else Nucleus sdl gamepad indexes will not match with the custom sdl one loaded by the game.
-        /// </summary>
-        /// <param name="RefreshSDL"></param>
-        public static void RefreshSDL(SynchronizationContext syncContext)
-        {
-            SDLManager.Refresh(syncContext);
-        }
-
-        /// <summary>
-        /// We need this if a new controller is plugged after DirectInput initialization
-        /// to ensure getting valid Joysticks.
-        /// </summary>
-        /// <param name="RefreshDInput"></param>
-        public static void RefreshDInput(SynchronizationContext syncContext)
-        {
-            DInputManager.Refresh(syncContext);
+            GameProfile.Instance?.Reset();
         }
 
         public static void GamepadTimer_Tick(object state)
@@ -98,7 +103,13 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                 bool changed = false;
 
-                GenericGameInfo g = userGameInfo.Game;
+                GenericGameInfo g = userGameInfo.HandlerInfo.GenericGameInfo;
+
+                if (g == null)
+                {
+                    insideGamepadTick = false;
+                    return;
+                }
 
                 if (g.Hook.DInputEnabled || g.Hook.XInputReroute || g.ProtoInput.DinputDeviceHook)
                 {
@@ -125,7 +136,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                         if (joystick.InterfacePath.ToUpper().Contains("IG_") && !g.Hook.XInputReroute && g.Hook.XInputEnabled)
                         {
-                            joystick.Dispose();
                             continue;
                         }
 
@@ -136,11 +146,23 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         player.RawHID = joystick.InterfacePath;
 
                         int start = player.RawHID.IndexOf("hid#");
+
+                        if (start == -1)
+                        {
+                            start = player.RawHID.IndexOf("usb#");//common to all emulated gamepads?
+                        }
+
                         int end = player.RawHID.LastIndexOf("#{");
+
+                        if (start == -1 || end == -1)
+                        {
+                            continue;
+                        }
+
                         string fhid = player.RawHID.Substring(start, end - start).Replace('#', '\\').ToUpper();
 
                         player.HIDDeviceID = new string[] { fhid, "" };
-                        player.IsInputUsed = !userGameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress;
+                        player.IsInputUsed = !userGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.ProfileAssignGamepadByButonPress;
 
                         player.GamepadId = i;
                         player.IsDInput = true;
@@ -158,7 +180,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     int numControllers = g.ProtoInput.UseOpenXinput ? 32 : 4;//TODO: Big bug here!!if g.ProtoInput.UseOpenXinput is true the ui gamepads won't appears until screen is refreshed (why?)
                     for (int i = 0; i < numControllers; i++)
                     {
-                        OpenXinputController c = new OpenXinputController(true, i);//
+                        OpenXinputController c = new OpenXinputController(true, (uint)i);//
 
                         if (!c.IsConnected)
                         {
@@ -181,30 +203,142 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             {
                                 continue;
                             }
-           
-                            //new gamepad
-                            PlayerInfo player = new PlayerInfo
-                            {
-                                HIDDeviceID = new string[] { "Not required", "Not required" },
-                                XInputJoystick = c,
-                                GamepadId = i,
-                                IsXInput = true,
-                            };
 
-                            if (GameProfile.UseXinputIndex)
+                            PlayerInfo player = new PlayerInfo();
+
+                            if (!GameProfile.UseXinputIndex)
                             {
+                                StringBuilder path = new StringBuilder(1024);
+
+                                uint result = OpenXinputController.OpenXInputGetDevicePath((uint)i, path, (uint)path.Capacity);
+
+                                if (result == 0) // ERROR_SUCCESS
+                                {
+                                    string x_devicePath = path.ToString();
+                                    int start = x_devicePath.IndexOf("hid#");
+
+                                    if (start == -1)
+                                    {
+                                        start = x_devicePath.IndexOf("usb#");//common to all emulated gamepads?
+                                    }
+
+                                    int end = x_devicePath.LastIndexOf("#{");
+
+                                    if (start == -1 || end == -1)
+                                    {
+                                        continue;
+                                    }
+
+                                    x_devicePath = x_devicePath.Substring(start, end - start).Replace('#', '\\').ToUpper();
+
+                                    string d_devicePath = string.Empty;
+                                    D_Joystick match = null;
+
+                                    for (int j = 0; j < DInputManager.D_JoysticksList.Count; j++)
+                                    {
+                                        D_Joystick dj = DInputManager.D_JoysticksList[j];
+
+                                        start = dj.InterfacePath.IndexOf("hid#");
+
+                                        if (start == -1)
+                                        {
+                                            start = dj.InterfacePath.IndexOf("usb#");//common to all emulated gamepads?
+                                        }
+
+                                        end = dj.InterfacePath.LastIndexOf("#{");
+
+                                        if (start == -1 || end == -1)
+                                        {
+                                            continue;
+                                        }
+
+                                        string _d_devicePath = dj.InterfacePath.Substring(start, end - start).Replace('#', '\\').ToUpper();
+
+                                        if (x_devicePath == _d_devicePath)
+                                        {
+                                            match = dj;
+                                            d_devicePath = _d_devicePath;
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            //manage other emulated devices cases (uncommon device path?)
+                                            start = dj.InterfacePath.ToUpper().IndexOf("VID");
+                                            end = dj.InterfacePath.ToUpper().IndexOf("&IG_");
+
+                                            if (end == -1)
+                                            {
+                                                end = dj.InterfacePath.ToUpper().LastIndexOf("&");
+                                            }
+
+                                            if (start == -1 || end == -1)
+                                            {
+                                                continue;
+                                            }
+
+                                            _d_devicePath = dj.InterfacePath.Substring(start, end - start).ToUpper();
+
+                                            string _x_devicePath = string.Empty;
+
+                                            start = x_devicePath.IndexOf("VID");
+                                            end = x_devicePath.LastIndexOf("\\");
+
+                                            if (start == -1 || end == -1)
+                                            {
+                                                continue;
+                                            }
+
+                                            _x_devicePath = x_devicePath.Substring(start, end - start).ToUpper();
+
+
+                                            if (_x_devicePath == _d_devicePath)
+                                            {
+                                                match = dj;
+                                                d_devicePath = _d_devicePath;
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if (string.IsNullOrEmpty(d_devicePath) || match == null)
+                                    {
+                                        continue;
+                                    }
+
+                                    player.GamepadId = i;
+                                    player.DInputJoystick = match;
+                                    player.GamepadGuid = player.DInputJoystick.InstanceGuid;
+                                    player.GamepadProductGuid = player.DInputJoystick.ProductGuid;
+                                    player.GamepadName = player.DInputJoystick.InstanceName;
+                                    player.RawHID = player.DInputJoystick.InterfacePath;
+
+                                    player.HIDDeviceID = new string[] { x_devicePath, "" };
+                                    player.IsInputUsed = !userGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.ProfileAssignGamepadByButonPress;
+                                }
+                                else
+                                {
+                                    //fallback to the press button method if no device hid path is available
+                                    ;
+                                }
+                            }
+                            else
+                            {
+                                player.GamepadId = i;
                                 string guid = player.GamepadId + 1 >= 10 ? $"00000000-0000-0000-0000-2000000000{player.GamepadId + 1}" : $"00000000-0000-0000-0000-20000000000{player.GamepadId + 1}";
                                 player.GamepadGuid = new Guid(guid);
+                                player.HIDDeviceID = new string[] { "Not required", "Not required" };
                                 player.IsInputUsed = true;
                             }
 
+                            player.XInputJoystick = c;
+                            player.IsXInput = true;
                             data.Add(player);
                             changed = true;
                         }
                     }
                 }
 
-                if (g.Hook.SDL2Enabled)
+                if (g.Hook.SDL2Enabled || g.Hook.SDL3Enabled)
                 {
                     changed = CheckConnectedGamepads();
 
@@ -212,7 +346,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     {
                         SDL_GameController controller = SDLManager.SDL2DevicesList[i];
 
-                        if (controller == IntPtr.Zero || !SDLManager.IsConnected(controller))
+                        if (!SDLManager.IsConnected(controller))
                         {
                             changed = true;//do not move
                             continue;
@@ -222,8 +356,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         {
                             continue;
                         }
-
-                        SDL_DeviceInfo devInfo = GetSDL_DeviceInfo(controller);
 
                         if (App_Misc.VGMOnly)
                         {
@@ -237,18 +369,137 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                         PlayerInfo player = new PlayerInfo();
 
-                        player.HIDDeviceID = new string[] { "Not required", "Not required" };
-                        player.SDL2Joystick = controller;
-                        player.GamepadId = SDL2.SDL_GameControllerGetPlayerIndex(player.SDL2Joystick);
-
-                        if (GameProfile.UseXinputIndex)
+                        if (!GameProfile.UseXinputIndex)
                         {
+                            SDL_DeviceInfo devInfo = GetSDL_DeviceInfo(controller);
+
+                            string s_devicePath = devInfo.HIDPATH.ToLower();
+
+                            if (!string.IsNullOrEmpty(s_devicePath))
+                            {
+                                int start = s_devicePath.IndexOf("hid#");
+
+                                if (start == -1)
+                                {
+                                    start = s_devicePath.IndexOf("usb#");//common to all emulated gamepads?
+                                }
+
+                                int end = s_devicePath.LastIndexOf("#{");
+
+                                if (start == -1 || end == -1)
+                                {
+                                    continue;
+                                }
+
+                                s_devicePath = s_devicePath.Substring(start, end - start).Replace('#', '\\').ToUpper();
+
+                                string d_devicePath = string.Empty;
+                                D_Joystick match = null;
+
+                                for (int j = 0; j < DInputManager.D_JoysticksList.Count; j++)
+                                {
+                                    D_Joystick dj = DInputManager.D_JoysticksList[j];
+
+                                    start = dj.InterfacePath.IndexOf("hid#");
+
+                                    if (start == -1)
+                                    {
+                                        start = dj.InterfacePath.IndexOf("usb#");//common to all emulated gamepads?
+                                    }
+
+                                    end = dj.InterfacePath.LastIndexOf("#{");
+
+                                    if (start == -1 || end == -1)
+                                    {
+                                        continue;
+                                    }
+
+                                    string _d_devicePath = dj.InterfacePath.Substring(start, end - start).Replace('#', '\\').ToUpper();
+
+                                    if (s_devicePath == _d_devicePath)
+                                    {
+                                        match = dj;
+                                        s_devicePath = _d_devicePath;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        //manage other emulated devices cases (uncommon device path)
+                                        start = dj.InterfacePath.ToUpper().IndexOf("VID");
+                                        end = dj.InterfacePath.ToUpper().IndexOf("&IG_");
+
+                                        if (end == -1)
+                                        {
+                                            end = dj.InterfacePath.ToUpper().LastIndexOf("#");
+                                        }
+
+                                        if (start == -1 || end == -1)
+                                        {
+                                            continue;
+                                        }
+
+                                        _d_devicePath = dj.InterfacePath.Substring(start, end - start).ToUpper();
+
+                                        string _s_devicePath = string.Empty;
+
+                                        start = s_devicePath.IndexOf("VID");
+                                        end = s_devicePath.LastIndexOf("\\");
+
+                                        if (start == -1 || end == -1)
+                                        {
+                                            continue;
+                                        }
+
+                                        _s_devicePath = s_devicePath.Substring(start, end - start).ToUpper();
+
+                                        if (_s_devicePath == _d_devicePath)
+                                        {
+                                            match = dj;
+                                            d_devicePath = _d_devicePath;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (string.IsNullOrEmpty(s_devicePath) || match == null)
+                                {
+                                    continue;
+                                }
+
+                                player.GamepadId = SDL2.SDL_GameControllerGetPlayerIndex(controller);
+                                player.DInputJoystick = match;
+                                player.GamepadGuid = player.DInputJoystick.InstanceGuid;
+                                player.GamepadProductGuid = player.DInputJoystick.ProductGuid;
+                                player.GamepadName = player.DInputJoystick.InstanceName;
+                                player.RawHID = player.DInputJoystick.InterfacePath;
+                                player.HIDDeviceID = new string[] { d_devicePath, "" };
+                                player.IsInputUsed = !userGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.ProfileAssignGamepadByButonPress;
+                            }
+                            else
+                            {
+                                //fallback to the press button method if no device hid path is available
+                            }
+                        }
+                        else
+                        {
+                            player.GamepadId = SDL2.SDL_GameControllerGetPlayerIndex(controller);
                             string guid = player.GamepadId + 1 >= 10 ? $"00000000-0000-0000-0000-2000000000{player.GamepadId + 1}" : $"00000000-0000-0000-0000-20000000000{player.GamepadId + 1}";
                             player.GamepadGuid = new Guid(guid);
+                            player.HIDDeviceID = new string[] { "Not required", "Not required" };
                             player.IsInputUsed = true;
                         }
 
-                        player.IsSDL2 = true;
+                        player.SDL2Joystick = controller;
+
+                        if (g.Hook.SDL2Enabled)
+                        {
+                            player.IsSDL2 = true;
+                        }
+                        else
+                        {
+                            player.IsSDL3 = true;
+                        }
+
                         data.Add(player);
                         changed = true;
                     }
@@ -256,19 +507,19 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                 if (changed)
                 {
-                    if (parent.InvokeRequired)
-                    {
-                        parent.Invoke(new MethodInvoker(UpdateDevices));
-                        insideGamepadTick = false;
-                        return;
-                    }
+                    UpdateDevices();
+                    insideGamepadTick = false;
+                    return;
                 }
 
                 insideGamepadTick = false;
 
-                if (parent.IsHandleCreated)
+                if (parent != null && parent.IsHandleCreated)
                 {
-                    parent?.Invoke(new Action(() => parent?.Invalidate(false)));
+                    parent.Invoke((MethodInvoker)delegate ()
+                    {
+                        parent.Invalidate(false);
+                    });
                 }
             }
             catch (Exception)
@@ -293,13 +544,23 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     switch (player.InputType)
                     {
                         case InputType.DInput:
-                            if (DInputManager.Poll(player)) { player.FlashIcon(); }
+                            if (DInputManager.Poll(player)) 
+                            { 
+                                player.FlashIcon();
+                            }
                             break;
                         case InputType.XInput:
-                            if (XInputManager.Poll(player)) { player.FlashIcon(); }
+                            if (XInputManager.Poll(player))
+                            {
+                                player.FlashIcon(); 
+                            }
                             break;
                         case InputType.SDL2:
-                            if (SDLManager.Poll(player)) { player.FlashIcon(); }
+                        case InputType.SDL3:
+                            if (SDLManager.Poll(player))
+                            { 
+                                player.FlashIcon();
+                            }
                             break;
                     }
                 }
@@ -311,7 +572,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         }
 
         private static bool CheckConnectedGamepads()
-        {
+        { 
             bool changed = false;
 
             for (int j = 0; j < profile.DevicesList.Count; j++)
@@ -357,7 +618,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         break;
                     case InputType.XInput:
 
-                        OpenXinputController c = new OpenXinputController(userGameInfo.Game.ProtoInput.UseOpenXinput, player.GamepadId);
+                        OpenXinputController c = new OpenXinputController(userGameInfo.HandlerInfo.GenericGameInfo.ProtoInput.UseOpenXinput, (uint)player.GamepadId);
 
                         if (!c.IsConnected)
                         {
@@ -367,6 +628,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                         break;
                     case InputType.SDL2:
+                    case InputType.SDL3:
 
                         if (!SDLManager.IsConnected(player.SDL2Joystick))
                         {
@@ -399,50 +661,56 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     return true;
                 }
 
-                switch (player.InputType)
+               Type deviceDataType = devicedata.GetType();
+
+                if (deviceDataType == typeof(Guid))
                 {
-                    case InputType.DInput:
+                    var instanceGuid = devicedata.ToString();
+                    Guid.TryParse(instanceGuid, out Guid result);
 
-                        var instanceGuid = devicedata.ToString();
+                    if(result == Guid.Empty || player.GamepadGuid == Guid.Empty)
+                    {
+                        continue;
+                    }
 
-                        if (player.GamepadGuid == Guid.Parse(instanceGuid))
-                        {
-                            assigned = true;
-                        }
-
+                    if (player.GamepadGuid == result)
+                    {
+                        assigned = true;
                         break;
-                    case InputType.XInput:
-
-                        if (player.GamepadId == index)
-                        {
-                            OpenXinputController oxc = devicedata as OpenXinputController;
-                            var s = oxc.GetState();
-
-                            int newmask = (int)s.Gamepad.Buttons;
-
-                            if (player.GamepadMask != newmask)
-                            {
-                                player.GamepadMask = newmask;
-                            }
-
-                            assigned = true;
-                        }
-
-                        break;
-                    case InputType.SDL2:
-
-                        SDL_GameController controller = (SDL_GameController)devicedata;
-                        if (player.SDL2Joystick == (IntPtr)controller)
-                        {
-                            assigned = true;
-                        }
-
-                        break;
+                    }             
                 }
-
-                if (assigned)
+                else if (deviceDataType == typeof(OpenXinputController))
                 {
-                    break;
+                    if (player.GamepadId == index)
+                    {
+                        OpenXinputController oxc = devicedata as OpenXinputController;
+
+                        if (oxc == null)
+                        {
+                            continue;
+                        }
+
+                        var s = oxc.GetState();
+
+                        int newmask = (int)s.Gamepad.Buttons;
+
+                        if (player.GamepadMask != newmask)
+                        {
+                            player.GamepadMask = newmask;
+                        }
+
+                        assigned = true;
+                        break;
+                    }
+                }
+                else if (deviceDataType == typeof(SDL_GameController))
+                {
+                    SDL_GameController controller = (SDL_GameController)devicedata;
+                    if (player.SDL2Joystick == (IntPtr)controller)
+                    {
+                        assigned = true;
+                        break;
+                    }
                 }
             }
 
@@ -461,10 +729,14 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             if (GameProfile.AssignedDevices.Contains(player))
             {
-                BoundsFunctions.Screens[player.ScreenIndex].PlayerOnScreen--;
+                if(player.ScreenIndex >= 0 && player.ScreenIndex < BoundsFunctions.Screens.Length)
+                {
+                    BoundsFunctions.Screens[player.ScreenIndex].PlayerOnScreen--;
+                }
+                
                 GameProfile.TotalAssignedPlayers--;
                 GameProfile.AssignedDevices.Remove(player);
-                OnAssignedDeviceDisconnect?.Invoke(_syncContext, lostData);
+                OnAssignedDeviceDisconnect?.Invoke(lostData);
             }
 
             var isGuestOf = GameProfile.AssignedDevices.Where(ad => ad.InstanceGuests.Contains(player)).FirstOrDefault();
@@ -473,7 +745,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             {
                 lostData = $"{isGuestOf.Nickname} guest {player.GamepadId}|{player.InputType.ToString()}";
                 isGuestOf.InstanceGuests.Remove(player);
-                OnAssignedDeviceDisconnect?.Invoke(_syncContext, lostData);
+                OnAssignedDeviceDisconnect?.Invoke(lostData);
             }
 
             profile.DevicesList.Remove(player);
@@ -484,6 +756,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             GamepadTimer?.Dispose();
             GamepadTimer = null;
             PollingTimer?.Dispose();
+            PollingTimer = null;
         }
 
         internal static void UpdateDevices()
@@ -493,7 +766,13 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 return;
             }
 
-            GenericGameInfo g = userGameInfo.Game;
+            GenericGameInfo g = userGameInfo.HandlerInfo.GenericGameInfo;
+
+            if(g == null)
+            {
+                return;
+            }
+
             List<PlayerInfo> playerData = profile.DevicesList;
 
             if (GameProfile.Loaded)
@@ -507,7 +786,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             if (playerData.Count == 0 || playerData.All(pl => !pl.IsRawKeyboard && !pl.IsRawMouse && !pl.IsKeyboardPlayer))
             {
-                if (userGameInfo.Game.SupportsKeyboard)
+                if (userGameInfo.HandlerInfo.GenericGameInfo.SupportsKeyboard)
                 {
                     ///add keyboard data
                     PlayerInfo kbPlayer = new PlayerInfo
@@ -522,7 +801,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     playerData.Add(kbPlayer);
                 }
 
-                if (userGameInfo.Game.SupportsMultipleKeyboardsAndMice)///Raw mice/keyboards
+                if (userGameInfo.HandlerInfo.GenericGameInfo.SupportsMultipleKeyboardsAndMice)///Raw mice/keyboards
                 {
                     playerData.AddRange(RawInputManager.GetDeviceInputInfos());
                 }
@@ -531,7 +810,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 {
                     for (int i = 0; i < testDinputPlayers; i++)
                     {
-                        if (i >= userGameInfo.Game.MaxPlayers)
+                        if (i >= userGameInfo.HandlerInfo.GenericGameInfo.MaxPlayers)
                         {
                             break;
                         }
@@ -554,7 +833,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 {
                     for (int i = 0; i < testXinputPlayers; i++)
                     {
-                        if (i >= userGameInfo.Game.MaxPlayers)
+                        if (i >= userGameInfo.HandlerInfo.GenericGameInfo.MaxPlayers)
                         {
                             break;
                         }
@@ -580,7 +859,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     for (int i = 0; i < testSDL2Players; i++)
                     {
 
-                        if(i >= userGameInfo.Game.MaxPlayers)
+                        if(i >= userGameInfo.HandlerInfo.GenericGameInfo.MaxPlayers)
                         {
                             break;
                         }
@@ -600,13 +879,39 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         playerData.Add(player);
                     }
                 }
+
+                if(testSDL3Players != -1)
+                {
+                    for (int i = 0; i < testSDL3Players; i++)
+                    {
+
+                        if (i >= userGameInfo.HandlerInfo.GenericGameInfo.MaxPlayers)
+                        {
+                            break;
+                        }
+
+                        PlayerInfo player = new PlayerInfo
+                        {
+                            GamepadGuid = new Guid(),
+                            GamepadName = "SDL3" + i,
+                            IsSDL3 = true,
+                            IsController = true,
+                            GamepadId = i,
+                            IsFake = true,
+                            IsInputUsed = true,
+                            HIDDeviceID = new string[] { "Not required", "Not required" }
+                        };
+
+                        playerData.Add(player);
+                    }
+                }
             }
 
             BoundsFunctions.SetPlayerArea();
 
             if (parent != null && parent.IsHandleCreated)
             {
-                parent?.Invoke((MethodInvoker)delegate ()
+                UIThread.Post(() =>
                 {
                     parent.CanPlayUpdated(parent.canProceed, false);
                     parent.Invalidate(false);

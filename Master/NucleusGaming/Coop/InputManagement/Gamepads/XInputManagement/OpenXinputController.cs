@@ -6,6 +6,7 @@ using SharpDX.Mathematics.Interop;
 using SharpDX.Win32;
 using SharpDX.XInput;
 using System.Runtime.InteropServices;
+using System.Text;
 using static Nucleus.Gaming.Coop.OpenXinputController.NativeOpenXinput;
 
 namespace Nucleus.Gaming.Coop
@@ -25,61 +26,62 @@ namespace Nucleus.Gaming.Coop
                 public uint unk2;             // DWORD -> uint (32-bit)
             }
 
+
             [DllImport("openxinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetKeystroke")]
-            public static extern int XInputGetKeystroke(int dwUserIndex, int dwReserved, out Keystroke keystrokeRef);
+            public static extern SharpDX.Win32.ErrorCode XInputGetKeystroke(uint dwUserIndex, int dwReserved, out Keystroke keystrokeRef);
 
             [DllImport("openxinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetBatteryInformation")]
-            public static extern int XInputGetBatteryInformation(int dwUserIndex, BatteryDeviceType devType, out BatteryInformation batteryInformationRef);
+            public static extern SharpDX.Win32.ErrorCode XInputGetBatteryInformation(uint dwUserIndex, BatteryDeviceType devType, out BatteryInformation batteryInformationRef);
 
-            public static unsafe int XInputSetState(int dwUserIndex, Vibration vibrationRef)
+            public static unsafe SharpDX.Win32.ErrorCode XInputSetState(uint dwUserIndex, Vibration vibrationRef)
             {
                 return XInputSetState_(dwUserIndex, &vibrationRef);
             }
 
             [DllImport("openxinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputSetState")]
-            private static extern unsafe int XInputSetState_(int arg0, void* arg1);
+            private static extern unsafe SharpDX.Win32.ErrorCode XInputSetState_(uint arg0, void* arg1);
 
             [DllImport("openxinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetState")]
-            public static extern int XInputGetState(int dwUserIndex, out State stateRef);
+            public static extern SharpDX.Win32.ErrorCode XInputGetState(uint dwUserIndex, out State stateRef);
 
             [DllImport("openxinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputEnable")]
             public static extern void XInputEnable(RawBool arg0);
 
             [DllImport("openxinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetCapabilities")]
-            public static extern int XInputGetCapabilities(int dwUserIndex, DeviceQueryType dwFlags, out Capabilities capabilitiesRef);
+            public static extern SharpDX.Win32.ErrorCode XInputGetCapabilities(uint dwUserIndex, DeviceQueryType dwFlags, out Capabilities capabilitiesRef);
 
         }
 
         public static class NativeXinput
         {
             [DllImport("xinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetKeystroke")]
-            public static extern int XInputGetKeystroke(int dwUserIndex, int dwReserved, out Keystroke keystrokeRef);
+            public static extern SharpDX.Win32.ErrorCode XInputGetKeystroke(uint dwUserIndex, int dwReserved, out Keystroke keystrokeRef);
 
             [DllImport("xinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetBatteryInformation")]
-            public static extern int XInputGetBatteryInformation(int dwUserIndex, BatteryDeviceType devType, out BatteryInformation batteryInformationRef);
+            public static extern SharpDX.Win32.ErrorCode XInputGetBatteryInformation(uint dwUserIndex, BatteryDeviceType devType, out BatteryInformation batteryInformationRef);
 
-            public static unsafe int XInputSetState(int dwUserIndex, Vibration vibrationRef)
+            public static unsafe SharpDX.Win32.ErrorCode XInputSetState(uint dwUserIndex, Vibration vibrationRef)
             {
                 return XInputSetState_(dwUserIndex, &vibrationRef);
             }
 
             [DllImport("xinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputSetState")]
-            private static extern unsafe int XInputSetState_(int arg0, void* arg1);
+            private static extern unsafe SharpDX.Win32.ErrorCode XInputSetState_(uint arg0, void* arg1);
 
             [DllImport("xinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetState")]
-            public static extern int XInputGetState(int dwUserIndex, out State stateRef);
+            public static extern SharpDX.Win32.ErrorCode XInputGetState(uint dwUserIndex, out State stateRef);
 
             [DllImport("xinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputEnable")]
             public static extern void XInputEnable(RawBool arg0);
 
             [DllImport("xinput1_3.dll", CallingConvention = CallingConvention.StdCall, EntryPoint = "XInputGetCapabilities")]
-            public static extern int XInputGetCapabilities(int dwUserIndex, DeviceQueryType dwFlags, out Capabilities capabilitiesRef);
+            public static extern SharpDX.Win32.ErrorCode XInputGetCapabilities(uint dwUserIndex, DeviceQueryType dwFlags, out Capabilities capabilitiesRef);
         }
 
-        private readonly int userIndex;
+        private readonly uint userIndex;
         public bool openXinput;
 
-        public OpenXinputController(bool openXinput, int userIndex = 255)
+        public OpenXinputController(bool openXinput, uint userIndex = 255)
         {
             this.userIndex = userIndex;
             this.openXinput = openXinput;
@@ -94,6 +96,9 @@ namespace Nucleus.Gaming.Coop
             return temp;
         }
 
+
+        [DllImport("openxinput1_3.dll", CallingConvention = CallingConvention.Winapi, CharSet = CharSet.Unicode)]
+        public static extern uint OpenXInputGetDevicePath(uint dwUserIndex, StringBuilder devicePath, uint cchDevicePath);
 
         [DllImport("openxinput1_3.dll", EntryPoint = "#108", CallingConvention = CallingConvention.StdCall)]
         public static extern uint XInputGetCapabilitiesEx(

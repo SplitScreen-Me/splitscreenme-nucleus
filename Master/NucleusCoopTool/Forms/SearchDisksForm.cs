@@ -1,18 +1,29 @@
-﻿using Nucleus.Coop.Tools;
+﻿using NAudio.Gui;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Nucleus.Coop.Tools;
 using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
+using Nucleus.Gaming.Controls;
+using Nucleus.Gaming.Coop.Generic;
+using Nucleus.Gaming.Forms;
 using Nucleus.Gaming.UI;
 using Nucleus.Gaming.Windows.Interop;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Principal;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using static Nucleus.Coop.Tools.GameAssets;
+using static Nucleus.Gaming.Forms.SearchProgress;
+
 
 namespace Nucleus.Coop
 {
@@ -29,64 +40,26 @@ namespace Nucleus.Coop
             }
         }
 
-        private float progress;
-        private float lastProgress;
+        public static SearchDisksForm Instance;
 
-        private List<string> pathsToSearch;
         private List<Control> ctrls = new List<Control>();
         private bool searching;
-        private bool closed;
-        private MainForm mainForm;
         private float fontSize;
 
         private Cursor hand_Cursor;
         private Cursor default_Cursor;
-        private List<string> paths = new List<string>()
-;
-        private void controlscollect()
+        private Label floatingLabel;
+
+        public SearchDisksForm()
         {
-            foreach (Control control in Controls)
-            {
-                ctrls.Add(control);
-                foreach (Control container1 in control.Controls)
-                {
-                    ctrls.Add(container1);
-                    foreach (Control container2 in container1.Controls)
-                    {
-                        ctrls.Add(container2);
-                        foreach (Control container3 in container2.Controls)
-                        {
-                            ctrls.Add(container3);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void closeButton(object sender, EventArgs e)
-        {
-            //for (int x = 0; x < disksBox.Items.Count; x++)
-            //{
-            //    mainForm.ini.IniWriteValue("SearchPaths", (x + 1).ToString(), disksBox.Items[x].ToString());
-            //}
-
-            txt_Stage.Visible = false;
-            progressBar1.Visible = false;
-            txt_Path.Visible = false;
-            //ini.IniWriteValue("Misc", "AutoSearchLocation", Location.X + "X" + Location.Y);
-            this.Visible = false;
-        }
-
-        public SearchDisksForm(MainForm mainForm)
-        {
-            this.mainForm = mainForm;
-
+            Instance = this;
             InitializeComponent();
 
+            ShowInTaskbar = false;
             default_Cursor = Theme_Settings.Default_Cursor;
             hand_Cursor = Theme_Settings.Hand_Cursor;
 
-            fontSize = float.Parse(Globals.ThemeConfigFile.IniReadValue("Font", "AutoSearchFontSize"));
+            fontSize = 10f;
             ForeColor = Theme_Settings.ControlsForeColor;
 
             BackgroundImage = Image.FromFile(Globals.ThemeFolder + "other_backgrounds.jpg");
@@ -95,23 +68,53 @@ namespace Nucleus.Coop
             btn_addSelection.BackColor = Theme_Settings.ButtonsBackColor;
             btn_customPath.BackColor = Theme_Settings.ButtonsBackColor;
             btnSearch.BackColor = Theme_Settings.ButtonsBackColor;
-            btn_delPath.BackColor = Theme_Settings.ButtonsBackColor;
             btn_selectAll.BackColor = Theme_Settings.ButtonsBackColor;
             btn_deselectAll.BackColor = Theme_Settings.ButtonsBackColor;
+
+            btn_addSelection.FlatAppearance.BorderColor = Color.White;
+            btn_addSelection.FlatAppearance.BorderSize = 1;
+
+            btn_customPath.FlatAppearance.BorderColor = Color.White;
+            btn_customPath.FlatAppearance.BorderSize = 1;
+
+            btnSearch.FlatAppearance.BorderColor = Color.White;
+            btnSearch.FlatAppearance.BorderSize = 1;
+
+            btn_selectAll.FlatAppearance.BorderColor = Color.White;
+            btn_selectAll.FlatAppearance.BorderSize = 1;
+
+            btn_deselectAll.FlatAppearance.BorderColor = Color.White;
+            btn_deselectAll.FlatAppearance.BorderSize = 1;
 
             btn_addSelection.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
             btn_customPath.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
             btnSearch.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
-            btn_delPath.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
             btn_selectAll.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
             btn_deselectAll.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
+
+            closeBtn.Cursor = hand_Cursor;
+
+            floatingLabel = new Label();
+            floatingLabel.Name = "floatingLabel";
+            floatingLabel.AutoSize = true;
+            floatingLabel.Font = new Font(this.Font.FontFamily, 10.25f);
+            floatingLabel.Visible = false;
+            floatingLabel.ForeColor = Color.Yellow;
+            floatingLabel.BackColor = Color.Black;
+            floatingLabel.BorderStyle = BorderStyle.FixedSingle;
+            floatingLabel.Size = new Size(1, 1);
+            floatingLabel.MaximumSize = new Size(Width, Height);
+            Controls.Add(floatingLabel);
+
+            checkboxFoundGames.MouseMove += CheckboxFoundGames_MouseMove;
+            MouseMove += On_MouseMove;
+
+            UpdatePathList(null, null);
 
             controlscollect();
 
             foreach (Control control in ctrls)
             {
-                control.Font = new Font(Theme_Settings.CustomFont, fontSize, FontStyle.Regular, GraphicsUnit.Pixel, 0);
-
                 if (control.Name != "panel1")
                 {
                     control.Cursor = hand_Cursor;
@@ -122,42 +125,25 @@ namespace Nucleus.Coop
                 }
             }
 
-            closeBtn.Cursor = hand_Cursor;
+            CenterToScreen();
+            DPIManager.Register(this);
+            DPIManager.Update(this);
 
-            for (int x = 1; x <= 100; x++)
+            bool iniValueExists = !string.IsNullOrEmpty(Globals.ini.IniReadValue("Misc", "AutoSearchGame"));
+
+            if (iniValueExists)
             {
-                //if (mainForm.ini.IniReadValue("SearchPaths", x.ToString()) == "")
-                //{
-                //    continue;
-                //}
-                //else
-                //{
-                //    //paths.Add(mainForm.ini.IniReadValue("SearchPaths", x.ToString()));
-                //    //disksBox.Items.Add(mainForm.ini.IniReadValue("SearchPaths", x.ToString()), true);
-                //}
-            }
-
-            Rectangle area = Screen.PrimaryScreen.Bounds;
-            if (/*ini.IniReadValue("Misc", "AutoSearchLocation") != ""*/true)
-            {
-               // string[] windowLocation = ini.IniReadValue("Misc", "AutoSearchLocation").Split('X');
-
-                //if (ScreensUtil.AllScreens().All(s => !s.MonitorBounds.Contains(int.Parse(windowLocation[0]), int.Parse(windowLocation[1]))))
-                //{
-                //    CenterToScreen();
-                //}
-                //else
-                //{
-                //    Location = new Point(area.X + int.Parse(windowLocation[0]), area.Y + int.Parse(windowLocation[1]));
-                //}
+                bool.Parse(Globals.ini.IniReadValue("Misc", "AutoSearchGame"));
             }
             else
             {
-                //CenterToScreen();
+                Globals.ini.IniAddKeyValuesToSection("Misc", new string[] { "AutoSearchGame=False" });               
             }
 
-            DPIManager.Register(this);
-            DPIManager.Update(this);
+            if (GameManager.Instance.GamesSearcheDirectories.Count == 0)
+            {
+                Shown += Btn_customPath_Click;
+            }
         }
 
         public void UpdateSize(float scale)
@@ -200,18 +186,21 @@ namespace Nucleus.Coop
 
             foreach (Control c in ctrls)
             {
-                if (c.GetType() == typeof(CheckedListBox))
+                if (c is CheckedListBox)
                 {
                     c.Font = new Font(Theme_Settings.CustomFont, c.Font.Size, FontStyle.Regular, GraphicsUnit.Point, 0);
-                }
+                    c.Size = new Size(c.Width, (int)(c.Height / scale));
+                }             
 
-                if (c.GetType() == typeof(TextBox))
+                if (c is TextBox)
                 {
                     c.Font = new Font(Theme_Settings.CustomFont, textBoxFontSize, FontStyle.Regular, GraphicsUnit.Point, 0);
                 }
             }
 
             ResumeLayout();
+
+            disksBox.Focus();
         }
 
         protected override void WndProc(ref Message m)
@@ -219,464 +208,245 @@ namespace Nucleus.Coop
             if (m.Msg == 0x020 || m.Msg == 0x0a0)//Do not reset our custom cursor when mouse hover over the Form background(needed because of the custom resizing/moving messges handling) 
             {
                 Cursor.Current = default_Cursor;
-                return;
             }
 
             base.WndProc(ref m);
         }
 
-        private bool IsElevated => new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
+        private SortedDictionary<string, SearchResult> searchResults;
 
-        private void btnSearch_Click(object sender, EventArgs e)
+        private async void btnSearch_Click(object sender, EventArgs e)
         {
-            if (btnSearch.Text == "Cancel")
-            {
-                closed = true;
-                searching = false;
-                btnSearch.Text = "Search";
-                txt_Path.Text = "";
-                txt_Stage.Text = "Cancelling";
-                checkboxFoundGames.Items.Clear();
-                Cancel();
-                return;
-            }
-
-            if (searching || disksBox.CheckedItems.Count == 0)
-            {
-                return;
-            }
-
-            txt_Stage.Visible = true;
-            progressBar1.Visible = true;
-            txt_Path.Visible = true;
-            btnSearch.Text = "Cancel";
-            btn_customPath.Enabled = false;
-            btn_delPath.Enabled = false;
-            disksBox.Enabled = false;
             searching = true;
-            closed = false;
-            txt_Path.Text = "";
-            txt_Stage.Text = "";
-            label1.Enabled = false;
+
+            if (disksBox.CheckedItems.Count == 0)
+            {
+                Btn_customPath_Click(null,null);
+                searching = false;
+                return;
+            }
+
+            foreach (Control cont in ctrls)
+            {
+                cont.Enabled = false;
+            }
+
             checkboxFoundGames.Items.Clear();
 
-            pathsToSearch = new List<string>();
-
-            for (int i = 0; i < disksBox.CheckedItems.Count; i++)
-            {
-                pathsToSearch.Add(disksBox.CheckedItems[i].ToString());
-            }
-
-            ThreadPool.QueueUserWorkItem(SearchDrive, null);
-        }
-
-        private void UpdateProgress(float toAdd)
-        {
-            progress += toAdd;
-
-            float dif = progress - lastProgress;
-            if (dif > 0.005f || toAdd == 0) // only update after .5% or if the user has just requested an update
-            {
-                lastProgress = progress;
-                if (IsDisposed || closing)
-                {
-                    return;
-                }
-
-                Invoke(new Action(delegate
-                {
-                    if (IsDisposed || progressBar1.IsDisposed || closing)
-                    {
-                        return;
-                    }
-                    progressBar1.Value = Math.Min(100, (int)(progress * 100));
-                }));
-            }
-        }
-
-        private IEnumerable<string> GetFiles(string path)
-        {
-            Queue<string> queue = new Queue<string>();
-            queue.Enqueue(path);
-            while (queue.Count > 0)
-            {
-                Application.DoEvents();
-
-                if (closed)
-                {
-                    break;
-                }
-
-                path = queue.Dequeue();
-                Invoke(new Action(delegate
-                {
-                    txt_Path.Text = path;
-                }));
-
-                try
-                {
-                    foreach (string subDir in Directory.GetDirectories(path))
-                    {
-                        if (closed)
-                        {
-                            break;
-                        }
-                        queue.Enqueue(subDir);
-
-                        //foreach (string sub in Directory.GetDirectories(subDir))
-                        //{
-                        //{ continue; }
-                        //if(Directory.GetFiles(path, "*.exe").Length == 0)
-                        //{ 
-                        //    continue;
-                        //}
-
-                        //queue.Enqueue(sub);
-                        // Console.WriteLine(sub);
-                        // }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine(ex);
-                }
-
-                string[] files = null;
-
-                try
-                {
-                    if (closed)
-                    {
-                        break;
-                    }
-
-                    files = Directory.GetFiles(path, "*.exe");
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine(ex);
-                }
-
-                if (files != null)
-                {
-                    for (int i = 0; i < files.Length; i++)
-                    {
-                        if (closed)
-                        {
-                            break;
-                        }
-                        yield return files[i];
-                    }
-                }
-            }
-
-            if (closed)
-            {
-                txt_Path.Text = "";
-                yield return null;
-            }
-        }
-
-        private void Cancel()
-        {
-            searching = false;
-            btnSearch.Enabled = true;
-            btn_customPath.Enabled = true;
-            btn_delPath.Enabled = true;
+            btn_customPath.Enabled = false;
             btn_addSelection.Enabled = false;
             btn_selectAll.Enabled = false;
             btn_deselectAll.Enabled = false;
             checkboxFoundGames.Enabled = false;
-            checkboxFoundGames.Items.Clear();
-            disksBox.Enabled = true;
-            progressBar1.Value = 0;
-            progress = 0;
-            lastProgress = 0;
-            UpdateProgress(0);
-            label2.Enabled = false;
-            label1.Enabled = true;
-            txt_Stage.Text = "Cancelled";
-            txt_Path.Text = "";
-            txt_Stage.Visible = false;
-            progressBar1.Visible = false;
-            txt_Path.Visible = false;
-        }
+            btnSearch.Enabled = false;
 
-        private void SearchDrive(object state)
-        {
-            System.Diagnostics.Stopwatch watch = System.Diagnostics.Stopwatch.StartNew();
-            try
+            List<string> searchPaths = new List<string>();
+
+            foreach (var item in disksBox.CheckedItems)
             {
-                for (int i = 0; i < pathsToSearch.Count; i++)
+                searchPaths.Add(item.ToString());
+            }
+
+            SearchProgressForm searchF = new SearchProgressForm();
+            var results = await searchF.StartSearchAsync(GameManager.Instance.HandlerInfos, searchPaths);
+            searchResults = new SortedDictionary<string, SearchResult>();
+
+            foreach (var result in results)
+            {
+                if (result.HandlerInfo.GenericGameInfo == null)
                 {
-                    Invoke(new Action(delegate
-                    {
-                        txt_Stage.Text = i + 1 + " of " + pathsToSearch.Count;
-                    }));
+                    continue;
+                }
 
-                    string currentPath = pathsToSearch[i];
+                (List<HandlerInfo>, string) possibility = GameManager.Instance.GetGames(result.ExecutablePath);
 
-                    float totalDiskPc = 1 / (float)pathsToSearch.Count;
-                    float thirdDiskPc = totalDiskPc / 3.0f;
+                if (possibility.Item1 == null)
+                {
+                    continue;
+                }
 
-                    // 1/3 done, we started the operation
-                    UpdateProgress(thirdDiskPc);
-
-                    List<string> result = new List<string>();
-
-                    result = GetFiles(currentPath).ToList();
-
-
-                    float increment = thirdDiskPc / result.Count;
-
-                    foreach (string exeFilePath in result)
-                    {
-                        if (closed)
-                        {
-                            return;
-                        }
-
-                        //UpdateProgress(increment);
-                        if (GameManager.Instance.User.Games.Any(c => c.ExePath.ToLower() == exeFilePath.ToLower()))
-                        {
-                            //continue;
-                        }
-
-                        if (GameManager.Instance.AnyGame(Path.GetFileName(exeFilePath).ToLower()))
-                        {
-                            if (exeFilePath.Contains("$Recycle.Bin") ||
-                                exeFilePath.Contains(@"\Instance"))
-                            {
-                                // noope
-                                continue;
-                            }
-
-                            GenericGameInfo uinfo = GameManager.Instance.GetGame(exeFilePath);
-
-                            if (uinfo != null)
-                            {
-#if RELEASE
-                    if (uinfo.Game.Debug)
+                foreach (HandlerInfo handlerInfo in possibility.Item1)
+                {
+                    if (searchResults.Any(sr => sr.Key == result.HandlerInfo.FileName + " (" + result.HandlerInfo.LastWriteTimeUtc + ")"))
                     {
                         continue;
                     }
-#endif
-                                //LogManager.Log("> Found new game {0} on drive {1}", uinfo.Game.GameName, info.drive.Name);
-                                Invoke(new Action(delegate
-                                {
-                                    bool exists = false;
-                                    foreach (object item in checkboxFoundGames.Items)
-                                    {
-                                        if (item.ToString() == uinfo.GameName + " | " + exeFilePath)
-                                        {
-                                            exists = true;
-                                        }
-                                    }
-                                    if (!exists)
-                                    {
-                                        checkboxFoundGames.Items.Add(uinfo.GameName + " | " + exeFilePath, true);
-                                        checkboxFoundGames.Refresh();
-                                    }
-                                }));
-                            }
-                        }
-                    }
 
-                    if (closed)
-                    {
-                        return;
-                    }
+                    searchResults.Add(result.HandlerInfo.FileName + " (" + result.HandlerInfo.LastWriteTimeUtc + ")", result);
                 }
-
-                searching = false;
-                Invoke(new Action(delegate
-                {
-                    btnSearch.Text = "Search";
-                }));
-
-                watch.Stop();
-
-                long elapsedMs = watch.ElapsedMilliseconds / 1000;
-
-                if (checkboxFoundGames.Items.Count == 0)
-                {
-                    Invoke(new Action(delegate
-                    {
-                        btn_customPath.Enabled = true;
-                        btn_delPath.Enabled = true;
-                        disksBox.Enabled = true;
-
-                        MessageBox.Show("Operation completed in " + elapsedMs + "s. No new games found.");
-                        progressBar1.Value = 0;
-                    }));
-                    return;
-                }
-
-                progress = 1;
-                UpdateProgress(0);
-                Invoke(new Action(delegate
-                {
-                    btn_addSelection.Enabled = true;
-                    btn_selectAll.Enabled = true;
-                    btn_deselectAll.Enabled = true;
-                    checkboxFoundGames.Enabled = true;
-                    btnSearch.Enabled = false;
-                    label2.Enabled = true;
-                    label1.Enabled = false;
-                    txt_Stage.Text = "Done";
-                    txt_Path.Text = "";
-                    Refresh();
-                    Invalidate();
-                }));
-
-                MessageBox.Show("Search has completed, operation took " + elapsedMs + "s. Select the games you wish to add from the right-hand side.", "Search finished");
             }
-            catch (Exception ex)
+
+            foreach (KeyValuePair<string, SearchResult> result in searchResults)
             {
-                Console.Error.WriteLine(ex);
-                MessageBox.Show(ex.Message);
+                if (!checkboxFoundGames.Items.Contains(result.Value.HandlerInfo.FileName + " (" + result.Value.HandlerInfo.LastWriteTimeUtc + ")"))
+                {
+                    checkboxFoundGames.Items.Add(result.Value.HandlerInfo.FileName + " (" + result.Value.HandlerInfo.LastWriteTimeUtc + ")");
+                }
+            }
+
+            btn_customPath.Enabled = true;
+            btn_addSelection.Enabled = true;
+            btn_selectAll.Enabled = true;
+            btn_deselectAll.Enabled = true;
+            checkboxFoundGames.Enabled = true;
+            btnSearch.Enabled = true;
+
+            searching = false;
+
+            foreach (Control cont in ctrls)
+            {
+                cont.Enabled = true;
             }
         }
 
-        private bool closing;
         private void SearchDisksForm_FormClosing(object sender, FormClosingEventArgs e)
         {
 
-            Refresh();
-            closing = true;
         }
 
-        private void Btn_customPath_Click(object sender, EventArgs e)
+        private async void Btn_customPath_Click(object sender, EventArgs e)
         {
-            using (FolderBrowserDialog fbd = new FolderBrowserDialog())
+            if (GamePathForm.Instance != null)
             {
-                DialogResult result = fbd.ShowDialog();
-
-                if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
-                {
-                    List<bool> wasSelected = new List<bool>();
-
-                    if (paths.Any(p => p == fbd.SelectedPath))
-                    {
-                        return;
-                    }
-
-                    paths.Add(fbd.SelectedPath);
-                }
-
-                for (int i = 0; i < paths.Count; i++)
-                {
-                    //mainForm.ini.IniWriteValue("SearchPaths", (i + 1).ToString(), paths[i]);
-                    if (disksBox.Items.Contains(paths[i]))
-                    {
-                        continue;
-                    }
-
-                    disksBox.Items.Add(paths[i]);
-                    disksBox.SetItemCheckState(i, CheckState.Checked);
-                }
+                GamePathForm.Instance.Close();
+                await Task.Delay(100);
             }
+
+            GamePathForm gamePathForm = new GamePathForm();
+
+            gamePathForm.FormClosing += UpdatePathList;
+            gamePathForm.LocationChanged += GamePathFormMoveParent;
+            gamePathForm.FormClosed += GamePathFormBringParentToFront;
+            gamePathForm.Location = this.Location;
+            gamePathForm.Size = this.Size;
+            AddOwnedForm(gamePathForm);
+            gamePathForm.Show/*Dialog*/();
+
+            UpdatePathList(null, null);
+        }
+
+
+        private void UpdatePathList(object sender,EventArgs e)
+        {
+            disksBox.Items.Clear();
+
+            foreach(var path in GameManager.Instance.GamesSearcheDirectories)
+            {
+                disksBox.Items.Add(path.ToString(), true);
+            }
+        }
+
+        private void GamePathFormMoveParent(object sender, EventArgs e)
+        {
+            Form searchForm = sender as Form;
+            Location = searchForm.Location;
+        }
+
+        private async void GamePathFormBringParentToFront(object sender, EventArgs e)
+        {
+            await Task.Delay(100);
+            this.BringToFront();
         }
 
         private void Btn_addSelection_Click(object sender, EventArgs e)
         {
             if (checkboxFoundGames.CheckedItems.Count == 0)
             {
-                DialogResult dialogResult = MessageBox.Show("No games have been selected. Do you wish to add any?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                if (dialogResult == DialogResult.Yes)
-                {
-                    return;
-                }
+
+                Globals.MainOSD.Show(1000, $"*@{OSDHighlightColors.Info}|No game selected@*");
+                return;
             }
 
             if (checkboxFoundGames.CheckedItems.Count > 0)
             {
-                List<string> gamesToAdd = new List<string>();
-                int numAdded = 0;
+                var itemsToRemove = new List<string>();
+                List<GenericGameInfo> genericGameInfos = new List<GenericGameInfo>();
 
                 for (int i = 0; i < checkboxFoundGames.CheckedItems.Count; i++)
                 {
-                    string checkBoxFullname = checkboxFoundGames.CheckedItems[i].ToString();
-                    string exePath = checkBoxFullname.Substring(checkBoxFullname.IndexOf(" | ") + " | ".Length);
-                    gamesToAdd.Add(exePath);
-                }
+                    var item = checkboxFoundGames.CheckedItems[i].ToString();
+                    var userGameInfo = GameManager.Instance.TryAddGame(searchResults[item].ExecutablePath, searchResults[item].HandlerInfo);
 
-                foreach (string gameToAdd in gamesToAdd)
-                {
-                    string exeName = gameToAdd.Split('\\').Last();
-
-                    //if (GameManager.Instance.IsGameAlreadyInUserProfile(exeName))
+                    if (userGameInfo != null)
                     {
-                        MessageBox.Show($"Executable {exeName} is already in your game list and will be skipped.", "Already in your list", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        continue;
+                        UIThread.Post(() =>
+                        {
+                            Core_Interface.AddGameToList(userGameInfo);
+                            genericGameInfos.Add(userGameInfo.HandlerInfo.GenericGameInfo);
+                        });
+
+                        itemsToRemove.Add(item);
                     }
-
-                    //UserGameInfo uinfo = GameManager.Instance.TryAddGame(gameToAdd);
-                    //if (uinfo != null)
-                    //{
-                    //    mainForm.NewUserGame(uinfo);
-                    //    numAdded++;
-                    //}
-
                 }
 
-                MessageBox.Show(string.Format("{0}/{1} selected games added!", numAdded, checkboxFoundGames.CheckedItems.Count), "Games added");
-                SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
+                foreach (var item in itemsToRemove)
+                {
+                    checkboxFoundGames.Items.Remove(item);
+                }
+
+                DialogResult dialogResult = System.Windows.Forms.MessageBox.Show("Do you want to download games cover and screenshots?", "Download game assets?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (dialogResult == DialogResult.Yes)
+                {
+                    _ = new AssetsDownloader().DownloadGamesAssets(genericGameInfos);
+                }
             }
 
-            btnSearch.Enabled = true;
-            btn_customPath.Enabled = true;
-            btn_delPath.Enabled = true;
-            btn_addSelection.Enabled = false;
-            btn_selectAll.Enabled = false;
-            btn_deselectAll.Enabled = false;
-            checkboxFoundGames.Enabled = false;
-            checkboxFoundGames.Items.Clear();
-            disksBox.Enabled = true;
-            progressBar1.Value = 0;
-            progress = 0;
-            lastProgress = 0;
-            label2.Enabled = false;
-            label1.Enabled = true;
-            txt_Path.Text = "";
-            txt_Stage.Text = "";
+            UIThread.Post(() =>
+            {
+                btn_customPath.Enabled = true;
+                btn_addSelection.Enabled = true;
+                btn_selectAll.Enabled = true;
+                btn_deselectAll.Enabled = true;
+                checkboxFoundGames.Enabled = true;
+                btnSearch.Enabled = true;
+            });
         }
 
-        private void Btn_delPath_Click(object sender, EventArgs e)
+        private Rectangle itemBounds;
+
+        private void CheckboxFoundGames_MouseMove(object sender, MouseEventArgs e)
         {
-            if (disksBox.CheckedItems.Count == 0)
+            CheckedListBox foundGamesBox = sender as CheckedListBox;
+            bool draw = false;
+            string textToDraw = string.Empty;
+
+            for (int i = 0; i < foundGamesBox.Items.Count; i++)
             {
-                return;
+                itemBounds = foundGamesBox.GetItemRectangle(i);
+                if (itemBounds.Contains(e.Location))
+                {
+                    draw = true;
+                    textToDraw = searchResults[foundGamesBox.Items[i].ToString()]?.ExecutablePath;
+
+                    break;
+                }
             }
 
-            DialogResult dialogResult = MessageBox.Show("Are you sure you want to delete the paths that are currently unchecked?", "Confirm deletion", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-            if (dialogResult == DialogResult.Yes)
+            if (draw)
             {
-                // foreach (string item in disksBox.Items.OfType<string>().ToList())
-                List<string> pathsToRemove = new List<string>();
-                for (int i = 0; i < paths.Count; i++)
+                floatingLabel.Text = textToDraw;
+                floatingLabel.Location = new Point(foundGamesBox.Left, itemBounds.Bottom + itemBounds.Height * 2);
+
+                if (floatingLabel.Right > this.Width)
                 {
-                    if (i < disksBox.Items.Count)
-                    {
-                        if (disksBox.CheckedItems.Contains(disksBox.Items[i]))
-                        {
-                            //mainForm.ini.IniWriteValue("SearchPaths", (i + 1).ToString(), disksBox.Items[i].ToString());
-                        }
-                        else
-                        {
-                            pathsToRemove.Add(disksBox.Items[i].ToString());
-                            //mainForm.ini.IniWriteValue("SearchPaths", (i + 1).ToString(), "");
-                        }
-                    }
+                    int diff = floatingLabel.Right - this.Width;
+
+                    floatingLabel.Location = new Point(floatingLabel.Left - diff, itemBounds.Bottom + itemBounds.Height * 2);
                 }
 
-                foreach (string pathToRemove in pathsToRemove)
-                {
-                    disksBox.Items.Remove(pathToRemove);
-                    paths.Remove(pathToRemove);
-                }
-
+                floatingLabel.BringToFront();
+                floatingLabel.Visible = true;
             }
+            else
+            {
+                floatingLabel.Visible = false;
+            }
+        }
+
+        private void On_MouseMove(object sender, MouseEventArgs e)
+        {
+            floatingLabel.Visible = false;
         }
 
         private void Btn_selectAll_Click(object sender, EventArgs e)
@@ -705,6 +475,17 @@ namespace Nucleus.Coop
             closeBtn.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close.png");
         }
 
+        private void closeButton(object sender, EventArgs e)
+        {
+            if (searching)
+            {
+                return;
+            }
+         
+            this.Close();
+            Instance = null;
+        }
+
         private const int WM_NCLBUTTONDOWN = 0xA1;
         private const int HT_CAPTION = 0x2;
 
@@ -715,18 +496,41 @@ namespace Nucleus.Coop
                 User32Interop.ReleaseCapture();
                 IntPtr nucHwnd = User32Interop.FindWindow(null, Text);
                 User32Interop.SendMessage(nucHwnd, WM_NCLBUTTONDOWN, (IntPtr)HT_CAPTION, (IntPtr)0);
-
             }
         }
 
-        private void DisksBox_ControlAdded(object sender, ControlEventArgs e)
+        private void controlscollect()
         {
-
+            foreach (Control control in Controls)
+            {
+                ctrls.Add(control);
+                foreach (Control container1 in control.Controls)
+                {
+                    ctrls.Add(container1);
+                    foreach (Control container2 in container1.Controls)
+                    {
+                        ctrls.Add(container2);
+                        foreach (Control container3 in container2.Controls)
+                        {
+                            ctrls.Add(container3);
+                            foreach (Control container4 in container3.Controls)
+                            {
+                                ctrls.Add(container4);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        private void DisksBox_ControlRemoved(object sender, ControlEventArgs e)
+        private void SearchDisksForm_Paint(object sender, PaintEventArgs e)
         {
-
+            e.Graphics.DrawRectangle(Pens.White, new Rectangle(0, 0, this.Width - 1, this.Height - 1));
+            e.Graphics.DrawRectangles(Pens.White, new RectangleF[] {
+            new RectangleF(disksBox.Left - 1,disksBox.Top - 1,disksBox.Width + 2,disksBox.Height + 2),
+            new RectangleF(checkboxFoundGames.Left - 1,checkboxFoundGames.Top - 1,checkboxFoundGames.Width + 2,checkboxFoundGames.Height + 2)
+            });
         }
     }
+    
 }

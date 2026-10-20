@@ -32,20 +32,23 @@ namespace Nucleus.Coop.UI
             ProfileEnabled_Change += SetProfileState;
         }
 
-        private static void DeviceDisconnected_CallBack(SynchronizationContext syncContext,string data)
+        private static void DeviceDisconnected_CallBack(string data)
         {
-            if (Core_Interface.CurrentStepIndex > 0)
+            UIThread.Post(() =>
             {
-                // Post the method callback to DevicesFunctions thread(main thread)
-                syncContext.Post(_ =>
+                if (GameProfile.Loaded)
                 {
-                    string[] dataArr = data.Split('|');
-                    GameProfile.Ready = false;
                     Core_Interface.GoToStep(0);
-                    Globals.MainOSD.Show(3000, $@"/!\ Device Connection Lost or Updated For {dataArr[0]} ({dataArr[1]}) /!\");
+                    UI_Interface.ProfilesList.Update_Reload();
+                }
+                else
+                {
+                    Core_Interface.GoToStep(0);
+                }
+            });
 
-                }, null);
-            }
+            string[] dataArr = data.Split('|');
+            Globals.MainOSD.Show(3000, $@"*@{OSDHighlightColors.Info}|/!\ Device Connection Lost or Updated For@* *@{OSDHighlightColors.Regular}|{dataArr[0]}@* *@{OSDHighlightColors.Info}|({dataArr[1]}) /!\@*");
         }
 
         private static void ChangeGame()
@@ -59,8 +62,9 @@ namespace Nucleus.Coop.UI
 
             var currentGame = Core_Interface.Current_GenericGameInfo;
 
-            if (!currentGame.KeepSymLinkOnExit &&
-                !currentGame.MetaInfo.KeepSymLink)
+            bool keepSymlink = currentGame.KeepSymLinkOnExit || currentGame.MetaInfo.KeepSymLink;
+
+            if(!keepSymlink)
             {
                 CleanGameContent.CleanContentFolder(currentGame, false);
             }
@@ -75,23 +79,21 @@ namespace Nucleus.Coop.UI
             UI_Interface.HandlerNotesZoom.Visible = false;
             UI_Interface.GotoNext.Visible = false;
             UI_Interface.GotoPrev.Visible = false;
+            UI_Interface.IconsContainer.Visible = false;
 
-            UI_Interface.HandlerNoteTitle.Text = "Handler Notes";
-
-            if (!UI_Graphics.RainbowTimerRunning)
+            if (!UI_Graphics.IsNotesTitleScrollTimerRunning)
             {
-                if (UI_Graphics.RainbowTimer == null)
+                if (UI_Graphics.NotesTitleScrollTimer == null)
                 {
-                    UI_Graphics.RainbowTimer = new System.Windows.Forms.Timer();
-                    UI_Graphics.RainbowTimer.Interval = (25); //millisecond                   
-                    UI_Graphics.RainbowTimer.Tick += UI_Graphics.RainbowTimerTick;
+                    UI_Graphics.NotesTitleScrollTimer?.Dispose();
+                    UI_Graphics.NotesTitleScrollTimer = new System.Windows.Forms.Timer();
+                    UI_Graphics.NotesTitleScrollTimer.Interval = 16; //millisecond                   
+                    UI_Graphics.NotesTitleScrollTimer.Tick += UI_Graphics.NotesTitleScrollTimer_Tick;
                 }
 
-                UI_Graphics.RainbowTimer.Start();
-                UI_Graphics.RainbowTimerRunning = true;
-            }
-
-            UI_Interface.IconsContainer.Visible = false;
+                UI_Graphics.NotesTitleScrollTimer.Start();
+                UI_Graphics.IsNotesTitleScrollTimerRunning = true;
+            }           
 
             foreach (Control icon in UI_Interface.IconsContainer.Controls)
             {
@@ -103,8 +105,7 @@ namespace Nucleus.Coop.UI
             UI_Interface.IconsContainer.Visible = true;
 
             UI_Interface.PlayButton.Visible = false;
-            UI_Interface.InfoPanel.Visible = true;
-
+            
             UI_Interface.SetupPanel.Visible = true;
 
             GameProfile newProfile = new GameProfile();
@@ -143,8 +144,7 @@ namespace Nucleus.Coop.UI
                     UI_Interface.ProfilesList.Visible = showList;
                 }
 
-                CustomToolTips.SetToolTip(UI_Interface.ProfileListButton, $"{currentGame.GameName} profiles list.", "profilesList_btn", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
-                CustomToolTips.SetToolTip(UI_Interface.ProfileSettingsButton, $"Profile settings.", "profileSettings_btn", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                CustomToolTips.SetToolTip(UI_Interface.ProfileListButton, $"{currentGame.GameName} profiles list.", "profilesList_btn", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });   
 
                 UI_Interface.ProfileListButton.Visible = showList;
                 UI_Functions.SetGameProfileButtonLoc();
@@ -163,8 +163,9 @@ namespace Nucleus.Coop.UI
 
             if (currentGame.Description?.Length > 0)
             {
-                UI_Interface.HandlerNotes.ResetText();
-                UI_Interface.HandlerNotes.Text = currentGame.Description;             
+                UI_Interface.HandlerNotes.Visible = false;
+                UI_Interface.HandlerNotes.Text = currentGame.Description;
+                UI_Interface.HandlerNotes.Visible = true;
                 UI_Interface.HandlerNotesContainer.Visible = true;
 
                 if (currentGame.MetaInfo.FirstLaunch && !UI_Interface.DisableForcedNote)
@@ -186,9 +187,11 @@ namespace Nucleus.Coop.UI
            
             UI_Interface.GotoNext.Visible = currentGame.Options?.Count > 0;
             UI_Interface.GotoPrev.Visible = currentGame.Options?.Count > 0;
-            Core_Interface.GoToStep(0);
+            UI_Interface.InfoPanel.Visible = true;
 
-            GameAssets.GetGameAssets();
+            Core_Interface.GoToStep(0);
+           
+            GameAssets.LoadGameAssets();              
 
             UI_Interface.SetupScreen.Focus();
         }
@@ -203,9 +206,9 @@ namespace Nucleus.Coop.UI
 
         public static void SetProfileState()
         {
-            if (Core_Interface.CurrentMenuUserGameInfo.Game.MetaInfo.DisableProfiles)
+            if (Core_Interface.CurrentMenuUserGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.DisableProfiles)
             {
-                Core_Interface.CurrentMenuUserGameInfo.Game.MetaInfo.DisableProfiles = false;
+                Core_Interface.CurrentMenuUserGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.DisableProfiles = false;
                 UI_Interface.GameOptionMenu.Items["disableProfilesMenuItem"].Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
 
                 if (Core_Interface.CurrentMenuUserGameInfo == Core_Interface.Current_UserGameInfo)
@@ -215,7 +218,7 @@ namespace Nucleus.Coop.UI
 
                     bool showList = GameProfile.profilesPathList.Count > 0;
 
-                    if (!Core_Interface.CurrentMenuUserGameInfo.Game.MetaInfo.FirstLaunch)
+                    if (!Core_Interface.CurrentMenuUserGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.FirstLaunch)
                     {
                         UI_Interface.ProfilesList.Visible = showList;
                     }
@@ -240,7 +243,7 @@ namespace Nucleus.Coop.UI
             }
             else
             {
-                Core_Interface.CurrentMenuUserGameInfo.Game.MetaInfo.DisableProfiles = true;
+                Core_Interface.CurrentMenuUserGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.DisableProfiles = true;
                 UI_Interface.GameOptionMenu.Items["disableProfilesMenuItem"].Image = ImageCache.GetImage(Globals.ThemeFolder + "unlocked.png");
 
                 if (Core_Interface.CurrentMenuUserGameInfo == Core_Interface.Current_UserGameInfo)

@@ -107,6 +107,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ICSharpCode.AvalonEdit, Version=6.3.1.120, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
+      <HintPath>..\packages\AvalonEdit.6.3.1.120\lib\net462\ICSharpCode.AvalonEdit.dll</HintPath>
+    </Reference>
     <Reference Include="Ionic.Zip.Reduced, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL">
       <HintPath>..\packages\DotNetZip.Reduced.1.9.1.8\lib\net20\Ionic.Zip.Reduced.dll</HintPath>
     </Reference>
@@ -250,8 +253,11 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controls\ExtractButton .cs">
-      <SubType>Component</SubType>
+    <Compile Include="Controls\DragAndDropModal.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\DragAndDropModal.Designer.cs">
+      <DependentUpon>DragAndDropModal.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\HandlerNotesZoom.cs">
       <SubType>Component</SubType>
@@ -260,9 +266,6 @@
       <DependentUpon>HandlerNotesZoom.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\MultiColorLabel.cs" />
-    <Compile Include="Controls\SearchGameButton.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Controls\HubButton.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -289,6 +292,12 @@
     </Compile>
     <Compile Include="Controls\HubWebView.Designer.cs">
       <DependentUpon>HubWebView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\NewsFeed.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\NewsFeed.Designer.cs">
+      <DependentUpon>NewsFeed.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\PlaytimePanel.cs">
       <SubType>UserControl</SubType>
@@ -339,7 +348,12 @@
     <Compile Include="Forms\GameList.Designer.cs">
       <DependentUpon>GameList.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\HandlersManager.cs" />
     <Compile Include="Forms\HandlerScanner.cs" />
+    <Compile Include="Forms\Patrons.cs" />
+    <Compile Include="Forms\Patrons.Designer.cs">
+      <DependentUpon>Patrons.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Screen_Identifier.cs" />
     <Compile Include="Forms\Settings.cs">
       <SubType>Form</SubType>
@@ -365,7 +379,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Tools\AssetsDownloader.cs" />
     <Compile Include="Tools\blur.cs" />
     <Compile Include="Tools\ChangeGameIcon.cs" />
     <Compile Include="Tools\CheckGameRequirements.cs" />
@@ -407,7 +420,9 @@
     <Compile Include="Tools\CustomToolStripRenderer.cs" />
     <Compile Include="UI\Core_Interface.cs" />
     <Compile Include="UI\Generic_Functions.cs" />
+    <Compile Include="UI\MainMenuFunc.cs" />
     <Compile Include="UI\MainWindowFunc.cs" />
+    <Compile Include="UI\PatreonMenuFunc.cs" />
     <Compile Include="UI\Runtime_Controls.cs" />
     <Compile Include="UI\SocialMenuFunc.cs" />
     <Compile Include="UI\UI_Actions.cs" />
@@ -415,20 +430,21 @@
     <Compile Include="UI\UI_Graphics.cs" />
     <Compile Include="UI\UI_Interface.cs" />
     <Compile Include="UI\GameOptionMenuFunc.cs" />
-    <EmbeddedResource Include="Controls\ExtractButton .resx">
-      <DependentUpon>ExtractButton .cs</DependentUpon>
+    <Compile Include="UI\UI_Nav_V2\UI_Nav_Supervisor.cs" />
+    <EmbeddedResource Include="Controls\DragAndDropModal.resx">
+      <DependentUpon>DragAndDropModal.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\HandlerNotesZoom.resx">
       <DependentUpon>HandlerNotesZoom.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\SearchGameButton.resx">
-      <DependentUpon>SearchGameButton.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\HubButton.resx">
       <DependentUpon>HubButton.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\CustomSwitch.resx">
       <DependentUpon>CustomSwitch.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\NewsFeed.resx">
+      <DependentUpon>NewsFeed.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\ProfilesList.resx">
       <DependentUpon>ProfilesList.cs</DependentUpon>
@@ -444,9 +460,13 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\HubWebView.resx">
       <DependentUpon>HubWebView.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\GameList.resx">
       <DependentUpon>GameList.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Patrons.resx">
+      <DependentUpon>Patrons.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Settings.resx">
       <DependentUpon>Settings.cs</DependentUpon>
@@ -532,7 +552,14 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="copyoutput\openxinput1_4.dll" />
     <Content Include="copyoutput\SDL2.dll" />
+    <None Include="Resources\dancer.gif" />
+    <None Include="Resources\icon-white-small.png" />
+    <Content Include="gui\audio\patreon_credits.mp3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="Resources\heart.png" />
     <Content Include="Resources\xboxControllerFront.png" />
     <None Include="Resources\log1.png" />
     <None Include="Resources\search_game.png" />
@@ -543,7 +570,6 @@
     <None Include="Resources\settings.png" />
     <None Include="Resources\maximize_button.png" />
     <None Include="Resources\minimize_button.png" />
-    <Content Include="copyoutput\openxinput1_3.dll" />
     <None Include="Resources\no_image.jpg" />
     <Content Include="gui\icons\default.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

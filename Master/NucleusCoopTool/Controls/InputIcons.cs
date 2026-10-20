@@ -19,7 +19,7 @@ namespace Nucleus.Coop
 
             List<PictureBox> icons = new List<PictureBox>();
 
-            if (game.Hook.SDL2Enabled)
+            if (game.Hook.SDL2Enabled || game.Hook.SDL3Enabled)
             {
                 Bitmap bmp1 = ImageCache.GetImage(Globals.ThemeFolder + "xinput_icon.png");
                 float ratio1 = (float)bmp1.Width / (float)bmp1.Height;

@@ -43,62 +43,32 @@ namespace Nucleus.Coop
             this.settingsTabBtn = new System.Windows.Forms.Button();
             this.settingsTab = new System.Windows.Forms.Panel();
             this.btn_Gb_Update = new System.Windows.Forms.Button();
-            this.disableGameProfiles = new Nucleus.Coop.Controls.CustomCheckBox();
-            this.keepAccountsCheck = new Nucleus.Coop.Controls.CustomCheckBox();
             this.ctrlr_shorcutsBtn = new System.Windows.Forms.Button();
-            this.nucUserPassTxt = new FlatTextBox();
             this.password_Label = new System.Windows.Forms.Label();
             this.themeLabel = new System.Windows.Forms.Label();
-            this.themeCbx = new FlatCombo();
-            this.cmb_EpicLang = new FlatCombo();
             this.label1 = new System.Windows.Forms.Label();
-            this.ignoreInputLockReminderCheckbox = new Nucleus.Coop.Controls.CustomCheckBox();
-            this.cmb_Lang = new FlatCombo();
             this.label2 = new System.Windows.Forms.Label();
-            this.debugLogCheck = new Nucleus.Coop.Controls.CustomCheckBox();
             this.hotkeyBox = new System.Windows.Forms.GroupBox();
-            this.rm_Cmb = new FlatCombo();
             this.plus8 = new System.Windows.Forms.Label();
             this.hkLabel2 = new System.Windows.Forms.Label();
-            this.rm_HKTxt = new FlatTextBox();
             this.hkLabel4 = new System.Windows.Forms.Label();
             this.hkLabel3 = new System.Windows.Forms.Label();
-            this.swl_Cmb = new FlatCombo();
             this.plus7 = new System.Windows.Forms.Label();
             this.hkLabel7 = new System.Windows.Forms.Label();
-            this.swl_HKTxt = new FlatTextBox();
-            this.csm_Cmb = new FlatCombo();
             this.hkLabel = new System.Windows.Forms.Label();
             this.plus6 = new System.Windows.Forms.Label();
-            this.csm_HKTxt = new FlatTextBox();
             this.hkLabel8 = new System.Windows.Forms.Label();
-            this.rw_Cmb = new FlatCombo();
             this.plus5 = new System.Windows.Forms.Label();
             this.hkLabel1 = new System.Windows.Forms.Label();
-            this.tu_Cmb = new FlatCombo();
             this.plus1 = new System.Windows.Forms.Label();
             this.hkLabel5 = new System.Windows.Forms.Label();
-            this.rw_HKTxt = new FlatTextBox();
             this.hotkeysLabel = new System.Windows.Forms.Label();
             this.hkLabel6 = new System.Windows.Forms.Label();
-            this.tu_HKTxt = new FlatTextBox();
-            this.lockKey_Cmb = new FlatCombo();
-            this.ttm_Cmb = new FlatCombo();
-            this.ss_Cmb = new FlatCombo();
-            this.ttm_HKTxt = new FlatTextBox();
-            this.ss_HKTxt = new FlatTextBox();
-            this.cn_Cmb = new FlatCombo();
             this.plus4 = new System.Windows.Forms.Label();
             this.plus3 = new System.Windows.Forms.Label();
             this.plus2 = new System.Windows.Forms.Label();
-            this.cn_HKTxt = new FlatTextBox();
-            this.scaleOptionCbx = new Nucleus.Coop.Controls.CustomCheckBox();
-            this.useNicksCheck = new Nucleus.Coop.Controls.CustomCheckBox();
-            this.cmb_Network = new FlatCombo();
             this.label32 = new System.Windows.Forms.Label();
             this.playersTab = new System.Windows.Forms.Panel();
-            this.assignGpdByBtnPress = new Nucleus.Coop.Controls.CustomCheckBox();
-            this.gamepadsAssignMethods = new Nucleus.Coop.Controls.CustomCheckBox();
             this.btnNext = new System.Windows.Forms.Button();
             this.page1 = new System.Windows.Forms.Panel();
             this.label48 = new System.Windows.Forms.Label();
@@ -107,6 +77,118 @@ namespace Nucleus.Coop
             this.label25 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.label18 = new System.Windows.Forms.Label();
+            this.label19 = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
+            this.label22 = new System.Windows.Forms.Label();
+            this.label23 = new System.Windows.Forms.Label();
+            this.label24 = new System.Windows.Forms.Label();
+            this.label26 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.label15 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.page2 = new System.Windows.Forms.Panel();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label62 = new System.Windows.Forms.Label();
+            this.label63 = new System.Windows.Forms.Label();
+            this.label64 = new System.Windows.Forms.Label();
+            this.label65 = new System.Windows.Forms.Label();
+            this.label66 = new System.Windows.Forms.Label();
+            this.label61 = new System.Windows.Forms.Label();
+            this.label59 = new System.Windows.Forms.Label();
+            this.label58 = new System.Windows.Forms.Label();
+            this.label57 = new System.Windows.Forms.Label();
+            this.label55 = new System.Windows.Forms.Label();
+            this.label54 = new System.Windows.Forms.Label();
+            this.label53 = new System.Windows.Forms.Label();
+            this.label52 = new System.Windows.Forms.Label();
+            this.label31 = new System.Windows.Forms.Label();
+            this.label51 = new System.Windows.Forms.Label();
+            this.label33 = new System.Windows.Forms.Label();
+            this.label50 = new System.Windows.Forms.Label();
+            this.label34 = new System.Windows.Forms.Label();
+            this.label46 = new System.Windows.Forms.Label();
+            this.label35 = new System.Windows.Forms.Label();
+            this.label38 = new System.Windows.Forms.Label();
+            this.audioTab = new System.Windows.Forms.Panel();
+            this.audioWarningLabel = new System.Windows.Forms.Label();
+            this.audioDefaultDevice = new System.Windows.Forms.Label();
+            this.audioCustomSettingsBox = new System.Windows.Forms.GroupBox();
+            this.label45 = new System.Windows.Forms.Label();
+            this.label44 = new System.Windows.Forms.Label();
+            this.label43 = new System.Windows.Forms.Label();
+            this.label42 = new System.Windows.Forms.Label();
+            this.label41 = new System.Windows.Forms.Label();
+            this.label40 = new System.Windows.Forms.Label();
+            this.label37 = new System.Windows.Forms.Label();
+            this.label36 = new System.Windows.Forms.Label();
+            this.audioRefresh = new System.Windows.Forms.Button();
+            this.layoutTab = new System.Windows.Forms.Panel();
+            this.label5 = new System.Windows.Forms.Label();
+            this.DivLabel = new System.Windows.Forms.Label();
+            this.plus9 = new System.Windows.Forms.Label();
+            this.mergerShortcutLabel = new System.Windows.Forms.Label();
+            this.refreshScreenDatasButton = new System.Windows.Forms.Button();
+            this.mergerResSelectorLabel = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.mergerSettingsLabel = new System.Windows.Forms.Label();
+            this.numMaxPlyrs = new Nucleus.Gaming.Controls.CustomNumericUpDown();
+            this.numUpDownVer = new Nucleus.Gaming.Controls.CustomNumericUpDown();
+            this.label29 = new System.Windows.Forms.Label();
+            this.label27 = new System.Windows.Forms.Label();
+            this.label28 = new System.Windows.Forms.Label();
+            this.numUpDownHor = new Nucleus.Gaming.Controls.CustomNumericUpDown();
+            this.cutsceneLabel = new System.Windows.Forms.Label();
+            this.cts_Panel = new System.Windows.Forms.Panel();
+            this.label49 = new System.Windows.Forms.Label();
+            this.layoutSizer = new System.Windows.Forms.Panel();
+            this.smfw_Cmb = new FlatCombo();
+            this.smfw_HKTxt = new FlatTextBox();
+            this.losslessHook = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.selectedRes = new FlatTextBox();
+            this.enable_WMerger = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.hideDesktop = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.cts_unfocus = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.cts_kar = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.cts_Mute = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.SplitColors = new FlatCombo();
+            this.splitDiv = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.disableGameProfiles = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.keepAccountsCheck = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.nucUserPassTxt = new FlatTextBox();
+            this.themeCbx = new FlatCombo();
+            this.cmb_EpicLang = new FlatCombo();
+            this.ignoreInputLockReminderCheckbox = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.cmb_Lang = new FlatCombo();
+            this.debugLogCheck = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.rm_Cmb = new FlatCombo();
+            this.rm_HKTxt = new FlatTextBox();
+            this.swl_Cmb = new FlatCombo();
+            this.swl_HKTxt = new FlatTextBox();
+            this.csm_Cmb = new FlatCombo();
+            this.csm_HKTxt = new FlatTextBox();
+            this.rw_Cmb = new FlatCombo();
+            this.tu_Cmb = new FlatCombo();
+            this.rw_HKTxt = new FlatTextBox();
+            this.tu_HKTxt = new FlatTextBox();
+            this.lockKey_Cmb = new FlatCombo();
+            this.ttm_Cmb = new FlatCombo();
+            this.ss_Cmb = new FlatCombo();
+            this.ttm_HKTxt = new FlatTextBox();
+            this.ss_HKTxt = new FlatTextBox();
+            this.cn_Cmb = new FlatCombo();
+            this.cn_HKTxt = new FlatTextBox();
+            this.scaleOptionCbx = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.useNicksCheck = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.cmb_Network = new FlatCombo();
+            this.assignGpdByBtnPress = new Nucleus.Coop.Controls.CustomCheckBox();
+            this.gamepadsAssignMethods = new Nucleus.Coop.Controls.CustomCheckBox();
             this.steamid16 = new FlatCombo();
             this.steamid15 = new FlatCombo();
             this.steamid14 = new FlatCombo();
@@ -124,146 +206,64 @@ namespace Nucleus.Coop
             this.steamid2 = new FlatCombo();
             this.steamid1 = new FlatCombo();
             this.player16N = new FlatCombo();
-            this.label17 = new System.Windows.Forms.Label();
             this.player15N = new FlatCombo();
-            this.label18 = new System.Windows.Forms.Label();
             this.player14N = new FlatCombo();
-            this.label19 = new System.Windows.Forms.Label();
             this.player13N = new FlatCombo();
-            this.label20 = new System.Windows.Forms.Label();
             this.player12N = new FlatCombo();
-            this.label22 = new System.Windows.Forms.Label();
             this.player11N = new FlatCombo();
-            this.label23 = new System.Windows.Forms.Label();
             this.player10N = new FlatCombo();
-            this.label24 = new System.Windows.Forms.Label();
             this.player9N = new FlatCombo();
-            this.label26 = new System.Windows.Forms.Label();
             this.player8N = new FlatCombo();
-            this.label16 = new System.Windows.Forms.Label();
             this.player7N = new FlatCombo();
-            this.label15 = new System.Windows.Forms.Label();
             this.player6N = new FlatCombo();
-            this.label11 = new System.Windows.Forms.Label();
             this.player5N = new FlatCombo();
-            this.label9 = new System.Windows.Forms.Label();
             this.player4N = new FlatCombo();
-            this.label14 = new System.Windows.Forms.Label();
             this.player3N = new FlatCombo();
-            this.label12 = new System.Windows.Forms.Label();
             this.player2N = new FlatCombo();
-            this.label10 = new System.Windows.Forms.Label();
             this.player1N = new FlatCombo();
-            this.label7 = new System.Windows.Forms.Label();
-            this.page2 = new System.Windows.Forms.Panel();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label62 = new System.Windows.Forms.Label();
-            this.label63 = new System.Windows.Forms.Label();
-            this.label64 = new System.Windows.Forms.Label();
-            this.label65 = new System.Windows.Forms.Label();
-            this.label66 = new System.Windows.Forms.Label();
             this.steamid32 = new FlatCombo();
             this.steamid17 = new FlatCombo();
             this.steamid31 = new FlatCombo();
-            this.label61 = new System.Windows.Forms.Label();
             this.steamid30 = new FlatCombo();
             this.player17N = new FlatCombo();
             this.steamid29 = new FlatCombo();
-            this.label59 = new System.Windows.Forms.Label();
             this.steamid28 = new FlatCombo();
             this.player18N = new FlatCombo();
             this.steamid27 = new FlatCombo();
-            this.label58 = new System.Windows.Forms.Label();
             this.steamid26 = new FlatCombo();
             this.player19N = new FlatCombo();
             this.steamid25 = new FlatCombo();
-            this.label57 = new System.Windows.Forms.Label();
             this.steamid24 = new FlatCombo();
             this.player20N = new FlatCombo();
             this.steamid23 = new FlatCombo();
-            this.label55 = new System.Windows.Forms.Label();
             this.steamid22 = new FlatCombo();
             this.player21N = new FlatCombo();
             this.steamid21 = new FlatCombo();
-            this.label54 = new System.Windows.Forms.Label();
             this.steamid20 = new FlatCombo();
             this.player22N = new FlatCombo();
             this.steamid19 = new FlatCombo();
-            this.label53 = new System.Windows.Forms.Label();
             this.steamid18 = new FlatCombo();
             this.player23N = new FlatCombo();
-            this.label52 = new System.Windows.Forms.Label();
             this.player32N = new FlatCombo();
             this.player24N = new FlatCombo();
-            this.label31 = new System.Windows.Forms.Label();
-            this.label51 = new System.Windows.Forms.Label();
             this.player31N = new FlatCombo();
             this.player25N = new FlatCombo();
-            this.label33 = new System.Windows.Forms.Label();
-            this.label50 = new System.Windows.Forms.Label();
             this.player30N = new FlatCombo();
             this.player26N = new FlatCombo();
-            this.label34 = new System.Windows.Forms.Label();
-            this.label46 = new System.Windows.Forms.Label();
             this.player29N = new FlatCombo();
             this.player27N = new FlatCombo();
-            this.label35 = new System.Windows.Forms.Label();
-            this.label38 = new System.Windows.Forms.Label();
             this.player28N = new FlatCombo();
-            this.audioTab = new System.Windows.Forms.Panel();
-            this.audioWarningLabel = new System.Windows.Forms.Label();
-            this.audioDefaultDevice = new System.Windows.Forms.Label();
-            this.audioCustomSettingsBox = new System.Windows.Forms.GroupBox();
             this.AudioInstance8 = new FlatCombo();
-            this.label45 = new System.Windows.Forms.Label();
             this.AudioInstance7 = new FlatCombo();
-            this.label44 = new System.Windows.Forms.Label();
             this.AudioInstance6 = new FlatCombo();
-            this.label43 = new System.Windows.Forms.Label();
             this.AudioInstance5 = new FlatCombo();
-            this.label42 = new System.Windows.Forms.Label();
             this.AudioInstance4 = new FlatCombo();
-            this.label41 = new System.Windows.Forms.Label();
             this.AudioInstance3 = new FlatCombo();
-            this.label40 = new System.Windows.Forms.Label();
             this.AudioInstance2 = new FlatCombo();
             this.AudioInstance1 = new FlatCombo();
-            this.label37 = new System.Windows.Forms.Label();
-            this.label36 = new System.Windows.Forms.Label();
             this.audioCustomSettingsRadio = new Nucleus.Coop.Controls.CustomRadio();
             this.audioDefaultSettingsRadio = new Nucleus.Coop.Controls.CustomRadio();
-            this.audioRefresh = new System.Windows.Forms.Button();
-            this.layoutTab = new System.Windows.Forms.Panel();
-            this.label5 = new System.Windows.Forms.Label();
-            this.DivLabel = new System.Windows.Forms.Label();
-            this.smfw_Cmb = new FlatCombo();
-            this.plus9 = new System.Windows.Forms.Label();
-            this.mergerShortcutLabel = new System.Windows.Forms.Label();
-            this.smfw_HKTxt = new FlatTextBox();
-            this.refreshScreenDatasButton = new System.Windows.Forms.Button();
-            this.mergerResSelectorLabel = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.mergerSettingsLabel = new System.Windows.Forms.Label();
-            this.losslessHook = new Nucleus.Coop.Controls.CustomCheckBox();
-            this.selectedRes = new FlatTextBox();
             this.screen_panel = new System.Windows.Forms.Panel();
-            this.enable_WMerger = new Nucleus.Coop.Controls.CustomCheckBox();
-            this.hideDesktop = new Nucleus.Coop.Controls.CustomCheckBox();
-            this.numMaxPlyrs = new Nucleus.Gaming.Controls.CustomNumericUpDown();
-            this.numUpDownVer = new Nucleus.Gaming.Controls.CustomNumericUpDown();
-            this.label29 = new System.Windows.Forms.Label();
-            this.label27 = new System.Windows.Forms.Label();
-            this.label28 = new System.Windows.Forms.Label();
-            this.numUpDownHor = new Nucleus.Gaming.Controls.CustomNumericUpDown();
-            this.cutsceneLabel = new System.Windows.Forms.Label();
-            this.cts_Panel = new System.Windows.Forms.Panel();
-            this.cts_unfocus = new Nucleus.Coop.Controls.CustomCheckBox();
-            this.cts_kar = new Nucleus.Coop.Controls.CustomCheckBox();
-            this.cts_Mute = new Nucleus.Coop.Controls.CustomCheckBox();
-            this.SplitColors = new FlatCombo();
-            this.splitDiv = new Nucleus.Coop.Controls.CustomCheckBox();
-            this.label49 = new System.Windows.Forms.Label();
-            this.layoutSizer = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.closeBtnPicture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.layoutBtnPicture)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.settingsBtnPicture)).BeginInit();
@@ -447,43 +447,6 @@ namespace Nucleus.Coop
             this.btn_Gb_Update.UseVisualStyleBackColor = false;
             this.btn_Gb_Update.Click += new System.EventHandler(this.Btn_Gb_Update_Click);
             // 
-            // disableGameProfiles
-            // 
-            this.disableGameProfiles.BackColor = System.Drawing.Color.Transparent;
-            this.disableGameProfiles.BorderColor = System.Drawing.Color.Blue;
-            this.disableGameProfiles.CheckColor = System.Drawing.Color.Blue;
-            this.disableGameProfiles.Checked = true;
-            this.disableGameProfiles.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.disableGameProfiles.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.disableGameProfiles.ForeColor = System.Drawing.Color.White;
-            this.disableGameProfiles.Location = new System.Drawing.Point(14, 317);
-            this.disableGameProfiles.Margin = new System.Windows.Forms.Padding(2);
-            this.disableGameProfiles.Name = "disableGameProfiles";
-            this.disableGameProfiles.SelectionColor = System.Drawing.Color.LightBlue;
-            this.disableGameProfiles.Size = new System.Drawing.Size(148, 17);
-            this.disableGameProfiles.TabIndex = 167;
-            this.disableGameProfiles.Tag = "";
-            this.disableGameProfiles.Text = "Disable Game Profiles";
-            this.disableGameProfiles.UseVisualStyleBackColor = false;
-            this.disableGameProfiles.CheckedChanged += new System.EventHandler(this.DisableGameProfiles_CheckedChanged);
-            // 
-            // keepAccountsCheck
-            // 
-            this.keepAccountsCheck.BackColor = System.Drawing.Color.Transparent;
-            this.keepAccountsCheck.BorderColor = System.Drawing.Color.Blue;
-            this.keepAccountsCheck.CheckColor = System.Drawing.Color.Blue;
-            this.keepAccountsCheck.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.keepAccountsCheck.ForeColor = System.Drawing.Color.White;
-            this.keepAccountsCheck.Location = new System.Drawing.Point(14, 275);
-            this.keepAccountsCheck.Margin = new System.Windows.Forms.Padding(2);
-            this.keepAccountsCheck.Name = "keepAccountsCheck";
-            this.keepAccountsCheck.SelectionColor = System.Drawing.Color.LightBlue;
-            this.keepAccountsCheck.Size = new System.Drawing.Size(166, 17);
-            this.keepAccountsCheck.TabIndex = 166;
-            this.keepAccountsCheck.Text = "Keep Nucleus User Accounts";
-            this.keepAccountsCheck.UseVisualStyleBackColor = false;
-            this.keepAccountsCheck.Click += new System.EventHandler(this.KeepAccountsCheck_Click);
-            // 
             // ctrlr_shorcutsBtn
             // 
             this.ctrlr_shorcutsBtn.BackColor = System.Drawing.Color.Transparent;
@@ -498,21 +461,6 @@ namespace Nucleus.Coop
             this.ctrlr_shorcutsBtn.Text = "Controller Shortcuts Setup";
             this.ctrlr_shorcutsBtn.UseVisualStyleBackColor = false;
             this.ctrlr_shorcutsBtn.Click += new System.EventHandler(this.Ctrlr_shorcuts_Click);
-            // 
-            // nucUserPassTxt
-            // 
-            this.nucUserPassTxt.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.nucUserPassTxt.BorderColor = System.Drawing.Color.Blue;
-            this.nucUserPassTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.nucUserPassTxt.Hint = null;
-            this.nucUserPassTxt.Location = new System.Drawing.Point(402, 31);
-            this.nucUserPassTxt.Margin = new System.Windows.Forms.Padding(2);
-            this.nucUserPassTxt.MaxLength = 127;
-            this.nucUserPassTxt.Name = "nucUserPassTxt";
-            this.nucUserPassTxt.PasswordChar = '*';
-            this.nucUserPassTxt.Size = new System.Drawing.Size(197, 21);
-            this.nucUserPassTxt.TabIndex = 150;
-            this.nucUserPassTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // password_Label
             // 
@@ -541,58 +489,6 @@ namespace Nucleus.Coop
             this.themeLabel.Text = "Theme";
             this.themeLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // themeCbx
-            // 
-            this.themeCbx.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.themeCbx.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.themeCbx.FormattingEnabled = true;
-            this.themeCbx.ItemHeight = 15;
-            this.themeCbx.Location = new System.Drawing.Point(14, 124);
-            this.themeCbx.Margin = new System.Windows.Forms.Padding(0);
-            this.themeCbx.MaxDropDownItems = 10;
-            this.themeCbx.Name = "themeCbx";
-            this.themeCbx.Size = new System.Drawing.Size(142, 23);
-            this.themeCbx.TabIndex = 162;
-            // 
-            // cmb_EpicLang
-            // 
-            this.cmb_EpicLang.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmb_EpicLang.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmb_EpicLang.FormattingEnabled = true;
-            this.cmb_EpicLang.Items.AddRange(new object[] {
-            "Arabic",
-            "Brazilian",
-            "Bulgarian",
-            "Chinese",
-            "Czech",
-            "Danish",
-            "Dutch",
-            "English",
-            "Finnish",
-            "French",
-            "German",
-            "Greek",
-            "Hungarian",
-            "Italian",
-            "Japanese",
-            "Koreana",
-            "Norwegian",
-            "Polish",
-            "Portuguese",
-            "Romanian",
-            "Russian",
-            "Spanish",
-            "Swedish",
-            "Thai",
-            "Turkish",
-            "Ukrainian"});
-            this.cmb_EpicLang.Location = new System.Drawing.Point(14, 78);
-            this.cmb_EpicLang.Margin = new System.Windows.Forms.Padding(0);
-            this.cmb_EpicLang.MaxDropDownItems = 10;
-            this.cmb_EpicLang.Name = "cmb_EpicLang";
-            this.cmb_EpicLang.Size = new System.Drawing.Size(142, 23);
-            this.cmb_EpicLang.TabIndex = 159;
-            // 
             // label1
             // 
             this.label1.AutoSize = true;
@@ -606,63 +502,6 @@ namespace Nucleus.Coop
             this.label1.Text = "Epic/Gog Language";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // ignoreInputLockReminderCheckbox
-            // 
-            this.ignoreInputLockReminderCheckbox.BackColor = System.Drawing.Color.Transparent;
-            this.ignoreInputLockReminderCheckbox.BorderColor = System.Drawing.Color.Blue;
-            this.ignoreInputLockReminderCheckbox.CheckColor = System.Drawing.Color.Blue;
-            this.ignoreInputLockReminderCheckbox.ForeColor = System.Drawing.Color.White;
-            this.ignoreInputLockReminderCheckbox.Location = new System.Drawing.Point(14, 252);
-            this.ignoreInputLockReminderCheckbox.Margin = new System.Windows.Forms.Padding(2);
-            this.ignoreInputLockReminderCheckbox.Name = "ignoreInputLockReminderCheckbox";
-            this.ignoreInputLockReminderCheckbox.SelectionColor = System.Drawing.Color.LightBlue;
-            this.ignoreInputLockReminderCheckbox.Size = new System.Drawing.Size(178, 19);
-            this.ignoreInputLockReminderCheckbox.TabIndex = 157;
-            this.ignoreInputLockReminderCheckbox.Text = "Ignore Input Lock Reminder";
-            this.ignoreInputLockReminderCheckbox.UseVisualStyleBackColor = false;
-            // 
-            // cmb_Lang
-            // 
-            this.cmb_Lang.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmb_Lang.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmb_Lang.FormattingEnabled = true;
-            this.cmb_Lang.Items.AddRange(new object[] {
-            "Automatic",
-            "Arabic",
-            "Brazilian",
-            "Bulgarian",
-            "Schinese",
-            "Tchinese",
-            "Czech",
-            "Danish",
-            "Dutch",
-            "English",
-            "Finnish",
-            "French",
-            "German",
-            "Greek",
-            "Hungarian",
-            "Italian",
-            "Japanese",
-            "Koreana",
-            "Latam",
-            "Norwegian",
-            "Polish",
-            "Portuguese",
-            "Romanian",
-            "Russian",
-            "Spanish",
-            "Swedish",
-            "Thai",
-            "Turkish",
-            "Ukrainian"});
-            this.cmb_Lang.Location = new System.Drawing.Point(15, 31);
-            this.cmb_Lang.Margin = new System.Windows.Forms.Padding(0);
-            this.cmb_Lang.MaxDropDownItems = 10;
-            this.cmb_Lang.Name = "cmb_Lang";
-            this.cmb_Lang.Size = new System.Drawing.Size(142, 23);
-            this.cmb_Lang.TabIndex = 155;
-            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -675,21 +514,6 @@ namespace Nucleus.Coop
             this.label2.TabIndex = 154;
             this.label2.Text = "Steam Language";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // debugLogCheck
-            // 
-            this.debugLogCheck.BackColor = System.Drawing.Color.Transparent;
-            this.debugLogCheck.BorderColor = System.Drawing.Color.Blue;
-            this.debugLogCheck.CheckColor = System.Drawing.Color.Blue;
-            this.debugLogCheck.ForeColor = System.Drawing.Color.White;
-            this.debugLogCheck.Location = new System.Drawing.Point(14, 229);
-            this.debugLogCheck.Margin = new System.Windows.Forms.Padding(2);
-            this.debugLogCheck.Name = "debugLogCheck";
-            this.debugLogCheck.SelectionColor = System.Drawing.Color.LightBlue;
-            this.debugLogCheck.Size = new System.Drawing.Size(129, 19);
-            this.debugLogCheck.TabIndex = 153;
-            this.debugLogCheck.Text = "Enable Debug Log";
-            this.debugLogCheck.UseVisualStyleBackColor = false;
             // 
             // hotkeyBox
             // 
@@ -739,22 +563,6 @@ namespace Nucleus.Coop
             this.hotkeyBox.TabIndex = 152;
             this.hotkeyBox.TabStop = false;
             // 
-            // rm_Cmb
-            // 
-            this.rm_Cmb.BackColor = System.Drawing.Color.White;
-            this.rm_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.rm_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.rm_Cmb.FormattingEnabled = true;
-            this.rm_Cmb.Items.AddRange(new object[] {
-            "Ctrl",
-            "Alt",
-            "Shift"});
-            this.rm_Cmb.Location = new System.Drawing.Point(119, 196);
-            this.rm_Cmb.Margin = new System.Windows.Forms.Padding(2);
-            this.rm_Cmb.Name = "rm_Cmb";
-            this.rm_Cmb.Size = new System.Drawing.Size(67, 23);
-            this.rm_Cmb.TabIndex = 98;
-            // 
             // plus8
             // 
             this.plus8.AutoSize = true;
@@ -778,21 +586,6 @@ namespace Nucleus.Coop
             this.hkLabel2.Text = "Hotkeys Reminder :";
             this.hkLabel2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // rm_HKTxt
-            // 
-            this.rm_HKTxt.BorderColor = System.Drawing.Color.Blue;
-            this.rm_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.rm_HKTxt.Hint = null;
-            this.rm_HKTxt.Location = new System.Drawing.Point(205, 197);
-            this.rm_HKTxt.Margin = new System.Windows.Forms.Padding(2);
-            this.rm_HKTxt.MaxLength = 1;
-            this.rm_HKTxt.Name = "rm_HKTxt";
-            this.rm_HKTxt.ShortcutsEnabled = false;
-            this.rm_HKTxt.Size = new System.Drawing.Size(36, 21);
-            this.rm_HKTxt.TabIndex = 99;
-            this.rm_HKTxt.Tag = "HotKeyTextBox";
-            this.rm_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
             // hkLabel4
             // 
             this.hkLabel4.AutoSize = true;
@@ -814,22 +607,6 @@ namespace Nucleus.Coop
             this.hkLabel3.TabIndex = 22;
             this.hkLabel3.Text = "Stop Session :";
             this.hkLabel3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // swl_Cmb
-            // 
-            this.swl_Cmb.BackColor = System.Drawing.Color.White;
-            this.swl_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.swl_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.swl_Cmb.FormattingEnabled = true;
-            this.swl_Cmb.Items.AddRange(new object[] {
-            "Ctrl",
-            "Alt",
-            "Shift"});
-            this.swl_Cmb.Location = new System.Drawing.Point(119, 172);
-            this.swl_Cmb.Margin = new System.Windows.Forms.Padding(2);
-            this.swl_Cmb.Name = "swl_Cmb";
-            this.swl_Cmb.Size = new System.Drawing.Size(67, 23);
-            this.swl_Cmb.TabIndex = 94;
             // 
             // plus7
             // 
@@ -854,37 +631,6 @@ namespace Nucleus.Coop
             this.hkLabel7.Text = "Switch Layouts :";
             this.hkLabel7.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // swl_HKTxt
-            // 
-            this.swl_HKTxt.BorderColor = System.Drawing.Color.Blue;
-            this.swl_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.swl_HKTxt.Hint = null;
-            this.swl_HKTxt.Location = new System.Drawing.Point(205, 173);
-            this.swl_HKTxt.Margin = new System.Windows.Forms.Padding(2);
-            this.swl_HKTxt.MaxLength = 1;
-            this.swl_HKTxt.Name = "swl_HKTxt";
-            this.swl_HKTxt.ShortcutsEnabled = false;
-            this.swl_HKTxt.Size = new System.Drawing.Size(36, 21);
-            this.swl_HKTxt.TabIndex = 95;
-            this.swl_HKTxt.Tag = "HotKeyTextBox";
-            this.swl_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // csm_Cmb
-            // 
-            this.csm_Cmb.BackColor = System.Drawing.Color.White;
-            this.csm_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.csm_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.csm_Cmb.FormattingEnabled = true;
-            this.csm_Cmb.Items.AddRange(new object[] {
-            "Ctrl",
-            "Alt",
-            "Shift"});
-            this.csm_Cmb.Location = new System.Drawing.Point(119, 148);
-            this.csm_Cmb.Margin = new System.Windows.Forms.Padding(2);
-            this.csm_Cmb.Name = "csm_Cmb";
-            this.csm_Cmb.Size = new System.Drawing.Size(67, 23);
-            this.csm_Cmb.TabIndex = 90;
-            // 
             // hkLabel
             // 
             this.hkLabel.AutoSize = true;
@@ -908,21 +654,6 @@ namespace Nucleus.Coop
             this.plus6.Text = "+";
             this.plus6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // csm_HKTxt
-            // 
-            this.csm_HKTxt.BorderColor = System.Drawing.Color.Blue;
-            this.csm_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.csm_HKTxt.Hint = null;
-            this.csm_HKTxt.Location = new System.Drawing.Point(205, 149);
-            this.csm_HKTxt.Margin = new System.Windows.Forms.Padding(2);
-            this.csm_HKTxt.MaxLength = 1;
-            this.csm_HKTxt.Name = "csm_HKTxt";
-            this.csm_HKTxt.ShortcutsEnabled = false;
-            this.csm_HKTxt.Size = new System.Drawing.Size(36, 21);
-            this.csm_HKTxt.TabIndex = 91;
-            this.csm_HKTxt.Tag = "HotKeyTextBox";
-            this.csm_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
             // hkLabel8
             // 
             this.hkLabel8.AutoSize = true;
@@ -933,22 +664,6 @@ namespace Nucleus.Coop
             this.hkLabel8.TabIndex = 29;
             this.hkLabel8.Text = "Lock Input Key :";
             this.hkLabel8.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // rw_Cmb
-            // 
-            this.rw_Cmb.BackColor = System.Drawing.Color.White;
-            this.rw_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.rw_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.rw_Cmb.FormattingEnabled = true;
-            this.rw_Cmb.Items.AddRange(new object[] {
-            "Ctrl",
-            "Alt",
-            "Shift"});
-            this.rw_Cmb.Location = new System.Drawing.Point(119, 124);
-            this.rw_Cmb.Margin = new System.Windows.Forms.Padding(2);
-            this.rw_Cmb.Name = "rw_Cmb";
-            this.rw_Cmb.Size = new System.Drawing.Size(67, 23);
-            this.rw_Cmb.TabIndex = 86;
             // 
             // plus5
             // 
@@ -973,22 +688,6 @@ namespace Nucleus.Coop
             this.hkLabel1.Text = "Toggle Unfocus :";
             this.hkLabel1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // tu_Cmb
-            // 
-            this.tu_Cmb.BackColor = System.Drawing.Color.White;
-            this.tu_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.tu_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.tu_Cmb.FormattingEnabled = true;
-            this.tu_Cmb.Items.AddRange(new object[] {
-            "Ctrl",
-            "Alt",
-            "Shift"});
-            this.tu_Cmb.Location = new System.Drawing.Point(119, 28);
-            this.tu_Cmb.Margin = new System.Windows.Forms.Padding(2);
-            this.tu_Cmb.Name = "tu_Cmb";
-            this.tu_Cmb.Size = new System.Drawing.Size(67, 23);
-            this.tu_Cmb.TabIndex = 31;
-            // 
             // plus1
             // 
             this.plus1.AutoSize = true;
@@ -1012,21 +711,6 @@ namespace Nucleus.Coop
             this.hkLabel5.Text = "Reset Windows :";
             this.hkLabel5.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // rw_HKTxt
-            // 
-            this.rw_HKTxt.BorderColor = System.Drawing.Color.Blue;
-            this.rw_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.rw_HKTxt.Hint = null;
-            this.rw_HKTxt.Location = new System.Drawing.Point(205, 125);
-            this.rw_HKTxt.Margin = new System.Windows.Forms.Padding(2);
-            this.rw_HKTxt.MaxLength = 1;
-            this.rw_HKTxt.Name = "rw_HKTxt";
-            this.rw_HKTxt.ShortcutsEnabled = false;
-            this.rw_HKTxt.Size = new System.Drawing.Size(36, 21);
-            this.rw_HKTxt.TabIndex = 87;
-            this.rw_HKTxt.Tag = "HotKeyTextBox";
-            this.rw_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
             // hotkeysLabel
             // 
             this.hotkeysLabel.AutoSize = true;
@@ -1049,140 +733,6 @@ namespace Nucleus.Coop
             this.hkLabel6.TabIndex = 92;
             this.hkLabel6.Text = "Cutscenes Mode :";
             this.hkLabel6.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // tu_HKTxt
-            // 
-            this.tu_HKTxt.BorderColor = System.Drawing.Color.Blue;
-            this.tu_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.tu_HKTxt.Hint = null;
-            this.tu_HKTxt.Location = new System.Drawing.Point(205, 29);
-            this.tu_HKTxt.Margin = new System.Windows.Forms.Padding(2);
-            this.tu_HKTxt.MaxLength = 1;
-            this.tu_HKTxt.Name = "tu_HKTxt";
-            this.tu_HKTxt.ShortcutsEnabled = false;
-            this.tu_HKTxt.Size = new System.Drawing.Size(36, 21);
-            this.tu_HKTxt.TabIndex = 32;
-            this.tu_HKTxt.Tag = "HotKeyTextBox";
-            this.tu_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // lockKey_Cmb
-            // 
-            this.lockKey_Cmb.BackColor = System.Drawing.Color.White;
-            this.lockKey_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.lockKey_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.lockKey_Cmb.FormattingEnabled = true;
-            this.lockKey_Cmb.Items.AddRange(new object[] {
-            "End",
-            "Home",
-            "Delete",
-            "Multiply",
-            "F1",
-            "F2",
-            "F3",
-            "F4",
-            "F5",
-            "F6",
-            "F7",
-            "F8",
-            "F9",
-            "F10",
-            "F11",
-            "F12",
-            "+",
-            "-",
-            "Numpad 0",
-            "Numpad 1",
-            "Numpad 2",
-            "Numpad 3",
-            "Numpad 4",
-            "Numpad 5",
-            "Numpad 6",
-            "Numpad 7",
-            "Numpad 8",
-            "Numpad 9"});
-            this.lockKey_Cmb.Location = new System.Drawing.Point(119, 222);
-            this.lockKey_Cmb.Margin = new System.Windows.Forms.Padding(2);
-            this.lockKey_Cmb.Name = "lockKey_Cmb";
-            this.lockKey_Cmb.Size = new System.Drawing.Size(123, 23);
-            this.lockKey_Cmb.TabIndex = 30;
-            // 
-            // ttm_Cmb
-            // 
-            this.ttm_Cmb.BackColor = System.Drawing.Color.White;
-            this.ttm_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ttm_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.ttm_Cmb.FormattingEnabled = true;
-            this.ttm_Cmb.Items.AddRange(new object[] {
-            "Ctrl",
-            "Alt",
-            "Shift"});
-            this.ttm_Cmb.Location = new System.Drawing.Point(119, 100);
-            this.ttm_Cmb.Margin = new System.Windows.Forms.Padding(2);
-            this.ttm_Cmb.Name = "ttm_Cmb";
-            this.ttm_Cmb.Size = new System.Drawing.Size(67, 23);
-            this.ttm_Cmb.TabIndex = 5;
-            // 
-            // ss_Cmb
-            // 
-            this.ss_Cmb.BackColor = System.Drawing.Color.White;
-            this.ss_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.ss_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.ss_Cmb.FormattingEnabled = true;
-            this.ss_Cmb.Items.AddRange(new object[] {
-            "Ctrl",
-            "Alt",
-            "Shift"});
-            this.ss_Cmb.Location = new System.Drawing.Point(119, 76);
-            this.ss_Cmb.Margin = new System.Windows.Forms.Padding(2);
-            this.ss_Cmb.Name = "ss_Cmb";
-            this.ss_Cmb.Size = new System.Drawing.Size(67, 23);
-            this.ss_Cmb.TabIndex = 3;
-            // 
-            // ttm_HKTxt
-            // 
-            this.ttm_HKTxt.BorderColor = System.Drawing.Color.Blue;
-            this.ttm_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.ttm_HKTxt.Hint = null;
-            this.ttm_HKTxt.Location = new System.Drawing.Point(205, 101);
-            this.ttm_HKTxt.Margin = new System.Windows.Forms.Padding(2);
-            this.ttm_HKTxt.MaxLength = 1;
-            this.ttm_HKTxt.Name = "ttm_HKTxt";
-            this.ttm_HKTxt.ShortcutsEnabled = false;
-            this.ttm_HKTxt.Size = new System.Drawing.Size(36, 21);
-            this.ttm_HKTxt.TabIndex = 6;
-            this.ttm_HKTxt.Tag = "HotKeyTextBox";
-            this.ttm_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // ss_HKTxt
-            // 
-            this.ss_HKTxt.BorderColor = System.Drawing.Color.Blue;
-            this.ss_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.ss_HKTxt.Hint = null;
-            this.ss_HKTxt.Location = new System.Drawing.Point(205, 77);
-            this.ss_HKTxt.Margin = new System.Windows.Forms.Padding(2);
-            this.ss_HKTxt.MaxLength = 1;
-            this.ss_HKTxt.Name = "ss_HKTxt";
-            this.ss_HKTxt.ShortcutsEnabled = false;
-            this.ss_HKTxt.Size = new System.Drawing.Size(36, 21);
-            this.ss_HKTxt.TabIndex = 4;
-            this.ss_HKTxt.Tag = "HotKeyTextBox";
-            this.ss_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // cn_Cmb
-            // 
-            this.cn_Cmb.BackColor = System.Drawing.Color.White;
-            this.cn_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cn_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cn_Cmb.FormattingEnabled = true;
-            this.cn_Cmb.Items.AddRange(new object[] {
-            "Ctrl",
-            "Alt",
-            "Shift"});
-            this.cn_Cmb.Location = new System.Drawing.Point(119, 52);
-            this.cn_Cmb.Margin = new System.Windows.Forms.Padding(2);
-            this.cn_Cmb.Name = "cn_Cmb";
-            this.cn_Cmb.Size = new System.Drawing.Size(67, 23);
-            this.cn_Cmb.TabIndex = 1;
             // 
             // plus4
             // 
@@ -1220,68 +770,6 @@ namespace Nucleus.Coop
             this.plus2.Text = "+";
             this.plus2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // cn_HKTxt
-            // 
-            this.cn_HKTxt.BorderColor = System.Drawing.Color.Blue;
-            this.cn_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.cn_HKTxt.Hint = null;
-            this.cn_HKTxt.Location = new System.Drawing.Point(205, 53);
-            this.cn_HKTxt.Margin = new System.Windows.Forms.Padding(2);
-            this.cn_HKTxt.MaxLength = 1;
-            this.cn_HKTxt.Name = "cn_HKTxt";
-            this.cn_HKTxt.ShortcutsEnabled = false;
-            this.cn_HKTxt.Size = new System.Drawing.Size(36, 21);
-            this.cn_HKTxt.TabIndex = 2;
-            this.cn_HKTxt.Tag = "HotKeyTextBox";
-            this.cn_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // scaleOptionCbx
-            // 
-            this.scaleOptionCbx.BackColor = System.Drawing.Color.Transparent;
-            this.scaleOptionCbx.BorderColor = System.Drawing.Color.Blue;
-            this.scaleOptionCbx.CheckColor = System.Drawing.Color.Blue;
-            this.scaleOptionCbx.Checked = true;
-            this.scaleOptionCbx.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.scaleOptionCbx.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.scaleOptionCbx.ForeColor = System.Drawing.Color.White;
-            this.scaleOptionCbx.Location = new System.Drawing.Point(14, 296);
-            this.scaleOptionCbx.Margin = new System.Windows.Forms.Padding(2);
-            this.scaleOptionCbx.Name = "scaleOptionCbx";
-            this.scaleOptionCbx.SelectionColor = System.Drawing.Color.LightBlue;
-            this.scaleOptionCbx.Size = new System.Drawing.Size(185, 17);
-            this.scaleOptionCbx.TabIndex = 148;
-            this.scaleOptionCbx.Text = "Auto Set Desktop Scale To 100%";
-            this.scaleOptionCbx.UseVisualStyleBackColor = false;
-            // 
-            // useNicksCheck
-            // 
-            this.useNicksCheck.BackColor = System.Drawing.Color.Transparent;
-            this.useNicksCheck.BorderColor = System.Drawing.Color.Blue;
-            this.useNicksCheck.CheckColor = System.Drawing.Color.Blue;
-            this.useNicksCheck.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.useNicksCheck.ForeColor = System.Drawing.Color.White;
-            this.useNicksCheck.Location = new System.Drawing.Point(14, 206);
-            this.useNicksCheck.Margin = new System.Windows.Forms.Padding(2);
-            this.useNicksCheck.Name = "useNicksCheck";
-            this.useNicksCheck.SelectionColor = System.Drawing.Color.LightBlue;
-            this.useNicksCheck.Size = new System.Drawing.Size(164, 19);
-            this.useNicksCheck.TabIndex = 146;
-            this.useNicksCheck.Text = "Use Nicknames In-Game";
-            this.useNicksCheck.UseVisualStyleBackColor = false;
-            // 
-            // cmb_Network
-            // 
-            this.cmb_Network.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmb_Network.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cmb_Network.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cmb_Network.Location = new System.Drawing.Point(15, 170);
-            this.cmb_Network.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
-            this.cmb_Network.Name = "cmb_Network";
-            this.cmb_Network.Size = new System.Drawing.Size(198, 21);
-            this.cmb_Network.TabIndex = 136;
-            this.cmb_Network.DropDown += new System.EventHandler(this.Cmb_Network_DropDown);
-            this.cmb_Network.DropDownClosed += new System.EventHandler(this.Cmb_Network_DropDownClosed);
-            // 
             // label32
             // 
             this.label32.AutoSize = true;
@@ -1309,36 +797,6 @@ namespace Nucleus.Coop
             this.playersTab.Name = "playersTab";
             this.playersTab.Size = new System.Drawing.Size(675, 391);
             this.playersTab.TabIndex = 132;
-            // 
-            // assignGpdByBtnPress
-            // 
-            this.assignGpdByBtnPress.BackColor = System.Drawing.Color.DimGray;
-            this.assignGpdByBtnPress.BorderColor = System.Drawing.Color.Blue;
-            this.assignGpdByBtnPress.CheckColor = System.Drawing.Color.Blue;
-            this.assignGpdByBtnPress.ForeColor = System.Drawing.Color.White;
-            this.assignGpdByBtnPress.Location = new System.Drawing.Point(16, 42);
-            this.assignGpdByBtnPress.Name = "assignGpdByBtnPress";
-            this.assignGpdByBtnPress.SelectionColor = System.Drawing.Color.LightBlue;
-            this.assignGpdByBtnPress.Size = new System.Drawing.Size(229, 19);
-            this.assignGpdByBtnPress.TabIndex = 296;
-            this.assignGpdByBtnPress.Text = "Assign Gamepads On Button Press";
-            this.assignGpdByBtnPress.UseVisualStyleBackColor = true;
-            this.assignGpdByBtnPress.CheckedChanged += new System.EventHandler(this.AssignGpdByBtnPress_CheckedChanged);
-            // 
-            // gamepadsAssignMethods
-            // 
-            this.gamepadsAssignMethods.BackColor = System.Drawing.Color.DimGray;
-            this.gamepadsAssignMethods.BorderColor = System.Drawing.Color.Blue;
-            this.gamepadsAssignMethods.CheckColor = System.Drawing.Color.Blue;
-            this.gamepadsAssignMethods.ForeColor = System.Drawing.Color.White;
-            this.gamepadsAssignMethods.Location = new System.Drawing.Point(16, 17);
-            this.gamepadsAssignMethods.Name = "gamepadsAssignMethods";
-            this.gamepadsAssignMethods.SelectionColor = System.Drawing.Color.LightBlue;
-            this.gamepadsAssignMethods.Size = new System.Drawing.Size(229, 19);
-            this.gamepadsAssignMethods.TabIndex = 295;
-            this.gamepadsAssignMethods.Text = "Assign Gamepads By Index";
-            this.gamepadsAssignMethods.UseVisualStyleBackColor = true;
-            this.gamepadsAssignMethods.CheckedChanged += new System.EventHandler(this.GamepadsAssignMethods_CheckedChanged);
             // 
             // btnNext
             // 
@@ -1480,6 +938,1671 @@ namespace Nucleus.Coop
             this.label8.Size = new System.Drawing.Size(55, 13);
             this.label8.TabIndex = 291;
             this.label8.Text = "Nickname";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label17.Location = new System.Drawing.Point(361, 189);
+            this.label17.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(54, 13);
+            this.label17.TabIndex = 274;
+            this.label17.Text = "Player 16:";
+            this.label17.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label18.Location = new System.Drawing.Point(361, 168);
+            this.label18.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(54, 13);
+            this.label18.TabIndex = 272;
+            this.label18.Text = "Player 15:";
+            this.label18.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label19.Location = new System.Drawing.Point(361, 145);
+            this.label19.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(54, 13);
+            this.label19.TabIndex = 270;
+            this.label19.Text = "Player 14:";
+            this.label19.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label20.Location = new System.Drawing.Point(361, 124);
+            this.label20.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(54, 13);
+            this.label20.TabIndex = 268;
+            this.label20.Text = "Player 13:";
+            this.label20.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label22.Location = new System.Drawing.Point(361, 101);
+            this.label22.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(54, 13);
+            this.label22.TabIndex = 266;
+            this.label22.Text = "Player 12:";
+            this.label22.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label23.Location = new System.Drawing.Point(361, 79);
+            this.label23.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(54, 13);
+            this.label23.TabIndex = 263;
+            this.label23.Text = "Player 11:";
+            this.label23.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label24.Location = new System.Drawing.Point(361, 57);
+            this.label24.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(54, 13);
+            this.label24.TabIndex = 260;
+            this.label24.Text = "Player 10:";
+            this.label24.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label26.Location = new System.Drawing.Point(367, 35);
+            this.label26.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(48, 13);
+            this.label26.TabIndex = 259;
+            this.label26.Text = "Player 9:";
+            this.label26.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label16.Location = new System.Drawing.Point(7, 189);
+            this.label16.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(48, 13);
+            this.label16.TabIndex = 258;
+            this.label16.Text = "Player 8:";
+            this.label16.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label15.Location = new System.Drawing.Point(7, 167);
+            this.label15.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(48, 13);
+            this.label15.TabIndex = 256;
+            this.label15.Text = "Player 7:";
+            this.label15.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label11.Location = new System.Drawing.Point(7, 145);
+            this.label11.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(48, 13);
+            this.label11.TabIndex = 254;
+            this.label11.Text = "Player 6:";
+            this.label11.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.Location = new System.Drawing.Point(7, 123);
+            this.label9.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(48, 13);
+            this.label9.TabIndex = 252;
+            this.label9.Text = "Player 5:";
+            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label14.Location = new System.Drawing.Point(7, 101);
+            this.label14.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(48, 13);
+            this.label14.TabIndex = 250;
+            this.label14.Text = "Player 4:";
+            this.label14.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.Location = new System.Drawing.Point(7, 79);
+            this.label12.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(48, 13);
+            this.label12.TabIndex = 247;
+            this.label12.Text = "Player 3:";
+            this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.Location = new System.Drawing.Point(7, 57);
+            this.label10.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(48, 13);
+            this.label10.TabIndex = 244;
+            this.label10.Text = "Player 2:";
+            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.Location = new System.Drawing.Point(7, 35);
+            this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(48, 13);
+            this.label7.TabIndex = 243;
+            this.label7.Text = "Player 1:";
+            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // page2
+            // 
+            this.page2.Controls.Add(this.label3);
+            this.page2.Controls.Add(this.label62);
+            this.page2.Controls.Add(this.label63);
+            this.page2.Controls.Add(this.label64);
+            this.page2.Controls.Add(this.label65);
+            this.page2.Controls.Add(this.label66);
+            this.page2.Controls.Add(this.steamid32);
+            this.page2.Controls.Add(this.steamid17);
+            this.page2.Controls.Add(this.steamid31);
+            this.page2.Controls.Add(this.label61);
+            this.page2.Controls.Add(this.steamid30);
+            this.page2.Controls.Add(this.player17N);
+            this.page2.Controls.Add(this.steamid29);
+            this.page2.Controls.Add(this.label59);
+            this.page2.Controls.Add(this.steamid28);
+            this.page2.Controls.Add(this.player18N);
+            this.page2.Controls.Add(this.steamid27);
+            this.page2.Controls.Add(this.label58);
+            this.page2.Controls.Add(this.steamid26);
+            this.page2.Controls.Add(this.player19N);
+            this.page2.Controls.Add(this.steamid25);
+            this.page2.Controls.Add(this.label57);
+            this.page2.Controls.Add(this.steamid24);
+            this.page2.Controls.Add(this.player20N);
+            this.page2.Controls.Add(this.steamid23);
+            this.page2.Controls.Add(this.label55);
+            this.page2.Controls.Add(this.steamid22);
+            this.page2.Controls.Add(this.player21N);
+            this.page2.Controls.Add(this.steamid21);
+            this.page2.Controls.Add(this.label54);
+            this.page2.Controls.Add(this.steamid20);
+            this.page2.Controls.Add(this.player22N);
+            this.page2.Controls.Add(this.steamid19);
+            this.page2.Controls.Add(this.label53);
+            this.page2.Controls.Add(this.steamid18);
+            this.page2.Controls.Add(this.player23N);
+            this.page2.Controls.Add(this.label52);
+            this.page2.Controls.Add(this.player32N);
+            this.page2.Controls.Add(this.player24N);
+            this.page2.Controls.Add(this.label31);
+            this.page2.Controls.Add(this.label51);
+            this.page2.Controls.Add(this.player31N);
+            this.page2.Controls.Add(this.player25N);
+            this.page2.Controls.Add(this.label33);
+            this.page2.Controls.Add(this.label50);
+            this.page2.Controls.Add(this.player30N);
+            this.page2.Controls.Add(this.player26N);
+            this.page2.Controls.Add(this.label34);
+            this.page2.Controls.Add(this.label46);
+            this.page2.Controls.Add(this.player29N);
+            this.page2.Controls.Add(this.player27N);
+            this.page2.Controls.Add(this.label35);
+            this.page2.Controls.Add(this.label38);
+            this.page2.Controls.Add(this.player28N);
+            this.page2.Location = new System.Drawing.Point(9, 100);
+            this.page2.Name = "page2";
+            this.page2.Size = new System.Drawing.Size(634, 217);
+            this.page2.TabIndex = 292;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(536, 9);
+            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(49, 13);
+            this.label3.TabIndex = 355;
+            this.label3.Text = "Steam Id";
+            // 
+            // label62
+            // 
+            this.label62.AutoSize = true;
+            this.label62.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label62.Location = new System.Drawing.Point(176, 9);
+            this.label62.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label62.Name = "label62";
+            this.label62.Size = new System.Drawing.Size(49, 13);
+            this.label62.TabIndex = 354;
+            this.label62.Text = "Steam Id";
+            // 
+            // label63
+            // 
+            this.label63.AutoSize = true;
+            this.label63.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label63.Location = new System.Drawing.Point(366, 9);
+            this.label63.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label63.Name = "label63";
+            this.label63.Size = new System.Drawing.Size(48, 13);
+            this.label63.TabIndex = 353;
+            this.label63.Text = "Player Id";
+            // 
+            // label64
+            // 
+            this.label64.AutoSize = true;
+            this.label64.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label64.Location = new System.Drawing.Point(428, 9);
+            this.label64.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label64.Name = "label64";
+            this.label64.Size = new System.Drawing.Size(55, 13);
+            this.label64.TabIndex = 352;
+            this.label64.Text = "Nickname";
+            // 
+            // label65
+            // 
+            this.label65.AutoSize = true;
+            this.label65.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label65.Location = new System.Drawing.Point(4, 9);
+            this.label65.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label65.Name = "label65";
+            this.label65.Size = new System.Drawing.Size(51, 13);
+            this.label65.TabIndex = 351;
+            this.label65.Text = " Player Id";
+            // 
+            // label66
+            // 
+            this.label66.AutoSize = true;
+            this.label66.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label66.Location = new System.Drawing.Point(68, 9);
+            this.label66.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label66.Name = "label66";
+            this.label66.Size = new System.Drawing.Size(55, 13);
+            this.label66.TabIndex = 350;
+            this.label66.Text = "Nickname";
+            // 
+            // label61
+            // 
+            this.label61.AutoSize = true;
+            this.label61.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label61.Location = new System.Drawing.Point(1, 35);
+            this.label61.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label61.Name = "label61";
+            this.label61.Size = new System.Drawing.Size(54, 13);
+            this.label61.TabIndex = 302;
+            this.label61.Text = "Player 17:";
+            this.label61.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label59
+            // 
+            this.label59.AutoSize = true;
+            this.label59.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label59.Location = new System.Drawing.Point(1, 57);
+            this.label59.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label59.Name = "label59";
+            this.label59.Size = new System.Drawing.Size(54, 13);
+            this.label59.TabIndex = 303;
+            this.label59.Text = "Player 18:";
+            this.label59.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label58
+            // 
+            this.label58.AutoSize = true;
+            this.label58.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label58.Location = new System.Drawing.Point(1, 79);
+            this.label58.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label58.Name = "label58";
+            this.label58.Size = new System.Drawing.Size(54, 13);
+            this.label58.TabIndex = 306;
+            this.label58.Text = "Player 19:";
+            this.label58.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label57
+            // 
+            this.label57.AutoSize = true;
+            this.label57.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label57.Location = new System.Drawing.Point(1, 101);
+            this.label57.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label57.Name = "label57";
+            this.label57.Size = new System.Drawing.Size(54, 13);
+            this.label57.TabIndex = 309;
+            this.label57.Text = "Player 20:";
+            this.label57.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label55
+            // 
+            this.label55.AutoSize = true;
+            this.label55.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label55.Location = new System.Drawing.Point(1, 122);
+            this.label55.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label55.Name = "label55";
+            this.label55.Size = new System.Drawing.Size(54, 13);
+            this.label55.TabIndex = 311;
+            this.label55.Text = "Player 21:";
+            this.label55.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label54
+            // 
+            this.label54.AutoSize = true;
+            this.label54.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label54.Location = new System.Drawing.Point(1, 145);
+            this.label54.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label54.Name = "label54";
+            this.label54.Size = new System.Drawing.Size(54, 13);
+            this.label54.TabIndex = 313;
+            this.label54.Text = "Player 22:";
+            this.label54.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label53
+            // 
+            this.label53.AutoSize = true;
+            this.label53.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label53.Location = new System.Drawing.Point(1, 166);
+            this.label53.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label53.Name = "label53";
+            this.label53.Size = new System.Drawing.Size(54, 13);
+            this.label53.TabIndex = 315;
+            this.label53.Text = "Player 23:";
+            this.label53.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label52
+            // 
+            this.label52.AutoSize = true;
+            this.label52.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label52.Location = new System.Drawing.Point(1, 187);
+            this.label52.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label52.Name = "label52";
+            this.label52.Size = new System.Drawing.Size(54, 13);
+            this.label52.TabIndex = 317;
+            this.label52.Text = "Player 24:";
+            this.label52.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label31
+            // 
+            this.label31.AutoSize = true;
+            this.label31.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label31.Location = new System.Drawing.Point(361, 189);
+            this.label31.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label31.Name = "label31";
+            this.label31.Size = new System.Drawing.Size(54, 13);
+            this.label31.TabIndex = 333;
+            this.label31.Text = "Player 32:";
+            this.label31.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label51
+            // 
+            this.label51.AutoSize = true;
+            this.label51.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label51.Location = new System.Drawing.Point(361, 35);
+            this.label51.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label51.Name = "label51";
+            this.label51.Size = new System.Drawing.Size(54, 13);
+            this.label51.TabIndex = 318;
+            this.label51.Text = "Player 25:";
+            this.label51.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label33
+            // 
+            this.label33.AutoSize = true;
+            this.label33.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label33.Location = new System.Drawing.Point(361, 168);
+            this.label33.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label33.Name = "label33";
+            this.label33.Size = new System.Drawing.Size(54, 13);
+            this.label33.TabIndex = 331;
+            this.label33.Text = "Player 31:";
+            this.label33.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label50
+            // 
+            this.label50.AutoSize = true;
+            this.label50.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label50.Location = new System.Drawing.Point(361, 57);
+            this.label50.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label50.Name = "label50";
+            this.label50.Size = new System.Drawing.Size(54, 13);
+            this.label50.TabIndex = 319;
+            this.label50.Text = "Player 26:";
+            this.label50.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label34
+            // 
+            this.label34.AutoSize = true;
+            this.label34.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label34.Location = new System.Drawing.Point(361, 145);
+            this.label34.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label34.Name = "label34";
+            this.label34.Size = new System.Drawing.Size(54, 13);
+            this.label34.TabIndex = 329;
+            this.label34.Text = "Player 30:";
+            this.label34.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label46
+            // 
+            this.label46.AutoSize = true;
+            this.label46.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label46.Location = new System.Drawing.Point(361, 79);
+            this.label46.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label46.Name = "label46";
+            this.label46.Size = new System.Drawing.Size(54, 13);
+            this.label46.TabIndex = 322;
+            this.label46.Text = "Player 27:";
+            this.label46.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label35
+            // 
+            this.label35.AutoSize = true;
+            this.label35.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label35.Location = new System.Drawing.Point(361, 124);
+            this.label35.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label35.Name = "label35";
+            this.label35.Size = new System.Drawing.Size(54, 13);
+            this.label35.TabIndex = 327;
+            this.label35.Text = "Player 29:";
+            this.label35.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // label38
+            // 
+            this.label38.AutoSize = true;
+            this.label38.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label38.Location = new System.Drawing.Point(361, 101);
+            this.label38.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label38.Name = "label38";
+            this.label38.Size = new System.Drawing.Size(54, 13);
+            this.label38.TabIndex = 325;
+            this.label38.Text = "Player 28:";
+            this.label38.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // audioTab
+            // 
+            this.audioTab.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.audioTab.BackColor = System.Drawing.Color.RosyBrown;
+            this.audioTab.Controls.Add(this.audioWarningLabel);
+            this.audioTab.Controls.Add(this.audioDefaultDevice);
+            this.audioTab.Controls.Add(this.audioCustomSettingsBox);
+            this.audioTab.Controls.Add(this.audioCustomSettingsRadio);
+            this.audioTab.Controls.Add(this.audioDefaultSettingsRadio);
+            this.audioTab.Controls.Add(this.audioRefresh);
+            this.audioTab.Location = new System.Drawing.Point(1, 34);
+            this.audioTab.Name = "audioTab";
+            this.audioTab.Size = new System.Drawing.Size(674, 391);
+            this.audioTab.TabIndex = 292;
+            // 
+            // audioWarningLabel
+            // 
+            this.audioWarningLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.audioWarningLabel.AutoSize = true;
+            this.audioWarningLabel.BackColor = System.Drawing.Color.Transparent;
+            this.audioWarningLabel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.audioWarningLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.audioWarningLabel.ForeColor = System.Drawing.Color.Yellow;
+            this.audioWarningLabel.Location = new System.Drawing.Point(230, 22);
+            this.audioWarningLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.audioWarningLabel.Name = "audioWarningLabel";
+            this.audioWarningLabel.Size = new System.Drawing.Size(273, 15);
+            this.audioWarningLabel.TabIndex = 22;
+            this.audioWarningLabel.Text = "This Feature May Not Work For All Games";
+            this.audioWarningLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.audioWarningLabel.UseMnemonic = false;
+            // 
+            // audioDefaultDevice
+            // 
+            this.audioDefaultDevice.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.audioDefaultDevice.AutoSize = true;
+            this.audioDefaultDevice.BackColor = System.Drawing.Color.Transparent;
+            this.audioDefaultDevice.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.audioDefaultDevice.ForeColor = System.Drawing.Color.White;
+            this.audioDefaultDevice.Location = new System.Drawing.Point(86, 136);
+            this.audioDefaultDevice.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.audioDefaultDevice.Name = "audioDefaultDevice";
+            this.audioDefaultDevice.Size = new System.Drawing.Size(0, 15);
+            this.audioDefaultDevice.TabIndex = 21;
+            this.audioDefaultDevice.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // audioCustomSettingsBox
+            // 
+            this.audioCustomSettingsBox.BackColor = System.Drawing.Color.Transparent;
+            this.audioCustomSettingsBox.Controls.Add(this.AudioInstance8);
+            this.audioCustomSettingsBox.Controls.Add(this.label45);
+            this.audioCustomSettingsBox.Controls.Add(this.AudioInstance7);
+            this.audioCustomSettingsBox.Controls.Add(this.label44);
+            this.audioCustomSettingsBox.Controls.Add(this.AudioInstance6);
+            this.audioCustomSettingsBox.Controls.Add(this.label43);
+            this.audioCustomSettingsBox.Controls.Add(this.AudioInstance5);
+            this.audioCustomSettingsBox.Controls.Add(this.label42);
+            this.audioCustomSettingsBox.Controls.Add(this.AudioInstance4);
+            this.audioCustomSettingsBox.Controls.Add(this.label41);
+            this.audioCustomSettingsBox.Controls.Add(this.AudioInstance3);
+            this.audioCustomSettingsBox.Controls.Add(this.label40);
+            this.audioCustomSettingsBox.Controls.Add(this.AudioInstance2);
+            this.audioCustomSettingsBox.Controls.Add(this.AudioInstance1);
+            this.audioCustomSettingsBox.Controls.Add(this.label37);
+            this.audioCustomSettingsBox.Controls.Add(this.label36);
+            this.audioCustomSettingsBox.Location = new System.Drawing.Point(88, 156);
+            this.audioCustomSettingsBox.Margin = new System.Windows.Forms.Padding(2);
+            this.audioCustomSettingsBox.Name = "audioCustomSettingsBox";
+            this.audioCustomSettingsBox.Padding = new System.Windows.Forms.Padding(2);
+            this.audioCustomSettingsBox.Size = new System.Drawing.Size(503, 121);
+            this.audioCustomSettingsBox.TabIndex = 20;
+            this.audioCustomSettingsBox.TabStop = false;
+            // 
+            // label45
+            // 
+            this.label45.AutoSize = true;
+            this.label45.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label45.Location = new System.Drawing.Point(257, 85);
+            this.label45.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label45.Name = "label45";
+            this.label45.Size = new System.Drawing.Size(60, 13);
+            this.label45.TabIndex = 28;
+            this.label45.Text = "Instance 8:";
+            // 
+            // label44
+            // 
+            this.label44.AutoSize = true;
+            this.label44.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label44.Location = new System.Drawing.Point(257, 64);
+            this.label44.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label44.Name = "label44";
+            this.label44.Size = new System.Drawing.Size(60, 13);
+            this.label44.TabIndex = 26;
+            this.label44.Text = "Instance 7:";
+            // 
+            // label43
+            // 
+            this.label43.AutoSize = true;
+            this.label43.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label43.Location = new System.Drawing.Point(257, 42);
+            this.label43.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label43.Name = "label43";
+            this.label43.Size = new System.Drawing.Size(60, 13);
+            this.label43.TabIndex = 24;
+            this.label43.Text = "Instance 6:";
+            // 
+            // label42
+            // 
+            this.label42.AutoSize = true;
+            this.label42.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label42.Location = new System.Drawing.Point(257, 20);
+            this.label42.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label42.Name = "label42";
+            this.label42.Size = new System.Drawing.Size(60, 13);
+            this.label42.TabIndex = 22;
+            this.label42.Text = "Instance 5:";
+            // 
+            // label41
+            // 
+            this.label41.AutoSize = true;
+            this.label41.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label41.Location = new System.Drawing.Point(6, 86);
+            this.label41.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label41.Name = "label41";
+            this.label41.Size = new System.Drawing.Size(60, 13);
+            this.label41.TabIndex = 20;
+            this.label41.Text = "Instance 4:";
+            // 
+            // label40
+            // 
+            this.label40.AutoSize = true;
+            this.label40.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label40.Location = new System.Drawing.Point(6, 65);
+            this.label40.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label40.Name = "label40";
+            this.label40.Size = new System.Drawing.Size(60, 13);
+            this.label40.TabIndex = 18;
+            this.label40.Text = "Instance 3:";
+            // 
+            // label37
+            // 
+            this.label37.AutoSize = true;
+            this.label37.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label37.Location = new System.Drawing.Point(6, 43);
+            this.label37.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label37.Name = "label37";
+            this.label37.Size = new System.Drawing.Size(60, 13);
+            this.label37.TabIndex = 5;
+            this.label37.Text = "Instance 2:";
+            // 
+            // label36
+            // 
+            this.label36.AutoSize = true;
+            this.label36.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label36.Location = new System.Drawing.Point(6, 21);
+            this.label36.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label36.Name = "label36";
+            this.label36.Size = new System.Drawing.Size(60, 13);
+            this.label36.TabIndex = 0;
+            this.label36.Text = "Instance 1:";
+            // 
+            // audioRefresh
+            // 
+            this.audioRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.audioRefresh.BackColor = System.Drawing.Color.Orange;
+            this.audioRefresh.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.audioRefresh.FlatAppearance.BorderSize = 0;
+            this.audioRefresh.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.audioRefresh.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.audioRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.audioRefresh.Location = new System.Drawing.Point(318, 349);
+            this.audioRefresh.Margin = new System.Windows.Forms.Padding(2);
+            this.audioRefresh.Name = "audioRefresh";
+            this.audioRefresh.Size = new System.Drawing.Size(26, 23);
+            this.audioRefresh.TabIndex = 23;
+            this.audioRefresh.UseVisualStyleBackColor = false;
+            this.audioRefresh.Click += new System.EventHandler(this.AudioRefresh_Click);
+            // 
+            // layoutTab
+            // 
+            this.layoutTab.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.layoutTab.BackColor = System.Drawing.Color.DeepSkyBlue;
+            this.layoutTab.Controls.Add(this.label5);
+            this.layoutTab.Controls.Add(this.DivLabel);
+            this.layoutTab.Controls.Add(this.smfw_Cmb);
+            this.layoutTab.Controls.Add(this.plus9);
+            this.layoutTab.Controls.Add(this.mergerShortcutLabel);
+            this.layoutTab.Controls.Add(this.smfw_HKTxt);
+            this.layoutTab.Controls.Add(this.refreshScreenDatasButton);
+            this.layoutTab.Controls.Add(this.mergerResSelectorLabel);
+            this.layoutTab.Controls.Add(this.label4);
+            this.layoutTab.Controls.Add(this.mergerSettingsLabel);
+            this.layoutTab.Controls.Add(this.losslessHook);
+            this.layoutTab.Controls.Add(this.selectedRes);
+            this.layoutTab.Controls.Add(this.screen_panel);
+            this.layoutTab.Controls.Add(this.enable_WMerger);
+            this.layoutTab.Controls.Add(this.hideDesktop);
+            this.layoutTab.Controls.Add(this.numMaxPlyrs);
+            this.layoutTab.Controls.Add(this.numUpDownVer);
+            this.layoutTab.Controls.Add(this.label29);
+            this.layoutTab.Controls.Add(this.label27);
+            this.layoutTab.Controls.Add(this.label28);
+            this.layoutTab.Controls.Add(this.numUpDownHor);
+            this.layoutTab.Controls.Add(this.cutsceneLabel);
+            this.layoutTab.Controls.Add(this.cts_Panel);
+            this.layoutTab.Controls.Add(this.SplitColors);
+            this.layoutTab.Controls.Add(this.splitDiv);
+            this.layoutTab.Controls.Add(this.label49);
+            this.layoutTab.Controls.Add(this.layoutSizer);
+            this.layoutTab.Location = new System.Drawing.Point(0, 25);
+            this.layoutTab.Name = "layoutTab";
+            this.layoutTab.Size = new System.Drawing.Size(674, 391);
+            this.layoutTab.TabIndex = 300;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.Location = new System.Drawing.Point(280, 8);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(134, 13);
+            this.label5.TabIndex = 179;
+            this.label5.Text = "Custom Screen Layout";
+            // 
+            // DivLabel
+            // 
+            this.DivLabel.AutoSize = true;
+            this.DivLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.DivLabel.Location = new System.Drawing.Point(13, 8);
+            this.DivLabel.Name = "DivLabel";
+            this.DivLabel.Size = new System.Drawing.Size(169, 13);
+            this.DivLabel.TabIndex = 178;
+            this.DivLabel.Text = "Splitscreen Division Settings";
+            // 
+            // plus9
+            // 
+            this.plus9.AutoSize = true;
+            this.plus9.ForeColor = System.Drawing.Color.Black;
+            this.plus9.Location = new System.Drawing.Point(84, 362);
+            this.plus9.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.plus9.Name = "plus9";
+            this.plus9.Size = new System.Drawing.Size(14, 15);
+            this.plus9.TabIndex = 177;
+            this.plus9.Text = "+";
+            this.plus9.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // mergerShortcutLabel
+            // 
+            this.mergerShortcutLabel.AutoSize = true;
+            this.mergerShortcutLabel.Location = new System.Drawing.Point(12, 341);
+            this.mergerShortcutLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.mergerShortcutLabel.Name = "mergerShortcutLabel";
+            this.mergerShortcutLabel.Size = new System.Drawing.Size(204, 15);
+            this.mergerShortcutLabel.TabIndex = 176;
+            this.mergerShortcutLabel.Text = "Change Childs Foreground Window:";
+            this.mergerShortcutLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // refreshScreenDatasButton
+            // 
+            this.refreshScreenDatasButton.BackColor = System.Drawing.Color.Transparent;
+            this.refreshScreenDatasButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.refreshScreenDatasButton.FlatAppearance.BorderSize = 0;
+            this.refreshScreenDatasButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this.refreshScreenDatasButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this.refreshScreenDatasButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.refreshScreenDatasButton.Location = new System.Drawing.Point(461, 234);
+            this.refreshScreenDatasButton.Name = "refreshScreenDatasButton";
+            this.refreshScreenDatasButton.Size = new System.Drawing.Size(18, 18);
+            this.refreshScreenDatasButton.TabIndex = 173;
+            this.refreshScreenDatasButton.UseVisualStyleBackColor = false;
+            this.refreshScreenDatasButton.Click += new System.EventHandler(this.RefreshScreenDatasButton_Click);
+            // 
+            // mergerResSelectorLabel
+            // 
+            this.mergerResSelectorLabel.AutoSize = true;
+            this.mergerResSelectorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.mergerResSelectorLabel.Location = new System.Drawing.Point(280, 237);
+            this.mergerResSelectorLabel.Name = "mergerResSelectorLabel";
+            this.mergerResSelectorLabel.Size = new System.Drawing.Size(176, 13);
+            this.mergerResSelectorLabel.TabIndex = 172;
+            this.mergerResSelectorLabel.Text = "Select Windows Merger Resolution ";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(12, 273);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(99, 13);
+            this.label4.TabIndex = 171;
+            this.label4.Text = "Window Resolution";
+            // 
+            // mergerSettingsLabel
+            // 
+            this.mergerSettingsLabel.AutoSize = true;
+            this.mergerSettingsLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.mergerSettingsLabel.Location = new System.Drawing.Point(12, 228);
+            this.mergerSettingsLabel.Name = "mergerSettingsLabel";
+            this.mergerSettingsLabel.Size = new System.Drawing.Size(151, 13);
+            this.mergerSettingsLabel.TabIndex = 170;
+            this.mergerSettingsLabel.Text = "Windows Merger Settings";
+            // 
+            // numMaxPlyrs
+            // 
+            this.numMaxPlyrs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.numMaxPlyrs.BackColor = System.Drawing.Color.Transparent;
+            this.numMaxPlyrs.Enabled = false;
+            this.numMaxPlyrs.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.numMaxPlyrs.Location = new System.Drawing.Point(300, 169);
+            this.numMaxPlyrs.Margin = new System.Windows.Forms.Padding(0);
+            this.numMaxPlyrs.Name = "numMaxPlyrs";
+            this.numMaxPlyrs.Size = new System.Drawing.Size(48, 20);
+            this.numMaxPlyrs.TabIndex = 161;
+            this.numMaxPlyrs.UpdownBackColor = System.Drawing.Color.Blue;
+            this.numMaxPlyrs.Value = 0;
+            // 
+            // numUpDownVer
+            // 
+            this.numUpDownVer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.numUpDownVer.BackColor = System.Drawing.Color.Transparent;
+            this.numUpDownVer.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.numUpDownVer.Location = new System.Drawing.Point(298, 71);
+            this.numUpDownVer.Margin = new System.Windows.Forms.Padding(0);
+            this.numUpDownVer.Name = "numUpDownVer";
+            this.numUpDownVer.Size = new System.Drawing.Size(48, 20);
+            this.numUpDownVer.TabIndex = 159;
+            this.numUpDownVer.UpdownBackColor = System.Drawing.Color.Blue;
+            this.numUpDownVer.Value = 0;
+            // 
+            // label29
+            // 
+            this.label29.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label29.AutoSize = true;
+            this.label29.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.label29.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label29.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.label29.Location = new System.Drawing.Point(290, 146);
+            this.label29.Margin = new System.Windows.Forms.Padding(0);
+            this.label29.Name = "label29";
+            this.label29.Size = new System.Drawing.Size(64, 13);
+            this.label29.TabIndex = 158;
+            this.label29.Text = "Max Players";
+            this.label29.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // label27
+            // 
+            this.label27.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label27.AutoSize = true;
+            this.label27.BackColor = System.Drawing.Color.Transparent;
+            this.label27.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.label27.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label27.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.label27.Location = new System.Drawing.Point(290, 99);
+            this.label27.Margin = new System.Windows.Forms.Padding(0);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(99, 13);
+            this.label27.TabIndex = 156;
+            this.label27.Text = "Horizontal Divisions";
+            this.label27.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // label28
+            // 
+            this.label28.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label28.AutoSize = true;
+            this.label28.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.label28.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label28.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.label28.Location = new System.Drawing.Point(290, 52);
+            this.label28.Margin = new System.Windows.Forms.Padding(0);
+            this.label28.Name = "label28";
+            this.label28.Size = new System.Drawing.Size(87, 13);
+            this.label28.TabIndex = 157;
+            this.label28.Text = "Vertical Divisions";
+            this.label28.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // numUpDownHor
+            // 
+            this.numUpDownHor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.numUpDownHor.BackColor = System.Drawing.Color.Transparent;
+            this.numUpDownHor.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.numUpDownHor.Location = new System.Drawing.Point(299, 118);
+            this.numUpDownHor.Margin = new System.Windows.Forms.Padding(0);
+            this.numUpDownHor.Name = "numUpDownHor";
+            this.numUpDownHor.Size = new System.Drawing.Size(48, 20);
+            this.numUpDownHor.TabIndex = 160;
+            this.numUpDownHor.UpdownBackColor = System.Drawing.Color.Blue;
+            this.numUpDownHor.Value = 0;
+            // 
+            // cutsceneLabel
+            // 
+            this.cutsceneLabel.AutoSize = true;
+            this.cutsceneLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cutsceneLabel.Location = new System.Drawing.Point(12, 128);
+            this.cutsceneLabel.Name = "cutsceneLabel";
+            this.cutsceneLabel.Size = new System.Drawing.Size(151, 13);
+            this.cutsceneLabel.TabIndex = 155;
+            this.cutsceneLabel.Text = "Cutscenes Mode Settings";
+            // 
+            // cts_Panel
+            // 
+            this.cts_Panel.BackColor = System.Drawing.Color.Transparent;
+            this.cts_Panel.Controls.Add(this.cts_unfocus);
+            this.cts_Panel.Controls.Add(this.cts_kar);
+            this.cts_Panel.Controls.Add(this.cts_Mute);
+            this.cts_Panel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cts_Panel.Location = new System.Drawing.Point(11, 144);
+            this.cts_Panel.Name = "cts_Panel";
+            this.cts_Panel.Size = new System.Drawing.Size(200, 74);
+            this.cts_Panel.TabIndex = 154;
+            // 
+            // label49
+            // 
+            this.label49.AutoSize = true;
+            this.label49.BackColor = System.Drawing.Color.Transparent;
+            this.label49.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label49.Location = new System.Drawing.Point(14, 78);
+            this.label49.Margin = new System.Windows.Forms.Padding(0);
+            this.label49.Name = "label49";
+            this.label49.Size = new System.Drawing.Size(105, 15);
+            this.label49.TabIndex = 148;
+            this.label49.Text = "Background Color";
+            this.label49.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            // 
+            // layoutSizer
+            // 
+            this.layoutSizer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.layoutSizer.BackColor = System.Drawing.Color.Transparent;
+            this.layoutSizer.Location = new System.Drawing.Point(416, 33);
+            this.layoutSizer.Margin = new System.Windows.Forms.Padding(0);
+            this.layoutSizer.MaximumSize = new System.Drawing.Size(245, 170);
+            this.layoutSizer.MinimumSize = new System.Drawing.Size(245, 170);
+            this.layoutSizer.Name = "layoutSizer";
+            this.layoutSizer.Size = new System.Drawing.Size(245, 170);
+            this.layoutSizer.TabIndex = 147;
+            this.layoutSizer.Paint += new System.Windows.Forms.PaintEventHandler(this.LayoutSizer_Paint);
+            // 
+            // smfw_Cmb
+            // 
+            this.smfw_Cmb.BackColor = System.Drawing.Color.White;
+            this.smfw_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.smfw_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.smfw_Cmb.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.smfw_Cmb.FormattingEnabled = true;
+            this.smfw_Cmb.Items.AddRange(new object[] {
+            "Ctrl",
+            "Alt",
+            "Shift"});
+            this.smfw_Cmb.Location = new System.Drawing.Point(14, 359);
+            this.smfw_Cmb.Margin = new System.Windows.Forms.Padding(2);
+            this.smfw_Cmb.Name = "smfw_Cmb";
+            this.smfw_Cmb.Size = new System.Drawing.Size(67, 23);
+            this.smfw_Cmb.TabIndex = 174;
+            // 
+            // smfw_HKTxt
+            // 
+            this.smfw_HKTxt.BorderColor = System.Drawing.Color.Blue;
+            this.smfw_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.smfw_HKTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.smfw_HKTxt.Hint = null;
+            this.smfw_HKTxt.Location = new System.Drawing.Point(98, 360);
+            this.smfw_HKTxt.Margin = new System.Windows.Forms.Padding(2);
+            this.smfw_HKTxt.MaxLength = 1;
+            this.smfw_HKTxt.Name = "smfw_HKTxt";
+            this.smfw_HKTxt.ShortcutsEnabled = false;
+            this.smfw_HKTxt.Size = new System.Drawing.Size(36, 21);
+            this.smfw_HKTxt.TabIndex = 175;
+            this.smfw_HKTxt.Tag = "HotKeyTextBox";
+            this.smfw_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // losslessHook
+            // 
+            this.losslessHook.BackColor = System.Drawing.Color.Transparent;
+            this.losslessHook.BorderColor = System.Drawing.Color.Blue;
+            this.losslessHook.CheckColor = System.Drawing.Color.Blue;
+            this.losslessHook.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.losslessHook.ForeColor = System.Drawing.Color.White;
+            this.losslessHook.Location = new System.Drawing.Point(15, 320);
+            this.losslessHook.Margin = new System.Windows.Forms.Padding(0);
+            this.losslessHook.Name = "losslessHook";
+            this.losslessHook.SelectionColor = System.Drawing.Color.LightBlue;
+            this.losslessHook.Size = new System.Drawing.Size(131, 17);
+            this.losslessHook.TabIndex = 169;
+            this.losslessHook.Text = "Enable Lossless Hook";
+            this.losslessHook.UseVisualStyleBackColor = false;
+            this.losslessHook.CheckedChanged += new System.EventHandler(this.LosslessHook_CheckedChanged);
+            // 
+            // selectedRes
+            // 
+            this.selectedRes.BackColor = System.Drawing.SystemColors.MenuText;
+            this.selectedRes.BorderColor = System.Drawing.Color.Blue;
+            this.selectedRes.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.selectedRes.ForeColor = System.Drawing.SystemColors.Menu;
+            this.selectedRes.Hint = null;
+            this.selectedRes.Location = new System.Drawing.Point(14, 291);
+            this.selectedRes.Name = "selectedRes";
+            this.selectedRes.ReadOnly = true;
+            this.selectedRes.ShortcutsEnabled = false;
+            this.selectedRes.Size = new System.Drawing.Size(99, 21);
+            this.selectedRes.TabIndex = 168;
+            // 
+            // enable_WMerger
+            // 
+            this.enable_WMerger.BackColor = System.Drawing.Color.DimGray;
+            this.enable_WMerger.BorderColor = System.Drawing.Color.Blue;
+            this.enable_WMerger.CheckColor = System.Drawing.Color.Blue;
+            this.enable_WMerger.Cursor = System.Windows.Forms.Cursors.WaitCursor;
+            this.enable_WMerger.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.enable_WMerger.ForeColor = System.Drawing.Color.White;
+            this.enable_WMerger.Location = new System.Drawing.Point(15, 250);
+            this.enable_WMerger.Margin = new System.Windows.Forms.Padding(0);
+            this.enable_WMerger.Name = "enable_WMerger";
+            this.enable_WMerger.SelectionColor = System.Drawing.Color.LightBlue;
+            this.enable_WMerger.Size = new System.Drawing.Size(142, 17);
+            this.enable_WMerger.TabIndex = 166;
+            this.enable_WMerger.Text = "Enable Windows Merger";
+            this.enable_WMerger.UseVisualStyleBackColor = true;
+            // 
+            // hideDesktop
+            // 
+            this.hideDesktop.BackColor = System.Drawing.Color.DimGray;
+            this.hideDesktop.BorderColor = System.Drawing.Color.Blue;
+            this.hideDesktop.CheckColor = System.Drawing.Color.Blue;
+            this.hideDesktop.Cursor = System.Windows.Forms.Cursors.WaitCursor;
+            this.hideDesktop.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hideDesktop.ForeColor = System.Drawing.Color.White;
+            this.hideDesktop.Location = new System.Drawing.Point(16, 56);
+            this.hideDesktop.Margin = new System.Windows.Forms.Padding(0);
+            this.hideDesktop.Name = "hideDesktop";
+            this.hideDesktop.SelectionColor = System.Drawing.Color.LightBlue;
+            this.hideDesktop.Size = new System.Drawing.Size(115, 17);
+            this.hideDesktop.TabIndex = 162;
+            this.hideDesktop.Text = "Hide Desktop Only";
+            this.hideDesktop.UseVisualStyleBackColor = true;
+            // 
+            // cts_unfocus
+            // 
+            this.cts_unfocus.BackColor = System.Drawing.Color.DimGray;
+            this.cts_unfocus.BorderColor = System.Drawing.Color.Blue;
+            this.cts_unfocus.CheckColor = System.Drawing.Color.Blue;
+            this.cts_unfocus.ForeColor = System.Drawing.Color.White;
+            this.cts_unfocus.Location = new System.Drawing.Point(4, 54);
+            this.cts_unfocus.Name = "cts_unfocus";
+            this.cts_unfocus.SelectionColor = System.Drawing.Color.LightBlue;
+            this.cts_unfocus.Size = new System.Drawing.Size(138, 17);
+            this.cts_unfocus.TabIndex = 142;
+            this.cts_unfocus.Text = "Auto Unfocus Windows";
+            this.cts_unfocus.UseVisualStyleBackColor = true;
+            // 
+            // cts_kar
+            // 
+            this.cts_kar.BackColor = System.Drawing.Color.DimGray;
+            this.cts_kar.BorderColor = System.Drawing.Color.Blue;
+            this.cts_kar.CheckColor = System.Drawing.Color.Blue;
+            this.cts_kar.ForeColor = System.Drawing.Color.White;
+            this.cts_kar.Location = new System.Drawing.Point(4, 28);
+            this.cts_kar.Name = "cts_kar";
+            this.cts_kar.SelectionColor = System.Drawing.Color.LightBlue;
+            this.cts_kar.Size = new System.Drawing.Size(154, 17);
+            this.cts_kar.TabIndex = 141;
+            this.cts_kar.Text = "Keep Original Window Size";
+            this.cts_kar.UseVisualStyleBackColor = true;
+            // 
+            // cts_Mute
+            // 
+            this.cts_Mute.BackColor = System.Drawing.Color.DimGray;
+            this.cts_Mute.BorderColor = System.Drawing.Color.Blue;
+            this.cts_Mute.CheckColor = System.Drawing.Color.Blue;
+            this.cts_Mute.ForeColor = System.Drawing.Color.White;
+            this.cts_Mute.Location = new System.Drawing.Point(4, 5);
+            this.cts_Mute.Name = "cts_Mute";
+            this.cts_Mute.SelectionColor = System.Drawing.Color.LightBlue;
+            this.cts_Mute.Size = new System.Drawing.Size(104, 17);
+            this.cts_Mute.TabIndex = 140;
+            this.cts_Mute.Text = "Mute Audio Only";
+            this.cts_Mute.UseVisualStyleBackColor = true;
+            this.cts_Mute.CheckedChanged += new System.EventHandler(this.Cts_Mute_CheckedChanged);
+            // 
+            // SplitColors
+            // 
+            this.SplitColors.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.SplitColors.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.SplitColors.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.SplitColors.Location = new System.Drawing.Point(17, 97);
+            this.SplitColors.Margin = new System.Windows.Forms.Padding(0);
+            this.SplitColors.Name = "SplitColors";
+            this.SplitColors.Size = new System.Drawing.Size(119, 24);
+            this.SplitColors.TabIndex = 153;
+            // 
+            // splitDiv
+            // 
+            this.splitDiv.BackColor = System.Drawing.Color.DimGray;
+            this.splitDiv.BorderColor = System.Drawing.Color.Blue;
+            this.splitDiv.CheckColor = System.Drawing.Color.Blue;
+            this.splitDiv.Cursor = System.Windows.Forms.Cursors.WaitCursor;
+            this.splitDiv.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.splitDiv.ForeColor = System.Drawing.Color.White;
+            this.splitDiv.Location = new System.Drawing.Point(16, 31);
+            this.splitDiv.Margin = new System.Windows.Forms.Padding(0);
+            this.splitDiv.Name = "splitDiv";
+            this.splitDiv.SelectionColor = System.Drawing.Color.LightBlue;
+            this.splitDiv.Size = new System.Drawing.Size(118, 17);
+            this.splitDiv.TabIndex = 149;
+            this.splitDiv.Text = "Splitscreen Division";
+            this.splitDiv.UseVisualStyleBackColor = true;
+            // 
+            // disableGameProfiles
+            // 
+            this.disableGameProfiles.BackColor = System.Drawing.Color.Transparent;
+            this.disableGameProfiles.BorderColor = System.Drawing.Color.Blue;
+            this.disableGameProfiles.CheckColor = System.Drawing.Color.Blue;
+            this.disableGameProfiles.Checked = true;
+            this.disableGameProfiles.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.disableGameProfiles.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.disableGameProfiles.ForeColor = System.Drawing.Color.White;
+            this.disableGameProfiles.Location = new System.Drawing.Point(14, 317);
+            this.disableGameProfiles.Margin = new System.Windows.Forms.Padding(2);
+            this.disableGameProfiles.Name = "disableGameProfiles";
+            this.disableGameProfiles.SelectionColor = System.Drawing.Color.LightBlue;
+            this.disableGameProfiles.Size = new System.Drawing.Size(148, 17);
+            this.disableGameProfiles.TabIndex = 167;
+            this.disableGameProfiles.Tag = "";
+            this.disableGameProfiles.Text = "Disable Game Profiles";
+            this.disableGameProfiles.UseVisualStyleBackColor = false;
+            this.disableGameProfiles.CheckedChanged += new System.EventHandler(this.DisableGameProfiles_CheckedChanged);
+            // 
+            // keepAccountsCheck
+            // 
+            this.keepAccountsCheck.BackColor = System.Drawing.Color.Transparent;
+            this.keepAccountsCheck.BorderColor = System.Drawing.Color.Blue;
+            this.keepAccountsCheck.CheckColor = System.Drawing.Color.Blue;
+            this.keepAccountsCheck.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.keepAccountsCheck.ForeColor = System.Drawing.Color.White;
+            this.keepAccountsCheck.Location = new System.Drawing.Point(14, 275);
+            this.keepAccountsCheck.Margin = new System.Windows.Forms.Padding(2);
+            this.keepAccountsCheck.Name = "keepAccountsCheck";
+            this.keepAccountsCheck.SelectionColor = System.Drawing.Color.LightBlue;
+            this.keepAccountsCheck.Size = new System.Drawing.Size(166, 17);
+            this.keepAccountsCheck.TabIndex = 166;
+            this.keepAccountsCheck.Text = "Keep Nucleus User Accounts";
+            this.keepAccountsCheck.UseVisualStyleBackColor = false;
+            this.keepAccountsCheck.Click += new System.EventHandler(this.KeepAccountsCheck_Click);
+            // 
+            // nucUserPassTxt
+            // 
+            this.nucUserPassTxt.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.nucUserPassTxt.BorderColor = System.Drawing.Color.Blue;
+            this.nucUserPassTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.nucUserPassTxt.Hint = null;
+            this.nucUserPassTxt.Location = new System.Drawing.Point(402, 31);
+            this.nucUserPassTxt.Margin = new System.Windows.Forms.Padding(2);
+            this.nucUserPassTxt.MaxLength = 127;
+            this.nucUserPassTxt.Name = "nucUserPassTxt";
+            this.nucUserPassTxt.PasswordChar = '*';
+            this.nucUserPassTxt.Size = new System.Drawing.Size(197, 21);
+            this.nucUserPassTxt.TabIndex = 150;
+            this.nucUserPassTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // themeCbx
+            // 
+            this.themeCbx.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.themeCbx.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.themeCbx.FormattingEnabled = true;
+            this.themeCbx.ItemHeight = 15;
+            this.themeCbx.Location = new System.Drawing.Point(14, 124);
+            this.themeCbx.Margin = new System.Windows.Forms.Padding(0);
+            this.themeCbx.MaxDropDownItems = 10;
+            this.themeCbx.Name = "themeCbx";
+            this.themeCbx.Size = new System.Drawing.Size(142, 23);
+            this.themeCbx.TabIndex = 162;
+            // 
+            // cmb_EpicLang
+            // 
+            this.cmb_EpicLang.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmb_EpicLang.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmb_EpicLang.FormattingEnabled = true;
+            this.cmb_EpicLang.Items.AddRange(new object[] {
+            "Arabic",
+            "Brazilian",
+            "Bulgarian",
+            "Chinese",
+            "Czech",
+            "Danish",
+            "Dutch",
+            "English",
+            "Finnish",
+            "French",
+            "German",
+            "Greek",
+            "Hungarian",
+            "Italian",
+            "Japanese",
+            "Koreana",
+            "Norwegian",
+            "Polish",
+            "Portuguese",
+            "Romanian",
+            "Russian",
+            "Spanish",
+            "Swedish",
+            "Thai",
+            "Turkish",
+            "Ukrainian"});
+            this.cmb_EpicLang.Location = new System.Drawing.Point(14, 78);
+            this.cmb_EpicLang.Margin = new System.Windows.Forms.Padding(0);
+            this.cmb_EpicLang.MaxDropDownItems = 10;
+            this.cmb_EpicLang.Name = "cmb_EpicLang";
+            this.cmb_EpicLang.Size = new System.Drawing.Size(142, 23);
+            this.cmb_EpicLang.TabIndex = 159;
+            // 
+            // ignoreInputLockReminderCheckbox
+            // 
+            this.ignoreInputLockReminderCheckbox.BackColor = System.Drawing.Color.Transparent;
+            this.ignoreInputLockReminderCheckbox.BorderColor = System.Drawing.Color.Blue;
+            this.ignoreInputLockReminderCheckbox.CheckColor = System.Drawing.Color.Blue;
+            this.ignoreInputLockReminderCheckbox.ForeColor = System.Drawing.Color.White;
+            this.ignoreInputLockReminderCheckbox.Location = new System.Drawing.Point(14, 252);
+            this.ignoreInputLockReminderCheckbox.Margin = new System.Windows.Forms.Padding(2);
+            this.ignoreInputLockReminderCheckbox.Name = "ignoreInputLockReminderCheckbox";
+            this.ignoreInputLockReminderCheckbox.SelectionColor = System.Drawing.Color.LightBlue;
+            this.ignoreInputLockReminderCheckbox.Size = new System.Drawing.Size(178, 19);
+            this.ignoreInputLockReminderCheckbox.TabIndex = 157;
+            this.ignoreInputLockReminderCheckbox.Text = "Ignore Input Lock Reminder";
+            this.ignoreInputLockReminderCheckbox.UseVisualStyleBackColor = false;
+            // 
+            // cmb_Lang
+            // 
+            this.cmb_Lang.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmb_Lang.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmb_Lang.FormattingEnabled = true;
+            this.cmb_Lang.Items.AddRange(new object[] {
+            "Automatic",
+            "Arabic",
+            "Brazilian",
+            "Bulgarian",
+            "Schinese",
+            "Tchinese",
+            "Czech",
+            "Danish",
+            "Dutch",
+            "English",
+            "Finnish",
+            "French",
+            "German",
+            "Greek",
+            "Hungarian",
+            "Italian",
+            "Japanese",
+            "Koreana",
+            "Latam",
+            "Norwegian",
+            "Polish",
+            "Portuguese",
+            "Romanian",
+            "Russian",
+            "Spanish",
+            "Swedish",
+            "Thai",
+            "Turkish",
+            "Ukrainian"});
+            this.cmb_Lang.Location = new System.Drawing.Point(15, 31);
+            this.cmb_Lang.Margin = new System.Windows.Forms.Padding(0);
+            this.cmb_Lang.MaxDropDownItems = 10;
+            this.cmb_Lang.Name = "cmb_Lang";
+            this.cmb_Lang.Size = new System.Drawing.Size(142, 23);
+            this.cmb_Lang.TabIndex = 155;
+            // 
+            // debugLogCheck
+            // 
+            this.debugLogCheck.BackColor = System.Drawing.Color.Transparent;
+            this.debugLogCheck.BorderColor = System.Drawing.Color.Blue;
+            this.debugLogCheck.CheckColor = System.Drawing.Color.Blue;
+            this.debugLogCheck.ForeColor = System.Drawing.Color.White;
+            this.debugLogCheck.Location = new System.Drawing.Point(14, 229);
+            this.debugLogCheck.Margin = new System.Windows.Forms.Padding(2);
+            this.debugLogCheck.Name = "debugLogCheck";
+            this.debugLogCheck.SelectionColor = System.Drawing.Color.LightBlue;
+            this.debugLogCheck.Size = new System.Drawing.Size(129, 19);
+            this.debugLogCheck.TabIndex = 153;
+            this.debugLogCheck.Text = "Enable Debug Log";
+            this.debugLogCheck.UseVisualStyleBackColor = false;
+            // 
+            // rm_Cmb
+            // 
+            this.rm_Cmb.BackColor = System.Drawing.Color.White;
+            this.rm_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.rm_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.rm_Cmb.FormattingEnabled = true;
+            this.rm_Cmb.Items.AddRange(new object[] {
+            "Ctrl",
+            "Alt",
+            "Shift"});
+            this.rm_Cmb.Location = new System.Drawing.Point(119, 196);
+            this.rm_Cmb.Margin = new System.Windows.Forms.Padding(2);
+            this.rm_Cmb.Name = "rm_Cmb";
+            this.rm_Cmb.Size = new System.Drawing.Size(67, 23);
+            this.rm_Cmb.TabIndex = 98;
+            // 
+            // rm_HKTxt
+            // 
+            this.rm_HKTxt.BorderColor = System.Drawing.Color.Blue;
+            this.rm_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.rm_HKTxt.Hint = null;
+            this.rm_HKTxt.Location = new System.Drawing.Point(205, 197);
+            this.rm_HKTxt.Margin = new System.Windows.Forms.Padding(2);
+            this.rm_HKTxt.MaxLength = 1;
+            this.rm_HKTxt.Name = "rm_HKTxt";
+            this.rm_HKTxt.ShortcutsEnabled = false;
+            this.rm_HKTxt.Size = new System.Drawing.Size(36, 21);
+            this.rm_HKTxt.TabIndex = 99;
+            this.rm_HKTxt.Tag = "HotKeyTextBox";
+            this.rm_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // swl_Cmb
+            // 
+            this.swl_Cmb.BackColor = System.Drawing.Color.White;
+            this.swl_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.swl_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.swl_Cmb.FormattingEnabled = true;
+            this.swl_Cmb.Items.AddRange(new object[] {
+            "Ctrl",
+            "Alt",
+            "Shift"});
+            this.swl_Cmb.Location = new System.Drawing.Point(119, 172);
+            this.swl_Cmb.Margin = new System.Windows.Forms.Padding(2);
+            this.swl_Cmb.Name = "swl_Cmb";
+            this.swl_Cmb.Size = new System.Drawing.Size(67, 23);
+            this.swl_Cmb.TabIndex = 94;
+            // 
+            // swl_HKTxt
+            // 
+            this.swl_HKTxt.BorderColor = System.Drawing.Color.Blue;
+            this.swl_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.swl_HKTxt.Hint = null;
+            this.swl_HKTxt.Location = new System.Drawing.Point(205, 173);
+            this.swl_HKTxt.Margin = new System.Windows.Forms.Padding(2);
+            this.swl_HKTxt.MaxLength = 1;
+            this.swl_HKTxt.Name = "swl_HKTxt";
+            this.swl_HKTxt.ShortcutsEnabled = false;
+            this.swl_HKTxt.Size = new System.Drawing.Size(36, 21);
+            this.swl_HKTxt.TabIndex = 95;
+            this.swl_HKTxt.Tag = "HotKeyTextBox";
+            this.swl_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // csm_Cmb
+            // 
+            this.csm_Cmb.BackColor = System.Drawing.Color.White;
+            this.csm_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.csm_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.csm_Cmb.FormattingEnabled = true;
+            this.csm_Cmb.Items.AddRange(new object[] {
+            "Ctrl",
+            "Alt",
+            "Shift"});
+            this.csm_Cmb.Location = new System.Drawing.Point(119, 148);
+            this.csm_Cmb.Margin = new System.Windows.Forms.Padding(2);
+            this.csm_Cmb.Name = "csm_Cmb";
+            this.csm_Cmb.Size = new System.Drawing.Size(67, 23);
+            this.csm_Cmb.TabIndex = 90;
+            // 
+            // csm_HKTxt
+            // 
+            this.csm_HKTxt.BorderColor = System.Drawing.Color.Blue;
+            this.csm_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.csm_HKTxt.Hint = null;
+            this.csm_HKTxt.Location = new System.Drawing.Point(205, 149);
+            this.csm_HKTxt.Margin = new System.Windows.Forms.Padding(2);
+            this.csm_HKTxt.MaxLength = 1;
+            this.csm_HKTxt.Name = "csm_HKTxt";
+            this.csm_HKTxt.ShortcutsEnabled = false;
+            this.csm_HKTxt.Size = new System.Drawing.Size(36, 21);
+            this.csm_HKTxt.TabIndex = 91;
+            this.csm_HKTxt.Tag = "HotKeyTextBox";
+            this.csm_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // rw_Cmb
+            // 
+            this.rw_Cmb.BackColor = System.Drawing.Color.White;
+            this.rw_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.rw_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.rw_Cmb.FormattingEnabled = true;
+            this.rw_Cmb.Items.AddRange(new object[] {
+            "Ctrl",
+            "Alt",
+            "Shift"});
+            this.rw_Cmb.Location = new System.Drawing.Point(119, 124);
+            this.rw_Cmb.Margin = new System.Windows.Forms.Padding(2);
+            this.rw_Cmb.Name = "rw_Cmb";
+            this.rw_Cmb.Size = new System.Drawing.Size(67, 23);
+            this.rw_Cmb.TabIndex = 86;
+            // 
+            // tu_Cmb
+            // 
+            this.tu_Cmb.BackColor = System.Drawing.Color.White;
+            this.tu_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.tu_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.tu_Cmb.FormattingEnabled = true;
+            this.tu_Cmb.Items.AddRange(new object[] {
+            "Ctrl",
+            "Alt",
+            "Shift"});
+            this.tu_Cmb.Location = new System.Drawing.Point(119, 28);
+            this.tu_Cmb.Margin = new System.Windows.Forms.Padding(2);
+            this.tu_Cmb.Name = "tu_Cmb";
+            this.tu_Cmb.Size = new System.Drawing.Size(67, 23);
+            this.tu_Cmb.TabIndex = 31;
+            // 
+            // rw_HKTxt
+            // 
+            this.rw_HKTxt.BorderColor = System.Drawing.Color.Blue;
+            this.rw_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.rw_HKTxt.Hint = null;
+            this.rw_HKTxt.Location = new System.Drawing.Point(205, 125);
+            this.rw_HKTxt.Margin = new System.Windows.Forms.Padding(2);
+            this.rw_HKTxt.MaxLength = 1;
+            this.rw_HKTxt.Name = "rw_HKTxt";
+            this.rw_HKTxt.ShortcutsEnabled = false;
+            this.rw_HKTxt.Size = new System.Drawing.Size(36, 21);
+            this.rw_HKTxt.TabIndex = 87;
+            this.rw_HKTxt.Tag = "HotKeyTextBox";
+            this.rw_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // tu_HKTxt
+            // 
+            this.tu_HKTxt.BorderColor = System.Drawing.Color.Blue;
+            this.tu_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.tu_HKTxt.Hint = null;
+            this.tu_HKTxt.Location = new System.Drawing.Point(205, 29);
+            this.tu_HKTxt.Margin = new System.Windows.Forms.Padding(2);
+            this.tu_HKTxt.MaxLength = 1;
+            this.tu_HKTxt.Name = "tu_HKTxt";
+            this.tu_HKTxt.ShortcutsEnabled = false;
+            this.tu_HKTxt.Size = new System.Drawing.Size(36, 21);
+            this.tu_HKTxt.TabIndex = 32;
+            this.tu_HKTxt.Tag = "HotKeyTextBox";
+            this.tu_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // lockKey_Cmb
+            // 
+            this.lockKey_Cmb.BackColor = System.Drawing.Color.White;
+            this.lockKey_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.lockKey_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.lockKey_Cmb.FormattingEnabled = true;
+            this.lockKey_Cmb.Items.AddRange(new object[] {
+            "End",
+            "Home",
+            "Delete",
+            "Multiply",
+            "F1",
+            "F2",
+            "F3",
+            "F4",
+            "F5",
+            "F6",
+            "F7",
+            "F8",
+            "F9",
+            "F10",
+            "F11",
+            "F12",
+            "+",
+            "-",
+            "Numpad 0",
+            "Numpad 1",
+            "Numpad 2",
+            "Numpad 3",
+            "Numpad 4",
+            "Numpad 5",
+            "Numpad 6",
+            "Numpad 7",
+            "Numpad 8",
+            "Numpad 9"});
+            this.lockKey_Cmb.Location = new System.Drawing.Point(119, 222);
+            this.lockKey_Cmb.Margin = new System.Windows.Forms.Padding(2);
+            this.lockKey_Cmb.Name = "lockKey_Cmb";
+            this.lockKey_Cmb.Size = new System.Drawing.Size(123, 23);
+            this.lockKey_Cmb.TabIndex = 30;
+            // 
+            // ttm_Cmb
+            // 
+            this.ttm_Cmb.BackColor = System.Drawing.Color.White;
+            this.ttm_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ttm_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.ttm_Cmb.FormattingEnabled = true;
+            this.ttm_Cmb.Items.AddRange(new object[] {
+            "Ctrl",
+            "Alt",
+            "Shift"});
+            this.ttm_Cmb.Location = new System.Drawing.Point(119, 100);
+            this.ttm_Cmb.Margin = new System.Windows.Forms.Padding(2);
+            this.ttm_Cmb.Name = "ttm_Cmb";
+            this.ttm_Cmb.Size = new System.Drawing.Size(67, 23);
+            this.ttm_Cmb.TabIndex = 5;
+            // 
+            // ss_Cmb
+            // 
+            this.ss_Cmb.BackColor = System.Drawing.Color.White;
+            this.ss_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ss_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.ss_Cmb.FormattingEnabled = true;
+            this.ss_Cmb.Items.AddRange(new object[] {
+            "Ctrl",
+            "Alt",
+            "Shift"});
+            this.ss_Cmb.Location = new System.Drawing.Point(119, 76);
+            this.ss_Cmb.Margin = new System.Windows.Forms.Padding(2);
+            this.ss_Cmb.Name = "ss_Cmb";
+            this.ss_Cmb.Size = new System.Drawing.Size(67, 23);
+            this.ss_Cmb.TabIndex = 3;
+            // 
+            // ttm_HKTxt
+            // 
+            this.ttm_HKTxt.BorderColor = System.Drawing.Color.Blue;
+            this.ttm_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.ttm_HKTxt.Hint = null;
+            this.ttm_HKTxt.Location = new System.Drawing.Point(205, 101);
+            this.ttm_HKTxt.Margin = new System.Windows.Forms.Padding(2);
+            this.ttm_HKTxt.MaxLength = 1;
+            this.ttm_HKTxt.Name = "ttm_HKTxt";
+            this.ttm_HKTxt.ShortcutsEnabled = false;
+            this.ttm_HKTxt.Size = new System.Drawing.Size(36, 21);
+            this.ttm_HKTxt.TabIndex = 6;
+            this.ttm_HKTxt.Tag = "HotKeyTextBox";
+            this.ttm_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // ss_HKTxt
+            // 
+            this.ss_HKTxt.BorderColor = System.Drawing.Color.Blue;
+            this.ss_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.ss_HKTxt.Hint = null;
+            this.ss_HKTxt.Location = new System.Drawing.Point(205, 77);
+            this.ss_HKTxt.Margin = new System.Windows.Forms.Padding(2);
+            this.ss_HKTxt.MaxLength = 1;
+            this.ss_HKTxt.Name = "ss_HKTxt";
+            this.ss_HKTxt.ShortcutsEnabled = false;
+            this.ss_HKTxt.Size = new System.Drawing.Size(36, 21);
+            this.ss_HKTxt.TabIndex = 4;
+            this.ss_HKTxt.Tag = "HotKeyTextBox";
+            this.ss_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // cn_Cmb
+            // 
+            this.cn_Cmb.BackColor = System.Drawing.Color.White;
+            this.cn_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cn_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cn_Cmb.FormattingEnabled = true;
+            this.cn_Cmb.Items.AddRange(new object[] {
+            "Ctrl",
+            "Alt",
+            "Shift"});
+            this.cn_Cmb.Location = new System.Drawing.Point(119, 52);
+            this.cn_Cmb.Margin = new System.Windows.Forms.Padding(2);
+            this.cn_Cmb.Name = "cn_Cmb";
+            this.cn_Cmb.Size = new System.Drawing.Size(67, 23);
+            this.cn_Cmb.TabIndex = 1;
+            // 
+            // cn_HKTxt
+            // 
+            this.cn_HKTxt.BorderColor = System.Drawing.Color.Blue;
+            this.cn_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.cn_HKTxt.Hint = null;
+            this.cn_HKTxt.Location = new System.Drawing.Point(205, 53);
+            this.cn_HKTxt.Margin = new System.Windows.Forms.Padding(2);
+            this.cn_HKTxt.MaxLength = 1;
+            this.cn_HKTxt.Name = "cn_HKTxt";
+            this.cn_HKTxt.ShortcutsEnabled = false;
+            this.cn_HKTxt.Size = new System.Drawing.Size(36, 21);
+            this.cn_HKTxt.TabIndex = 2;
+            this.cn_HKTxt.Tag = "HotKeyTextBox";
+            this.cn_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // scaleOptionCbx
+            // 
+            this.scaleOptionCbx.BackColor = System.Drawing.Color.Transparent;
+            this.scaleOptionCbx.BorderColor = System.Drawing.Color.Blue;
+            this.scaleOptionCbx.CheckColor = System.Drawing.Color.Blue;
+            this.scaleOptionCbx.Checked = true;
+            this.scaleOptionCbx.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.scaleOptionCbx.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.scaleOptionCbx.ForeColor = System.Drawing.Color.White;
+            this.scaleOptionCbx.Location = new System.Drawing.Point(14, 296);
+            this.scaleOptionCbx.Margin = new System.Windows.Forms.Padding(2);
+            this.scaleOptionCbx.Name = "scaleOptionCbx";
+            this.scaleOptionCbx.SelectionColor = System.Drawing.Color.LightBlue;
+            this.scaleOptionCbx.Size = new System.Drawing.Size(185, 17);
+            this.scaleOptionCbx.TabIndex = 148;
+            this.scaleOptionCbx.Text = "Auto Set Desktop Scale To 100%";
+            this.scaleOptionCbx.UseVisualStyleBackColor = false;
+            // 
+            // useNicksCheck
+            // 
+            this.useNicksCheck.BackColor = System.Drawing.Color.Transparent;
+            this.useNicksCheck.BorderColor = System.Drawing.Color.Blue;
+            this.useNicksCheck.CheckColor = System.Drawing.Color.Blue;
+            this.useNicksCheck.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.useNicksCheck.ForeColor = System.Drawing.Color.White;
+            this.useNicksCheck.Location = new System.Drawing.Point(14, 206);
+            this.useNicksCheck.Margin = new System.Windows.Forms.Padding(2);
+            this.useNicksCheck.Name = "useNicksCheck";
+            this.useNicksCheck.SelectionColor = System.Drawing.Color.LightBlue;
+            this.useNicksCheck.Size = new System.Drawing.Size(164, 19);
+            this.useNicksCheck.TabIndex = 146;
+            this.useNicksCheck.Text = "Use Nicknames In-Game";
+            this.useNicksCheck.UseVisualStyleBackColor = false;
+            // 
+            // cmb_Network
+            // 
+            this.cmb_Network.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmb_Network.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cmb_Network.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cmb_Network.Location = new System.Drawing.Point(15, 170);
+            this.cmb_Network.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
+            this.cmb_Network.Name = "cmb_Network";
+            this.cmb_Network.Size = new System.Drawing.Size(198, 21);
+            this.cmb_Network.TabIndex = 136;
+            this.cmb_Network.DropDown += new System.EventHandler(this.Cmb_Network_DropDown);
+            this.cmb_Network.DropDownClosed += new System.EventHandler(this.Cmb_Network_DropDownClosed);
+            // 
+            // assignGpdByBtnPress
+            // 
+            this.assignGpdByBtnPress.BackColor = System.Drawing.Color.DimGray;
+            this.assignGpdByBtnPress.BorderColor = System.Drawing.Color.Blue;
+            this.assignGpdByBtnPress.CheckColor = System.Drawing.Color.Blue;
+            this.assignGpdByBtnPress.ForeColor = System.Drawing.Color.White;
+            this.assignGpdByBtnPress.Location = new System.Drawing.Point(16, 42);
+            this.assignGpdByBtnPress.Name = "assignGpdByBtnPress";
+            this.assignGpdByBtnPress.SelectionColor = System.Drawing.Color.LightBlue;
+            this.assignGpdByBtnPress.Size = new System.Drawing.Size(229, 19);
+            this.assignGpdByBtnPress.TabIndex = 296;
+            this.assignGpdByBtnPress.Text = "Assign Gamepads On Button Press";
+            this.assignGpdByBtnPress.UseVisualStyleBackColor = true;
+            this.assignGpdByBtnPress.CheckedChanged += new System.EventHandler(this.AssignGpdByBtnPress_CheckedChanged);
+            // 
+            // gamepadsAssignMethods
+            // 
+            this.gamepadsAssignMethods.BackColor = System.Drawing.Color.DimGray;
+            this.gamepadsAssignMethods.BorderColor = System.Drawing.Color.Blue;
+            this.gamepadsAssignMethods.CheckColor = System.Drawing.Color.Blue;
+            this.gamepadsAssignMethods.ForeColor = System.Drawing.Color.White;
+            this.gamepadsAssignMethods.Location = new System.Drawing.Point(16, 17);
+            this.gamepadsAssignMethods.Name = "gamepadsAssignMethods";
+            this.gamepadsAssignMethods.SelectionColor = System.Drawing.Color.LightBlue;
+            this.gamepadsAssignMethods.Size = new System.Drawing.Size(229, 19);
+            this.gamepadsAssignMethods.TabIndex = 295;
+            this.gamepadsAssignMethods.Text = "Assign Gamepads By Index";
+            this.gamepadsAssignMethods.UseVisualStyleBackColor = true;
+            this.gamepadsAssignMethods.CheckedChanged += new System.EventHandler(this.GamepadsAssignMethods_CheckedChanged);
             // 
             // steamid16
             // 
@@ -1702,18 +2825,6 @@ namespace Nucleus.Coop
             this.player16N.Size = new System.Drawing.Size(69, 21);
             this.player16N.TabIndex = 273;
             // 
-            // label17
-            // 
-            this.label17.AutoSize = true;
-            this.label17.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label17.Location = new System.Drawing.Point(361, 189);
-            this.label17.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(54, 13);
-            this.label17.TabIndex = 274;
-            this.label17.Text = "Player 16:";
-            this.label17.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // player15N
             // 
             this.player15N.BackColor = System.Drawing.Color.White;
@@ -1726,18 +2837,6 @@ namespace Nucleus.Coop
             this.player15N.Name = "player15N";
             this.player15N.Size = new System.Drawing.Size(69, 21);
             this.player15N.TabIndex = 271;
-            // 
-            // label18
-            // 
-            this.label18.AutoSize = true;
-            this.label18.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label18.Location = new System.Drawing.Point(361, 168);
-            this.label18.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(54, 13);
-            this.label18.TabIndex = 272;
-            this.label18.Text = "Player 15:";
-            this.label18.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // player14N
             // 
@@ -1752,18 +2851,6 @@ namespace Nucleus.Coop
             this.player14N.Size = new System.Drawing.Size(69, 21);
             this.player14N.TabIndex = 269;
             // 
-            // label19
-            // 
-            this.label19.AutoSize = true;
-            this.label19.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label19.Location = new System.Drawing.Point(361, 145);
-            this.label19.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(54, 13);
-            this.label19.TabIndex = 270;
-            this.label19.Text = "Player 14:";
-            this.label19.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // player13N
             // 
             this.player13N.BackColor = System.Drawing.Color.White;
@@ -1776,18 +2863,6 @@ namespace Nucleus.Coop
             this.player13N.Name = "player13N";
             this.player13N.Size = new System.Drawing.Size(69, 21);
             this.player13N.TabIndex = 267;
-            // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label20.Location = new System.Drawing.Point(361, 124);
-            this.label20.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(54, 13);
-            this.label20.TabIndex = 268;
-            this.label20.Text = "Player 13:";
-            this.label20.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // player12N
             // 
@@ -1802,18 +2877,6 @@ namespace Nucleus.Coop
             this.player12N.Size = new System.Drawing.Size(69, 21);
             this.player12N.TabIndex = 265;
             // 
-            // label22
-            // 
-            this.label22.AutoSize = true;
-            this.label22.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label22.Location = new System.Drawing.Point(361, 101);
-            this.label22.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(54, 13);
-            this.label22.TabIndex = 266;
-            this.label22.Text = "Player 12:";
-            this.label22.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // player11N
             // 
             this.player11N.BackColor = System.Drawing.Color.White;
@@ -1826,18 +2889,6 @@ namespace Nucleus.Coop
             this.player11N.Name = "player11N";
             this.player11N.Size = new System.Drawing.Size(69, 21);
             this.player11N.TabIndex = 264;
-            // 
-            // label23
-            // 
-            this.label23.AutoSize = true;
-            this.label23.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label23.Location = new System.Drawing.Point(361, 79);
-            this.label23.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(54, 13);
-            this.label23.TabIndex = 263;
-            this.label23.Text = "Player 11:";
-            this.label23.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // player10N
             // 
@@ -1852,18 +2903,6 @@ namespace Nucleus.Coop
             this.player10N.Size = new System.Drawing.Size(69, 21);
             this.player10N.TabIndex = 262;
             // 
-            // label24
-            // 
-            this.label24.AutoSize = true;
-            this.label24.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label24.Location = new System.Drawing.Point(361, 57);
-            this.label24.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label24.Name = "label24";
-            this.label24.Size = new System.Drawing.Size(54, 13);
-            this.label24.TabIndex = 260;
-            this.label24.Text = "Player 10:";
-            this.label24.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // player9N
             // 
             this.player9N.BackColor = System.Drawing.Color.White;
@@ -1876,18 +2915,6 @@ namespace Nucleus.Coop
             this.player9N.Name = "player9N";
             this.player9N.Size = new System.Drawing.Size(69, 21);
             this.player9N.TabIndex = 261;
-            // 
-            // label26
-            // 
-            this.label26.AutoSize = true;
-            this.label26.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label26.Location = new System.Drawing.Point(367, 35);
-            this.label26.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label26.Name = "label26";
-            this.label26.Size = new System.Drawing.Size(48, 13);
-            this.label26.TabIndex = 259;
-            this.label26.Text = "Player 9:";
-            this.label26.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // player8N
             // 
@@ -1902,18 +2929,6 @@ namespace Nucleus.Coop
             this.player8N.Size = new System.Drawing.Size(69, 21);
             this.player8N.TabIndex = 257;
             // 
-            // label16
-            // 
-            this.label16.AutoSize = true;
-            this.label16.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label16.Location = new System.Drawing.Point(7, 189);
-            this.label16.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(48, 13);
-            this.label16.TabIndex = 258;
-            this.label16.Text = "Player 8:";
-            this.label16.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // player7N
             // 
             this.player7N.BackColor = System.Drawing.Color.White;
@@ -1926,18 +2941,6 @@ namespace Nucleus.Coop
             this.player7N.Name = "player7N";
             this.player7N.Size = new System.Drawing.Size(69, 21);
             this.player7N.TabIndex = 255;
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label15.Location = new System.Drawing.Point(7, 167);
-            this.label15.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(48, 13);
-            this.label15.TabIndex = 256;
-            this.label15.Text = "Player 7:";
-            this.label15.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // player6N
             // 
@@ -1952,18 +2955,6 @@ namespace Nucleus.Coop
             this.player6N.Size = new System.Drawing.Size(69, 21);
             this.player6N.TabIndex = 253;
             // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.Location = new System.Drawing.Point(7, 145);
-            this.label11.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(48, 13);
-            this.label11.TabIndex = 254;
-            this.label11.Text = "Player 6:";
-            this.label11.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // player5N
             // 
             this.player5N.BackColor = System.Drawing.Color.White;
@@ -1976,18 +2967,6 @@ namespace Nucleus.Coop
             this.player5N.Name = "player5N";
             this.player5N.Size = new System.Drawing.Size(69, 21);
             this.player5N.TabIndex = 251;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.Location = new System.Drawing.Point(7, 123);
-            this.label9.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(48, 13);
-            this.label9.TabIndex = 252;
-            this.label9.Text = "Player 5:";
-            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // player4N
             // 
@@ -2002,18 +2981,6 @@ namespace Nucleus.Coop
             this.player4N.Size = new System.Drawing.Size(69, 21);
             this.player4N.TabIndex = 249;
             // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label14.Location = new System.Drawing.Point(7, 101);
-            this.label14.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(48, 13);
-            this.label14.TabIndex = 250;
-            this.label14.Text = "Player 4:";
-            this.label14.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // player3N
             // 
             this.player3N.BackColor = System.Drawing.Color.White;
@@ -2026,18 +2993,6 @@ namespace Nucleus.Coop
             this.player3N.Name = "player3N";
             this.player3N.Size = new System.Drawing.Size(69, 21);
             this.player3N.TabIndex = 248;
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label12.Location = new System.Drawing.Point(7, 79);
-            this.label12.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(48, 13);
-            this.label12.TabIndex = 247;
-            this.label12.Text = "Player 3:";
-            this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // player2N
             // 
@@ -2052,18 +3007,6 @@ namespace Nucleus.Coop
             this.player2N.Size = new System.Drawing.Size(69, 21);
             this.player2N.TabIndex = 246;
             // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(7, 57);
-            this.label10.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(48, 13);
-            this.label10.TabIndex = 244;
-            this.label10.Text = "Player 2:";
-            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // player1N
             // 
             this.player1N.BackColor = System.Drawing.Color.White;
@@ -2076,145 +3019,6 @@ namespace Nucleus.Coop
             this.player1N.Name = "player1N";
             this.player1N.Size = new System.Drawing.Size(69, 21);
             this.player1N.TabIndex = 245;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(7, 35);
-            this.label7.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(48, 13);
-            this.label7.TabIndex = 243;
-            this.label7.Text = "Player 1:";
-            this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // page2
-            // 
-            this.page2.Controls.Add(this.label3);
-            this.page2.Controls.Add(this.label62);
-            this.page2.Controls.Add(this.label63);
-            this.page2.Controls.Add(this.label64);
-            this.page2.Controls.Add(this.label65);
-            this.page2.Controls.Add(this.label66);
-            this.page2.Controls.Add(this.steamid32);
-            this.page2.Controls.Add(this.steamid17);
-            this.page2.Controls.Add(this.steamid31);
-            this.page2.Controls.Add(this.label61);
-            this.page2.Controls.Add(this.steamid30);
-            this.page2.Controls.Add(this.player17N);
-            this.page2.Controls.Add(this.steamid29);
-            this.page2.Controls.Add(this.label59);
-            this.page2.Controls.Add(this.steamid28);
-            this.page2.Controls.Add(this.player18N);
-            this.page2.Controls.Add(this.steamid27);
-            this.page2.Controls.Add(this.label58);
-            this.page2.Controls.Add(this.steamid26);
-            this.page2.Controls.Add(this.player19N);
-            this.page2.Controls.Add(this.steamid25);
-            this.page2.Controls.Add(this.label57);
-            this.page2.Controls.Add(this.steamid24);
-            this.page2.Controls.Add(this.player20N);
-            this.page2.Controls.Add(this.steamid23);
-            this.page2.Controls.Add(this.label55);
-            this.page2.Controls.Add(this.steamid22);
-            this.page2.Controls.Add(this.player21N);
-            this.page2.Controls.Add(this.steamid21);
-            this.page2.Controls.Add(this.label54);
-            this.page2.Controls.Add(this.steamid20);
-            this.page2.Controls.Add(this.player22N);
-            this.page2.Controls.Add(this.steamid19);
-            this.page2.Controls.Add(this.label53);
-            this.page2.Controls.Add(this.steamid18);
-            this.page2.Controls.Add(this.player23N);
-            this.page2.Controls.Add(this.label52);
-            this.page2.Controls.Add(this.player32N);
-            this.page2.Controls.Add(this.player24N);
-            this.page2.Controls.Add(this.label31);
-            this.page2.Controls.Add(this.label51);
-            this.page2.Controls.Add(this.player31N);
-            this.page2.Controls.Add(this.player25N);
-            this.page2.Controls.Add(this.label33);
-            this.page2.Controls.Add(this.label50);
-            this.page2.Controls.Add(this.player30N);
-            this.page2.Controls.Add(this.player26N);
-            this.page2.Controls.Add(this.label34);
-            this.page2.Controls.Add(this.label46);
-            this.page2.Controls.Add(this.player29N);
-            this.page2.Controls.Add(this.player27N);
-            this.page2.Controls.Add(this.label35);
-            this.page2.Controls.Add(this.label38);
-            this.page2.Controls.Add(this.player28N);
-            this.page2.Location = new System.Drawing.Point(9, 100);
-            this.page2.Name = "page2";
-            this.page2.Size = new System.Drawing.Size(634, 217);
-            this.page2.TabIndex = 292;
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(536, 9);
-            this.label3.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(49, 13);
-            this.label3.TabIndex = 355;
-            this.label3.Text = "Steam Id";
-            // 
-            // label62
-            // 
-            this.label62.AutoSize = true;
-            this.label62.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label62.Location = new System.Drawing.Point(176, 9);
-            this.label62.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label62.Name = "label62";
-            this.label62.Size = new System.Drawing.Size(49, 13);
-            this.label62.TabIndex = 354;
-            this.label62.Text = "Steam Id";
-            // 
-            // label63
-            // 
-            this.label63.AutoSize = true;
-            this.label63.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label63.Location = new System.Drawing.Point(366, 9);
-            this.label63.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label63.Name = "label63";
-            this.label63.Size = new System.Drawing.Size(48, 13);
-            this.label63.TabIndex = 353;
-            this.label63.Text = "Player Id";
-            // 
-            // label64
-            // 
-            this.label64.AutoSize = true;
-            this.label64.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label64.Location = new System.Drawing.Point(428, 9);
-            this.label64.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label64.Name = "label64";
-            this.label64.Size = new System.Drawing.Size(55, 13);
-            this.label64.TabIndex = 352;
-            this.label64.Text = "Nickname";
-            // 
-            // label65
-            // 
-            this.label65.AutoSize = true;
-            this.label65.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label65.Location = new System.Drawing.Point(4, 9);
-            this.label65.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label65.Name = "label65";
-            this.label65.Size = new System.Drawing.Size(51, 13);
-            this.label65.TabIndex = 351;
-            this.label65.Text = " Player Id";
-            // 
-            // label66
-            // 
-            this.label66.AutoSize = true;
-            this.label66.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label66.Location = new System.Drawing.Point(68, 9);
-            this.label66.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label66.Name = "label66";
-            this.label66.Size = new System.Drawing.Size(55, 13);
-            this.label66.TabIndex = 350;
-            this.label66.Text = "Nickname";
             // 
             // steamid32
             // 
@@ -2255,18 +3059,6 @@ namespace Nucleus.Coop
             this.steamid31.Size = new System.Drawing.Size(133, 21);
             this.steamid31.TabIndex = 348;
             // 
-            // label61
-            // 
-            this.label61.AutoSize = true;
-            this.label61.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label61.Location = new System.Drawing.Point(1, 35);
-            this.label61.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label61.Name = "label61";
-            this.label61.Size = new System.Drawing.Size(54, 13);
-            this.label61.TabIndex = 302;
-            this.label61.Text = "Player 17:";
-            this.label61.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // steamid30
             // 
             this.steamid30.BackColor = System.Drawing.Color.White;
@@ -2305,18 +3097,6 @@ namespace Nucleus.Coop
             this.steamid29.Name = "steamid29";
             this.steamid29.Size = new System.Drawing.Size(133, 21);
             this.steamid29.TabIndex = 346;
-            // 
-            // label59
-            // 
-            this.label59.AutoSize = true;
-            this.label59.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label59.Location = new System.Drawing.Point(1, 57);
-            this.label59.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label59.Name = "label59";
-            this.label59.Size = new System.Drawing.Size(54, 13);
-            this.label59.TabIndex = 303;
-            this.label59.Text = "Player 18:";
-            this.label59.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // steamid28
             // 
@@ -2357,18 +3137,6 @@ namespace Nucleus.Coop
             this.steamid27.Size = new System.Drawing.Size(133, 21);
             this.steamid27.TabIndex = 344;
             // 
-            // label58
-            // 
-            this.label58.AutoSize = true;
-            this.label58.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label58.Location = new System.Drawing.Point(1, 79);
-            this.label58.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label58.Name = "label58";
-            this.label58.Size = new System.Drawing.Size(54, 13);
-            this.label58.TabIndex = 306;
-            this.label58.Text = "Player 19:";
-            this.label58.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // steamid26
             // 
             this.steamid26.BackColor = System.Drawing.Color.White;
@@ -2407,18 +3175,6 @@ namespace Nucleus.Coop
             this.steamid25.Name = "steamid25";
             this.steamid25.Size = new System.Drawing.Size(133, 21);
             this.steamid25.TabIndex = 342;
-            // 
-            // label57
-            // 
-            this.label57.AutoSize = true;
-            this.label57.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label57.Location = new System.Drawing.Point(1, 101);
-            this.label57.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label57.Name = "label57";
-            this.label57.Size = new System.Drawing.Size(54, 13);
-            this.label57.TabIndex = 309;
-            this.label57.Text = "Player 20:";
-            this.label57.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // steamid24
             // 
@@ -2459,18 +3215,6 @@ namespace Nucleus.Coop
             this.steamid23.Size = new System.Drawing.Size(133, 21);
             this.steamid23.TabIndex = 340;
             // 
-            // label55
-            // 
-            this.label55.AutoSize = true;
-            this.label55.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label55.Location = new System.Drawing.Point(1, 122);
-            this.label55.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label55.Name = "label55";
-            this.label55.Size = new System.Drawing.Size(54, 13);
-            this.label55.TabIndex = 311;
-            this.label55.Text = "Player 21:";
-            this.label55.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // steamid22
             // 
             this.steamid22.BackColor = System.Drawing.Color.White;
@@ -2509,18 +3253,6 @@ namespace Nucleus.Coop
             this.steamid21.Name = "steamid21";
             this.steamid21.Size = new System.Drawing.Size(133, 21);
             this.steamid21.TabIndex = 338;
-            // 
-            // label54
-            // 
-            this.label54.AutoSize = true;
-            this.label54.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label54.Location = new System.Drawing.Point(1, 145);
-            this.label54.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label54.Name = "label54";
-            this.label54.Size = new System.Drawing.Size(54, 13);
-            this.label54.TabIndex = 313;
-            this.label54.Text = "Player 22:";
-            this.label54.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // steamid20
             // 
@@ -2561,18 +3293,6 @@ namespace Nucleus.Coop
             this.steamid19.Size = new System.Drawing.Size(133, 21);
             this.steamid19.TabIndex = 336;
             // 
-            // label53
-            // 
-            this.label53.AutoSize = true;
-            this.label53.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label53.Location = new System.Drawing.Point(1, 166);
-            this.label53.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label53.Name = "label53";
-            this.label53.Size = new System.Drawing.Size(54, 13);
-            this.label53.TabIndex = 315;
-            this.label53.Text = "Player 23:";
-            this.label53.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // steamid18
             // 
             this.steamid18.BackColor = System.Drawing.Color.White;
@@ -2598,18 +3318,6 @@ namespace Nucleus.Coop
             this.player23N.Name = "player23N";
             this.player23N.Size = new System.Drawing.Size(69, 21);
             this.player23N.TabIndex = 314;
-            // 
-            // label52
-            // 
-            this.label52.AutoSize = true;
-            this.label52.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label52.Location = new System.Drawing.Point(1, 187);
-            this.label52.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label52.Name = "label52";
-            this.label52.Size = new System.Drawing.Size(54, 13);
-            this.label52.TabIndex = 317;
-            this.label52.Text = "Player 24:";
-            this.label52.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // player32N
             // 
@@ -2637,30 +3345,6 @@ namespace Nucleus.Coop
             this.player24N.Size = new System.Drawing.Size(69, 21);
             this.player24N.TabIndex = 316;
             // 
-            // label31
-            // 
-            this.label31.AutoSize = true;
-            this.label31.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label31.Location = new System.Drawing.Point(361, 189);
-            this.label31.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(54, 13);
-            this.label31.TabIndex = 333;
-            this.label31.Text = "Player 32:";
-            this.label31.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label51
-            // 
-            this.label51.AutoSize = true;
-            this.label51.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label51.Location = new System.Drawing.Point(361, 35);
-            this.label51.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label51.Name = "label51";
-            this.label51.Size = new System.Drawing.Size(54, 13);
-            this.label51.TabIndex = 318;
-            this.label51.Text = "Player 25:";
-            this.label51.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // player31N
             // 
             this.player31N.BackColor = System.Drawing.Color.White;
@@ -2686,30 +3370,6 @@ namespace Nucleus.Coop
             this.player25N.Name = "player25N";
             this.player25N.Size = new System.Drawing.Size(69, 21);
             this.player25N.TabIndex = 320;
-            // 
-            // label33
-            // 
-            this.label33.AutoSize = true;
-            this.label33.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label33.Location = new System.Drawing.Point(361, 168);
-            this.label33.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label33.Name = "label33";
-            this.label33.Size = new System.Drawing.Size(54, 13);
-            this.label33.TabIndex = 331;
-            this.label33.Text = "Player 31:";
-            this.label33.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label50
-            // 
-            this.label50.AutoSize = true;
-            this.label50.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label50.Location = new System.Drawing.Point(361, 57);
-            this.label50.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label50.Name = "label50";
-            this.label50.Size = new System.Drawing.Size(54, 13);
-            this.label50.TabIndex = 319;
-            this.label50.Text = "Player 26:";
-            this.label50.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // player30N
             // 
@@ -2737,30 +3397,6 @@ namespace Nucleus.Coop
             this.player26N.Size = new System.Drawing.Size(69, 21);
             this.player26N.TabIndex = 321;
             // 
-            // label34
-            // 
-            this.label34.AutoSize = true;
-            this.label34.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label34.Location = new System.Drawing.Point(361, 145);
-            this.label34.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label34.Name = "label34";
-            this.label34.Size = new System.Drawing.Size(54, 13);
-            this.label34.TabIndex = 329;
-            this.label34.Text = "Player 30:";
-            this.label34.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label46
-            // 
-            this.label46.AutoSize = true;
-            this.label46.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label46.Location = new System.Drawing.Point(361, 79);
-            this.label46.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label46.Name = "label46";
-            this.label46.Size = new System.Drawing.Size(54, 13);
-            this.label46.TabIndex = 322;
-            this.label46.Text = "Player 27:";
-            this.label46.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // player29N
             // 
             this.player29N.BackColor = System.Drawing.Color.White;
@@ -2787,30 +3423,6 @@ namespace Nucleus.Coop
             this.player27N.Size = new System.Drawing.Size(69, 21);
             this.player27N.TabIndex = 323;
             // 
-            // label35
-            // 
-            this.label35.AutoSize = true;
-            this.label35.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label35.Location = new System.Drawing.Point(361, 124);
-            this.label35.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label35.Name = "label35";
-            this.label35.Size = new System.Drawing.Size(54, 13);
-            this.label35.TabIndex = 327;
-            this.label35.Text = "Player 29:";
-            this.label35.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // label38
-            // 
-            this.label38.AutoSize = true;
-            this.label38.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label38.Location = new System.Drawing.Point(361, 101);
-            this.label38.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label38.Name = "label38";
-            this.label38.Size = new System.Drawing.Size(54, 13);
-            this.label38.TabIndex = 325;
-            this.label38.Text = "Player 28:";
-            this.label38.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
             // player28N
             // 
             this.player28N.BackColor = System.Drawing.Color.White;
@@ -2824,83 +3436,6 @@ namespace Nucleus.Coop
             this.player28N.Size = new System.Drawing.Size(69, 21);
             this.player28N.TabIndex = 324;
             // 
-            // audioTab
-            // 
-            this.audioTab.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.audioTab.BackColor = System.Drawing.Color.RosyBrown;
-            this.audioTab.Controls.Add(this.audioWarningLabel);
-            this.audioTab.Controls.Add(this.audioDefaultDevice);
-            this.audioTab.Controls.Add(this.audioCustomSettingsBox);
-            this.audioTab.Controls.Add(this.audioCustomSettingsRadio);
-            this.audioTab.Controls.Add(this.audioDefaultSettingsRadio);
-            this.audioTab.Controls.Add(this.audioRefresh);
-            this.audioTab.Location = new System.Drawing.Point(1, 34);
-            this.audioTab.Name = "audioTab";
-            this.audioTab.Size = new System.Drawing.Size(674, 391);
-            this.audioTab.TabIndex = 292;
-            // 
-            // audioWarningLabel
-            // 
-            this.audioWarningLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.audioWarningLabel.AutoSize = true;
-            this.audioWarningLabel.BackColor = System.Drawing.Color.Transparent;
-            this.audioWarningLabel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.audioWarningLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.audioWarningLabel.ForeColor = System.Drawing.Color.Yellow;
-            this.audioWarningLabel.Location = new System.Drawing.Point(230, 22);
-            this.audioWarningLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.audioWarningLabel.Name = "audioWarningLabel";
-            this.audioWarningLabel.Size = new System.Drawing.Size(273, 15);
-            this.audioWarningLabel.TabIndex = 22;
-            this.audioWarningLabel.Text = "This Feature May Not Work For All Games";
-            this.audioWarningLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.audioWarningLabel.UseMnemonic = false;
-            // 
-            // audioDefaultDevice
-            // 
-            this.audioDefaultDevice.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.audioDefaultDevice.AutoSize = true;
-            this.audioDefaultDevice.BackColor = System.Drawing.Color.Transparent;
-            this.audioDefaultDevice.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.audioDefaultDevice.ForeColor = System.Drawing.Color.White;
-            this.audioDefaultDevice.Location = new System.Drawing.Point(86, 136);
-            this.audioDefaultDevice.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.audioDefaultDevice.Name = "audioDefaultDevice";
-            this.audioDefaultDevice.Size = new System.Drawing.Size(0, 15);
-            this.audioDefaultDevice.TabIndex = 21;
-            this.audioDefaultDevice.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // audioCustomSettingsBox
-            // 
-            this.audioCustomSettingsBox.BackColor = System.Drawing.Color.Transparent;
-            this.audioCustomSettingsBox.Controls.Add(this.AudioInstance8);
-            this.audioCustomSettingsBox.Controls.Add(this.label45);
-            this.audioCustomSettingsBox.Controls.Add(this.AudioInstance7);
-            this.audioCustomSettingsBox.Controls.Add(this.label44);
-            this.audioCustomSettingsBox.Controls.Add(this.AudioInstance6);
-            this.audioCustomSettingsBox.Controls.Add(this.label43);
-            this.audioCustomSettingsBox.Controls.Add(this.AudioInstance5);
-            this.audioCustomSettingsBox.Controls.Add(this.label42);
-            this.audioCustomSettingsBox.Controls.Add(this.AudioInstance4);
-            this.audioCustomSettingsBox.Controls.Add(this.label41);
-            this.audioCustomSettingsBox.Controls.Add(this.AudioInstance3);
-            this.audioCustomSettingsBox.Controls.Add(this.label40);
-            this.audioCustomSettingsBox.Controls.Add(this.AudioInstance2);
-            this.audioCustomSettingsBox.Controls.Add(this.AudioInstance1);
-            this.audioCustomSettingsBox.Controls.Add(this.label37);
-            this.audioCustomSettingsBox.Controls.Add(this.label36);
-            this.audioCustomSettingsBox.Location = new System.Drawing.Point(88, 156);
-            this.audioCustomSettingsBox.Margin = new System.Windows.Forms.Padding(2);
-            this.audioCustomSettingsBox.Name = "audioCustomSettingsBox";
-            this.audioCustomSettingsBox.Padding = new System.Windows.Forms.Padding(2);
-            this.audioCustomSettingsBox.Size = new System.Drawing.Size(503, 121);
-            this.audioCustomSettingsBox.TabIndex = 20;
-            this.audioCustomSettingsBox.TabStop = false;
-            // 
             // AudioInstance8
             // 
             this.AudioInstance8.BackColor = System.Drawing.Color.White;
@@ -2912,17 +3447,6 @@ namespace Nucleus.Coop
             this.AudioInstance8.Name = "AudioInstance8";
             this.AudioInstance8.Size = new System.Drawing.Size(170, 23);
             this.AudioInstance8.TabIndex = 29;
-            // 
-            // label45
-            // 
-            this.label45.AutoSize = true;
-            this.label45.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label45.Location = new System.Drawing.Point(257, 85);
-            this.label45.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label45.Name = "label45";
-            this.label45.Size = new System.Drawing.Size(60, 13);
-            this.label45.TabIndex = 28;
-            this.label45.Text = "Instance 8:";
             // 
             // AudioInstance7
             // 
@@ -2936,17 +3460,6 @@ namespace Nucleus.Coop
             this.AudioInstance7.Size = new System.Drawing.Size(170, 23);
             this.AudioInstance7.TabIndex = 27;
             // 
-            // label44
-            // 
-            this.label44.AutoSize = true;
-            this.label44.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label44.Location = new System.Drawing.Point(257, 64);
-            this.label44.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label44.Name = "label44";
-            this.label44.Size = new System.Drawing.Size(60, 13);
-            this.label44.TabIndex = 26;
-            this.label44.Text = "Instance 7:";
-            // 
             // AudioInstance6
             // 
             this.AudioInstance6.BackColor = System.Drawing.Color.White;
@@ -2958,17 +3471,6 @@ namespace Nucleus.Coop
             this.AudioInstance6.Name = "AudioInstance6";
             this.AudioInstance6.Size = new System.Drawing.Size(170, 23);
             this.AudioInstance6.TabIndex = 25;
-            // 
-            // label43
-            // 
-            this.label43.AutoSize = true;
-            this.label43.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label43.Location = new System.Drawing.Point(257, 42);
-            this.label43.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label43.Name = "label43";
-            this.label43.Size = new System.Drawing.Size(60, 13);
-            this.label43.TabIndex = 24;
-            this.label43.Text = "Instance 6:";
             // 
             // AudioInstance5
             // 
@@ -2982,17 +3484,6 @@ namespace Nucleus.Coop
             this.AudioInstance5.Size = new System.Drawing.Size(170, 23);
             this.AudioInstance5.TabIndex = 23;
             // 
-            // label42
-            // 
-            this.label42.AutoSize = true;
-            this.label42.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label42.Location = new System.Drawing.Point(257, 20);
-            this.label42.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label42.Name = "label42";
-            this.label42.Size = new System.Drawing.Size(60, 13);
-            this.label42.TabIndex = 22;
-            this.label42.Text = "Instance 5:";
-            // 
             // AudioInstance4
             // 
             this.AudioInstance4.BackColor = System.Drawing.Color.White;
@@ -3005,17 +3496,6 @@ namespace Nucleus.Coop
             this.AudioInstance4.Size = new System.Drawing.Size(170, 23);
             this.AudioInstance4.TabIndex = 21;
             // 
-            // label41
-            // 
-            this.label41.AutoSize = true;
-            this.label41.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label41.Location = new System.Drawing.Point(6, 86);
-            this.label41.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label41.Name = "label41";
-            this.label41.Size = new System.Drawing.Size(60, 13);
-            this.label41.TabIndex = 20;
-            this.label41.Text = "Instance 4:";
-            // 
             // AudioInstance3
             // 
             this.AudioInstance3.BackColor = System.Drawing.Color.White;
@@ -3027,17 +3507,6 @@ namespace Nucleus.Coop
             this.AudioInstance3.Name = "AudioInstance3";
             this.AudioInstance3.Size = new System.Drawing.Size(170, 23);
             this.AudioInstance3.TabIndex = 19;
-            // 
-            // label40
-            // 
-            this.label40.AutoSize = true;
-            this.label40.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label40.Location = new System.Drawing.Point(6, 65);
-            this.label40.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label40.Name = "label40";
-            this.label40.Size = new System.Drawing.Size(60, 13);
-            this.label40.TabIndex = 18;
-            this.label40.Text = "Instance 3:";
             // 
             // AudioInstance2
             // 
@@ -3064,28 +3533,6 @@ namespace Nucleus.Coop
             this.AudioInstance1.Name = "AudioInstance1";
             this.AudioInstance1.Size = new System.Drawing.Size(170, 23);
             this.AudioInstance1.TabIndex = 1;
-            // 
-            // label37
-            // 
-            this.label37.AutoSize = true;
-            this.label37.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label37.Location = new System.Drawing.Point(6, 43);
-            this.label37.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label37.Name = "label37";
-            this.label37.Size = new System.Drawing.Size(60, 13);
-            this.label37.TabIndex = 5;
-            this.label37.Text = "Instance 2:";
-            // 
-            // label36
-            // 
-            this.label36.AutoSize = true;
-            this.label36.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label36.Location = new System.Drawing.Point(6, 21);
-            this.label36.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label36.Name = "label36";
-            this.label36.Size = new System.Drawing.Size(60, 13);
-            this.label36.TabIndex = 0;
-            this.label36.Text = "Instance 1:";
             // 
             // audioCustomSettingsRadio
             // 
@@ -3122,460 +3569,14 @@ namespace Nucleus.Coop
             this.audioDefaultSettingsRadio.Text = "Use default audio playback device for all";
             this.audioDefaultSettingsRadio.UseVisualStyleBackColor = false;
             // 
-            // audioRefresh
-            // 
-            this.audioRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.audioRefresh.BackColor = System.Drawing.Color.Orange;
-            this.audioRefresh.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.audioRefresh.FlatAppearance.BorderSize = 0;
-            this.audioRefresh.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.audioRefresh.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.audioRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.audioRefresh.Location = new System.Drawing.Point(318, 349);
-            this.audioRefresh.Margin = new System.Windows.Forms.Padding(2);
-            this.audioRefresh.Name = "audioRefresh";
-            this.audioRefresh.Size = new System.Drawing.Size(26, 23);
-            this.audioRefresh.TabIndex = 23;
-            this.audioRefresh.UseVisualStyleBackColor = false;
-            this.audioRefresh.Click += new System.EventHandler(this.AudioRefresh_Click);
-            // 
-            // layoutTab
-            // 
-            this.layoutTab.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.layoutTab.BackColor = System.Drawing.Color.DeepSkyBlue;
-            this.layoutTab.Controls.Add(this.label5);
-            this.layoutTab.Controls.Add(this.DivLabel);
-            this.layoutTab.Controls.Add(this.smfw_Cmb);
-            this.layoutTab.Controls.Add(this.plus9);
-            this.layoutTab.Controls.Add(this.mergerShortcutLabel);
-            this.layoutTab.Controls.Add(this.smfw_HKTxt);
-            this.layoutTab.Controls.Add(this.refreshScreenDatasButton);
-            this.layoutTab.Controls.Add(this.mergerResSelectorLabel);
-            this.layoutTab.Controls.Add(this.label4);
-            this.layoutTab.Controls.Add(this.mergerSettingsLabel);
-            this.layoutTab.Controls.Add(this.losslessHook);
-            this.layoutTab.Controls.Add(this.selectedRes);
-            this.layoutTab.Controls.Add(this.screen_panel);
-            this.layoutTab.Controls.Add(this.enable_WMerger);
-            this.layoutTab.Controls.Add(this.hideDesktop);
-            this.layoutTab.Controls.Add(this.numMaxPlyrs);
-            this.layoutTab.Controls.Add(this.numUpDownVer);
-            this.layoutTab.Controls.Add(this.label29);
-            this.layoutTab.Controls.Add(this.label27);
-            this.layoutTab.Controls.Add(this.label28);
-            this.layoutTab.Controls.Add(this.numUpDownHor);
-            this.layoutTab.Controls.Add(this.cutsceneLabel);
-            this.layoutTab.Controls.Add(this.cts_Panel);
-            this.layoutTab.Controls.Add(this.SplitColors);
-            this.layoutTab.Controls.Add(this.splitDiv);
-            this.layoutTab.Controls.Add(this.label49);
-            this.layoutTab.Controls.Add(this.layoutSizer);
-            this.layoutTab.Location = new System.Drawing.Point(0, 25);
-            this.layoutTab.Name = "layoutTab";
-            this.layoutTab.Size = new System.Drawing.Size(674, 391);
-            this.layoutTab.TabIndex = 300;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(280, 8);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(134, 13);
-            this.label5.TabIndex = 179;
-            this.label5.Text = "Custom Screen Layout";
-            // 
-            // DivLabel
-            // 
-            this.DivLabel.AutoSize = true;
-            this.DivLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.DivLabel.Location = new System.Drawing.Point(13, 8);
-            this.DivLabel.Name = "DivLabel";
-            this.DivLabel.Size = new System.Drawing.Size(169, 13);
-            this.DivLabel.TabIndex = 178;
-            this.DivLabel.Text = "Splitscreen Division Settings";
-            // 
-            // smfw_Cmb
-            // 
-            this.smfw_Cmb.BackColor = System.Drawing.Color.White;
-            this.smfw_Cmb.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.smfw_Cmb.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.smfw_Cmb.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.smfw_Cmb.FormattingEnabled = true;
-            this.smfw_Cmb.Items.AddRange(new object[] {
-            "Ctrl",
-            "Alt",
-            "Shift"});
-            this.smfw_Cmb.Location = new System.Drawing.Point(14, 359);
-            this.smfw_Cmb.Margin = new System.Windows.Forms.Padding(2);
-            this.smfw_Cmb.Name = "smfw_Cmb";
-            this.smfw_Cmb.Size = new System.Drawing.Size(67, 23);
-            this.smfw_Cmb.TabIndex = 174;
-            // 
-            // plus9
-            // 
-            this.plus9.AutoSize = true;
-            this.plus9.ForeColor = System.Drawing.Color.Black;
-            this.plus9.Location = new System.Drawing.Point(84, 362);
-            this.plus9.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.plus9.Name = "plus9";
-            this.plus9.Size = new System.Drawing.Size(14, 15);
-            this.plus9.TabIndex = 177;
-            this.plus9.Text = "+";
-            this.plus9.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // mergerShortcutLabel
-            // 
-            this.mergerShortcutLabel.AutoSize = true;
-            this.mergerShortcutLabel.Location = new System.Drawing.Point(12, 341);
-            this.mergerShortcutLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.mergerShortcutLabel.Name = "mergerShortcutLabel";
-            this.mergerShortcutLabel.Size = new System.Drawing.Size(204, 15);
-            this.mergerShortcutLabel.TabIndex = 176;
-            this.mergerShortcutLabel.Text = "Change Childs Foreground Window:";
-            this.mergerShortcutLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // smfw_HKTxt
-            // 
-            this.smfw_HKTxt.BorderColor = System.Drawing.Color.Blue;
-            this.smfw_HKTxt.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
-            this.smfw_HKTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.smfw_HKTxt.Hint = null;
-            this.smfw_HKTxt.Location = new System.Drawing.Point(98, 360);
-            this.smfw_HKTxt.Margin = new System.Windows.Forms.Padding(2);
-            this.smfw_HKTxt.MaxLength = 1;
-            this.smfw_HKTxt.Name = "smfw_HKTxt";
-            this.smfw_HKTxt.ShortcutsEnabled = false;
-            this.smfw_HKTxt.Size = new System.Drawing.Size(36, 21);
-            this.smfw_HKTxt.TabIndex = 175;
-            this.smfw_HKTxt.Tag = "HotKeyTextBox";
-            this.smfw_HKTxt.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // refreshScreenDatasButton
-            // 
-            this.refreshScreenDatasButton.BackColor = System.Drawing.Color.Transparent;
-            this.refreshScreenDatasButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.refreshScreenDatasButton.FlatAppearance.BorderSize = 0;
-            this.refreshScreenDatasButton.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
-            this.refreshScreenDatasButton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
-            this.refreshScreenDatasButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.refreshScreenDatasButton.Location = new System.Drawing.Point(461, 234);
-            this.refreshScreenDatasButton.Name = "refreshScreenDatasButton";
-            this.refreshScreenDatasButton.Size = new System.Drawing.Size(18, 18);
-            this.refreshScreenDatasButton.TabIndex = 173;
-            this.refreshScreenDatasButton.UseVisualStyleBackColor = false;
-            this.refreshScreenDatasButton.Click += new System.EventHandler(this.RefreshScreenDatasButton_Click);
-            // 
-            // mergerResSelectorLabel
-            // 
-            this.mergerResSelectorLabel.AutoSize = true;
-            this.mergerResSelectorLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.mergerResSelectorLabel.Location = new System.Drawing.Point(280, 237);
-            this.mergerResSelectorLabel.Name = "mergerResSelectorLabel";
-            this.mergerResSelectorLabel.Size = new System.Drawing.Size(176, 13);
-            this.mergerResSelectorLabel.TabIndex = 172;
-            this.mergerResSelectorLabel.Text = "Select Windows Merger Resolution ";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(12, 273);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(99, 13);
-            this.label4.TabIndex = 171;
-            this.label4.Text = "Window Resolution";
-            // 
-            // mergerSettingsLabel
-            // 
-            this.mergerSettingsLabel.AutoSize = true;
-            this.mergerSettingsLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.mergerSettingsLabel.Location = new System.Drawing.Point(12, 228);
-            this.mergerSettingsLabel.Name = "mergerSettingsLabel";
-            this.mergerSettingsLabel.Size = new System.Drawing.Size(151, 13);
-            this.mergerSettingsLabel.TabIndex = 170;
-            this.mergerSettingsLabel.Text = "Windows Merger Settings";
-            // 
-            // losslessHook
-            // 
-            this.losslessHook.BackColor = System.Drawing.Color.Transparent;
-            this.losslessHook.BorderColor = System.Drawing.Color.Blue;
-            this.losslessHook.CheckColor = System.Drawing.Color.Blue;
-            this.losslessHook.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.losslessHook.ForeColor = System.Drawing.Color.White;
-            this.losslessHook.Location = new System.Drawing.Point(15, 320);
-            this.losslessHook.Margin = new System.Windows.Forms.Padding(0);
-            this.losslessHook.Name = "losslessHook";
-            this.losslessHook.SelectionColor = System.Drawing.Color.LightBlue;
-            this.losslessHook.Size = new System.Drawing.Size(131, 17);
-            this.losslessHook.TabIndex = 169;
-            this.losslessHook.Text = "Enable Lossless Hook";
-            this.losslessHook.UseVisualStyleBackColor = false;
-            this.losslessHook.CheckedChanged += new System.EventHandler(this.LosslessHook_CheckedChanged);
-            // 
-            // selectedRes
-            // 
-            this.selectedRes.BackColor = System.Drawing.SystemColors.MenuText;
-            this.selectedRes.BorderColor = System.Drawing.Color.Blue;
-            this.selectedRes.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.selectedRes.ForeColor = System.Drawing.SystemColors.Menu;
-            this.selectedRes.Hint = null;
-            this.selectedRes.Location = new System.Drawing.Point(14, 291);
-            this.selectedRes.Name = "selectedRes";
-            this.selectedRes.ReadOnly = true;
-            this.selectedRes.ShortcutsEnabled = false;
-            this.selectedRes.Size = new System.Drawing.Size(99, 21);
-            this.selectedRes.TabIndex = 168;
-            // 
             // screen_panel
             // 
+            this.screen_panel.AutoScroll = true;
             this.screen_panel.Location = new System.Drawing.Point(283, 254);
             this.screen_panel.Name = "screen_panel";
             this.screen_panel.Size = new System.Drawing.Size(378, 131);
             this.screen_panel.TabIndex = 167;
             this.screen_panel.Paint += new System.Windows.Forms.PaintEventHandler(this.Screen_panel_Paint);
-            // 
-            // enable_WMerger
-            // 
-            this.enable_WMerger.BackColor = System.Drawing.Color.DimGray;
-            this.enable_WMerger.BorderColor = System.Drawing.Color.Blue;
-            this.enable_WMerger.CheckColor = System.Drawing.Color.Blue;
-            this.enable_WMerger.Cursor = System.Windows.Forms.Cursors.WaitCursor;
-            this.enable_WMerger.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.enable_WMerger.ForeColor = System.Drawing.Color.White;
-            this.enable_WMerger.Location = new System.Drawing.Point(15, 250);
-            this.enable_WMerger.Margin = new System.Windows.Forms.Padding(0);
-            this.enable_WMerger.Name = "enable_WMerger";
-            this.enable_WMerger.SelectionColor = System.Drawing.Color.LightBlue;
-            this.enable_WMerger.Size = new System.Drawing.Size(142, 17);
-            this.enable_WMerger.TabIndex = 166;
-            this.enable_WMerger.Text = "Enable Windows Merger";
-            this.enable_WMerger.UseVisualStyleBackColor = true;
-            // 
-            // hideDesktop
-            // 
-            this.hideDesktop.BackColor = System.Drawing.Color.DimGray;
-            this.hideDesktop.BorderColor = System.Drawing.Color.Blue;
-            this.hideDesktop.CheckColor = System.Drawing.Color.Blue;
-            this.hideDesktop.Cursor = System.Windows.Forms.Cursors.WaitCursor;
-            this.hideDesktop.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.hideDesktop.ForeColor = System.Drawing.Color.White;
-            this.hideDesktop.Location = new System.Drawing.Point(16, 56);
-            this.hideDesktop.Margin = new System.Windows.Forms.Padding(0);
-            this.hideDesktop.Name = "hideDesktop";
-            this.hideDesktop.SelectionColor = System.Drawing.Color.LightBlue;
-            this.hideDesktop.Size = new System.Drawing.Size(115, 17);
-            this.hideDesktop.TabIndex = 162;
-            this.hideDesktop.Text = "Hide Desktop Only";
-            this.hideDesktop.UseVisualStyleBackColor = true;
-            // 
-            // numMaxPlyrs
-            // 
-            this.numMaxPlyrs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.numMaxPlyrs.BackColor = System.Drawing.Color.Transparent;
-            this.numMaxPlyrs.Enabled = false;
-            this.numMaxPlyrs.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numMaxPlyrs.Location = new System.Drawing.Point(300, 169);
-            this.numMaxPlyrs.Margin = new System.Windows.Forms.Padding(0);
-            this.numMaxPlyrs.Name = "numMaxPlyrs";
-            this.numMaxPlyrs.Size = new System.Drawing.Size(48, 20);
-            this.numMaxPlyrs.TabIndex = 161;
-            this.numMaxPlyrs.UpdownBackColor = System.Drawing.Color.Blue;
-            this.numMaxPlyrs.Value = 0;
-            // 
-            // numUpDownVer
-            // 
-            this.numUpDownVer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.numUpDownVer.BackColor = System.Drawing.Color.Transparent;
-            this.numUpDownVer.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numUpDownVer.Location = new System.Drawing.Point(298, 71);
-            this.numUpDownVer.Margin = new System.Windows.Forms.Padding(0);
-            this.numUpDownVer.Name = "numUpDownVer";
-            this.numUpDownVer.Size = new System.Drawing.Size(48, 20);
-            this.numUpDownVer.TabIndex = 159;
-            this.numUpDownVer.UpdownBackColor = System.Drawing.Color.Blue;
-            this.numUpDownVer.Value = 0;
-            // 
-            // label29
-            // 
-            this.label29.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label29.AutoSize = true;
-            this.label29.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.label29.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label29.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.label29.Location = new System.Drawing.Point(290, 146);
-            this.label29.Margin = new System.Windows.Forms.Padding(0);
-            this.label29.Name = "label29";
-            this.label29.Size = new System.Drawing.Size(64, 13);
-            this.label29.TabIndex = 158;
-            this.label29.Text = "Max Players";
-            this.label29.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // label27
-            // 
-            this.label27.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label27.AutoSize = true;
-            this.label27.BackColor = System.Drawing.Color.Transparent;
-            this.label27.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.label27.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label27.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.label27.Location = new System.Drawing.Point(290, 99);
-            this.label27.Margin = new System.Windows.Forms.Padding(0);
-            this.label27.Name = "label27";
-            this.label27.Size = new System.Drawing.Size(99, 13);
-            this.label27.TabIndex = 156;
-            this.label27.Text = "Horizontal Divisions";
-            this.label27.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // label28
-            // 
-            this.label28.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label28.AutoSize = true;
-            this.label28.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.label28.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label28.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.label28.Location = new System.Drawing.Point(290, 52);
-            this.label28.Margin = new System.Windows.Forms.Padding(0);
-            this.label28.Name = "label28";
-            this.label28.Size = new System.Drawing.Size(87, 13);
-            this.label28.TabIndex = 157;
-            this.label28.Text = "Vertical Divisions";
-            this.label28.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // numUpDownHor
-            // 
-            this.numUpDownHor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.numUpDownHor.BackColor = System.Drawing.Color.Transparent;
-            this.numUpDownHor.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.numUpDownHor.Location = new System.Drawing.Point(299, 118);
-            this.numUpDownHor.Margin = new System.Windows.Forms.Padding(0);
-            this.numUpDownHor.Name = "numUpDownHor";
-            this.numUpDownHor.Size = new System.Drawing.Size(48, 20);
-            this.numUpDownHor.TabIndex = 160;
-            this.numUpDownHor.UpdownBackColor = System.Drawing.Color.Blue;
-            this.numUpDownHor.Value = 0;
-            // 
-            // cutsceneLabel
-            // 
-            this.cutsceneLabel.AutoSize = true;
-            this.cutsceneLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Underline))), System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cutsceneLabel.Location = new System.Drawing.Point(12, 128);
-            this.cutsceneLabel.Name = "cutsceneLabel";
-            this.cutsceneLabel.Size = new System.Drawing.Size(151, 13);
-            this.cutsceneLabel.TabIndex = 155;
-            this.cutsceneLabel.Text = "Cutscenes Mode Settings";
-            // 
-            // cts_Panel
-            // 
-            this.cts_Panel.BackColor = System.Drawing.Color.Transparent;
-            this.cts_Panel.Controls.Add(this.cts_unfocus);
-            this.cts_Panel.Controls.Add(this.cts_kar);
-            this.cts_Panel.Controls.Add(this.cts_Mute);
-            this.cts_Panel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cts_Panel.Location = new System.Drawing.Point(11, 144);
-            this.cts_Panel.Name = "cts_Panel";
-            this.cts_Panel.Size = new System.Drawing.Size(200, 74);
-            this.cts_Panel.TabIndex = 154;
-            // 
-            // cts_unfocus
-            // 
-            this.cts_unfocus.BackColor = System.Drawing.Color.DimGray;
-            this.cts_unfocus.BorderColor = System.Drawing.Color.Blue;
-            this.cts_unfocus.CheckColor = System.Drawing.Color.Blue;
-            this.cts_unfocus.ForeColor = System.Drawing.Color.White;
-            this.cts_unfocus.Location = new System.Drawing.Point(4, 54);
-            this.cts_unfocus.Name = "cts_unfocus";
-            this.cts_unfocus.SelectionColor = System.Drawing.Color.LightBlue;
-            this.cts_unfocus.Size = new System.Drawing.Size(138, 17);
-            this.cts_unfocus.TabIndex = 142;
-            this.cts_unfocus.Text = "Auto Unfocus Windows";
-            this.cts_unfocus.UseVisualStyleBackColor = true;
-            // 
-            // cts_kar
-            // 
-            this.cts_kar.BackColor = System.Drawing.Color.DimGray;
-            this.cts_kar.BorderColor = System.Drawing.Color.Blue;
-            this.cts_kar.CheckColor = System.Drawing.Color.Blue;
-            this.cts_kar.ForeColor = System.Drawing.Color.White;
-            this.cts_kar.Location = new System.Drawing.Point(4, 28);
-            this.cts_kar.Name = "cts_kar";
-            this.cts_kar.SelectionColor = System.Drawing.Color.LightBlue;
-            this.cts_kar.Size = new System.Drawing.Size(154, 17);
-            this.cts_kar.TabIndex = 141;
-            this.cts_kar.Text = "Keep Original Window Size";
-            this.cts_kar.UseVisualStyleBackColor = true;
-            // 
-            // cts_Mute
-            // 
-            this.cts_Mute.BackColor = System.Drawing.Color.DimGray;
-            this.cts_Mute.BorderColor = System.Drawing.Color.Blue;
-            this.cts_Mute.CheckColor = System.Drawing.Color.Blue;
-            this.cts_Mute.ForeColor = System.Drawing.Color.White;
-            this.cts_Mute.Location = new System.Drawing.Point(4, 5);
-            this.cts_Mute.Name = "cts_Mute";
-            this.cts_Mute.SelectionColor = System.Drawing.Color.LightBlue;
-            this.cts_Mute.Size = new System.Drawing.Size(104, 17);
-            this.cts_Mute.TabIndex = 140;
-            this.cts_Mute.Text = "Mute Audio Only";
-            this.cts_Mute.UseVisualStyleBackColor = true;
-            this.cts_Mute.CheckedChanged += new System.EventHandler(this.Cts_Mute_CheckedChanged);
-            // 
-            // SplitColors
-            // 
-            this.SplitColors.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.SplitColors.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.SplitColors.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.SplitColors.Location = new System.Drawing.Point(17, 97);
-            this.SplitColors.Margin = new System.Windows.Forms.Padding(0);
-            this.SplitColors.Name = "SplitColors";
-            this.SplitColors.Size = new System.Drawing.Size(119, 24);
-            this.SplitColors.TabIndex = 153;
-            // 
-            // splitDiv
-            // 
-            this.splitDiv.BackColor = System.Drawing.Color.DimGray;
-            this.splitDiv.BorderColor = System.Drawing.Color.Blue;
-            this.splitDiv.CheckColor = System.Drawing.Color.Blue;
-            this.splitDiv.Cursor = System.Windows.Forms.Cursors.WaitCursor;
-            this.splitDiv.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.splitDiv.ForeColor = System.Drawing.Color.White;
-            this.splitDiv.Location = new System.Drawing.Point(16, 31);
-            this.splitDiv.Margin = new System.Windows.Forms.Padding(0);
-            this.splitDiv.Name = "splitDiv";
-            this.splitDiv.SelectionColor = System.Drawing.Color.LightBlue;
-            this.splitDiv.Size = new System.Drawing.Size(118, 17);
-            this.splitDiv.TabIndex = 149;
-            this.splitDiv.Text = "Splitscreen Division";
-            this.splitDiv.UseVisualStyleBackColor = true;
-            // 
-            // label49
-            // 
-            this.label49.AutoSize = true;
-            this.label49.BackColor = System.Drawing.Color.Transparent;
-            this.label49.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label49.Location = new System.Drawing.Point(14, 78);
-            this.label49.Margin = new System.Windows.Forms.Padding(0);
-            this.label49.Name = "label49";
-            this.label49.Size = new System.Drawing.Size(105, 15);
-            this.label49.TabIndex = 148;
-            this.label49.Text = "Background Color";
-            this.label49.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // layoutSizer
-            // 
-            this.layoutSizer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.layoutSizer.BackColor = System.Drawing.Color.Transparent;
-            this.layoutSizer.Location = new System.Drawing.Point(416, 33);
-            this.layoutSizer.Margin = new System.Windows.Forms.Padding(0);
-            this.layoutSizer.MaximumSize = new System.Drawing.Size(245, 170);
-            this.layoutSizer.MinimumSize = new System.Drawing.Size(245, 170);
-            this.layoutSizer.Name = "layoutSizer";
-            this.layoutSizer.Size = new System.Drawing.Size(245, 170);
-            this.layoutSizer.TabIndex = 147;
-            this.layoutSizer.Paint += new System.Windows.Forms.PaintEventHandler(this.LayoutSizer_Paint);
             // 
             // Settings
             // 
@@ -3594,10 +3595,10 @@ namespace Nucleus.Coop
             this.Controls.Add(this.audioTabBtn);
             this.Controls.Add(this.playersTabBtn);
             this.Controls.Add(this.settingsTabBtn);
-            this.Controls.Add(this.playersTab);
-            this.Controls.Add(this.audioTab);
             this.Controls.Add(this.layoutTab);
             this.Controls.Add(this.settingsTab);
+            this.Controls.Add(this.playersTab);
+            this.Controls.Add(this.audioTab);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -3857,7 +3858,6 @@ namespace Nucleus.Coop
         private Label plus8;
         private Label hkLabel2;
         private FlatTextBox rm_HKTxt;
-        private Panel screen_panel;
         private FlatTextBox selectedRes;
         private CustomCheckBox losslessHook;
         private Label label4;
@@ -3871,5 +3871,6 @@ namespace Nucleus.Coop
         private Label DivLabel;
         private Label label5;
         private CustomCheckBox assignGpdByBtnPress;
+        private Panel screen_panel;
     }
 }

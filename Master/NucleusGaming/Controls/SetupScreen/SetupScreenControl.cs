@@ -3,6 +3,7 @@ using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.UI;
 using System;
 using System.Drawing;
+using System.Numerics;
 using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Controls.SetupScreen
@@ -28,6 +29,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         {
             Instance = this;
             Initialize();
+            Invalidated += OnInvalidated;
         }
 
         private void Initialize()
@@ -45,7 +47,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
           
             DPIManager.Register(this);
             DPIManager.Update(this);
-            RemoveFlicker();
+            RemoveFlicker();          
         }
 
         public override void Initialize(UserGameInfo game, GameProfile profile)
@@ -57,12 +59,12 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             BoundsFunctions.Initialize(this, game, profile);
             Draw.Initialize(this, game, profile);
 
-            if (game.Game.UseHandlerSteamIds && game.Game.PlayerSteamIDs != null)
+            if (game.HandlerInfo.GenericGameInfo.UseHandlerSteamIds && game.HandlerInfo.GenericGameInfo.PlayerSteamIDs != null)
             {
                 GameProfile.GenMissingIdFromPlayerSteamIDs();//just in case Game.PlayerSteamIDs is missing values or user add more players than the handler supports
             }
 
-            profileDisabled = App_Misc.DisableGameProfiles || game.Game.MetaInfo.DisableProfiles;
+            profileDisabled = App_Misc.DisableGameProfiles || game.HandlerInfo.GenericGameInfo.MetaInfo.DisableProfiles;
             ended = false;
         }
 
@@ -84,6 +86,10 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             ResumeLayout();
         }
 
+        public void OnInvalidated(object sender, InvalidateEventArgs e)
+        {
+        }
+
         public static void InvalidateFlash(Rectangle iconBounds)
         {
             Instance?.Invalidate(iconBounds,false);
@@ -97,7 +103,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         public override void Ended()
         {
             base.Ended();         
-            DevicesFunctions.DisposeGamePadTimer();
             ended = true;
         }
 
@@ -138,18 +143,22 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         }
 
         protected override void OnPaint(PaintEventArgs e)
-        {
-            
-
+        {       
             base.OnPaint(e);
 
             Draw.UIScreens(e.Graphics);
 
             e.Graphics.ResetClip();
-
+        
             for (int i = 0; i < profile.DevicesList.Count; i++)
             {
                 PlayerInfo player = profile.DevicesList[i];
+                
+                if(player == BoundsFunctions.DraggedPlayer)
+                {
+                    //draw it after all devices so it's always drawn on top 
+                    continue;
+                }
 
                 if (GameProfile.Loaded)
                 {
@@ -157,8 +166,6 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     {
                         GameProfile.FindProfilePlayers(player);
                     }
-
-                    Draw.GhostBounds(e.Graphics);
                 }
 
                 e.Graphics.ResetClip();
@@ -177,24 +184,31 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         Draw.DrawGuestRemovalText(e.Graphics, BoundsFunctions.ShowGuestRemovelText);
                     }
 
-                    if (!player.EditBounds.IntersectsWith(BoundsFunctions.ActiveSizer) && player.EditBounds!= player.SourceEditBounds)
+                    if (!player.EditBounds.IntersectsWith(BoundsFunctions.ActiveSizer) && player.EditBounds != player.SourceEditBounds)
                     {
                         Draw.PlayerTag(e.Graphics, player);
                     }
                 }
             }
 
-            e.Graphics.ResetClip();          
-
-            if (BoundsFunctions.SelectedPlayer?.MonitorBounds != Rectangle.Empty &&
-               BoundsFunctions.SelectedPlayer?.MonitorBounds != null)
+            if (GameProfile.Loaded)
             {
-                Draw.PlayerBoundsInfo(e.Graphics);
+                Draw.GhostBounds(e.Graphics);
             }
 
+            e.Graphics.ResetClip();
+
+            if (BoundsFunctions.DraggedPlayer != null)
+            {
+                Draw.DraggedPlayer(e.Graphics);
+            }
+
+             Draw.PlayerBoundsInfo(e.Graphics);
+            
             if (BoundsFunctions.Dragging && BoundsFunctions.DraggingScreen != -1)
             {
-                Draw.DestinationBounds(e.Graphics);
+                if (BoundsFunctions.DraggedPlayer != null && !BoundsFunctions.DestEditBounds.Contains(BoundsFunctions.DraggedPlayer.DeviceImageBounds))
+                    Draw.DestinationBounds(e.Graphics);
             }
         }
     }

@@ -7,6 +7,8 @@ using Nucleus.Coop.Tools;
 using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
+using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Coop.Generic;
 using Nucleus.Gaming.UI;
 using System;
 using System.Collections.Generic;
@@ -18,6 +20,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static Nucleus.Gaming.Http_Client.Http_Client;
 
 namespace Nucleus.Coop.Forms
 {
@@ -32,12 +35,12 @@ namespace Nucleus.Coop.Forms
 
         private CoreWebView2DownloadOperation downloadOperation;
         private CoreWebView2Settings webViewSettings;
-        private MainForm mainForm;
         private ZipFile zip;
 
         private bool zipExtractFinished;
         private bool downloadCompleted;
-        private bool hasFreshCahe;
+        private bool hasFreshCache;
+        private bool inUserBrowser;
 
         private int entriesDone = 0;
         private int numEntries = 0;
@@ -48,10 +51,11 @@ namespace Nucleus.Coop.Forms
         private List<JObject> installedHandlers = new List<JObject>();
         public bool Downloading { get; private set; }
 
+        private Stopwatch timeoutWatch;
+
         public HubWebView()
         {
-            mainForm = UI_Interface.MainForm;
-
+            OnHubConnectionChange += OnHubConnection_Lost;
             InitializeComponent();
 
             Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -90,7 +94,7 @@ namespace Nucleus.Coop.Forms
             webView.DefaultBackgroundColor = BackColor;
 
             button_Panel.BackColor = BackColor;
-
+           
             ShowThrobber();
 
             string debugUri = Path.Combine(Application.StartupPath, $"webview\\debugUri.txt");
@@ -138,7 +142,7 @@ namespace Nucleus.Coop.Forms
                 throbber = new PictureBox
                 {
                     Size = new Size(50, 50),
-                    BackColor = BackColor,
+                    BackColor = Color.FromArgb(255, 26, 29, 30),
                     Image = ImageCache.GetImage(Globals.ThemeFolder + "loading.gif"),
                     SizeMode = PictureBoxSizeMode.StretchImage
                 };
@@ -161,11 +165,13 @@ namespace Nucleus.Coop.Forms
         }
 
         private void ThrobberDispose()
-        {
+        {           
             if (throbber != null)
+            {
                 Controls.Remove(throbber);
                 throbber?.Dispose();
                 throbber = null;
+            }
         }
 
         private void HubWebView_Resize(object sender, EventArgs e)
@@ -178,17 +184,18 @@ namespace Nucleus.Coop.Forms
         {
             installedHandlers.Clear();
 
-            foreach (KeyValuePair<string, GenericGameInfo> game in GameManager.Instance.GameInfos)
+            foreach (UserGameInfo userGameInfo in GameManager.Instance.User.Games)
             {
-                if (GameManager.Instance.User.Games.All(g => g.GameGuid != game.Value.GUID))
+                if(userGameInfo.HandlerInfo.GenericGameInfo == null)
                 {
                     continue;
                 }
 
-                string id = game.Value.HandlerId;
-                int version = game.Value.Hub.Handler.Version;
+                string id = userGameInfo.HandlerInfo.GenericGameInfo?.HandlerId;
 
-                if (id != "" && version != -1)
+                int version = userGameInfo.HandlerInfo.GenericGameInfo.Hub.Handler.Version;
+
+                if (!string.IsNullOrEmpty(id) && version != -1)
                 {
                     installedHandlers.Add(new JObject { new JProperty("id", id), new JProperty("version", version) });
                 }
@@ -217,11 +224,11 @@ namespace Nucleus.Coop.Forms
                     await webView.EnsureCoreWebView2Async(environment);
 
                     webView.Source = new Uri(hubUri);
-                    hasFreshCahe = false;
+                    hasFreshCache = false;
                     return;
                 }
 
-                hasFreshCahe = true;
+                hasFreshCache = true;
 
                 environment = await CoreWebView2Environment.CreateAsync(null, webView.CreationProperties.UserDataFolder, environmentOptions);
                 await webView.EnsureCoreWebView2Async(environment);
@@ -260,6 +267,7 @@ namespace Nucleus.Coop.Forms
                     }
                
                     webView.CoreWebView2.IsDefaultDownloadDialogOpenChanged += IsDefaultDownloadDialogOpenChanged;
+                    webView.CoreWebView2.ContentLoading += ContentLoading;
                     webView.CoreWebView2.DOMContentLoaded += DOMContentLoaded;
                     webView.CoreWebView2.DownloadStarting += DownloadStarting;
                     webView.CoreWebView2.NewWindowRequested += NewWindowRequested;
@@ -267,7 +275,6 @@ namespace Nucleus.Coop.Forms
                     webView.CoreWebView2.ProcessFailed += ProcessFailed;
                     webView.CoreWebView2.NavigationStarting += NavigationStarting;
                     webView.CoreWebView2.NavigationCompleted += NavigationCompleted;
-
                     webView.CoreWebView2.Profile.PreferredColorScheme = CoreWebView2PreferredColorScheme.Dark;
                     
                     BringToFront();
@@ -276,17 +283,49 @@ namespace Nucleus.Coop.Forms
             catch { Console.WriteLine("Webview init failed!"); }
         }
 
-        private bool inUserBrowser;
+        private void ContentLoading(object sender, CoreWebView2ContentLoadingEventArgs e)
+        {
+
+        }
 
         private void NavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
-        {
-            if(e.IsSuccess)
+        {        
+            //if (e.IsSuccess)
+            {
+                timeoutWatch.Stop();
                 inUserBrowser = false;
+            }             
         }
 
         private void NavigationStarting(object sender, CoreWebView2NavigationStartingEventArgs e)
         {
+             
             CoreWebView2 currentWindow = (CoreWebView2)sender;
+             _ = TimeOutStopwatchAsync(15);
+           
+        }
+
+        public async Task TimeOutStopwatchAsync(int seconds)
+        {
+            if(Downloading)
+            {
+                return;
+            }
+
+            timeoutWatch = Stopwatch.StartNew();
+
+            while (timeoutWatch.Elapsed.TotalSeconds < seconds)
+            {
+                if(!timeoutWatch.IsRunning)
+                {
+                    return;
+                }
+
+                await Task.Delay(2000);
+            }
+
+            OnHubConnection_Lost(HubResponse.Error);
+            timeoutWatch.Stop();
         }
 
         private void WebMessageReceived(object sender, CoreWebView2WebMessageReceivedEventArgs e)
@@ -316,10 +355,10 @@ namespace Nucleus.Coop.Forms
 
         private void DOMContentLoaded(object sender, CoreWebView2DOMContentLoadedEventArgs e)
         {
-            if (hasFreshCahe)
+            if (hasFreshCache)
             {
                 webView.CoreWebView2.Reload();
-                hasFreshCahe = false;
+                hasFreshCache = false;
             }
 
             ThrobberDispose();
@@ -346,6 +385,7 @@ namespace Nucleus.Coop.Forms
             if (downloadOperation == null)
             {
                 Downloading = true;
+                downloadStateTimer?.Dispose();
                 downloadStateTimer = new System.Windows.Forms.Timer();
                 downloadStateTimer.Interval = (150);
                 downloadStateTimer.Tick += DownloadStateTimerTick;
@@ -406,6 +446,13 @@ namespace Nucleus.Coop.Forms
                 downloadStateTimer.Dispose();
                 pending = 0;
                 ExtractHandler();
+            }
+            else if (downloadOperation.State == CoreWebView2DownloadState.Interrupted)
+            {
+                Globals.MainOSD.Show(2000, $"*@{OSDHighlightColors.Warning}|The download has been interrupted.@*");
+                downloadStateTimer?.Dispose();
+                downloadOperation = null;
+                HideModal();         
             }
         }
 
@@ -508,9 +555,9 @@ namespace Nucleus.Coop.Forms
         }
 
         private void AddGameToList(string frmHandleTitle, string exeName)
-        {
-            GenericGameInfo genericGameInfo = GameManager.Instance.AddScript(frmHandleTitle, new bool[] { false, false });
-            SearchGame.Search(exeName, genericGameInfo);
+        {          
+            HandlerInfo handlerInfo = Core_Interface.GameManager.HandlerInfos.Where(aggi => aggi.FileName == frmHandleTitle + ".js").FirstOrDefault();
+            _ = SearchGame.Search(exeName, handlerInfo);
             HideModal();
             closeBtn.PerformClick();
         }
@@ -570,22 +617,18 @@ namespace Nucleus.Coop.Forms
 
             File.Delete(downloadPath);
 
-            if (GameManager.Instance.IsGameAlreadyInUserProfile(exeName, frmHandleTitle))
+            bool update = GameManager.Instance.AddNewGenericGameInfo(frmHandleTitle, true);
+
+            if (update)
             {
-                GameManager.Instance.AddScript(frmHandleTitle, new bool[] { false, false });
-                string gameGuid = GameManager.Instance.User.Games.Where(c => c.ExePath.Split('\\').Last().ToLower() == exeName.ToLower()).FirstOrDefault().GameGuid;
-                string gameName = GameManager.Instance.Games.Where(c => c.Value.GUID == gameGuid).FirstOrDefault().Value.GameName;
-               
                 BuildHandlersDatas();
-                SendDatas();
-
-                SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
-
+                SendDatas();              
+                Core_Interface.RefreshGamesList();
                 HideModal();
+                Globals.MainOSD.Show(2000, $"*@{OSDHighlightColors.Info}|{frmHandleTitle}@* *@{OSDHighlightColors.Regular}|handler has been updated successfully@*");
                 return;
             }
-
-            GameManager.Instance.Initialize();
+          
             BuildHandlersDatas();
             SendDatas();
 
@@ -650,21 +693,39 @@ namespace Nucleus.Coop.Forms
         }
 
         public void CloseBtn_Click(object sender, EventArgs e)
-        {   
+        {
+            downloadStateTimer?.Dispose();
             webView?.Dispose();
             Dispose();
         }
 
         private void DisposeContent(object sender, EventArgs e)
         {
+            OnHubConnectionChange -= OnHubConnection_Lost;
+
             zip?.Dispose();
 
             if (File.Exists(downloadPath))
             {
                 File.Delete(downloadPath);
             }
-
+    
             webView?.Dispose();
         }   
+
+        private void OnHubConnection_Lost(HubResponse resp)
+        {
+            if(resp == HubResponse.Error)
+            {
+                Globals.MainOSD.Show(3000, $"*@{OSDHighlightColors.Info}|Hub connection timeout@*");
+                OnHubConnectionChange -= OnHubConnection_Lost;
+                Downloading = false;
+
+                UIThread.Post(() =>
+                {
+                    CloseBtn_Click(null, null);
+                });
+            }
+        }
     }
 }

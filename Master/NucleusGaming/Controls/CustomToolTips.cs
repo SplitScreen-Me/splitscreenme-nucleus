@@ -1,4 +1,5 @@
 ﻿using Nucleus.Coop;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
@@ -17,29 +18,36 @@ namespace Nucleus.Gaming.Controls
 
         public static void SetToolTip(Control control, string text, string id, int[] rgbBackColor, int[] rgbForeColor, int delay = 100)
         {
-            //Avoid Tooltips duplication
-            CustomToolTip tooltipToRemove;
-            tooltipList.TryRemove(id, out tooltipToRemove);
-
-            tooltipToRemove?.Dispose();
-
-            CustomToolTip tooltip = new CustomToolTip
+            try
             {
-                InitialDelay = delay,
-                ReshowDelay = 1500,
-                AutoPopDelay = 4000,
-                OwnerDraw = true,
-                BackColor = Color.FromArgb(255, rgbBackColor[1], rgbBackColor[2], rgbBackColor[3]),
-                ForeColor = Color.FromArgb(255, rgbForeColor[1], rgbForeColor[2], rgbForeColor[3]),
-                UseAnimation = false,
-                ShowAlways = true,
-                UseFading = true,//Default setting
-                Id = id
-            };
+                //Avoid Tooltips duplication
+                CustomToolTip tooltipToRemove;
+                tooltipList.TryRemove(id, out tooltipToRemove);
 
-            tooltip.Draw += Tooltip_Draw;
-            tooltip.SetToolTip(control, text);
-            tooltipList.TryAdd(id, tooltip);
+                tooltipToRemove?.Dispose();
+
+                CustomToolTip tooltip = new CustomToolTip
+                {
+                    InitialDelay = delay,
+                    ReshowDelay = 1500,
+                    AutoPopDelay = 4000,
+                    OwnerDraw = true,
+                    BackColor = Color.FromArgb(255, rgbBackColor[1], rgbBackColor[2], rgbBackColor[3]),
+                    ForeColor = Color.FromArgb(255, rgbForeColor[1], rgbForeColor[2], rgbForeColor[3]),
+                    UseAnimation = false,
+                    ShowAlways = true,
+                    UseFading = true,//Default setting
+                    Id = id
+                };
+
+                tooltip.Draw += Tooltip_Draw;
+                tooltip.SetToolTip(control, text);              
+                tooltipList.TryAdd(id, tooltip);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
         }
 
 

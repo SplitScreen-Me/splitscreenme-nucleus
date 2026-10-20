@@ -21,11 +21,25 @@ namespace Nucleus.Coop.Controls
         public FlatTextBox SearchText { get; private set; }
 
         public Action<bool> Toggle_Visiblility;
-        private Font hintFont;
+        public string Hint => SearchText.Hint;
+        private float _scale;
+        private float scale
+        {
+            get => _scale;
+            set
+            {
+                if(value < 1)
+                {
+                    _scale = 1;
+                }
+                _scale = value < 1 ? 1 : value;
 
-        //always a square 
+                On_Resize(null, null);
+            }
+        }
+
         private PictureBox imageBox;
-        private Color backColor = Theme_Settings.BackgroundGradientColor;
+
         public SearchTextBox()
         {
             InitializeComponent();
@@ -33,17 +47,24 @@ namespace Nucleus.Coop.Controls
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.ResizeRedraw |ControlStyles.UserPaint, true);
 
-            BackColor = Color.FromArgb(255, 31, 34, 35);
+            BackColor = Color.FromArgb(255, 41, 44,45);
             AutoSize = true;
             Resize += SearchText_Resize;
             Click += Focus_TextBox;
             ControlAdded += Control_Added;
             VisibleChanged += On_VisibleChanged;
             MouseDown += SearchText_MouseDown;
-
+            Resize += On_Resize;
             CreateControls();
 
             DPIManager.Register(this);
+        }
+
+        public void VirtualClick()
+        {
+            OnClick(EventArgs.Empty);
+            SearchText.ForeColor = Color.White;
+            SearchText.Text = "";
         }
 
         private void CreateControls()
@@ -55,14 +76,14 @@ namespace Nucleus.Coop.Controls
             imageBox.SizeMode = PictureBoxSizeMode.StretchImage;
             imageBox.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             imageBox.Margin = new Padding(0, 0, 0, 0);
-            imageBox.BackColor = Color.FromArgb(255, 31, 34, 35);
+            imageBox.BackColor = BackColor;
             imageBox.MouseDown += SearchText_MouseDown;
             SearchText = new FlatTextBox();
             Controls.Add(SearchText);
 
             SearchText.Font = Font;
             SearchText.ForeColor = Color.Gray;
-            SearchText.BackColor =  Color.FromArgb(255, 31, 34, 35);
+            SearchText.BackColor =  BackColor;
             SearchText.BorderStyle = BorderStyle.None;
             SearchText.Hint = "Search By Name";
             SearchText.Text = SearchText.Hint;
@@ -71,7 +92,6 @@ namespace Nucleus.Coop.Controls
             SearchText.LostFocus += SearchText_LostFocus;
             SearchText.TextChanged += SearchText_TextChanged;
         }
-
 
         private void SearchText_TextChanged(object sender, EventArgs e)
         {
@@ -108,7 +128,13 @@ namespace Nucleus.Coop.Controls
                 return;
             }
 
+            this.scale = scale;
             SearchText.Font = new Font(SearchText.Font.FontFamily, 8f * scale, SearchText.Font.Style);
+        }
+
+        private void On_Resize(object sender, EventArgs e)
+        {
+            FormGraphicsUtil.CreateRoundedControlRegion(this, 0, 0, this.Width, this.Height, (int)(15 * scale), (int)(15 * scale));
         }
 
         private void Focus_TextBox(object sender, EventArgs e)

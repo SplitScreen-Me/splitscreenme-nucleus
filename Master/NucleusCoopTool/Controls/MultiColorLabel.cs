@@ -9,6 +9,7 @@ namespace Nucleus.Coop.Controls
     public class MultiColorLabel
     {
         private DoubleBufferPanel container;
+        public DoubleBufferPanel Container = new DoubleBufferPanel();
         private List<Label> labels;
 
         private Point location;
@@ -40,8 +41,8 @@ namespace Nucleus.Coop.Controls
             set { container.Height = value; }
         }
 
-        private (string, Color)[] content = new (string, Color)[] { };
-        public (string, Color)[] Content => content;
+        private (string, Color,Font)[] content = new (string, Color,Font)[] { };
+        public (string, Color,Font)[] Content => content;
 
         public MultiColorLabel(Control parent,Point location)
         {
@@ -49,10 +50,11 @@ namespace Nucleus.Coop.Controls
             container.BackColor = Color.Transparent;
             container.AutoSize = true;
             container.Location = location;
+            Container = container;
             parent.Controls.Add(container);
         }
 
-        public void SetText((string, Color)[] words)
+        public void SetText((string, Color,Font)[] words)
         {
             for (int i = 0; i < container.Controls.Count; i++)
             {
@@ -62,15 +64,24 @@ namespace Nucleus.Coop.Controls
             }
 
             container.Controls.Clear();
-
+            container.Font = new Font(Theme_Settings.CustomFont, 14, FontStyle.Regular, GraphicsUnit.Pixel, 0);
             labels = new List<Label>();
 
             for (int i = 0; i < words.Length; i++)
             {
                 Label lbl = new Label();
-                lbl.Font = new Font(Theme_Settings.CustomFont, 14, FontStyle.Regular, GraphicsUnit.Pixel, 0);
+                
                 lbl.Text = words[i].Item1;
                 lbl.ForeColor = words[i].Item2;
+                if(words[i].Item3 != null)
+                {
+                    lbl.Font = words[i].Item3;
+                }
+                else
+                {
+                    lbl.Font = container.Font;
+                }
+                
                 lbl.AutoSize = true;
                 lbl.Padding = new Padding(0, 0, 0, 0);
                 lbl.Margin = new Padding(0, 0, 0, 0);
@@ -82,7 +93,7 @@ namespace Nucleus.Coop.Controls
                 {
                     lbl.Location = new Point(0, 0);
                 }
-
+               
                 labels.Add(lbl);
                 container.Controls.Add(lbl);
             }
@@ -102,7 +113,7 @@ namespace Nucleus.Coop.Controls
                 }
                 else
                 {
-                    lbl.Location = new Point(labels[i - 1].Right - 3, 0);
+                    lbl.Location = new Point(labels[i - 1].Right - 3, (labels[i - 1].Location.Y + (labels[i - 1].Height/2) - lbl.Height/2));
                 }
             }
 

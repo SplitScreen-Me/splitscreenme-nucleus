@@ -1,6 +1,6 @@
 ﻿namespace Nucleus.Coop.Controls
 {
-    partial class AddGameButton
+    partial class NewsFeed
     {
         /// <summary> 
         /// Variable nécessaire au concepteur.
@@ -30,8 +30,12 @@
         {
             this.SuspendLayout();
             // 
-            // AddGameButton
-            //
+            // NewsFeed
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Name = "NewsFeed";
+            this.Size = new System.Drawing.Size(246, 57);
             this.ResumeLayout(false);
 
         }

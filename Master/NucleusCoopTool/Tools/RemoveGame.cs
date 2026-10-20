@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.UI;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,94 +13,41 @@ namespace Nucleus.Coop.Tools
 {
     internal class RemoveGame
     {
-        public static void Remove(UserGameInfo currentGameInfo, bool dontConfirm)
+        public static bool Remove(UserGameInfo userGameInfo, bool confirm)
         {
-            GameManager gameManager = GameManager.Instance;
-
-            string userProfile = gameManager.GetUserProfilePath();
-
-            if (File.Exists(userProfile))
+            if (!confirm)
             {
-                string jsonString = File.ReadAllText(userProfile);
-                JObject jObject = JsonConvert.DeserializeObject(jsonString) as JObject;
-
-                JArray games = jObject["Games"] as JArray;
-                for (int i = 0; i < games.Count; i++)
-                {
-                    string gameGuid = jObject["Games"][i]["GameGuid"].ToString();
-                    string exePath = jObject["Games"][i]["ExePath"].ToString();
-
-                    if (gameGuid == currentGameInfo.GameGuid && exePath == currentGameInfo.ExePath)
-                    {
-                        DialogResult dialogResult = dontConfirm ? DialogResult.Yes :
-                            MessageBox.Show($"Are you sure you want to delete {currentGameInfo.Game.GameName}?", "Confirm deletion", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                        if (dialogResult == DialogResult.Yes)
-                        {
-                            gameManager.User.Games.RemoveAt(i);
-                            jObject["Games"][i].Remove();
-                            string output = JsonConvert.SerializeObject(jObject, Formatting.Indented);
-                            File.WriteAllText(userProfile, output);
-
-
-                            if (!dontConfirm)
-                            {
-                                if (File.Exists(Path.Combine(Application.StartupPath, $"gui\\covers\\{gameGuid}.jpeg")))
-                                {
-                                    try
-                                    {
-                                        File.Delete(Path.Combine(Application.StartupPath, $"gui\\covers\\{gameGuid}.jpeg"));                              
-                                    }
-                                    catch (IOException)
-                                    {
-                                        UI_Interface.Cover.BackgroundImage.Dispose();
-                                        File.Delete(Path.Combine(Application.StartupPath, $"gui\\covers\\{gameGuid}.jpeg"));                                  
-                                    }
-                                }
-
-                                if (Directory.Exists(Path.Combine(Application.StartupPath, $"gui\\screenshots\\{gameGuid}")))
-                                {
-                                    try
-                                    {
-                                        Directory.Delete(Path.Combine(Application.StartupPath, $"gui\\screenshots\\{gameGuid}"), true);
-                                    }
-                                    catch (Exception)
-                                    {
-                                        UI_Interface.HomeScreen.BackgroundImage.Dispose();
-                                        Directory.Delete(Path.Combine(Application.StartupPath, $"gui\\screenshots\\{gameGuid}"), true);
-                                    }
-                                }
-
-                                //if (mainForm.iconsIni.IniReadValue("GameIcons", gameGuid) != "")
-                                //{
-                                //    string[] iniContent = File.ReadAllLines(Path.Combine(Directory.GetCurrentDirectory() + "\\gui\\icons\\icons.ini"));
-                                //    List<string> newContent = new List<string>();
-
-                                //    for (int index = 0; index < iniContent.Length; index++)
-                                //    {
-                                //        if (iniContent[index].Contains(gameGuid + "=" + mainForm.iconsIni.IniReadValue("GameIcons", gameGuid)))
-                                //        {
-                                //            string fullPath = gameGuid + "=" + mainForm.iconsIni.IniReadValue("GameIcons", gameGuid).ToString();
-                                //            iniContent[index] = string.Empty;
-                                //        }
-
-                                //        if (iniContent[index] != string.Empty)
-                                //        {
-                                //            newContent.Add(iniContent[index]);
-                                //        }
-                                //    }
-
-                                //    File.WriteAllLines(Path.Combine(Directory.GetCurrentDirectory() + "\\gui\\icons\\icons.ini"), newContent);
-                                //}
-
-                                UI_Functions.RefreshUI(true);
-                                return;
-                            }
-
-                            UI_Functions.RefreshUI(false);
-                        }
-                    }
-                }
+                return _Remove(userGameInfo);              
+                //return true;
             }
+
+            DialogResult dialogResult = 
+                MessageBox.Show($"Are you sure you want to uninstall {userGameInfo.HandlerInfo.GameName} handler?", "Uninstall handler?", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+            if (dialogResult == DialogResult.Yes)
+            {
+                return _Remove(userGameInfo);
+            }
+
+            return false;
+        }
+
+        private static bool _Remove(UserGameInfo userGameInfo)
+        {
+            GameManager.Instance.RemoveUserGameInfo(userGameInfo);
+
+            //just check here if it exist so we skip the "no data found" prompt
+            if (Directory.Exists(userGameInfo.HandlerInfo.GenericGameInfo.Content_Folder))
+            {
+                CleanGameContent.CleanContentFolder(userGameInfo.HandlerInfo.GenericGameInfo, true);
+            }
+
+            GameAssets.CleanGamesAssets(userGameInfo,true);
+            Core_Interface.RemoveGameFromList(userGameInfo.GameGuid);
+            
+            Globals.MainOSD.Show(2000, $"*@{OSDHighlightColors.Info}|{userGameInfo?.HandlerInfo.GenericGameInfo.GameName}@* *@{OSDHighlightColors.Regular}|has been uninstalled successfully@*");
+
+            return true;
         }
     }
 }

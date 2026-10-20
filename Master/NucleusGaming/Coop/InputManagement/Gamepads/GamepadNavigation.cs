@@ -1,4 +1,5 @@
 ﻿using Nucleus.Gaming.App.Settings;
+using Nucleus.Gaming.UI;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -56,6 +57,12 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
 
         private static bool _Enabled;
         public static bool Enabled => _Enabled;
+        public static bool Virtual_Enabled
+        {
+            get;
+            set;
+        }
+
         private static bool EnabledRuntime;///Can on/off UI navigation manually later on runtime
         private static int DefaultSpeed => 2000;//2200 v2.3.2 value
         private static int SlowDownSpeed = 2000;//2200 v2.3.2 value
@@ -65,13 +72,13 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
 
         public static void StopUINavigation()
         {
-            if (_Enabled) 
+            if (_Enabled || Virtual_Enabled) 
             EnabledRuntime = false;
         }
 
         public static void StartUINavigation()
         {
-            if (_Enabled)
+            if (_Enabled || Virtual_Enabled)
                 EnabledRuntime = true;
         }
 
@@ -179,13 +186,13 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                         if (EnabledRuntime && (pressed == LockUIControl))
                         {
                             EnabledRuntime = false;
-                            Globals.MainOSD.Show(1600, $"UI Control Locked");
+                            Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Info}|UI Control Locked@*");
                             Thread.Sleep(500);
                         }
                         else if (!EnabledRuntime && (pressed == LockUIControl))
                         {
                             EnabledRuntime = true;
-                            Globals.MainOSD.Show(1600, $"UI Control Unlocked");
+                            Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Confirm}|UI Control Unlocked@*");
                             Thread.Sleep(500);
                         }
                     }

@@ -1,15 +1,10 @@
 ﻿using NAudio.CoreAudioApi;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Nucleus.Coop.Controls;
-using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Controls;
-using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.Coop;
-using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 using Nucleus.Gaming.Forms;
 using Nucleus.Gaming.Tools.MonitorsDpiScaling;
 using Nucleus.Gaming.UI;
@@ -30,7 +25,6 @@ namespace Nucleus.Coop
 
     public partial class ProfileSettings : Form, IDynamicSized
     {
-        private MainForm mainForm => UI_Interface.MainForm;
         private static ProfileSettings profileSettings;
 
         private string currentNickname;
@@ -59,6 +53,9 @@ namespace Nucleus.Coop
 
         private Pen bordersPen;
 
+        private SolidBrush LayoutSizerBackBrush;
+        private SolidBrush buttonsighlightBrush;
+
         private bool refreshScreensData;
         private bool shouldSwapNick = true;
 
@@ -85,6 +82,8 @@ namespace Nucleus.Coop
             var borderscolor = Globals.ThemeConfigFile.IniReadValue("Colors", "ProfileSettingsBorder").Split(',');
             selectionColor = Theme_Settings.SelectedBackColor;
             bordersPen = new Pen(Color.FromArgb(int.Parse(borderscolor[0]), int.Parse(borderscolor[1]), int.Parse(borderscolor[2])));
+            LayoutSizerBackBrush = new SolidBrush(Color.FromArgb(255, 31, 34, 35));
+            buttonsighlightBrush = new SolidBrush(Color.FromArgb(200, selectionColor.R, selectionColor.G, selectionColor.B));
 
             BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "other_backgrounds.jpg");
 
@@ -145,12 +144,12 @@ namespace Nucleus.Coop
 
                 if (c.Name != "sharedTab" && c.Name != "playersTab" && c.Name != "audioTab" &&
                     c.Name != "processorTab" && c.Name != "layoutTab" && c.Name != "layoutSizer" && c.Name != "notes_text" && c.Name != "screen_panel"
-                    && !(c is Label) && !(c is FlatTextBox) && !(c is GroupBox) && !(c is Panel))
+                    && !(c is Label) && !(c is FlatTextBox) && !(c is GroupBox) && !(c is Panel) && !(c is CustomNumericUpDown))
                 {
                     c.Cursor = Theme_Settings.Hand_Cursor;
                 }
 
-                if (c.Name == "sharedTab" || c.Name == "playersTab" || c.Name == "audioTab" || c.Name == "processorTab" || c.Name == "layoutTab")
+                if (c.Name == "sharedTab" || c.Name == "playersTab" || c.Name == "audioTab" || c.Name == "processorTab" || c.Name == "layoutTab" || c.Name == "screen_panel")
                 {
                     c.BackColor = Color.Transparent;
                     tabs.Add(c as Panel);
@@ -296,16 +295,16 @@ namespace Nucleus.Coop
             sharedTab.Location = new Point(0, sharedTabBtn.Bottom);
 
             playersTab.Parent = this;
-            playersTab.Location = sharedTab.Location;
+            playersTab.Location = new Point(0, sharedTabBtn.Bottom);
 
             audioTab.Parent = this;
-            audioTab.Location = sharedTab.Location;
+            audioTab.Location = new Point(0, sharedTabBtn.Bottom);
 
             processorTab.Parent = this;
-            processorTab.Location = sharedTab.Location;
+            processorTab.Location = new Point(0, sharedTabBtn.Bottom);
 
             layoutTab.Parent = this;
-            layoutTab.Location = sharedTab.Location;
+            layoutTab.Location = new Point(0, sharedTabBtn.Bottom);
 
             page1.Parent = playersTab;
             page1.Location = new Point(playersTab.Width / 2 - page1.Width / 2, playersTab.Height / 2 - page1.Height / 2);
@@ -339,6 +338,8 @@ namespace Nucleus.Coop
             modeLabel.Location = new Point((int)modeLabelX, sharedTabBtn.Location.Y + sharedTabBtn.Height / 2 - modeLabel.Height / 2);
             audioRefresh.Location = new Point((audioTab.Width / 2) - (audioRefresh.Width / 2), audioRefresh.Location.Y);
             warningLabel.ForeColor = Color.Yellow;
+
+            screen_panel.BackColor = Color.Black;
 
             numUpDownVer.MaxValue = 5;
             numUpDownVer.InvalidParent = true;
@@ -473,11 +474,11 @@ namespace Nucleus.Coop
                     nickField.Text = player.Nickname.ToString();
                     nickField.Enabled = true;
 
-                    if (GameProfile.Game?.UseHandlerSteamIds == true)//UseHandlerSteamIds force the use of Game.PlayerSteamIDs so lock them here
+                    if (GameProfile.Current_GenericGamInfo?.UseHandlerSteamIds == true)//UseHandlerSteamIds force the use of Game.PlayerSteamIDs so lock them here
                     {
-                        if (i < GameProfile.Game.PlayerSteamIDs.Count())
+                        if (i < GameProfile.Current_GenericGamInfo.PlayerSteamIDs.Count())
                         {
-                            sidField.Text = GameProfile.Game.PlayerSteamIDs[i];
+                            sidField.Text = GameProfile.Current_GenericGamInfo.PlayerSteamIDs[i];
                             sidField.SelectedItem = sidField.Text;
                             sidField.Enabled = false;
                         }
@@ -507,9 +508,9 @@ namespace Nucleus.Coop
                         nickField.Enabled = true;
                     }
 
-                    if (GameProfile.Game?.UseHandlerSteamIds == true && GameProfile.IsNewProfile)//UseHandlerSteamIds force the use of Game.PlayerSteamIDs so lock them here
+                    if (GameProfile.Current_GenericGamInfo?.UseHandlerSteamIds == true && GameProfile.IsNewProfile)//UseHandlerSteamIds force the use of Game.PlayerSteamIDs so lock them here
                     {
-                        sidField.Text = GameProfile.Game.PlayerSteamIDs[i];
+                        sidField.Text = GameProfile.Current_GenericGamInfo.PlayerSteamIDs[i];
                         sidField.SelectedItem = sidField.Text;
                         sidField.Enabled = false;
                     }
@@ -661,7 +662,7 @@ namespace Nucleus.Coop
             if (GameProfile.ProfilePlayersList.Count == 0)
             {
                 //Create profile players for new game profile
-                for (int i = 0; i < GameProfile.Game.MaxPlayers; i++)
+                for (int i = 0; i < GameProfile.Current_GenericGamInfo.MaxPlayers; i++)
                 {
                     PlayerInfo player = new PlayerInfo();
                     GameProfile.ProfilePlayersList.Add(player);
@@ -691,43 +692,38 @@ namespace Nucleus.Coop
 
                 //Set GameProfile Steam ids
                 var sidField = steamIds[i];
-                if ((Regex.IsMatch(sidField.Text, "^[0-9]+$") && sidField.Text.Length == 17 || sidField.Text.Length == 0) || sidField.Text == "-1" )
+                if ((Regex.IsMatch(sidField.Text, "^[0-9]+$") && sidField.Text.Length == 17) || sidField.Text == "-1")
                 {
-                    FlatCombo hasSameText = steamIds.Where(cb => cb != sidField &&  cb.Text != "" && sidField.Text != "" && cb.Text == sidField.Text).FirstOrDefault();
+                    FlatCombo hasSameText = steamIds.Where(cb => cb != sidField && cb.Text != "" && sidField.Text != "" && cb.Text == sidField.Text).FirstOrDefault();
 
                     if (hasSameText != null)
                     {
                         sidField.BackColor = Color.Red;
                         hasSameText.BackColor = Color.Red;
+                        sidField.Invalidate();
                         sidWrongValue = true;
                         break;
                     }
 
-                    if (sidField.Text != "")
-                    {
-                        player.SteamID = long.Parse(sidField.Text.ToString());
+                    player.SteamID = long.Parse(sidField.Text.ToString());
 
-                        if(GameProfile.Game.PlayerSteamIDs != null)
-                        {
-                            if (GameProfile.Game.PlayerSteamIDs.All(sid => sid != sidField.Text))
-                            {
-                                PlayersIdentityCache.AddSteamIdToCache(sidField.Text);
-                            }
-                        }
-                        else
+                    if (GameProfile.Current_GenericGamInfo.PlayerSteamIDs != null)
+                    {
+                        if (GameProfile.Current_GenericGamInfo.PlayerSteamIDs.All(sid => sid != sidField.Text))
                         {
                             PlayersIdentityCache.AddSteamIdToCache(sidField.Text);
-                        }                                     
+                        }
                     }
                     else
                     {
-                        player.SteamID = PlayersIdentityCache.DefaultSteamIds[i];
+                        PlayersIdentityCache.AddSteamIdToCache(sidField.Text);
                     }
                 }
                 else
-                {
+                {   
                     //Invalid Steam id detected
                     sidField.BackColor = Color.Red;
+                    sidField.Invalidate();
                     sidWrongValue = true;
                     break;
                 }
@@ -1002,23 +998,24 @@ namespace Nucleus.Coop
         private void AudioRefresh_Click(object sender, EventArgs e)
         {
             RefreshAudioList();
+            Globals.MainOSD?.Show(500, $"*@{OSDHighlightColors.Confirm}|Audio Devices Refreshed@*");
         }
       
         private void TabsButtons_highlight(object sender, EventArgs e)
         {
             Control c = sender as Control;
-            
-            Panel activeTab = tabs.Where(t => (string)t.Name == (string)c.Tag).FirstOrDefault();
+
+            Panel activeTab = tabs.Find(t => (string)t.Name == (string)c.Tag);
 
             foreach (var b in tabsButtons)
             {
                 if (b.Tag == c.Tag && b != c)
                 {
+                    activeTab?.BringToFront();
                     activeControls = new Control[] { c, b };
+                    break;
                 }
             }
-
-            activeTab.BringToFront();
         }
 
         private void AudioTabBtn_Click(object sender, EventArgs e)
@@ -1186,9 +1183,9 @@ namespace Nucleus.Coop
             int LayoutWidth = layoutSizer.Size.Width - 20;
 
             Rectangle outline = new Rectangle(10, 10, LayoutWidth, LayoutHeight);
-            SolidBrush backBr = new SolidBrush(Color.FromArgb(255, 31, 34, 35));
-            gs.FillRectangle(backBr, outline);
-            backBr.Dispose();
+
+            gs.FillRectangle(LayoutSizerBackBrush, outline);
+
             gs.DrawRectangle(bordersPen, outline);
 
             int[] hlines = new int[(int)numUpDownHor.Value];
@@ -1238,12 +1235,10 @@ namespace Nucleus.Coop
 
             var _activeControls = activeControls.OrderBy(c => c is PictureBox).ToArray();
 
-            SolidBrush lineBrush = new SolidBrush( Color.FromArgb(200,selectionColor.R,selectionColor.G,selectionColor.B) );
             Rectangle butt = new Rectangle(_activeControls[0].Left, _activeControls[0].Bottom + 2, _activeControls[1].Right - _activeControls[0].Left, 3);
 
-            g.FillRectangle(lineBrush, butt);
+            g.FillRectangle(buttonsighlightBrush, butt);
             g.DrawRectangles(bordersPen, tabBorders);
-            lineBrush.Dispose();
 
             foreach (var points in tabLines)
                 e.Graphics.DrawLines(bordersPen, points);
@@ -1352,17 +1347,22 @@ namespace Nucleus.Coop
 
         private Dictionary<string, List<string>> AllScreensRes;
         private List<Label> screensLabels;
+        private List<FlatCombo> screensComboBox;
         private List<Point[]> screensResControlsRow;
 
         private void GetAllScreensResolutions()
         {
             screen_panel.Visible = false;
+
             screensResControlsRow = new List<Point[]>();
             screensLabels = new List<Label>();
+            screensComboBox = new List<FlatCombo>();
+
             AllScreensRes = new Dictionary<string, List<string>>();
-            
+
             foreach (Control con in screen_panel.Controls)
             {
+                con.Font.Dispose();
                 con.Dispose();
             }
 
@@ -1371,12 +1371,14 @@ namespace Nucleus.Coop
             MonitorsDpiScaling.DEVMODE vDevMode = new MonitorsDpiScaling.DEVMODE();
 
             int i = 0;
+            int tooltipIndex = 0;
 
+            FlatCombo prevFlat = null;
             foreach (Screen screen in Screen.AllScreens)
             {
                 string mergerRes = GameProfile.MergerResolution;
 
-                if (mergerRes == "")
+                if (string.IsNullOrEmpty(mergerRes))
                 {
                     if (screen.Primary)
                     {
@@ -1395,32 +1397,34 @@ namespace Nucleus.Coop
                 resCmb.ForeColor = Color.White;
                 resCmb.FlatStyle = FlatStyle.Flat;
                 resCmb.BorderColor = Color.White;
-                resCmb.ButtonColor = Color.FromArgb(255, 31, 34, 35);
+                resCmb.ButtonColor = Color.FromArgb(selectionColor.R, selectionColor.G, selectionColor.B);
                 resCmb.SelectedValueChanged += SaveSelectedRes;
                 resCmb.DropDownStyle = ComboBoxStyle.DropDownList;
+                resCmb.Anchor = AnchorStyles.Top | AnchorStyles.Left /*| AnchorStyles.Right*/;
+                resCmb.Width = (int)(80 * _scale);
                 resCmb.Cursor = Theme_Settings.Hand_Cursor;
 
                 Label resLabel = new Label();
                 resLabel.AutoSize = true;
+                resLabel.Font = new Font(this.Font.FontFamily, 12, FontStyle.Regular, GraphicsUnit.Pixel, 0);
+                resLabel.Cursor = Theme_Settings.Hand_Cursor;
                 string cleanName = screen.DeviceName.Substring(screen.DeviceName.LastIndexOf('\\') + 1);
                 resLabel.Text = $"⛶ {cleanName}";
+
                 resLabel.Cursor = Theme_Settings.Hand_Cursor;
 
-                CustomToolTips.SetToolTip(resLabel, "Click here to identify the screen", "resLabel_PRST", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                CustomToolTips.SetToolTip(resLabel, "Click here to identify the screen", "resLabel_PRST" + tooltipIndex, new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
 
                 if (screensLabels.Count == 0)
                 {
                     screen_panel.Controls.Add(resLabel);
                     resLabel.Location = new Point(0, 5);
-                    screensLabels.Add(resLabel);
                     screen_panel.Controls.Add(resCmb);
                 }
                 else
                 {
                     screen_panel.Controls.Add(resLabel);
                     resLabel.Location = new Point(screensLabels[screensLabels.Count - 1].Location.X, screensLabels[screensLabels.Count - 1].Bottom + 4);
-                    screensLabels.Add(resLabel);
-                    resLabel.Refresh();
                     screen_panel.Controls.Add(resCmb);
                 }
 
@@ -1447,7 +1451,15 @@ namespace Nucleus.Coop
                 resLabel.Text += $" ({currentScreenRes})";
                 float ratio = ((float)resLabel.DisplayRectangle.Height / (float)resCmb.DisplayRectangle.Height);
                 resCmb.Font = new Font(this.Font.FontFamily, (Font.Size + ratio) * _scale, FontStyle.Regular, GraphicsUnit.Pixel, 0);
-                resCmb.Location = new Point(resLabel.Right + 4, resLabel.Top);
+
+                if (prevFlat != null)
+                {
+                    resCmb.Location = new Point(resLabel.Right + 4, prevFlat.Bottom + 1);
+                }
+                else
+                {
+                    resCmb.Location = new Point(resLabel.Right + 4, resLabel.Top);
+                }
 
                 resLabel.Location = new Point(resLabel.Left, resCmb.Location.Y);
                 resLabel.Tag = screen.Bounds.Location;
@@ -1458,17 +1470,45 @@ namespace Nucleus.Coop
                 AllScreensRes.Add(screen.DeviceName, resolutions);
 
                 i = 0;
+                tooltipIndex++;
+                prevFlat = resCmb;
+                screensComboBox.Add(resCmb);
+                screensLabels.Add(resLabel);
+                resLabel.Refresh();
             }
 
+            Label refLoclabel = screensLabels.OrderByDescending(l => l.Width).ToList()[0];
+            int refLoc = refLoclabel.Location.X + refLoclabel.Width + 4;
+            int screenPanelWidth = refLoc;
+
+            bool setScreenPanelWidth = false;
+
+            foreach (FlatCombo cb in screensComboBox)
+            {
+                cb.Location = new Point(refLoc, cb.Location.Y);
+                if (!setScreenPanelWidth)
+                {
+                    screenPanelWidth += cb.ClientRectangle.Right + (int)(30 * _scale);
+                    setScreenPanelWidth = true;
+                }
+            }
+
+            screen_panel.Width = screenPanelWidth;
             refreshScreensData = false;
-            screen_panel.Visible = true;
+            screen_panel.Visible = true;          
         }
 
         private void IdentifyScreen(object sender, EventArgs e)
         {
+            if (ScreenIdInstance.Instance != null)
+            {
+                return;
+            }
+
             Label lb = sender as Label;
             ScreenId identifierWindow = new ScreenId((Point)lb.Tag);
             identifierWindow.Show();
+            ScreenIdInstance.Instance = identifierWindow;
         }
 
         private void SaveSelectedRes(object sender, EventArgs e)
@@ -1503,15 +1543,13 @@ namespace Nucleus.Coop
 
         private void Screen_panel_Paint(object sender, PaintEventArgs e)
         {
-            if (!refreshScreensData)
-                foreach (var points in screensResControlsRow)
-                    e.Graphics.DrawLines(bordersPen, points);
         }
 
         private void RefreshScreenDatasButton_Click(object sender, EventArgs e)
         {
             refreshScreensData = true;
             GetAllScreensResolutions();
+            Globals.MainOSD?.Show(500, $"*@{OSDHighlightColors.Confirm}|Screen(s) Info Refreshed@*");
         }
 
         private void StopUINav_CheckedChanged(object sender, EventArgs e)

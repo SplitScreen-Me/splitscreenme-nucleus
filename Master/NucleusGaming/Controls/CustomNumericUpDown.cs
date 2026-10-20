@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Nucleus.Gaming.UI;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -8,6 +9,9 @@ namespace Nucleus.Gaming.Controls
 {
     public partial class CustomNumericUpDown : UserControl, IDynamicSized
     {
+        private Rectangle upBounds;
+        private Rectangle downBounds;
+
         public int MaxValue = 999;
         public int MinValue = 0;
         public bool InvalidParent;
@@ -87,6 +91,20 @@ namespace Nucleus.Gaming.Controls
             }
 
             Font = new Font(Font.FontFamily, 9.25f * scale, Font.Style, GraphicsUnit.Pixel, 0);
+            upBounds = up.Bounds;
+            downBounds = down.Bounds;
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if (upBounds == null || downBounds == null || upBounds == RectangleF.Empty || downBounds == Rectangle.Empty)
+            {
+                return;
+            }
+
+            Cursor = upBounds.Contains(e.Location) || downBounds.Contains(e.Location) ? Cursor = Theme_Settings.Hand_Cursor : Theme_Settings.Default_Cursor;
         }
 
         private void val_TextChanged(object sender, EventArgs e)

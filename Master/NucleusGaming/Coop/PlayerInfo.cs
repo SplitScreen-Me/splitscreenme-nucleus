@@ -143,6 +143,23 @@ namespace Nucleus.Gaming.Coop
             }
         }
 
+        private bool isSDL3;
+        public bool IsSDL3
+        {
+            get => isSDL3;
+            set
+            {
+                isSDL3 = value;
+                IsController = value;
+
+                if (value)
+                {
+                    InputType = InputType.SDL3;
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "xinput.png");
+                }
+            }
+        }
+
         private bool isDInput;
         public bool IsDInput
         {
@@ -240,6 +257,9 @@ namespace Nucleus.Gaming.Coop
             set => defaultMonitorBounds = value;
         }
 
+        public RectangleF ImageBounds => RectangleUtil.ScaleAndCenter(new SizeF(Image.Size.Width, Image.Size.Height), editBounds);
+        public RectangleF DeviceImageBounds;
+        //public RectangleF MouseImageBounds;
         /// <summary>
         /// The index of this player
         /// </summary>

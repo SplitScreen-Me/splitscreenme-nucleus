@@ -3,6 +3,7 @@ using Nucleus.Coop.Tools;
 using Nucleus.Coop.UI;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
+using Nucleus.Gaming.Coop.Generic;
 using Nucleus.Gaming.UI;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Nucleus.Coop.Forms
@@ -28,6 +30,7 @@ namespace Nucleus.Coop.Forms
         private float fontSize;
         private bool overwriteWithoutAsking = false;
         public string game;
+        public static DownloadPrompt Instance;
 
         private void controlscollect()
         {
@@ -52,6 +55,7 @@ namespace Nucleus.Coop.Forms
         public DownloadPrompt(Handler handler, string zipFileName)
         {
             fontSize = float.Parse(Globals.ThemeConfigFile.IniReadValue("Font", "DownloadPromptFontSize"));
+            Instance = this;
 
             try
             {
@@ -153,7 +157,7 @@ namespace Nucleus.Coop.Forms
             }
         }
 
-        private void ExtractHandler()
+        private async void ExtractHandler()
         {
             try
             {
@@ -203,16 +207,8 @@ namespace Nucleus.Coop.Forms
                 string exeName = null;
                 int found = 0;
 
-                //might be testable by extracting a handler.
-                //Bellow commented is for new Game.ExecutableNames option (2.4.1), must finish the implementation
-                //once a handler using it can be downloaded for proper debugging.(Must be implemented in HubWebview too).
-                //string exeNamesString = null;
-
-
                 string filePath = Path.Combine(scriptTempFolder, "handler.js");
                 string fileName = "";
-                //string promptText = "Downloading and extraction";
-                //bool dontDeleteZip = false;
 
                 if (File.Exists(filePath))
                 {
@@ -223,9 +219,6 @@ namespace Nucleus.Coop.Forms
                     filePath = zipFile;
 
                     fileName = new FileInfo(zipFile).Name.Replace(".zip", ".js");
-                    //frmHandleTitle = pattern.Replace(fileName, "");
-                    //promptText = "Extraction";
-                    //dontDeleteZip = true;
                 }
 
                 if (!File.Exists(Path.Combine(scriptTempFolder, fileName)))
@@ -243,13 +236,7 @@ namespace Nucleus.Coop.Forms
                         exeName = line.Substring(start + 1, (end - start) - 1);
                         found++;
                     }
-                    //else if (line.ToLower().StartsWith("game.executablenames"))
-                    //{
-                    //    int start = line.IndexOf("[");
-                    //    int end = line.LastIndexOf("]");   
-                    //    exeNamesString = pattern.Replace(line.Substring(start + 1, (end - start) - 1), "");
-                    //    found++;
-                    //}
+
                     else if (line.ToLower().StartsWith("game.gamename"))
                     {
                         int start = line.IndexOf("\"");
@@ -265,25 +252,23 @@ namespace Nucleus.Coop.Forms
                 }
 
                 string fullZipPath = Path.Combine(scriptFolder, zipFile);
-                //if (fileName == "handler.js")
+
+                if (File.Exists(Path.Combine(scriptFolder, frmHandleTitle + ".js")))
                 {
-                    if (File.Exists(Path.Combine(scriptFolder, frmHandleTitle + ".js")))
+                    DialogResult ovdialogResult = overwriteWithoutAsking ? DialogResult.Yes : MessageBox.Show("A handler with the name " + (frmHandleTitle + ".js") + " already exists. Do you wish to overwrite it?", "Handler already exists", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                    if (ovdialogResult != DialogResult.Yes)
                     {
-                        DialogResult ovdialogResult = overwriteWithoutAsking ? DialogResult.Yes : MessageBox.Show("A handler with the name " + (frmHandleTitle + ".js") + " already exists. Do you wish to overwrite it?", "Handler already exists", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-                        if (ovdialogResult != DialogResult.Yes)
+                        zip.Dispose();
+                        Directory.Delete(scriptTempFolder, true);
+
+                        if (fullZipPath.Contains("handlers"))
                         {
-                            zip.Dispose();
-                            Directory.Delete(scriptTempFolder, true);
-
-                            if (fullZipPath.Contains("handlers"))
-                            {
-                                File.Delete(fullZipPath);
-                            }
-
-                            Close();
-
-                            return;
+                            File.Delete(fullZipPath);
                         }
+
+                        Close();
+
+                        return;
                     }
                 }
 
@@ -339,34 +324,34 @@ namespace Nucleus.Coop.Forms
 
                 if (fullZipPath.Contains("handlers"))
                 {
-                    File.Delete(fullZipPath);
+                    //File.Delete(fullZipPath);
+                    FileUtil.SendToRecycleBin(fullZipPath);
                 }
 
-                //string[] exeNamesArray = null;
+                bool update = GameManager.Instance.AddNewGenericGameInfo(frmHandleTitle, true);
 
-                //if(exeNamesString != null)
-                //{
-                //    exeNamesArray = exeNamesString.Split(',');
-                //}
-
-                if (GameManager.Instance.IsGameAlreadyInUserProfile(exeName, /*exeNamesArray ,*/frmHandleTitle))
+                if (update)//only update GenericGameInfo of existing an UserGameInfo or skip net step if there is an error in the file
                 {
-                    GameManager.Instance.AddScript(frmHandleTitle, new bool[] { false, false });
+                    await CloseAsync();
                     return;
                 }
-
-                DialogResult dialogResult = MessageBox.Show(
-                    $"Downloading and extraction of " + frmHandleTitle +
-                    " handler is complete. Would you like to add this game to Nucleus now? You will need to select the game executable to add it.",
-                    "Download finished! Add to Nucleus?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                if (dialogResult == DialogResult.Yes)
+                else
                 {
-                    GenericGameInfo genericGameInfo = GameManager.Instance.AddScript(frmHandleTitle, new bool[] { false, false });
-                    SearchGame.Search(exeName, genericGameInfo);
+                    DialogResult dialogResult = MessageBox.Show(
+                        $"Downloading and extraction of " + frmHandleTitle +
+                        " handler is complete. Would you like to add this game to Nucleus now? You will need to select the game executable to add it.",
+                        "Download finished! Add to Nucleus?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if (dialogResult == DialogResult.Yes)
+                    {
+                        HandlerInfo handlerInfo = Core_Interface.GameManager.HandlerInfos.Where(aggi => aggi.FileName == frmHandleTitle + ".js").FirstOrDefault(); //GameManager.Instance.AddNewGenericGameInfo(frmHandleTitle, new bool[] { false, false });
+                        await SearchGame.Search(exeName, handlerInfo);
+                    }
+
+                    await CloseAsync();
                 }
             }
-            catch
+            catch(Exception ex)
             {
 
                 if (Directory.Exists(scriptFolder + "\\temp"))
@@ -374,8 +359,24 @@ namespace Nucleus.Coop.Forms
                     Directory.Delete(scriptFolder + "\\temp", true);
                 }
 
-                MessageBox.Show("Something went wrong during the extraction. Make sure to use a valid Nucleus handler archive.", "An error occured.", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                MessageBox.Show("Something went wrong during the extraction. Make sure to use a valid Nucleus handler archive." + "\n" + ex.Message, "An error occured.", MessageBoxButtons.OK, MessageBoxIcon.Hand);
             }
+
+            await CloseAsync();
+        }
+
+
+        private async Task HideAsync()
+        {
+            await Task.Delay(1500);
+            Hide();
+        }
+
+        private async Task CloseAsync()
+        {
+            await Task.Delay(1200);
+            Instance = null;
+            Close();
         }
     }
 }

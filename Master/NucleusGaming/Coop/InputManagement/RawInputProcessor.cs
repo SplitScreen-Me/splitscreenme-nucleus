@@ -3,6 +3,7 @@ using Nucleus.Gaming.Coop.BasicTypes;
 using Nucleus.Gaming.Coop.InputManagement.Enums;
 using Nucleus.Gaming.Coop.InputManagement.Structs;
 using Nucleus.Gaming.Tools.GlobalWindowMethods;
+using Nucleus.Gaming.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -400,18 +401,65 @@ namespace Nucleus.Gaming.Coop.InputManagement
             {
                 if (!splitScreenRunning() && CurrentProfile?.DevicesList != null)
                 {
-                    for(int i = 0; i < CurrentProfile.DevicesList.Count(); i++)
-                    {
-                        PlayerInfo toFlash = CurrentProfile.DevicesList[i];
+                    var kbmList = CurrentProfile.DevicesList.Where(p => p.IsKeyboardPlayer || p.IsRawMouse).ToList();
 
-                        if (toFlash != null && (toFlash.IsKeyboardPlayer && !toFlash.IsRawKeyboard && !toFlash.IsRawMouse) || ((type == HeaderDwType.RIM_TYPEMOUSE && toFlash.RawMouseDeviceHandle.Equals(hDevice)) || (type == HeaderDwType.RIM_TYPEKEYBOARD && toFlash.RawKeyboardDeviceHandle.Equals(hDevice))))
+                    for (int i = 0; i < kbmList.Count; i++)
+                    {
+                        PlayerInfo toFlash = kbmList[i];
+
+                        if (toFlash != null && ((type == HeaderDwType.RIM_TYPEMOUSE && toFlash.RawMouseDeviceHandle.Equals(hDevice)) || (type == HeaderDwType.RIM_TYPEKEYBOARD && toFlash.RawKeyboardDeviceHandle.Equals(hDevice))))
                         {
                             if (toFlash.HIDDeviceID[0] == "MouseHandleZero" && rawBuffer.data.mouse.ulExtraInformation == 161)//dwExtraInfo 0x00A1 == 161 so we can filter out the virtual mouse created by ui navigation
                             {
                                 return;
                             }
 
-                            toFlash.FlashIcon();
+                            if(type == HeaderDwType.RIM_TYPEKEYBOARD)
+                            {
+                                uint keyboardMessage = rawBuffer.data.keyboard.Message;
+                                bool keyDown = keyboardMessage == (uint)KeyboardEvents.WM_KEYDOWN;
+
+                                if (keyDown)
+                                {
+                                    toFlash.FlashIcon();
+                                }
+                                else
+                                {
+                                    //toFlash.ShouldFlash = false;
+                                }
+                                
+                            }
+                            else if(type == HeaderDwType.RIM_TYPEMOUSE)
+                            {
+                                ushort f = rawBuffer.data.mouse.usButtonFlags;
+                                if (f != 0)
+                                {
+                                    foreach (KeyValuePair<RawInputButtonFlags, (MouseEvents msg, uint wParam, ushort leftMiddleRight, bool isButtonDown, int VKey)> pair in _buttonFlagToMouseEvents)
+                                    {
+
+                                        if ((f & (ushort)pair.Key) > 0)
+                                        {
+                                            (MouseEvents msg, uint wParam, ushort leftMiddleRight, bool isButtonDown, int vKey) = pair.Value;
+
+                                            bool isButton = msg == MouseEvents.WM_RBUTTONDOWN || msg == MouseEvents.WM_LBUTTONDOWN || msg == MouseEvents.WM_MBUTTONDOWN;
+
+                                            if (isButton)
+                                            {
+                                                //Console.WriteLine(msg);
+                                                //toFlash.ShouldFlash = true;
+                                                toFlash.FlashIcon();
+                                            }
+                                            else
+                                            {
+                                                toFlash.ShouldFlash = false;
+                                            }
+
+                                        }
+                                    }
+                                }
+                                
+                            }
+                            
                         }
                     }
                 }
@@ -437,7 +485,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
 
                     if (!LockInputRuntime.IsLocked)
                     {
-                        if (CurrentGameInfo == null || GenericGameHandler.Instance.hasEnded)
+                        if (CurrentGameInfo == null || GenericGameHandler.Instance.HasEnded)
                         {
                             return;
                         }
@@ -447,7 +495,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
                             GlobalWindowMethods.ChangeForegroundWindow();
                         }
 
-                        Globals.MainOSD.Show(800, "Inputs Locked");
+                        Globals.MainOSD.Show(800, $"*@{OSDHighlightColors.Info}|Inputs Locked@*");
 
                         Thread.Sleep(850);
 
@@ -459,7 +507,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
                         
                         Thread.Sleep(300);
                         
-                        Globals.MainOSD.Show(800, "Inputs Unlocked");
+                        Globals.MainOSD.Show(800, $"*@{OSDHighlightColors.Confirm}|Inputs Unlocked@*");
                     }
                 }
 
