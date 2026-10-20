@@ -1450,6 +1450,7 @@ namespace Nucleus.Gaming
 
         public string Play()
         {
+            GlobalWindowMethods.RestartThreadIsRunning = true; //block remote calls
             if (!App_Misc.IgnoreInputLockReminder)
             {
                 MessageBox.Show("Some handlers will require you to press the End key to lock input. Remember to unlock input by pressing End again when you finish playing. You can disable this message in the Settings. ", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly, false);
@@ -1892,7 +1893,7 @@ namespace Nucleus.Gaming
                         User32Interop.SetForegroundWindow(pdata.Process.NucleusGetMainWindowHandle());
                         DllsInjector.InjectDLLs(pdata.Process, nextWindowToInject, before);
                     }
-                }
+                } 
 
                 Rectangle playerBounds = player.MonitorBounds;
                 owner = player.Owner;
@@ -3332,6 +3333,8 @@ namespace Nucleus.Gaming
             gen.OnFinishedSetup?.Invoke();
 
             WindowsMerger.Instance?.InsertGameWindows();
+
+            GlobalWindowMethods.RestartThreadIsRunning = false; //open remote calls. games can restart
 
             Log("All done!");
 

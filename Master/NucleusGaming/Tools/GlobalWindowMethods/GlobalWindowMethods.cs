@@ -76,7 +76,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
             canSwitchLayout = true;
         }
 
-        private static bool RestartThreadIsRunning = false;
+        public static bool RestartThreadIsRunning = false;
         public static void ResetWindows(ProcessData processData, int x, int y, int w, int h, int i)
         {
             var handlerInstance = GenericGameHandler.Instance;
@@ -1124,7 +1124,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
         }
         #endregion
         
-        private static void OnProcessQuit(PlayerInfo p, List<PlayerInfo> players, Process quitproc)
+        private static void RestartInstanceThread(PlayerInfo p, List<PlayerInfo> players, Process quitproc)
         {
             var handlerInstance = GenericGameHandler.Instance;
 
@@ -1169,9 +1169,9 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
             }
             else if (!handlerInstance.CurrentGameInfo.CantRestartInstances)
             {
-
                 handlerInstance.Log("Process Lost... Attempting Restart");
                 Thread.Sleep(1000);
+
                 bool relock = LockInputRuntime.IsLocked;
                 if (relock)
                 {
@@ -1182,13 +1182,13 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 if (p.PlayerID + 1 != players.Count && !handlerInstance.CurrentGameInfo.KillLastInstanceMutex) //lastinstance mutex may be blocking
                 {
                     handlerInstance.MutexKill();
+                    handlerInstance.Log("Relaunch killed mutex on previous instance");
                     Thread.Sleep(1000);
-
                 }
                 handlerInstance.LaunchGame(p, p.PlayerID, true);
                 handlerInstance.Log("Relaunch started game");
                 Thread.Sleep(1000);
-                handlerInstance.Log("Relaunch killed mutex");
+                
                 handlerInstance.Log("Relaunch Process Search");
                 p.ProcessData.AssignProcess(handlerInstance.processsearch(p, p.PlayerID, true));
                 if (p.ProcessData != null)
@@ -1200,10 +1200,8 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                     handlerInstance.Log("Relaunch Hooked Instance");
                     Thread.Sleep(1000);
                     handlerInstance.MutexKill();
+                    handlerInstance.Log("Relaunch killed mutex");
                     ChangeGameWindow(p.ProcessData.Process, handlerInstance.profile.DevicesList, p.PlayerID);
-                    // WindowsMerger.Instance?.InsertGameWindows();
-                    handlerInstance.Log("Relaunch All done!");
-                    //Globals.MainOSD.Show(1000, "Setup Complete Again!");
                 }
                 else
                 {
@@ -1215,12 +1213,23 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                     LockInputRuntime.Lock(handlerInstance.CurrentGameInfo.LockInputSuspendsExplorer, handlerInstance.CurrentGameInfo.ProtoInput.FreezeExternalInputWhenInputNotLocked, handlerInstance.CurrentGameInfo?.ProtoInput);
 
             }
-            else handlerInstance.exited++;
             RestartThreadIsRunning = false;
             return;
         }
+        private static void RunRestartInstanceThread(PlayerInfo p, List<PlayerInfo> players, Process quitproc)
+        {
+            RestartThreadIsRunning = true;
+            Thread RestartThread = new Thread(delegate ()
+            {
+                RestartInstanceThread(p, players, quitproc);
+                System.Windows.Threading.Dispatcher.Run();
+            });
 
-        public static void UpdateAndRefreshGameWindows(double delayMS, bool refresh)
+            RestartThread.SetApartmentState(ApartmentState.STA);
+            RestartThread.Start();
+        }
+
+public static void UpdateAndRefreshGameWindows(double delayMS, bool refresh)
         {
             var handlerInstance = GenericGameHandler.Instance;
 
@@ -1265,21 +1274,17 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 }
 
                 if (data.Finished)
-                {   
+                {
                     if (data.Process.HasExited)
                     {
-                       if (!RestartThreadIsRunning)
+                        if (handlerInstance.CurrentGameInfo.CantRestartInstances || handlerInstance.CurrentGameInfo.GameReLaunchByItself)
                         {
-                            RestartThreadIsRunning = true;
-                            Thread RestartThread = new Thread(delegate ()
+                            if (!RestartThreadIsRunning)
                             {
-                                OnProcessQuit(p, players, data.Process);
-                                System.Windows.Threading.Dispatcher.Run();
-                            });
-
-                            RestartThread.SetApartmentState(ApartmentState.STA); // copy copy
-                            RestartThread.Start();
+                                RunRestartInstanceThread(p, players, data.Process);
+                            }
                         }
+                        else handlerInstance.exited++;
                     }
                     
                     continue;
@@ -1318,21 +1323,17 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                     if (updatedHwnd)
                     {
                         if (data.Setted)
-                         {
+                        {
                             if (data.Process.HasExited)
                             {
-                                if (!RestartThreadIsRunning)
+                                if (handlerInstance.CurrentGameInfo.CantRestartInstances || handlerInstance.CurrentGameInfo.GameReLaunchByItself)
                                 {
-                                    RestartThreadIsRunning = true;
-                                    Thread RestartThread = new Thread(delegate ()
+                                    if (!RestartThreadIsRunning)
                                     {
-                                        OnProcessQuit(p, players, data.Process);
-                                        System.Windows.Threading.Dispatcher.Run();
-                                    });
-
-                                    RestartThread.SetApartmentState(ApartmentState.STA); // copy copy
-                                    RestartThread.Start(); //thread cease to exist on return?
+                                        RunRestartInstanceThread(p, players, data.Process);
+                                    }
                                 }
+                                else handlerInstance.exited++;
                                 continue;
                             }
 
