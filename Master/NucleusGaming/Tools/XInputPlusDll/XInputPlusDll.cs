@@ -116,12 +116,13 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                         {
                             textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "Controller1=", SearchType.StartsWith) + "|Controller1=" + (player.GamepadId + 1));
                         }
+
                     }
                     else
                     {
                         if (block)
                             handlerInstance.Log("Skipping setting controller value for this instance, as this player is using TranslateXtoMKB");
-                        else
+                        else 
                             handlerInstance.Log("Skipping setting controller value for this instance, as this player is using keyboard");
                         handlerInstance.kbi = 0;
                     }
