@@ -3948,7 +3948,7 @@ namespace Nucleus.Gaming
             hasEnded = true;
             IsRunning = false;
         }
-
+        
         public void Log(StreamWriter writer)
         {
         }
