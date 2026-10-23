@@ -1,0 +1,34 @@
+name: "📇 Meta/Repository Issue"
+description: Address an issue at the repository / project-wide level
+title: '📇 <meta issue name>'
+labels: [📇 Meta/Repository]
+body:
+  - type: markdown
+    attributes:
+      value: "## Before you continue, please search our open/closed issues to see if a similar issue has been addressed."
+
+  - type: checkboxes
+    attributes:
+      label: I have searched through the issues and didn't find my problem.
+      options:
+        - label: Confirm
+          required: true
+
+  - type: textarea
+    id: currentissue
+    attributes:
+      label: Issue
+      description: Tell us about the issue you would like to address. Feel free to show examples where, why and how addressing this issue might be useful.
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestedchange
+    attributes:
+      label: Suggested Change
+      description: Please suggest any changes that you think could resolve the issue. The more specific, the better!
+  - type: textarea
+    id: extrainformation
+    attributes:
+      label: Additional information
+      description: Is there anything else we should know, or anything else you would like to add?
