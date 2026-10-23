@@ -1,15 +1,20 @@
-﻿using Jint.Parser;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Coop.Generic;
 using Nucleus.Gaming.Coop.InputManagement;
+using Nucleus.Gaming.Forms;
+using Nucleus.Gaming.UI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Nucleus.Gaming
@@ -18,29 +23,44 @@ namespace Nucleus.Gaming
     /// Manages games information, so we can know what games are supported 
     /// and how to support it
     /// </summary>
+    /// 
+
+    public static class AddGameResultString
+    {
+        public static string WrongExeSelected = "No handler match found for this executable.";
+        public static string MissExecutableContext = "Missing content in game directory:";
+        public static string GameAddedSuccessfully = " added successfully.";
+        public static string GameAlreadyAdded = "This game is already in your game list.";
+    }
+
     public class GameManager
     {
         public static GameManager Instance { get; private set; }
+
+        private string jsonFilePath = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\userGameDirectories.json";
+        private List<string> gamesSearcheDirectories = new List<string>();
+        public List<string> GamesSearcheDirectories => gamesSearcheDirectories;
 
         private List<BackupFile> backupFiles;
         private bool isSaving;
 
         private RawInputProcessor rawInputProcessor;
+        public Action OnGenericGameInfoListUpdate;
+        private System.Windows.Forms.Timer filesSuprVisorTimer;
         //private InputInterceptor inputInterceptor;
 
         /// object instance so we can thread-safe save the user profile
-        private object saving = new object();
+        private readonly object saving = new object();
+        private readonly object refreshing = new object();
 
         public bool IsSaving => isSaving;
 
         /// <summary>
         /// A dictionary containing GameInfos. The key is the game's guid
         /// </summary>
-        private Dictionary<string, GenericGameInfo> games;
-        public Dictionary<string, GenericGameInfo> Games => games;
-
-        private Dictionary<string, GenericGameInfo> gameInfos;
-        public Dictionary<string, GenericGameInfo> GameInfos => gameInfos;
+        private List<HandlerInfo> handlerInfos;
+        public List<HandlerInfo> HandlerInfos => handlerInfos;
+        public List<string> BlackListedFiles = new List<string>();
 
         private UserProfile user;
         public UserProfile User
@@ -52,31 +72,131 @@ namespace Nucleus.Gaming
         public GameManager()
         {
             Instance = this;
-            games = new Dictionary<string, GenericGameInfo>();
-            gameInfos = new Dictionary<string, GenericGameInfo>();
+            Directory.CreateDirectory(GetAppContentPath());
+            Directory.CreateDirectory(GetJsScriptsPath());
 
-            string appData = GetAppContentPath();
-            Directory.CreateDirectory(appData);
-
-            string gameJs = GetJsScriptsPath();
-            Directory.CreateDirectory(gameJs);
-
-            //inputInterceptor = new InputInterceptor();
-
-            //            LockInput.Unlock();
-
-            //Subscribe to raw input
             //TODO: update isRunningSplitScreen
             Debug.WriteLine("Registering raw input");
             rawInputProcessor = new RawInputProcessor(() => LockInputRuntime.IsLocked);//TODO: needs more robust method
-                                                                                //Action<IntPtr> rawInputAction = rawInputProcessor.Process;
-                                                                                //GameManager.mainForm.GetType().GetProperty("RawInputAction").SetValue(GameManager.mainForm, rawInputAction, new object[] { });
-                                                                                //IntPtr rawInputHwnd = GameManager.mainFormHandle;
-
+                                                                                       //Action<IntPtr> rawInputAction = rawInputProcessor.Process;
+                                                                                       //GameManager.mainForm.GetType().GetProperty("RawInputAction").SetValue(GameManager.mainForm, rawInputAction, new object[] { });
+                                                                                       //IntPtr rawInputHwnd = GameManager.mainFormHandle;
             RawInputManager.RegisterRawInput(rawInputProcessor);
 
             Initialize();
+            LoadUserGameSearchPaths();
             LoadUser();
+            CleanGamesAssets();
+        }
+
+        private void LoadUserGameSearchPaths()
+        {
+            if (File.Exists(jsonFilePath))
+            {
+                string pathString = File.ReadAllText(jsonFilePath);
+
+                if (!string.IsNullOrEmpty(pathString))
+                {
+                    JObject pathJObject = (JObject)JsonConvert.DeserializeObject(pathString);
+
+                    if (pathJObject == null)
+                    {
+                        SaveSearchPathsJson();
+                        return;
+                    }
+
+                    for (int i = 0; i < pathJObject["Path"].Count(); i++)
+                    {
+                        string dirPath = pathJObject["Path"][i].ToString();
+
+                        if (!Directory.Exists(dirPath))
+                        {
+                            continue;
+                        }
+
+                        gamesSearcheDirectories.Add(dirPath);
+                        //Console.WriteLine(dirPath);
+                    }
+                }
+            }
+            else
+            {
+                SaveSearchPathsJson();
+            }
+        }
+
+        private void SaveSearchPathsJson()
+        {
+            lock (saving)
+            {
+                if (!File.Exists(jsonFilePath))
+                {
+                    if (!Directory.Exists($@"{Globals.UserEnvironmentRoot}\NucleusCoop"))
+                    {
+                        Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop");
+                    }
+                }
+
+                gamesSearcheDirectories.Sort(StringComparer.OrdinalIgnoreCase);
+
+                JObject pathJObject = new JObject(new JProperty("Path", gamesSearcheDirectories));
+
+                using (FileStream stream = new FileStream(jsonFilePath, FileMode.Create))
+                {
+                    using (StreamWriter writer = new StreamWriter(stream))
+                    {
+                        string json = JsonConvert.SerializeObject(pathJObject, Formatting.Indented);
+                        writer.Write(json);
+                        stream.Flush();
+                    }
+                }
+            }
+        }
+
+        public void AddGamesSearchDirectory(string path)//pass a string array to avoid repeated calls
+        {
+            if (!gamesSearcheDirectories.Any(p => p == path))
+            {
+                gamesSearcheDirectories.Add(path);
+
+                SaveSearchPathsJson();
+            }
+            else
+            {
+                Console.WriteLine("Json object already contains: " + path);
+            }
+        }
+
+        public void RemoveGamesSearchDirectory(string path)//pass a string array to avoid repeated calls
+        {
+            if (gamesSearcheDirectories.Any(p => p == path))
+            {
+                gamesSearcheDirectories.Remove(path);
+                SaveSearchPathsJson();
+            }
+            else
+            {
+                Console.WriteLine("Could not find path in json object: " + path);
+            }
+        }
+
+        private void StartJsFilesSupervisor()
+        {
+            filesSuprVisorTimer?.Dispose();
+            filesSuprVisorTimer = new System.Windows.Forms.Timer();
+            filesSuprVisorTimer.Interval = (3000); //millisecond                   
+            filesSuprVisorTimer.Tick += FileSupervisorTimer_Tick;
+            filesSuprVisorTimer.Start();
+        }
+
+        private void FileSupervisorTimer_Tick(object Object, EventArgs eventArgs)
+        {
+            if (GenericGameHandler.IsRunning)
+            {
+                return;
+            }
+
+            RefreshHandlersData();
         }
 
         /// <summary>
@@ -86,126 +206,126 @@ namespace Nucleus.Gaming
         /// <returns></returns>
         public bool AnyGame(string gameExe)
         {
-            return Games.Values.Any(c => c.ExecutableName.ToLower() == gameExe);
+            return user.Games.Any(c => c.HandlerInfo.GenericGameInfo.ExecutableName.ToLower() == gameExe);
         }
-
-        /// <summary>
-        /// Tries to find the game
-        /// </summary>
-        /// <param name="exePath"></param>
-        /// <returns></returns>
-        public GenericGameInfo GetGame(string exePath)
-        {
-            string lower = exePath.ToLower();
-            string fileName = Path.GetFileName(exePath).ToLower();
-            string dir = Path.GetDirectoryName(exePath);
-
-            List<GenericGameInfo> possibilities = new List<GenericGameInfo>();
-
-            //a workaround so we can choose different game executables.
-            foreach (var gen in Games.Values)
-            {
-                if (gen.ExecutableNames != null)
-                {
-                    if (gen.ExecutableNames.Any(exe => exe.ToLower() == fileName))
-                    {
-                        possibilities.Add(gen);
-                    }
-                }
-            }
-
-            if (possibilities.Count() == 0)
-            {
-                var getPossiblities = Games.Values.Where(c => c.ExecutableName?.ToLower() == fileName).ToList();
-
-                if (getPossiblities != null)
-                {
-                    possibilities = getPossiblities;
-                }
-            }
-
-            foreach (GenericGameInfo game in possibilities)
-            {
-                // check if the Context matches
-                string[] context = game.ExecutableContext;
-                bool notAdd = false;
-                if (context != null)
-                {
-                    for (int j = 0; j < context.Length; j++)
-                    {
-                        string con = Path.Combine(dir, context[j]);
-                        if (!File.Exists(con) &&
-                            !Directory.Exists(con))
-                        {
-                            notAdd = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (notAdd)
-                {
-                    continue;
-                }
-
-                // search for the same exe on the user profile
-                return game;
-            }
-
-            return null;
-        }
-
+     
         /// <summary>
         /// Returns all the possible games with the exe path
         /// </summary>
         /// <param name="exePath"></param>
         /// <returns></returns>
-        public List<GenericGameInfo> GetGames(string exePath)
+        /// 
+        public (List<HandlerInfo>, string) GetGames(string exePath)
         {
             string lower = exePath.ToLower();
             string fileName = Path.GetFileName(exePath).ToLower();
             string dir = Path.GetDirectoryName(exePath);
 
-            List<GenericGameInfo> possibilities = new List<GenericGameInfo>();
+            List<HandlerInfo> possibilities = new List<HandlerInfo>();
 
-            //a workaround so we can choose different game executables.
-            foreach (var gen in Games.Values)
+            foreach (UserGameInfo usergameInfo in user.Games)
             {
-                if(gen.ExecutableNames != null)
+                GenericGameInfo genericGameInfo = usergameInfo?.HandlerInfo?.GenericGameInfo;
+
+                if (genericGameInfo != null)
                 {
-                    if(gen.ExecutableNames.Any(exe => exe.ToLower() == fileName))
+                    if (genericGameInfo.ExecutableNames != null)
                     {
-                        possibilities.Add(gen);
+                        foreach (string exeName in genericGameInfo.ExecutableNames)
+                        {
+                            if (Path.Combine(dir, exeName).ToLower() == exePath.ToLower())
+                            {
+                                return (possibilities, AddGameResultString.GameAlreadyAdded);
+                            }
+                        }
+                    }
+                    else if (usergameInfo.ExePath == exePath)
+                    {
+                        return (possibilities, AddGameResultString.GameAlreadyAdded);
                     }
                 }
             }
 
-            if(possibilities.Count() == 0)
+            //Will return only the last result because that the one that will be loaded by the GameManager by default anyway
+            //!!!! May change that it use creation time.
+            for (int i = 0; i < handlerInfos.Count; i++)
             {
-                var getPossiblities = Games.Values.Where(c => c.ExecutableName?.ToLower() == fileName).ToList();
+                HandlerInfo handlerInfo = handlerInfos[i];
 
-                if(getPossiblities != null)
+                if (!handlerInfo.IsValid)
                 {
-                    possibilities = getPossiblities;
-                }             
+                    continue;
+                }
+
+                GenericGameInfo genericGameInfo = handlerInfo.GenericGameInfo;
+
+                if (user.Games.Any(ug => ug.GameGuid == handlerInfo.GUID))
+                {
+                    continue;
+                }
+
+                if (genericGameInfo.ExecutableNames != null)
+                {
+                    foreach (string exeName in genericGameInfo.ExecutableNames)
+                    {
+                        if (exeName.ToLower() == fileName)
+                        {
+                            if (!possibilities.Any(p => p.GenericGameInfo == genericGameInfo))
+                            {
+                                //ExecutableContext check will do the rest
+                                possibilities.Add(handlerInfo);
+                            }
+                        }
+                    }
+                }
+                else if (genericGameInfo.ExecutableName.ToLower() == fileName)
+                {
+                    //ExecutaleContext check will do the rest
+                    possibilities.Add(handlerInfo);
+                }
             }
 
-            List<GenericGameInfo> games = new List<GenericGameInfo>();
+            if (possibilities.Count == 0)
+            {
+                return (possibilities, AddGameResultString.WrongExeSelected);
+            }
 
-            foreach (GenericGameInfo game in possibilities)
+            List<HandlerInfo> games = new List<HandlerInfo>();
+            Dictionary<string,string> missingContextValues = new Dictionary<string, string>();
+
+            int duplicatData = 0;
+
+            foreach (HandlerInfo handlerInfo in possibilities)
             {
                 // check if the Context matches
-                string[] context = game.ExecutableContext;
+                string[] contextValuesArray = handlerInfo.GenericGameInfo.ExecutableContext;
                 bool notAdd = false;
-                if (context != null)
+
+                if (contextValuesArray != null)
                 {
-                    for (int j = 0; j < context.Length; j++)
+                    for (int j = 0; j < contextValuesArray.Length; j++)
                     {
-                        string con = Path.Combine(dir, context[j]);
-                        if (!File.Exists(con) &&
-                            !Directory.Exists(con))
+                        string contextFile = Path.Combine(dir, contextValuesArray[j]);
+
+                        if (contextValuesArray[j].StartsWith("!"))//negate if the context file value starts with "!", if the file exists the handler can't be added;
                         {
+                            contextFile = Path.Combine(dir, contextValuesArray[j].TrimStart('!'));
+
+                            if (File.Exists(contextFile) || Directory.Exists(contextFile))
+                            {
+                                notAdd = true;
+                                break;
+                            }
+                        }
+                        else if (!File.Exists(contextFile) && !Directory.Exists(contextFile))
+                        {
+                            //for (int f = 0; f < contextValuesArray.Length; f++)
+                            //{
+                            missingContextValues.Add(handlerInfo.FileFullPath ,Path.Combine(dir, contextFile /*contextValuesArray[f]*/));
+                            //}
+
                             notAdd = true;
+                            duplicatData++;
                             break;
                         }
                     }
@@ -216,123 +336,81 @@ namespace Nucleus.Gaming
                     continue;
                 }
 
-                // search for the same exe on the user profile
-                games.Add(game);
+                games.Add(handlerInfo);
             }
 
-            return games;
+            string reason = AddGameResultString.GameAddedSuccessfully;
+
+            if (games.Count == 0)
+            {
+                reason = AddGameResultString.MissExecutableContext + " ";
+                foreach (KeyValuePair<string, string> contextValue in missingContextValues)
+                {
+                    reason += "\nHandler: " + contextValue.Key +  "\n";
+                    reason += "Value: " + contextValue.Value + "\n";
+                }
+
+                if(duplicatData > 1)
+                {
+                    reason += "\n\nNote: There are handlers sharing \"ExecutableContext\" values.";
+                }
+            }
+
+            //A workaround so more than one exe can be selected to add a game to the app.
+            for (int i = 0; i < games.Count; i++)
+            {
+                HandlerInfo handlerInfo = games[i];
+                if (handlerInfo?.GenericGameInfo.ExecutableNames != null)
+                {
+                    foreach (var exe in handlerInfo.GenericGameInfo.ExecutableNames)
+                    {
+                        handlerInfo.GenericGameInfo.ExecutableName = Path.GetFileName(exePath);
+                    }
+                }
+            }
+
+            return (games, reason);
         }
 
+        public (List<HandlerInfo>, string) GetGameByJsFilePath(string filePath,string exePath)
+        {
+           HandlerInfo found =  Instance.HandlerInfos.Find(hi => hi.IsValid && hi.FileFullPath == filePath);
+
+            if(found != null)
+            {
+                if (found.GenericGameInfo.ExecutableNames != null)
+                {
+                    //foreach (var exe in found.GenericGameInfo.ExecutableNames)
+                    //{
+                        found.GenericGameInfo.ExecutableName = Path.GetFileName(exePath);
+                    //}
+                }
+
+                return (new List<HandlerInfo> { found }, AddGameResultString.GameAddedSuccessfully);
+            }
+            else
+            {
+                return (new List<HandlerInfo>(), AddGameResultString.WrongExeSelected);
+            }
+           
+        }
         /// <summary>
         /// Tries adding a game to the collection with the provided IGameInfo
         /// </summary>
         /// <param name="exePath"></param>
         /// <returns></returns>
-        public UserGameInfo TryAddGame(string exePath, GenericGameInfo game)
+        public UserGameInfo TryAddGame(string exePath, HandlerInfo handlerInfo)
         {
-            string lower = exePath.ToLower();
-
-            // search for the same exe on the user profile
-            if (Instance.User.Games.Any(c => c.ExePath.ToLower() == lower))
-            {
-                //try to clean old user profile for this game entries, most likely happens if user deleted the js file manually
-                var inUserProfile = Instance.User.Games.Where(c => c.ExePath.ToLower() == lower).ToList();
-                
-                for (int i = 0; i < inUserProfile.Count; i++)
-                {
-                    var toDelete = inUserProfile[i]; 
-                    Instance.User.Games.Remove(inUserProfile[i]);
-                }
-                //DialogResult dialogResult = MessageBox.Show("This game's executable is already in your library. \nRemove the game from your library if you need to re-add it or restart Nucleus if you previouly deleted the handler (.js file) manually.\n" + exePath, "Already exists", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                //if (dialogResult == DialogResult.OK)
-                //{
-                //    return null;
-                //}
-            }
-
-            LogManager.Log("Found game: {0}, full path: {1}", game.GameName, exePath);
+            LogManager.Log("Found game: {0}, full path: {1}", handlerInfo.GameName, exePath);
             UserGameInfo uinfo = new UserGameInfo();
 
-            game.MetaInfo.FirstLaunch = true;
+            uinfo.InitializeDefault(handlerInfo, exePath);
+            handlerInfo.GenericGameInfo.MetaInfo.FirstLaunch = true;
 
-            //Check for update in case the handler is outdated (using search game => add old handler version)
-            if(game.MetaInfo.CheckUpdate)
-            {
-                System.Threading.Tasks.Task.Run(() =>
-                {
-                    game.UpdateAvailable = game.Hub.CheckUpdateAvailable();     
-                });
-            }    
-
-            uinfo.InitializeDefault(game, exePath);
             Instance.User.Games.Add(uinfo);
             Instance.SaveUserProfile();
 
             return uinfo;
-        }
-
-        /// <summary>
-        /// Tries adding a game to the collection with the provided executable path
-        /// </summary>
-        /// <param name="exePath"></param>
-        /// <returns></returns>
-        public UserGameInfo TryAddGame(string exePath)
-        {
-            string lower = exePath.ToLower();
-            string fileName = Path.GetFileName(exePath).ToLower();
-            string dir = Path.GetDirectoryName(exePath);
-
-            IEnumerable<GenericGameInfo> possibilities = Games.Values.Where(c => c.ExecutableName.ToLower() == fileName);
-
-            foreach (GenericGameInfo game in possibilities)
-            {
-                // check if the Context matches
-                string[] context = game.ExecutableContext;
-                bool notAdd = false;
-                if (context != null)
-                {
-                    for (int j = 0; j < context.Length; j++)
-                    {
-                        string con = Path.Combine(dir, context[j]);
-                        if (!File.Exists(con) &&
-                            !Directory.Exists(con))
-                        {
-                            notAdd = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (notAdd)
-                {
-                    continue;
-                }
-
-                // search for the same exe on the user profile
-                if (Instance.User.Games.Any(c => c.ExePath.ToLower() == lower))
-                {
-                    continue;
-                }
-
-#if RELEASE
-                if (game.Debug)
-                {
-                    continue;
-                }
-#endif
-
-                LogManager.Log("Found game: {0}, full path: {1}", game.GameName, exePath);
-                UserGameInfo uinfo = new UserGameInfo();
-
-                uinfo.InitializeDefault(game, exePath);
-                Instance.User.Games.Add(uinfo);
-                Instance.SaveUserProfile();
-
-                return uinfo;
-            }
-
-            return null;
         }
 
         public void WaitSave()
@@ -340,82 +418,6 @@ namespace Nucleus.Gaming
             while (IsSaving)
             {
             }
-        }
-
-        /// <summary>
-        /// Check if a game is already prensent in user profile with the provided IGameInfo
-        /// </summary>
-        /// <param name="exePath"></param>
-        /// <returns></returns>
-        public bool IsGameAlreadyInUserProfile(string exeName, string handlerTitle)
-        {
-            // Bellow commented is for new Game.ExecutableNames option (2.4.1) , must finish the implementation
-            //once a handler using it can be downloaded for proper debugging.
-            //if (exeNames != null)
-            //{
-            //    foreach (string _exeName in exeNames)
-            //    {
-            //        string lower = _exeName.ToLower();
-
-            //        if (User.Games.Any(c => c.ExePath.Split('\\').Last().ToLower() == lower))
-            //        {
-            //            DirectoryInfo jsFolder = new DirectoryInfo(GetJsScriptsPath());
-            //            FileInfo f = new FileInfo(Path.Combine(jsFolder.FullName, handlerTitle + ".js"));
-
-            //            using (Stream str = f.OpenRead())
-            //            {
-            //                string ext = Path.GetFileNameWithoutExtension(f.Name);
-            //                string pathBlock = Path.Combine(f.Directory.FullName, ext);
-
-            //                GenericGameInfo newHandler = new GenericGameInfo(f.Name, pathBlock, str, new bool[] { false, false });
-
-            //                bool foundGame = games.Where(g => g.Value.GameName == newHandler.GameName).Count() > 0;
-
-            //                if (foundGame)
-            //                {
-            //                    return true;
-            //                }
-            //                else
-            //                {
-            //                    //found games sharing the same exe name but not game name, not the same => game can be added.
-            //                    return false;
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
-            //else
-            //{
-            string lower = exeName.ToLower();
-
-                if (User.Games.Any(c => c.ExePath.Split('\\').Last().ToLower() == lower))
-                {
-                    DirectoryInfo jsFolder = new DirectoryInfo(GetJsScriptsPath());
-                    FileInfo f = new FileInfo(Path.Combine(jsFolder.FullName, handlerTitle + ".js"));
-
-                    using (Stream str = f.OpenRead())
-                    {
-                        string ext = Path.GetFileNameWithoutExtension(f.Name);
-                        string pathBlock = Path.Combine(f.Directory.FullName, ext);
-
-                        GenericGameInfo newHandler = new GenericGameInfo(f.Name, pathBlock, str, new bool[] { false, false });
-
-                        bool foundGame = games.Where(g => g.Value.GameName == newHandler.GameName).Count() > 0;
-
-                        if (foundGame)
-                        {
-                            return true;
-                        }
-                        else
-                        {
-                            //found games sharing the same exe name but not game name, not the same => game can be added.
-                            return false;
-                        }
-                    }
-                }
-            //}
-
-            return false;
         }
 
         #region Initialize
@@ -445,10 +447,10 @@ namespace Nucleus.Gaming
             return Path.Combine(GetAppContentPath(), "userprofile.json");
         }
 
-        public UserGameInfo AddGame(GenericGameInfo game, string exePath)
+        public UserGameInfo AddGame(HandlerInfo hanlderInfo, string exePath)
         {
             UserGameInfo gInfo = new UserGameInfo();
-            gInfo.InitializeDefault(game, exePath);
+            gInfo.InitializeDefault(hanlderInfo, exePath);
             user.Games.Add(gInfo);
 
             SaveUserProfile();
@@ -465,9 +467,9 @@ namespace Nucleus.Gaming
             backupFiles = new List<BackupFile>();
         }
 
-        public IGameHandler MakeHandler(GenericGameInfo game)
+        public IGameHandler MakeHandler(UserGameInfo userGameInfo)
         {
-            return (IGameHandler)Activator.CreateInstance(game.HandlerType);
+            return (IGameHandler)Activator.CreateInstance(userGameInfo.HandlerInfo.GenericGameInfo.HandlerType);
         }
 
         public string GempTempFolder(GenericGameInfo game)
@@ -532,7 +534,7 @@ namespace Nucleus.Gaming
         {
             lock (user.Games)
             {
-                user.Games = user.Games.OrderBy(g => g.Game.GameName).ToList();
+                user.Games = user.Games.OrderBy(g => g.HandlerInfo?.GameName).ToList();
             }
         }
 
@@ -540,7 +542,7 @@ namespace Nucleus.Gaming
         {
             lock (user.Games)
             {
-                user.Games = user.Games.OrderBy(g => g?.Game?.GameName).ToList();
+                user.Games = user.Games.OrderBy(g => g.HandlerInfo?.GameName).ToList();
             }
 
             string userProfile = GetUserProfilePath();
@@ -563,60 +565,61 @@ namespace Nucleus.Gaming
 
                             user = JsonConvert.DeserializeObject<UserProfile>(json);
 
-                            if (user.Games == null)
+                            if (user.Games == null || user.Games.Count == 0)
                             {
                                 // json doesn't save empty lists, and user didn't add any game
                                 user.InitializeDefault();
                             }
                             else
                             {
-                                // delete invalid games
                                 for (int i = 0; i < user.Games.Count; i++)
-                                {                                
-                                    if (user.Games[i].Game == null || !File.Exists(user.Games[i].ExePath))//no .js file?(deleted manually) no game executable?
+                                {
+                                    UserGameInfo userGameInfo = user.Games[i];
+
+                                    HandlerInfo handlerInfo = null;
+                                    
+                                    if(!string.IsNullOrEmpty(userGameInfo.FileFullPath))
                                     {
-                                        user.Games.RemoveAt(i);
-                                        if (i > 0) 
-                                        {
-                                            i--;
-                                        } 
+                                        //Wip Nucleus
+                                        handlerInfo = handlerInfos.Find(hi => hi.IsValid && hi.FileFullPath == userGameInfo.FileFullPath)/*.LastOrDefault()*/;
+                                    }
+                                    
+                                    if(handlerInfo == null)
+                                    {
+                                        //priority to hub handlers
+                                        handlerInfo = handlerInfos.Where(hi => hi.IsValid && !string.IsNullOrEmpty(hi.GenericGameInfo.Hub.Handler.Id) && hi.GUID == userGameInfo.GameGuid).LastOrDefault();
                                     }
 
-                                    if (user.Games[i].Game != null)
+                                    if(handlerInfo == null)
                                     {
-                                        bool exist = File.Exists(user.Games[i].ExePath);
-
-                                        if (!exist)
-                                        {
-                                            CleanGamesAssets(user.Games[i].GameGuid);
-                                            user.Games.RemoveAt(i);
-                                            if (i > 0) { i--; }
-                                        }
-
-                                        //A workaround so more than one exe can be selected to add a game to the app.
-                                        //set it here so it's not null because a few functions requires it early. 
-                                        if (user.Games[i].Game.ExecutableNames != null)
-                                        {
-                                            var fileName = new FileInfo(user.Games[i].ExePath).Name;
-                                            user.Games[i].Game.ExecutableName = fileName;
-                                        }
-
-                                        //Check for handler update here so we check only for added games
-                                        if (user.Games[i].Game.MetaInfo.CheckUpdate)
-                                        {
-                                            var game = user.Games[i].Game;
-
-                                            System.Threading.Tasks.Task.Run(() =>
-                                            {
-                                                game.UpdateAvailable = game.Hub.CheckUpdateAvailable();
-                                            });
-                                        }
+                                        //last resort
+                                        handlerInfo = handlerInfos.Where(hi => hi.IsValid && hi.GUID == userGameInfo.GameGuid).LastOrDefault();
                                     }
+
+                                    //the js file exists but has error,we keep the game in the profile so it can be can automatically updated once the file fixed.
+                                    if (handlerInfo == null && File.Exists(userGameInfo.FileFullPath) && File.Exists(userGameInfo.ExePath))
+                                    {
+                                        continue;
+                                    }
+
+                                    if (handlerInfo == null || !File.Exists(userGameInfo.ExePath))
+                                    {
+                                        user.Games.Remove(userGameInfo);
+                                        continue;
+                                    }
+                                   
+                                    //A workaround so more than one exe can be selected to add a game to the app.                                 
+                                    if (handlerInfo.GenericGameInfo.ExecutableNames != null)
+                                    {
+                                        var fileName = Path.GetFileName(userGameInfo.ExePath);
+                                        handlerInfo.GenericGameInfo.ExecutableName = fileName;
+                                    }
+
+                                    userGameInfo.HandlerInfo = handlerInfo;
                                 }
                             }
 
-                            CleanGamesAssets(null);
-                            user.Games = user.Games.OrderBy(g => g?.Game?.GameName).ToList();
+                            user.Games = user.Games.OrderBy(g => g.HandlerInfo?.GameName).ToList();
                         }
 
                         SaveUser(userProfile);
@@ -631,6 +634,8 @@ namespace Nucleus.Gaming
             {
                 MakeDefaultUserFile();
             }
+
+            StartJsFilesSupervisor();
         }
 
         private void MakeDefaultUserFile()
@@ -689,199 +694,436 @@ namespace Nucleus.Gaming
         public void Initialize()
         {
             // Search for Javascript games-infos
-            string jsfolder = GetJsScriptsPath();
-            DirectoryInfo jsFolder = new DirectoryInfo(jsfolder);
-            FileInfo[] files = jsFolder.GetFiles("*.js");
+            string handlerDir = GetJsScriptsPath();
+
+            DirectoryInfo handlerDirInfo = new DirectoryInfo(handlerDir);
+            FileInfo[] files = handlerDirInfo.GetFiles("*.js");
+            handlerInfos = new List<HandlerInfo>();
 
             for (int i = 0; i < files.Length; i++)
             {
-                FileInfo f = files[i];
+                FileInfo fileInfo = files[i];
+
+                if(fileInfo.Name == "MasterHandler.js")
+                {
+                    continue;
+                }
+
+                GenericGameInfo genericGameInfo = null;
 
                 try
                 {
-                    using (Stream str = f.OpenRead())
+                    string ext = Path.GetFileNameWithoutExtension(fileInfo.Name);
+                    string handlerDependanciesDir = Path.Combine(fileInfo.Directory.FullName, ext);
+                    using (Stream str = fileInfo.OpenRead())
                     {
-                        string ext = Path.GetFileNameWithoutExtension(f.Name);
-                        string pathBlock = Path.Combine(f.Directory.FullName, ext);
+                        genericGameInfo = new GenericGameInfo(fileInfo, handlerDependanciesDir, str, true);
+                    }
+                    {
+                        //Regex pattern = new Regex("[\\/:*?\"<>|]");
 
-                        GenericGameInfo info = new GenericGameInfo(f.Name, pathBlock, str, new bool[] { false, false });
+                        //if (!string.IsNullOrEmpty(info.GameName))
+                        //{
+                        //    string properFileNameNoExtension = pattern.Replace(info.GameName, "");
 
-                        //LogManager.Log("Found game info: " + info.GameName);
-                        if (games.Any(c => c.Value.GUID == info.GUID))
-                        {
-                            games.Remove(info.GUID);
-                        }
+                        //    if (ext.ToLower() != properFileNameNoExtension.ToLower())
+                        //    {
+                        //        string expectedFileName = properFileNameNoExtension + ".js";
 
-                        games.Add(info.GUID, info);
+                        //        if (!File.Exists(Path.Combine(handlerDir, expectedFileName)))
+                        //        {
+                        //            string newFileFullName = Path.Combine(handlerDir, expectedFileName);
+                        //            string newDepDirName = Path.Combine(handlerDir, properFileNameNoExtension);
 
-                        if (gameInfos.Any(c => c.Value.GUID == info.GUID))
-                        {
-                            gameInfos.Remove(info.GUID);
-                        }
-                       
-                        gameInfos.Add(info.GUID, info);
+                        //            File.Move(f.FullName, Path.Combine(handlerDir, newFileFullName));
+
+                        //            if(Directory.Exists(handlerDependanciesDir))
+                        //            {
+                        //                if(!Directory.Exists(newDepDirName))
+                        //                {
+                        //                    Directory.Move(handlerDependanciesDir, newDepDirName);
+                        //                }
+                        //            }
+
+                        //            f = new FileInfo(newFileFullName);
+                        //            ext = Path.GetFileNameWithoutExtension(f.Name);
+                        //            handlerDependanciesDir = Path.Combine(f.Directory.FullName, ext);
+
+                        //            using (Stream str = f.OpenRead())
+                        //            {
+                        //                info = new GenericGameInfo(f, handlerDependanciesDir, str, true);
+                        //            }
+                        //        }
+                        //    }
+                        //}
+
+                        //var t = pattern.Replace(info.GameName, "");
+
+                        //if ( t.ToLower() != Path.GetFileNameWithoutExtension(f.Name).ToLower())
+                        //{
+                        //    continue;
+                        //}
                     }
                 }
                 catch (ArgumentNullException)
                 {
-                    continue; // Issue with content of script, ignore this as error prompt is already displayed
+                    //Issue with content of script, ignore this as error prompt is already displayed
                 }
                 catch (ArgumentException ex)
                 {
-                    MessageBox.Show(ex.InnerException + ": " + ex.Message, "Error with handler " + f.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    continue;
-                }
-            }          
-        }
-
-        private void CleanGamesAssets(string gameGuid)
-        {           
-            try//Try just in case a file is opened in explorer
-            {
-                if (gameGuid != null)
-                {
-                    if (File.Exists(Path.Combine(Application.StartupPath, $"gui\\covers\\{gameGuid}.jpeg")))
-                    {
-                        File.Delete(Path.Combine(Application.StartupPath, $"gui\\covers\\{gameGuid}.jpeg"));
-                    }
-
-                    if (Directory.Exists(Path.Combine(Application.StartupPath, $"gui\\screenshots\\{gameGuid}")))
-                    {
-                        Directory.Delete(Path.Combine(Application.StartupPath, $"gui\\screenshots\\{gameGuid}"), true);
-                    }
-
-                    if (Directory.Exists(Path.Combine(Application.StartupPath, $"gui\\descriptions")))
-                    {
-                        Directory.Delete(Path.Combine(Application.StartupPath, $"gui\\descriptions"), true);
-                    }
-
-                    return;
+                    MessageBox.Show(ex.InnerException + ": " + ex.Message, "Error with handler " + fileInfo.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-                //Delete games assets for manually removed handlers (no available game guid to use)
-                //We search for existing screenshot directories and cover file and compare with the actual user games.
-                //If dirs or files with no corresponding user game are found, we delete them.
-
-                List<string> scDirToDelete = Directory.GetDirectories(Path.Combine(Application.StartupPath, $"gui\\screenshots")).
-                    Where(sc => user.Games.All(v => !sc.Contains(v.GameGuid))).ToList();
-
-                foreach (var scDirectory in scDirToDelete)
-                {
-                    if (Directory.Exists(scDirectory))
-                    {
-                        Directory.Delete(scDirectory, true);
-                        //Console.WriteLine(scDirectory);
-                    }
-                }
-
-                List<string> coversToDelete = Directory.GetFiles(Path.Combine(Application.StartupPath, $"gui\\covers")).
-                   Where(sc => user.Games.All(v => !sc.Contains(v.GameGuid))).ToList();
-
-                foreach (var coverFile in coversToDelete)
-                {
-                    if (File.Exists(coverFile))
-                    {
-                        File.Delete(coverFile);
-                        //Console.WriteLine(coverFile);
-                    }
-                }
+                HandlerInfo handlerInfo = new HandlerInfo(fileInfo, genericGameInfo);
+                handlerInfos.Add(handlerInfo);
             }
-            catch {}
         }
 
-        public string AutoSearchGameInstallPath(GenericGameInfo genericGameInfo)
+        private void RefreshHandlersData()
         {
-            string value64 = string.Empty;
-            RegistryKey localKey = RegistryKey.OpenBaseKey(Microsoft.Win32.RegistryHive.LocalMachine, RegistryView.Registry64);
-
-            localKey = localKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App " + genericGameInfo.SteamID);
-
-            if (localKey != null)
+            if (GenericGameHandler.IsRunning)
             {
-                value64 = localKey.GetValue("InstallLocation").ToString();
-                localKey.Close();
+                return;
             }
 
-            return (genericGameInfo.BinariesFolder != "" && genericGameInfo.BinariesFolder != null) ? value64 + $@"\{genericGameInfo.BinariesFolder}" : value64;
-        }
-
-        public GenericGameInfo AddScript(string handlerName, bool[] checkUpdate)
-        {
-            string jsfolder = GetJsScriptsPath();
-            DirectoryInfo jsFolder = new DirectoryInfo(jsfolder);
-
-            FileInfo f = new FileInfo(Path.Combine(jsFolder.FullName, handlerName + ".js"));
-
-            try
+            lock (refreshing)
             {
-                GenericGameInfo info = null;
-
-                using (Stream str = f.OpenRead())
+                //check for existing handlerInfo changes or deletion (based on .js files)
+                for (int i = 0; i < handlerInfos.Count; i++)
                 {
-                    string ext = Path.GetFileNameWithoutExtension(f.Name);
-                    string pathBlock = Path.Combine(f.Directory.FullName, ext);
+                    HandlerInfo handlerInfo = handlerInfos[i];
+                    FileInfo fileInfo = new FileInfo(handlerInfo.FileFullPath);
 
-                    info = new GenericGameInfo(f.Name, pathBlock, str, checkUpdate);
-
-                    LogManager.Log("Found game info: " + info.GameName);
-                    if (games.Any(c => c.Value.GUID == info.GUID))
+                    //the file has been deleted since startup so we remove the handlerInfo and eventually the usergameinfo that uses it.
+                    if (!File.Exists(handlerInfo.FileFullPath))
                     {
-                        games.Remove(info.GUID);
-                    }
+                        UserGameInfo installedUserGameInfo = user.Games.Find(ugi => ugi.FileFullPath == handlerInfo.FileFullPath);
 
-                    games.Add(info.GUID, info);
-
-                    if (gameInfos.Any(c => c.Value.GUID == info.GUID))
-                    {
-                        gameInfos.Remove(info.GUID);
-                    }
-
-                    //A workaround so more than one exe can be selected to add a game to the app.
-                    //re-set it here because the GenericGameInfo is fresh and it's not set anymore. 
-                    if (info.ExecutableNames != null)
-                    {
-                        foreach (var exe in info.ExecutableNames)
+                        if (installedUserGameInfo != null)
                         {
-                            var match = User.Games.Where(g => g.ExePath.Split('\\').Last() == exe).FirstOrDefault();
-                            if (match != null)
-                            {
-                                var fileName = new FileInfo(exe).Name;
-                                info.ExecutableName = fileName;
-                            }
+                            installedUserGameInfo.HandlerInfo = null;//trigger UserGameInfo.OnRefreshGenericGameInfo action                      
+                            RemoveUserGameInfo(installedUserGameInfo);
+                        }
+
+                        handlerInfos.RemoveAt(i);
+
+                        if (i - 1 >= 0)
+                        {
+                            i--;
+                            continue;
                         }
                     }
 
-                    gameInfos.Add(info.GUID, info);
-                   
-                    UserGameInfo remove = user.Games.Where(ug => ug.GameGuid == info.GUID).FirstOrDefault();
-
-                    //in case of handler update the game info can be reloaded easily
-                    if (remove != null)
+                    //No changes continue.
+                    if (handlerInfo?.LastWriteTimeUtc == fileInfo.LastWriteTimeUtc)
                     {
-                        user.Games.Remove(remove);
+                        continue;
+                    }
 
-                        UserGameInfo updatedInfo = new UserGameInfo();
-                        updatedInfo.InitializeDefault(info, remove.ExePath);
+                    //the file has been edited
 
-                        user.Games.Add(updatedInfo);
+                    //check if it's a valid one
+                    var newGenericGameInfo = CheckGenericGameInfoIntegrity(fileInfo);
+
+                    //it's a valid one so remove it from blacklist eventually
+                    if (newGenericGameInfo is GenericGameInfo)
+                    {
+                        if (BlackListedFiles.Any(blf => blf == fileInfo.FullName))
+                        {
+                            BlackListedFiles.Remove(fileInfo.FullName);
+                        }
+                    }
+                    else//an exception has been returned
+                    {
+                        //the file is invalid so we add it to the blacklist and show an error only once
+                        if (!BlackListedFiles.Any(blf => blf == fileInfo.FullName))
+                        {
+                            BlackListedFiles.Add(fileInfo.FullName);
+                            UserGameInfo existingUserGameInfo = user.Games.Find(ug => ug?.HandlerInfo?.FileName == fileInfo.Name);
+
+                            Exception exception = (Exception)newGenericGameInfo;
+
+                            if (existingUserGameInfo != null)
+                            {
+                                string details = exception.Message;
+
+                                if (details.Contains(":"))
+                                {
+                                    string[] lineSplit = exception.Message.Split(':');
+                                    string splited = lineSplit?[0];
+                                    string[] getNum = splited.Split(' ');
+
+                                    bool lineIsNum = int.TryParse(getNum?[1], out int numLine);
+
+                                    
+
+                                    if (lineIsNum)
+                                    {
+                                        int num = int.Parse(getNum?[1]);
+                                        details = $"Error at line {num / 2} {lineSplit?[1]}";
+                                    }
+                                }
+
+                                string error = $"There is an error in {fileInfo.Name}.\n" +
+                                $"\nThe handler has not been refreshed due to an error in the latest changes." +
+                                $"\n\n{details}";
+
+                                NucleusMessageBox.Show("Error in handler", error, false);
+                            }
+                        }
+
+                        continue;
+                    }
+
+                    //check if the file is of an added game
+                    UserGameInfo userGameInfo = user.Games.Find(ugi => ugi.FileFullPath == fileInfo.FullName);
+
+                    GenericGameInfo _newGenericGameInfo = (GenericGameInfo)newGenericGameInfo;
+
+                    if (userGameInfo != null)
+                    {
+                        //it's of an added game so we update the UserGameInfo HandlerInfo and replace HandlerInfo in the handlerInfos list
+                        if (_newGenericGameInfo.ExecutableNames != null)
+                        {
+                            var fileName = Path.GetFileName(userGameInfo.ExePath);
+                            _newGenericGameInfo.ExecutableName = fileName;
+                        }
+
+                        userGameInfo.HandlerInfo = AddOrUpdateHandlerInfo(_newGenericGameInfo);
+                    }
+                    else
+                    {
+                        //not of an added game so just update it in the handlerInfos list
+                        AddOrUpdateHandlerInfo(_newGenericGameInfo);
                     }
                 }
 
-                user.Games = user.Games.OrderBy(g => g.Game.GameName).ToList();
+                DirectoryInfo handlersDir = new DirectoryInfo(GetJsScriptsPath());
+                FileInfo[] files = handlersDir.GetFiles("*.js");
 
-                return info;
+                //New file(s) added in handlers dir
+                if (files.Length - 1 > handlerInfos.Count)//-1 because of masterhandler.js
+                {
+                    //get the file which are not of any handlerinfo yet
+                    var newFiles = files.ToList().Where(f => !handlerInfos.Any(agi => agi.FileFullPath == f.FullName));
+
+                    foreach (FileInfo fileInfo in newFiles)
+                    {
+                        if (fileInfo.Name == "MasterHandler.js")
+                        {
+                            continue;
+                        }
+
+                        var newGenericGameInfo = CheckGenericGameInfoIntegrity(fileInfo);
+
+                        //it's a valid one so remove it from blacklist eventually
+                        if (newGenericGameInfo is GenericGameInfo)
+                        {
+                            if (BlackListedFiles.Any(blf => blf == fileInfo.FullName))
+                            {
+                                BlackListedFiles.Remove(fileInfo.FullName);
+                            }
+                        }
+                        else//it's an exception
+                        {
+                            //it's an exception so we add it to the blacklist and show an error only once
+                            if (!BlackListedFiles.Any(blf => blf == fileInfo.FullName))
+                            {
+                                BlackListedFiles.Add(fileInfo.FullName);
+                                Exception exception = (Exception)newGenericGameInfo;
+
+                                string details = exception.Message;
+
+                                if (details.Contains(":"))
+                                {
+                                    string[] lineSplit = exception.Message.Split(':');
+                                    string splited = lineSplit?[0];
+                                    string[] getNum = splited.Split(' ');
+
+                                    bool lineIsNum = int.TryParse(getNum?[1], out int numLine);
+
+                                    if (lineIsNum)
+                                    {
+                                        int num = int.Parse(getNum?[1]);
+                                        details = $"Error at line {num / 2} {lineSplit?[1]}";
+                                    }
+                                }
+
+                                string error = $"There is an error in {fileInfo.Name}.\n" +
+                                $"{details}";
+
+                                NucleusMessageBox.Show("Error in handler", error, false);
+                            }
+
+                            continue;
+                        }
+
+                        AddOrUpdateHandlerInfo((GenericGameInfo)newGenericGameInfo);
+                    }
+                }
             }
-            catch (ArgumentNullException)
+        }
+
+        public object CheckGenericGameInfoIntegrity(FileInfo fileInfo)
+        {
+            try
             {
-                return null;
-                //continue; // Issue with content of script, ignore this as error prompt is already displayed
+                using (Stream str = fileInfo.OpenRead())
+                {
+                    string ext = Path.GetFileNameWithoutExtension(fileInfo.Name);
+                    string pathBlock = Path.Combine(fileInfo.Directory.FullName, ext);
+
+                    GenericGameInfo genericGameInfo = new GenericGameInfo(fileInfo, pathBlock, str, false);
+                    if (genericGameInfo.GameName == null)
+                    {
+                       return new Exception("\"Game.GameName\" can't be null");
+
+                    }
+                    else if (genericGameInfo.GUID == null)
+                    {
+                        return new Exception("\"Game.GUID\" can't be null");
+                    }
+
+                    return genericGameInfo;
+                }
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
-                MessageBox.Show(ex.InnerException + ": " + ex.Message, "Error with handler " + f.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                //continue;
-                return null;
+                return ex;
             }
+        }
+
+        public void UpdateUserGameInfo(UserGameInfo userGameInfo, GenericGameInfo genericGameInfo, bool updating)
+        {
+            if (updating)//if called after updating the handler from the hub
+            {
+                userGameInfo.UpdateAvailable = false;
+            }
+
+            if (genericGameInfo.ExecutableNames != null)
+            {
+                foreach (var exe in genericGameInfo.ExecutableNames)
+                {
+                    genericGameInfo.ExecutableName = Path.GetFileName(userGameInfo.ExePath);
+                }
+            }
+
+            userGameInfo.HandlerInfo = AddOrUpdateHandlerInfo(genericGameInfo);
+        }
+
+        public void RemoveUserGameInfo(UserGameInfo userGameInfo)
+        {
+            UserGameInfo toRemove = user.Games.Find(ug => ug.GameGuid == userGameInfo.GameGuid); 
+            user.Games.Remove(toRemove);
+            SaveUserProfile();
+        }
+
+        private HandlerInfo AddOrUpdateHandlerInfo(GenericGameInfo genericGameInfo)
+        {
+            var lastMatch = handlerInfos.Select((ggi, index) => new { ggi, index }).LastOrDefault(x => x.ggi.FileFullPath == genericGameInfo.FileFullPath);
+
+            HandlerInfo handlerInfo = new HandlerInfo(genericGameInfo.JsFileInfo, genericGameInfo);
+
+            if (lastMatch != null)
+            {
+                handlerInfos[lastMatch.index] = handlerInfo;
+
+                Globals.MainOSD?.Show(3000, $"*@{OSDHighlightColors.Regular}|The@* *@{OSDHighlightColors.Info}|{handlerInfo.GameName}@* *@{OSDHighlightColors.Regular}| handler has been updated successfully@*");
+            }
+            else
+            {
+                handlerInfos.Add(handlerInfo);
+            }
+
+            return handlerInfo;
+        }
+
+        //return true if there is an existing UserGameInfo for this game else make it available for install
+        public bool AddNewGenericGameInfo(string handlerName, bool updating)
+        {
+            lock (refreshing)
+            {
+                string jsfolder = GetJsScriptsPath();
+                DirectoryInfo jsFolder = new DirectoryInfo(jsfolder);
+
+                FileInfo fileInfo = new FileInfo(Path.Combine(jsFolder.FullName, handlerName + ".js"));
+
+                try
+                {
+                    GenericGameInfo genericGameInfo = null;
+                    
+                    using (Stream str = fileInfo.OpenRead())
+                    {
+                        string ext = Path.GetFileNameWithoutExtension(fileInfo.Name);
+                        string pathBlock = Path.Combine(fileInfo.Directory.FullName, ext);
+                        genericGameInfo = new GenericGameInfo(fileInfo, pathBlock, str, true);
+                    }
+
+                    if (genericGameInfo.GameName == null || genericGameInfo.GUID == null)
+                    {
+                        if (!BlackListedFiles.Any(blf => blf == fileInfo.FullName))
+                        {
+                            BlackListedFiles.Add(fileInfo.FullName);
+                        }
+
+                        return true;//So the search function don't get triggered from DownloadPrompt and HubWebView etc
+                    }
+                    else if (BlackListedFiles.Any(blf => blf == fileInfo.FullName))
+                    {
+                        BlackListedFiles.Remove(fileInfo.FullName);
+                    }
+
+                    LogManager.Log("Found game info: " + genericGameInfo.GameName);
+             
+                    UserGameInfo userGameInfo = user.Games.Find(ug => ug.GameGuid == genericGameInfo.GUID);
+
+                    if (userGameInfo != null)//the game is already in the Userprofile, so we just update its GenericGameInfo
+                    {
+                        UpdateUserGameInfo(userGameInfo, genericGameInfo, updating);
+                        return true;
+                    }
+
+                    AddOrUpdateHandlerInfo(genericGameInfo);
+                    return false;
+                }
+                catch (ArgumentNullException)
+                {
+                    return false;
+                }
+                catch (ArgumentException ex)
+                {
+                    MessageBox.Show(ex.InnerException + ": " + ex.Message, "Error with handler " + fileInfo.Name, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+        }
+
+        private void CleanGamesAssets()
+        {
+            try
+            {
+                var validGuids = new HashSet<string>(
+                    user.Games.Select(g => g.GameGuid),
+                    StringComparer.OrdinalIgnoreCase
+                );
+
+                string screenshotsPath = Path.Combine(Application.StartupPath, @"gui\screenshots");
+                string coversPath = Path.Combine(Application.StartupPath, @"gui\covers");
+
+                foreach (var dir in Directory.GetDirectories(screenshotsPath))
+                {
+                    if (!validGuids.Contains(Path.GetFileName(dir)))
+                        Directory.Delete(dir, true);
+                }
+
+                foreach (var file in Directory.GetFiles(coversPath))
+                {
+                    if (!validGuids.Contains(Path.GetFileNameWithoutExtension(file)))
+                        File.Delete(file);
+                }
+            }
+            catch (IOException) { }
+            catch (UnauthorizedAccessException) { }
         }
 
         #endregion

@@ -16,6 +16,12 @@ using Nucleus.Gaming.Controls.SetupScreen;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 using System.Text.RegularExpressions;
+using Nucleus.Gaming.UI;
+using System.Threading.Tasks;
+using static Nucleus.Gaming.Http_Client.Http_Client;
+using Nucleus.Gaming.Coop.Generic;
+using System.Drawing.Drawing2D;
+
 
 namespace Nucleus.Coop.UI
 {
@@ -26,7 +32,19 @@ namespace Nucleus.Coop.UI
 
         public static void Logo_Click(object sender, EventArgs e) => Process.Start(Links.NC_Repo);
 
-        public static void DonationButton_Click(object sender, EventArgs e) => Process.Start(Links.NC_Patreon);
+        public static void DonationButton_Click(object sender, EventArgs e)
+        {
+            Button patreonMenuButton = sender as Button;
+
+            if (!UI_Interface.PatreonMenu.Visible)
+            {
+                Point ptLowerLeft = new Point(0, patreonMenuButton.Height);
+                ptLowerLeft = patreonMenuButton.PointToScreen(ptLowerLeft);
+                UI_Interface.PatreonMenu.Show(ptLowerLeft);
+                UI_Interface.PatreonMenu.BringToFront();
+            }
+        }
+
 
         public static void CloseButton_Click(object sender, EventArgs e) => MainWindowFunc.FadeOut();
         public static void CloseButton_MouseEnter(object sender, EventArgs e) => UI_Interface.CloseButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close_mousehover.png");
@@ -66,28 +84,31 @@ namespace Nucleus.Coop.UI
             }
         }
 
-        public static void ExtractHandlerButton_Click(object sender, EventArgs e) => ExtractHandler.Extract();
-        public static void ExtractHandlerButton_MouseEnter(object sender, EventArgs e) => UI_Interface.ExtractHandlerButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "extract_nc_mousehover.png");
-        public static void ExtractHandlerButton_MouseLeave(object sender, EventArgs e) => UI_Interface.ExtractHandlerButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "extract_nc.png");
-
-        public static void SearchGameButton_Click(object sender, EventArgs e) => SearchGame.Search(null, null);
-        public static void SearchGameButton_MouseEnter(object sender, EventArgs e) => UI_Interface.SearchGameButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "search_game_mousehover.png");
-        public static void SearchGameButton_MouseLeave(object sender, EventArgs e) => UI_Interface.SearchGameButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "search_game.png");
-
-        public static void OpenLogButton_Click(object sender, EventArgs e)
+        public static void SettingsButton_Click(object sender, EventArgs e)
         {
-            if (File.Exists(Path.Combine(Application.StartupPath, "debug-log.txt")))
+            if (GenericGameHandler.Instance != null)
             {
-                OpenDebugLog.OpenDebugLogFile();
+                if (!GenericGameHandler.Instance.HasEnded)
+                {
+                    return;
+                }
+            }
+
+            if (UI_Interface.ProfileSettings.Visible || UI_Interface.Settings == null)
+            {
                 return;
             }
 
-            Globals.MainOSD.Show(2000, "No Available Log");
+            if (!UI_Interface.Settings.Visible)
+            {
+                UI_Interface.Settings.SetVisible();
+                UI_Interface.Settings.BringToFront();
+            }
+            else
+            {
+                UI_Interface.Settings.BringToFront();
+            }
         }
-
-        public static void OpenLogButton_MouseEnter(object sender, EventArgs e) => UI_Interface.OpenLogButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "log_mousehover.png");
-        public static void OpenLogButton_MouseLeave(object sender, EventArgs e) => UI_Interface.OpenLogButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "log.png");
-
 
         public static void DisableGameSelection()
         {
@@ -142,27 +163,6 @@ namespace Nucleus.Coop.UI
             Core_Interface.Current_GameMetaInfo.SaveProfile = radio.RadioChecked;
         }
 
-        public static void DwldAssetsButton_Click(object sender, EventArgs e)
-        {
-            if (Core_Interface.GameManager.User.Games.Count == 0)
-            {
-                Globals.MainOSD.Show(1600, $"Add Game(s) to Your List");
-                return;
-            }
-
-            AssetsDownloader.DownloadAllGamesAssets(UI_Interface.CurrentGameListControl);
-        }
-
-        public static void DwldAssetsButton_MouseEnter(object sender, EventArgs e) => UI_Interface.DwldAssetsButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_download_assets_mousehover.png");
-
-        public static void DwldAssetsButton_MouseLeave(object sender, EventArgs e) => UI_Interface.DwldAssetsButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_download_assets.png");
-
-        public static void TutorialButton_MouseEnter(object sender, EventArgs e) =>
-            UI_Interface.TutorialButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "instruction_opened.png");
-
-        public static void TutorialButton_MouseLeave(object sender, EventArgs e) =>
-            UI_Interface.TutorialButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "instruction_closed.png");
-
         public static void GotoPrev_Click(object sender, EventArgs e) => Core_Interface.GotoPrevStep();
 
         public static void GotoNext_Click(object sender, EventArgs e) => Core_Interface.GotoNextStep();
@@ -199,37 +199,6 @@ namespace Nucleus.Coop.UI
             }
         }
 
-        public static void SettingsButton_MouseEnter(object sender, EventArgs e)
-        {
-            if (UI_Interface.ProfileSettings.Visible)
-            {
-                return;
-            }
-
-            UI_Interface.SettingsButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_settings_mousehover.png");
-        }
-
-        public static void SettingsButton_MouseLeave(object sender, EventArgs e) => UI_Interface.SettingsButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_settings.png");
-
-        public static void TutorialButton_Click(object sender, EventArgs e)
-        {
-            if (UI_Interface.Tutorial == null)
-            {
-                UI_Interface.Tutorial = new Tutorial();
-                UI_Interface.MainForm.Controls.Add(UI_Interface.Tutorial);
-                Generic_Functions.SizeAndScaleTuto();
-                UI_Interface.Tutorial.Click += Generic_Functions.ClickAnyControl;
-
-                UI_Interface.Tutorial.BringToFront();
-            }
-            else
-            {
-                Generic_Functions.DisposeTutorial();
-            }
-
-            UI_Interface.MainForm.Update();
-        }
-
         public static void ProfileListButton_Click(object sender, EventArgs e)
         {
             if (UI_Interface.Settings.Visible)
@@ -243,33 +212,7 @@ namespace Nucleus.Coop.UI
                 return;
             }
 
-            UI_Interface.ProfilesList.Visible = !UI_Interface.ProfilesList.Visible;
-        }
-
-        public static void SettingsButton_Click(object sender, EventArgs e)
-        {
-            if (GenericGameHandler.Instance != null)
-            {
-                if (!GenericGameHandler.Instance.HasEnded)
-                {
-                    return;
-                }
-            }
-
-            if (UI_Interface.ProfileSettings.Visible || UI_Interface.Settings == null)
-            {
-                return;
-            }
-
-            if (!UI_Interface.Settings.Visible)
-            {
-                UI_Interface.Settings.SetVisible();
-                UI_Interface.Settings.BringToFront();
-            }
-            else
-            {
-                UI_Interface.Settings.BringToFront();
-            }
+            UI_Interface.ProfilesList.Visible = UI_Interface.ProfilesList.Visible ? false : true;
         }
 
         public static void ExpandHandlerNotesButton_Click(object sender, EventArgs e)
@@ -277,13 +220,28 @@ namespace Nucleus.Coop.UI
             if (!UI_Interface.HandlerNotesZoom.Visible)
             {
                 UI_Interface.HandlerNotesZoom.Warning.Visible = Core_Interface.Current_GenericGameInfo.MetaInfo.FirstLaunch;
-                UI_Interface.HandlerNotesZoom.TextBox.Text = Core_Interface.Current_GenericGameInfo.Description;
+
+                UI_Interface.HandlerNotesZoom.TextBox.Rtf = UI_Interface.HandlerNotes.Rtf;
+                UI_Interface.HandlerNotesZoom.TextBox.Font = UI_Interface.HandlerNotesZoom.DefaultNotesFont;
                 UI_Interface.HandlerNotesZoom.Visible = true;
                 UI_Interface.HandlerNotesZoom.BringToFront();
             }
             else
             {
                 UI_Interface.HandlerNotesZoom.Visible = false;
+            }
+        }
+
+        public static void ManageGamesButton_Click(object sender, EventArgs e)
+        {
+            Button mainMenuButton = sender as Button;
+
+            if (!UI_Interface.ManageGamesMenu.Visible)
+            {
+                Point ptLowerLeft = new Point(0, mainMenuButton.Height);
+                ptLowerLeft = mainMenuButton.PointToScreen(ptLowerLeft);
+                UI_Interface.ManageGamesMenu.Show(ptLowerLeft);
+                UI_Interface.ManageGamesMenu.BringToFront();
             }
         }
 
@@ -298,27 +256,24 @@ namespace Nucleus.Coop.UI
             {
                 UI_Interface.HandlerNotesZoom.Warning.Visible = true;
                 UI_Interface.HandlerNotesZoom.Warning.Text = "⚠ Important! Launch the game out of Nucleus before launching the handler for the first time. ⚠";
-                UI_Interface.HandlerNotesZoom.Notes.Text = Core_Interface.Current_GenericGameInfo.Description;
-                UI_Interface.HandlerNotesZoom.Notes.Rtf = UI_Interface.HandlerNotes.Rtf;
-                UI_Interface.HandlerNotesZoom.Notes.Font = UI_Interface.HandlerNotesZoom.DefaultNotesFont;//Update the font after setting rtf
             }
             else
             {
-                UI_Interface.HandlerNotesZoom.Notes.Text = Core_Interface.Current_GenericGameInfo.Description;
-                UI_Interface.HandlerNotesZoom.Notes.Rtf = UI_Interface.HandlerNotes.Rtf;
-                UI_Interface.HandlerNotesZoom.Notes.Font = UI_Interface.HandlerNotesZoom.DefaultNotesFont;//Upate the font after setting rtf
                 UI_Interface.HandlerNotesZoom.Warning.Visible = false;
             }
+
+            UI_Interface.HandlerNotesZoom.TextBox.Rtf = UI_Interface.HandlerNotes.Rtf;
+            UI_Interface.HandlerNotesZoom.TextBox.Font = UI_Interface.HandlerNotesZoom.DefaultNotesFont;
         }
 
-        public static void Button_UpdateAvailable_Click(object sender, EventArgs e)
+        public static async void Button_UpdateAvailable_Click(object sender, EventArgs e)
         {
             PictureBox pictureBox = sender as PictureBox;
             GameControl gameControl = pictureBox.Parent as GameControl;
 
-            GenericGameInfo gameInfo = gameControl.GameInfo;
+            UserGameInfo userGameInfo = gameControl.UserGameInfo;
 
-            Handler handler = HubCache.SearchByIdOnline(gameInfo.HandlerId);
+            Handler handler = await HubCache.SearchByIdOnline(userGameInfo.HandlerInfo.GenericGameInfo.HandlerId);
 
             if (handler == null)
             {
@@ -334,10 +289,9 @@ namespace Nucleus.Coop.UI
                     DownloadPrompt downloadPrompt = new DownloadPrompt(handler, null, true);
                     downloadPrompt.ShowDialog();
 
-                    gameControl.UserGameInfo = Core_Interface.GameManager.User.Games.Where(g => g.GameGuid == gameControl.GameInfo.GUID).FirstOrDefault();
-                    gameControl.GameInfo = gameControl.UserGameInfo.Game;
+                    gameControl.UserGameInfo = Core_Interface.GameManager.User.Games.Find(g => g.GameGuid == gameControl.UserGameInfo.GameGuid);
 
-                    if (UI_Interface.CurrentGameListControl?.GameInfo.GUID == gameControl.GameInfo.GUID)
+                    if (UI_Interface.CurrentGameListControl?.UserGameInfo.HandlerInfo.GenericGameInfo.GUID == gameControl.UserGameInfo.GameGuid)
                     {
                         gameControl.RadioSelected();
                         GameList_SelectedChanged(gameControl, null);
@@ -364,7 +318,6 @@ namespace Nucleus.Coop.UI
         }
 
         public static void HandlerNotes_LinkClicked(object sender, LinkClickedEventArgs e) => Process.Start(e.LinkText);
-
 
         public static void ProfileListButton_VisibleChanged(object sender, EventArgs e)
         {
@@ -408,7 +361,7 @@ namespace Nucleus.Coop.UI
         {
             if (refreshAll)
             {
-                UI_Interface.InputsTextLabel.SetText(new (string, Color)[] {});
+                UI_Interface.InputsTextLabel.SetText(new (string, Color, Font)[] { });
                 Core_Interface.Current_GenericGameInfo = null;
                 UI_Interface.ProfileButtonsPanel.Visible = false;
                 UI_Interface.GotoNext.Enabled = false;
@@ -416,22 +369,29 @@ namespace Nucleus.Coop.UI
                 UI_Interface.InfoPanel.Visible = false;
                 UI_Interface.SetupPanel.Visible = false;
                 UI_Interface.BigLogo.Visible = UI_Interface.WebView == null;
-                UI_Graphics.RainbowTimer?.Dispose();
-                UI_Graphics.RainbowTimerRunning = false;
+                UI_Graphics.NotesTitleScrollTimer?.Dispose();
+                UI_Graphics.IsNotesTitleScrollTimerRunning = false;
                 UI_Graphics.BackgroundImg = UI_Graphics.DefaultBackground;
                 UI_Interface.HomeScreen.Invalidate();
             }
 
-            DevicesFunctions.DisposeGamePadTimer();
-            SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
+            if (UI_Interface.ProfilesList.Visible)
+            {
+                UI_Interface.ProfilesList.Visible = false;
+            }
 
+            DevicesFunctions.DisposeGamePadTimer();
+
+            Core_Interface.RefreshGamesList();
             UI_Interface.WindowPanel.Focus();
             UI_Interface.BigLogo.Refresh();
 
-            if (UI_Interface.SearchTextBox != null)
-            {
-                UI_Interface.SearchTextBox.Visible = Core_Interface.GameManager?.User.Games.Count >= 2;
-            }
+            UI_Interface.MainForm.Invalidate(false);
+        }
+
+        public static void EnablePlay(bool enabled)
+        {
+            UI_Interface.PlayButton.Visible = enabled;
         }
 
         public static void ResetPlayButton()
@@ -445,7 +405,7 @@ namespace Nucleus.Coop.UI
 
         public static void ShowProfilePreview(string previewText)
         {
-            UI_Interface.HandlerNotesZoom?.Invoke((MethodInvoker)delegate ()
+            UIThread.Post(() =>
             {
                 UI_Interface.HandlerNotesZoom.Warning.Visible = false;
                 UI_Interface.HandlerNotesZoom.Notes.Text = previewText;
@@ -462,8 +422,10 @@ namespace Nucleus.Coop.UI
             }
         }
 
-        public static void ExtrtactHandlerDragDrop(object sender, DragEventArgs e)
+        public static void ExtractHandlerDragDrop(object sender, DragEventArgs e)
         {
+            DisposeDragAndDropModal(modalControls[0], null);
+
             try
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
@@ -474,9 +436,21 @@ namespace Nucleus.Coop.UI
                     {
                         var info = new FileInfo(file);
 
-                        if (info.Extension == ".js")
+                        if (info.Extension == ".js" && info.Name != "handler.js")
                         {
                             var handlersDir = GameManager.Instance.GetJsScriptsPath();
+
+                            if (info.Name == "handler.js")
+                            {
+                                MessageBox.Show("\"handler.js\" is not supported file name.", "File name not supported", MessageBoxButtons.OK, MessageBoxIcon.Hand);
+                                return;
+                            }
+
+                            if (file == Path.Combine(handlersDir, info.Name))
+                            {
+                                MessageBox.Show("Use the search executable function to add this handler.", "The file already exists", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                continue;
+                            }
 
                             if (File.Exists(Path.Combine(handlersDir, info.Name)))
                             {
@@ -487,11 +461,19 @@ namespace Nucleus.Coop.UI
                                 }
                             }
 
+                            if (File.Exists(Path.Combine(handlersDir, info.Name)))
+                            {
+                                //File.Delete(Path.Combine(handlersDir, info.Name));
+                                FileUtil.SendToRecycleBin(Path.Combine(handlersDir, info.Name));
+                            }
+
+                            File.Copy(file, Path.Combine(handlersDir, info.Name));
+
                             Regex pattern = new Regex("[\\/:*?\"<>|]");
                             string exeName = null;
                             int found = 0;
 
-                            foreach (string line in File.ReadAllLines(file))
+                            foreach (string line in File.ReadAllLines(Path.Combine(handlersDir, info.Name)))
                             {
                                 if (line.ToLower().StartsWith("game.executablename"))
                                 {
@@ -520,22 +502,16 @@ namespace Nucleus.Coop.UI
                             }
 
                             var handlerName = info.Name.Replace(".js", "");
-                            if (GameManager.Instance.IsGameAlreadyInUserProfile(exeName, handlerName))
+
+                            bool update = GameManager.Instance.AddNewGenericGameInfo(handlerName, false);
+
+                            if (update)
                             {
-                                GameManager.Instance.AddScript(handlerName, new bool[] { false, false });
-                                Core_Interface.RefreshHandlers();
                                 return;
                             }
-                            
-                            if(File.Exists(Path.Combine(handlersDir, info.Name)))
-                            {
-                                File.Delete(Path.Combine(handlersDir, info.Name));
-                            }
 
-                            File.Move(file, Path.Combine(handlersDir, info.Name));
-
-                            GenericGameInfo genericGameInfo = GameManager.Instance.AddScript(handlerName, new bool[] { false, false });
-                            SearchGame.Search(exeName, genericGameInfo);
+                            HandlerInfo handlerInfo = Core_Interface.GameManager.HandlerInfos.Where(aggi => aggi.FileName == info.Name).FirstOrDefault();
+                            _ = SearchGame.Search(exeName, handlerInfo);
 
                             return;
                         }
@@ -556,12 +532,172 @@ namespace Nucleus.Coop.UI
             }
         }
 
-        public static void ExtrtactHandlerDragEnter(object sender, DragEventArgs e)
+        private static Control[] modalControls = new Control[2];
+        private static string modalFileText;
+
+        public static void ShowDragAndDropModal(object sender, DragEventArgs e)
         {
+            if (modalControls[0] == null || modalControls[1] == null)
+            {
+                DragAndDropModal modal = new DragAndDropModal();
+                modal.Dock = DockStyle.Fill;
+                modal.BackColor = Color.FromArgb(100, 0, 0, 0);
+                modal.BackgroundImageLayout = ImageLayout.Center;
+
+                Label modalText = modal.Controls[0] as Label;
+                Control parent = sender as Control;
+
+                string modalTextPrefix = string.Empty;
+                string textNoLineBreaks = string.Empty;
+
+                if (modalFileText.StartsWith("\n"))
+                {
+                    textNoLineBreaks = modalFileText.Substring(1).Trim();
+                }
+                else
+                {
+                    textNoLineBreaks = modalFileText;
+                }
+
+                if (modalFileText.EndsWith(".zip") || modalFileText.EndsWith(".nc") || modalFileText.EndsWith(".zip\n") || modalFileText.EndsWith(".nc\n"))
+                {
+                    modalTextPrefix = "Extract && Install";
+                }
+                else if (modalFileText.EndsWith(".js") || modalFileText.EndsWith(".js\n"))
+                {
+                    if (!modalFileText.EndsWith(".js\n"))
+                    {
+                        if (Core_Interface.GameManager.User.Games.Any(hi => hi.HandlerInfo.FileName == textNoLineBreaks))
+                        {
+                            modalTextPrefix = "Update";
+                        }
+                        else
+                        {
+                            modalTextPrefix = "Install";
+                        }
+                    }
+                    else
+                    {
+                        modalTextPrefix = "Install/Update";
+                    }
+                }
+                else
+                {
+                    modalTextPrefix = "Not a valid file";
+                }
+
+                modalText.Text = $"{modalTextPrefix} {modalFileText}";
+
+                modalControls[0] = parent;
+                modalControls[1] = modal;
+
+                parent.Controls.Add(modal);
+                modal.BringToFront();
+
+                modalText.TextAlign = ContentAlignment.MiddleCenter;
+                modalText.Location = new Point(parent.Width / 2 - modalText.Width / 2, (parent.Height / 2 - modalText.Height / 2) /*+ 105*/);
+                modalText.BackColor = Color.Transparent;
+                modalText.ForeColor = Color.AntiqueWhite;
+            }
+        }
+
+        public static void DisposeDragAndDropModal(object sender, EventArgs e)
+        {
+            if (modalControls[0] != null && modalControls[1] != null)
+            {
+                modalControls[0].Controls.Remove(modalControls[1]);
+                modalControls[1].Dispose();
+            }
+
+            modalControls[0].Invalidate();
+            UI_Interface.BigLogo.Refresh();
+            modalControls[0] = null;
+            modalControls[1] = null;
+        }
+
+        public static void ExtractHandlerDragEnter(object sender, DragEventArgs e)
+        {
+            modalFileText = string.Empty;
+
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 e.Effect = DragDropEffects.Copy;
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                for (int i = 0; i < files.Length; i++)
+                {
+                    string fileName = files[i];
+
+                    if (files.Length == 1)
+                    {
+                        modalFileText += "\n" + fileName.Split('\\').Last();
+                    }
+                    else
+                    {
+                        if (i == 0)
+                        {
+                            modalFileText += "\n" + fileName.Split('\\').Last() + "\n";
+                        }
+                        else
+                        {
+                            modalFileText += fileName.Split('\\').Last() + "\n";
+                        }
+                    }
+                }
             }
         }
+
+        public static void NewsFeed_Resize(object sender, EventArgs e)
+        {
+            NewsFeed newsFeed = sender as NewsFeed;
+
+            newsFeed.Location = new Point(newsFeed.Location.X, UI_Interface.ManageGamesMenuButton.Location.Y + (UI_Interface.ManageGamesMenuButton.Height / 2 - newsFeed.Height / 2));
+        }
+
+        public static void HandlerNoteTitle_Resize(object sender, EventArgs e)
+        {
+            Label title = sender as Label;
+            title.Location = new Point(title.Location.X, UI_Interface.ExpandHandlerNotesButton.Location.Y + (UI_Interface.ExpandHandlerNotesButton.Height / 2 - title.Height / 2));
+        }
+
+        private static System.Threading.Timer endMessageTimer;
+        private static int endMessageStepCount = 0;
+        private static string[] endMessageStrings = new string[] {"🕛","🕐","🕑","🕒","🕓",
+            "🕔","🕕","🕖","🕗","🕘",
+            "🕙","🕚" };
+
+        public static void ShowEndingMessage()
+        {
+            if(endMessageTimer == null)
+            {
+                endMessageTimer?.Dispose();
+                endMessageTimer = new System.Threading.Timer(EndMessageTimer_Tick, null, 0, 800);
+            }
+        }
+
+        public static void HideEndingMessage()
+        {
+            endMessageStepCount = 0;
+            endMessageTimer?.Dispose();
+            endMessageTimer = null;
+        }
+
+        private static void EndMessageTimer_Tick(object obj)
+        {           
+            Globals.MainOSD.Show(1000, $"{endMessageStrings[endMessageStepCount]} Processing session end operations, please wait {endMessageStrings[endMessageStepCount]}");
+            endMessageStepCount++;
+
+            if (endMessageStepCount == 11)
+            {
+                endMessageStepCount = 0;
+            }
+        }
+
+        public static void TriggerSearchTool()
+        {
+            HandlerScanner handlerScanner = new HandlerScanner();
+            _ = handlerScanner.Initialize();
+        }
+
     }
 }

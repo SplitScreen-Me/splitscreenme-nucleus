@@ -6,7 +6,8 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
-using System.Windows.Interop;
+using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using WindowScrape.Static;
 
@@ -19,6 +20,9 @@ internal class WPF_OSD_Child : WPF_OSD
 
 public class WPF_OSD : Window
 {
+    /// Can use different rgb colors per word with the following text input pattern ex:"*@255,0,127|Settings@* Saved"  
+    /// here the word "Settings" will be in rgb(255,0,127) and "Saved" in the default osd color '|','*' and '@' must be reserverd for formating.
+
     [DllImport("user32.dll", SetLastError = true)]
     static extern int GetWindowLong(IntPtr hWnd, int nIndex);
 
@@ -57,6 +61,7 @@ public class WPF_OSD : Window
         WindowStyle = WindowStyle.None;
         WindowState = WindowState.Normal;
         BorderThickness = new Thickness(0, 0, 0, 0);
+        BorderBrush = new SolidColorBrush(Color.FromArgb(255, 255, 0, 0));
         WindowStartupLocation = WindowStartupLocation.Manual;
 
         //Important this is necessary in order to move
@@ -66,25 +71,132 @@ public class WPF_OSD : Window
         Width = destBounds.Width;
         Height = destBounds.Height;
 
+        Border roundedLabel = new Border
+        {
+            Background = new SolidColorBrush(Color.FromArgb(235, 0, 0, 0)),
+            CornerRadius = new CornerRadius(15),
+            Padding = new Thickness(10, 5, 10, 5),
+            Margin = new Thickness(10),
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+            BorderThickness = new Thickness(1),
+            BorderBrush = Brushes.DarkGray
+        };
+
         //label properties
         Value = new System.Windows.Controls.Label();
         Value.FontSize = 25f;
-        Value.Background = new SolidColorBrush(Color.FromArgb(235, 0, 0, 0));
+        Value.Background = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
         Value.HorizontalContentAlignment = System.Windows.HorizontalAlignment.Center;
         Value.VerticalContentAlignment = System.Windows.VerticalAlignment.Center;
         Value.VerticalAlignment = System.Windows.VerticalAlignment.Center;
-        Value.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
-        Value.BorderThickness = new Thickness(1);
+        Value.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;     
+        Value.BorderThickness = new Thickness(0);
+
+        roundedLabel.Child = Value;
         Visibility = Visibility.Hidden;
-        AddChild(Value);
+        
+        AddChild(roundedLabel);
     }
 
-    private void Resize(string text)
+    private void Resize(TextBlock textBlock)
     {
         Opacity = 0.0;
         Value.FontSize = 25f;
-        Value.Content = $"  {text}  ";
+        Value.Content = textBlock;
         UpdateLayout();
+    }
+
+    private TextBlock ParseText(string rawText)
+    {
+        List<string> rawWordColor = new List<string>(rawText.Split('*'));
+
+        TextBlock textBlock = new TextBlock();
+
+        bool firstWord = true;
+        //"Test *@255,0,127|Settings and test and more words@* test *@0,255,0|Settings and test and more words@* *@0,0,255|Settings and test and more words@*"
+        foreach (string wordColor in rawWordColor)
+        {
+            string word = null;
+            string colorString = null;
+
+            if (wordColor.StartsWith("@") && wordColor.EndsWith("@"))
+            {
+                string trimmedWordColor = wordColor.TrimStart('@').TrimEnd('@');
+
+                string[] split = trimmedWordColor.Split('|');
+                word = split[1];
+                colorString = split[0];
+            }
+            else
+            {
+                word = wordColor;
+            }
+
+            string[] wordOrSentence = null;
+
+            if(word == null || word == " " || word == string.Empty)
+            {
+                continue;
+            }
+
+            wordOrSentence = word?.Split(' ');
+
+            if(wordOrSentence == null)
+            {
+                continue;
+            }
+
+            bool isSingleWord = wordOrSentence.Length == 1;
+
+            if (colorString == null)
+            {
+                //string noSpaces = wordColor.Contains(" ") ? wordColor.Replace(" ","") : wordColor;
+                textBlock.Inlines.Add(firstWord ? " " + wordColor + " " : wordColor + " ");
+            }
+            else
+            {
+                if (isSingleWord)
+                {
+                    string noSpaces = word.Contains(" ") ? word.Replace(" ", "") : word;
+                    textBlock.Inlines.Add(new Run(firstWord ? " " + noSpaces + " " : noSpaces + " ") { Foreground = GetWordBrush(colorString) });
+                }
+                else
+                {
+                    bool firstSubWord = true;
+
+                    foreach (string subWord in wordOrSentence)
+                    {
+                        string noSpaces = subWord.Contains(" ") ? subWord.Replace(" ", "") : subWord;
+                        if (firstWord && firstSubWord)
+                        {
+                            textBlock.Inlines.Add(new Run(firstWord ? " " + noSpaces + " " : noSpaces) { Foreground = GetWordBrush(colorString) });
+                        }
+                        else
+                        {
+                            textBlock.Inlines.Add(new Run(noSpaces + " ") { Foreground = GetWordBrush(colorString) });
+                        }
+                        
+                        firstSubWord = false;
+                    }
+                }
+            }
+
+            if(firstWord)
+            {
+                firstWord = false;
+            }    
+        }
+
+        return textBlock;
+    }
+
+    private SolidColorBrush GetWordBrush(string sColor)
+    {
+        SolidColorBrush brush = new SolidColorBrush();
+        string[] rgb = sColor.Split(',');
+        brush.Color = Color.FromArgb(255,byte.Parse(rgb[0]), byte.Parse(rgb[1]), byte.Parse(rgb[2]));
+        return brush;
     }
 
     public void Show(int timing, string text)
@@ -104,7 +216,7 @@ public class WPF_OSD : Window
 
                 if (GenericGameHandler.Instance != null)
                 {
-                    if (childs.Count == 0 && this.GetType() != typeof(WPF_OSD_Child) && !GenericGameHandler.Instance.hasEnded)//so it's the main osd
+                    if (childs.Count == 0 && this.GetType() != typeof(WPF_OSD_Child) && !GenericGameHandler.Instance.HasEnded)//so it's the main osd
                     {
                         CreateChilds(timing, text);
                     }
@@ -124,7 +236,7 @@ public class WPF_OSD : Window
                 {
                     //pretty much all window parameters will mess with the game windows
                     //(mostly bringing the taskbar on top and focus stealing) so using tricky ways here.
-                    Resize(text);
+                    Resize(ParseText(text));
 
                     Show();
                    
@@ -148,7 +260,7 @@ public class WPF_OSD : Window
                     Opacity = 1.0D;
                 }
 
-                //keep it for the main osd even if it's kind of
+                //keep it for the main osd even if
                 //disabled so we can handle the childs and re-enable it automatically afterward
                 timer?.Dispose();
                 timer = new Timer(TimerTick, null, timing, 0);
@@ -181,7 +293,7 @@ public class WPF_OSD : Window
             if (GenericGameHandler.Instance != null)
             {
                 //close all childs osd and re-enable the main one => hideMain = false;
-                if (GenericGameHandler.Instance.hasEnded && this.GetType() != typeof(WPF_OSD_Child))//so it's the main osd
+                if (GenericGameHandler.Instance.HasEnded && this.GetType() != typeof(WPF_OSD_Child))//so it's the main osd
                 {
                     foreach (WPF_OSD_Child child in childs)
                     {

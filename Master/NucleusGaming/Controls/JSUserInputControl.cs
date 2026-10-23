@@ -35,7 +35,10 @@ namespace Nucleus.Gaming
 
             toSelect = null;
 
-            foreach(Control c in Controls){ c.Dispose();}
+            while (Controls.Count > 0)
+            {
+                Controls[0].Dispose();
+            }
 
             // grab the CustomStep and extract what we have to show from it
             GameOption option = CustomStep.Option;

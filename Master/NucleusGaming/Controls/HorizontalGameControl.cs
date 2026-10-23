@@ -198,6 +198,7 @@ namespace Nucleus.Coop
             }
 
             ///Set a different title color if a handler update is available using a timer(need to wait for the hub to return the value).
+            isUpdateAvailableTimer?.Dispose();
             isUpdateAvailableTimer = new System.Threading.Timer(IsUpdateAvailable_Tick, null, 2600, 5200);
         }
         ~HorizontalGameControl()
@@ -292,7 +293,7 @@ namespace Nucleus.Coop
             {
                 if (topLevel.IsHandleCreated && GameInfo != null)
                 {
-                    if (GameInfo.UpdateAvailable)
+                    if (UserGameInfo.UpdateAvailable)
                     {
                         title.ForeColor = Color.FromArgb(255, 196, 145, 18);
                     }
@@ -324,7 +325,7 @@ namespace Nucleus.Coop
 
             bool selected = favoriteBox.Image.Equals(favorite_Selected);
             favoriteBox.Image = selected ? favorite_Unselected : favorite_Selected;
-            UserGameInfo.Game.MetaInfo.Favorite = selected ? false : true;
+            UserGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.Favorite = selected ? false : true;
             GameManager.Instance.SaveUserProfile();
         }
 

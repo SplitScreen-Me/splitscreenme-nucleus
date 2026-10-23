@@ -154,8 +154,6 @@ namespace Nucleus.Gaming.Tools.X360ce
                     {
                         textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "x360ce.ini"), "PAD" + x + "=", SearchType.StartsWith) + "|PAD" + x + "=IG_" + players[x].GamepadGuid.ToString().Replace("-", string.Empty));
                     }
-
-                    handlerInstance.plyrIndex += handlerInstance.CurrentGameInfo.PlayersPerInstance;
                 }
                 else
                 {

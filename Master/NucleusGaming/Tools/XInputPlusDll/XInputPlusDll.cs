@@ -66,7 +66,7 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                     {
                         handlerInstance.addedFiles.Add(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"));
                     }
-
+                
                     handlerInstance.Log("Copying XInputPlus.ini");
 
                     File.Copy(Path.Combine(utilFolder, "XInputPlus.ini"), Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), true);
@@ -74,7 +74,7 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                     handlerInstance.Log("Making changes to the lines in XInputPlus.ini; FileVersion and Controller values");
 
                     handlerInstance.CurrentGameInfo.XInputPlusDll = Array.ConvertAll(handlerInstance.CurrentGameInfo.XInputPlusDll, x => x.ToLower());
-
+                
                     if (handlerInstance.CurrentGameInfo.XInputPlusDll.ToList().Any(val => val.StartsWith("dinput") == true)) //(xinputDll.ToLower().StartsWith("dinput"))
                     {
                         handlerInstance.Log("A Dinput dll has been detected, also enabling X2Dinput in XInputPlus.ini");
@@ -104,15 +104,15 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                             }
                             #endregion
                         }
-                        else if (handlerInstance.CurrentGameInfo.PlayersPerInstance > 1)//the old way
-                        {
-                            for (int x = 1; x <= handlerInstance.CurrentGameInfo.PlayersPerInstance; x++)
-                            {
-                                textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "Controller" + x + "=", SearchType.StartsWith) + "|Controller" + x + "=" + (x + handlerInstance.plyrIndex));
-                            }
+                        //else if (handlerInstance.CurrentGameInfo.PlayersPerInstance > 1)//the old way
+                        //{
+                        //    for (int x = 1; x <= handlerInstance.CurrentGameInfo.PlayersPerInstance; x++)
+                        //    {
+                        //        textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "Controller" + x + "=", SearchType.StartsWith) + "|Controller" + x + "=" + (x + handlerInstance.plyrIndex));
+                        //    }
 
-                            handlerInstance.plyrIndex += handlerInstance.CurrentGameInfo.PlayersPerInstance;
-                        }
+                            //handlerInstance.plyrIndex += handlerInstance.CurrentGameInfo.PlayersPerInstance;
+                        //}
                         else
                         {
                             textChanges.Add(handlerInstance.Context.FindLineNumberInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), "Controller1=", SearchType.StartsWith) + "|Controller1=" + (player.GamepadId + 1));
@@ -123,14 +123,24 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                     {
                         if (block)
                             handlerInstance.Log("Skipping setting controller value for this instance, as this player is using TranslateXtoMKB");
-                        else 
+                        else
                             handlerInstance.Log("Skipping setting controller value for this instance, as this player is using keyboard");
                         handlerInstance.kbi = 0;
                     }
 
+                   
+
                     handlerInstance.Context.ReplaceLinesInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), textChanges.ToArray());
                 }
             }
+
+            #region Add the proxy dll path to XInputPlus.ini
+            string proxyDllFullPath = Path.Combine(utilFolder, $"proxy\\{handlerInstance.garch}\\xinput.dll");
+
+            string versionLine = handlerInstance.garch == "x86" ? "FileName=" : "FileNamex64=";
+
+            handlerInstance.Context.EditTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), new string[] { versionLine }, new string[] { $"{versionLine}{proxyDllFullPath}" }, "UTF-8");
+            #endregion
 
             handlerInstance.Log("XInput Plus setup complete");
         }

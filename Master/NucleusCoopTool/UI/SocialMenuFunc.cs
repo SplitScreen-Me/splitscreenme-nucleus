@@ -1,4 +1,6 @@
-﻿using Nucleus.Gaming;
+﻿using Nucleus.Coop.Controls;
+using Nucleus.Coop.Tools;
+using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Forms;
 using Nucleus.Gaming.UI;
@@ -16,26 +18,56 @@ namespace Nucleus.Coop.UI
 {
     public static class SocialMenuFunc
     {
+        private static string userEnvPath = Globals.UserEnvironmentRoot + "\\NucleusCoop";
+
         public static void SocialMenu_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            //Add an open readme.txt button
             ContextMenuStrip socialMenu = (ContextMenuStrip)sender;
 
-            UI_Interface.SocialMenuButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_dropdown_opened.png");
-
             ToolStripMenuItem fAQMenuItem = socialMenu.Items["fAQMenuItem"] as ToolStripMenuItem;
+            fAQMenuItem.Click -= Link_faq_Click;
             fAQMenuItem.Click += Link_faq_Click;
 
             ToolStripMenuItem redditMenuItem = socialMenu.Items["redditMenuItem"] as ToolStripMenuItem;
+            redditMenuItem.Click -= RedditToolStripMenuItem_Click;
             redditMenuItem.Click += RedditToolStripMenuItem_Click;
 
             ToolStripMenuItem discordMenuItem = socialMenu.Items["discordMenuItem"] as ToolStripMenuItem;
+            discordMenuItem.Click -= DiscordToolStripMenuItem_Click;
             discordMenuItem.Click += DiscordToolStripMenuItem_Click;
 
+            ToolStripMenuItem howToSetupMenuItemMenuItem = socialMenu.Items["howToSetupMenuItem"] as ToolStripMenuItem;
+            howToSetupMenuItemMenuItem.Click -= HowToSetupMenuItem_Click;
+            howToSetupMenuItemMenuItem.Click += HowToSetupMenuItem_Click;
+
             ToolStripMenuItem splitCalculatorMenuItem = socialMenu.Items["splitCalculatorMenuItem"] as ToolStripMenuItem;
+            splitCalculatorMenuItem.Click -= SplitCalculatorToolStripMenuItem_Click;
             splitCalculatorMenuItem.Click += SplitCalculatorToolStripMenuItem_Click;
+
+            ToolStripMenuItem openDebugLogMenuItem = socialMenu.Items["openDebugLog"] as ToolStripMenuItem;
+            openDebugLogMenuItem.Click -= OpenDebugLogMenuItem_Click;
+            openDebugLogMenuItem.Click += OpenDebugLogMenuItem_Click;
+
+            ToolStripMenuItem openNucleusDirectoryMenuItem = socialMenu.Items["openNucleusDirectory"] as ToolStripMenuItem;
+            openNucleusDirectoryMenuItem.Click -= OpenNucleusDirectoryMenuItem_Click;
+            openNucleusDirectoryMenuItem.Click += OpenNucleusDirectoryMenuItem_Click;
+
+            ToolStripMenuItem openNcEnvDirMenuItem = socialMenu.Items["openNcEnvDir"] as ToolStripMenuItem;
+            if (Directory.Exists(userEnvPath))
+            {
+                openNcEnvDirMenuItem.Click -= OpenNcEnvDirMenuItem_Click;
+                openNcEnvDirMenuItem.Click += OpenNcEnvDirMenuItem_Click;
+                openNcEnvDirMenuItem.Visible = true;
+            }
+            else
+            {
+                openNcEnvDirMenuItem.Visible = false;
+            }
 
             ToolStripMenuItem thirdPartyToolsToolStripMenuItem = socialMenu.Items["thirdPartyToolsToolStripMenuItem"] as ToolStripMenuItem;
 
+        
             for (int i = 0; i < socialMenu.Items.Count; i++)
             {
                 if (socialMenu.Items[i].GetType() == typeof(ToolStripSeparator))
@@ -79,18 +111,22 @@ namespace Nucleus.Coop.UI
                     if (item.DropDownItems.Count > 0)
                     {
                         ToolStripItem xOutputToolStripMenuItem = item.DropDownItems["xOutputToolStripMenuItem"];
+                        xOutputToolStripMenuItem.Click -= XOutputToolStripMenuItem_Click;
                         xOutputToolStripMenuItem.Click += XOutputToolStripMenuItem_Click;
                         xOutputToolStripMenuItem.ToolTipText = "XOutput is a software that can convert DirectInput into XInput.";
 
                         ToolStripItem dS4WindowsToolStripMenuItem = item.DropDownItems["dS4WindowsToolStripMenuItem"];
+                        dS4WindowsToolStripMenuItem.Click -= DS4WindowsToolStripMenuItem_Click;
                         dS4WindowsToolStripMenuItem.Click += DS4WindowsToolStripMenuItem_Click;
                         dS4WindowsToolStripMenuItem.ToolTipText = "Xinput emulator for Ps4 controllers.";
 
                         ToolStripItem hidHideToolStripMenuItem = item.DropDownItems["hidHideToolStripMenuItem"];
+                        hidHideToolStripMenuItem.Click -= HidHideToolStripMenuItem_Click;
                         hidHideToolStripMenuItem.Click += HidHideToolStripMenuItem_Click;
                         hidHideToolStripMenuItem.ToolTipText = "With HidHide it is possible to deny a specific application access to one or more human interface devices.";
 
                         ToolStripItem scpToolkitToolStripMenuItem = item.DropDownItems["scpToolkitToolStripMenuItem"];
+                        scpToolkitToolStripMenuItem.Click -= ScpToolkitToolStripMenuItem_Click;
                         scpToolkitToolStripMenuItem.Click += ScpToolkitToolStripMenuItem_Click;
                         scpToolkitToolStripMenuItem.ToolTipText = "Xinput emulator for Ps3 controllers.";
 
@@ -109,12 +145,13 @@ namespace Nucleus.Coop.UI
         public static void SocialMenu_Opened(object sender, EventArgs e)
         {
             ContextMenuStrip socialMenu = (ContextMenuStrip)sender;
+            if(Theme_Settings.WindowRoundedCorners)
             FormGraphicsUtil.CreateRoundedControlRegion(socialMenu, 2, 2, socialMenu.Width - 1, socialMenu.Height, 20, 20);
         }
 
         public static void SocialMenu_Closing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            UI_Interface.SocialMenuButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_dropdown_closed.png");
+           
         }
 
         private static void Link_faq_Click(object sender, EventArgs e) => Process.Start(Links.NC_Faq);
@@ -146,6 +183,48 @@ namespace Nucleus.Coop.UI
             }
         }
 
+        public static void HowToSetupMenuItem_Click(object sender, EventArgs e)
+        {
+            if (UI_Interface.Tutorial == null)
+            {
+                UI_Interface.ManageGamesMenu.Close();
+                UI_Interface.Tutorial = new Tutorial();
+                UI_Interface.MainForm.Controls.Add(UI_Interface.Tutorial);
+                Generic_Functions.SizeAndScaleTuto();
+                UI_Interface.Tutorial.Click -= Generic_Functions.ClickAnyControl;
+                UI_Interface.Tutorial.Click += Generic_Functions.ClickAnyControl;
+
+                UI_Interface.Tutorial.BringToFront();
+            }
+            else
+            {
+                Generic_Functions.DisposeTutorial();
+            }
+
+            UI_Interface.MainForm.Update();
+        }
+
+        public static void OpenDebugLogMenuItem_Click(object sender, EventArgs e)
+        {
+            if (File.Exists(Path.Combine(Application.StartupPath, "debug-log.txt")))
+            {
+                OpenDebugLog.OpenDebugLogFile();
+                return;
+            }
+
+            Globals.MainOSD.Show(2000, $"*@{OSDHighlightColors.Info}|No Available Log@*");
+        }
+
+        private static void OpenNucleusDirectoryMenuItem_Click(object sender, EventArgs e) => Process.Start(Application.StartupPath);
+
+        private static void OpenNcEnvDirMenuItem_Click(object sender, EventArgs e)
+        {
+            if (Directory.Exists(userEnvPath))
+            {
+                Process.Start(userEnvPath);
+            }
+        }
+       
         private static void XOutputToolStripMenuItem_Click(object sender, EventArgs e) => Process.Start(Links.Xouput);
 
         private static void DS4WindowsToolStripMenuItem_Click(object sender, EventArgs e) => Process.Start(Links.DS4Windows);

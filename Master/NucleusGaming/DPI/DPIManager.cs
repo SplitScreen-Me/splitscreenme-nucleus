@@ -57,7 +57,7 @@ namespace Nucleus.Gaming
             if (dif > 0.001f)
             {
                 Scale = newScale;
-                form.Invoke((Action)delegate ()
+                UIThread.Post(() =>
                 {
                     UpdateAll();
                 });

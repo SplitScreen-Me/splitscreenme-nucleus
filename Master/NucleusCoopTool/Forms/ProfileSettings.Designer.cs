@@ -570,7 +570,6 @@ namespace Nucleus.Coop
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.audioTab.BackColor = System.Drawing.Color.RosyBrown;
-            this.audioTab.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.audioTab.Controls.Add(this.audioWarningLabel);
             this.audioTab.Controls.Add(this.audioDefaultDevice);
             this.audioTab.Controls.Add(this.audioCustomSettingsBox);
@@ -876,7 +875,7 @@ namespace Nucleus.Coop
             this.audioRefresh.Location = new System.Drawing.Point(318, 349);
             this.audioRefresh.Margin = new System.Windows.Forms.Padding(2);
             this.audioRefresh.Name = "audioRefresh";
-            this.audioRefresh.Size = new System.Drawing.Size(24, 23);
+            this.audioRefresh.Size = new System.Drawing.Size(26, 23);
             this.audioRefresh.TabIndex = 23;
             this.audioRefresh.UseVisualStyleBackColor = false;
             this.audioRefresh.Click += new System.EventHandler(this.AudioRefresh_Click);
@@ -3245,6 +3244,7 @@ namespace Nucleus.Coop
             // 
             // screen_panel
             // 
+            this.screen_panel.AutoScroll = true;
             this.screen_panel.Location = new System.Drawing.Point(282, 255);
             this.screen_panel.Name = "screen_panel";
             this.screen_panel.Size = new System.Drawing.Size(378, 131);
@@ -5010,11 +5010,11 @@ namespace Nucleus.Coop
             this.Controls.Add(this.playersTabBtn);
             this.Controls.Add(this.sharedTabBtn);
             this.Controls.Add(this.modeLabel);
+            this.Controls.Add(this.layoutTab);
             this.Controls.Add(this.playersTab);
             this.Controls.Add(this.audioTab);
             this.Controls.Add(this.sharedTab);
             this.Controls.Add(this.processorTab);
-            this.Controls.Add(this.layoutTab);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));

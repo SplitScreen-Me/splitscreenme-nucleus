@@ -22,6 +22,7 @@ namespace Nucleus.Gaming
                 {
                     new LogManager();
                 }
+
                 return instance;
             }
         }
@@ -49,12 +50,12 @@ namespace Nucleus.Gaming
 
         public static void RegisterForLogCallback(ILogNode node)
         {
-            instance.logCallbacks.Add(node);
+            Instance.logCallbacks.Add(node);
         }
 
         public static void UnregisterForLogCallback(ILogNode node)
         {
-            instance.logCallbacks.Remove(node);
+            Instance.logCallbacks.Remove(node);
         }
 
         private static string GetAppDataPath()

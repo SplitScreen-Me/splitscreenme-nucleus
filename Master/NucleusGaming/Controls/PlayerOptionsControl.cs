@@ -34,7 +34,10 @@ namespace Nucleus.Coop
             base.Initialize(game, profile);
             this.game = game;
 
-            foreach (Control c in Controls) {c.Dispose();}
+            while (Controls.Count > 0)
+            { 
+                Controls[0].Dispose(); 
+            }
 
             int wid = 200;
 
@@ -47,7 +50,7 @@ namespace Nucleus.Coop
 
             list.Cursor = Theme_Settings.Default_Cursor;
 
-            List<GameOption> options = game.Game.Options;
+            List<GameOption> options = game.HandlerInfo.GenericGameInfo.Options;
             vals = profile.Options;
 
             for (int j = 0; j < options.Count; j++)

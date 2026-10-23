@@ -49,9 +49,12 @@
             // webView
             // 
             this.webView.AllowExternalDrop = true;
+            this.webView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.webView.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(31)))), ((int)(((byte)(34)))), ((int)(((byte)(35)))));
             this.webView.CreationProperties = null;
             this.webView.DefaultBackgroundColor = System.Drawing.Color.White;
-            this.webView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.webView.Location = new System.Drawing.Point(0, 0);
             this.webView.MinimumSize = new System.Drawing.Size(250, 250);
             this.webView.Name = "webView";

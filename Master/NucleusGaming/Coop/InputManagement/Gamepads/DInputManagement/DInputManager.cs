@@ -15,11 +15,12 @@ public static class DInputManager
 
     private static List<D_Joystick> d_joysticksList = new List<D_Joystick>();
     private static IList<DeviceInstance> devicesList = new List<DeviceInstance>();
-    private static bool INITIALIZED;
 
     public static List<D_Joystick> D_JoysticksList => d_joysticksList.AsReadOnly().ToList();
 
-    public static void Init(SynchronizationContext syncContext)
+    private static bool INITIALIZED;
+
+    public static void Init()
     {
         if(INITIALIZED)
         {
@@ -28,13 +29,13 @@ public static class DInputManager
 
         dinput = new DirectInput();
 
-        Thread di_Loop = new Thread(() => WatchDevicesList(syncContext));
+        Thread di_Loop = new Thread(() => WatchDevicesList());
         di_Loop.IsBackground = true;
         INITIALIZED = true;
         di_Loop.Start();    
     }
 
-    public static void Refresh(SynchronizationContext syncContext)
+    public static void Refresh()
     {
         for (int i = 0; i < d_joysticksList.Count; i++)
         {
@@ -45,20 +46,10 @@ public static class DInputManager
 
         INITIALIZED = false;
 
-        Init(syncContext);
+        Init();
     }
 
-    private static void Refresh_DInput_CallBack(SynchronizationContext syncContext)
-    {
-        // Post the method callback to DevicesFunctions thread(main thread)
-        syncContext.Post(_ =>
-        {
-            DevicesFunctions.RefreshDInput(syncContext);
-
-        }, null);
-    }
-
-    private static void WatchDevicesList(SynchronizationContext syncContext)
+    private static void WatchDevicesList()
     {
         InitJoystickList();
 
@@ -66,7 +57,7 @@ public static class DInputManager
         {
            var watchList = dinput.GetDevices(DeviceClass.GameControl, DeviceEnumerationFlags.AttachedOnly);
 
-            // Check for newly connected devices
+            // sCheck for newly connected devices
             for(int i = 0; i < watchList.Count; i++)
             {
                 var device = watchList[i];
@@ -80,49 +71,39 @@ public static class DInputManager
                             joy.Status = JoystickStatus.Disconnected;
                         }
 
-                        Refresh_DInput_CallBack(syncContext);
+                        UIThread.Post(() =>
+                        {
+                            Refresh();
+                        });
 
                         return;
                     }
                 }
             }
 
-            // Check for disconnected devices
-            var deviceToRemove = new List<DeviceInstance>();
-
+            //Check for disconnected devices
             for (int i = 0; i < devicesList.Count; i++)
             {
                 var device = devicesList[i];
                 if (!dinput.IsDeviceAttached(device.InstanceGuid))
                 {
-                    deviceToRemove.Add(device);
+                    var d_Joystick = d_joysticksList.FirstOrDefault(d_j => d_j.Device_Guid == device.InstanceGuid);
 
-                    var joystick = d_joysticksList.FirstOrDefault(j => j.Device_Guid == device.InstanceGuid);
-                    if (joystick != null)
+                    if (d_Joystick != null)
                     {
-                        DeleteJoystick(joystick);
+                        DeleteJoystick(d_Joystick);
                     }
+
+                    devicesList.RemoveAt(i);
+
+                    if(i - 1 >= 0)
+                    {
+                        i--;
+                    }        
                 }
             }
 
-            for (int i = 0; i < deviceToRemove.Count; i++)
-            {
-                devicesList.Remove(deviceToRemove[i]);
-            }
-
-            var disconnectedJoystick = d_joysticksList.Where(dj => dj.Status == JoystickStatus.Disconnected).ToList();
-
-            if (disconnectedJoystick.Count() > 0)
-            {
-                for (int i = 0; i < disconnectedJoystick.Count(); i++)
-                {
-                    D_Joystick joy = disconnectedJoystick[i];
-                    joy.Dispose();
-                    d_joysticksList.Remove(joy);
-                }
-            }
-
-            Thread.Sleep(500);
+            Thread.Sleep(1000);
         }
     }
 
@@ -137,24 +118,12 @@ public static class DInputManager
         }
     }
 
-    private static void AddJoystick(DeviceInstance device)
+    private static void DeleteJoystick(D_Joystick d_Joystick)
     {
-        d_joysticksList.Add(MakeNewJoystick(device));
-    }
-
-    private static void DeleteJoystick(D_Joystick joystick)
-    {
-        joystick.Status = JoystickStatus.Disconnected;
-        d_joysticksList.Remove(joystick);
-        joystick.Joystick.Dispose();
-        joystick.Dispose();
-    }
-
-    public static void DeletePlayerDInputJoystick(D_Joystick joystick)
-    {
-        joystick.Status = JoystickStatus.Disconnected;
-        d_joysticksList.Remove(joystick);
-        joystick.Joystick.Dispose();
+        d_Joystick.Status = JoystickStatus.Disconnected;
+        d_joysticksList.Remove(d_Joystick);
+        d_Joystick.Joystick.Dispose();
+        d_Joystick.Dispose();
     }
 
     private static D_Joystick MakeNewJoystick(DeviceInstance device)

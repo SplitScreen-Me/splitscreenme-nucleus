@@ -16,6 +16,7 @@ namespace Nucleus.Gaming.Forms
             });
 
             backgroundFormThread.SetApartmentState(ApartmentState.STA); // needs to be STA or throws exception
+            backgroundFormThread.IsBackground = true;
             backgroundFormThread.Start();
         }
     }

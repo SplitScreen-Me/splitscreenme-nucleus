@@ -23,11 +23,13 @@ namespace Nucleus.Coop.Controls
 
             ForeColor = Theme_Settings.HandlerNoteForeColor;
 
-            BackColor = Theme_Settings.HandlerNoteBackColor;
+            BackColor = Theme_Settings.HandlerNoteZoomBackColor;
 
-            close_Btn.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close.png");
+            close_Btn.Text = "Close";
+            close_Btn.AutoSize = true;
+            close_Btn.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
             close_Btn.BackColor = Color.Transparent;
-            close_Btn.Cursor = new Cursor(Globals.ThemeFolder + "cursor_hand.ico");
+            close_Btn.Cursor = Theme_Settings.Hand_Cursor;
 
             linePen = new Pen(Color.White, 2);
 
@@ -35,6 +37,7 @@ namespace Nucleus.Coop.Controls
             TextBox.Width = Width - 10;
 
             MouseDown += HandlerNotesZoom_MouseDown;
+            Warning.MouseDown += HandlerNotesZoom_MouseDown;
             TextBox.Resize += OnResize;
 
             DPIManager.Register(this);
@@ -57,17 +60,15 @@ namespace Nucleus.Coop.Controls
 
         private void Close_Btn_MouseEnter(object sender, EventArgs e)
         {
-            close_Btn.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close_mousehover.png");
         }
 
         private void Close_Btn_MouseLeave(object sender, EventArgs e)
         {
-            close_Btn.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_close.png");
         }
 
         public void UpdateSize(float scale)
         {
-            close_Btn.Size = new Size((int)(20 * scale), (int)(20 * scale));
+            close_Btn.Font = new Font(Theme_Settings.CustomFont, 14f * scale, FontStyle.Bold, GraphicsUnit.Pixel, 0);
             close_Btn.Location = new Point(Width / 2 - (close_Btn.Width / 2), (Height - close_Btn.Height) - 10);
             Warning.Height = (int)(Warning.Height * scale);
             TextBox.Height -= Warning.Height + close_Btn.Height;
@@ -100,8 +101,7 @@ namespace Nucleus.Coop.Controls
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
             e.Graphics.CompositingQuality = CompositingQuality.HighQuality;
-
-            e.Graphics.DrawRectangle(linePen, close_Btn.Location.X - 5, close_Btn.Location.Y - 6, close_Btn.Width + 10, close_Btn.Height + 10);            
+            e.Graphics.DrawRectangle(linePen, close_Btn.Location.X - 5, close_Btn.Location.Y - 6, close_Btn.Width + 10, close_Btn.Height + 10);  
         }
     }
 }

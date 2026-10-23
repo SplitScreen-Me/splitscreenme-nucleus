@@ -31,7 +31,7 @@ public static class WPFDivFormThread
 
 public class WPFDiv : System.Windows.Window
 {
-    private System.Windows.Forms.Timer fading;
+    private System.Windows.Forms.Timer fadingTimer;
     private SolidColorBrush userColor;
     private string gameGUID;
     private float alpha = 1.0F;
@@ -85,7 +85,7 @@ public class WPFDiv : System.Windows.Window
 
     private void SlideshowStart()
     {
-        if (fading == null)
+        if (fadingTimer == null)
         {
             if (Directory.Exists(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, $@"gui\screenshots\{gameGUID}")))
             {         
@@ -106,10 +106,10 @@ public class WPFDiv : System.Windows.Window
                     {
                         imgIndex++;
 
-                        fading = new System.Windows.Forms.Timer();
-                        fading.Tick += new EventHandler(FadingTick);
-                        fading.Interval = 50;
-                        fading.Start();
+                        fadingTimer = new System.Windows.Forms.Timer();
+                        fadingTimer.Tick += new EventHandler(FadingTick);
+                        fadingTimer.Interval = 50;
+                        fadingTimer.Start();
                     }
                 }
             }
@@ -164,11 +164,7 @@ public class WPFDiv : System.Windows.Window
 
     private void SetupFinished()
     {
-        if (fading != null)
-        {
-            fading.Dispose();
-        }
-
+        fadingTimer?.Dispose();
         this.Dispatcher.Invoke(new Action(() => { Background = userColor; }));
     }
 }

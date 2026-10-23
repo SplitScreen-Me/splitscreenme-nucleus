@@ -6,12 +6,14 @@ using System.Drawing;
 using System.Windows.Forms;
 using Nucleus.Gaming.UI;
 using Nucleus.Coop.UI;
+using Nucleus.Gaming.Http_Client;
+using NAudio.CoreAudioApi;
+using static Nucleus.Gaming.Http_Client.Http_Client;
 
 namespace Nucleus.Coop.Controls
 {
     public partial class HubButton : DoubleBufferPanel
     {
-        private MainForm mainForm => UI_Interface.MainForm;
         private PictureBox btn_AddGamePb;
         private Label btn_AddGameLabel;
 
@@ -70,35 +72,44 @@ namespace Nucleus.Coop.Controls
             foreach (Control control in Controls)
             {
                 control.Click += Generic_Functions.ClickAnyControl;
-                control.MouseDoubleClick += RefreshHandlers;
                 if (control.HasChildren)
                 {
                     foreach (Control child in control.Controls)
                     {
                         child.Click += Generic_Functions.ClickAnyControl;
-                        child.MouseDoubleClick += RefreshHandlers;
                     }
                 }
             }
 
-            MouseDoubleClick += RefreshHandlers;
-            Update(mainForm.Connected);
+            Update(Http_Client.HubConnected ? HubResponse.Success : HubResponse.Error);
         }
 
-        private void RefreshHandlers(object sender, MouseEventArgs e)
-        {
-            if(e.Button == MouseButtons.Right)
-            {
-                Core_Interface.RefreshHandlers();
-                Globals.MainOSD.Show(1000, "Game Handlers Refreshed");
-            }
-        }
-
-        public void Update(bool connected)
+        public void Update(HubResponse hubResponse)
         {          
-            Click += connected ? Generic_Functions.InsertWebview : new EventHandler(RefreshNetStatus);
-            btn_AddGamePb.Click += connected ? Generic_Functions.InsertWebview : new EventHandler(RefreshNetStatus);
-            btn_AddGameLabel.Click += connected ? Generic_Functions.InsertWebview : new EventHandler(RefreshNetStatus);
+            UIThread.Post(() =>
+            {
+                UpdateControls(hubResponse is HubResponse.Success);
+            });
+        }
+
+        private void UpdateControls(bool connected)
+        {
+            if (connected)
+            {
+                Click -= Generic_Functions.InsertWebview;
+                btn_AddGamePb.Click -= Generic_Functions.InsertWebview;
+                btn_AddGameLabel.Click -= Generic_Functions.InsertWebview;
+
+                Click += Generic_Functions.InsertWebview;
+                btn_AddGamePb.Click += Generic_Functions.InsertWebview;
+                btn_AddGameLabel.Click += Generic_Functions.InsertWebview;
+            }
+            else
+            {
+                Click -= Generic_Functions.InsertWebview;
+                btn_AddGamePb.Click -= Generic_Functions.InsertWebview;
+                btn_AddGameLabel.Click -= Generic_Functions.InsertWebview;
+            }
 
             btn_AddGameLabel.Text = connected ? "Add New Games" : "Offline";
             btn_AddGamePb.BackgroundImage = connected ? ImageCache.GetImage(Globals.ThemeFolder + "add_game.png") : ImageCache.GetImage(Globals.ThemeFolder + "title_no_hub.png");
@@ -125,13 +136,7 @@ namespace Nucleus.Coop.Controls
         private string OfflineToolTipText()
         {
             return "Nucleus can't reach hub.splitscreen.me." +
-                   "\nClick this button to refresh, if the " +
-                   "\nproblem persist, check our FAQ to learn more.";
-        }
-
-        private void RefreshNetStatus(object sender, EventArgs e)
-        {
-            mainForm.Connected = StartChecks.CheckHubResponse();
+                   "If the problem persist, check our FAQ to learn more.";
         }
 
         private void InitializeComponent()

@@ -75,6 +75,7 @@
     <Reference Include="Jint, Version=0.0.0.0, Culture=neutral, PublicKeyToken=2e92ba9c8d81157f, processorArchitecture=MSIL">
       <HintPath>..\packages\Jint.2.11.58\lib\net451\Jint.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -172,7 +173,14 @@
       <DependentUpon>CustomComboBox.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\CustomToolTips.cs" />
+    <Compile Include="Coop\Generic\HandlerInfo.cs" />
     <Compile Include="Coop\ProtoInput\ProtoInputEnumsOptions.cs" />
+    <Compile Include="Forms\GamePathForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\GamePathForm.Designer.cs">
+      <DependentUpon>GamePathForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\HotkeyListener.cs" />
     <Compile Include="Forms\HotkeyListener.Designer.cs">
       <DependentUpon>HotkeyListener.cs</DependentUpon>
@@ -206,7 +214,6 @@
     <Compile Include="Coop\BasicTypes\IntVector2.cs" />
     <Compile Include="Coop\BasicTypes\RECT.cs" />
     <Compile Include="Coop\BasicTypes\Ref.cs" />
-    <Compile Include="Coop\Generic\async.cs" />
     <Compile Include="Coop\Generic\HttpClient.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\DInputManagement\D_JoystickStatus.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\DInputManagement\DInputManager.cs" />
@@ -257,6 +264,7 @@
       <DependentUpon>CustomMessageBox.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\NucleusMessageBox\NucleusMessageBox.cs" />
+    <Compile Include="Forms\SearchProgressForm.cs" />
     <Compile Include="Forms\ShortcutsReminder\ReminderFormThread.cs" />
     <Compile Include="Forms\ProcessPicker.cs">
       <SubType>Form</SubType>
@@ -359,6 +367,7 @@
     <Compile Include="Forms\WPFDiv.cs" />
     <Compile Include="Forms\WPF_OSD.cs" />
     <Compile Include="Globals.cs" />
+    <Compile Include="Http_Client\Http_Client.cs" />
     <Compile Include="Platform\IO\WinDirectoryUtil.cs" />
     <Compile Include="Platform\MachineSpecs\MachineSpecs.cs" />
     <Compile Include="Platform\Windows\GetNetFrameworkVersion.cs" />
@@ -454,7 +463,9 @@
     <Compile Include="Tools\GlobalWindowMethods\GlobalWindowMethods.cs" />
     <Compile Include="Tools\X360ce\X360ce.cs" />
     <Compile Include="Tools\XInputPlusDll\XInputPlusDll.cs" />
+    <Compile Include="UIThread\UIThread.cs" />
     <Compile Include="UI\BackgroundColors.cs" />
+    <Compile Include="UI\OSDHighlightColors.cs" />
     <Compile Include="UI\Theme_Settings.cs" />
     <Compile Include="Util\ExecutableUtil.cs" />
     <Compile Include="Util\FormGraphicsUtil.cs" />
@@ -504,6 +515,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\CustomNumericUpDown.resx">
       <DependentUpon>CustomNumericUpDown.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\GamePathForm.resx">
+      <DependentUpon>GamePathForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\HotkeyListener.resx">
       <DependentUpon>HotkeyListener.cs</DependentUpon>
@@ -561,7 +575,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="GamingKey.snk" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

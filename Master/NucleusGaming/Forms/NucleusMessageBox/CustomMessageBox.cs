@@ -33,6 +33,8 @@ namespace Nucleus.Gaming.Forms
             closeBtn.FlatAppearance.MouseOverBackColor = Color.FromArgb(int.Parse(rgb_MouseOverColor[0]), int.Parse(rgb_MouseOverColor[1]), int.Parse(rgb_MouseOverColor[2]), int.Parse(rgb_MouseOverColor[3]));
             BackgroundImage = Image.FromFile(Globals.ThemeFolder + "other_backgrounds.jpg");
             Opacity = 0;//invisible until resized
+
+            CreateHandle();
         }
 
         private string FormatText(string message)
@@ -81,8 +83,11 @@ namespace Nucleus.Gaming.Forms
             {
                 Size = new Size((int)newSize.Width + 30, (int)newSize.Height + 30 + closeBtn.Bottom + 5);
                 MaximumSize = Size;
-
-                FormGraphicsUtil.CreateRoundedControlRegion(this, 0, 0, Width, Height, 20, 20);
+               
+                if (Theme_Settings.WindowRoundedCorners)
+                {
+                    FormGraphicsUtil.CreateRoundedControlRegion(this, 0, 0, Width, Height, 20, 20);
+                }
 
                 CenterToScreen();
                 Opacity = 1.0F;

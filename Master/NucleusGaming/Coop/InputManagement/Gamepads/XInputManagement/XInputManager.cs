@@ -48,14 +48,14 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                         return true;
                     }
 
-                    if (player.DInputJoystick == null)
+                    if (player.DInputJoystick == null)//only used as a fallback now if the device hid path hasn't been found beforehand
                     {
                         int pressedCount = 0;
 
                         D_Joystick joystick = null;
 
                         for (int i = 0; i < DInputManager.D_JoysticksList.Count; i++)
-                        {                           
+                        {
                             if (DInputManager.D_JoysticksList[i].State.Buttons.Any(b => b == true))
                             {
                                 joystick = DInputManager.D_JoysticksList[i];
@@ -79,20 +79,18 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                             int start = player.RawHID.IndexOf("hid#");
                             int end = player.RawHID.LastIndexOf("#{");
                             string fhid = player.RawHID.Substring(start, end - start).Replace('#', '\\').ToUpper();
-                 
+
                             player.HIDDeviceID = new string[] { fhid, "" };
                             player.IsInputUsed = true;
                             Vibrate(player);
                         }
                     }
-
-                    if (player.DInputJoystick != null)
+                    else
                     {
                         player.IsInputUsed = true;
+                        Vibrate(player);
                         return true;
                     }
-
-                    return false;
                 }
             }
             catch (Exception)
@@ -114,6 +112,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
                 };
 
                 player.XInputJoystick.SetVibration(vibration);
+                vibrationTimer?.Dispose();
                 vibrationTimer = new System.Threading.Timer(Vibration_Tick, player, 90, 0);
                 player.Vibrate = true;
             }

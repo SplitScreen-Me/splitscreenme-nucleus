@@ -1,5 +1,6 @@
 ﻿using Nucleus.Gaming;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.UI;
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -13,6 +14,8 @@ namespace Nucleus.Coop.Controls
 {
     public class CustomRadio : RadioButton, IDynamicSized
     {
+        private RectangleF tic;
+
         private Color mBorderColor = Color.Blue;
         [EditorBrowsable(EditorBrowsableState.Always), Browsable(true)]
         [Editor(typeof(UITypeEditor), typeof(UITypeEditor))]
@@ -81,6 +84,19 @@ namespace Nucleus.Coop.Controls
             DPIManager.Register(this);
         }
 
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if (tic == null || tic == RectangleF.Empty)
+            {
+                return;
+            }
+
+            Cursor = tic.Contains(e.Location) ? Cursor = Theme_Settings.Hand_Cursor : Theme_Settings.Default_Cursor;
+        }
+
         private void Checked_Changed(object sender, EventArgs e)
         {
             Invalidate();
@@ -106,7 +122,7 @@ namespace Nucleus.Coop.Controls
             float locY = (((float)Height / 2) - (size.Height * _scale) / 2);
 
             float ratio = Height / (size.Height * _scale);
-            RectangleF tic = new RectangleF(0, (locY - ratio) + 0.5f, size.Height * _scale, size.Height * _scale);
+            tic = new RectangleF(0, (locY - ratio) + 0.5f, size.Height * _scale, size.Height * _scale);
 
             Pen outline = new Pen(BorderColor);
             e.Graphics.FillRectangle(brush, tic);

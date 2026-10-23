@@ -78,7 +78,7 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
             return (0, 0);
         }
 
-        public static Object GetControllerState(int index)///Return current left stick value of XInput Controller by index
+        public static object GetControllerState(int index)///Return current left stick value of XInput Controller by index
         {
             Controller controller = Controllers[index];
 

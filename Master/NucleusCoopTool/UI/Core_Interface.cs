@@ -3,7 +3,6 @@ using Nucleus.Gaming;
 using System.Collections.Generic;
 using Nucleus.Gaming.Generic.Step;
 using System.Windows.Forms;
-using Nucleus.Gaming.Windows;
 using Nucleus.Gaming.App.Settings;
 using System.IO;
 using System;
@@ -12,21 +11,17 @@ using Nucleus.Gaming.Platform.PCSpecs;
 using System.Threading;
 using Nucleus.Coop.Tools;
 using System.Linq;
-using System.Drawing;
-using Nucleus.Coop.Forms;
+
 
 namespace Nucleus.Coop.UI
 {
     public static class Core_Interface
     {
-        public static SynchronizationContext SyncContext;
-
         public static GameManager GameManager { get; set; }
 
         public static UserInputControl CurrentStep;
         public static int CurrentStepIndex { get; set; }
 
-        public static Dictionary<UserGameInfo, GameControl> GameControlsInfo;
         private static UserGameInfo current_UserGameInfo;
 
         public static JSUserInputControl JsControl;
@@ -46,11 +41,11 @@ namespace Nucleus.Coop.UI
 
                 if (value != null)
                 {
-                    Current_GenericGameInfo = current_UserGameInfo.Game;
+                    Current_GenericGameInfo = current_UserGameInfo.HandlerInfo.GenericGameInfo;
                     Current_GameMetaInfo = Current_GenericGameInfo.MetaInfo;
 
-                    GameProfile.GameInfo = current_UserGameInfo;
-                    GameProfile.Game = Current_GenericGameInfo;
+                    GameProfile.Current_UserGameInfo = current_UserGameInfo;
+                    GameProfile.Current_GenericGamInfo = Current_GenericGameInfo;
 
                     UI_Actions.On_GameChange?.Invoke();
                 }
@@ -69,179 +64,275 @@ namespace Nucleus.Coop.UI
                 if (disableGameProfiles != value)
                 {
                     disableGameProfiles = value;
-                    UI_Functions.RefreshUI(true);
+                    if(Current_UserGameInfo != null)
+                    {
+                        ReselectGameControl(Current_UserGameInfo.GameGuid);
+                    }
                 }
             }
         }
 
         private static string prevSearchText = "";
 
-        private static bool ProcessSearch(object obj)
+        private static bool ProcessSearch(FlatTextBox searchTextBox)
         {
-            if (obj is FlatTextBox search0)
+            if (searchTextBox.Text == "start htool")
             {
-                if(search0.Text == "start htool")
-                {
-                    TriggerSearchTool();
-                    return false;
-                }
-
-                if (search0.Text == search0.Hint) { return false; }
-                if (search0.Text.StartsWith(" ")) { search0.Text = ""; return false; }
-                if (prevSearchText == search0.Hint && search0.Text == "") { return false; }
-                if (prevSearchText == "" && search0.Text == "") { return false; }
-                if (search0.Text == search0.Hint && prevSearchText == "") { return false; }
-                if (prevSearchText != "" && search0.Text == search0.Hint) { SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions); return false; }
-                prevSearchText = search0.Text;
-                return true;
+                UI_Functions.TriggerSearchTool();
+                return false;
             }
 
-            //not the search control
+            if (searchTextBox.Text == searchTextBox.Hint) { return false; }
+            if (searchTextBox.Text.StartsWith(" ")) { searchTextBox.Text = ""; return false; }
+            if (prevSearchText == searchTextBox.Hint && searchTextBox.Text == "") { return false; }
+            if (prevSearchText == "" && searchTextBox.Text == "") { return false; }
+            if (searchTextBox.Text == searchTextBox.Hint && prevSearchText == "") { return false; }
+            if (prevSearchText != "" && searchTextBox.Text == searchTextBox.Hint) { RefreshGamesList(); return false; }
+            prevSearchText = searchTextBox.Text;
             return true;
         }
 
-        public static void RefreshGames(object sender,object e)
-        {       
-            if(!ProcessSearch(sender))//avoid to update the list when it's not necessary
-            {
-                return;
+        private static void ClearGameList()
+        {
+            Control gameList = UI_Interface.GameList;
+
+            while (gameList.Controls.Count > 0)
+            {              
+                gameList.Controls[0].Dispose();
             }
+        }
+
+        public static void RefreshGamesList()
+        {
+            List<UserGameInfo> userGameInfos = SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
 
             UI_Interface.GameList.Visible = false;///smoother transition
 
-            lock (GameControlsInfo)
+            ClearGameList();
+
+            string currentSelected = null;
+
+            for (int i = 0; i < userGameInfos.Count; i++)
             {
-                foreach (KeyValuePair<UserGameInfo, GameControl> con in GameControlsInfo)
+                UserGameInfo userGameInfo = userGameInfos[i];
+
+                if (userGameInfo.HandlerInfo?.GenericGameInfo == null)
                 {
-                    foreach (Control ch in con.Value.Controls)
-                    {
-                        ch.Font.Dispose();
-                        ch.Dispose();
-                    }
-
-                    con.Value?.Dispose();
+                    //if the js file was invalid but the game is already
+                    //added to the app we give it a chance to be added automatically by the GameManager if the file get fixed.
+                    userGameInfo.OnHandlerInfoRefresh += AddGameToList;
+                    continue;
                 }
 
-                UI_Interface.GameList.Controls.Clear();
-                GameControlsInfo.Clear();
-
-                List<UserGameInfo> games = GameManager.User.Games;
-
-                if (e is List<UserGameInfo> gameList)
+                if(Current_UserGameInfo?.GameGuid == userGameInfo.GameGuid)
                 {
-                    games = gameList;
+                    currentSelected = userGameInfo.GameGuid;
                 }
 
-                if (games.Count == 0)
-                {
-                    UI_Interface.NoGamesPresent = true;
-                    GameControl con = new GameControl(null, null, false)
-                    {
-                        Width = UI_Interface.GameListContainer.Width,
-                        Text = "No games",
-                        Font = UI_Interface.MainForm.Font,
-                    };
-
-                    UI_Interface.GameList.Controls.Add(con);
-                }
-                else
-                {
-
-                    for (int i = 0; i < games.Count; i++)
-                    {
-                        UserGameInfo game = games[i];
-
-                        if (sender is FlatTextBox search)
-                        {
-                            List<string> splittedName = game.Game.GameName.ToLower().Split(' ').ToList();
-                            List<string> splittedSearch = search.Text.ToLower().Split(' ').ToList();
-
-                            bool found = (game.Game.GameName.ToLower().Contains(search.Text.ToLower()) && search.Text.Length > 1) || 
-                                          game.Game.GameName.ToLower().StartsWith(search.Text.ToLower());
-
-                            if (!found)
-                            {
-                                found = splittedName.Any(s => s.StartsWith(search.Text.ToLower())) && search.Text.Length > 1;
-
-                                if (!found)
-                                {
-                                    found = splittedName.Any(s => s.StartsWith(search.Text.ToLower()));
-                                }
-                            }
-
-                            if (!found)
-                            {
-                                continue;
-                            }
-                            else if (search.Text == "" || search.Text == search.Hint)
-                            {
-                                SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
-                                break;
-                            }
-                        }
-
-                        if (game.Game == null && games.Count == 1)
-                        {
-                            UI_Interface.NoGamesPresent = true;
-                            GameControl con = new GameControl(null, null, false)
-                            {
-                                Width = UI_Interface.GameListContainer.Width,
-                                Text = "No games",
-                                Font = UI_Interface.MainForm.Font,
-                            };
-
-                            UI_Interface.GameList.Controls.Add(con);
-
-                            break;
-                        }
-
-                        NewUserGame(game);
-                    }
-                }
-
-                if (UI_Interface.HubButton == null)
-                {          
-                    //Add search field controls first because the hub button location is relative to their location
-                    Runtime_Controls.Insert_SearchFieldControls();
-                    Runtime_Controls.Insert_HubButton();
-                }
-
-                UI_Interface.GameList.Visible = true;
+                AddGameControl(userGameInfo);
             }
 
-            if (GameManager.User.Games.Count >= 2)
+            if (userGameInfos.Count == 0)
             {
-                if (UI_Interface.SearchTextBox != null)
+                //a dummy control to get the default controls size
+                //hidden from its contructor
+                GameControl dummy = new GameControl(null)
                 {
-                    UI_Interface.SearchTextBox.Visible = true;
-                }
+                    Width = UI_Interface.GameListContainer.Width,
+                    Text = "No games",
+                    Font = UI_Interface.MainForm.Font,
+                };
+
+                UI_Interface.GameList.Controls.Add(dummy);
             }
 
-            if (UI_Interface.CurrentGameListControl != null)
+            if (UI_Interface.HubButton == null)
             {
-                UI_Interface.GameList.ScrollControlIntoView(UI_Interface.CurrentGameListControl);
+                //Add search field controls first because the hub button location is relative to its location
+                Runtime_Controls.Insert_SearchFieldControls();
+                Runtime_Controls.Insert_HubButton();
             }
 
-            GameManager.SaveUserProfile();
+            if (currentSelected != null)
+            {
+                ReturnToGameControl(currentSelected);
+            }
+
+            UI_Interface.GameList.Visible = true;///smoother transition
         }
 
-        private static void NewUserGame(UserGameInfo game)
+        public static void SearchGame(object sender, EventArgs e)
         {
-            if (game.Game == null || !game.IsGamePresent())
+            FlatTextBox searchTextBox = (FlatTextBox)sender;
+
+            string userInput = searchTextBox.Text;
+
+            if (!ProcessSearch(searchTextBox))
             {
                 return;
             }
 
-            if (UI_Interface.NoGamesPresent)
+            List<UserGameInfo> userGameInfos = SortGameFunction.SortGamesTextInput(userInput);
+
+            var gameList = UI_Interface.GameList;
+
+            gameList.Visible = false;///smoother transition
+
+            ClearGameList();
+
+            string currentSelected = null;
+
+            for (int i = 0; i < userGameInfos.Count; i++)
             {
-                UI_Interface.NoGamesPresent = false;
-                SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
-                return;
+                UserGameInfo userGameInfo = userGameInfos[i];
+
+                if (userGameInfo.HandlerInfo?.GenericGameInfo == null)
+                {
+                    //if the js file is invalid but the game is already
+                    //added to the app; we give it a chance to be added automatically by the GameManager if the file get fixed.
+                    userGameInfo.OnHandlerInfoRefresh += AddGameToList;
+                    continue;
+                }
+
+                if (Current_UserGameInfo?.GameGuid == userGameInfo.GameGuid)
+                {
+                    currentSelected = userGameInfo.GameGuid;
+                }
+
+                AddGameControl(userGameInfo);
             }
 
-            bool favorite = game.Game.MetaInfo.Favorite;
+            if (userGameInfos.Count == 0)
+            {
+                //a dummy control to get the default controls size
+                //hidden from its contructor
+                GameControl dummy = new GameControl(null)
+                {
+                    Width = UI_Interface.GameListContainer.Width,
+                    Text = "No games",
+                    Font = UI_Interface.MainForm.Font,
+                };
 
-            GameControl con = new GameControl(game.Game, game, favorite)
+                gameList.Controls.Add(dummy);
+            }
+
+            if(currentSelected != null)
+            {
+                ReturnToGameControl(currentSelected);
+            }
+
+            UI_Interface.GameList.Visible = true;///smoother transition
+        }
+
+        public static GameControl GetGameControl(string gameGuid)
+        {
+            if(string.IsNullOrEmpty(gameGuid))
+            {
+                return null;
+            }
+
+            Control gameControl = UI_Interface.GameList.Controls.Find(gameGuid,false).FirstOrDefault();
+
+            if (gameControl != null)
+            {
+                return gameControl as GameControl;
+            }
+
+            return null;
+        }
+
+        public static void ReselectGameControl(string gameGuid)
+        {
+            GameControl gameControl = GetGameControl(gameGuid);
+
+            if (gameControl != null)
+            {
+                UI_Functions.GameList_SelectedChanged(gameControl, null);
+                gameControl.RadioSelected();
+                UI_Interface.CurrentGameListControl = gameControl;
+                UI_Interface.GameList.ScrollControlIntoView(gameControl);
+            }
+        }
+
+        public static void ReturnToGameControl(string gameGuid)
+        {
+            GameControl gameControl = GetGameControl(gameGuid);
+
+            if (gameControl != null)
+            {
+                gameControl.RadioSelected();
+                UI_Interface.CurrentGameListControl = gameControl;
+                UI_Interface.GameList.ScrollControlIntoView(gameControl);
+            }
+        }
+
+        public static void SelectGameControl(string gameGuid)
+        {
+            GameControl gameControl = GetGameControl(gameGuid);
+
+            if (gameControl != null)
+            {
+               
+                UI_Interface.CurrentGameListControl = gameControl;
+                UI_Interface.GameList.ScrollControlIntoView(gameControl);
+                //UI_Functions.GameList_SelectedChanged(gameControl, null);
+                UI_Actions.On_GameChange.Invoke();
+                gameControl.RadioSelected();
+                gameControl.Focus();
+            }
+        }
+
+
+        private static void UpdateGameControlGenericGameinfo(UserGameInfo userGameInfo)
+        {
+            GameControl gameControl = GetGameControl(userGameInfo.GameGuid);
+
+            if (gameControl != null)
+            {
+                if (gameControl.UserGameInfo.HandlerInfo == null)
+                {
+                    if (current_UserGameInfo == userGameInfo)
+                    {
+                        UI_Functions.RefreshUI(true);
+                    }
+
+                    UI_Interface.GameList.Controls.Remove(gameControl);
+                    return;
+                }
+
+                if (Current_UserGameInfo?.GameGuid == gameControl.Name)
+                {
+                    ReselectGameControl(Current_UserGameInfo.GameGuid);
+                }
+            }
+        }
+
+        public static void AddGameToList(UserGameInfo userGameInfo)
+        {
+            AddGameControl(userGameInfo);
+            RefreshGamesList();
+        }
+
+        public static void RemoveGameFromList(string gameGuid)
+        {
+            Control gameControl = GetGameControl(gameGuid);
+
+            if (gameControl != null)
+            {
+                UI_Interface.GameList.Controls.Remove(gameControl);
+                gameControl.Dispose();
+
+                if (Current_UserGameInfo?.GameGuid == gameGuid)
+                {
+                    Current_UserGameInfo = null;
+                    UI_Functions.RefreshUI(true);
+                }
+            }
+        }
+
+        private static GameControl AddGameControl(UserGameInfo userGameInfo)
+        {
+            GameControl con = new GameControl(userGameInfo)
             {
                 Width = UI_Interface.GameListContainer.Width,
             };
@@ -249,35 +340,14 @@ namespace Nucleus.Coop.UI
             con.Click += Generic_Functions.WebviewDisposed;
             con.HandlerUpdate.Click += UI_Functions.Button_UpdateAvailable_Click;
             con.GameOptions.Click += UI_Functions.GameOptionsButton_Click;
+            con.OnHandlerInfoRefresh = null;
+            con.OnHandlerInfoRefresh += UpdateGameControlGenericGameinfo;
 
-            if (UI_Interface.ShowFavoriteOnly)
-            {
-                if (favorite || con.GameInfo == Current_GenericGameInfo)
-                {
-                    if (con.GameInfo == Current_GenericGameInfo)
-                    {
-                        con.RadioSelected();
-                        UI_Interface.CurrentGameListControl = con;
-                    }
+            UI_Interface.GameList.Controls.Add(con);
 
-                    GameControlsInfo.Add(game, con);
-                    UI_Interface.GameList.Controls.Add(con);
-                    ThreadPool.QueueUserWorkItem(GetGameIcon.GetIcon, game);
-                }
-            }
-            else
-            {
-                if (con.GameInfo == Current_GenericGameInfo)
-                {
-                    con.RadioSelected();
-                    UI_Interface.CurrentGameListControl = con;
-                }
+            ThreadPool.QueueUserWorkItem(GetGameIcon.GetIcon, userGameInfo);
 
-                GameControlsInfo.Add(game, con);
-                UI_Interface.GameList.Controls.Add(con);
-
-                ThreadPool.QueueUserWorkItem(GetGameIcon.GetIcon, game);
-            }
+            return con;
         }
 
         public static void KillCurrentStep()
@@ -315,7 +385,7 @@ namespace Nucleus.Coop.UI
         }
 
         public static void GotoNextStep()
-        {
+        {           
             if (UI_Interface.ProfileSettings.Visible) { UI_Interface.ProfileSettings.BringToFront(); return; }
             if (UI_Interface.Settings.Visible) { UI_Interface.Settings.BringToFront(); return; }
 
@@ -324,8 +394,14 @@ namespace Nucleus.Coop.UI
 
         public static void GoToStep(int step)
         {
-            //Avoid winforms to focus buttons randomly
+            //Prevent winforms to focus buttons randomly
             UI_Interface.SetupPanel.Focus();
+
+            //Hide profiles list
+            if (step > 0)
+            {
+                UI_Functions.OnClickHideProfileList(null, null);
+            }
 
             UI_Interface.GotoPrev.Enabled = step > 0;
 
@@ -339,7 +415,7 @@ namespace Nucleus.Coop.UI
                 // Custom steps
                 List<CustomStep> customSteps = Current_GenericGameInfo.CustomSteps;
                 int customStepIndex = step - 2;
-                CustomStep customStep = customSteps[0];
+                CustomStep customStep = customSteps[customStepIndex];
 
                 customStep.UpdateRequired?.Invoke();
 
@@ -350,14 +426,14 @@ namespace Nucleus.Coop.UI
                 }
                 else
                 {
-                    Generic_Functions.EnablePlay();
+                    UI_Functions.EnablePlay(true);
                     return;
                 }
             }
 
             KillCurrentStep();
 
-            if (GameProfile.Ready)
+            if (GameProfile.Ready && GameProfile.TotalProfilePlayers == GameProfile.TotalAssignedPlayers)
             {
                 if (Current_GenericGameInfo.CustomSteps.Count > 0)
                 {
@@ -377,7 +453,7 @@ namespace Nucleus.Coop.UI
 
                     if (GameProfile.AutoPlay)
                     {
-                        Generic_Functions.EnablePlay();
+                        UI_Functions.EnablePlay(true);
                     }
 
                     return;
@@ -422,10 +498,11 @@ namespace Nucleus.Coop.UI
 
             UI_Interface.GotoPrev.Enabled = false;
 
-            GameProfile.InitializeHandlerStartup();
+            GameProfile.InitializeHandlerStartup(Current_UserGameInfo);
 
-            GameProfile.I_GameHandler.Ended += Handler_Ended;
-            
+            GameProfile.I_GameHandler.InitializeEnd += Handler_InitializeEnd;
+            GameProfile.I_GameHandler.Ended += Handler_Ended;      
+
             if (UI_Interface.ProfileSettings.Visible)
             {
                 UI_Interface.ProfileSettings.Visible = false;
@@ -453,7 +530,7 @@ namespace Nucleus.Coop.UI
 
             if (UI_Interface.MainForm.Opacity == 1.0)//If resizing the mainForm window skip that
             {
-                UI_Interface.ProfileButtonsPanel.Enabled = UI_Interface.SetupPanel.Visible && CurrentStepIndex == 0;                            
+                UI_Interface.ProfileButtonsPanel.Visible = UI_Interface.SetupPanel.Visible && CurrentStepIndex == 0 && !App_Misc.DisableGameProfiles;                            
             }
 
             if (!canProceed)
@@ -472,13 +549,13 @@ namespace Nucleus.Coop.UI
 
             if (Current_GenericGameInfo?.Options?.Count == 0)
             {
-                Generic_Functions.EnablePlay();
+                UI_Functions.EnablePlay(true);
                 return;
             }
 
             if (CurrentStepIndex + 1 > StepsList.Count - 1)
             {
-                Generic_Functions.EnablePlay();
+                UI_Functions.EnablePlay(true);
                 return;
             }
             else
@@ -521,13 +598,14 @@ namespace Nucleus.Coop.UI
         {
             Log("Handler ended method called");
 
-            UI_Interface.MainForm.Invoke((MethodInvoker)delegate ()
-            {     
+            UIThread.Post(() =>
+            {
                 if (!UI_Interface.IsFormClosing)
                 {
+                    UI_Functions.HideEndingMessage();
                     GameProfile.I_GameHandler = null;
                     UI_Interface.CurrentGameListControl = null;
-
+                    Current_UserGameInfo = null;
                     UI_Interface.MainForm.WindowState = FormWindowState.Normal;
 
                     UI_Interface.WindowPanel.Focus();
@@ -536,7 +614,8 @@ namespace Nucleus.Coop.UI
 
                     UI_Interface.MainForm.BringToFront();
                 
-                    SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);//refresh game list controls again so we have fresh datas for all
+                    RefreshGamesList();
+                    
                     UI_Functions.EnableGameSelection();
                 }
             });
@@ -583,19 +662,9 @@ namespace Nucleus.Coop.UI
             }
         }
 
-        public static void RefreshHandlers()
+        private static void Handler_InitializeEnd()
         {
-            GameManager = new GameManager();
-       
-            SortGameFunction.SortGames(UI_Interface.SortOptionsPanel.SortGamesOptions);
-
-            UI_Functions.RefreshUI(true);
-        }
-
-        public static void TriggerSearchTool()
-        {
-            HandlerScanner handlerScanner = new HandlerScanner();
-            handlerScanner.Initialize();
+            UI_Functions.ShowEndingMessage();
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Nucleus.Gaming;
 using Nucleus.Gaming.Cache;
+using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Coop.Generic;
 using Nucleus.Gaming.UI;
 using System;
 using System.Collections.Generic;
@@ -21,23 +23,24 @@ namespace Nucleus.Coop.Forms
             }
         }
 
-        private GenericGameInfo clicked;
+        private HandlerInfo clicked;
+        public HandlerInfo Selected => clicked;
 
-        public GenericGameInfo Selected => clicked;
         protected override Size DefaultSize => new Size(440, 710);
 
-        public GameList(List<GenericGameInfo> games)
+        public GameList(List<HandlerInfo> handlerInfos)
         {
             InitializeComponent();
 
             BackgroundImage = Image.FromFile(Globals.ThemeFolder + "other_backgrounds.jpg");
             btnOk.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
 
-            GameManager manager = GameManager.Instance;
-
-            foreach (GenericGameInfo game in games)
+            foreach (HandlerInfo handlerInfo in handlerInfos)
             {
-                GameControlAlt con = new GameControlAlt(game, null, false)
+                UserGameInfo userGameInfo = new UserGameInfo();
+                userGameInfo.InitializeDefault(handlerInfo, null);
+
+                GameControlAlt con = new GameControlAlt(userGameInfo)
                 {
                     ForeColor = Color.White,
                     Width = listGames.Width,
@@ -46,13 +49,13 @@ namespace Nucleus.Coop.Forms
 
                 con.Click += Con_Click;
 
-                listGames.Controls.Add(con);                     
+                listGames.Controls.Add(con);
             }
         }
 
         private void Con_Click(object sender, EventArgs e)
         {
-            clicked = ((GameControlAlt)sender).GameInfo;
+            clicked = ((GameControlAlt)sender).UserGameInfo.HandlerInfo;
             btnOk.Enabled = true;
         }
 

@@ -1,7 +1,9 @@
 ﻿using Nucleus.Coop.Forms;
 using Nucleus.Gaming.App.Settings;
+using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.InputManagement;
 using Nucleus.Gaming.Tools.GlobalWindowMethods;
+using Nucleus.Gaming.UI;
 using Nucleus.Gaming.Windows.Interop;
 using System;
 using System.Diagnostics;
@@ -69,6 +71,7 @@ namespace Nucleus.Gaming.Forms
 
         private void InitTimer()
         {
+            hotkeysCooldownTimer?.Dispose();
             hotkeysCooldownTimer = new System.Windows.Forms.Timer();
             hotkeysCooldownTimer.Tick += HotkeysCooldownTimerTick;
         }
@@ -94,6 +97,8 @@ namespace Nucleus.Gaming.Forms
                 HotkeysRegistration.UnRegCustomHotkeys();
             }
         }
+
+        private bool paused = false;
 
         protected override void WndProc(ref Message m)
         {
@@ -158,7 +163,7 @@ namespace Nucleus.Gaming.Forms
             //Pass through locked inputs state Hotkeys must be placed before this check.
             if (m.Msg == 0x0312 && LockInputRuntime.IsLocked)//WM_HOTKEY
             {
-                Globals.MainOSD.Show(1600, $"Unlock Inputs First (Press {App_Hotkeys.LockInputs} Key)");
+                Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Info}|Unlock Inputs First (Press@* *@{OSDHighlightColors.Confirm}|{App_Hotkeys.LockInputs}@* *@{OSDHighlightColors.Info}|key)@*");
                 base.WndProc(ref m);
                 return;
             }
@@ -171,6 +176,36 @@ namespace Nucleus.Gaming.Forms
             {
                 switch (m.WParam.ToInt32())
                 {
+                    //case HotkeysRegistration.Pause:
+                    //    HotkeyCoolDown();
+
+                    //    if(paused)
+                    //    {
+                    //        foreach(var player in GameProfile.Instance.DevicesList)
+                    //        {
+                    //           // System.Threading.Tasks.Task.Run(() =>
+                    //           //{
+                    //                ProcessUtil.ResumeProcess(player.ProcessID);
+                    //           // });
+                    //        }
+
+                    //        paused = false;
+                    //    }
+                    //    else
+                    //    {
+                    //        foreach (var player in GameProfile.Instance.DevicesList)
+                    //            {
+                    //               // System.Threading.Tasks.Task.Run(() =>
+                    //               // {
+                    //                    ProcessUtil.PauseProcess(player.ProcessID);
+                    //               // });
+                    //        }
+
+                    //        paused = true;
+                    //    }
+
+                    //    break;
+
                     case HotkeysRegistration.TopMost_HotkeyID:
                         HotkeyCoolDown();
                         GlobalWindowMethods.ShowHideWindows();
@@ -179,7 +214,6 @@ namespace Nucleus.Gaming.Forms
                     case HotkeysRegistration.StopSession_HotkeyID:
                         UnregisterHotkeys();
                         GenericGameHandler.Instance?.End(false);
-                        Globals.MainOSD.Show(2000, "Session Ended");
                         break;
 
                     case HotkeysRegistration.SetFocus_HotkeyID:
@@ -243,13 +277,13 @@ namespace Nucleus.Gaming.Forms
             if (!hotkeysCooldown)
             {
                 hotkeysCooldownTimer.Stop();
-                hotkeysCooldownTimer.Interval = 700; //millisecond
+                hotkeysCooldownTimer.Interval = 1000; //millisecond
                 hotkeysCooldownTimer.Start();
                 hotkeysCooldown = true;
             }
         }
 
-        private void HotkeysCooldownTimerTick(object Object, EventArgs EventArgs)
+        private void HotkeysCooldownTimerTick(object state, EventArgs EventArgs)
         {
             hotkeysCooldown = false;
             hotkeysCooldownTimer.Stop();

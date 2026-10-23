@@ -16,6 +16,7 @@ using System.Threading;
 using System.Text;
 using System.Diagnostics;
 using System.Drawing.Drawing2D;
+using System.Threading.Tasks;
 
 namespace Nucleus.Coop.Forms
 {
@@ -46,9 +47,9 @@ namespace Nucleus.Coop.Forms
         private AutoCompleteStringCollection autoCompleteSource = new AutoCompleteStringCollection();
         private Handler Handler;
 
-        public void Initialize()
+        public async Task Initialize()
         {
-            List<Handler> all = HubCache.GetAllHandlers();
+            List<Handler> all = await HubCache.GetAllHandlers();
 
             if (!Directory.Exists(destPath))
             {
@@ -57,7 +58,7 @@ namespace Nucleus.Coop.Forms
 
             CreateUpdateForm();
 
-            System.Threading.Tasks.Task.Run(() =>
+            //System.Threading.Tasks.Task.Run(() =>
             {
                 List<string> downloaded = Directory.EnumerateFiles(destPath).Where
                 (file => file.EndsWith(".js")).ToList();
@@ -234,7 +235,7 @@ namespace Nucleus.Coop.Forms
                             descLabel.Refresh();
                         });
 
-                        HubCache.ThumbnailsCache(handler);
+                       await HubCache.ThumbnailsCache(handler);
 
                         Download(handler, null);
 
@@ -251,7 +252,7 @@ namespace Nucleus.Coop.Forms
                 {
                     CloseDownloadForm();
                 }
-            });
+            }//);
         }
 
         private Dictionary<string, string> cachedHandlers = new Dictionary<string, string>();
@@ -463,7 +464,7 @@ namespace Nucleus.Coop.Forms
             }            
         }
 
-        private void CreateToolForm()
+        private async Task CreateToolForm()
         {
             LoadAutoCompleteSource();
 
@@ -522,16 +523,21 @@ namespace Nucleus.Coop.Forms
             infoField.MultiSelect = false;
 
             infoField.View = View.List;
-            infoField.ItemActivate += ItemActivate;
+            infoField.MouseDown += ItemActivate;
 
             ImageList imageList = new ImageList
             {
                 ImageSize = new Size(35, 35)
             };
 
-            List<string> allImages = Directory.EnumerateFileSystemEntries(Globals.NucleusInstallRoot + @"\webview\cache\thumbnails\").ToList();
+            List<string> allImages = new List<string>();
 
-            List<Handler> all = HubCache.GetAllHandlers();
+            if (Directory.Exists(Globals.NucleusInstallRoot + @"\webview\cache\thumbnails\")) 
+            {
+                allImages = Directory.EnumerateFileSystemEntries(Globals.NucleusInstallRoot + @"\webview\cache\thumbnails\").ToList();
+            }
+
+            List<Handler> all = await HubCache.GetAllHandlers();
             int index = 0;
             foreach (string path in allImages)
             {
@@ -659,34 +665,51 @@ namespace Nucleus.Coop.Forms
             firstClick = true;       
         }
 
-        private void ItemActivate(object sender, EventArgs e)
+        private void ItemActivate(object sender, MouseEventArgs e)
         {
-            contentView.SuspendLayout();
-            contentView.Clear();
+            if (e.Button == MouseButtons.Left)
+            {
+                contentView.SuspendLayout();
+                contentView.Clear();
 
-            var list = sender as ListView;
-            if (list == null || list.SelectedItems.Count == 0)
-                return;
+                var list = sender as ListView;
+                if (list == null || list.SelectedItems.Count == 0)
+                    return;
 
-            var items = list.SelectedItems[0];
-            if (items == null || !(items.Tag is string rawTag))
-                return;
+                var items = list.SelectedItems[0];
+                if (items == null || !(items.Tag is string rawTag))
+                    return;
 
-            int splitIndex = rawTag.LastIndexOf(splitTag);
-            if (splitIndex < 0)
-                return;
+                int splitIndex = rawTag.LastIndexOf(splitTag);
+                if (splitIndex < 0)
+                    return;
 
-            ListPackageContent(items.Text.Substring(2));
+                ListPackageContent(items.Text.Substring(2));
 
-            string content = rawTag.Substring(0, splitIndex);
-            string selectText = rawTag.Substring(splitIndex + 1);
-            contentView.Text = content;
+                string content = rawTag.Substring(0, splitIndex - 1);
+                string selectText = rawTag.Substring(splitIndex + 1);
+                contentView.Text = content;
 
-            HighlightJavaScript(contentView);
-            HighlightWord(contentView,  selectText, Color.Gray);
+                HighlightJavaScript(contentView);
+                HighlightWord(contentView, selectText, Color.Gray);
 
-            contentView.Select(0, 0);
-            contentView.ResumeLayout();
+                contentView.Select(0, 0);
+                contentView.ResumeLayout();
+            }
+            else if(e.Button == MouseButtons.Right)
+            {
+                var list = sender as ListView;
+                if (list.Items.Count > 0)
+                {
+                    string gameNames = string.Empty;
+                    foreach(ListViewItem item in list.Items)
+                    {
+                        gameNames += item.Text + "\n";
+                    }
+
+                        File.AppendAllText("Found Games list.txt", $"[{DateTime.Now}] {gameNames}\n");
+                }
+            }
         }
 
         private static readonly string[] JavaScriptKeywords = new[]

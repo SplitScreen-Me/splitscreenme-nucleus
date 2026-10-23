@@ -4,6 +4,7 @@ using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Forms;
+using Nucleus.Gaming.Http_Client;
 using Nucleus.Gaming.UI;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static Nucleus.Gaming.Http_Client.Http_Client;
 
 namespace Nucleus.Coop.UI
 {
@@ -117,7 +119,7 @@ namespace Nucleus.Coop.UI
                 }
                 else
                 {
-                    gameOptionMenu.Items["gameNameMenuItem"].Text = menuCurrentGameInfo.Game.GameName;
+                    gameOptionMenu.Items["gameNameMenuItem"].Text = $"{menuCurrentGameInfo.HandlerInfo.GenericGameInfo.GameName} ({menuCurrentGameInfo.HandlerInfo.GenericGameInfo.FileName})";
 
                     bool userConfigPathExists = false;
                     bool userSavePathExists = false;
@@ -125,22 +127,22 @@ namespace Nucleus.Coop.UI
                     bool docSavePathExists = false;
                     bool backupFolderExist = false;
                     //bool userConfigPathConverted = false;
-                    if (menuCurrentGameInfo.Game.UserProfileConfigPath?.Length > 0 && menuCurrentGameInfo.Game.UserProfileConfigPath.ToLower().StartsWith(@"documents\"))
+                    if (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UserProfileConfigPath?.Length > 0 && menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UserProfileConfigPath.ToLower().StartsWith(@"documents\"))
                     {
-                        menuCurrentGameInfo.Game.DocumentsConfigPath = menuCurrentGameInfo.Game.UserProfileConfigPath.Substring(10);
-                        menuCurrentGameInfo.Game.UserProfileConfigPath = null;
-                        menuCurrentGameInfo.Game.DocumentsConfigPathNoCopy = menuCurrentGameInfo.Game.UserProfileConfigPathNoCopy;
-                        menuCurrentGameInfo.Game.ForceDocumentsConfigCopy = menuCurrentGameInfo.Game.ForceUserProfileConfigCopy;
+                        menuCurrentGameInfo.HandlerInfo.GenericGameInfo.DocumentsConfigPath = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UserProfileConfigPath.Substring(10);
+                        //menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UserProfileConfigPath = null;
+                        menuCurrentGameInfo.HandlerInfo.GenericGameInfo.DocumentsConfigPathNoCopy = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UserProfileConfigPathNoCopy;
+                        menuCurrentGameInfo.HandlerInfo.GenericGameInfo.ForceDocumentsConfigCopy = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.ForceUserProfileConfigCopy;
                         //userConfigPathConverted = true;
                     }
 
                     //bool userSavePathConverted = false;
-                    if (menuCurrentGameInfo.Game.UserProfileSavePath?.Length > 0 && menuCurrentGameInfo.Game.UserProfileSavePath.ToLower().StartsWith(@"documents\"))
+                    if (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UserProfileSavePath?.Length > 0 && menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UserProfileSavePath.ToLower().StartsWith(@"documents\"))
                     {
-                        menuCurrentGameInfo.Game.DocumentsSavePath = menuCurrentGameInfo.Game.UserProfileSavePath.Substring(10);
-                        menuCurrentGameInfo.Game.UserProfileSavePath = null;
-                        menuCurrentGameInfo.Game.DocumentsSavePathNoCopy = menuCurrentGameInfo.Game.UserProfileSavePathNoCopy;
-                        menuCurrentGameInfo.Game.ForceDocumentsSaveCopy = menuCurrentGameInfo.Game.ForceUserProfileSaveCopy;
+                        menuCurrentGameInfo.HandlerInfo.GenericGameInfo.DocumentsSavePath = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UserProfileSavePath.Substring(10);
+                        //menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UserProfileSavePath = null;
+                        menuCurrentGameInfo.HandlerInfo.GenericGameInfo.DocumentsSavePathNoCopy = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UserProfileSavePathNoCopy;
+                        menuCurrentGameInfo.HandlerInfo.GenericGameInfo.ForceDocumentsSaveCopy = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.ForceUserProfileSaveCopy;
                         //userSavePathConverted = true;
                     }
 
@@ -148,7 +150,7 @@ namespace Nucleus.Coop.UI
                     {
                         gameOptionMenu.Items[i].Visible = true;
 
-                        if (string.IsNullOrEmpty(menuCurrentGameInfo.Game.UserProfileConfigPath) && string.IsNullOrEmpty(menuCurrentGameInfo.Game.UserProfileSavePath) && string.IsNullOrEmpty(menuCurrentGameInfo.Game.DocumentsConfigPath) && string.IsNullOrEmpty(menuCurrentGameInfo.Game.DocumentsSavePath))
+                        if (string.IsNullOrEmpty(menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UserProfileConfigPath) && string.IsNullOrEmpty(menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UserProfileSavePath) && string.IsNullOrEmpty(menuCurrentGameInfo.HandlerInfo.GenericGameInfo.DocumentsConfigPath) && string.IsNullOrEmpty(menuCurrentGameInfo.HandlerInfo.GenericGameInfo.DocumentsSavePath))
                         {
                             if (i == gameOptionMenu.Items.IndexOf(gameOptionMenu.Items["menuSeparator2"]))
                             {
@@ -159,13 +161,13 @@ namespace Nucleus.Coop.UI
                         #region Gamepad assignation methods
                         if (i == gameOptionMenu.Items.IndexOf(gameOptionMenu.Items["useAPIIndexMenuItem"]))
                         {
-                            gameOptionMenu.Items[i].Visible = /*menuCurrentGameInfo.Game.MetaInfo.DisableProfiles ? false :*/
-                                ((menuCurrentGameInfo.Game.Hook.XInputEnabled && !menuCurrentGameInfo.Game.Hook.XInputReroute && !menuCurrentGameInfo.Game.ProtoInput.DinputDeviceHook) ||
-                                (menuCurrentGameInfo.Game.ProtoInput.XinputHook || menuCurrentGameInfo.Game.Hook.SDL2Enabled)) &&
-                                (!menuCurrentGameInfo.Game.UseDevReorder && !menuCurrentGameInfo.Game.CreateSingleDeviceFile) &&
-                                !menuCurrentGameInfo.Game.Hook.DInputEnabled;
+                            gameOptionMenu.Items[i].Visible = /*menuCurrentGameInfo.GenericGameInfo.MetaInfo.DisableProfiles ? false :*/
+                                ((menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Hook.XInputEnabled && !menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Hook.XInputReroute && !menuCurrentGameInfo.HandlerInfo.GenericGameInfo.ProtoInput.DinputDeviceHook) ||
+                                (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.ProtoInput.XinputHook || menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Hook.SDL2Enabled || menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Hook.SDL3Enabled)) &&
+                                (!menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UseDevReorder && !menuCurrentGameInfo.HandlerInfo.GenericGameInfo.CreateSingleDeviceFile) &&
+                                !menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Hook.DInputEnabled;
 
-                            if (menuCurrentGameInfo.Game.MetaInfo.UseApiIndex)
+                            if (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.UseApiIndex)
                             {
                                 gameOptionMenu.Items[i].Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
                                 gameOptionMenu.Items[i].ForeColor = Color.GreenYellow;
@@ -188,9 +190,9 @@ namespace Nucleus.Coop.UI
                                 continue;
                             }
 
-                            gameOptionMenu.Items[i].Visible = !menuCurrentGameInfo.Game.MetaInfo.DisableProfiles;
+                            gameOptionMenu.Items[i].Visible = !menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.DisableProfiles;
 
-                            if (menuCurrentGameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress)
+                            if (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.ProfileAssignGamepadByButonPress)
                             {
                                 gameOptionMenu.Items[i].Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
                                 gameOptionMenu.Items[i].ForeColor = Color.GreenYellow;
@@ -208,13 +210,13 @@ namespace Nucleus.Coop.UI
                         if (i == gameOptionMenu.Items.IndexOf(gameOptionMenu.Items["useGamepadAPIIndexForGuestsMenuItem"]))
                         {
                             gameOptionMenu.Items[i].Visible =
-                                ((menuCurrentGameInfo.Game.Hook.XInputEnabled && !menuCurrentGameInfo.Game.Hook.XInputReroute && !menuCurrentGameInfo.Game.ProtoInput.DinputDeviceHook) ||
-                                (menuCurrentGameInfo.Game.ProtoInput.XinputHook || menuCurrentGameInfo.Game.Hook.SDL2Enabled)) &&
-                                (!menuCurrentGameInfo.Game.UseDevReorder && !menuCurrentGameInfo.Game.CreateSingleDeviceFile) &&
-                                menuCurrentGameInfo.Game.PlayersPerInstance > 0 &&
-                                !menuCurrentGameInfo.Game.Hook.DInputEnabled;
+                                ((menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Hook.XInputEnabled && !menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Hook.XInputReroute && !menuCurrentGameInfo.HandlerInfo.GenericGameInfo.ProtoInput.DinputDeviceHook) ||
+                                (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.ProtoInput.XinputHook || menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Hook.SDL2Enabled || menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Hook.SDL3Enabled)) &&
+                                (!menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UseDevReorder && !menuCurrentGameInfo.HandlerInfo.GenericGameInfo.CreateSingleDeviceFile) &&
+                                menuCurrentGameInfo.HandlerInfo.GenericGameInfo.PlayersPerInstance > 0 &&
+                                !menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Hook.DInputEnabled;
 
-                            if (menuCurrentGameInfo.Game.MetaInfo.UseApiIndexForGuests)
+                            if (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.UseApiIndexForGuests)
                             {
                                 gameOptionMenu.Items[i].Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
                                 gameOptionMenu.Items[i].ForeColor = Color.GreenYellow;
@@ -228,12 +230,12 @@ namespace Nucleus.Coop.UI
                             gameOptionMenu.Items[i].Click -= UseApiIndexForGuestsMenuItem_Click;
                             gameOptionMenu.Items[i].Click += UseApiIndexForGuestsMenuItem_Click;
 
-                            gameOptionMenu.Items[i].Visible = !menuCurrentGameInfo.Game.MetaInfo.UseApiIndex &&
-                                !menuCurrentGameInfo.Game.MetaInfo.DisableProfiles && menuCurrentGameInfo.Game.PlayersPerInstance > 0;
+                            gameOptionMenu.Items[i].Visible = !menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.UseApiIndex &&
+                                !menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.DisableProfiles && menuCurrentGameInfo.HandlerInfo.GenericGameInfo.PlayersPerInstance > 0;
                         }
 
 
-                        //gameOptionMenu.Items["toolStripSeparator3"].Visible = !menuCurrentGameInfo.Game.MetaInfo.DisableProfiles || !App_Misc.DisableGameProfiles|| gameOptionMenu.Items["useAPIIndexMenuItem"].Visible || gameOptionMenu.Items["useGamepadButtonPressMenuItem"].Visible || gameOptionMenu.Items["useGamepadAPIIndexForGuestsMenuItem"].Visible;
+                        //gameOptionMenu.Items["toolStripSeparator3"].Visible = !menuCurrentGameInfo.GenericGameInfo.MetaInfo.DisableProfiles || !App_Misc.DisableGameProfiles|| gameOptionMenu.Items["useAPIIndexMenuItem"].Visible || gameOptionMenu.Items["useGamepadButtonPressMenuItem"].Visible || gameOptionMenu.Items["useGamepadAPIIndexForGuestsMenuItem"].Visible;
 
                         #endregion
 
@@ -243,7 +245,7 @@ namespace Nucleus.Coop.UI
                             (gameOptionMenu.Items["openUserProfConfigMenuItem"] as ToolStripMenuItem).DropDownItems.Clear();
                             (gameOptionMenu.Items["deleteUserProfConfigMenuItem"] as ToolStripMenuItem).DropDownItems.Clear();
 
-                            var configsPath = menuCurrentGameInfo.Game.Profiles_ConfigPath;
+                            var configsPath = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Profiles_ConfigPath;
 
                             if (configsPath.Count > 0)
                             {
@@ -287,7 +289,7 @@ namespace Nucleus.Coop.UI
                             (gameOptionMenu.Items["openUserProfSaveMenuItem"] as ToolStripMenuItem).DropDownItems.Clear();
                             (gameOptionMenu.Items["deleteUserProfSaveMenuItem"] as ToolStripMenuItem).DropDownItems.Clear();
 
-                            var savesPath = menuCurrentGameInfo.Game.Profiles_SavePath;
+                            var savesPath = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Profiles_SavePath;
 
                             if (savesPath.Count > 0)
                             {
@@ -331,7 +333,7 @@ namespace Nucleus.Coop.UI
                             (gameOptionMenu.Items["openDocumentConfMenuItem"] as ToolStripMenuItem).DropDownItems.Clear();
                             (gameOptionMenu.Items["deleteDocumentConfMenuItem"] as ToolStripMenuItem).DropDownItems.Clear();
 
-                            var profileDocConfigPath = menuCurrentGameInfo.Game.Profiles_Documents_ConfigPath;
+                            var profileDocConfigPath = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Profiles_Documents_ConfigPath;
 
                             if (profileDocConfigPath.Count > 0)
                             {
@@ -375,7 +377,7 @@ namespace Nucleus.Coop.UI
                             (gameOptionMenu.Items["openDocumentSaveMenuItem"] as ToolStripMenuItem).DropDownItems.Clear();
                             (gameOptionMenu.Items["deleteDocumentSaveMenuItem"] as ToolStripMenuItem).DropDownItems.Clear();
 
-                            var profileDocSavePath = menuCurrentGameInfo.Game.Profiles_Documents_SavePath;
+                            var profileDocSavePath = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Profiles_Documents_SavePath;
 
                             if (profileDocSavePath.Count > 0)
                             {
@@ -425,7 +427,7 @@ namespace Nucleus.Coop.UI
                             (gameOptionMenu.Items["openBackupFolderMenuItem"] as ToolStripMenuItem).DropDownItems.Clear();
                             (gameOptionMenu.Items["deleteBackupFolderMenuItem"] as ToolStripMenuItem).DropDownItems.Clear();
 
-                            var playersBackupPath = menuCurrentGameInfo.Game.Players_BackupPath;
+                            var playersBackupPath = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Players_BackupPath;
 
                             if (playersBackupPath.Count > 0)
                             {
@@ -451,7 +453,7 @@ namespace Nucleus.Coop.UI
                             gameOptionMenu.Items["deleteBackupFolderMenuItem"].Visible = false;
                         }
 
-                        if (i == gameOptionMenu.Items.IndexOf(gameOptionMenu.Items["notesMenuItem"]) && menuCurrentGameInfo.Game.Description == null)
+                        if (i == gameOptionMenu.Items.IndexOf(gameOptionMenu.Items["notesMenuItem"]) && menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Description == null)
                         {
                             gameOptionMenu.Items["notesMenuItem"].Visible = false;
                             if (isButton)
@@ -463,9 +465,9 @@ namespace Nucleus.Coop.UI
 
                         if (i == gameOptionMenu.Items.IndexOf(gameOptionMenu.Items["keepInstancesFolderMenuItem"]))
                         {
-                            if (!menuCurrentGameInfo.Game.KeepSymLinkOnExit)
+                            if (!menuCurrentGameInfo.HandlerInfo.GenericGameInfo.KeepSymLinkOnExit)
                             {
-                                if (menuCurrentGameInfo.Game.MetaInfo.KeepSymLink)
+                                if (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.KeepSymLink)
                                 {
                                     gameOptionMenu.Items["keepInstancesFolderMenuItem"].Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
                                     gameOptionMenu.Items[i].ForeColor = Color.GreenYellow;
@@ -528,7 +530,7 @@ namespace Nucleus.Coop.UI
                         {
                             if (!Core_Interface.DisableGameProfiles)
                             {
-                                if (menuCurrentGameInfo.Game.MetaInfo.DisableProfiles)
+                                if (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.DisableProfiles)
                                 {
                                     gameOptionMenu.Items["disableProfilesMenuItem"].Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
                                     gameOptionMenu.Items[i].ForeColor = Color.GreenYellow;
@@ -554,7 +556,7 @@ namespace Nucleus.Coop.UI
                             gameOptionMenu.Items["disableHandlerUpdateMenuItem"].ImageAlign = ContentAlignment.MiddleCenter;
                             gameOptionMenu.Items["disableHandlerUpdateMenuItem"].ImageScaling = ToolStripItemImageScaling.SizeToFit;
 
-                            if (menuCurrentGameInfo.Game.MetaInfo.CheckUpdate)
+                            if (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.CheckUpdate)
                             {
                                 gameOptionMenu.Items["disableHandlerUpdateMenuItem"].Image = ImageCache.GetImage(Globals.ThemeFolder + "unlocked.png");
                                 gameOptionMenu.Items[i].ForeColor = Theme_Settings.GameOptionMenuForeColor;
@@ -600,12 +602,12 @@ namespace Nucleus.Coop.UI
                                     if (menuItem.DropDownItems[d] is ToolStripComboBox steamLang)
                                     {
                                         menuItem.Visible = false;
-                                        if ((menuCurrentGameInfo.Game.SteamID != null && menuCurrentGameInfo.Game.SteamID != "") &&
-                                            menuCurrentGameInfo.Game.UseGoldberg ||
-                                            menuCurrentGameInfo.Game.UseGoldbergNoOGSteamDlls ||
-                                            menuCurrentGameInfo.Game.NeedsSteamEmulation)
+                                        if ((menuCurrentGameInfo.HandlerInfo.GenericGameInfo.SteamID != null && menuCurrentGameInfo.HandlerInfo.GenericGameInfo.SteamID != "") &&
+                                            menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UseGoldberg ||
+                                            menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UseGoldbergNoOGSteamDlls ||
+                                            menuCurrentGameInfo.HandlerInfo.GenericGameInfo.NeedsSteamEmulation)
                                         {
-                                            steamLang.ComboBox.Text = menuCurrentGameInfo.Game.MetaInfo.SteamLanguage;
+                                            steamLang.ComboBox.Text = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.SteamLanguage;
                                             steamLang.TextChanged -= SteamLangCb_TextChanged;
                                             steamLang.TextChanged += SteamLangCb_TextChanged;
                                             menuItem.Visible = true;
@@ -619,7 +621,7 @@ namespace Nucleus.Coop.UI
                     }
                 }
 
-                bool contentExists = Directory.Exists(menuCurrentGameInfo.Game.Content_Folder);
+                bool contentExists = Directory.Exists(menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Content_Folder);
                 gameOptionMenu.Items["openContentFolderMenuItem"].Visible = contentExists;
                 gameOptionMenu.Items["deleteContentFolderMenuItem"].Visible = contentExists;
             }
@@ -640,6 +642,7 @@ namespace Nucleus.Coop.UI
         public static void GameOptionMenu_Opened(object sender, EventArgs e)
         {
             ContextMenuStrip gameOptionMenu = sender as ContextMenuStrip;
+            if(Theme_Settings.WindowRoundedCorners)
             FormGraphicsUtil.CreateRoundedControlRegion(gameOptionMenu, 2, 2, gameOptionMenu.Width - 1, gameOptionMenu.Height, 20, 20);
         }
 
@@ -651,12 +654,12 @@ namespace Nucleus.Coop.UI
 
         public static void DetailsToolStripMenuItem_Click(object sender, EventArgs e) => GetGameDetails.GetDetails(menuCurrentGameInfo);
 
-        public static void RemoveGameMenuItem_Click(object sender, EventArgs e) => RemoveGame.Remove(menuCurrentGameInfo, false);
+        public static void RemoveGameMenuItem_Click(object sender, EventArgs e) => RemoveGame.Remove(menuCurrentGameInfo, true);
 
         public static void OpenBackupFolderSubmenuItem_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem item = sender as ToolStripMenuItem;
-            string backupsPath = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\_Game Files Backup_\{menuCurrentGameInfo.Game.GUID}";
+            string backupsPath = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\_Game Files Backup_\{menuCurrentGameInfo.HandlerInfo.GenericGameInfo.GUID}";
 
             string path = $@"{backupsPath}\{item.Text}";
 
@@ -669,17 +672,26 @@ namespace Nucleus.Coop.UI
         public static void DeleteBackupFolderSubmenuItem_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem item = sender as ToolStripMenuItem;
-            string backupsPath = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\_Game Files Backup_\{menuCurrentGameInfo.Game.GUID}";
+            string backupsPath = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\_Game Files Backup_\{menuCurrentGameInfo.HandlerInfo.GenericGameInfo.GUID}";
 
             string path = $@"{backupsPath}\{item.Text}";
 
-            DialogResult dialogResult = MessageBox.Show($"Do you really want to delete \"{menuCurrentControl.GameInfo.GUID}\" {item.Text}'s backup folder?", $"Delete {item.Text}'s backup folder.", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult dialogResult = MessageBox.Show($"Do you really want to delete \"{menuCurrentControl.UserGameInfo.GameGuid}\" {item.Text}'s backup folder?", $"Delete {item.Text}'s backup folder.", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 
             if (dialogResult == DialogResult.Yes)
             {
                 if (Directory.Exists(path))
                 {
-                    Directory.Delete(path, true);
+                    DialogResult dialogResult2 = MessageBox.Show("In case of doubts, do want to send it to the trash bin so you can restore it eventually?", "Delete for good?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    
+                    if(dialogResult2 == DialogResult.Yes)
+                    {
+                        FileUtil.SendToRecycleBin(path);
+                    }
+                    else
+                    {
+                        Directory.Delete(path, true);
+                    }
                 }
             }
         }
@@ -692,11 +704,11 @@ namespace Nucleus.Coop.UI
             string pathSuffix;
             if (parent.Text.Contains("Config"))
             {
-                pathSuffix = menuCurrentGameInfo.Game.UserProfileConfigPath;
+                pathSuffix = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UserProfileConfigPath;
             }
             else
             {
-                pathSuffix = menuCurrentGameInfo.Game.UserProfileSavePath;
+                pathSuffix = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UserProfileSavePath;
             }
 
             string path;
@@ -724,11 +736,11 @@ namespace Nucleus.Coop.UI
             string pathSuffix;
             if (parent.Text.Contains("Config"))
             {
-                pathSuffix = menuCurrentGameInfo.Game.UserProfileConfigPath;
+                pathSuffix = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UserProfileConfigPath;
             }
             else
             {
-                pathSuffix = menuCurrentGameInfo.Game.UserProfileSavePath;
+                pathSuffix = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.UserProfileSavePath;
             }
 
             string path;
@@ -746,7 +758,16 @@ namespace Nucleus.Coop.UI
                 DialogResult dialogResult = MessageBox.Show("Are you sure you want to delete '" + path + "' and all its contents?", "Confirm deletion", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    Directory.Delete(path, true);
+                    DialogResult dialogResult2 = MessageBox.Show("In case of doubts, do want to send it to the trash bin so you can restore it eventually?", "Delete for good?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if (dialogResult2 == DialogResult.Yes)
+                    {
+                        FileUtil.SendToRecycleBin(path);
+                    }
+                    else
+                    {
+                        Directory.Delete(path, true);
+                    }
                 }
             }
         }
@@ -759,11 +780,11 @@ namespace Nucleus.Coop.UI
             string pathSuffix;
             if (parent.Text.Contains("Config"))
             {
-                pathSuffix = menuCurrentGameInfo.Game.DocumentsConfigPath;
+                pathSuffix = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.DocumentsConfigPath;
             }
             else
             {
-                pathSuffix = menuCurrentGameInfo.Game.DocumentsSavePath;
+                pathSuffix = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.DocumentsSavePath;
             }
 
             string path;
@@ -791,11 +812,11 @@ namespace Nucleus.Coop.UI
             string pathSuffix;
             if (parent.Text.Contains("Config"))
             {
-                pathSuffix = menuCurrentGameInfo.Game.DocumentsConfigPath;
+                pathSuffix = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.DocumentsConfigPath;
             }
             else
             {
-                pathSuffix = menuCurrentGameInfo.Game.DocumentsSavePath;
+                pathSuffix = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.DocumentsSavePath;
             }
 
             string path;
@@ -814,7 +835,16 @@ namespace Nucleus.Coop.UI
                 DialogResult dialogResult = MessageBox.Show("Are you sure you want to delete '" + path + "' and all its contents?", "Confirm deletion", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    Directory.Delete(path, true);
+                    DialogResult dialogResult2 = MessageBox.Show("In case of doubts, do want to send it to the trash bin so you can restore it eventually?", "Delete for good?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                    if (dialogResult2 == DialogResult.Yes)
+                    {
+                        FileUtil.SendToRecycleBin(path);
+                    }
+                    else
+                    {
+                        Directory.Delete(path, true);
+                    }
                 }
             }
         }
@@ -827,7 +857,7 @@ namespace Nucleus.Coop.UI
 
         public static void DeleteContentFolderMenuItem_Click(object sender, EventArgs e)
         {
-            CleanGameContent.CleanContentFolder(menuCurrentGameInfo.Game, true);
+            CleanGameContent.CleanContentFolder(menuCurrentGameInfo.HandlerInfo.GenericGameInfo, true);
         }
 
         public static void ChangeIconMenuItem_Click(object sender, EventArgs e)
@@ -846,7 +876,7 @@ namespace Nucleus.Coop.UI
             }
         }
 
-        public static void NotesMenuItem_Click(object sender, EventArgs e) => NucleusMessageBox.Show("Handler Author's Notes", menuCurrentGameInfo.Game.Description, true);
+        public static void NotesMenuItem_Click(object sender, EventArgs e) => NucleusMessageBox.Show("Handler Author's Notes", menuCurrentGameInfo.HandlerInfo.GenericGameInfo.Description, true);
 
         public static void DisableProfilesMenuItem_Click(object sender, EventArgs e)
         {
@@ -857,15 +887,15 @@ namespace Nucleus.Coop.UI
         {
             ToolStripMenuItem instancesFolderMenuItem = sender as ToolStripMenuItem;
 
-            if (menuCurrentGameInfo.Game.MetaInfo.KeepSymLink)
+            if (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.KeepSymLink)
             {
-                menuCurrentGameInfo.Game.MetaInfo.KeepSymLink = false;
+                menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.KeepSymLink = false;
                 instancesFolderMenuItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "unlocked.png");
                 instancesFolderMenuItem.ForeColor = Theme_Settings.GameOptionMenuForeColor;
             }
             else
             {
-                menuCurrentGameInfo.Game.MetaInfo.KeepSymLink = true;
+                menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.KeepSymLink = true;
                 instancesFolderMenuItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
                 instancesFolderMenuItem.ForeColor = Color.GreenYellow;
             }
@@ -875,15 +905,15 @@ namespace Nucleus.Coop.UI
         {
             ToolStripMenuItem useAPIIndexMenuItem = sender as ToolStripMenuItem;
 
-            if (menuCurrentGameInfo.Game.MetaInfo.UseApiIndex)
+            if (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.UseApiIndex)
             {
-                menuCurrentGameInfo.Game.MetaInfo.UseApiIndex = false;           
+                menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.UseApiIndex = false;           
                 useAPIIndexMenuItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "unlocked.png");              
             }
             else
             {
-                menuCurrentGameInfo.Game.MetaInfo.UseApiIndex = true;
-                menuCurrentGameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress = false;
+                menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.UseApiIndex = true;
+                menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.ProfileAssignGamepadByButonPress = false;
                 useAPIIndexMenuItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
             }
 
@@ -901,7 +931,7 @@ namespace Nucleus.Coop.UI
                     Core_Interface.GoToStep(0);
                 }
 
-                GameProfile.UseXinputIndex = menuCurrentGameInfo.Game.MetaInfo.UseApiIndex;
+                GameProfile.UseXinputIndex = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.UseApiIndex;
             }
         }
 
@@ -909,16 +939,16 @@ namespace Nucleus.Coop.UI
         {
             ToolStripMenuItem useGamepadButtonPress = sender as ToolStripMenuItem;
 
-            if (menuCurrentGameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress)
+            if (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.ProfileAssignGamepadByButonPress)
             {
-                menuCurrentGameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress = false;
+                menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.ProfileAssignGamepadByButonPress = false;
                 useGamepadButtonPress.Image = ImageCache.GetImage(Globals.ThemeFolder + "unlocked.png");
-                menuCurrentGameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress = false;
+                menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.ProfileAssignGamepadByButonPress = false;
             }
             else
             {
-                menuCurrentGameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress = true;
-                menuCurrentGameInfo.Game.MetaInfo.UseApiIndex = false;
+                menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.ProfileAssignGamepadByButonPress = true;
+                menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.UseApiIndex = false;
                 useGamepadButtonPress.Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
             }
 
@@ -937,7 +967,7 @@ namespace Nucleus.Coop.UI
                 }
 
                 //Use GameProfile.UseXinputIndex action to reset the profile/setup screen
-                GameProfile.UseXinputIndex = menuCurrentGameInfo.Game.MetaInfo.UseApiIndex;
+                GameProfile.UseXinputIndex = menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.UseApiIndex;
             }
         }
 
@@ -945,14 +975,14 @@ namespace Nucleus.Coop.UI
         {
             ToolStripMenuItem useGamepadAPIIndexForGuestsMenuItem = sender as ToolStripMenuItem;
 
-            if (menuCurrentGameInfo.Game.MetaInfo.UseApiIndexForGuests)
+            if (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.UseApiIndexForGuests)
             {
-                menuCurrentGameInfo.Game.MetaInfo.UseApiIndexForGuests = false;
+                menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.UseApiIndexForGuests = false;
                 useGamepadAPIIndexForGuestsMenuItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "unlocked.png");
             }
             else
             {
-                menuCurrentGameInfo.Game.MetaInfo.UseApiIndexForGuests = true;
+                menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.UseApiIndexForGuests = true;
                 useGamepadAPIIndexForGuestsMenuItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
             }
 
@@ -994,7 +1024,7 @@ namespace Nucleus.Coop.UI
         {
             ToolStripMenuItem disableHandlerUpdateMenuItem = sender as ToolStripMenuItem;
 
-            if (menuCurrentGameInfo.Game.MetaInfo.CheckUpdate)
+            if (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.CheckUpdate)
             {
                 disableHandlerUpdateMenuItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
                 disableHandlerUpdateMenuItem.ForeColor = Color.GreenYellow;
@@ -1005,30 +1035,25 @@ namespace Nucleus.Coop.UI
                 disableHandlerUpdateMenuItem.ForeColor = Theme_Settings.GameOptionMenuForeColor;
             }
 
-            UI_Interface.MainForm.Invoke((MethodInvoker)delegate ()
+            UIThread.Post(() =>
             {
-                System.Threading.Tasks.Task.Run(() =>
+                if (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.CheckUpdate)
                 {
-                    bool update = false;
-                    if (menuCurrentGameInfo.Game.MetaInfo.CheckUpdate)
-                    {
-                        menuCurrentGameInfo.Game.MetaInfo.CheckUpdate = update;
-                        menuCurrentGameInfo.Game.UpdateAvailable = update;
-                    }
-                    else
-                    {
-                        menuCurrentGameInfo.Game.MetaInfo.CheckUpdate = true;
-                        update = menuCurrentGameInfo.Game.Hub.CheckUpdateAvailable();
-                        menuCurrentGameInfo.Game.UpdateAvailable = update;
-                    }
-                });
+                    menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.CheckUpdate = false;
+                    menuCurrentGameInfo.NotifyUpdateAvailable?.Invoke(false);
+                }
+                else
+                {
+                    menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.CheckUpdate = true;
+                    _ = menuCurrentGameInfo.CheckUpdateAsyncUserCall(Http_Client.HubConnected ? HubResponse.Success : HubResponse.Error);         
+                }
             });
         }
 
         private static void SteamLangCb_TextChanged(object sender, EventArgs e)
         {
             ToolStripComboBox cb = sender as ToolStripComboBox;
-            menuCurrentGameInfo.Game.MetaInfo.SteamLanguage = cb.Text;
+            menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.SteamLanguage = cb.Text;
         }       
     }
 }

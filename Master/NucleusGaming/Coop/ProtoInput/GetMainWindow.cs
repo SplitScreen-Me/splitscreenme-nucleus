@@ -68,6 +68,12 @@ namespace Nucleus.Gaming.Coop.ProtoInput
         public static IntPtr NucleusGetMainWindowHandle(this Process p)
         {
             bestHandle = (IntPtr)0;
+
+            if (p == null)
+            {
+                return bestHandle;
+            }
+            
             processIdOfInterest = p.Id;
 
             EnumThreadWindowsCallback callback = new EnumThreadWindowsCallback(EnumWindowsCallback);

@@ -2,6 +2,7 @@
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.InputManagement;
 using Nucleus.Gaming.Coop.ProtoInput;
+using Nucleus.Gaming.UI;
 using Nucleus.Gaming.Windows;
 using Nucleus.Gaming.Windows.Interop;
 using Nucleus.Interop.User32;
@@ -77,6 +78,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
         }
 
         public static bool RestartThreadIsRunning = false;
+        
         public static void ResetWindows(ProcessData processData, int x, int y, int w, int h, int i)
         {
             var handlerInstance = GenericGameHandler.Instance;
@@ -192,6 +194,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
             if (!handlerInstance.CurrentGameInfo.DontRemoveBorders)
             {
+
                 handlerInstance.Log($"Removing game window border for process {proc.ProcessName} (pid {proc.Id})");
 
                 uint lStyle = User32Interop.GetWindowLong(hwnd, User32_WS.GWL_STYLE);
@@ -279,9 +282,9 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                         newHeight = (newWidth / handlerInstance.origRatio);
 
-                        if (newHeight > handlerInstance.playerBoundsWidth)
+                        if (newHeight > handlerInstance.playerBoundsHeight)
                         {
-                            newHeight = handlerInstance.playerBoundsWidth;
+                            newHeight = handlerInstance.playerBoundsHeight;
                         }
                     }
                 }
@@ -293,12 +296,13 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                         newWidth = (newHeight * handlerInstance.origRatio);
 
-                        if (newWidth > handlerInstance.playerBoundsHeight)
+                        if (newWidth > handlerInstance.playerBoundsWidth)
                         {
-                            newWidth = handlerInstance.playerBoundsHeight;
+                            newWidth = handlerInstance.playerBoundsWidth;
                         }
                     }
                 }
+
                 size.Width = (int)newWidth;
                 size.Height = (int)newHeight;
 
@@ -670,7 +674,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
             if (profile == null || !GameProfile.Saved || !canSwitchLayout || ResetingWindows)
             {
-                Globals.MainOSD.Show(1600, $"Can't Be Used Now");
+                Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Warning}|Can't Be Used Now@*");
                 return;
             }
 
@@ -726,7 +730,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                 if (p.Owner.Type == UserScreenType.DualHorizontal)
                 {
-                    Globals.MainOSD.Show(1600, $"Switching Layouts");
+                    Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Regular}|Switching Layouts@*");
 
                     foreach (UserScreen screen in screens)
                     {
@@ -764,7 +768,8 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 }
                 else if (p.Owner.Type == UserScreenType.DualVertical)
                 {
-                    Globals.MainOSD.Show(1600, $"Switching Layouts");
+                    Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Regular}|Switching Layouts@*");
+
                     foreach (UserScreen screen in ScreensUtil.AllScreens())
                     {
                         //Console.WriteLine(p.Owner.MonitorBounds + " " + screen.MonitorBounds);
@@ -1009,7 +1014,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
             if (handlerInstance.profile == null || !GameProfile.Saved || ResetingWindows)
             {
-                Globals.MainOSD.Show(1600, $"Can't Be Used Now");
+                Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Warning}|Can't Be Used Now@*");
                 return;
             }
 
@@ -1024,7 +1029,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                 if (data == null)
                 {
-                    Globals.MainOSD.Show(1600, $"Can't Be Used Now");
+                    Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Warning}|Can't Be Used Now@*");
                     return;
                 }
 
@@ -1052,7 +1057,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                     float? hostPlayerAudioVolume = VolumeMixer.GetApplicationVolume(p.ProcessData.Process.Id);
                     p.ProcessData.AudioVolume = hostPlayerAudioVolume == null ? 100 : hostPlayerAudioVolume.Value;
 
-                    if(WindowsMerger.Instance != null)
+                    if (WindowsMerger.Instance != null)
                     {
                         HwndInterface.MakeTop(data.HWnd.NativePtr);
                     }
@@ -1074,7 +1079,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                     }
 
                     canSwitchLayout = false;
-                    Globals.MainOSD.Show(1600, "Cutscenes Mode On");
+                    Globals.MainOSD.Show(1600, $"Cutscenes Mode *@{OSDHighlightColors.Confirm}|On@*");
                 }
                 else//Reset all player windows and unmute
                 {
@@ -1104,7 +1109,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                     canSwitchLayout = true;
 
-                    Globals.MainOSD.Show(1600, "Cutscenes Mode Off");
+                    Globals.MainOSD.Show(1600, $"Cutscenes Mode *@{OSDHighlightColors.Warning}|Off@*");
 
                     if (handlerInstance.CurrentGameInfo.SetForegroundWindowElsewhere || GameProfile.Cts_Unfocus)
                     {
@@ -1212,24 +1217,133 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 if (relock)
                     LockInputRuntime.Lock(handlerInstance.CurrentGameInfo.LockInputSuspendsExplorer, handlerInstance.CurrentGameInfo.ProtoInput.FreezeExternalInputWhenInputNotLocked, handlerInstance.CurrentGameInfo?.ProtoInput);
 
+        private static void RestartInstanceThread(PlayerInfo p, List<PlayerInfo> players, Process quitproc)
+        {
+            var handlerInstance = GenericGameHandler.Instance;
+
+            if (handlerInstance.attached.Contains(quitproc))
+            {
+                handlerInstance.attached.Remove(quitproc);
             }
+
+            if (handlerInstance.attachedIds.Contains(quitproc.Id))
+            {
+                handlerInstance.attachedIds.Remove(quitproc.Id);
+            }
+
+            //reset
+            p.ProcessData.HWnd = null;
+            p.ProcessData.Setted = false;
+            p.ProcessData.Status = 0;
+            p.ProcessData.Finished = false;
+
+            if (handlerInstance.CurrentGameInfo.GameReLaunchByItself) //Battlefield 1942 and Vietnam restarts process each map load
+            {
+                Thread.Sleep(1000);
+                bool relock = LockInputRuntime.IsLocked;
+
+                if (relock)
+                {
+                    LockInputRuntime.Unlock(GenericGameHandler.Instance.CurrentGameInfo?.ProtoInput.FreezeExternalInputWhenInputNotLocked ?? true, GenericGameHandler.Instance.CurrentGameInfo?.ProtoInput);
+                }
+
+                handlerInstance.Log("(Update) Lost process, no launch, just search and rehook");
+                Globals.MainOSD.Show(1000, "Lost Process...Searching");
+
+                Thread.Sleep(handlerInstance.CurrentGameInfo.PauseBetweenProcessGrab * 1000);
+                p.ProcessData.AssignProcess(handlerInstance.ReHookProcessSearch(p));
+
+                if (p.ProcessData == null)
+                {
+                    p.ProcessData.AssignProcess(Coop.Generic.ProcessPickerRuntime.LaunchProcessPick(p));
+                }
+
+                handlerInstance.ReHook(p);
+
+                Thread.Sleep(1000);
+
+                ChangeGameWindow(p.ProcessData.Process, handlerInstance.profile.DevicesList, p.PlayerID);
+
+                if (relock)
+                    LockInputRuntime.Lock(handlerInstance.CurrentGameInfo.LockInputSuspendsExplorer, handlerInstance.CurrentGameInfo.ProtoInput.FreezeExternalInputWhenInputNotLocked, handlerInstance.CurrentGameInfo?.ProtoInput);
+                Globals.MainOSD.Show(1000, "Instance hooked again");
+            }
+            else if (!handlerInstance.CurrentGameInfo.CantRestartInstances)
+            {
+                handlerInstance.Log("Process Lost... Attempting Restart");
+                Thread.Sleep(1000);
+
+                bool relock = LockInputRuntime.IsLocked;
+
+                if (relock)
+                {
+                    LockInputRuntime.Unlock(handlerInstance.CurrentGameInfo?.ProtoInput.FreezeExternalInputWhenInputNotLocked ?? true, handlerInstance.CurrentGameInfo?.ProtoInput);
+                }
+
+                Globals.MainOSD.Show(1000, "Lost Process... Attempting Restart");
+
+                if (p.PlayerID + 1 != players.Count && !handlerInstance.CurrentGameInfo.KillLastInstanceMutex) //lastinstance mutex may be blocking
+                {
+                    handlerInstance.MutexKill();
+                    handlerInstance.Log("Relaunch killed mutex on previous instance");
+                    Thread.Sleep(1000);
+                }
+
+                handlerInstance.LaunchGame(p, p.PlayerID, true);
+                handlerInstance.Log("Relaunch started game");
+
+                Thread.Sleep(1000);
+
+                handlerInstance.Log("Relaunch Process Search");
+                p.ProcessData.AssignProcess(handlerInstance.processsearch(p, p.PlayerID, true));
+
+                if (p.ProcessData != null)
+                {
+                    handlerInstance.processorpriority(p, p.PlayerID);
+                    handlerInstance.Log("Relaunch ProcessorPriority set");
+                    Thread.Sleep(1000);
+                    handlerInstance.hookinstance(p, p.PlayerID);
+                    handlerInstance.Log("Relaunch Hooked Instance");
+                    Thread.Sleep(1000);
+                    handlerInstance.MutexKill();
+                    handlerInstance.Log("Relaunch killed mutex");
+                    ChangeGameWindow(p.ProcessData.Process, handlerInstance.profile.DevicesList, p.PlayerID);
+                }
+                else
+                {
+                    handlerInstance.Log("Error: Relaunch Failed to find new process.");
+                    handlerInstance.exited++;
+                    Globals.MainOSD.Show(4000, "Failed to launch process");
+                }
+
+                if (relock)
+                    LockInputRuntime.Lock(handlerInstance.CurrentGameInfo.LockInputSuspendsExplorer, handlerInstance.CurrentGameInfo.ProtoInput.FreezeExternalInputWhenInputNotLocked, handlerInstance.CurrentGameInfo?.ProtoInput);
+
+            }
+
             RestartThreadIsRunning = false;
+
             return;
         }
+
+        private static Thread RestartThread;
+
         private static void RunRestartInstanceThread(PlayerInfo p, List<PlayerInfo> players, Process quitproc)
         {
             RestartThreadIsRunning = true;
-            Thread RestartThread = new Thread(delegate ()
+
+            RestartThread = new Thread(delegate ()
             {
                 RestartInstanceThread(p, players, quitproc);
                 System.Windows.Threading.Dispatcher.Run();
             });
 
+            RestartThread.IsBackground = true;
             RestartThread.SetApartmentState(ApartmentState.STA);
             RestartThread.Start();
         }
 
-public static void UpdateAndRefreshGameWindows(double delayMS, bool refresh)
+        public static void UpdateAndRefreshGameWindows(double delayMS, bool refresh)
         {
             var handlerInstance = GenericGameHandler.Instance;
 
@@ -1277,9 +1391,9 @@ public static void UpdateAndRefreshGameWindows(double delayMS, bool refresh)
                 {
                     if (data.Process.HasExited)
                     {
-                        if (handlerInstance.CurrentGameInfo.CantRestartInstances || handlerInstance.CurrentGameInfo.GameReLaunchByItself)
+                        if (!handlerInstance.CurrentGameInfo.CantRestartInstances || handlerInstance.CurrentGameInfo.GameReLaunchByItself)
                         {
-                            if (!RestartThreadIsRunning)
+                            if (!RestartThreadIsRunning && !handlerInstance.processingExit)
                             {
                                 RunRestartInstanceThread(p, players, data.Process);
                             }
@@ -1326,9 +1440,9 @@ public static void UpdateAndRefreshGameWindows(double delayMS, bool refresh)
                         {
                             if (data.Process.HasExited)
                             {
-                                if (handlerInstance.CurrentGameInfo.CantRestartInstances || handlerInstance.CurrentGameInfo.GameReLaunchByItself)
+                                if (!handlerInstance.CurrentGameInfo.CantRestartInstances || handlerInstance.CurrentGameInfo.GameReLaunchByItself)
                                 {
-                                    if (!RestartThreadIsRunning)
+                                    if (!RestartThreadIsRunning && !handlerInstance.processingExit)
                                     {
                                         RunRestartInstanceThread(p, players, data.Process);
                                     }
@@ -1603,6 +1717,11 @@ public static void UpdateAndRefreshGameWindows(double delayMS, bool refresh)
                         }
                         else
                         {
+                            if(data.Process == null)
+                            {
+                                continue;
+                            }
+
                             data.Process.Refresh();
 
                             if (data.Process.HasExited)
@@ -1704,7 +1823,7 @@ public static void UpdateAndRefreshGameWindows(double delayMS, bool refresh)
                                     }
 
                                     if (handlerInstance.CurrentGameInfo.IdInWindowTitle)
-                                    { 
+                                    {
                                         //IdInwidowTitle would not success in ComputeLevenshteinDistance. even if combined with DynamicWindowTitle
                                         string windowTitle = handlerInstance.CurrentGameInfo.Hook.ForceFocusWindowName + "(" + i + ")";
                                         if (data.HWnd.Title.Equals(windowTitle))
@@ -1730,9 +1849,9 @@ public static void UpdateAndRefreshGameWindows(double delayMS, bool refresh)
 
             if (handlerInstance.exited == players.Count)
             {
-                if (!handlerInstance.hasEnded)
+                if (!handlerInstance.HasEnded)
                 {
-                    handlerInstance.hasEnded = true;
+                    handlerInstance.HasEnded = true;
                     handlerInstance.Log("Update method calling Handler End function");
                     handlerInstance.End(false);
                 }
@@ -1820,7 +1939,7 @@ public static void UpdateAndRefreshGameWindows(double delayMS, bool refresh)
             }
             else if (!TopMostToggle)
             {
-                if(!handlerInstance.profile.DevicesList.Any(p => p.IsMinimized))
+                if (!handlerInstance.profile.DevicesList.Any(p => p.IsMinimized))
                 {
                     return;
                 }

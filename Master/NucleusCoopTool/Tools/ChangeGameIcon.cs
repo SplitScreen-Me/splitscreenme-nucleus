@@ -12,8 +12,6 @@ namespace Nucleus.Coop.Tools
     {
         public static void ChangeIcon(UserGameInfo userGameInfo)
         {
-            MainForm mainForm = UI_Interface.MainForm;
-
             using (OpenFileDialog dlg = new OpenFileDialog())
             {
                 dlg.Title = "Open Image";
@@ -29,31 +27,25 @@ namespace Nucleus.Coop.Tools
 
                 if (dlg.ShowDialog() == DialogResult.OK)
                 {
-                    //string prevImage = userGameInfo.Game.MetaInfo.IconPath;
-                    userGameInfo.Game.MetaInfo.IconPath = dlg.FileName;
+                    userGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.IconPath = dlg.FileName;
 
-                    lock (Core_Interface.GameControlsInfo)
+                    GameControl gameControl = Core_Interface.GetGameControl(userGameInfo.GameGuid);
+
+                    if (gameControl != null)
                     {
-                        if (Core_Interface.GameControlsInfo.ContainsKey(userGameInfo))
+                        if (userGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.IconPath.EndsWith(".exe"))
                         {
-                            GameControl control = Core_Interface.GameControlsInfo[userGameInfo];
-
-                            if (userGameInfo.Game.MetaInfo.IconPath.EndsWith(".exe"))
-                            { 
-                                Icon icon = Shell32.GetIcon(userGameInfo.Game.MetaInfo.IconPath, false);
-                                userGameInfo.Icon = icon.ToBitmap();
-                                control.Image = userGameInfo.Icon;
-                                icon.Dispose();
-                            }
-                            else
-                            {
-                                userGameInfo.Icon = ImageCache.GetImage(userGameInfo.Game.MetaInfo.IconPath);
-                                control.Image = userGameInfo.Icon;
-                            }
+                            Icon icon = Shell32.GetIcon(userGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.IconPath, false);
+                            userGameInfo.Icon = icon.ToBitmap();
+                            gameControl.Image = userGameInfo.Icon;
+                            icon.Dispose();
+                        }
+                        else
+                        {
+                            userGameInfo.Icon = ImageCache.GetImage(userGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.IconPath);
+                            gameControl.Image = userGameInfo.Icon;
                         }
                     }
-
-                   //ImageCache.DeleteImageFromCache(prevImage);
                 }
             }
 

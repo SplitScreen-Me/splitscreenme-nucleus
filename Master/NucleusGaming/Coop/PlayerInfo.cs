@@ -44,6 +44,7 @@ namespace Nucleus.Gaming.Coop
         public string UserProfile;
         public string StartArgs;
         public string exepath;
+
         public List<PlayerInfo> InstanceGuests = new List<PlayerInfo>();
         public List<Guid> GuestsGuid = new List<Guid>();
 
@@ -140,6 +141,23 @@ namespace Nucleus.Gaming.Coop
                 if (value)
                 {
                     InputType = InputType.SDL2;
+                    Image = ImageCache.GetImage(Globals.ThemeFolder + "xinput.png");
+                }
+            }
+        }
+
+        private bool isSDL3;
+        public bool IsSDL3
+        {
+            get => isSDL3;
+            set
+            {
+                isSDL3 = value;
+                IsController = value;
+
+                if (value)
+                {
+                    InputType = InputType.SDL3;
                     Image = ImageCache.GetImage(Globals.ThemeFolder + "xinput.png");
                 }
             }
@@ -242,6 +260,9 @@ namespace Nucleus.Gaming.Coop
             set => defaultMonitorBounds = value;
         }
 
+        public RectangleF ImageBounds => RectangleUtil.ScaleAndCenter(new SizeF(Image.Size.Width, Image.Size.Height), editBounds);
+        public RectangleF DeviceImageBounds;
+        //public RectangleF MouseImageBounds;
         /// <summary>
         /// The index of this player
         /// </summary>

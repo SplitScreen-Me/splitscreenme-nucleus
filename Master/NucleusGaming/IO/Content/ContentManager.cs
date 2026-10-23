@@ -19,7 +19,7 @@ namespace Nucleus.Gaming
             loadedImages = new Dictionary<string, Image>();
 
             scriptsFolder = GameManager.Instance.GetJsScriptsPath();
-            pkgFolder = Path.Combine(scriptsFolder, Path.GetFileNameWithoutExtension(game.JsFileName));
+            pkgFolder = Path.Combine(scriptsFolder, Path.GetFileNameWithoutExtension(game.FileName));
         }
 
         public void Dispose()

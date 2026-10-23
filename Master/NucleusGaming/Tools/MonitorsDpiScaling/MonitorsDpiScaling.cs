@@ -114,9 +114,9 @@ namespace Nucleus.Gaming.Tools.MonitorsDpiScaling
             dm.dmPelsWidth = w;
             dm.dmPelsHeight = h;
             dm.dmFields = DEVMODE.DM_PELSWIDTH | DEVMODE.DM_PELSHEIGHT;
-            DISP_CHANGE result = ChangeDisplaySettingsEx(deviceName, ref dm, IntPtr.Zero, (uint)(ChangeDisplaySettingsFlags.CDS_UPDATEREGISTRY | ChangeDisplaySettingsFlags.CDS_RESET), IntPtr.Zero);
+            DISP_CHANGE result = ChangeDisplaySettingsEx(deviceName, ref dm, IntPtr.Zero, (uint)(ChangeDisplaySettingsFlags.CDS_UPDATEREGISTRY | ChangeDisplaySettingsFlags.CDS_RESET), IntPtr.Zero);          
             ChangeDisplaySettingsEx(null, IntPtr.Zero, IntPtr.Zero, 0, IntPtr.Zero);
-
+           
             return result;
         }
 
@@ -130,7 +130,7 @@ namespace Nucleus.Gaming.Tools.MonitorsDpiScaling
 
             string size = "NULL";
 
-            while (EnumDisplaySettings(null, modeIndex, ref dm) == true) // Mode found
+            while (EnumDisplaySettings(displayDevice.DeviceName, modeIndex, ref dm) == true) // Mode found
             {
                 if ((dm.dmPelsWidth > 0 && dm.dmPelsHeight > 0) && (dm.dmPelsWidth != displayDevice.Bounds.Width || dm.dmPelsHeight != displayDevice.Bounds.Height))
                 {
@@ -268,6 +268,8 @@ namespace Nucleus.Gaming.Tools.MonitorsDpiScaling
                     SetResolution(800, 600, screen.DeviceName);
                     SetResolution(screen.Bounds.Width, screen.Bounds.Height, screen.DeviceName);
                 }
+
+                screensChanged.Clear();
             }
         }
     }

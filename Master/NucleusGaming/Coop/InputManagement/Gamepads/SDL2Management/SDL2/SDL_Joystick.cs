@@ -160,6 +160,8 @@ namespace SDL
         [DllImport(LibraryName, EntryPoint = "SDL_JoystickNumHats", CallingConvention = CallingConvention.Cdecl)]
         public static extern int JoystickNumHats(SDL_Joystick joystick);
 
+
+        //SDL3 has a different name and use SDL_JoystickID instance_id as parameter instead of int device_index.
         [DllImport(LibraryName, EntryPoint = "SDL_JoystickOpen", CallingConvention = CallingConvention.Cdecl)]
         public static extern SDL_Joystick JoystickOpen(int deviceIndex);
 

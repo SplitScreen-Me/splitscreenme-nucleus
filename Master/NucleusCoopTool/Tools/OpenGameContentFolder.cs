@@ -10,9 +10,9 @@ namespace Nucleus.Coop.Tools
     {
         public static void OpenContentFolder(UserGameInfo currentGameInfo)
         {
-            if (Directory.Exists(currentGameInfo.Game.Content_Folder))
+            if (Directory.Exists(currentGameInfo.HandlerInfo.GenericGameInfo.Content_Folder))
             {
-                Process.Start(currentGameInfo.Game.Content_Folder);
+                Process.Start(currentGameInfo.HandlerInfo.GenericGameInfo.Content_Folder);
             }
             else
             {

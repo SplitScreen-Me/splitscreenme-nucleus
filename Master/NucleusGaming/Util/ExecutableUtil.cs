@@ -9,16 +9,16 @@ namespace Nucleus.Gaming.Util
         {
             var handlerInstance = GenericGameHandler.Instance;
 
-            string newExe = Path.GetFileNameWithoutExtension(userGame.Game.ExecutableName) + " - Player " + (i + 1) + ".exe";
+            string newExe = Path.GetFileNameWithoutExtension(userGame.HandlerInfo.GenericGameInfo.ExecutableName) + " - Player " + (i + 1) + ".exe";
 
-            if (File.Exists(Path.Combine(instanceExeFolder, userGame.Game.ExecutableName)))
+            if (File.Exists(Path.Combine(instanceExeFolder, userGame.HandlerInfo.GenericGameInfo.ExecutableName)))
             {
                 if (File.Exists(Path.Combine(instanceExeFolder, newExe)))
                 {
                     File.Delete(Path.Combine(instanceExeFolder, newExe));
                 }
 
-                File.Copy(Path.Combine(instanceExeFolder, userGame.Game.ExecutableName), Path.Combine(instanceExeFolder, newExe));
+                File.Copy(Path.Combine(instanceExeFolder, userGame.HandlerInfo.GenericGameInfo.ExecutableName), Path.Combine(instanceExeFolder, newExe));
                 handlerInstance.Log("Changed game executable from " + handlerInstance.CurrentGameInfo.ExecutableName + " to " + newExe);
             }
 
@@ -34,9 +34,9 @@ namespace Nucleus.Gaming.Util
                 }
                 else
                 {
-                    if (File.Exists(Path.Combine(instanceExeFolder, userGame.Game.ExecutableName)))
+                    if (File.Exists(Path.Combine(instanceExeFolder, userGame.HandlerInfo.GenericGameInfo.ExecutableName)))
                     {
-                        File.Delete(Path.Combine(instanceExeFolder, userGame.Game.ExecutableName));
+                        File.Delete(Path.Combine(instanceExeFolder, userGame.HandlerInfo.GenericGameInfo.ExecutableName));
                     }
                 }
             }

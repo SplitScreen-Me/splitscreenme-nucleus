@@ -22,21 +22,20 @@ namespace Nucleus.Coop.Tools
             UserGameInfo game = (UserGameInfo)state;
             Bitmap bmp;
 
-            if(game.Icon != null)
-            {
-                lock (Core_Interface.GameControlsInfo)
-                {   
-                    if (Core_Interface.GameControlsInfo.ContainsKey(game))
-                    {
-                        GameControl control = Core_Interface.GameControlsInfo[game];
-                        control.Image = game.Icon;
-                    }
-                }
+            GameControl gameControl = Core_Interface.GetGameControl(game.GameGuid);
 
+            if (gameControl == null)
+            {
                 return;
             }
 
-            string iconPath = game.Game.MetaInfo.IconPath;
+            if (game.Icon != null)
+            {
+                gameControl.Image = game.Icon;
+                return;
+            }
+
+            string iconPath = game.HandlerInfo.GenericGameInfo.MetaInfo.IconPath;
 
             try
             {
@@ -72,14 +71,7 @@ namespace Nucleus.Coop.Tools
 
             game.Icon = bmp;
 
-            lock (Core_Interface.GameControlsInfo)
-            {
-                if (Core_Interface.GameControlsInfo.ContainsKey(game))
-                {
-                    GameControl control = Core_Interface.GameControlsInfo[game];
-                    control.Image = game.Icon;
-                }
-            }
+            gameControl.Image = game.Icon;
         }
     }
 }

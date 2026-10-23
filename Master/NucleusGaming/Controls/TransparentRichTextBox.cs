@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -6,9 +7,11 @@ using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Controls
 {
-
     public partial class TransparentRichTextBox : RichTextBox
     {
+        private Color defColor = Color.GreenYellow;
+        private string linkColor = $"\\red{Color.Aqua.R}\\green{Color.Aqua.G}\\blue{Color.Aqua.B};";
+
         protected override CreateParams CreateParams
         {
             get
@@ -20,15 +23,13 @@ namespace Nucleus.Gaming.Controls
             }
         }
 
-        private string linkColor = $"\\red{Color.Aqua.R}\\green{Color.Aqua.G}\\blue{Color.Aqua.B};";
-
         public TransparentRichTextBox()
         {
             InitializeComponent();
-            ContentsResized += OnTextChanged;
+            ContentsResized += OnContentsResized;
         }
 
-        private void OnTextChanged(object sender, object e)
+        private void OnContentsResized(object sender, object e)
         {
             try
             {
@@ -44,8 +45,8 @@ namespace Nucleus.Gaming.Controls
                 }
                 else
                 {
-                    Rtf = Rtf.Replace("\\red0\\green0\\blue255;", linkColor); //Go back to blue without this here (unreadable).
-                    ScrollToCaret();//else it won't scroll anymore                   
+                    Rtf = Rtf.Replace("\\red0\\green0\\blue255;", linkColor); //Go back to default blue without this here (unreadable).                  
+                    ScrollToCaret();//else it won't scroll anymore
                     return;
                 }
 
@@ -110,10 +111,8 @@ namespace Nucleus.Gaming.Controls
                 return Rtf;
             }
         }
-
-        private static Color defColor = Color.GreenYellow;
-
-        public static void Highlight(RichTextBox textbox)
+        
+        private void Highlight(RichTextBox textbox)
         {
             var text = textbox.Rtf;
 
@@ -155,7 +154,7 @@ namespace Nucleus.Gaming.Controls
             }
         }
 
-        private static (string, Color) ParseTextDatas(string datas)
+        private (string, Color) ParseTextDatas(string datas)
         {
             string[] splitted = datas.Split('|');
 
@@ -188,7 +187,7 @@ namespace Nucleus.Gaming.Controls
             return ("", defColor);
         }
 
-        private static Color ParseColor(string colorText)
+        private Color ParseColor(string colorText)
         {
             var colorArray = colorText.Split(',');
             int r = int.Parse(colorArray[0]); int g = int.Parse(colorArray[1]); int b = int.Parse(colorArray[2]);

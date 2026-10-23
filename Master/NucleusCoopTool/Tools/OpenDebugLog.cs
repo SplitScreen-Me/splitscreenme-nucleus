@@ -13,14 +13,15 @@ namespace Nucleus.Coop.Tools
         {
             try
             {
+                string logPath = Path.Combine(Application.StartupPath, "debug-log.txt");
                 if (App_Misc.TextEditorPath != "Default" && File.Exists(App_Misc.TextEditorPath))
                 {
-                    Process.Start($"{App_Misc.TextEditorPath}", Path.Combine(Application.StartupPath, "debug-log.txt"));
+                    Process.Start($"{App_Misc.TextEditorPath}", $"\"{logPath}\"");
                 }
                 else
                 {
                     Process.Start(Application.StartupPath);
-                    Process.Start("notepad.exe", Path.Combine(Application.StartupPath, "debug-log.txt"));
+                    Process.Start("notepad.exe", $"\"{logPath}\"");
                 }
             }
             catch (Exception)

@@ -12,12 +12,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+
 namespace Nucleus.Gaming
 {
     public class GenericGameInfo
     {
         private Engine engine;
         private string js;
+
+        public string FileName;
+        public string FileFullPath;
+        public DateTime LastWriteTimeUtc;
 
         public Hub Hub = new Hub();
 
@@ -27,7 +32,7 @@ namespace Nucleus.Gaming
 
         public SaveType SaveType;//Not used but could be present in some handlers
         public string SavePath;//Not used but could be present in some handlers
-        public bool UpdateAvailable;
+
         public string[] DirSymlinkExclusions;
         public string[] FileSymlinkExclusions;
         public string[] FileSymlinkCopyInstead;
@@ -84,11 +89,6 @@ namespace Nucleus.Gaming
 
         public string HandlerId => Hub.Handler.Id;
 
-        public bool IsUpdateAvailable(bool fetch)
-        {
-            return Hub.IsUpdateAvailable(fetch);
-        }
-
         /// <summary>
         /// The relative path to where the games starts in
         /// </summary>
@@ -100,12 +100,14 @@ namespace Nucleus.Gaming
         public int KillMutexDelay;
         public string LauncherExe;
         public string LauncherTitle;
+
         public Action Play;
         public Action SetupSse;
         public Action OnStop;
         public Action OnFinishedSetup;
+
         public List<CustomStep> CustomSteps = new List<CustomStep>();
-        public string JsFileName;
+        
         public bool LockMouse;
         public string Folder;
         public bool HookFocus;
@@ -347,13 +349,15 @@ namespace Nucleus.Gaming
 
         public Type HandlerType => typeof(GenericGameHandler);
         public GameMetaInfo MetaInfo = new GameMetaInfo();
+        public FileInfo JsFileInfo;
 
-        public GenericGameInfo(string fileName, string folderPath, Stream str, bool[] checkUpdate)//checkUpdate [0]=initial update check [1]=update was available before reloading the handler  
+        public GenericGameInfo(FileInfo jsFileInfo, string folderPath, Stream str, bool throwException)
         {
-            JsFileName = fileName;
+            JsFileInfo = jsFileInfo;
+            FileName = jsFileInfo.Name;
             Folder = folderPath;
-
             js = "";
+
             using (StreamReader sr = new StreamReader(str))
             {
                 while (!sr.EndOfStream)
@@ -379,61 +383,57 @@ namespace Nucleus.Gaming
 
             if (File.Exists(pluginsData))
             {
-                LoadCustomAssemblies(engine,folderPath);
+                LoadCustomAssemblies(engine, folderPath);
             }
 
-            try
+            if (throwException)
             {
-                engine.Execute(js);   
-            }
-            catch (Exception ex)
-            {
-                System.Threading.Tasks.Task.Run(() =>
+                try
                 {
-                    string[] lineSplit = ex.Message.Split(':');
-                    string splited = lineSplit?[0];
-                    string[] getNum = splited.Split(' ');
-
-                    bool lineIsNum = int.TryParse(getNum?[1], out int numLine);
-
-                    string details = ex.Message;
-
-                    if (lineIsNum)
-                    {
-                        int num = int.Parse(getNum?[1]);
-                        details = $"Error at line {num/2} {lineSplit?[1]}";
-                    }
-
-                    string error = $"There is an error in the game handler {fileName}.\n" +
-                    $"\nThe game this handler is for will not appear in the list. If the issue has been fixed,\n" +
-                    $"please try re-adding the game.\n\nCommon errors include:\n- A syntax error (such as a \',\' \';\' or \']\' missing)\n" +
-                    $"- Another handler has this GUID (must be unique!)\n- Code is not in the right place or format\n(for example: methods using Context must be within the Game.Play function)" +
-                    $"\n\n{details}";
-
-                    NucleusMessageBox.Show("Error in handler", error, false);              
-                });
-
-                return;
-            }
-
-            MetaInfo.LoadGameMetaInfo(this);
-
-            if (MetaInfo.CheckUpdate)
-            {
-                if (checkUpdate[0])//workaround else handler update is checked before instances setup too,
-                                   //see MainForm.cs Btn_Play_Click(object sender, EventArgs e) => gameManager.AddScript.
+                    engine.Execute(js);
+                }
+                catch (Exception ex)
                 {
-                    // Run this in another thread to not block UI
                     System.Threading.Tasks.Task.Run(() =>
                     {
-                        UpdateAvailable = Hub.IsUpdateAvailable(true);
+                        string[] lineSplit = ex.Message.Split(':');
+                        string splited = lineSplit?[0];
+                        string[] getNum = splited.Split(' ');
+
+                        bool lineIsNum = int.TryParse(getNum?[1], out int numLine);
+
+                        string details = ex.Message;
+
+                        if (lineIsNum)
+                        {
+                            int num = int.Parse(getNum?[1]);
+                            details = $"Error at line {num / 2} {lineSplit?[1]}";
+                        }
+
+                        string error = $"There is an error in the game handler {jsFileInfo.Name}.\n" +
+                        $"\nThe game this handler is made for will not appear in your game list.\n\n" +
+                        $"If you see this error:\n" +
+                        $"-On Nucleus startup, once the issue fixed, it will be automatically re-added to the game list.\n" +
+                        $"-After modifying the handler or replacing the .js file, fix the error and it will be automatically refreshed.\n" +
+                        $"-After updating the handler from the hub please report the issue to the handler author.\n\n" +
+                         $"Common errors include:\n- A syntax error (such as a \',\' \';\' or \']\' missing)\n" +
+                        $"- Another handler has this GUID (must be unique!)\n- Code is not in the right place or format\n(for example: methods using Context must be within the Game.Play function)" +
+                        $"\n\n{details}";
+
+                        NucleusMessageBox.Show("Error in handler", error, false);
                     });
-                }
-                else
-                {
-                    UpdateAvailable = checkUpdate[1];
+
+                    return;
                 }
             }
+            else
+            {
+                engine.Execute(js);
+            }
+
+            FileFullPath = jsFileInfo.FullName;
+            LastWriteTimeUtc = jsFileInfo.LastWriteTimeUtc;
+            MetaInfo.LoadGameMetaInfo(this);
 
             engine.SetValue("Game", (object)null);
         }
@@ -480,7 +480,6 @@ namespace Nucleus.Gaming
 
             return true;
         }
-
 
         public CustomStep ShowOptionAsStep(string optionKey, bool required, string title)
         {

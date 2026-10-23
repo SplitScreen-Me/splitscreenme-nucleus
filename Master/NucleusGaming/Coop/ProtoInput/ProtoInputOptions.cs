@@ -71,7 +71,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
         public bool XinputHook;
         public bool DinputDeviceHook;
         public SetWindowPosHook SetWindowPosHook;
-        
+
         public bool BlockRawInputHook;
         public bool FindWindowHook;
         public bool CreateSingleHIDHook;

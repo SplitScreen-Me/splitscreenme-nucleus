@@ -92,7 +92,7 @@ namespace Nucleus.Gaming.Tools.DllsInjector
                 startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 startInfo.CreateNoWindow = true;
                 startInfo.UseShellExecute = false;
-                startInfo.RedirectStandardOutput = true;
+                startInfo.RedirectStandardOutput = false;
                 Process injectProc = Process.Start(startInfo);
                 injectProc.WaitForExit();
             }

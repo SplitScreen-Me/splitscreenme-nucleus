@@ -28,9 +28,14 @@
 
 
         /// <summary>
-        /// If the game supports sdl2 joysticks(not a hook)
+        /// If the game supports SDL2 joysticks(not a hook)
         /// </summary>
         public bool SDL2Enabled;
+
+        /// <summary>
+        /// If the game supports SDL3 joysticks(not a hook)
+        /// </summary>
+        public bool SDL3Enabled;
 
         public string[] XInputNames = new string[]
         {

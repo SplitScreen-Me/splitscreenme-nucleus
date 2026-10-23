@@ -1,5 +1,6 @@
 ﻿using Nucleus.Gaming;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Forms;
 using System.Diagnostics;
 using System.Reflection;
 using System.Security.Principal;
@@ -20,23 +21,23 @@ namespace Nucleus.Coop.Tools
                                          gamePath.StartsWith(@"C:\Windows\");
             bool skip = false;
 
-            bool useUserProfileSavePath = userGameInfo.Game.UserProfileSavePath != null ? userGameInfo.Game.UserProfileSavePath.StartsWith("Documents") : false;
-            bool useUserProfileConfigPath = userGameInfo.Game.UserProfileConfigPath != null ? userGameInfo.Game.UserProfileConfigPath.StartsWith("Documents") : false;
-            bool useDocumentsSavePath = userGameInfo.Game.DocumentsSavePath != null ? userGameInfo.Game.DocumentsSavePath.StartsWith("Documents") : false;
-            bool useDocumentsConfigPath = userGameInfo.Game.DocumentsConfigPath != null ? userGameInfo.Game.DocumentsConfigPath.StartsWith("Documents") : false;
+            bool useUserProfileSavePath = userGameInfo.HandlerInfo.GenericGameInfo.UserProfileSavePath != null ? userGameInfo.HandlerInfo.GenericGameInfo.UserProfileSavePath.StartsWith("Documents") : false;
+            bool useUserProfileConfigPath = userGameInfo.HandlerInfo.GenericGameInfo.UserProfileConfigPath != null ? userGameInfo.HandlerInfo.GenericGameInfo.UserProfileConfigPath.StartsWith("Documents") : false;
+            bool useDocumentsSavePath = userGameInfo.HandlerInfo.GenericGameInfo.DocumentsSavePath != null ? userGameInfo.HandlerInfo.GenericGameInfo.DocumentsSavePath.StartsWith("Documents") : false;
+            bool useDocumentsConfigPath = userGameInfo.HandlerInfo.GenericGameInfo.DocumentsConfigPath != null ? userGameInfo.HandlerInfo.GenericGameInfo.DocumentsConfigPath.StartsWith("Documents") : false;
 
             bool useUserDocuments = useUserProfileSavePath || useUserProfileConfigPath || useDocumentsSavePath || useDocumentsConfigPath;
 
-            if (Globals.IsOneDriveEnabled && userGameInfo.Game.UseNucleusEnvironment && useUserDocuments)
+            if (Globals.IsOneDriveEnabled && userGameInfo.HandlerInfo.GenericGameInfo.UseNucleusEnvironment && useUserDocuments)
             {
-                message = $@"This handler can't run if your default Documents path is in OneDrive -> {Globals.UserDocumentsRoot}";
+                message = $@"This handler can't run if your default Documents path is in OneDrive -> {Globals.UserDocumentsRoot} \n";
 
                 MessageBox.Show(message, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                
+               
                 return false;
             }
 
-            if ((userGameInfo.Game.LaunchAsDifferentUsers || userGameInfo.Game.LaunchAsDifferentUsersAlt) && imcompatibleGamePath)
+            if ((userGameInfo.HandlerInfo.GenericGameInfo.LaunchAsDifferentUsers || userGameInfo.HandlerInfo.GenericGameInfo.LaunchAsDifferentUsersAlt) && imcompatibleGamePath)
             {
                 message = $@"This game handler does not support the current {userGameInfo.GameGuid} installation path." + "\n\n" +
                 $@"Do NOT install {userGameInfo.GameGuid} in any of these folders:" + "\n" +
@@ -50,8 +51,8 @@ namespace Nucleus.Coop.Tools
                 return false;
             }
            
-            if ((userGameInfo.Game.RequiresAdmin || userGameInfo.Game.LaunchAsDifferentUsersAlt || userGameInfo.Game.LaunchAsDifferentUsers || userGameInfo.Game.ChangeIPPerInstanceAlt) && !principal.IsInRole(WindowsBuiltInRole.Administrator) ||
-               ((userGameInfo.Game.LaunchAsDifferentUsersAlt || userGameInfo.Game.LaunchAsDifferentUsers || userGameInfo.Game.ChangeIPPerInstanceAlt) && (Program.ForcedBadPath && principal.IsInRole(WindowsBuiltInRole.Administrator))))
+            if ((userGameInfo.HandlerInfo.GenericGameInfo.RequiresAdmin || userGameInfo.HandlerInfo.GenericGameInfo.LaunchAsDifferentUsersAlt || userGameInfo.HandlerInfo.GenericGameInfo.LaunchAsDifferentUsers || userGameInfo.HandlerInfo.GenericGameInfo.ChangeIPPerInstanceAlt) && !principal.IsInRole(WindowsBuiltInRole.Administrator) ||
+               ((userGameInfo.HandlerInfo.GenericGameInfo.LaunchAsDifferentUsersAlt || userGameInfo.HandlerInfo.GenericGameInfo.LaunchAsDifferentUsers || userGameInfo.HandlerInfo.GenericGameInfo.ChangeIPPerInstanceAlt) && (Program.ForcedBadPath && principal.IsInRole(WindowsBuiltInRole.Administrator))))
             {
                 if (Program.ForcedBadPath && principal.IsInRole(WindowsBuiltInRole.Administrator))
                 {

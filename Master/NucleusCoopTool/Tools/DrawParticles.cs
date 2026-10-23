@@ -15,25 +15,15 @@ namespace Nucleus.Coop.Tools
         private Control handlerControl;
         private SolidBrush particlesBrush;
 
-        private void particlesTimer_Tick(object state)
-        {
-            if (!handlerControl.Visible || handlerControl.IsDisposed || senderControl.IsDisposed)
-            {
-                particlesTimer.Dispose();
-                particlesTimer = null;
-                particlesBrush?.Dispose();
-                particlesBrush = null;
-                return;
-            }
-
-            senderControl.Invalidate();
-        }
-
         private RectangleF[] particles;
-        private int[] alpha;
 
-        public void Draw(object sender, Control control, PaintEventArgs e, int particlesMax, int refreshRate, int[] color)
+        private bool _forceInvalidate;
+        private bool initialized = false;
+
+        public void Draw(object sender,bool forceInvalidate, Control control, PaintEventArgs e, int particlesMax, int refreshRate, int[] color)
         {
+
+            _forceInvalidate = forceInvalidate;
             Random rand = new Random();
 
             if(particles == null)
@@ -41,9 +31,7 @@ namespace Nucleus.Coop.Tools
                 particles = new RectangleF[particlesMax];               
             }
 
-            alpha = new int[particlesMax];
-
-            if (particlesTimer == null)
+            if (!initialized)
             {
                 senderControl = sender as Control;
                 handlerControl = control;
@@ -53,7 +41,11 @@ namespace Nucleus.Coop.Tools
                     handlerControl = senderControl;
                 }
 
-                particlesTimer = new System.Threading.Timer(particlesTimer_Tick, null, 0, refreshRate);
+                if (_forceInvalidate)
+                {
+                    particlesTimer?.Dispose();
+                    particlesTimer = new System.Threading.Timer(particlesTimer_Tick, null, 0, refreshRate);
+                }
                   
                 for (int i = 0; i < particles.Count(); i++)
                 {
@@ -65,10 +57,9 @@ namespace Nucleus.Coop.Tools
                     int randS = rand.Next(3, 5);
 
                     particles[i] = new RectangleF(randX, randY, randS, randS);
-                    
-                    int randA = rand.Next(100, 255);
-                    alpha[i] = randA;
                 }
+
+                initialized = true;
             }
 
             for (int i = 0; i < particles.Count(); i++)
@@ -97,8 +88,9 @@ namespace Nucleus.Coop.Tools
                     int randX = rand.Next(0, senderControl.ClientRectangle.Width  + randMultX);
                     int randY = rand.Next(0, senderControl.ClientRectangle.Height + randMultY);
                     int randS = rand.Next(3, 5);
-
-                    while(particles.Any(p => (new RectangleF(randX - 15, randY - 15, randS + 30, randS + 30).Contains(p))) || 
+                    int randA = rand.Next(100, 255);
+                   
+                    while (particles.Any(p => (new RectangleF(randX - 15, randY - 15, randS + 30, randS + 30).Contains(p))) || 
                           particles.Any(p => p != particles[i] && p.Width == randS))
                     {
                          randMultX = rand.Next(-senderControl.ClientRectangle.Width / 3, senderControl.ClientRectangle.Width / 3);
@@ -112,16 +104,39 @@ namespace Nucleus.Coop.Tools
                     particles[i] = new RectangleF(randX, randY, randS, randS);
                 }
 
-                if(particlesBrush == null)
+                if (particlesTimer == null && handlerControl.Visible)
                 {
-                    particlesBrush = new SolidBrush(Color.FromArgb(alpha[i], color[0], color[1], color[2]));
+                    particlesTimer?.Dispose();
+                    particlesTimer = new System.Threading.Timer(particlesTimer_Tick, null, 0, refreshRate);
                 }
-               
+
+                if (particlesBrush == null)
+                {
+                    particlesBrush = new SolidBrush(Color.FromArgb(color[0], color[1], color[2], color[3]));
+                }
+
                 if (particles[i].Width > 1)
                 {
                     e.Graphics.FillEllipse(particlesBrush, particles[i]);
                 }
             }
+        }
+
+        private void particlesTimer_Tick(object state)
+        {
+            if (!handlerControl.Visible || handlerControl.IsDisposed || senderControl.IsDisposed)
+            {
+                particlesTimer?.Dispose();
+                particlesTimer = null;
+                particlesBrush?.Dispose();
+                particlesBrush = null;
+                return;
+            }
+
+            UIThread.Post(() =>
+            {            
+                senderControl?.Invalidate();
+            });
         }
 
     }

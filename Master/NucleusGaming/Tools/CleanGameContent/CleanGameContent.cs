@@ -22,10 +22,12 @@ namespace Nucleus.Gaming
             {
                 if (contentExist)
                 {
-                    DialogResult dialogResult = MessageBox.Show("Are you sure you want to delete '" + path + "' and all its contents?", "Confirm deletion", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                    DialogResult dialogResult = MessageBox.Show("Do you want to delete '" + path + "' and all its contents?", "Confirm deletion", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                    
                     if (dialogResult == DialogResult.Yes)
                     {
-                        CleanContentFolder(currentGameInfo,path);
+                        DialogResult dialogResult2 = MessageBox.Show("In case of doubts, do want to send it to the trash bin so you can restore it eventually?", "Delete for good?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);                        
+                        CleanContentFolder(currentGameInfo, path, dialogResult2 == DialogResult.Yes); 
                     }
                 }
                 else
@@ -36,19 +38,26 @@ namespace Nucleus.Gaming
             else
             {
                 if(contentExist)
-                CleanContentFolder(currentGameInfo,path);
+                CleanContentFolder(currentGameInfo,path, false);
             }
         }
 
-
-        private static void CleanContentFolder(GenericGameInfo currentGameInfo, string path)
+        private static void CleanContentFolder(GenericGameInfo currentGameInfo, string path,bool sendToTrash)
         {
             System.Threading.Tasks.Task.Run(() =>
             {
                 try
                 {
                     KillRemainingGameProcess(currentGameInfo);
-                    Directory.Delete(path, true);
+
+                    if (sendToTrash)
+                    {
+                        FileUtil.SendToRecycleBin(path);
+                    }
+                    else
+                    {
+                        Directory.Delete(path, true);
+                    }
                 }
                 catch
                 {
@@ -69,12 +78,28 @@ namespace Nucleus.Gaming
                                     File.SetAttributes(locked, FileAttributes.Normal);
                                 }
 
-                                Directory.Delete(instance, true);
+                                if(sendToTrash)
+                                {
+                                    FileUtil.SendToRecycleBin(instance);
+                                }
+                                else
+                                {
+                                    Directory.Delete(instance, true);
+                                }
+
+                               
                                 LogManager.Log("Game content cleaned.");
                             }
                         }
 
-                        Directory.Delete(path, true);
+                        if (sendToTrash)
+                        {
+                            FileUtil.SendToRecycleBin(path);
+                        }
+                        else
+                        {
+                            Directory.Delete(path, true);
+                        }
                     }
                     catch
                     {
@@ -95,7 +120,6 @@ namespace Nucleus.Gaming
                 }
             });
         }
-
 
         public static void CleanContentFolder(GenericGameInfo currentGameInfo)
         {
@@ -159,7 +183,7 @@ namespace Nucleus.Gaming
                     {
                         if ((currentGameInfo.LauncherExe != null && !currentGameInfo.LauncherExe.Contains("NucleusDefined") && proc.ProcessName.ToLower() == Path.GetFileNameWithoutExtension(currentGameInfo.LauncherExe.ToLower())) ||
                             addtlProcsToKill.Contains(proc.ProcessName, StringComparer.OrdinalIgnoreCase) || 
-                            proc.ProcessName.ToLower() == Path.GetFileNameWithoutExtension(currentGameInfo.ExecutableName.ToLower()) || (currentGameInfo.Hook.ForceFocusWindowName != "" && proc.MainWindowTitle == currentGameInfo.Hook.ForceFocusWindowName))
+                            currentGameInfo.ExecutableName != null && proc.ProcessName.ToLower() == Path.GetFileNameWithoutExtension(currentGameInfo.ExecutableName.ToLower()) || (currentGameInfo.Hook.ForceFocusWindowName != "" && proc.MainWindowTitle == currentGameInfo.Hook.ForceFocusWindowName))
                         {
                             LogManager.Log(string.Format("Killing process {0} (pid {1})", proc.ProcessName, proc.Id));
                             proc.Kill();

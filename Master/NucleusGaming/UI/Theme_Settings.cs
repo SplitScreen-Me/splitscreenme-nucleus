@@ -116,7 +116,37 @@ namespace Nucleus.Gaming.UI
 
                 return handlerNoteTitleForeColor;
             }
-        }      
+        }
+
+
+        private static Color handlerNoteTitleBackColor;
+        public static Color HandlerNoteTitleBackColor
+        {
+            get
+            {
+                if (handlerNoteTitleBackColor.IsEmpty)
+                {
+                    handlerNoteTitleBackColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "HandlerNoteTitleBackground").Split(','));
+                }
+
+                return handlerNoteTitleBackColor;
+            }
+        }
+
+        private static Color handlerNoteZoomBackColor;
+        public static Color HandlerNoteZoomBackColor
+        {
+            get
+            {
+                if (handlerNoteZoomBackColor.IsEmpty)
+                {
+                    handlerNoteZoomBackColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "HandlerNoteZoomBackground").Split(','));
+                }
+
+                return handlerNoteZoomBackColor;
+            }
+        }
+
 
         private static Color mouseOverBackColor;
         public static Color MouseOverBackColor
@@ -244,6 +274,20 @@ namespace Nucleus.Gaming.UI
             }
         }
 
+        private static Color handlerNoteBorderColor;
+        public static Color HandlerNoteBorderColor
+        {
+            get
+            {
+                if (handlerNoteBorderColor.IsEmpty)
+                {
+                    handlerNoteBorderColor = ParseColor(ThemeConfigFile.IniReadValue("Colors", "HandlerNoteBorder").Split(','));
+                }
+
+                return handlerNoteBorderColor;
+            }
+        }
+
         private static Color buttonsBackColor;
         public static Color ButtonsBackColor
         {
@@ -364,6 +408,14 @@ namespace Nucleus.Gaming.UI
         public static bool UseLayoutSelectionBorder => bool.Parse(ThemeConfigFile.IniReadValue("Misc", "UseLayoutSelectionBorder"));
 
         public static bool UseSetupScreenImage => bool.Parse(ThemeConfigFile.IniReadValue("Misc", "UseSetupScreenImage"));
+
+        public static bool UseBackgroundImage => bool.Parse(ThemeConfigFile.IniReadValue("Misc", "UseBackgroundImage"));
+
+        public static bool UseBackgroundImageEffect => bool.Parse(ThemeConfigFile.IniReadValue("Misc", "UseBackgroundImageEffect"));
+
+        public static bool UseNotesBorder => bool.Parse(Globals.ThemeConfigFile.IniReadValue("Misc", "ShowNotesBorder"));
+
+        public static bool WindowRoundedCorners => bool.Parse(Globals.ThemeConfigFile.IniReadValue("Misc", "UseroundedCorners"));
 
         private static Color ParseColor(string[] colorArray)
         {

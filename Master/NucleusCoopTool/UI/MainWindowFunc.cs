@@ -10,6 +10,7 @@ using System.Drawing;
 using Nucleus.Gaming.Cache;
 using Nucleus.Coop.Controls;
 using System.Threading;
+using Nucleus.Gaming.UI;
 
 namespace Nucleus.Coop.UI
 {
@@ -122,7 +123,7 @@ namespace Nucleus.Coop.UI
 
             mainForm.Invalidate(false);
 
-            if (UI_Interface.WindowRoundedCorners)
+            if (Theme_Settings.WindowRoundedCorners)
             {
                 if (mainForm.WindowState == FormWindowState.Maximized)
                 {
@@ -182,6 +183,7 @@ namespace Nucleus.Coop.UI
 
             UI_Interface.WebView?.Dispose();
          
+            //This is very bad but i didn't spotted what keeps the process alive.
             System.Threading.Tasks.Task.Run(() =>
             {
                 if (GameProfile.I_GameHandler != null)

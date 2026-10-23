@@ -59,7 +59,7 @@ namespace Nucleus.Gaming
                 return;
             }
 
-            int maxPlayers = game.Game.MaxPlayers;
+            int maxPlayers = game.HandlerInfo.GenericGameInfo.MaxPlayers;
             int half = (int)Math.Round(maxPlayers / 2.0);
             int left = Math.Max(half - 1, 1);
             int width = Size.Width / left;
@@ -87,7 +87,7 @@ namespace Nucleus.Gaming
             Controls.Clear();
             canProceed = false;
 
-            int maxPlayers = game.Game.MaxPlayers;
+            int maxPlayers = game.HandlerInfo.GenericGameInfo.MaxPlayers;
             int half = (int)Math.Round(maxPlayers / 2.0);
             int width = Size.Width / half;
             int height = Size.Height / 2;

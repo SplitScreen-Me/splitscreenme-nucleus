@@ -25,7 +25,7 @@ namespace Nucleus.Gaming.Forms
                 handlerInstance.Context.CustomUserGeneralValues[c] = null;
             }
 
-            string valueFile = Path.Combine(GameManager.Instance.GetJsScriptsPath(), Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.JsFileName) + "\\custom_gen_values.txt");
+            string valueFile = Path.Combine(GameManager.Instance.GetJsScriptsPath(), Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.FileName) + "\\custom_gen_values.txt");
 
             int counter = 0;
             if (handlerInstance.CurrentGameInfo.SaveCustomUserGeneralValues || handlerInstance.CurrentGameInfo.SaveAndEditCustomUserGeneralValues || player.PlayerID > 0)
@@ -73,9 +73,9 @@ namespace Nucleus.Gaming.Forms
                     File.Delete(valueFile);
                 }
 
-                if (!Directory.Exists(Path.Combine(GameManager.Instance.GetJsScriptsPath(), Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.JsFileName))))
+                if (!Directory.Exists(Path.Combine(GameManager.Instance.GetJsScriptsPath(), Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.FileName))))
                 {
-                    Directory.CreateDirectory(Path.Combine(GameManager.Instance.GetJsScriptsPath(), Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.JsFileName)));
+                    Directory.CreateDirectory(Path.Combine(GameManager.Instance.GetJsScriptsPath(), Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.FileName)));
                 }
 
                 bool containsValue = false;
@@ -132,7 +132,7 @@ namespace Nucleus.Gaming.Forms
                 customValue = new string[handlerInstance.CurrentGameInfo.CustomUserPlayerPrompts.Length];
             }
 
-            string valueFile = Path.Combine(GameManager.Instance.GetJsScriptsPath(), Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.JsFileName) + "\\" + player.Nickname + "\\custom_plyr_values.txt");
+            string valueFile = Path.Combine(GameManager.Instance.GetJsScriptsPath(), Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.FileName) + "\\" + player.Nickname + "\\custom_plyr_values.txt");
 
             int counter = 0;
             if (handlerInstance.CurrentGameInfo.SaveCustomUserPlayerValues || handlerInstance.CurrentGameInfo.SaveAndEditCustomUserPlayerValues)
@@ -217,7 +217,7 @@ namespace Nucleus.Gaming.Forms
                 customValue = new string[handlerInstance.CurrentGameInfo.CustomUserInstancePrompts.Length];
             }
 
-            string valueFile = Path.Combine(GameManager.Instance.GetJsScriptsPath(), Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.JsFileName) + "\\instance " + player.PlayerID + "\\custom_inst_values.txt");
+            string valueFile = Path.Combine(GameManager.Instance.GetJsScriptsPath(), Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.FileName) + "\\instance " + player.PlayerID + "\\custom_inst_values.txt");
 
             int counter = 0;
             if (handlerInstance.CurrentGameInfo.SaveCustomUserInstanceValues || handlerInstance.CurrentGameInfo.SaveAndEditCustomUserInstanceValues)

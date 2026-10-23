@@ -1,4 +1,5 @@
 ﻿using Nucleus.Gaming.Coop;
+using SDL;
 using System;
 using System.IO;
 using System.Text;
@@ -8,24 +9,35 @@ namespace Nucleus.Gaming.Tools.SDL2Dll
 {
     public static class SDL2Dll
     {
-        public static void SetupSDL2Dll(PlayerInfo player, int i, bool setupDll)
+        public static void SetupSDLDll(PlayerInfo player, int i, bool setupDll)
         {
             var handlerInstance = GenericGameHandler.Instance;
             string gameGUID = handlerInstance.CurrentGameInfo.GUID;
 
             string gameContentPath = Path.Combine(GameManager.Instance.GetAppContentPath(), gameGUID);//game content root
 
-            string dllsPath = Path.Combine(Globals.NucleusInstallRoot, "utils\\SDL2");
-            string dllName = "SDL2.dll";
+            string dllVersion;
 
-            handlerInstance.Log($"Setting up SDL2 for {player.Nickname} at index {i}...");
+            if(handlerInstance.CurrentGameInfo.Hook.SDL2Enabled)
+            {
+                dllVersion = "SDL2";
+            }
+            else
+            {
+                dllVersion = "SDL3";
+            }
+
+            string dllsPath = Path.Combine(Globals.NucleusInstallRoot, $"utils\\{dllVersion}");
+            string dllName = $"{dllVersion}.dll";
+
+            handlerInstance.Log($"Setting up {dllVersion} for {player.Nickname} at index {i}...");
 
             if (setupDll)
             {
                 //string controllerIndex;
                 StringBuilder gpIndexes = new StringBuilder();
 
-                if (player.IsSDL2)
+                if (player.IsSDL2 || player.IsSDL3)
                 {
                     gpIndexes.Append((player.GamepadId).ToString());
 
@@ -42,15 +54,14 @@ namespace Nucleus.Gaming.Tools.SDL2Dll
 
                 try
                 {
-                    File.WriteAllText(handlerInstance.instanceExeFolder + "\\SDL2.ini", gpIndexes.ToString());
+                    File.WriteAllText(handlerInstance.instanceExeFolder + $"\\{dllVersion}.ini", gpIndexes.ToString());
                 }  
                 catch (Exception ex)
                 {
-                    handlerInstance.Log($"ERROR - Failed to write SDL2.ini for {player.Nickname}(index {i}) at {handlerInstance.instanceExeFolder}" );
+                    handlerInstance.Log($"ERROR - Failed to write {dllVersion}.ini for {player.Nickname}(index {i}) at {handlerInstance.instanceExeFolder}" );
                     handlerInstance.Log("ERROR INFO - Message \n" + ex.Message);
                     return;
                 }
-
 
                 if (handlerInstance.CurrentGameInfo.SDLPaths?.Length > 0)
                 {

@@ -2,6 +2,7 @@
 using Nucleus.Gaming.Cache;
 using Nucleus.Gaming.Controls;
 using Nucleus.Gaming.Coop;
+using Nucleus.Gaming.Http_Client;
 using Nucleus.Gaming.UI;
 using System;
 using System.Drawing;
@@ -12,14 +13,11 @@ namespace Nucleus.Coop
 {
     public class GameControlAlt : GameControl, IDynamicSized, IRadioControl
     {
-        public GameControlAlt(GenericGameInfo game, UserGameInfo userGame, bool favorite) : base(game, userGame, favorite)
+        public GameControlAlt(UserGameInfo userGame) : base(userGame)
         {
-            GameInfo = game;
-
             HandlerUpdate.Visible = false;
             GameOptions.Visible = false;
-            FavoriteBox.Visible = false;
-            IsUpdateAvailableTimer = null;
+            FavoriteBox.Visible = false;      
         }
 
         protected override void OnPaint(PaintEventArgs e) {}
@@ -27,7 +25,9 @@ namespace Nucleus.Coop
 
     public class GameControl : UserControl, IDynamicSized, IRadioControl
     {
-        public GenericGameInfo GameInfo { get; set; }
+        public Action<UserGameInfo> OnHandlerInfoRefresh;
+
+        private GenericGameInfo genericGameInfo { get; set; }
         public UserGameInfo UserGameInfo { get; set; }
         private PictureBox picture;
         private PictureBox playerIcon;
@@ -39,45 +39,29 @@ namespace Nucleus.Coop
 
         private Color radioSelectedBackColor;
         private Color defaultForeColor;
+        private bool updateAvailable;
 
-        public bool favorite;
-        private bool _updateAvailable;
-        private bool updateAvailable
-        {
-            get => _updateAvailable;
-            set
-            {
-                if (_updateAvailable != value)
-                {
-                    _updateAvailable = value;
-                    title.ForeColor = value ? Color.FromArgb(255, 196, 145, 18) : defaultForeColor;
-                    HandlerUpdate.Visible = value;
-                    Invalidate();
-                }
-            }
-        }
-       
+        private bool favorite;
+
         public string TitleText { get; set; }
         public string PlayerText { get; set; }
 
         private Bitmap favorite_Unselected;
         private Bitmap favorite_Selected;
-        public System.Windows.Forms.Timer IsUpdateAvailableTimer;
 
         private Size maxSize;
         private Size minSize;
         private Point maxLoc;
         private Point minLoc;
 
-        public GameControl(GenericGameInfo game, UserGameInfo userGame, bool favorite)
+        public GameControl(UserGameInfo userGameInfo)
         {
             try
             {
-                this.favorite = favorite;
                 IniFile theme = Globals.ThemeConfigFile;
 
                 string themePath = Globals.ThemeFolder;
-
+                Name = userGameInfo?.GameGuid;
                 defaultForeColor = Theme_Settings.ControlsForeColor;
                 radioSelectedBackColor = Theme_Settings.SelectedBackColor;
                 favorite_Unselected = ImageCache.GetImage(themePath + "favorite_unselected.png");
@@ -89,9 +73,14 @@ namespace Nucleus.Coop
                 Size = new Size(209, 42);
                 Cursor = Theme_Settings.Hand_Cursor;
 
-                GameInfo = game;
-                UserGameInfo = userGame;
+                UserGameInfo = userGameInfo;
+                genericGameInfo = userGameInfo?.HandlerInfo?.GenericGameInfo;
 
+                if(genericGameInfo != null)
+                {
+                    favorite = genericGameInfo.MetaInfo.Favorite;
+                }
+                
                 picture = new PictureBox
                 {
                     SizeMode = PictureBoxSizeMode.StretchImage,
@@ -113,25 +102,27 @@ namespace Nucleus.Coop
                 players = new Label
                 {
                     AutoSize = true,
-                    Font = new Font(Theme_Settings.CustomFont, Theme_Settings.FontSize - 3.00F, FontStyle.Bold, GraphicsUnit.Point, 0)
+                    Font = new Font(Theme_Settings.CustomFont, Theme_Settings.FontSize - 3.00F, FontStyle.Bold, GraphicsUnit.Point, 0),
+                    ForeColor = Color.FromArgb(138, 130, 127)
                 };
 
-                if (game == null)
+                if (genericGameInfo == null)
                 {
                     title.Text = "No games";
                     title.Font = new Font(Theme_Settings.CustomFont, Theme_Settings.FontSize - 1.00F, FontStyle.Bold, GraphicsUnit.Point, 0);
                     Visible = false;
                 }
                 else
-                {
-                    title.Text = GameInfo.GameName;
-                    if (GameInfo.MaxPlayers > 2)
+                {       
+                    title.Text = GetType() == typeof(GameControlAlt) ? $"{genericGameInfo.LastWriteTimeUtc} {genericGameInfo.FileName}"  : genericGameInfo.GameName;
+
+                    if (genericGameInfo.MaxPlayers > 2)
                     {
-                        players.Text = "2 - " + GameInfo.MaxPlayers;
+                        players.Text = "2 - " + genericGameInfo.MaxPlayers;
                     }
                     else
                     {
-                        players.Text = GameInfo.MaxPlayers.ToString();
+                        players.Text = genericGameInfo.MaxPlayers.ToString();
                     }
                 }
 
@@ -162,7 +153,7 @@ namespace Nucleus.Coop
                     Tag = "no_parent_click"
                 };
 
-                FavoriteBox.Image = favorite ? favorite_Selected : favorite_Unselected;
+                FavoriteBox.Image = (bool)favorite ? favorite_Selected : favorite_Unselected;
                 FavoriteBox.Click += new EventHandler(FavoriteBox_Click);
 
                 title.BackColor = Color.Transparent;
@@ -200,20 +191,21 @@ namespace Nucleus.Coop
                 HandlerUpdate.MouseEnter += ZoomInPicture;
                 HandlerUpdate.MouseLeave += ZoomOutPicture;
 
-                this.Disposed += DisposeTimer;
-
-                if (GameInfo != null)
+                if (genericGameInfo != null && GetType() != typeof(GameControlAlt))
                 {
-                    CustomToolTips.SetToolTip(FavoriteBox, "Add or remove this game from your favorites.", $"FavoriteBox_{GameInfo.GUID}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
-                    CustomToolTips.SetToolTip(GameOptions, "Game options menu.", $"GameOptions_{GameInfo.GUID}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
-                    CustomToolTips.SetToolTip(HandlerUpdate, "Update game handler.", $"HandlerUpdate{GameInfo.GUID}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
-                    CustomToolTips.SetToolTip(playerIcon, "Number of supported players.", $"playerIcon{GameInfo.GUID}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
-                   
-                    //Set a different title color if a handler update is available using a timer(need to wait for the hub to return the value).
-                    IsUpdateAvailableTimer = new System.Windows.Forms.Timer();
-                    IsUpdateAvailableTimer.Interval = (1500); //millisecond                   
-                    IsUpdateAvailableTimer.Tick += IsUpdateAvailable_Tick;
-                    IsUpdateAvailableTimer.Start();
+                    userGameInfo.OnHandlerInfoRefresh = null;
+                    userGameInfo.OnHandlerInfoRefresh += RefreshGenericGameInfo;
+
+                    HandleCreated += (s, e) => {
+                        userGameInfo.NotifyUpdateAvailable += Refresh_UpdateButton_CallBack;
+                        updateAvailable = userGameInfo.UpdateAvailable && genericGameInfo.MetaInfo.CheckUpdate;
+                        RefreshUpdateButton(updateAvailable);
+                    };
+
+                    CustomToolTips.SetToolTip(FavoriteBox, "Add or remove this game from your favorites.", $"FavoriteBox_{genericGameInfo.GUID}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                    CustomToolTips.SetToolTip(GameOptions, "Game options menu.", $"GameOptions_{genericGameInfo.GUID}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                    CustomToolTips.SetToolTip(HandlerUpdate, "Update game handler.", $"HandlerUpdate{genericGameInfo.GUID}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                    CustomToolTips.SetToolTip(playerIcon, "Number of supported players.", $"playerIcon{genericGameInfo.GUID}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });       
                 }
 
                 DPIManager.Register(this);
@@ -222,10 +214,6 @@ namespace Nucleus.Coop
             {
                 System.Windows.MessageBox.Show("ERROR - " + ex.Message + "\n\nSTACKTRACE: " + ex.StackTrace);
             }
-        }
-        ~GameControl()
-        {
-            DPIManager.Unregister(this);
         }
 
         public void UpdateSize(float scale)
@@ -287,44 +275,39 @@ namespace Nucleus.Coop
             ResumeLayout();
         }
 
-        private void DisposeTimer(object sender , EventArgs e)
+        private void RefreshGenericGameInfo(UserGameInfo userGameInfo)
         {
-            IsUpdateAvailableTimer.Stop();
-            IsUpdateAvailableTimer.Tick -= IsUpdateAvailable_Tick;
-            IsUpdateAvailableTimer.Dispose();
+            genericGameInfo = userGameInfo?.HandlerInfo?.GenericGameInfo;
+            if(genericGameInfo != null)
+            {
+                title.Text = genericGameInfo.GameName;
+                players.Text = "2 - " + genericGameInfo.MaxPlayers;
+            }
+           
+            OnHandlerInfoRefresh?.Invoke(userGameInfo);
         }
 
-        private void IsUpdateAvailable_Tick(object Object, EventArgs eventArgs)
+        private void Refresh_UpdateButton_CallBack(bool _updateAvailable)
         {
-            try
+            UIThread.Post(() =>
             {
-                Control topLevel = TopLevelControl;
+                RefreshUpdateButton(_updateAvailable);
+            });
+        }        
 
-                if (topLevel == null)
-                {
-                    return;
-                }
-
-                if (!topLevel.IsHandleCreated)
-                {
-                    return;
-                }
-
-                this.Invoke((MethodInvoker)delegate ()
-                {
-                    updateAvailable = GameInfo.UpdateAvailable && GameInfo.MetaInfo.CheckUpdate;
-                });
-            }
-            catch
+        private void RefreshUpdateButton(bool _updateAvailable)
+        {
+            if(genericGameInfo == null)
             {
-                IsUpdateAvailableTimer.Stop();
-                IsUpdateAvailableTimer.Tick -= IsUpdateAvailable_Tick;
-                IsUpdateAvailableTimer.Dispose();
-
-                Console.WriteLine("GameControl was Disposed!");
+                return;
             }
+
+            updateAvailable = _updateAvailable && genericGameInfo.MetaInfo.CheckUpdate;
+            title.ForeColor = _updateAvailable ? Color.FromArgb(255, 196, 145, 18) : defaultForeColor;
+            HandlerUpdate.Visible = updateAvailable;
+            Invalidate();
         }
-        
+
         protected override void OnControlAdded(ControlEventArgs e)
         {
             base.OnControlAdded(e);
@@ -353,9 +336,7 @@ namespace Nucleus.Coop
             
             bool selected = FavoriteBox.Image.Equals(favorite_Selected);
             FavoriteBox.Image = selected ? favorite_Unselected : favorite_Selected;
-            UserGameInfo.Game.MetaInfo.Favorite = !selected;
-
-            GameManager.Instance.SaveUserProfile();
+            UserGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.Favorite = !selected;
         }
 
         private void C_MouseEnter(object sender, EventArgs e)
@@ -421,11 +402,17 @@ namespace Nucleus.Coop
         public void RadioSelected()
         {
             isSelected = true && !GenericGameHandler.IsRunning;//lazy fix so it doesn't highlight if clicked if a handler is running
+            Invalidate();
         }
 
         public void RadioUnselected()
         {
-            isSelected = false;
+            if(isSelected)
+            {
+                Invalidate();
+            }
+
+            isSelected = false;   
         }
 
         public void UserOver()
@@ -488,6 +475,18 @@ namespace Nucleus.Coop
                     e.Graphics.DrawPath(outlinePen, outlineGp);
                 }
             }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            DPIManager.Unregister(this);
+            if(UserGameInfo != null)
+            {
+                UserGameInfo.OnHandlerInfoRefresh -= RefreshGenericGameInfo;
+                UserGameInfo.NotifyUpdateAvailable -= Refresh_UpdateButton_CallBack;
+            }
+
+            base.Dispose(disposing);         
         }
     }
 }

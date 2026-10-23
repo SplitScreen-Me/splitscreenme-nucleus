@@ -288,6 +288,8 @@ namespace StartGame
                     envVars["HOMEPATH"] = $@"\Users\{username}\NucleusCoop\{playerNick}";
                     envVars["APPDATA"] = $@"{UserEnvironmentRoot}\NucleusCoop\{playerNick}\AppData\Roaming";
                     envVars["LOCALAPPDATA"] = $@"{UserEnvironmentRoot}\NucleusCoop\{playerNick}\AppData\Local";
+                    envVars["TEMP"] = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\{playerNick}\AppData\Local\Temp";
+                    envVars["TMP"] = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\{playerNick}\AppData\Local\Temp";
 
                     //Some games will crash if the directories don't exist
                     Directory.CreateDirectory($@"{UserEnvironmentRoot}\NucleusCoop");
@@ -295,7 +297,7 @@ namespace StartGame
                     Directory.CreateDirectory(Path.Combine(envVars["USERPROFILE"].ToString(), "Documents"));
                     Directory.CreateDirectory(envVars["APPDATA"].ToString());
                     Directory.CreateDirectory(envVars["LOCALAPPDATA"].ToString());
-
+                    Directory.CreateDirectory(envVars["TEMP"].ToString());
                     Directory.CreateDirectory(Path.GetDirectoryName(DocumentsRoot) + $@"\NucleusCoop\{playerNick}\Documents");
 
                     if (useDocs)

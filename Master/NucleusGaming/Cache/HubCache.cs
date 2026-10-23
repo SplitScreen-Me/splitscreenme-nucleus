@@ -3,12 +3,15 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Policy;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Cache
@@ -22,52 +25,51 @@ namespace Nucleus.Gaming.Cache
         private static JObject cacheObject;
         private static JArray handlersArray;
         public static int CachedHandlersCount => handlersArray.Count;
-        private static JArray searchHandlers = new JArray();
+        //private static JArray searchHandlers = new JArray();
 
         private static List<Bitmap> thumbnails = new List<Bitmap>();
 
-        public static JArray InitCache()
+        public static async Task<JArray> InitCache()
         {
             if (!File.Exists(cacheFile) || CheckCacheUpdate())
             {
-                return CreateCache();
+                return await CreateCache();
             }
 
             string cache = File.ReadAllText(cacheFile);
+
+            if(string.IsNullOrEmpty(cache))//corrupted?
+            {
+                return await CreateCache();
+            }
+
             cacheObject = JsonConvert.DeserializeObject(cache) as JObject;
+
             handlersArray = cacheObject["Handlers"] as JArray;
 
             return handlersArray;
         }
 
-        private static JArray CreateCache()
+        private static async Task<JArray> CreateCache()
         {
-            ServicePointManager.Expect100Continue = true;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-            ServicePointManager.DefaultConnectionLimit = 9999;
+            string url = api + "allhandlers";
+            var result = await Http_Client.Http_Client.GetJsonObjectAsync(url);
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(api + "allhandlers");
-            request.UserAgent = "request";
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-            using (Stream stream = response.GetResponseStream())
-
-            using (StreamReader reader = new StreamReader(stream))
+            if (result == null)
             {
-                using (FileStream cachestream = new FileStream(cacheFile, FileMode.Create))
+                return null;
+            }
+
+            using (FileStream cachestream = new FileStream(cacheFile, FileMode.Create))
+            {
+                using (StreamWriter writer = new StreamWriter(cachestream))
                 {
-                    using (StreamWriter writer = new StreamWriter(cachestream))
-                    {
-                        JObject cacheObj = JObject.Parse(reader.ReadToEnd());
+                    string jsonCache = JsonConvert.SerializeObject(result, Formatting.Indented);
+                    writer.Write(jsonCache);
 
-                        string jsonCache = JsonConvert.SerializeObject(cacheObj, Formatting.Indented);
-                        writer.Write(jsonCache);
-                        stream.Flush();
-
-                        cacheObject = cacheObj;
-                        handlersArray = cacheObject["Handlers"] as JArray;
-                        return handlersArray;
-                    }
+                    cacheObject = result;
+                    handlersArray = result["Handlers"] as JArray;
+                    return handlersArray;
                 }
             }
         }
@@ -106,11 +108,11 @@ namespace Nucleus.Gaming.Cache
             return false;
         }
 
-        public static Handler SearchById(string handlerId)
+        public static async Task<Handler> SearchById(string handlerId)
         {
             if (cacheObject == null)
             {
-                InitCache();
+               await InitCache();
             }
 
             for (int i = 0; i < handlersArray.Count; i++)
@@ -146,62 +148,56 @@ namespace Nucleus.Gaming.Cache
                 }
             }
 
-            return SearchByIdOnline(handlerId);
+            return await SearchByIdOnline(handlerId);
         }
 
-        public static Handler SearchByIdOnline(string handlerId)
+        public static async Task<Handler> SearchByIdOnline(string handlerId)
         {
             if (cacheObject == null)
             {
-                InitCache();
+                await InitCache();
             }
 
-            string uri = api + "handler/" + handlerId;
+            string url = api + "handler/" + handlerId;
+            var result = await Http_Client.Http_Client.GetJsonPropertyAsync(url, "Handlers");
 
-            string hubResp = Get(uri);
-
-            if (hubResp == null || hubResp == "{}")
+            if (result == null)
             {
                 return null;
             }
 
-            JObject serverDatas = JsonConvert.DeserializeObject(hubResp) as JObject;
-            searchHandlers = serverDatas["Handlers"] as JArray;
+            Handler handler = null;
 
-            if (searchHandlers.Count() > 0)
+            for (int i = 0; i < result.Count(); i++)
             {
-                Handler handler = null;
-
-                for (int i = 0; i < searchHandlers.Count(); i++)
+                if (handlersArray.All(h => h["_id"] != result[i]))//Update cache from hub resp because those handlers were not in cache
                 {
-                    if (handlersArray.All(h => h["_id"] != searchHandlers[i]))//Update cache from hub resp because those handlers were not in cache
-                    {
-                        cacheObject["Handlers"][0].AddBeforeSelf(searchHandlers[i]);
+                    cacheObject["Handlers"][0].AddBeforeSelf(result[i]);
 
-                        handler = new Handler
-                        {
-                            Id = searchHandlers[i]["_id"].ToString(),
-                            Owner = searchHandlers[i]["owner"].ToString(),
-                            OwnerName = searchHandlers[i]["ownerName"].ToString(),
-                            Description = searchHandlers[i]["description"].ToString(),
-                            Title = searchHandlers[i]["title"].ToString(),
-                            GameName = searchHandlers[i]["gameName"].ToString(),
-                            GameDescription = searchHandlers[i]["gameDescription"].ToString(),
-                            GameCover = searchHandlers[i]["gameCover"].ToString(),
-                            GameId = searchHandlers[i]["gameId"].ToString(),
-                            GameUrl = searchHandlers[i]["gameUrl"].ToString(),
-                            CreatedAt = searchHandlers[i]["createdAt"].ToString(),
-                            UpdatedAt = searchHandlers[i]["updatedAt"].ToString(),
-                            Stars = searchHandlers[i]["stars"].ToString(),
-                            DownloadCount = searchHandlers[i]["downloadCount"].ToString(),
-                            Verified = searchHandlers[i]["verified"].ToString(),
-                            Private = searchHandlers[i]["private"].ToString(),
-                            CommentCount = searchHandlers[i]["commentCount"].ToString(),
-                            CurrentVersion = searchHandlers[i]["currentVersion"].ToString(),
-                            CurrentPackage = searchHandlers[i]["currentPackage"].ToString(),
-                        };
-                    }
+                    handler = new Handler
+                    {
+                        Id = result[i]["_id"].ToString(),
+                        Owner = result[i]["owner"].ToString(),
+                        OwnerName = result[i]["ownerName"].ToString(),
+                        Description = result[i]["description"].ToString(),
+                        Title = result[i]["title"].ToString(),
+                        GameName = result[i]["gameName"].ToString(),
+                        GameDescription = result[i]["gameDescription"].ToString(),
+                        GameCover = result[i]["gameCover"].ToString(),
+                        GameId = result[i]["gameId"].ToString(),
+                        GameUrl = result[i]["gameUrl"].ToString(),
+                        CreatedAt = result[i]["createdAt"].ToString(),
+                        UpdatedAt = result[i]["updatedAt"].ToString(),
+                        Stars = result[i]["stars"].ToString(),
+                        DownloadCount = result[i]["downloadCount"].ToString(),
+                        Verified = result[i]["verified"].ToString(),
+                        Private = result[i]["private"].ToString(),
+                        CommentCount = result[i]["commentCount"].ToString(),
+                        CurrentVersion = result[i]["currentVersion"].ToString(),
+                        CurrentPackage = result[i]["currentPackage"].ToString(),
+                    };
                 }
+
 
                 using (FileStream stream = new FileStream(cacheFile, FileMode.Create))
                 {
@@ -219,11 +215,11 @@ namespace Nucleus.Gaming.Cache
             return null;
         }
 
-        public static List<Handler> GetAllHandlers()
+        public static async Task <List<Handler>> GetAllHandlers()
         {
             if (cacheObject == null)
             {
-                InitCache();
+              await InitCache();
             }
 
             List<Handler> handlers = new List<Handler>();
@@ -259,22 +255,26 @@ namespace Nucleus.Gaming.Cache
             return handlers;
         }
 
-        public static string GetScreenshotsUri(string id)
+        public static async Task<string> GetScreenshotsUri(string id)
         {
-            if (id == null) { return null; }
-            if (id == "{}" || id == "") { return null; }
-            string resp = Get($@"https://hub.splitscreen.me/api/v1/screenshots/{id}");
-            return resp;
+            if (string.IsNullOrEmpty(id)) 
+            {
+                return null; 
+            }
+
+            string url = $@"https://hub.splitscreen.me/api/v1/screenshots/{id}";
+
+            return await Http_Client.Http_Client.GetAsync(url);
         }
 
-        public static JArray SearchByName(string searchParam)
+        public static async Task<JArray> SearchByName(string searchParam)
         {
             if (cacheObject == null)
             {
-                InitCache();
+                await InitCache();
             }
 
-            searchHandlers?.Clear();
+            JArray searchHandlers = new JArray();
 
             for (int i = 0; i < handlersArray.Count; i++)
             {
@@ -297,52 +297,44 @@ namespace Nucleus.Gaming.Cache
             }
 
             searchParam = Uri.EscapeDataString(searchParam);
-            return SearchByNameOnline(searchParam);
+            return await SearchByNameOnline(searchParam);
         }
 
-        private static JArray SearchByNameOnline(string searchParam)//No results found in the cache
+        private static async Task<JArray> SearchByNameOnline(string searchParam)//No results found in the cache
         {
-            string uri = api + "handlers/" + searchParam;
+            string url = api + "handlers/" + searchParam;
 
-            string hubResp = Get(uri);
+            var result = await Http_Client.Http_Client.GetJsonPropertyAsync(url, "Handlers");
 
-            if (hubResp == null || hubResp == "{}")
+            if (result == null)
             {
                 return null;
             }
 
-            JObject serverDatas = JsonConvert.DeserializeObject(hubResp) as JObject;
-            searchHandlers = serverDatas["Handlers"] as JArray;
-
             List<string> newFound = new List<string>();
 
-            if (searchHandlers.Count() > 0)
+            for (int i = 0; i < result.Count(); i++)
             {
-                for (int i = 0; i < searchHandlers.Count(); i++)
+                if (handlersArray.All(h => h["gameName"] != result[i]))//Update cache from hub resp because those handlers were not in cache
                 {
-                    if (handlersArray.All(h => h["gameName"] != searchHandlers[i]))//Update cache from hub resp because those handlers were not in cache
-                    {
-                        cacheObject["Handlers"][0].AddBeforeSelf(searchHandlers[i]);
-                    }
+                    cacheObject["Handlers"][0].AddBeforeSelf(result[i]);
                 }
-
-                using (FileStream stream = new FileStream(cacheFile, FileMode.Create))
-                {
-                    using (StreamWriter writer = new StreamWriter(stream))
-                    {
-                        string json = JsonConvert.SerializeObject(cacheObject, Formatting.Indented);
-                        writer.Write(json);
-                        stream.Flush();
-                    }
-                }
-
-                return searchHandlers;
             }
 
-            return null;
+            using (FileStream stream = new FileStream(cacheFile, FileMode.Create))
+            {
+                using (StreamWriter writer = new StreamWriter(stream))
+                {
+                    string json = JsonConvert.SerializeObject(cacheObject, Formatting.Indented);
+                    writer.Write(json);
+                    stream.Flush();
+                }
+            }
+
+            return result as JArray;
         }
 
-        public static Bitmap ThumbnailsCache(Handler handler)
+        public static async Task ThumbnailsCache(Handler handler)
         {
             try
             {
@@ -350,61 +342,22 @@ namespace Nucleus.Gaming.Cache
 
                 string fileName = pattern.Replace(handler.Id.ToLower(), "");
 
+                if(!Directory.Exists(thumbnailFolder))
+                {
+                    Directory.CreateDirectory(thumbnailFolder);
+                }
+
                 if (!File.Exists(thumbnailFolder + fileName + ".jpeg"))
                 {
-                    string _cover = $@"https://images.igdb.com/igdb/image/upload/t_micro/{handler.GameCover}.jpg";
+                    string _coverUrl = $@"https://images.igdb.com/igdb/image/upload/t_micro/{handler.GameCover}.jpg";
 
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(_cover);
-                    request.UserAgent = "request";
-                    WebResponse resp = request.GetResponse();
-                    Stream respStream = resp.GetResponseStream();
-
-                    if (!Directory.Exists(thumbnailFolder))
-                    {
-                        Directory.CreateDirectory(thumbnailFolder);
-                    }
-
-                    using (Image newImage = Image.FromStream(respStream))
-                    {
-                        newImage.Save(thumbnailFolder + fileName + ".jpeg", ImageFormat.Jpeg);
-                    }
-
-                    respStream.Dispose();
-
-                    return new Bitmap(thumbnailFolder + fileName + ".jpeg");
+                    await Http_Client.Http_Client.DownloadImageAsync(_coverUrl, thumbnailFolder + fileName + ".jpeg", 15000);
                 }
-                else
-                {
-                    return new Bitmap(thumbnailFolder + fileName + ".jpeg");
-                }
+               
             }
             catch (Exception)
             {
-                return ImageCache.GetImage(Globals.ThemeFolder + "no_cover.png");
-            }
-        }
 
-        public static string Get(string uri)
-        {
-            ServicePointManager.Expect100Continue = true;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-            ServicePointManager.DefaultConnectionLimit = 9999;
-
-            try
-            {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
-                request.UserAgent = "request";
-                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
-                using (Stream stream = response.GetResponseStream())
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
-            catch
-            {
-                return null;
             }
         }
     }

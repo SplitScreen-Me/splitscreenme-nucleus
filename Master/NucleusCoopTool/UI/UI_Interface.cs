@@ -15,6 +15,7 @@ using Nucleus.Gaming.UI;
 using Nucleus.Gaming.Coop.InputManagement.Gamepads;
 using Nucleus.Gaming.Windows;
 using System.Threading;
+using Nucleus.Gaming.Http_Client;
 
 namespace Nucleus.Coop.UI
 {
@@ -24,17 +25,18 @@ namespace Nucleus.Coop.UI
         public static ProfileSettings ProfileSettings = null;
         public static XInputShortcutsSetup Xinput_S_Setup;
 
-        public static bool WindowRoundedCorners => bool.Parse(Globals.ThemeConfigFile.IniReadValue("Misc", "UseroundedCorners"));
-
         public static Rectangle OsdBounds;
         
         public static Point DefCoverLoc;
 
         public static bool ShowFavoriteOnly = App_Misc.ShowFavoriteOnly;
         public static bool DisableForcedNote = App_Misc.DisableForcedNote;
-        public static bool NoGamesPresent;
         public static bool IsFormClosing;
         public static bool RestartRequired = false;
+
+        public static string MainWindowText;
+
+        public static float Scale;
 
         private static MainForm mainForm;
         public static MainForm MainForm
@@ -43,9 +45,6 @@ namespace Nucleus.Coop.UI
             set 
             {              
                 mainForm = value;
-
-                Core_Interface.SyncContext = SynchronizationContext.Current ?? new SynchronizationContext();
-
                 mainForm.Font = new Font(Theme_Settings.CustomFont, Theme_Settings.FontSize, FontStyle.Regular, GraphicsUnit.Pixel, 0);
                 mainForm.ForeColor = Theme_Settings.ControlsForeColor;
 
@@ -54,7 +53,7 @@ namespace Nucleus.Coop.UI
                 mainForm.StartPosition = FormStartPosition.Manual;
                 MainWindowFunc.SetWindowSizeAndLoc(mainForm);
 
-                if (WindowRoundedCorners)
+                if (Theme_Settings.WindowRoundedCorners)
                 {
                     FormGraphicsUtil.CreateRoundedControlRegion(mainForm, 0, 0, mainForm.Width, mainForm.Height, 20, 20);
                 }
@@ -63,7 +62,10 @@ namespace Nucleus.Coop.UI
                 mainForm.ResizeBegin += MainWindowFunc.MainForm_ResizeBegin;
                 mainForm.ResizeEnd += MainWindowFunc.MainForm_ResizeEnd;
                 mainForm.FormClosing += MainWindowFunc.MainForm_FormClosing;
-                mainForm.FormClosed += MainWindowFunc.MainForm_Closed;              
+                mainForm.FormClosed += MainWindowFunc.MainForm_Closed;
+
+                MainWindowText = mainForm.Text;
+               
             }
         }
 
@@ -75,7 +77,7 @@ namespace Nucleus.Coop.UI
             {
                 homeScreen = value;
 
-                if (WindowRoundedCorners)
+                if (Theme_Settings.WindowRoundedCorners)
                 {
                     FormGraphicsUtil.CreateRoundedControlRegion(HomeScreen, 0, 0, HomeScreen.Width, HomeScreen.Height, 20, 20);
                 }
@@ -83,11 +85,22 @@ namespace Nucleus.Coop.UI
                 var notesZoom = Runtime_Controls.BuildHandlerNotesZoom();
                 HandlerNotesZoom = notesZoom;
                 homeScreen.Controls.Add(notesZoom);
-
+                
                 homeScreen.AllowDrop = true;
-                homeScreen.DragEnter += UI_Functions.ExtrtactHandlerDragEnter;
-                homeScreen.DragDrop += UI_Functions.ExtrtactHandlerDragDrop;
+                homeScreen.DragEnter += UI_Functions.ExtractHandlerDragEnter;
+                homeScreen.DragOver += UI_Functions.ShowDragAndDropModal;
+                homeScreen.DragLeave += UI_Functions.DisposeDragAndDropModal;
+                homeScreen.DragDrop += UI_Functions.ExtractHandlerDragDrop;
                 homeScreen.Paint += UI_Graphics.HomeScreen_Paint;
+                if(!Theme_Settings.UseBackgroundImage)
+                {
+                    homeScreen.BackColor = Theme_Settings.SetupScreenBackColor;
+                }
+                ProfilesList profilelist = new ProfilesList(homeScreen);
+                profilelist.Location = new Point(infoPanel.Left,infoPanel.Height/2);
+                homeScreen.Controls.Add(profilelist);
+                ProfilesList = profilelist;
+                profilelist.BringToFront();
             }
         }
 
@@ -109,23 +122,9 @@ namespace Nucleus.Coop.UI
             set 
             {
                 gameList = value;
+                gameList.Name = "GameList";
                 gameList.SelectedChanged += UI_Functions.GameList_SelectedChanged;
             } 
-        }
-
-        private static Button settingsButton;
-        public static Button SettingsButton
-        {
-            get => settingsButton;
-            set
-            {
-                settingsButton = value;
-                settingsButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_settings.png");
-                CustomToolTips.SetToolTip(settingsButton, "Global Nucleus Co-op settings.", "btn_settings", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
-                settingsButton.Click += UI_Functions.SettingsButton_Click;
-                settingsButton.MouseEnter += UI_Functions.SettingsButton_MouseEnter;
-                settingsButton.MouseLeave += UI_Functions.SettingsButton_MouseLeave;
-            }
         }
 
         private static DoubleBufferPanel gameListContainer;
@@ -147,8 +146,22 @@ namespace Nucleus.Coop.UI
             set
             {
                 infoPanel = value;
+                infoPanel.Name = "InfoPanel";
                 infoPanel.Paint += UI_Graphics.InfoPanel_Paint;
                 infoPanel.BackColor = Theme_Settings.InfoPanelBackColor;
+                infoPanel.MouseDown += UI_Functions.OnClickHideProfileList;
+
+                foreach (Control con in infoPanel.Controls)
+                {
+                    if(con.Name != "ProfilesList_btn")
+                    {
+                        con.MouseDown += UI_Functions.OnClickHideProfileList;
+                        foreach(Control child in con.Controls)
+                        {
+                            child.MouseDown += UI_Functions.OnClickHideProfileList;
+                        }
+                    }
+                }
             }
         }
 
@@ -160,17 +173,12 @@ namespace Nucleus.Coop.UI
             {
                 windowPanel = value;
 
-                PictureBox mainButtonsPanelButton = Runtime_Controls.BuildMainButtonsPanelButton();
-                MainButtonsPanelButton = mainButtonsPanelButton;
-
-                windowPanel.Controls.Add(mainButtonsPanelButton);
+                windowPanel.Name = "WindowPanel";
                 windowPanel.MouseDown += UI_Functions.WindowPanelMouseDown;
                 windowPanel.Paint += UI_Graphics.WindowPanel_Paint;
-                windowPanel.BackColor = Theme_Settings.WindowPanelBackColor;
+                windowPanel.BackColor = Color.Transparent; 
             }
         }
-
-        public static PictureBox MainButtonsPanelButton { get; set; }
 
         private static Button maximizeButton;
         public static Button MaximizeButton
@@ -183,6 +191,18 @@ namespace Nucleus.Coop.UI
                 maximizeButton.Click += UI_Functions.MaximizeButton_Click;
                 maximizeButton.MouseEnter += UI_Functions.MaximizeButton_MouseEnter;
                 maximizeButton.MouseLeave += UI_Functions.MaximizeButton_MouseLeave;
+                maximizeButton.Cursor = Theme_Settings.Hand_Cursor;
+            }
+        }
+
+        private static NewsFeed newsFeed;
+        public static NewsFeed NewsFeed
+        {
+            get => newsFeed;
+            set
+            {
+                newsFeed = value;        
+                newsFeed.Resize += UI_Functions.NewsFeed_Resize;
             }
         }
 
@@ -197,6 +217,7 @@ namespace Nucleus.Coop.UI
                 minimizeButton.Click += UI_Functions.MinimizeButton_Click;
                 minimizeButton.MouseEnter += UI_Functions.MinimizeButton_MouseEnter;
                 minimizeButton.MouseLeave += UI_Functions.MinimizeButton_MouseLeave;
+                minimizeButton.Cursor = Theme_Settings.Hand_Cursor;
             }
         }
 
@@ -211,6 +232,7 @@ namespace Nucleus.Coop.UI
                 closeButton.Click += UI_Functions.CloseButton_Click;
                 closeButton.MouseEnter += UI_Functions.CloseButton_MouseEnter;
                 closeButton.MouseLeave += UI_Functions.CloseButton_MouseLeave;
+                closeButton.Cursor = Theme_Settings.Hand_Cursor;
             }
         }
 
@@ -225,6 +247,7 @@ namespace Nucleus.Coop.UI
                 toggleVirtualMouse.MouseClick += UI_Functions.VirtualMouseToggle_MouseClick;
                 CustomToolTips.SetToolTip(toggleVirtualMouse, "Left click to turn On/Off gamepad emulated mouse.\nRight click to open gamepad shortcuts settings. ", "toggleVirtualMouse", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
                 GamepadNavigation.OnUpdateState += ToggleVirtualMouse.Invalidate;
+                toggleVirtualMouse.Cursor = Theme_Settings.Hand_Cursor;
             }
         }
 
@@ -235,72 +258,25 @@ namespace Nucleus.Coop.UI
             set
             {
                 donationButton = value;
-                donationButton.BackColor = Color.Transparent;
-                donationButton.FlatAppearance.MouseOverBackColor = Color.Transparent;
-                donationButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "donation.png");
-                CustomToolTips.SetToolTip(donationButton, "Nucleus Co-op Patreon.", "donationBtn", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                donationButton.BackColor = Theme_Settings.ButtonsBackColor;
+                donationButton.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
                 donationButton.Click += UI_Functions.DonationButton_Click;
-
+                donationButton.Cursor = Theme_Settings.Hand_Cursor;
             }
         }
 
-        private static DoubleBufferPanel mainButtonsPanel;
-        public static DoubleBufferPanel MainButtonsPanel
+        private static Button settingsButton;
+        public static Button SettingsButton
         {
-            get => mainButtonsPanel;
-            set 
-            {
-                mainButtonsPanel = value;
-                mainButtonsPanel.Visible = true;
-            }      
-        }
 
-        private static Button openLogButton;
-        public static Button OpenLogButton
-        {
-            get => openLogButton;
+            get => settingsButton;
             set
             {
-                openLogButton = value;
-                openLogButton.BackColor = Color.Transparent;
-                openLogButton.FlatAppearance.MouseOverBackColor = Color.Transparent; 
-                openLogButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "log.png");
-                CustomToolTips.SetToolTip(openLogButton, "Open Nucleus debug-log.txt file if available, debug log can be disabled in Nucleus settings in the \"Settings\" tab.", "btn_debuglog", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
-                openLogButton.Click += UI_Functions.OpenLogButton_Click;
-                openLogButton.MouseEnter += UI_Functions.OpenLogButton_MouseEnter;
-                openLogButton.MouseLeave += UI_Functions.OpenLogButton_MouseLeave;
-            }
-        }
- 
-        private static Button searchGameButton;
-        public static Button SearchGameButton
-        {
-            get => searchGameButton;
-            set
-            {
-                searchGameButton = value;
-                searchGameButton.FlatAppearance.MouseOverBackColor = Color.Transparent;
-                searchGameButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "search_game.png");
-                CustomToolTips.SetToolTip(searchGameButton, "Search and add a game to the game list (its handler must be installed).", "btnSearch", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
-                searchGameButton.Click += UI_Functions.SearchGameButton_Click;
-                searchGameButton.MouseEnter += UI_Functions.SearchGameButton_MouseEnter;
-                searchGameButton.MouseLeave += UI_Functions.SearchGameButton_MouseLeave;
-            }
-        }
-
-        private static Button extractHandlerButton;
-        public static Button ExtractHandlerButton
-        {
-            get => extractHandlerButton;
-            set
-            {
-                extractHandlerButton = value;
-                extractHandlerButton.FlatAppearance.MouseOverBackColor = Color.Transparent;
-                extractHandlerButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "extract_nc.png");
-                CustomToolTips.SetToolTip(extractHandlerButton, "Extract a handler from a \".nc\" archive.", "btn_Extract", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
-                extractHandlerButton.Click += UI_Functions.ExtractHandlerButton_Click;
-                extractHandlerButton.MouseEnter += UI_Functions.ExtractHandlerButton_MouseEnter;
-                extractHandlerButton.MouseLeave += UI_Functions.ExtractHandlerButton_MouseLeave;
+                settingsButton = value;
+                settingsButton.BackColor = Theme_Settings.ButtonsBackColor;
+                settingsButton.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
+                settingsButton.Click += UI_Functions.SettingsButton_Click;
+                settingsButton.Cursor = Theme_Settings.Hand_Cursor;
             }
         }
 
@@ -311,8 +287,61 @@ namespace Nucleus.Coop.UI
             set
             {
                 socialMenuButton = value;
-                socialMenuButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_dropdown_closed.png");
+                socialMenuButton.BackColor = Theme_Settings.ButtonsBackColor;
+                socialMenuButton.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
                 socialMenuButton.Click += UI_Functions.SocialMenuButton_Click;
+                socialMenuButton.Cursor = Theme_Settings.Hand_Cursor;
+            }
+        }
+
+
+        private static Button manageGamesMenuButton;
+        public static Button ManageGamesMenuButton
+        {
+            get => manageGamesMenuButton;
+            set
+            {
+                manageGamesMenuButton = value;
+                manageGamesMenuButton.BackColor = Theme_Settings.ButtonsBackColor;
+                manageGamesMenuButton.FlatAppearance.MouseOverBackColor = Theme_Settings.MouseOverBackColor;
+                manageGamesMenuButton.Click += UI_Functions.ManageGamesButton_Click;
+                manageGamesMenuButton.Cursor = Theme_Settings.Hand_Cursor;
+            }
+        }
+
+        private static ContextMenuStrip manageGamesMenu;
+        public static ContextMenuStrip ManageGamesMenu
+        {
+            get => manageGamesMenu;
+            set
+            {
+
+                manageGamesMenu = value;
+                manageGamesMenu.Renderer = new CustomToolStripRenderer.MyRenderer();
+                manageGamesMenu.BackgroundImage = Image.FromFile(Globals.ThemeFolder + "other_backgrounds.jpg");
+                manageGamesMenu.Cursor = Theme_Settings.Hand_Cursor;
+                manageGamesMenu.BackColor = Theme_Settings.GameOptionMenuBackColor;
+                manageGamesMenu.ForeColor = Theme_Settings.GameOptionMenuForeColor;
+                manageGamesMenu.Opening += MainMenuFunc.MainMenu_Opening;
+                manageGamesMenu.LostFocus += MainMenuFunc.OnFocusLost;
+            }
+        }
+
+
+        private static ContextMenuStrip patreonMenu;
+        public static ContextMenuStrip PatreonMenu
+        {
+            get => patreonMenu;
+            set
+            {
+                patreonMenu = value;
+                patreonMenu.Renderer = new CustomToolStripRenderer.MyRenderer();
+                patreonMenu.BackgroundImage = Image.FromFile(Globals.ThemeFolder + "other_backgrounds.jpg");
+                patreonMenu.Cursor = Theme_Settings.Hand_Cursor;
+                patreonMenu.BackColor = Theme_Settings.GameOptionMenuBackColor;
+                patreonMenu.ForeColor = Theme_Settings.GameOptionMenuForeColor;
+
+                patreonMenu.Opening += PatreonMenuFunc.PatreonMenu_Opening;
             }
         }
 
@@ -332,21 +361,6 @@ namespace Nucleus.Coop.UI
                 socialMenu.Opening += SocialMenuFunc.SocialMenu_Opening;
                 socialMenu.Opened += SocialMenuFunc.SocialMenu_Opened;
                 socialMenu.Closing += SocialMenuFunc.SocialMenu_Closing;
-            }
-        }
-
-        private static Button dwldAssetsButton;
-        public static Button DwldAssetsButton
-        {
-            get => dwldAssetsButton;
-            set
-            {
-                dwldAssetsButton = value;
-                dwldAssetsButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "title_download_assets.png");
-                CustomToolTips.SetToolTip(dwldAssetsButton, "Download or update games covers and screenshots.", "btn_downloadAssets", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
-                dwldAssetsButton.Click += UI_Functions.DwldAssetsButton_Click;
-                dwldAssetsButton.MouseEnter += UI_Functions.DwldAssetsButton_MouseEnter;
-                dwldAssetsButton.MouseLeave += UI_Functions.DwldAssetsButton_MouseLeave;
             }
         }
 
@@ -396,9 +410,9 @@ namespace Nucleus.Coop.UI
             set
             {
                 inputsTextLabel = value;
+                inputsTextLabel.Size = new Size(1, 1);
             }
         }
-
 
         private static PictureBox logo;
         public static PictureBox Logo
@@ -492,20 +506,30 @@ namespace Nucleus.Coop.UI
             set
             {
                 setupScreen = value;
+                setupScreen.Name = "SetupScreen";
                 setupScreen.Paint += UI_Graphics.SetupScreen_Paint;
                 setupScreen.Click += Generic_Functions.ClickAnyControl;
                 setupScreen.OnCanPlayUpdated += Core_Interface.StepCanPlay;
                 setupScreen.MouseDown += UI_Functions.OnClickHideProfileList;
-                ProfilesList  profilelist  = new ProfilesList(setupScreen);
-                setupScreen.Controls.Add(profilelist);
-                ProfilesList = profilelist;
-                profilelist.BringToFront();
+                InputsTextLabel = new MultiColorLabel(setupScreen, new Point(0, 0));
             }
         }
 
         public static ProfilesList ProfilesList;
 
-        public static Label HandlerNoteTitle { get; set; }
+        public static Label handlerNoteTitle;
+        public static Label HandlerNoteTitle
+        {
+            get => handlerNoteTitle;
+            set
+            {
+                handlerNoteTitle = value;
+                handlerNoteTitle.Font = new Font(value.Font.FontFamily, value.Font.Size, FontStyle.Bold);
+                handlerNoteTitle.ForeColor = Color.FromArgb(255, 95, 221, 102);
+                handlerNoteTitle.Resize += UI_Functions.HandlerNoteTitle_Resize;
+                handlerNoteTitle.Text = "Handler Author's Notes";
+            }
+        }
 
         private static DoubleBufferPanel handlerNotesContainer;
         public static DoubleBufferPanel HandlerNotesContainer
@@ -513,16 +537,8 @@ namespace Nucleus.Coop.UI
             get => handlerNotesContainer; 
             set 
             {
-                handlerNotesContainer = value;
-
-                bool noteBorderOff = bool.Parse(Globals.ThemeConfigFile.IniReadValue("Misc", "DisableNoteBorder"));
-
-                if (noteBorderOff)
-                {
-                   handlerNotesContainer.BorderStyle = BorderStyle.None;
-                }
-
-                handlerNotesContainer.BackColor = Theme_Settings.HandlerNoteBackColor;
+                handlerNotesContainer = value;            
+                handlerNotesContainer.Paint += UI_Graphics.HandlerNotesContainer_Paint;
             }
         }
 
@@ -536,6 +552,7 @@ namespace Nucleus.Coop.UI
                 handlerNotes.ForeColor = Theme_Settings.HandlerNoteForeColor;
                 handlerNotes.LinkClicked += UI_Functions.HandlerNotes_LinkClicked;
                 handlerNotes.TextChanged += UI_Functions.HandlerNotes_TextChanged;
+                handlerNotes.BackColor = Color.Green;
             }
         }
 
@@ -562,6 +579,7 @@ namespace Nucleus.Coop.UI
             {
                 playButton = value;
                 playButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "play.png");
+                playButton.Tag = "START";
                 playButton.BackColor = Color.Transparent;
                 playButton.FlatAppearance.MouseOverBackColor = Color.Transparent;
                 playButton.Cursor = Theme_Settings.Hand_Cursor;
@@ -573,22 +591,7 @@ namespace Nucleus.Coop.UI
         }
 
         public static Tutorial Tutorial { get; set; }
-
-        private static Button tutorialButton;
-        public static Button TutorialButton
-        { 
-            get => tutorialButton;
-            set
-            {
-                tutorialButton = value;
-                tutorialButton.MouseEnter += UI_Functions.TutorialButton_MouseEnter;
-                tutorialButton.MouseLeave += UI_Functions.TutorialButton_MouseLeave;
-                tutorialButton.Click += UI_Functions.TutorialButton_Click;
-                tutorialButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "instruction_closed.png");
-                CustomToolTips.SetToolTip(tutorialButton, "How to setup players.", "instruction_btn", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
-            }
-        }
-
+     
         private static Button gotoPrev;
         public static Button GotoPrev
         {
@@ -603,6 +606,7 @@ namespace Nucleus.Coop.UI
                 gotoPrev.Click += UI_Functions.GotoPrev_Click;
                 gotoPrev.EnabledChanged += UI_Functions.GotoPrevEnabledChanged;
                 gotoPrev.Paint += UI_Graphics.GotoPrevPaint;
+                gotoPrev.Cursor = Theme_Settings.Hand_Cursor;
             }
         }
 
@@ -621,6 +625,7 @@ namespace Nucleus.Coop.UI
                 gotoNext.Click += UI_Functions.GotoNext_Click;
                 gotoNext.EnabledChanged += UI_Functions.GotoNextEnabledChanged;
                 gotoNext.Paint += UI_Graphics.GotoNextPaint;
+                gotoNext.Cursor = Theme_Settings.Hand_Cursor;
             }
         }
 
@@ -631,6 +636,7 @@ namespace Nucleus.Coop.UI
             set
             {            
                 hubButton = value;
+                Http_Client.OnHubConnectionChange += hubButton.Update;
             }
         }
 
@@ -642,8 +648,8 @@ namespace Nucleus.Coop.UI
             {
                 searchTextBox = value;
                 searchTextBox.SearchText.Font = new Font(Theme_Settings.CustomFont, 13f, FontStyle.Bold, GraphicsUnit.Pixel, 0);
-                searchTextBox.SearchText.TextChanged += Core_Interface.RefreshGames;
-                searchTextBox.Visible = false;
+                searchTextBox.SearchText.TextChanged += Core_Interface.SearchGame;
+                //FormGraphicsUtil.CreateRoundedControlRegion(searchTextBox, 0, 0, searchTextBox.Width, searchTextBox.Height, 5, 5);
             }
         }
        
@@ -654,7 +660,7 @@ namespace Nucleus.Coop.UI
             set
             {
                 sortGamesButton = value;
-                sortGamesButton.Visible = false;
+                sortGamesButton.Cursor = Theme_Settings.Hand_Cursor;
             }
         }
 
@@ -664,8 +670,8 @@ namespace Nucleus.Coop.UI
             get => toggleFavoriteButton;
             set
             {
-                toggleFavoriteButton = value;
-                toggleFavoriteButton.Visible = false;
+                toggleFavoriteButton = value;              
+                toggleFavoriteButton.Cursor = Theme_Settings.Hand_Cursor;
             }
         }
       
@@ -677,8 +683,10 @@ namespace Nucleus.Coop.UI
             {
                 profileSettingsButton = value;
                 profileSettingsButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "profile_settings.png");
+                
                 profileSettingsButton.Click += UI_Functions.ProfileSettingsButton_Click;
                 profileSettingsButton.Tag = profileSettingsButton.Location;
+                profileSettingsButton.Cursor = Theme_Settings.Hand_Cursor;
             }
         }
        
@@ -691,8 +699,20 @@ namespace Nucleus.Coop.UI
                 profileListButton = value;
                 profileListButton.BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "profiles_list.png");
                 profileListButton.Click += UI_Functions.ProfileListButton_Click;
-                profileListButton.VisibleChanged += UI_Functions.ProfileListButton_VisibleChanged;                
+                profileListButton.VisibleChanged += UI_Functions.ProfileListButton_VisibleChanged;
+                profileListButton.Cursor = Theme_Settings.Hand_Cursor;
             } 
+        }
+
+        private static Button unloadProfileButton;
+        public static Button UnloadProfileButton
+        {
+            get => unloadProfileButton;
+            set
+            {
+                unloadProfileButton = value;
+                unloadProfileButton.Cursor = Theme_Settings.Hand_Cursor;
+            }
         }
 
         public static GameControl CurrentGameListControl { get; set; }
@@ -704,6 +724,7 @@ namespace Nucleus.Coop.UI
             set
             {
                 profileButtonsPanel = value;
+                profileButtonsPanel.Name = "profileButtonsPanel";
                 profileButtonsPanel.BackColor = Color.Transparent;
                 profileButtonsPanel.EnabledChanged += UI_Functions.ProfileButtonsPanel_StateChanged;
                 profileButtonsPanel.VisibleChanged += UI_Functions.ProfileButtonsPanel_StateChanged;
@@ -749,12 +770,12 @@ namespace Nucleus.Coop.UI
                 versionTxt = value;
 #if DEBUG
                 versionTxt.ForeColor = Color.LightSteelBlue;
-                versionTxt.Text = "DEBUG " + "v" + Globals.Version;
+                versionTxt.Text = "Nucleus Co-op ⛏" + "v" + Globals.Version;
 #else
              
                 if (bool.Parse(Globals.ThemeConfigFile.IniReadValue("Misc", "HideVersion")) == false)
                 {
-                    versionTxt.Text = "v" + Globals.Version;
+                    versionTxt.Text = "Nucleus Co-op v" + Globals.Version;
                     versionTxt.ForeColor = MainForm.ForeColor;
                     //versionTxt.ForeColor = Color.Gold;
                 }

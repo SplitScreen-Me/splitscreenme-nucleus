@@ -23,6 +23,7 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Nucleus.Coop
@@ -55,6 +56,9 @@ namespace Nucleus.Coop
         private bool shouldSwapSID = true;
         private float _scale;
 
+        private SolidBrush LayoutSizerBackBrush;
+        private SolidBrush buttonsighlightBrush;
+
         protected override CreateParams CreateParams
         {
             get
@@ -77,13 +81,17 @@ namespace Nucleus.Coop
 
             var borderscolor = Globals.ThemeConfigFile.IniReadValue("Colors", "ProfileSettingsBorder").Split(',');
             selectionColor = Theme_Settings.SelectedBackColor;
+           
             bordersPen = new Pen(Color.FromArgb(int.Parse(borderscolor[0]), int.Parse(borderscolor[1]), int.Parse(borderscolor[2])));
-            BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "other_backgrounds.jpg");
+            LayoutSizerBackBrush = new SolidBrush(Color.FromArgb(255, 31, 34, 35));
+            buttonsighlightBrush = new SolidBrush(Color.FromArgb(200, selectionColor.R, selectionColor.G, selectionColor.B));
 
+            BackgroundImage = ImageCache.GetImage(Globals.ThemeFolder + "other_backgrounds.jpg");
+            //BackColor = Color.Black;
             Ctrlr_Shorcuts = ctrlr_shorcutsBtn;
 
             Font = new Font(Theme_Settings.CustomFont, Font.Size, Font.Style, GraphicsUnit.Pixel, 0);
-
+           
             Controlscollect();
 
             foreach (Control c in ctrls)
@@ -148,17 +156,17 @@ namespace Nucleus.Coop
 
                 if (c.Name != "settingsTab" && c.Name != "playersTab" && c.Name != "audioTab" && c.Name != "screen_panel" &&
                     c.Name != "layoutTab" && c.Name != "layoutSizer"
-                    && !(c is Label) && !(c is FlatTextBox) && !(c is GroupBox) && !(c is Panel))
+                    && !(c is Label) && !(c is FlatTextBox) && !(c is GroupBox) && !(c is Panel) && !(c is CustomNumericUpDown))
                 {
                     c.Cursor = Theme_Settings.Hand_Cursor;
                 }
 
-                if (c.Name == "settingsTab" || c.Name == "playersTab" || c.Name == "audioTab" || c.Name == "layoutTab")
+                if (c.Name == "settingsTab" || c.Name == "playersTab" || c.Name == "audioTab" || c.Name == "layoutTab" || c.Name == "screen_panel")
                 {
                     c.BackColor = Color.Transparent;
                     tabs.Add(c as Panel);
                 }
-
+             
                 if ((string)c.Tag == "settingsTab" || (string)c.Tag == "playersTab" || (string)c.Tag == "audioTab" || (string)c.Tag == "layoutTab")
                 {
                     c.Click += TabsButtons_highlight;
@@ -240,7 +248,9 @@ namespace Nucleus.Coop
             btnNext.BackColor = Theme_Settings.ButtonsBackColor;
             btnNext.FlatAppearance.MouseOverBackColor = Color.Transparent;
             btnNext.Location = new Point(page1.Right - btnNext.Width, (page1.Top - btnNext.Height) - 5);
-           
+
+            screen_panel.BackColor = Color.Black;
+
             activeControls = new Control[] { settingsTabBtn, settingsBtnPicture };
 
             audioRefresh.Location = new Point((audioTab.Width / 2) - (audioRefresh.Width / 2), audioRefresh.Location.Y);
@@ -436,8 +446,6 @@ namespace Nucleus.Coop
 
             RefreshAudioList();
 
-            GetPlayersNickNameAndSteamIds();
-
             Rectangle area = Screen.PrimaryScreen.Bounds;
             if (App_Misc.SettingsLocation != "")
             {
@@ -461,6 +469,13 @@ namespace Nucleus.Coop
 
             DPIManager.Register(this);
             DPIManager.Update(this);
+        }
+
+        protected override async void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+
+            await GetPlayersNickNameAndSteamIdsAsync();
         }
 
         public void UpdateSize(float scale)
@@ -550,40 +565,69 @@ namespace Nucleus.Coop
             CustomToolTips.SetToolTip(mergerShortcutLabel, "Each press will set an other child window as foreground window(similar to Alt+Tab).", "mergerShortcutLabel", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
         }
 
-        private void GetPlayersNickNameAndSteamIds()
+        private async Task GetPlayersNickNameAndSteamIdsAsync()
         {
+            var data = await Task.Run(() =>
+            {
+                int max = Globals.NucleusMaxPlayers;
+
+                var allSteamIds = new HashSet<string>(
+                    PlayersIdentityCache.PlayersSteamId.Where(s => !string.IsNullOrEmpty(s))
+                );
+
+                foreach (var s in PlayersIdentityCache.SteamIdsBackup)
+                    allSteamIds.Add(s);
+
+                foreach (var s in PlayersIdentityCache.DefaultSteamIds)
+                    allSteamIds.Add(s.ToString());
+
+                var allNicknames = new HashSet<string>(PlayersIdentityCache.PlayersNickname);
+
+                foreach (var n in PlayersIdentityCache.NicknamesBackup)
+                    allNicknames.Add(n);
+
+                foreach (var n in PlayersIdentityCache.DefaultNicknames)
+                    allNicknames.Add(n);
+
+                var steamArray = allSteamIds.ToArray();
+                var nickArray = allNicknames.ToArray();
+
+                var result = new (string steamId, string nickname)[max];
+
+                for (int i = 0; i < max; i++)
+                {
+                    result[i] = (
+                        PlayersIdentityCache.GetSteamIdAt(i),
+                        PlayersIdentityCache.GetNicknameAt(i)
+                    );
+                }
+
+                return (result, steamArray, nickArray);
+            });
+
             for (int i = 0; i < Globals.NucleusMaxPlayers; i++)
             {
                 var sidField = steamIds[i];
-             
-                sidField.Text = PlayersIdentityCache.GetSteamIdAt(i);
-                sidField.Items.AddRange(PlayersIdentityCache.PlayersSteamId.Where(sid => sid != "" && sid != sidField.Text).ToArray());
-                sidField.Items.AddRange(PlayersIdentityCache.SteamIdsBackup.ToArray());
-                sidField.SelectedItem = sidField.Text;
-
                 var nickField = controllerNicks[i];
-               
-                nickField.Items.AddRange(PlayersIdentityCache.PlayersNickname.ToArray());                       
-                nickField.Items.AddRange(PlayersIdentityCache.NicknamesBackup.Where(nic => !nickField.Items.Contains(nic)).ToArray());
-                nickField.Text = PlayersIdentityCache.GetNicknameAt(i);
-                nickField.SelectedItem = nickField.Text;
 
-                for (int j = 0; j < Globals.NucleusMaxPlayers; j++)
-                {
-                    string defNick = PlayersIdentityCache.DefaultNicknames[j];
+                var steamId = data.result[i].steamId;
+                var nickname = data.result[i].nickname;
 
-                    if (!nickField.Items.Contains(defNick))
-                    {
-                        nickField.Items.Insert(nickField.Items.Count, defNick);
-                    }
+                //Steam IDs
+                sidField.BeginUpdate();
+                sidField.Items.Clear();
+                sidField.Items.AddRange(data.steamArray);
+                sidField.Text = steamId;
+                sidField.SelectedItem = steamId;
+                sidField.EndUpdate();
 
-                    string defSid = PlayersIdentityCache.DefaultSteamIds[j].ToString();
-
-                    if (!sidField.Items.Contains(defSid))
-                    {
-                        sidField.Items.Insert(sidField.Items.Count, defSid);
-                    }
-                }
+                //Nicknames
+                nickField.BeginUpdate();
+                nickField.Items.Clear();
+                nickField.Items.AddRange(data.nickArray);
+                nickField.Text = nickname;
+                nickField.SelectedItem = nickname;
+                nickField.EndUpdate();
             }
         }
 
@@ -601,7 +645,7 @@ namespace Nucleus.Coop
             {
                 var nickField = controllerNicks[i];
 
-                if (nickField.Text != "")
+                if (!string.IsNullOrEmpty(nickField.Text))
                 {                    
                     PlayersIdentityCache.SetNicknameAt(i, nickField.Text);
 
@@ -622,7 +666,7 @@ namespace Nucleus.Coop
 
                 var sidField = steamIds[i];
 
-                if (Regex.IsMatch(sidField.Text, "^[0-9]+$") && sidField.Text.Length == 17 || sidField.Text.Length == 0)
+                if (Regex.IsMatch(sidField.Text, "^[0-9]+$") && sidField.Text.Length == 17)
                 {
                     FlatCombo hasSameText = steamIds.Where(cb => cb != sidField && cb.Text == sidField.Text).FirstOrDefault();
 
@@ -630,16 +674,21 @@ namespace Nucleus.Coop
                     {
                         sidField.BackColor = Color.Red;
                         hasSameText.BackColor = Color.Red;
+
+                        hasSameText.Invalidate();
+                        sidField.Invalidate();
                         sidWrongValue = true;
                         break;
                     }
 
                     PlayersIdentityCache.SetSteamIdAt(i,sidField.Text);
                 }
-                else
+                else 
                 {
                     sidField.BackColor = Color.Red;
+                    sidField.Invalidate();
                     sidWrongValue = true;
+                    break;
                 }
             }
 
@@ -720,7 +769,7 @@ namespace Nucleus.Coop
             App_Misc.NucleusAccountPassword = nucUserPassTxt.Text;
             App_Misc.AutoDesktopScaling = scaleOptionCbx.Checked;
 
-            App_Misc.UseXinputIndex = gamepadsAssignMethods.Checked;
+            //App_Misc.UseXinputIndex = gamepadsAssignMethods.Checked;
 
             App_Layouts.SplitDiv = splitDiv.Checked;
             App_Layouts.HideOnly = hideDesktop.Checked;
@@ -780,6 +829,11 @@ namespace Nucleus.Coop
                     Directory.CreateDirectory(savePath);
                 }
 
+                if(File.Exists(Path.Combine(savePath, "KbShortcutsReminder.jpeg")))
+                {
+                    File.Delete(Path.Combine(savePath, "KbShortcutsReminder.jpeg"));
+                }
+
                 bmp.Save(Path.Combine(savePath, "KbShortcutsReminder.jpeg"), ImageFormat.Jpeg);
                 bmp.Dispose();
                 g.Dispose();
@@ -801,7 +855,7 @@ namespace Nucleus.Coop
                 return;
             }
 
-            Globals.MainOSD.Show(500, "Settings Saved");
+            Globals.MainOSD.Show(500, $"*@{OSDHighlightColors.Confirm}|Settings Saved@*");
 
             if (Location.X == -32000 || Width == 0)
             {
@@ -902,29 +956,30 @@ namespace Nucleus.Coop
                         cmb.SelectedItem = "Default";
                     }
                 }
-            }
+            }      
         }
 
         private void AudioRefresh_Click(object sender, EventArgs e)
         {
             RefreshAudioList();
+            Globals.MainOSD?.Show(500, $"*@{OSDHighlightColors.Confirm}|Audio Devices Refreshed@*");
         }
 
         private void TabsButtons_highlight(object sender, EventArgs e)
         {
             Control c = sender as Control;
 
-            Panel activeTab = tabs.Where(t => (string)t.Name == (string)c.Tag).FirstOrDefault();
+            Panel activeTab = tabs.Find(t => t.Name == (string)c.Tag);
 
             foreach (var b in tabsButtons)
             {
                 if (b.Tag == c.Tag && b != c)
                 {
-                    activeControls = new Control[] { c, b };
+                    activeTab?.BringToFront();
+                    activeControls = new Control[] { c, b };    
+                    break;
                 }
-            }
-
-            activeTab.BringToFront();
+            }     
         }
 
         private void AudioBtnPicture_Click(object sender, EventArgs e)
@@ -1062,10 +1117,8 @@ namespace Nucleus.Coop
             int LayoutWidth = layoutSizer.Size.Width - 20;
 
             Rectangle outline = new Rectangle(10, 10, LayoutWidth, LayoutHeight);
-            SolidBrush backBr = new SolidBrush(Color.FromArgb(255, 31, 34, 35));
-            gs.FillRectangle(backBr,outline);
-            backBr.Dispose();
-
+          
+            gs.FillRectangle(LayoutSizerBackBrush, outline);
             gs.DrawRectangle(bordersPen, outline);
 
             int[] hlines = new int[(int)numUpDownHor.Value];
@@ -1112,14 +1165,11 @@ namespace Nucleus.Coop
         {
             Graphics g = e.Graphics;
 
-            var _activeControls = activeControls.OrderBy(c => c is PictureBox).ToArray();
-
-            SolidBrush lineBrush = new SolidBrush(Color.FromArgb(200, selectionColor.R, selectionColor.G, selectionColor.B));
+            var _activeControls = activeControls.OrderBy(c => c is PictureBox).ToArray(); 
             Rectangle butt = new Rectangle(_activeControls[0].Left, _activeControls[0].Bottom + 2, _activeControls[1].Right - _activeControls[0].Left, 3);
 
-            g.FillRectangle(lineBrush, butt);
+            g.FillRectangle(buttonsighlightBrush, butt);
             g.DrawRectangles(bordersPen, tabBorders);
-            lineBrush.Dispose();
 
             foreach (var points in tabLines)
                 e.Graphics.DrawLines(bordersPen, points);
@@ -1153,9 +1203,9 @@ namespace Nucleus.Coop
             {
                 ch.Text = currentNickname;
                 currentNickname = cb.Text;
-                FlatCombo checkFroDouble = controllerNicks.Where(tb => tb.Text == cb.Text && tb != cb).FirstOrDefault();
-                if (checkFroDouble != null)
-                    checkFroDouble.Text = "";
+                FlatCombo duplicatedNick = controllerNicks.Where(tb => tb.Text == cb.Text && tb != cb).FirstOrDefault();
+                if (duplicatedNick != null)
+                    duplicatedNick.Text = "";
             }
         }
 
@@ -1235,17 +1285,22 @@ namespace Nucleus.Coop
 
         private Dictionary<string, List<string>> AllScreensRes;
         private List<Label> screensLabels;
+        private List<FlatCombo> screensComboBox;
         private List<Point[]> screensResControlsRow;
 
         private void GetAllScreensResolutions()
         {
             screen_panel.Visible = false;
+
             screensResControlsRow = new List<Point[]>();
             screensLabels = new List<Label>();
+            screensComboBox = new List<FlatCombo>();
+
             AllScreensRes = new Dictionary<string, List<string>>();
 
             foreach (Control con in screen_panel.Controls)
             {
+                con.Font.Dispose();
                 con.Dispose();
             }
 
@@ -1254,24 +1309,25 @@ namespace Nucleus.Coop
             MonitorsDpiScaling.DEVMODE vDevMode = new MonitorsDpiScaling.DEVMODE();
 
             int i = 0;
+            int tooltipIndex = 0;
 
-            for(int j = 0; j < Screen.AllScreens.Length;j++)
+            FlatCombo prevFlat = null;
+            foreach (Screen screen in Screen.AllScreens)
             {
-                var screen = Screen.AllScreens[j];
+                string mergerRes = GameProfile.MergerResolution;
 
-                string mergerRes = App_Layouts.WindowsMergerRes;
-
-                if (mergerRes == "")
+                if (string.IsNullOrEmpty(mergerRes))
                 {
                     if (screen.Primary)
                     {
-                        App_Layouts.WindowsMergerRes = $"{screen.Bounds.Width}X{screen.Bounds.Height}";
-                        selectedRes.Text = App_Layouts.WindowsMergerRes;
+                        string newMergerRes = $"{screen.Bounds.Width}X{screen.Bounds.Height}";
+                        GameProfile.MergerResolution = newMergerRes;
+                        selectedRes.Text = newMergerRes;
                     }
                 }
                 else
                 {
-                    selectedRes.Text = App_Layouts.WindowsMergerRes;
+                    selectedRes.Text = GameProfile.MergerResolution;
                 }
 
                 FlatCombo resCmb = new FlatCombo();
@@ -1282,31 +1338,31 @@ namespace Nucleus.Coop
                 resCmb.ButtonColor = Color.FromArgb(selectionColor.R, selectionColor.G, selectionColor.B);
                 resCmb.SelectedValueChanged += SaveSelectedRes;
                 resCmb.DropDownStyle = ComboBoxStyle.DropDownList;
-                resCmb.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+                resCmb.Anchor = AnchorStyles.Top | AnchorStyles.Left /*| AnchorStyles.Right*/;
                 resCmb.Width = (int)(80 * _scale);
                 resCmb.Cursor = Theme_Settings.Hand_Cursor;
 
                 Label resLabel = new Label();
                 resLabel.AutoSize = true;
-                resLabel.Font = Font;
+                resLabel.Font = new Font(this.Font.FontFamily, 12, FontStyle.Regular, GraphicsUnit.Pixel, 0);
                 resLabel.Cursor = Theme_Settings.Hand_Cursor;
                 string cleanName = screen.DeviceName.Substring(screen.DeviceName.LastIndexOf('\\') + 1);
                 resLabel.Text = $"⛶ {cleanName}";
 
-                CustomToolTips.SetToolTip(resLabel, "Click here to identify the screen", $"resLabel{j}", new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
+                resLabel.Cursor = Theme_Settings.Hand_Cursor;
+
+                CustomToolTips.SetToolTip(resLabel, "Click here to identify the screen", "resLabel_PRST" + tooltipIndex, new int[] { 190, 0, 0, 0 }, new int[] { 255, 255, 255, 255 });
 
                 if (screensLabels.Count == 0)
                 {
                     screen_panel.Controls.Add(resLabel);
                     resLabel.Location = new Point(0, 5);
-                    screensLabels.Add(resLabel);
                     screen_panel.Controls.Add(resCmb);
                 }
                 else
                 {
                     screen_panel.Controls.Add(resLabel);
-                    resLabel.Location = new Point(screensLabels[screensLabels.Count - 1].Location.X, screensLabels[screensLabels.Count - 1].Bottom + 5);
-                    screensLabels.Add(resLabel);
+                    resLabel.Location = new Point(screensLabels[screensLabels.Count - 1].Location.X, screensLabels[screensLabels.Count - 1].Bottom + 4);
                     screen_panel.Controls.Add(resCmb);
                 }
 
@@ -1333,28 +1389,64 @@ namespace Nucleus.Coop
                 resLabel.Text += $" ({currentScreenRes})";
                 float ratio = ((float)resLabel.DisplayRectangle.Height / (float)resCmb.DisplayRectangle.Height);
                 resCmb.Font = new Font(this.Font.FontFamily, (Font.Size + ratio) * _scale, FontStyle.Regular, GraphicsUnit.Pixel, 0);
-                resCmb.Location = new Point(resLabel.Right + 4,resLabel.Top);
+
+                if (prevFlat != null)
+                {
+                    resCmb.Location = new Point(resLabel.Right + 4, prevFlat.Bottom + 1);
+                }
+                else
+                {
+                    resCmb.Location = new Point(resLabel.Right + 4, resLabel.Top);
+                }
 
                 resLabel.Location = new Point(resLabel.Left, resCmb.Location.Y);
                 resLabel.Tag = screen.Bounds.Location;
                 resLabel.Click += IdentifyScreen;
 
-                screensResControlsRow.Add(new Point[] {new Point(resLabel.Left + 2,resLabel.Bottom+1),new Point(resLabel.Width-2,resLabel.Bottom+1) });
+                screensResControlsRow.Add(new Point[] { new Point(resLabel.Left + 2, resLabel.Bottom + 1), new Point(resLabel.Width - 2, resLabel.Bottom + 1) });
 
                 AllScreensRes.Add(screen.DeviceName, resolutions);
 
                 i = 0;
+                tooltipIndex++;
+                prevFlat = resCmb;
+                screensComboBox.Add(resCmb);
+                screensLabels.Add(resLabel);
+                resLabel.Refresh();
             }
 
+            Label refLoclabel = screensLabels.OrderByDescending(l => l.Width).ToList()[0];
+            int refLoc = refLoclabel.Location.X + refLoclabel.Width + 4;
+            int screenPanelWidth = refLoc;
+
+            bool setScreenPanelWidth = false;
+
+            foreach (FlatCombo cb in screensComboBox)
+            {
+                cb.Location = new Point(refLoc, cb.Location.Y);
+                if (!setScreenPanelWidth)
+                {
+                    screenPanelWidth += cb.ClientRectangle.Right + (int)(30 * _scale);
+                    setScreenPanelWidth = true;
+                }
+            }
+
+            screen_panel.Width = screenPanelWidth;
             refreshScreensData = false;
             screen_panel.Visible = true;
         }
 
         private void IdentifyScreen(object sender, EventArgs e)
         {
+            if(ScreenIdInstance.Instance != null)
+            {
+                return;
+            }
+
             Label lb = sender as Label;
-            ScreenId identifierWindow = new ScreenId((Point)lb.Tag);
+            ScreenId identifierWindow = new ScreenId((Point)lb.Tag);           
             identifierWindow.Show();
+            ScreenIdInstance.Instance = identifierWindow;
         }
 
         private void SaveSelectedRes(object sender, EventArgs e)
@@ -1397,10 +1489,7 @@ namespace Nucleus.Coop
         }
 
         private void Screen_panel_Paint(object sender, PaintEventArgs e)
-        {           
-            if (!refreshScreensData)
-                foreach(var points in screensResControlsRow)
-                e.Graphics.DrawLines(bordersPen, points);
+        {
         }
 
         private bool refreshScreensData;
@@ -1409,6 +1498,7 @@ namespace Nucleus.Coop
         {
             refreshScreensData = true;
             GetAllScreensResolutions();
+            Globals.MainOSD?.Show(500, $"*@{OSDHighlightColors.Confirm}|Screen(s) Info Refreshed@*");
         }
 
         public void SetInvisible()

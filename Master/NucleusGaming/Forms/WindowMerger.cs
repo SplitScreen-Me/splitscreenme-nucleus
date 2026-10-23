@@ -61,7 +61,7 @@ public class WindowsMerger : System.Windows.Window
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool GetClientRect(IntPtr hWnd, out Nucleus.Gaming.Coop.BasicTypes.RECT lpRect);
 
-    private System.Windows.Forms.Timer fading;
+    private System.Windows.Forms.Timer fadingTimer;
     private SolidColorBrush userColor;
     private string gameGUID;
     private float alpha = 1.0F;
@@ -75,6 +75,7 @@ public class WindowsMerger : System.Windows.Window
     public Rectangle WindowBounds { get; private set; }
 
     public static WindowsMerger Instance { get;private set;}
+    private List<string> images;
 
     public WindowsMerger(Size size)
     {       
@@ -95,14 +96,23 @@ public class WindowsMerger : System.Windows.Window
         Setup();
         
         Loaded += async (sender, e) => await GetHandleAsync();
-        //Loaded += MainWindowLoaded;
     } 
 
     public void Dispose()
     {
-        Dispatcher.Invoke(new Action(() => { Close(); }));
-        WindowsMergerThread.MergerThread.Abort();
+        if (Instance == null)
+        {
+            return;
+        }
+            
+        Instance?.Dispatcher.Invoke(() =>
+        {
+            Instance?.Close();
+            Dispatcher.CurrentDispatcher?.BeginInvokeShutdown(DispatcherPriority.Background);
+        });
+
         Instance = null;
+        WindowsMergerThread.MergerThread = null;
     }
 
     private void MainWindowLoaded(object sender, RoutedEventArgs e)
@@ -115,7 +125,7 @@ public class WindowsMerger : System.Windows.Window
     {
         if(msg != 127)
         {
-            Console.WriteLine(msg);
+            //Console.WriteLine(msg);
         }
        
         return IntPtr.Zero;
@@ -151,9 +161,7 @@ public class WindowsMerger : System.Windows.Window
         else if(GameProfile.EnableLosslessHook)
         {
             await InjectLosslessHookAsync();
-        }
-
-        await Task.CompletedTask;
+        }     
     }
 
     private async Task InjectLosslessHookAsync()
@@ -162,7 +170,6 @@ public class WindowsMerger : System.Windows.Window
 
         while (searchLossless.Length == 0)
         {
-            //Console.WriteLine("Waiting for lossless process...");
             searchLossless = Process.GetProcessesByName("LosslessScaling");
             await Task.Delay(1500);
         }
@@ -181,17 +188,19 @@ public class WindowsMerger : System.Windows.Window
 
         Process injectProc = Process.Start(startInfo);
 
-        injectProc.WaitForExit();
-
-        await Task.CompletedTask;
+        await Task.Run(() => injectProc.WaitForExit());
     }
 
-    private async Task SetChildBoundsAsync(PlayerInfo player)
+    private Task SetChildBoundsAsync(PlayerInfo player)
     {
-        GetClientRect(Handle, out Nucleus.Gaming.Coop.BasicTypes.RECT clientRect);
-        player.MonitorBounds = TranslateBounds(player, new Rectangle(clientRect.Left, clientRect.Top, clientRect.Right, clientRect.Bottom));
-
-        await Task.CompletedTask;
+        return Task.Run(() =>
+        {
+            GetClientRect(Handle, out Nucleus.Gaming.Coop.BasicTypes.RECT clientRect);
+            player.MonitorBounds = TranslateBounds(
+                player,
+                new Rectangle(clientRect.Left, clientRect.Top, clientRect.Right, clientRect.Bottom)
+            );
+        });
     }
 
     private Dictionary<string, IntPtr> childsInfo = new Dictionary<string, IntPtr>();
@@ -209,34 +218,34 @@ public class WindowsMerger : System.Windows.Window
 
         var players = childsInfo.Keys.ToList();
         HwndInterface.ActivateWindow(childsInfo[players[currentFocused]]);
-        Globals.MainOSD.Show(1600, $"{players[currentFocused]} Window Focused");
+        Globals.MainOSD.Show(1600, $"*@{OSDHighlightColors.Regular}|{players[currentFocused]}@* Window Focused");
 
         currentFocused++;
     }
 
-    public void InsertGameWindows()
+    public async Task InsertGameWindows()
     {
         var players = GenericGameHandler.Instance.profile.DevicesList;
 
         for (int i = 0; i < players.Count; i++)
         {
-            Thread.Sleep(1200);//2000
+            await Task.Delay(1200);//2000
 
             PlayerInfo player = players[i];
 
             while (player.ProcessData == null)
             {
-                Thread.Sleep(150);
+                await Task.Delay(150);
             }
 
             while (player.ProcessData.HWnd == null)
             {
-                Thread.Sleep(150);
+                await Task.Delay(150);
             }
 
             while (player.ProcessData.HWnd.NativePtr == null)
             {
-                Thread.Sleep(150);
+                await Task.Delay(150);
             }
 
             if (GenericGameHandler.Instance.CurrentGameInfo.RefreshWindowAfterStart)
@@ -246,19 +255,19 @@ public class WindowsMerger : System.Windows.Window
             }
 
             SetParent(player.ProcessData.HWnd.NativePtr, Handle);
-            Thread.Sleep(500);//1000
+            await Task.Delay(500);//1000
             player.ProcessData.HWnd = new HwndObject(player.ProcessData.HWnd.NativePtr);
 
             HwndInterface.MoveWindow(player.ProcessData.HWnd.NativePtr, player.MonitorBounds.X, player.MonitorBounds.Y, player.MonitorBounds.Width, player.MonitorBounds.Height, true);
-            //User32Interop.SetWindowPos(player.ProcessData.HWnd.NativePtr, IntPtr.Zero, player.MonitorBounds.X, player.MonitorBounds.Y, player.MonitorBounds.Width, player.MonitorBounds.Height, (uint)(PositioningFlags.SWP_FRAMECHANGED | PositioningFlags.SWP_NOZORDER | PositioningFlags.SWP_NOOWNERZORDER));
-            Thread.Sleep(500);//1000
+           
+            await Task.Delay(500);//1000
 
             player.ProcessData.Position = player.MonitorBounds.Location;
             player.ProcessData.Size = player.MonitorBounds.Size;
 
             while (player.RawInputWindow == null)
             {
-                Thread.Sleep(150);
+                await Task.Delay(150);
             }
 
             player.RawInputWindow.UpdateBounds();
@@ -328,11 +337,11 @@ public class WindowsMerger : System.Windows.Window
 
     private void SlideshowStart()
     {
-        if (fading == null)
+        if (fadingTimer == null)
         {
             if (Directory.Exists(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, $@"gui\screenshots\{gameGUID}")))
             {
-                var imgsPath = Directory.GetFiles(Path.Combine(System.Windows.Forms.Application.StartupPath, $"gui\\screenshots\\{gameGUID}")).Where(s =>
+                images = Directory.GetFiles(Path.Combine(System.Windows.Forms.Application.StartupPath, $"gui\\screenshots\\{gameGUID}")).Where(s =>
                   s.EndsWith(".png") ||
                   s.EndsWith(".jpeg") ||
                   s.EndsWith(".jpg") ||
@@ -340,19 +349,19 @@ public class WindowsMerger : System.Windows.Window
                   s.EndsWith(".gif")
                   ).ToList();
 
-                if (imgsPath.Count> 0)
+                if (images.Count > 0)
                 {
-                    backBrush.ImageSource = new BitmapImage(new Uri(imgsPath[imgIndex], UriKind.Absolute));
+                    backBrush.ImageSource = new BitmapImage(new Uri(images[imgIndex], UriKind.Absolute));
                     Background = backBrush;
 
-                    if (imgsPath.Count >= 2)
+                    if (images.Count >= 2)
                     {
                         imgIndex++;
 
-                        fading = new System.Windows.Forms.Timer();
-                        fading.Tick += new EventHandler(FadingTick);
-                        fading.Interval = 50;
-                        fading.Start();
+                        fadingTimer = new System.Windows.Forms.Timer();
+                        fadingTimer.Tick += new EventHandler(FadingTick);
+                        fadingTimer.Interval = 50;
+                        fadingTimer.Start();
                     }
                 }
             }
@@ -373,25 +382,15 @@ public class WindowsMerger : System.Windows.Window
 
         if (alpha <= 0.01F)
         {
-            if (Directory.Exists(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, $@"gui\screenshots\{gameGUID}")))
+
+            backBrush.ImageSource = new BitmapImage(new Uri(images[imgIndex], UriKind.Absolute));
+            Background = backBrush;
+
+            imgIndex++;
+
+            if (imgIndex >= images.Count)
             {
-                var imgsPath = Directory.GetFiles(Path.Combine(System.Windows.Forms.Application.StartupPath, $"gui\\screenshots\\{gameGUID}")).Where(s =>
-                  s.EndsWith(".png") ||
-                  s.EndsWith(".jpeg") ||
-                  s.EndsWith(".jpg") ||
-                  s.EndsWith(".bmp") ||
-                  s.EndsWith(".gif")
-                  ).ToList();
-
-                backBrush.ImageSource = new BitmapImage(new Uri(imgsPath[imgIndex], UriKind.Absolute));
-                Background = backBrush;
-
-                imgIndex++;
-
-                if (imgIndex >= imgsPath.Count)
-                {
-                    imgIndex = 0;
-                }
+                imgIndex = 0;
             }
 
             fullApha = true;
@@ -407,7 +406,7 @@ public class WindowsMerger : System.Windows.Window
 
     private void SetupFinished()
     {
-       fading?.Dispose();
+       fadingTimer?.Dispose();
        Dispatcher.Invoke(new Action(() => { Background = userColor; }));
     } 
 }
