@@ -333,6 +333,10 @@ namespace Nucleus.Gaming
         public bool UseDI8CoopLvlUnlocker;
         public bool UseManualProtoControllersSetup = false;
 
+        //processquitbehavior
+        public bool CantRestartInstances;
+        public bool GameReLaunchByItself;
+
         // Proto Input
         public ProtoInputOptions ProtoInput = new ProtoInputOptions();
         public bool LockInputSuspendsExplorer = false;

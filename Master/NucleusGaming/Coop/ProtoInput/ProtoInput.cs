@@ -39,6 +39,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             public uint RemoveBorderHookID = (uint)ProtoHookIDs.RemoveBorderHookID;
             public uint GetCursorInfoID = (uint)ProtoHookIDs.RemoveBorderHookID;
             public uint SetWindowsHookHookID = (uint)ProtoHookIDs.SetWindowsHookHookID;
+            public uint GetRawInputBufferHookID = (uint)ProtoHookIDs.GetRawInputBufferHookID;
 
             public uint RawInputFilterID = (uint)ProtoMessageFilterIDs.RawInputFilterID;
             public uint MouseMoveFilterID = (uint)ProtoMessageFilterIDs.MouseMoveFilterID;
@@ -77,7 +78,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             AdjustWindowRectHookID,
             RemoveBorderHookID,
             GetCursorInfoID,
-            SetWindowsHookHookID
+            SetWindowsHookHookID,
+            GetRawInputBufferHookID
         };
 
         public enum ProtoMessageFilterIDs : uint
@@ -166,6 +168,9 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             public static extern void SetDrawFakeCursorFix(uint instanceHandle, bool enable);
 
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetSetCursorPosHookMessages(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetExternalFreezeFakeInput(uint instanceHandle, bool enableFreeze);
 
 
@@ -197,6 +202,9 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             // This MUST be called before calling InstallHook on the RemoveBorderhook
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetDontWaitWindowBorder(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetWindowSetup(uint instanceHandle, bool borders, bool position);
 
             // Both of these functions require RenameHandlesHookHookID hook
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
@@ -364,6 +372,9 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             public static extern void SetDrawFakeCursorFix(uint instanceHandle, bool enable);
 
             [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetSetCursorPosHookMessages(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetExternalFreezeFakeInput(uint instanceHandle, bool enableFreeze);
 
 
@@ -448,7 +459,10 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             // This MUST be called before calling InstallHook on the RemoveBorderhook
             [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
-            public static extern void SetDontWaitWindowBorder(uint instanceHandle, bool enable);
+            public static extern void SetDontWaitWindowBorder(uint instanceHandle, bool enable); //   public static extern void SetWindowSetup(uint instanceHandle, bool borders, bool position);
+
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetWindowSetup(uint instanceHandle, bool borders, bool position);
 
             [DllImport("ProtoInputUtilDynamic64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern uint LockInput(bool lockInput);
@@ -820,6 +834,18 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             }
         }
 
+        public void SetSetCursorPosHookMessages(uint instanceHandle, bool enable)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.SetSetCursorPosHookMessages(instanceHandle, enable);
+            }
+            else
+            {
+                ProtoInput64.SetSetCursorPosHookMessages(instanceHandle, enable);
+            }
+        }
+
         public void SetExternalFreezeFakeInput(uint instanceHandle, bool enableFreeze)
         {
             if (IntPtr.Size == 4)
@@ -945,8 +971,19 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             {
                 ProtoInput64.SetDontWaitWindowBorder(instanceHandle, enable);
             }
-        }
+        } //SetWindowSetup(uint instanceHandle, bool borders, bool position);
 
+        public void SetWindowSetup(uint instanceHandle, bool borders, bool position)
+        {
+            if (IntPtr.Size == 4)
+            {
+                ProtoInput32.SetWindowSetup(instanceHandle, borders, position);
+            }
+            else
+            {
+                ProtoInput64.SetWindowSetup(instanceHandle, borders, position);
+            }
+        } //SetWindowSetup(uint instanceHandle, bool borders, bool position);
         /// <summary>
         /// Require RenameHandlesHookHookID hook
         /// </summary>

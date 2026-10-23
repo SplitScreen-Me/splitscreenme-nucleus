@@ -518,7 +518,8 @@ namespace Nucleus
                 {
                     try
                     {
-                        if ((handlerInstance.CurrentGameInfo.LauncherExe != null && !handlerInstance.CurrentGameInfo.LauncherExe.Contains("NucleusDefined") && proc.ProcessName.ToLower() == Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.LauncherExe.ToLower())) || addtlProcsToKill.Contains(proc.ProcessName, StringComparer.OrdinalIgnoreCase) || proc.ProcessName.ToLower() == Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.ExecutableName.ToLower()) || (proc.Id != 0 && handlerInstance.attachedIds.Contains(proc.Id)) || (handlerInstance.CurrentGameInfo.Hook.ForceFocusWindowName != "" && proc.MainWindowTitle == handlerInstance.CurrentGameInfo.Hook.ForceFocusWindowName))
+                        if ((handlerInstance.CurrentGameInfo.LauncherExe != null && !handlerInstance.CurrentGameInfo.LauncherExe.Contains("NucleusDefined") && proc.ProcessName.ToLower() == Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.LauncherExe.ToLower())) ||
+                           handlerInstance.CurrentGameInfo.ExecutableName != null && addtlProcsToKill.Contains(proc.ProcessName, StringComparer.OrdinalIgnoreCase) || proc.ProcessName.ToLower() == Path.GetFileNameWithoutExtension(handlerInstance.CurrentGameInfo.ExecutableName.ToLower()) || (proc.Id != 0 && handlerInstance.attachedIds.Contains(proc.Id)) || (handlerInstance.CurrentGameInfo.Hook.ForceFocusWindowName != "" && proc.MainWindowTitle == handlerInstance.CurrentGameInfo.Hook.ForceFocusWindowName))
                         {
                             Log(string.Format("Killing process {0} (pid {1})", proc.ProcessName, proc.Id));
                             proc.Kill();

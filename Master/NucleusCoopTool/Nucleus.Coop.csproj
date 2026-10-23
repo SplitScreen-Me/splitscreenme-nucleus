@@ -554,7 +554,6 @@
   <ItemGroup>
     <Content Include="copyoutput\openxinput1_4.dll" />
     <Content Include="copyoutput\SDL2.dll" />
-    <None Include="Resources\dancer.gif" />
     <None Include="Resources\icon-white-small.png" />
     <Content Include="gui\audio\patreon_credits.mp3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

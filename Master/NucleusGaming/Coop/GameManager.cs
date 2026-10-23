@@ -878,15 +878,23 @@ namespace Nucleus.Gaming
                     //check if the file is of an added game
                     UserGameInfo userGameInfo = user.Games.Find(ugi => ugi.FileFullPath == fileInfo.FullName);
 
+                    GenericGameInfo _newGenericGameInfo = (GenericGameInfo)newGenericGameInfo;
+
                     if (userGameInfo != null)
                     {
                         //it's of an added game so we update the UserGameInfo HandlerInfo and replace HandlerInfo in the handlerInfos list
-                        userGameInfo.HandlerInfo = AddOrUpdateHandlerInfo((GenericGameInfo)newGenericGameInfo);
+                        if (_newGenericGameInfo.ExecutableNames != null)
+                        {
+                            var fileName = Path.GetFileName(userGameInfo.ExePath);
+                            _newGenericGameInfo.ExecutableName = fileName;
+                        }
+
+                        userGameInfo.HandlerInfo = AddOrUpdateHandlerInfo(_newGenericGameInfo);
                     }
                     else
                     {
                         //not of an added game so just update it in the handlerInfos list
-                        AddOrUpdateHandlerInfo((GenericGameInfo)newGenericGameInfo);
+                        AddOrUpdateHandlerInfo(_newGenericGameInfo);
                     }
                 }
 
@@ -1019,6 +1027,7 @@ namespace Nucleus.Gaming
             if (lastMatch != null)
             {
                 handlerInfos[lastMatch.index] = handlerInfo;
+
                 Globals.MainOSD?.Show(3000, $"*@{OSDHighlightColors.Regular}|The@* *@{OSDHighlightColors.Info}|{handlerInfo.GameName}@* *@{OSDHighlightColors.Regular}| handler has been updated successfully@*");
             }
             else

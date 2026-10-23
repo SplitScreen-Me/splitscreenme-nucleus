@@ -63,16 +63,6 @@ namespace Nucleus.Coop.Properties {
         /// <summary>
         ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap dancer {
-            get {
-                object obj = ResourceManager.GetObject("dancer", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une ressource localisée de type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap extract_nc {
             get {
                 object obj = ResourceManager.GetObject("extract_nc", resourceCulture);

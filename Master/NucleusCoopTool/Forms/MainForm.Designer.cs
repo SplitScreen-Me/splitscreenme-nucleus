@@ -491,7 +491,7 @@ namespace Nucleus.Coop
             this.socialLinksMenu.Name = "socialLinksMenu";
             this.socialLinksMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
             this.socialLinksMenu.ShowImageMargin = false;
-            this.socialLinksMenu.Size = new System.Drawing.Size(224, 226);
+            this.socialLinksMenu.Size = new System.Drawing.Size(190, 226);
             // 
             // fAQMenuItem
             // 
@@ -593,8 +593,8 @@ namespace Nucleus.Coop
             // openNcEnvDir
             // 
             this.openNcEnvDir.Name = "openNcEnvDir";
-            this.openNcEnvDir.Size = new System.Drawing.Size(223, 22);
-            this.openNcEnvDir.Text = "Open NC Environment Dir...";
+            this.openNcEnvDir.Size = new System.Drawing.Size(189, 22);
+            this.openNcEnvDir.Text = "Open NC Environment";
             // 
             // ManageGamesMenu
             // 
