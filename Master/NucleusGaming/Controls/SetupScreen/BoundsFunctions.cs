@@ -1517,6 +1517,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             if (refusal == null)
             {
                 AddPlayer(player, screenIndex);
+                player.InstanceGuests.AddRange(oldGuests);//a host keeps its guests where it goes (RemovePlayer cleared them)
             }
             else if (wasPlaced)
             {
@@ -1600,7 +1601,8 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 return Refusal.AlreadyGuest;
             }
 
-            if (host.InstanceGuests.Count(ig => ig.GamepadId != -1) >= playersPerInstance - 1 ||
+            //Every guest takes a seat of the instance, an SDL pad without a player index (GamepadId -1) too.
+            if (host.InstanceGuests.Count >= playersPerInstance - 1 ||
                 (GameProfile.Loaded && host.InstanceGuests.Count >= host.CurrentMaxGuests))
             {
                 return Refusal.GuestLimitReached;
@@ -1949,7 +1951,8 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         /// Press-to-join: places a revealed device's player in the first free slot (screens in order; a raw keyboard or
         /// mouse joins a lone complementary device first). When every slot is taken, the first screen whose layout can grow
         /// switches to the next layout with more slots and its players are placed again in order. In profile mode the
-        /// device goes to the next slot the profile expects. Returns <see cref="Refusal"/> "full" when no slot can be made.
+        /// device goes to the next slot the profile expects, or once every profile player is placed, a gamepad joins the first
+        /// copy still waiting for its guests. Returns <see cref="Refusal"/> "full" when no slot can be made.
         /// </summary>
         public static string Join(PlayerInfo player)
         {
@@ -2055,7 +2058,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             return false;
         }
 
-        /// <summary>Profile mode: the slot of the next profile player still waiting for a device.</summary>
+        /// <summary>Profile mode: the slot of the next profile player still waiting for a device, else a guest seat of a copy still waiting for one.</summary>
         private static string JoinProfileSlot(PlayerInfo player)
         {
             for (int i = 0; i < GameProfile.ProfilePlayersList.Count && i < GameProfile.GhostBounds.Count; i++)
@@ -2078,6 +2081,14 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 });
 
                 return refusal == null ? null : "full";
+            }
+
+            //Every profile player is placed: a gamepad completes the first copy still waiting for its guests.
+            PlayerInfo waitingHost = player.IsController ? GameProfile.AssignedDevices.FirstOrDefault(h => h.IsController && h.WaitGuests) : null;
+
+            if (waitingHost != null && AddGuest(waitingHost, player) == null)
+            {
+                return null;
             }
 
             return "full";

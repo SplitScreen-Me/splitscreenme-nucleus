@@ -2,7 +2,7 @@
 // Lives with the bridge tests so `npm run test:bridge` runs it.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { lobbyHints, PLAYER_RESIZABLE, PLAYER_RESIZING, type LobbyHint } from '../../screens/lobby/hints.ts';
+import { lobbyHints, PLAYER_RESIZABLE, PLAYER_RESIZING, playerHintsKey, type LobbyHint } from '../../screens/lobby/hints.ts';
 
 function actions() {
   const calls: string[] = [];
@@ -12,12 +12,19 @@ function actions() {
       cancelWait: () => calls.push('cancel'),
       resize: () => calls.push('resize'),
       otherCorner: () => calls.push('corner'),
+      addGuest: () => calls.push('addGuest'),
     },
   };
 }
 
 const shown = (hints: readonly LobbyHint[]) => hints.map((h) => `${h.button ?? h.key} ${h.label}`);
 const run = (hints: readonly LobbyHint[] | undefined, button: LobbyHint['button']) => hints?.find((h) => h.button === button)?.action?.();
+/** The `data-hints` key of a player area that has one. */
+function hintsKeyOf(area: Parameters<typeof playerHintsKey>[0]): string {
+  const key = playerHintsKey(area);
+  assert.ok(key);
+  return key;
+}
 
 test('Start joins and A selects, whatever has focus', () => {
   const { actions: a } = actions();
@@ -59,4 +66,24 @@ test('outside resize mode, A only ever says Select', () => {
   const hints = lobbyHints(false, a);
   const all = [hints.base, ...Object.entries(hints.byFocus ?? {}).filter(([k]) => k !== PLAYER_RESIZING).map(([, v]) => v)];
   for (const set of all) assert.deepEqual(set.filter((h) => h.button === 'A').map((h) => h.label), ['Select']);
+});
+
+test('a player area whose copy has room for a guest adds Y Add a controller, which starts waiting for one', () => {
+  const { calls, actions: a } = actions();
+  const byFocus = lobbyHints(false, a).byFocus;
+  const guests = byFocus?.[hintsKeyOf({ resizable: false, guestRoom: true })];
+  assert.deepEqual(shown(guests ?? []), ['Menu Join', 'A Select', 'Y Add a controller']);
+  run(guests, 'Y');
+  assert.deepEqual(calls, ['addGuest']);
+  const both = byFocus?.[hintsKeyOf({ resizable: true, guestRoom: true })];
+  assert.deepEqual(shown(both ?? []), ['Menu Join', 'A Select', 'X Resize', 'Y Add a controller']);
+});
+
+test('the hints of a player area follow what it can do', () => {
+  assert.equal(playerHintsKey({ resizable: false, guestRoom: false }), undefined);
+  assert.equal(playerHintsKey({ resizable: true, guestRoom: false }), PLAYER_RESIZABLE);
+  assert.equal(playerHintsKey({ resizable: true, guestRoom: false, resizing: true }), PLAYER_RESIZING);
+  assert.equal(playerHintsKey({ resizable: true, guestRoom: true, resizing: true }), PLAYER_RESIZING);
+  const keys = new Set([PLAYER_RESIZABLE, PLAYER_RESIZING, playerHintsKey({ resizable: false, guestRoom: true }), playerHintsKey({ resizable: true, guestRoom: true })]);
+  assert.equal(keys.size, 4, 'one hint set each');
 });

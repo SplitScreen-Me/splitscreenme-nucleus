@@ -1,5 +1,5 @@
 // Press to join: Start on a free pad (or a key on a free keyboard, see wantsToJoin) takes the next free slot. While an
-// empty place waits for a controller, the next press of any free pad takes that place instead (join-rules.ts).
+// empty place, or a player's copy, waits for a controller, the next press of any free pad takes it instead (join-rules.ts).
 // The host owns placement (setup.join, setup.assignToSlot); this hook only decides which activity means "I want to play".
 import { useEffect, useRef } from 'react';
 import { bridge, useBridgeEvent, type SetupDevice, type SetupSnapshot } from '@/bridge';
@@ -109,7 +109,7 @@ export function usePressToJoin({ snap, enabled, spot, onTakeSpot, onFlash, onPin
   /** A free pad pressed a button for the waiting place: hand it over, when it can be placed. */
   const takeSpot = (deviceId: string) => {
     const { snap: s, enabled: on, spot: waiting, onTakeSpot: take } = live.current;
-    if (!on || !s || !waiting || !spotStillOpen(waiting, s.screens)) return;
+    if (!on || !s || !waiting || !spotStillOpen(waiting, s.screens, s.players)) return;
     const device = deviceById(s, deviceId);
     if (!device || !device.revealed || !isFree(device) || document.querySelector('dialog[open]')) return;
     take(deviceId, waiting);

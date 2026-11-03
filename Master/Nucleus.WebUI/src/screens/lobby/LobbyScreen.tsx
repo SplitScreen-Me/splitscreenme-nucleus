@@ -5,7 +5,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { bridge, bridgeQueryKey, useBridgeEvent, useBridgeQuery, type SetupSnapshot } from '@/bridge';
+import { bridge, bridgeQueryKey, useBridgeEvent, useBridgeQuery, type SetupPlayer, type SetupSnapshot } from '@/bridge';
 import { HandlerNotes } from '@/components/HandlerNotes';
 import { useAddGame } from '@/features/add-game';
 import { T, useI18n, type MessageKey } from '@/i18n';
@@ -75,7 +75,8 @@ export default function LobbyScreen() {
   const [justJoined, setJustJoined] = useState<ReadonlySet<string>>(new Set());
   const [profilesOpen, setProfilesOpen] = useState(false);
   const [resizing, setResizing] = useState<ResizeMode | null>(null);
-  // An empty place picked by clicking or activating it: the next press of a free pad takes it.
+  // An empty place picked by clicking or activating it, or a player's copy waiting for a guest controller: the next
+  // press of a free pad takes it.
   const [spot, setSpot] = useState<WaitingSpot | null>(null);
 
   // Pads belong to players here (Start on a free one joins): every pad moves focus, only the one that moved last
@@ -165,10 +166,33 @@ export default function LobbyScreen() {
     setSpot(null);
     announce(t('lobby.spot.cancelled'));
   }, [announce, t]);
+  /** A player's copy waits for a guest controller (several players per copy); asked again for the same copy, it stops. */
+  const waitGuest = useCallback(
+    (player: SetupPlayer, byPad: boolean) => {
+      if (liveSpot.current.spot?.guestOf === player.id) {
+        setSpot(null);
+        announce(t('lobby.spot.cancelled'));
+        return;
+      }
+      const layout = liveSpot.current.snap?.screens.find((s) => s.index === player.screenIndex)?.layout ?? 'fullScreen';
+      setSpot({ screenIndex: player.screenIndex, x: 0.5, y: 0.5, layout, at: performance.now(), byPad, guestOf: player.id });
+      announce(t('lobby.guestWait.waiting', { player: playerName(player) }));
+    },
+    [announce, t],
+  );
   const takeSpot = useCallback(
     async (deviceId: string, at: WaitingSpot) => {
       setSpot(null);
       const name = liveSpot.current.snap ? deviceById(liveSpot.current.snap, deviceId)?.name : undefined;
+      if (at.guestOf !== undefined) {
+        const next = await commands.addGuest(at.guestOf, deviceId);
+        const host = next?.players.find((p) => p.id === at.guestOf);
+        if (host?.guestDeviceIds.includes(deviceId)) {
+          const player = playerName(host);
+          announce(name ? t('lobby.announce.guestJoined', { device: name, player }) : t('lobby.announce.controllerJoinedCopy', { player }));
+        }
+        return;
+      }
       const next =
         at.slotIndex === undefined
           ? await commands.assignAt(deviceId, at.screenIndex, at.x, at.y)
@@ -187,7 +211,7 @@ export default function LobbyScreen() {
   const stepKind = snap?.flow.steps[snap.flow.current]?.kind;
   const onCanvas = Boolean(snap) && stepKind !== 'options' && stepKind !== 'custom';
   useEffect(() => {
-    if (spot && (!snap || !onCanvas || launching || !spotStillOpen(spot, snap.screens))) setSpot(null);
+    if (spot && (!snap || !onCanvas || launching || !spotStillOpen(spot, snap.screens, snap.players))) setSpot(null);
   }, [spot, snap, onCanvas, launching]);
 
   // Escape cancels wherever the focus is.
@@ -249,13 +273,22 @@ export default function LobbyScreen() {
   };
   // Only what the buttons do whatever has focus (see hints.ts); while a place waits for a controller, B cancels.
   useScreenChrome([{ label: t('lobby.breadcrumbs.library'), to: '/library' }, { label: snap?.gameName ?? summary?.name ?? t('lobby.breadcrumbs.settingUp') }], {
-    ...lobbyHints(spot !== null, { cancelWait: cancelSpot, resize: keyToFocusedPlayer('r'), otherCorner: keyToFocusedPlayer('x') }),
+    ...lobbyHints(spot !== null, {
+      cancelWait: cancelSpot,
+      resize: keyToFocusedPlayer('r'),
+      otherCorner: keyToFocusedPlayer('x'),
+      addGuest: keyToFocusedPlayer('g'),
+    }),
     aside: spot ? (
-      <span>
+      <span key="waiting">
         <T k="lobby.keys.waiting" values={{ cancel: 'Esc' }} tags={{ b: (c) => <b>{c}</b> }} />
       </span>
+    ) : snap && snap.capabilities.playersPerInstance > 1 ? (
+      <span key="help-guests">
+        <T k="lobby.keys.helpGuests" values={{ pickUp: 'Enter', guest: 'G', resize: 'R', remove: 'Delete' }} tags={{ b: (c) => <b>{c}</b> }} />
+      </span>
     ) : (
-      <span>
+      <span key="help">
         <T k="lobby.keys.help" values={{ pickUp: 'Enter', resize: 'R', remove: 'Delete' }} tags={{ b: (c) => <b>{c}</b> }} />
       </span>
     ),
@@ -331,11 +364,12 @@ export default function LobbyScreen() {
           spot={spot}
           onPickSpot={pickSpot}
           onCancelSpot={cancelSpot}
+          onWaitGuest={waitGuest}
         />
       )}
 
       <aside aria-label={t('lobby.asideLabel')} className="grid min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-gutter">
-        <SidePanel snap={snap} commands={commands} pings={pings} announce={announce} />
+        <SidePanel snap={snap} commands={commands} pings={pings} announce={announce} waitingGuestOf={spot?.guestOf} onWaitGuest={waitGuest} />
         <LaunchPane snap={snap} commands={commands} launching={launching} onLaunch={() => void launch()} />
       </aside>
 

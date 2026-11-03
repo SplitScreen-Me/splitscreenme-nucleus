@@ -1,5 +1,5 @@
 // Screen chrome: each screen declares its breadcrumb and its button hints; the shell renders them.
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { createContext, isValidElement, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { PadButton } from '@/ui';
 
 export interface Crumb {
@@ -21,7 +21,7 @@ export interface HintSet {
   base: Hint[];
   /** Hints for the focused element, chosen by its data-hints attribute. */
   byFocus?: Record<string, Hint[]>;
-  /** Extra text on the right of the bar (keyboard tips). */
+  /** Extra text on the right of the bar (keyboard tips). An element shows again when its key changes. */
   aside?: ReactNode;
 }
 
@@ -87,7 +87,8 @@ function pick(set: HintSet, focusKey: string | null): Hint[] {
 
 function signature(set: HintSet): string {
   const line = (l: Hint[]) => l.map((h) => `${h.button ?? h.key}:${h.label}`).join('|');
-  return [line(set.base), ...Object.entries(set.byFocus ?? {}).map(([k, v]) => `${k}=${line(v)}`), typeof set.aside === 'string' ? set.aside : ''].join('#');
+  const aside = typeof set.aside === 'string' ? set.aside : isValidElement(set.aside) ? `key:${set.aside.key ?? ''}` : '';
+  return [line(set.base), ...Object.entries(set.byFocus ?? {}).map(([k, v]) => `${k}=${line(v)}`), aside].join('#');
 }
 
 export const useChromeState = () => useContext(StateCtx);

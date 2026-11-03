@@ -3,7 +3,7 @@ import type { Edge, Rect, SetupDevice, SetupPlayer } from '@/bridge';
 import { useT } from '@/i18n';
 import { devicesIcon } from '@/lib/devices';
 import { cn, Icon, playerClass } from '@/ui';
-import { PLAYER_RESIZABLE, PLAYER_RESIZING } from './hints';
+import { playerHintsKey } from './hints';
 import { ART_VIEW, deviceKinds, devicesLabel, playerName, reduceMotion } from './model';
 import { dragSteps, movedFrac, pixelSize, type Corner, type Frac, type StepFrac } from './resize-core';
 
@@ -51,6 +51,12 @@ export interface PlayerRegionProps extends DropHandlers {
   onResize?: (edge: Edge, steps: number) => void;
   /** Leaves resize mode when the area loses focus. */
   onBlur?: () => void;
+  /** Its copy of the game takes one more controller (several players per copy): G, or the pad's Y, waits for one. */
+  guestRoom?: boolean;
+  /** Its copy waits for a guest controller: the next press of a free one joins it. */
+  waitingGuest?: boolean;
+  /** A free controller dragged over it would join its copy as a guest (instead of swapping places). */
+  guestDrop?: boolean;
 }
 
 const EDGES: readonly Edge[] = ['left', 'right', 'top', 'bottom'];
@@ -65,7 +71,7 @@ const HANDLE: Record<Edge, { strip: string; pill: string }> = {
 
 /** One player's area of a monitor, drawn from its bounds. The black between regions is the brand gutter. */
 export function PlayerRegion(props: PlayerRegionProps) {
-  const { player: p, devices, lifted, dragging, target, justJoined, ping, step, resizeCorner } = props;
+  const { player: p, devices, lifted, dragging, target, justJoined, ping, step, resizeCorner, waitingGuest, guestDrop } = props;
   const t = useT();
   const ring = useRef<HTMLDivElement>(null);
   const art = useRef<HTMLDivElement>(null);
@@ -126,7 +132,9 @@ export function PlayerRegion(props: PlayerRegionProps) {
         width: String(size.width),
         height: String(size.height),
       })
-    : t(step ? 'lobby.region.labelResizable' : 'lobby.region.label', { number: p.number, name, devices: devicesLabel(devices), place: props.where });
+    : waitingGuest
+      ? t('lobby.guestWait.label', { number: p.number, name })
+      : t(regionLabel(Boolean(step), Boolean(props.guestRoom)), { number: p.number, name, devices: devicesLabel(devices), place: props.where });
 
   return (
     <div
@@ -140,7 +148,7 @@ export function PlayerRegion(props: PlayerRegionProps) {
       data-player-id={p.id}
       // Resize mode takes the pad's d-pad, A and B as arrow keys, Enter and Escape (see couch-nav keyWidget).
       data-pad-keys={resizeCorner ? '' : undefined}
-      data-hints={resizeCorner ? PLAYER_RESIZING : step ? PLAYER_RESIZABLE : undefined}
+      data-hints={playerHintsKey({ resizable: Boolean(step), guestRoom: Boolean(props.guestRoom), resizing: Boolean(resizeCorner) })}
       onKeyDown={props.onKeyDown}
       onBlur={props.onBlur}
       onDragStart={(e) => {
@@ -218,6 +226,7 @@ export function PlayerRegion(props: PlayerRegionProps) {
         )}
       />
       {target && <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-[3] rounded-[inherit] shadow-[inset_0_0_0_3px_var(--color-ink)]" />}
+      {(waitingGuest || guestDrop) && <GuestCall waiting={Boolean(waitingGuest)} />}
       {resizeCorner && (
         <span
           aria-hidden="true"
@@ -260,6 +269,37 @@ export function PlayerRegion(props: PlayerRegionProps) {
             />
           </div>
         ))}
+    </div>
+  );
+}
+
+/** Label of a player area: what its keys do (R resizes, G adds a controller to its copy). */
+function regionLabel(resizable: boolean, guestRoom: boolean) {
+  if (guestRoom) return resizable ? 'lobby.region.labelResizableGuests' : 'lobby.region.labelGuests';
+  return resizable ? 'lobby.region.labelResizable' : 'lobby.region.label';
+}
+
+/** Over a player area: its copy waits for a guest controller, or a free controller dragged over it would join it. */
+function GuestCall({ waiting }: { waiting: boolean }) {
+  const t = useT();
+  return (
+    <div
+      aria-hidden="true"
+      className={cn(
+        'pointer-events-none absolute inset-0 z-[3] grid place-content-center justify-items-center gap-[clamp(3px,3cqi,8px)] rounded-[inherit] bg-black/75 p-1.5 text-center',
+        waiting ? 'animate-wait border-2 border-solid border-ink' : 'shadow-[inset_0_0_0_3px_var(--color-ink)]',
+      )}
+    >
+      <span className="flex gap-1.5 text-ink [@container(max-height:84px)]:hidden [@container(max-width:96px)]:hidden">
+        <Icon name="users" className="size-[clamp(16px,10cqi,28px)]" />
+        <Icon name="pad" className="size-[clamp(16px,10cqi,28px)]" />
+      </span>
+      <strong className="text-[clamp(10px,5.6cqi,16px)] leading-[1.2] font-[650] text-ink [@container(max-height:40px)]:hidden">
+        {t(waiting ? 'lobby.guestWait.pressButton' : 'lobby.region.dropGuest')}
+      </strong>
+      <span className="text-[clamp(10px,4.4cqi,13px)] text-ink-2 [@container(max-height:64px)]:hidden">
+        {t(waiting ? 'lobby.guestWait.note' : 'lobby.region.dropGuestNote')}
+      </span>
     </div>
   );
 }

@@ -264,6 +264,8 @@ const UI_KEYS = new Set([
   'Escape',
 ]);
 const MODIFIERS = new Set(['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'AltGraph', 'OS']);
+/** The letter shortcuts of a player area (R resizes, X switches corners, G adds a controller to its copy). */
+const AREA_KEYS = new Set(['r', 'R', 'x', 'X', 'g', 'G']);
 
 /** Whether a key press, judged where focus is when it goes down, operates the UI rather than joining. */
 export function keyboardPressIsForUi(key: string): boolean {
@@ -272,6 +274,7 @@ export function keyboardPressIsForUi(key: string): boolean {
   if (a && (a.isContentEditable || a.matches('input, textarea, select'))) return true;
   if (MODIFIERS.has(key) || key === 'Tab' || key === 'Escape') return true;
   const onControl = Boolean(a && a !== document.body && a.id !== 'stage' && a.matches('button, a, [tabindex], summary, [role="button"]'));
+  if (onControl && AREA_KEYS.has(key) && a?.matches('[data-player-id]')) return true;
   return onControl && UI_KEYS.has(key);
 }
 

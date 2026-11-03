@@ -867,14 +867,16 @@
     "asideLabel": "Session",
     "keys": {
       "waiting": "En attente d’une manette : <b>{cancel}</b> pour annuler",
-      "help": "Clavier : <b>{pickUp}</b> pour prendre un joueur, <b>{resize}</b> pour le redimensionner, <b>{remove}</b> pour le retirer"
+      "help": "Clavier : <b>{pickUp}</b> pour prendre un joueur, <b>{resize}</b> pour le redimensionner, <b>{remove}</b> pour le retirer",
+      "helpGuests": "Clavier : <b>{pickUp}</b> pour prendre un joueur, <b>{guest}</b> pour ajouter une manette à sa copie, <b>{resize}</b> pour le redimensionner, <b>{remove}</b> pour le retirer"
     },
     "hints": {
       "join": "Rejoindre",
       "resize": "Redimensionner",
       "arrowsKey": "Flèches",
       "moveCorner": "Déplacer le coin",
-      "otherCorner": "Autre coin"
+      "otherCorner": "Autre coin",
+      "addController": "Ajouter une manette"
     },
     "header": {
       "label": "Jeu",
@@ -968,6 +970,7 @@
     "canvas": {
       "title": "Écrans",
       "description": "Faites glisser un joueur vers un autre emplacement pour les échanger, ou vers la zone d’attente pour le retirer.",
+      "descriptionGuests": "Faites glisser un joueur vers un autre emplacement pour les échanger, ou vers la zone d’attente pour le retirer. Déposez une manette libre sur un joueur pour partager sa copie.",
       "seats_one": "<b>{seats}</b> sur {count} joueur",
       "seats_many": "<b>{seats}</b> sur {count} joueurs",
       "seats_other": "<b>{seats}</b> sur {count} joueurs"
@@ -996,6 +999,12 @@
       "waitingHere": "En attente d’une manette pour cet emplacement : appuyez sur l’un de ses boutons. Esc pour annuler.",
       "cancelled": "Attente de manette annulée."
     },
+    "guestWait": {
+      "pressButton": "Appuyez sur un bouton d’une manette libre",
+      "note": "Elle joue dans cette copie. B ou Esc pour annuler",
+      "label": "Joueur {number}, {name} : en attente d’une manette pour jouer dans cette copie. Appuyez sur un bouton d’une manette libre. Esc pour annuler.",
+      "waiting": "En attente d’une manette pour jouer dans la copie de {player} : appuyez sur l’un de ses boutons. Esc pour annuler."
+    },
     "move": {
       "pickedUp": "Vous déplacez {player}. Allez à un autre emplacement et appuyez sur Enter. Esc pour annuler.",
       "putBack": "Remis en place.",
@@ -1013,8 +1022,12 @@
     "region": {
       "label": "Joueur {number}, {name}, {devices}, {place}. Enter pour déplacer, Delete pour retirer.",
       "labelResizable": "Joueur {number}, {name}, {devices}, {place}. Enter pour déplacer, R pour redimensionner, Delete pour retirer.",
+      "labelGuests": "Joueur {number}, {name}, {devices}, {place}. Enter pour déplacer, G pour ajouter une manette à cette copie, Delete pour retirer.",
+      "labelResizableGuests": "Joueur {number}, {name}, {devices}, {place}. Enter pour déplacer, R pour redimensionner, G pour ajouter une manette à cette copie, Delete pour retirer.",
       "resizingBottomRight": "Redimensionnement du joueur {number}, {name} : {width} par {height}. Les flèches déplacent le coin inférieur droit, X change de coin, Enter pour terminer.",
-      "resizingTopLeft": "Redimensionnement du joueur {number}, {name} : {width} par {height}. Les flèches déplacent le coin supérieur gauche, X change de coin, Enter pour terminer."
+      "resizingTopLeft": "Redimensionnement du joueur {number}, {name} : {width} par {height}. Les flèches déplacent le coin supérieur gauche, X change de coin, Enter pour terminer.",
+      "dropGuest": "Jouer dans cette copie",
+      "dropGuestNote": "Déposez la manette pour partager la copie de ce joueur"
     },
     "tray": {
       "title": "En attente",
@@ -1086,9 +1099,11 @@
       "defaultAudio": "Sortie par défaut",
       "steamIdLabel": "ID Steam du joueur {number}",
       "steamIdHint": "ID Steam utilisé en jeu (17 chiffres)",
-      "addGuestLabel": "Ajouter une manette invitée au joueur {number}",
       "addGuestHint": "Un invité joue dans la copie du jeu de ce joueur",
-      "addGuest": "Ajouter une manette invitée…"
+      "addController": "Ajouter une manette",
+      "addControllerLabel": "Ajouter une manette à la copie du joueur {number}",
+      "waitingController": "En attente d’une manette…",
+      "waitingControllerLabel": "Ne plus attendre de manette pour le joueur {number}"
     },
     "announce": {
       "playerLeft": "{player} a quitté la partie. Ses périphériques sont de retour dans la zone d’attente.",
@@ -1096,7 +1111,9 @@
       "playersLeft_many": "{names} ont quitté la partie.",
       "playersLeft_other": "{names} ont quitté la partie.",
       "joined": "{device} a rejoint la partie : {player}, joueur {number}.",
-      "controllerJoined": "Une manette a rejoint la partie : {player}, joueur {number}."
+      "controllerJoined": "Une manette a rejoint la partie : {player}, joueur {number}.",
+      "guestJoined": "{device} a rejoint la copie de {player}.",
+      "controllerJoinedCopy": "Une manette a rejoint la copie de {player}."
     },
     "deviceLost": {
       "namedPlayer": "{nickname} (joueur {number})",

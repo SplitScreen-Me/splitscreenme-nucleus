@@ -867,14 +867,16 @@
     "asideLabel": "Sessão",
     "keys": {
       "waiting": "Aguardando um controle: <b>{cancel}</b> cancela",
-      "help": "Teclado: <b>{pickUp}</b> seleciona um jogador, <b>{resize}</b> redimensiona, <b>{remove}</b> o retira"
+      "help": "Teclado: <b>{pickUp}</b> seleciona um jogador, <b>{resize}</b> redimensiona, <b>{remove}</b> o retira",
+      "helpGuests": "Teclado: <b>{pickUp}</b> seleciona um jogador, <b>{guest}</b> adiciona um controle à cópia dele, <b>{resize}</b> redimensiona, <b>{remove}</b> o retira"
     },
     "hints": {
       "join": "Entrar",
       "resize": "Redimensionar",
       "arrowsKey": "Setas",
       "moveCorner": "Mover o canto",
-      "otherCorner": "Outro canto"
+      "otherCorner": "Outro canto",
+      "addController": "Adicionar um controle"
     },
     "header": {
       "label": "Jogo",
@@ -968,6 +970,7 @@
     "canvas": {
       "title": "Telas",
       "description": "Arraste um jogador para outro lugar para trocá-los de posição, ou para a área de espera para retirá-lo.",
+      "descriptionGuests": "Arraste um jogador para outro lugar para trocá-los de posição, ou para a área de espera para retirá-lo. Solte um controle livre sobre um jogador para compartilhar a cópia dele.",
       "seats_one": "<b>{seats}</b> de {count} jogador",
       "seats_many": "<b>{seats}</b> de {count} jogadores",
       "seats_other": "<b>{seats}</b> de {count} jogadores"
@@ -996,6 +999,12 @@
       "waitingHere": "Aguardando um controle neste lugar: pressione um botão nele. Escape cancela.",
       "cancelled": "Espera por controle cancelada."
     },
+    "guestWait": {
+      "pressButton": "Pressione um botão em um controle livre",
+      "note": "Ele joga nesta cópia. B ou Esc cancela",
+      "label": "Jogador {number}, {name}: aguardando um controle para jogar nesta cópia. Pressione um botão em um controle livre. Escape cancela.",
+      "waiting": "Aguardando um controle para jogar na cópia de {player}: pressione um botão nele. Escape cancela."
+    },
     "move": {
       "pickedUp": "{player} selecionado. Vá para outro lugar e pressione Enter. Escape cancela.",
       "putBack": "Devolvido ao lugar.",
@@ -1013,8 +1022,12 @@
     "region": {
       "label": "Jogador {number}, {name}, {devices}, {place}. Enter para mover, Delete para retirar.",
       "labelResizable": "Jogador {number}, {name}, {devices}, {place}. Enter para mover, R para redimensionar, Delete para retirar.",
+      "labelGuests": "Jogador {number}, {name}, {devices}, {place}. Enter para mover, G para adicionar um controle a esta cópia, Delete para retirar.",
+      "labelResizableGuests": "Jogador {number}, {name}, {devices}, {place}. Enter para mover, R para redimensionar, G para adicionar um controle a esta cópia, Delete para retirar.",
       "resizingBottomRight": "Redimensionando o jogador {number}, {name}: {width} por {height}. As setas movem o canto inferior direito, X alterna os cantos, Enter para concluir.",
-      "resizingTopLeft": "Redimensionando o jogador {number}, {name}: {width} por {height}. As setas movem o canto superior esquerdo, X alterna os cantos, Enter para concluir."
+      "resizingTopLeft": "Redimensionando o jogador {number}, {name}: {width} por {height}. As setas movem o canto superior esquerdo, X alterna os cantos, Enter para concluir.",
+      "dropGuest": "Jogar nesta cópia",
+      "dropGuestNote": "Solte o controle para compartilhar a cópia deste jogador"
     },
     "tray": {
       "title": "Aguardando para entrar",
@@ -1086,9 +1099,11 @@
       "defaultAudio": "Saída padrão",
       "steamIdLabel": "Steam ID do jogador {number}",
       "steamIdHint": "Steam ID usado no jogo (17 dígitos)",
-      "addGuestLabel": "Adicionar um controle convidado ao jogador {number}",
       "addGuestHint": "Um convidado joga na cópia do jogo deste jogador",
-      "addGuest": "Adicionar um controle convidado…"
+      "addController": "Adicionar um controle",
+      "addControllerLabel": "Adicionar um controle à cópia do jogador {number}",
+      "waitingController": "Aguardando um controle…",
+      "waitingControllerLabel": "Parar de aguardar um controle para o jogador {number}"
     },
     "announce": {
       "playerLeft": "{player} saiu. Seus dispositivos voltaram para a área de espera.",
@@ -1096,7 +1111,9 @@
       "playersLeft_many": "{names} saíram.",
       "playersLeft_other": "{names} saíram.",
       "joined": "{device} entrou: {player}, jogador {number}.",
-      "controllerJoined": "Um controle entrou: {player}, jogador {number}."
+      "controllerJoined": "Um controle entrou: {player}, jogador {number}.",
+      "guestJoined": "{device} entrou na cópia de {player}.",
+      "controllerJoinedCopy": "Um controle entrou na cópia de {player}."
     },
     "deviceLost": {
       "namedPlayer": "{nickname} (jogador {number})",

@@ -1,7 +1,19 @@
 // Lobby press-to-join rules (src/screens/lobby/join-rules.ts). Lives with the bridge tests so `npm run test:bridge` runs it.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { PICK_GRACE_MS, pressJoins, pressTakesSpot, sameSpot, spotStillOpen, type SpotScreen, type WaitingSpot } from '../../screens/lobby/join-rules.ts';
+import {
+  dropMakesGuest,
+  hasGuestRoom,
+  PICK_GRACE_MS,
+  pressJoins,
+  pressTakesSpot,
+  sameSpot,
+  spotStillOpen,
+  type DropDevice,
+  type SpotPlayer,
+  type SpotScreen,
+  type WaitingSpot,
+} from '../../screens/lobby/join-rules.ts';
 
 const slotSpot = (over: Partial<WaitingSpot> = {}): WaitingSpot => ({
   screenIndex: 0,
@@ -75,4 +87,57 @@ test('the same place is recognised, to cancel when it is activated again', () =>
   assert.equal(sameSpot(slotSpot(), { screenIndex: 1, slotIndex: 1 }), false);
   assert.equal(sameSpot(null, { screenIndex: 0, slotIndex: 1 }), false);
   assert.equal(sameSpot(slotSpot({ screenIndex: 1, slotIndex: undefined }), { screenIndex: 1, slotIndex: undefined }), true);
+});
+
+// ---------------------------------------------------------------- several players per copy (guest controllers)
+
+const host = (over: Partial<SpotPlayer> = {}): SpotPlayer => ({ id: 'xinput:0', maxGuests: 3, guestDeviceIds: [], ...over });
+const pad = (over: Partial<DropDevice> = {}): DropDevice => ({ kind: 'xInput', revealed: true, ...over });
+const guestSpot = (over: Partial<WaitingSpot> = {}): WaitingSpot => slotSpot({ slotIndex: undefined, guestOf: 'xinput:0', ...over });
+
+test('a free controller dropped on a player with room joins that copy as a guest', () => {
+  assert.equal(dropMakesGuest(host(), pad()), true);
+  assert.equal(dropMakesGuest(host(), pad({ kind: 'dInput' })), true);
+  assert.equal(dropMakesGuest(host(), pad({ kind: 'sdl' })), true);
+  assert.equal(dropMakesGuest(host({ guestDeviceIds: ['xinput:1', 'xinput:2'] }), pad()), true, 'one seat left');
+});
+
+test('a drop swaps places instead when the copy is full, or holds one player, or the device is no free controller', () => {
+  assert.equal(dropMakesGuest(host({ guestDeviceIds: ['xinput:1', 'xinput:2', 'xinput:3'] }), pad()), false, 'full');
+  assert.equal(dropMakesGuest(host({ maxGuests: 0 }), pad()), false, 'one player per copy, or a keyboard player');
+  assert.equal(dropMakesGuest(host(), pad({ kind: 'rawKeyboard' })), false);
+  assert.equal(dropMakesGuest(host(), pad({ kind: 'keyboard' })), false);
+  assert.equal(dropMakesGuest(host(), pad({ revealed: false })), false, 'not identified yet');
+  assert.equal(dropMakesGuest(host(), pad({ playerId: 'xinput:4' })), false, 'plays already');
+  assert.equal(dropMakesGuest(host(), pad({ guestOfPlayerId: 'xinput:4' })), false, 'guest already');
+});
+
+test('a copy has room for a guest while it holds fewer than its players per copy', () => {
+  assert.equal(hasGuestRoom(host()), true);
+  assert.equal(hasGuestRoom(host({ maxGuests: 1, guestDeviceIds: ['xinput:1'] })), false);
+  assert.equal(hasGuestRoom(host({ maxGuests: 0 })), false);
+});
+
+test('a copy waiting for a guest controller stays open while its player is there with room', () => {
+  const players = [host(), host({ id: 'xinput:5', guestDeviceIds: ['a', 'b', 'c'] })];
+  assert.equal(spotStillOpen(guestSpot(), screens(), players), true);
+  // The layout or the slots of its screen don't matter: the guest joins the player wherever it sits.
+  assert.equal(spotStillOpen(guestSpot(), screens({ layout: 'fourPlayers' }), players), true);
+  assert.equal(spotStillOpen(guestSpot({ guestOf: 'xinput:5' }), screens(), players), false, 'full');
+  assert.equal(spotStillOpen(guestSpot({ guestOf: 'xinput:9' }), screens(), players), false, 'the player left');
+  assert.equal(spotStillOpen(guestSpot(), screens()), false, 'no players known');
+});
+
+test('a free controller press takes a guest wait like a waiting place (not B, not the press that started it)', () => {
+  assert.equal(pressTakesSpot(guestSpot(), ['a'], 5000), true);
+  assert.equal(pressTakesSpot(guestSpot(), ['start'], 5000), true);
+  assert.equal(pressTakesSpot(guestSpot(), ['b'], 5000), false);
+  assert.equal(pressTakesSpot(guestSpot({ byPad: true, at: 4900 }), ['a'], 5000), false);
+});
+
+test('a guest wait is not a waiting place: activating a place does not cancel it, nor the reverse', () => {
+  assert.equal(sameSpot(guestSpot(), { screenIndex: 0, slotIndex: undefined }), false);
+  assert.equal(sameSpot(slotSpot({ slotIndex: undefined }), { screenIndex: 0, slotIndex: undefined, guestOf: 'xinput:0' }), false);
+  assert.equal(sameSpot(guestSpot(), { screenIndex: 0, slotIndex: undefined, guestOf: 'xinput:0' }), true);
+  assert.equal(sameSpot(guestSpot(), { screenIndex: 0, slotIndex: undefined, guestOf: 'xinput:5' }), false);
 });
