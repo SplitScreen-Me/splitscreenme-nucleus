@@ -835,14 +835,16 @@
     "asideLabel": "Session",
     "keys": {
       "waiting": "Waiting for a controller: <b>{cancel}</b> cancels",
-      "help": "Keyboard: <b>{pickUp}</b> picks up a player, <b>{resize}</b> resizes, <b>{remove}</b> takes them out"
+      "help": "Keyboard: <b>{pickUp}</b> picks up a player, <b>{resize}</b> resizes, <b>{remove}</b> takes them out",
+      "helpGuests": "Keyboard: <b>{pickUp}</b> picks up a player, <b>{guest}</b> adds a controller to their copy, <b>{resize}</b> resizes, <b>{remove}</b> takes them out"
     },
     "hints": {
       "join": "Join",
       "resize": "Resize",
       "arrowsKey": "Arrows",
       "moveCorner": "Move the corner",
-      "otherCorner": "Other corner"
+      "otherCorner": "Other corner",
+      "addController": "Add a controller"
     },
     "header": {
       "label": "Game",
@@ -934,6 +936,7 @@
     "canvas": {
       "title": "Screens",
       "description": "Drag a player onto another place to swap them, or onto the tray to take them out.",
+      "descriptionGuests": "Drag a player onto another place to swap them, or onto the tray to take them out. Drop a free controller on a player to share their copy.",
       "seats_one": "<b>{seats}</b> of {count} player",
       "seats_other": "<b>{seats}</b> of {count} players"
     },
@@ -961,6 +964,12 @@
       "waitingHere": "Waiting for a controller on this place: press a button on it. Escape cancels.",
       "cancelled": "No longer waiting for a controller."
     },
+    "guestWait": {
+      "pressButton": "Press a button on a free controller",
+      "note": "It plays in this copy. B or Esc cancels",
+      "label": "Player {number}, {name}: waiting for a controller to play in this copy. Press a button on a free controller. Escape cancels.",
+      "waiting": "Waiting for a controller to play in {player}'s copy: press a button on it. Escape cancels."
+    },
     "move": {
       "pickedUp": "Picked up {player}. Move to another place and press Enter. Escape cancels.",
       "putBack": "Put back.",
@@ -978,8 +987,12 @@
     "region": {
       "label": "Player {number}, {name}, {devices}, {place}. Enter to move, Delete to take out.",
       "labelResizable": "Player {number}, {name}, {devices}, {place}. Enter to move, R to resize, Delete to take out.",
+      "labelGuests": "Player {number}, {name}, {devices}, {place}. Enter to move, G to add a controller to this copy, Delete to take out.",
+      "labelResizableGuests": "Player {number}, {name}, {devices}, {place}. Enter to move, R to resize, G to add a controller to this copy, Delete to take out.",
       "resizingBottomRight": "Resizing player {number}, {name}: {width} by {height}. Arrows move the bottom right corner, X switches corners, Enter when done.",
-      "resizingTopLeft": "Resizing player {number}, {name}: {width} by {height}. Arrows move the top left corner, X switches corners, Enter when done."
+      "resizingTopLeft": "Resizing player {number}, {name}: {width} by {height}. Arrows move the top left corner, X switches corners, Enter when done.",
+      "dropGuest": "Play in this copy",
+      "dropGuestNote": "Drop the controller to share this player's copy"
     },
     "tray": {
       "title": "Waiting to join",
@@ -1048,16 +1061,20 @@
       "defaultAudio": "Default output",
       "steamIdLabel": "Player {number} Steam ID",
       "steamIdHint": "Steam ID used in game (17 digits)",
-      "addGuestLabel": "Add a guest gamepad to player {number}",
       "addGuestHint": "A guest plays in this player's copy of the game",
-      "addGuest": "Add a guest gamepad…"
+      "addController": "Add a controller",
+      "addControllerLabel": "Add a controller to player {number}'s copy",
+      "waitingController": "Waiting for a controller…",
+      "waitingControllerLabel": "Stop waiting for a controller for player {number}"
     },
     "announce": {
       "playerLeft": "{player} left. Their devices are back in the tray.",
       "playersLeft_one": "{names} left.",
       "playersLeft_other": "{names} left.",
       "joined": "{device} joined: {player}, player {number}.",
-      "controllerJoined": "A controller joined: {player}, player {number}."
+      "controllerJoined": "A controller joined: {player}, player {number}.",
+      "guestJoined": "{device} joined {player}'s copy.",
+      "controllerJoinedCopy": "A controller joined {player}'s copy."
     },
     "deviceLost": {
       "namedPlayer": "{nickname} (player {number})",

@@ -867,14 +867,16 @@
     "asideLabel": "Sesión",
     "keys": {
       "waiting": "Esperando un mando: <b>{cancel}</b> cancela",
-      "help": "Teclado: <b>{pickUp}</b> toma un jugador, <b>{resize}</b> cambia su tamaño, <b>{remove}</b> lo saca"
+      "help": "Teclado: <b>{pickUp}</b> toma un jugador, <b>{resize}</b> cambia su tamaño, <b>{remove}</b> lo saca",
+      "helpGuests": "Teclado: <b>{pickUp}</b> toma un jugador, <b>{guest}</b> añade un mando a su copia, <b>{resize}</b> cambia su tamaño, <b>{remove}</b> lo saca"
     },
     "hints": {
       "join": "Unirse",
       "resize": "Redimensionar",
       "arrowsKey": "Flechas",
       "moveCorner": "Mover la esquina",
-      "otherCorner": "Otra esquina"
+      "otherCorner": "Otra esquina",
+      "addController": "Añadir un mando"
     },
     "header": {
       "label": "Juego",
@@ -968,6 +970,7 @@
     "canvas": {
       "title": "Pantallas",
       "description": "Arrastra un jugador a otro lugar para intercambiarlos, o a la bandeja para sacarlo.",
+      "descriptionGuests": "Arrastra un jugador a otro lugar para intercambiarlos, o a la bandeja para sacarlo. Suelta un mando libre sobre un jugador para compartir su copia.",
       "seats_one": "<b>{seats}</b> de {count} jugador",
       "seats_many": "<b>{seats}</b> de {count} jugadores",
       "seats_other": "<b>{seats}</b> de {count} jugadores"
@@ -996,6 +999,12 @@
       "waitingHere": "Esperando un mando en este lugar: presiona uno de sus botones. Escape cancela.",
       "cancelled": "Ya no se espera ningún mando."
     },
+    "guestWait": {
+      "pressButton": "Presiona un botón de un mando libre",
+      "note": "Juega en esta copia. B o Esc cancela",
+      "label": "Jugador {number}, {name}: esperando un mando para jugar en esta copia. Presiona un botón de un mando libre. Escape cancela.",
+      "waiting": "Esperando un mando para jugar en la copia de {player}: presiona uno de sus botones. Escape cancela."
+    },
     "move": {
       "pickedUp": "{player} tomado. Muévelo a otro lugar y presiona Enter. Escape cancela.",
       "putBack": "Devuelto a su sitio.",
@@ -1013,8 +1022,12 @@
     "region": {
       "label": "Jugador {number}, {name}, {devices}, {place}. Enter para mover, Delete para sacar.",
       "labelResizable": "Jugador {number}, {name}, {devices}, {place}. Enter para mover, R para cambiar el tamaño, Delete para sacar.",
+      "labelGuests": "Jugador {number}, {name}, {devices}, {place}. Enter para mover, G para añadir un mando a esta copia, Delete para sacar.",
+      "labelResizableGuests": "Jugador {number}, {name}, {devices}, {place}. Enter para mover, R para cambiar el tamaño, G para añadir un mando a esta copia, Delete para sacar.",
       "resizingBottomRight": "Cambiando el tamaño del jugador {number}, {name}: {width} por {height}. Las flechas mueven la esquina inferior derecha, X cambia de esquina, Enter para terminar.",
-      "resizingTopLeft": "Cambiando el tamaño del jugador {number}, {name}: {width} por {height}. Las flechas mueven la esquina superior izquierda, X cambia de esquina, Enter para terminar."
+      "resizingTopLeft": "Cambiando el tamaño del jugador {number}, {name}: {width} por {height}. Las flechas mueven la esquina superior izquierda, X cambia de esquina, Enter para terminar.",
+      "dropGuest": "Jugar en esta copia",
+      "dropGuestNote": "Suelta el mando para compartir la copia de este jugador"
     },
     "tray": {
       "title": "Esperando para unirse",
@@ -1086,9 +1099,11 @@
       "defaultAudio": "Salida predeterminada",
       "steamIdLabel": "ID de Steam del jugador {number}",
       "steamIdHint": "ID de Steam usado en el juego (17 dígitos)",
-      "addGuestLabel": "Añadir un mando invitado al jugador {number}",
       "addGuestHint": "Un invitado juega en la copia del juego de este jugador",
-      "addGuest": "Añadir un mando invitado…"
+      "addController": "Añadir un mando",
+      "addControllerLabel": "Añadir un mando a la copia del jugador {number}",
+      "waitingController": "Esperando un mando…",
+      "waitingControllerLabel": "Dejar de esperar un mando para el jugador {number}"
     },
     "announce": {
       "playerLeft": "{player} ha salido. Sus dispositivos vuelven a la bandeja.",
@@ -1096,7 +1111,9 @@
       "playersLeft_many": "{names} han salido.",
       "playersLeft_other": "{names} han salido.",
       "joined": "{device} se ha unido: {player}, jugador {number}.",
-      "controllerJoined": "Se ha unido un mando: {player}, jugador {number}."
+      "controllerJoined": "Se ha unido un mando: {player}, jugador {number}.",
+      "guestJoined": "{device} se ha unido a la copia de {player}.",
+      "controllerJoinedCopy": "Se ha unido un mando a la copia de {player}."
     },
     "deviceLost": {
       "namedPlayer": "{nickname} (jugador {number})",

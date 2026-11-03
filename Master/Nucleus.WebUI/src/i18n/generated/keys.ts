@@ -2022,6 +2022,10 @@ export interface MessageParamsMap {
   'library.upToPlayers': { count: number };
   /** A controller joined: {player}, player {number}. */
   'lobby.announce.controllerJoined': { number: ParamValue; player: ParamValue };
+  /** A controller joined {player}'s copy. */
+  'lobby.announce.controllerJoinedCopy': { player: ParamValue };
+  /** {device} joined {player}'s copy. */
+  'lobby.announce.guestJoined': { device: ParamValue; player: ParamValue };
   /** {device} joined: {player}, player {number}. */
   'lobby.announce.joined': { device: ParamValue; number: ParamValue; player: ParamValue };
   /** {player} left. Their devices are back in the tray. */
@@ -2038,6 +2042,8 @@ export interface MessageParamsMap {
   'lobby.breadcrumbs.settingUp': undefined;
   /** Drag a player onto another place to swap them, or onto the tray to take them out. */
   'lobby.canvas.description': undefined;
+  /** Drag a player onto another place to swap them, or onto the tray to take them out. Drop a free controller on... */
+  'lobby.canvas.descriptionGuests': undefined;
   /** <b>{seats}</b> of {count} players */
   'lobby.canvas.seats': { count: number; seats: ParamValue };
   /** Screens */
@@ -2060,6 +2066,14 @@ export interface MessageParamsMap {
   'lobby.deviceLost.unknownPlayer.keyboardMouse': undefined;
   /** A player lost their mouse. Plug it back in, or use another one. */
   'lobby.deviceLost.unknownPlayer.mouse': undefined;
+  /** Player {number}, {name}: waiting for a controller to play in this copy. Press a button on a free controller... */
+  'lobby.guestWait.label': { name: ParamValue; number: ParamValue };
+  /** It plays in this copy. B or Esc cancels */
+  'lobby.guestWait.note': undefined;
+  /** Press a button on a free controller */
+  'lobby.guestWait.pressButton': undefined;
+  /** Waiting for a controller to play in {player}'s copy: press a button on it. Escape cancels. */
+  'lobby.guestWait.waiting': { player: ParamValue };
   /** Handler installed from a file */
   'lobby.header.handlerFromFile': undefined;
   /** Handler version {version} */
@@ -2074,6 +2088,8 @@ export interface MessageParamsMap {
   'lobby.header.notes': undefined;
   /** {count} players per copy */
   'lobby.header.playersPerCopy': { count: number };
+  /** Add a controller */
+  'lobby.hints.addController': undefined;
   /** Arrows */
   'lobby.hints.arrowsKey': undefined;
   /** Join */
@@ -2086,6 +2102,8 @@ export interface MessageParamsMap {
   'lobby.hints.resize': undefined;
   /** Keyboard: <b>{pickUp}</b> picks up a player, <b>{resize}</b> resizes, <b>{remove}</b> takes them out */
   'lobby.keys.help': { pickUp: ParamValue; remove: ParamValue; resize: ParamValue };
+  /** Keyboard: <b>{pickUp}</b> picks up a player, <b>{guest}</b> adds a controller to their copy, <b>{resize}</b... */
+  'lobby.keys.helpGuests': { guest: ParamValue; pickUp: ParamValue; remove: ParamValue; resize: ParamValue };
   /** Waiting for a controller: <b>{cancel}</b> cancels */
   'lobby.keys.waiting': { cancel: ParamValue };
   /** {screen} set to {layout}. */
@@ -2176,12 +2194,12 @@ export interface MessageParamsMap {
   'lobby.opening': { game: ParamValue };
   /** Opening the setup of the game */
   'lobby.openingUnnamed': undefined;
-  /** Add a guest gamepad… */
-  'lobby.player.addGuest': undefined;
+  /** Add a controller */
+  'lobby.player.addController': undefined;
+  /** Add a controller to player {number}'s copy */
+  'lobby.player.addControllerLabel': { number: ParamValue };
   /** A guest plays in this player's copy of the game */
   'lobby.player.addGuestHint': undefined;
-  /** Add a guest gamepad to player {number} */
-  'lobby.player.addGuestLabel': { number: ParamValue };
   /** Audio output of this player */
   'lobby.player.audioHint': undefined;
   /** Audio output (choosing one turns per-player audio on) */
@@ -2222,6 +2240,10 @@ export interface MessageParamsMap {
   'lobby.player.steamIdHint': undefined;
   /** Player {number} Steam ID */
   'lobby.player.steamIdLabel': { number: ParamValue };
+  /** Waiting for a controller… */
+  'lobby.player.waitingController': undefined;
+  /** Stop waiting for a controller for player {number} */
+  'lobby.player.waitingControllerLabel': { number: ParamValue };
   /** Places gamepads by their controller number, without a button press. Some handlers ignore it. */
   'lobby.players.apiIndex.description': undefined;
   /** Identify gamepads by slot */
@@ -2236,10 +2258,18 @@ export interface MessageParamsMap {
   'lobby.players.moreCanJoinFree': { count: number };
   /** Players */
   'lobby.players.title': undefined;
+  /** Play in this copy */
+  'lobby.region.dropGuest': undefined;
+  /** Drop the controller to share this player's copy */
+  'lobby.region.dropGuestNote': undefined;
   /** Player {number}, {name}, {devices}, {place}. Enter to move, Delete to take out. */
   'lobby.region.label': { devices: ParamValue; name: ParamValue; number: ParamValue; place: ParamValue };
+  /** Player {number}, {name}, {devices}, {place}. Enter to move, G to add a controller to this copy, Delete to t... */
+  'lobby.region.labelGuests': { devices: ParamValue; name: ParamValue; number: ParamValue; place: ParamValue };
   /** Player {number}, {name}, {devices}, {place}. Enter to move, R to resize, Delete to take out. */
   'lobby.region.labelResizable': { devices: ParamValue; name: ParamValue; number: ParamValue; place: ParamValue };
+  /** Player {number}, {name}, {devices}, {place}. Enter to move, R to resize, G to add a controller to this copy... */
+  'lobby.region.labelResizableGuests': { devices: ParamValue; name: ParamValue; number: ParamValue; place: ParamValue };
   /** Resizing player {number}, {name}: {width} by {height}. Arrows move the bottom right corner, X switches corn... */
   'lobby.region.resizingBottomRight': { height: ParamValue; name: ParamValue; number: ParamValue; width: ParamValue };
   /** Resizing player {number}, {name}: {width} by {height}. Arrows move the top left corner, X switches corners,... */
@@ -3287,4 +3317,4 @@ export interface MessageParamsMap {
 }
 
 /** Strings with tags (`<kbd>`, `<b>`...): render them with `<T>` to keep their markup; `t()` drops it. */
-export type RichMessageKey = 'catalog.offlineCopy' | 'downloads.row.statusWhen' | 'features.addGame.chooser.message' | 'handler.action.reportProblem' | 'handler.comments.title' | 'handler.steps.seatTip' | 'lobby.canvas.seats' | 'lobby.keys.help' | 'lobby.keys.waiting' | 'profiles.manager.nextProfileSaveOff' | 'profiles.manager.nextProfileSaveOn' | 'session.idle.lastLaunchFailed' | 'session.instance.stepDone' | 'session.instance.stepPending' | 'session.preview.caption' | 'session.preview.captionPrimary';
+export type RichMessageKey = 'catalog.offlineCopy' | 'downloads.row.statusWhen' | 'features.addGame.chooser.message' | 'handler.action.reportProblem' | 'handler.comments.title' | 'handler.steps.seatTip' | 'lobby.canvas.seats' | 'lobby.keys.help' | 'lobby.keys.helpGuests' | 'lobby.keys.waiting' | 'profiles.manager.nextProfileSaveOff' | 'profiles.manager.nextProfileSaveOn' | 'session.idle.lastLaunchFailed' | 'session.instance.stepDone' | 'session.instance.stepPending' | 'session.preview.caption' | 'session.preview.captionPrimary';

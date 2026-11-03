@@ -827,14 +827,16 @@
     "asideLabel": "Sitzung",
     "keys": {
       "waiting": "Warten auf einen Controller: <b>{cancel}</b> bricht ab",
-      "help": "Tastatur: <b>{pickUp}</b> nimmt einen Spieler auf, <b>{resize}</b> ändert die Größe, <b>{remove}</b> nimmt ihn raus"
+      "help": "Tastatur: <b>{pickUp}</b> nimmt einen Spieler auf, <b>{resize}</b> ändert die Größe, <b>{remove}</b> nimmt ihn raus",
+      "helpGuests": "Tastatur: <b>{pickUp}</b> nimmt einen Spieler auf, <b>{guest}</b> fügt seiner Kopie einen Controller hinzu, <b>{resize}</b> ändert die Größe, <b>{remove}</b> nimmt ihn raus"
     },
     "hints": {
       "join": "Beitreten",
       "resize": "Größe ändern",
       "arrowsKey": "Pfeiltasten",
       "moveCorner": "Ecke verschieben",
-      "otherCorner": "Andere Ecke"
+      "otherCorner": "Andere Ecke",
+      "addController": "Controller hinzufügen"
     },
     "header": {
       "label": "Spiel",
@@ -926,6 +928,7 @@
     "canvas": {
       "title": "Bildschirme",
       "description": "Zieh einen Spieler auf einen anderen Platz, um die Plätze zu tauschen, oder in den Wartebereich, um ihn rauszunehmen.",
+      "descriptionGuests": "Zieh einen Spieler auf einen anderen Platz, um die Plätze zu tauschen, oder in den Wartebereich, um ihn rauszunehmen. Zieh einen freien Controller auf einen Spieler, um seine Kopie zu teilen.",
       "seats_one": "<b>{seats}</b> von {count} Spieler",
       "seats_other": "<b>{seats}</b> von {count} Spielern"
     },
@@ -953,6 +956,12 @@
       "waitingHere": "Warten auf einen Controller für diesen Platz: Drück eine Taste darauf. Esc bricht ab.",
       "cancelled": "Warten auf einen Controller beendet."
     },
+    "guestWait": {
+      "pressButton": "Drück eine Taste auf einem freien Controller",
+      "note": "Er spielt in dieser Kopie mit. B oder Esc bricht ab",
+      "label": "Spieler {number}, {name}: wartet auf einen Controller, der in dieser Kopie mitspielt. Drück eine Taste auf einem freien Controller. Esc bricht ab.",
+      "waiting": "Warten auf einen Controller für die Kopie von {player}: Drück eine Taste darauf. Esc bricht ab."
+    },
     "move": {
       "pickedUp": "{player} aufgenommen. Geh zu einem anderen Platz und drück Enter. Esc bricht ab.",
       "putBack": "Zurückgelegt.",
@@ -970,8 +979,12 @@
     "region": {
       "label": "Spieler {number}, {name}, {devices}, {place}. Enter zum Verschieben, Delete zum Rausnehmen.",
       "labelResizable": "Spieler {number}, {name}, {devices}, {place}. Enter zum Verschieben, R zum Ändern der Größe, Delete zum Rausnehmen.",
+      "labelGuests": "Spieler {number}, {name}, {devices}, {place}. Enter zum Verschieben, G zum Hinzufügen eines Controllers zu dieser Kopie, Delete zum Rausnehmen.",
+      "labelResizableGuests": "Spieler {number}, {name}, {devices}, {place}. Enter zum Verschieben, R zum Ändern der Größe, G zum Hinzufügen eines Controllers zu dieser Kopie, Delete zum Rausnehmen.",
       "resizingBottomRight": "Größe von Spieler {number}, {name} wird geändert: {width} × {height}. Pfeiltasten verschieben die Ecke unten rechts, X wechselt die Ecke, Enter zum Abschließen.",
-      "resizingTopLeft": "Größe von Spieler {number}, {name} wird geändert: {width} × {height}. Pfeiltasten verschieben die Ecke oben links, X wechselt die Ecke, Enter zum Abschließen."
+      "resizingTopLeft": "Größe von Spieler {number}, {name} wird geändert: {width} × {height}. Pfeiltasten verschieben die Ecke oben links, X wechselt die Ecke, Enter zum Abschließen.",
+      "dropGuest": "In dieser Kopie mitspielen",
+      "dropGuestNote": "Lass den Controller los, um die Kopie dieses Spielers zu teilen"
     },
     "tray": {
       "title": "Warten auf Beitritt",
@@ -1040,16 +1053,20 @@
       "defaultAudio": "Standardausgabe",
       "steamIdLabel": "Steam-ID von Spieler {number}",
       "steamIdHint": "Im Spiel verwendete Steam-ID (17 Ziffern)",
-      "addGuestLabel": "Gast-Gamepad zu Spieler {number} hinzufügen",
       "addGuestHint": "Ein Gast spielt in der Spielkopie dieses Spielers mit",
-      "addGuest": "Gast-Gamepad hinzufügen…"
+      "addController": "Controller hinzufügen",
+      "addControllerLabel": "Controller zur Kopie von Spieler {number} hinzufügen",
+      "waitingController": "Warten auf einen Controller…",
+      "waitingControllerLabel": "Nicht mehr auf einen Controller für Spieler {number} warten"
     },
     "announce": {
       "playerLeft": "{player} ist raus. Die Geräte sind zurück im Wartebereich.",
       "playersLeft_one": "{names} ist raus.",
       "playersLeft_other": "{names} sind raus.",
       "joined": "{device} beigetreten: {player}, Spieler {number}.",
-      "controllerJoined": "Ein Controller ist beigetreten: {player}, Spieler {number}."
+      "controllerJoined": "Ein Controller ist beigetreten: {player}, Spieler {number}.",
+      "guestJoined": "{device} spielt jetzt in der Kopie von {player} mit.",
+      "controllerJoinedCopy": "Ein Controller spielt jetzt in der Kopie von {player} mit."
     },
     "deviceLost": {
       "namedPlayer": "{nickname} (Spieler {number})",

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { CheckState, SetupCheck, SetupPlayer, SetupSnapshot, SetupStep, SetupStepKind } from '@/bridge';
 import { useT, type MessageKey, type TFunction } from '@/i18n';
-import { deviceIcon, isGamepadKind } from '@/lib/devices';
+import { deviceIcon } from '@/lib/devices';
 import { Button, cn, Icon, MiniField, MiniInput, MiniSelect, Pane, PlayerTag, playerClass, Spinner, Switch, type IconName } from '@/ui';
 import type { LobbyCommands } from './commands';
 import { startDrag } from './dnd';
+import { hasGuestRoom } from './join-rules';
 import { byNumber, devicesOf, guestsOf, hintText, isFree, playerName, reduceMotion, seatCount, whereOf } from './model';
 
 export interface SidePanelProps {
@@ -12,10 +13,14 @@ export interface SidePanelProps {
   commands: LobbyCommands;
   pings: Record<string, number>;
   announce: (message: string) => void;
+  /** The player whose copy waits for a guest controller, if any. */
+  waitingGuestOf?: string;
+  /** Makes a player's copy wait for a guest controller, or stops it waiting. */
+  onWaitGuest: (player: SetupPlayer, byPad: boolean) => void;
 }
 
 /** Side column: players with their identity and audio, then the pre-launch checks. Scrolls on its own. */
-export function SidePanel({ snap, commands, pings, announce }: SidePanelProps) {
+export function SidePanel({ snap, commands, pings, announce, waitingGuestOf, onWaitGuest }: SidePanelProps) {
   const t = useT();
   const max = snap.capabilities.maxPlayers;
   const seats = seatCount(snap);
@@ -36,7 +41,16 @@ export function SidePanel({ snap, commands, pings, announce }: SidePanelProps) {
         </div>
         <ol className="m-0 mt-2 list-none p-0">
           {byNumber(snap.players).map((p) => (
-            <PlayerRow key={p.id} player={p} snap={snap} commands={commands} ping={pings[p.id] ?? 0} announce={announce} />
+            <PlayerRow
+              key={p.id}
+              player={p}
+              snap={snap}
+              commands={commands}
+              ping={pings[p.id] ?? 0}
+              announce={announce}
+              waitingGuest={waitingGuestOf === p.id}
+              onWaitGuest={onWaitGuest}
+            />
           ))}
         </ol>
         <p className="mt-2.5 rounded-ctl bg-pane-2 px-3 py-2.5 text-13 leading-[1.45] text-ink-2">{note}</p>
@@ -76,12 +90,16 @@ function PlayerRow({
   commands,
   ping,
   announce,
+  waitingGuest,
+  onWaitGuest,
 }: {
   player: SetupPlayer;
   snap: SetupSnapshot;
   commands: LobbyCommands;
   ping: number;
   announce: (message: string) => void;
+  waitingGuest: boolean;
+  onWaitGuest: (player: SetupPlayer, byPad: boolean) => void;
 }) {
   const t = useT();
   const tag = useRef<HTMLSpanElement>(null);
@@ -89,8 +107,6 @@ function PlayerRow({
   const [steam, setSteam] = useState<string | null>(null);
   const devices = devicesOf(snap, p);
   const guests = guestsOf(snap, p);
-  const freePads = snap.devices.filter((d) => isFree(d) && d.revealed && isGamepadKind(d.kind));
-  const canAddGuest = p.maxGuests > guests.length && freePads.length > 0;
   const audioChoices = snap.audioOutputs.some((a) => a.value === 'Default')
     ? snap.audioOutputs
     : [{ value: 'Default', label: t('lobby.player.defaultAudio') }, ...snap.audioOutputs];
@@ -236,22 +252,21 @@ function PlayerRow({
             />
           </MiniField>
         </div>
-        {canAddGuest && (
-          <MiniField className="mt-1.5" title={t('lobby.player.addGuestHint')}>
+        {hasGuestRoom(p) && (
+          <Button
+            variant={waitingGuest ? 'default' : 'quiet'}
+            size="sm"
+            aria-pressed={waitingGuest}
+            aria-label={t(waitingGuest ? 'lobby.player.waitingControllerLabel' : 'lobby.player.addControllerLabel', { number: p.number })}
+            title={t('lobby.player.addGuestHint')}
+            // The pad's A clicks it (an untrusted click): that press is not the controller it waits for.
+            onClick={(e) => onWaitGuest(p, !e.nativeEvent.isTrusted)}
+            className="mt-1.5 min-h-[30px] w-full justify-start px-2.5 text-13 [&_svg]:size-4"
+            data-nav
+          >
             <Icon name="users" />
-            <MiniSelect
-              aria-label={t('lobby.player.addGuestLabel', { number: p.number })}
-              value=""
-              onChange={(e) => e.target.value && void commands.addGuest(p.id, e.target.value)}
-            >
-              <option value="">{t('lobby.player.addGuest')}</option>
-              {freePads.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.name}
-                </option>
-              ))}
-            </MiniSelect>
-          </MiniField>
+            {t(waitingGuest ? 'lobby.player.waitingController' : 'lobby.player.addController')}
+          </Button>
         )}
       </div>
     </li>

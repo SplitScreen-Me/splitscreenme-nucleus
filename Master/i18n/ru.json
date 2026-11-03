@@ -907,14 +907,16 @@
     "asideLabel": "Сессия",
     "keys": {
       "waiting": "Ожидание контроллера: <b>{cancel}</b> — отмена",
-      "help": "Клавиатура: <b>{pickUp}</b> — взять игрока, <b>{resize}</b> — изменить размер, <b>{remove}</b> — убрать"
+      "help": "Клавиатура: <b>{pickUp}</b> — взять игрока, <b>{resize}</b> — изменить размер, <b>{remove}</b> — убрать",
+      "helpGuests": "Клавиатура: <b>{pickUp}</b> — взять игрока, <b>{guest}</b> — добавить контроллер в его копию, <b>{resize}</b> — изменить размер, <b>{remove}</b> — убрать"
     },
     "hints": {
       "join": "Присоединиться",
       "resize": "Размер",
       "arrowsKey": "Стрелки",
       "moveCorner": "Двигать угол",
-      "otherCorner": "Другой угол"
+      "otherCorner": "Другой угол",
+      "addController": "Добавить контроллер"
     },
     "header": {
       "label": "Игра",
@@ -1010,6 +1012,7 @@
     "canvas": {
       "title": "Экраны",
       "description": "Перетащите игрока на место другого, чтобы поменять их местами, или в область ожидания, чтобы убрать его.",
+      "descriptionGuests": "Перетащите игрока на место другого, чтобы поменять их местами, или в область ожидания, чтобы убрать его. Перетащите свободный контроллер на игрока, чтобы играть в его копии.",
       "seats_one": "<b>{seats}</b> из {count} игрока",
       "seats_few": "<b>{seats}</b> из {count} игроков",
       "seats_many": "<b>{seats}</b> из {count} игроков",
@@ -1039,6 +1042,12 @@
       "waitingHere": "Ожидание контроллера для этого места: нажмите на нём кнопку. Escape — отмена.",
       "cancelled": "Ожидание контроллера отменено."
     },
+    "guestWait": {
+      "pressButton": "Нажмите кнопку на свободном контроллере",
+      "note": "Он будет играть в этой копии. B или Esc — отмена",
+      "label": "Игрок {number}, {name}: ожидание контроллера для этой копии. Нажмите кнопку на свободном контроллере. Escape — отмена.",
+      "waiting": "{player}: ожидание контроллера для этой копии — нажмите на нём кнопку. Escape — отмена."
+    },
     "move": {
       "pickedUp": "Выбран: {player}. Перейдите на другое место и нажмите Enter. Escape — отмена.",
       "putBack": "Игрок возвращён на место.",
@@ -1056,8 +1065,12 @@
     "region": {
       "label": "Игрок {number}, {name}, {devices}, {place}. Enter — переместить, Delete — убрать.",
       "labelResizable": "Игрок {number}, {name}, {devices}, {place}. Enter — переместить, R — изменить размер, Delete — убрать.",
+      "labelGuests": "Игрок {number}, {name}, {devices}, {place}. Enter — переместить, G — добавить контроллер в эту копию, Delete — убрать.",
+      "labelResizableGuests": "Игрок {number}, {name}, {devices}, {place}. Enter — переместить, R — изменить размер, G — добавить контроллер в эту копию, Delete — убрать.",
       "resizingBottomRight": "Изменение размера игрока {number}, {name}: {width} на {height}. Стрелки двигают правый нижний угол, X переключает углы, Enter — готово.",
-      "resizingTopLeft": "Изменение размера игрока {number}, {name}: {width} на {height}. Стрелки двигают левый верхний угол, X переключает углы, Enter — готово."
+      "resizingTopLeft": "Изменение размера игрока {number}, {name}: {width} на {height}. Стрелки двигают левый верхний угол, X переключает углы, Enter — готово.",
+      "dropGuest": "Играть в этой копии",
+      "dropGuestNote": "Отпустите контроллер, чтобы играть в копии этого игрока"
     },
     "tray": {
       "title": "Ожидают подключения",
@@ -1132,9 +1145,11 @@
       "defaultAudio": "Выход по умолчанию",
       "steamIdLabel": "Steam ID игрока {number}",
       "steamIdHint": "Steam ID в игре (17 цифр)",
-      "addGuestLabel": "Добавить гостевой геймпад игроку {number}",
       "addGuestHint": "Гость играет в копии игры этого игрока",
-      "addGuest": "Добавить гостевой геймпад…"
+      "addController": "Добавить контроллер",
+      "addControllerLabel": "Добавить контроллер в копию игрока {number}",
+      "waitingController": "Ожидание контроллера…",
+      "waitingControllerLabel": "Перестать ждать контроллер для игрока {number}"
     },
     "announce": {
       "playerLeft": "{player} выходит. Устройства игрока вернулись в область ожидания.",
@@ -1143,7 +1158,9 @@
       "playersLeft_many": "{names} выходят.",
       "playersLeft_other": "{names} выходят.",
       "joined": "Подключение: {device} — {player}, игрок {number}.",
-      "controllerJoined": "Контроллер подключён: {player}, игрок {number}."
+      "controllerJoined": "Контроллер подключён: {player}, игрок {number}.",
+      "guestJoined": "{device} подключён к копии: {player}.",
+      "controllerJoinedCopy": "Контроллер подключён к копии: {player}."
     },
     "deviceLost": {
       "namedPlayer": "{nickname} (игрок {number})",

@@ -5,8 +5,9 @@ import { deviceIcon, isGamepadKind, isKeyboardKind } from '@/lib/devices';
 import { Button, cn, Icon, MenuButton, Pane, useConfirm } from '@/ui';
 import type { LobbyCommands } from './commands';
 import { dragKind, readDrop, startDrag, type Dragged } from './dnd';
-import { sameSpot, type WaitingSpot } from './join-rules';
+import { dropMakesGuest, hasGuestRoom, sameSpot, type WaitingSpot } from './join-rules';
 import {
+  deviceById,
   devicesOf,
   fitRig,
   guestsOf,
@@ -51,6 +52,8 @@ export interface CanvasProps {
   /** An empty place was clicked or activated: wait for a controller there. */
   onPickSpot: (spot: WaitingSpot) => void;
   onCancelSpot: () => void;
+  /** A player's copy should wait for a guest controller (G, or the pad's Y, on its area); again on the same copy cancels. */
+  onWaitGuest: (player: SetupPlayer, byPad: boolean) => void;
 }
 
 /** Arrows with Shift move an edge by this many steps. */
@@ -59,12 +62,12 @@ const BIG_STEP = 5;
 const CAPTION_H = 74;
 
 /** How an empty place was activated: a pad's A reaches it as a synthetic Enter, the keyboard's is trusted. */
-type Via = 'keyboard' | 'pad' | 'pointer';
+export type Via = 'keyboard' | 'pad' | 'pointer';
 const viaKey = (e: KeyboardEvent<HTMLElement>): Via => (e.nativeEvent.isTrusted ? 'keyboard' : 'pad');
 
 /** Screen canvas: the monitors, to scale, split into slots and player areas; devices waiting below. */
 export function Canvas(props: CanvasProps) {
-  const { snap, commands, announce, resizing, onResizing, spot, onPickSpot, onCancelSpot } = props;
+  const { snap, commands, announce, resizing, onResizing, spot, onPickSpot, onCancelSpot, onWaitGuest } = props;
   const t = useT();
   const confirm = useConfirm();
   const rigRef = useRef<HTMLDivElement>(null);
@@ -164,6 +167,16 @@ export function Canvas(props: CanvasProps) {
     const p = playerById(snap, dragged.id);
     if (p) void commands.movePlayerAt(p, screen.index, x, y);
   };
+  /** A free controller dropped on a player whose copy has room joins that copy (several players per copy). */
+  const dropAsGuest = (dragged: Dragged, p: SetupPlayer): boolean => {
+    const device = dragged.kind === 'device' ? deviceById(snap, dragged.id) : undefined;
+    if (!device || !dropMakesGuest(p, device)) return false;
+    void commands.addGuest(p.id, device.id).then((next) => {
+      const host = next && playerById(next, p.id);
+      if (host?.guestDeviceIds.includes(device.id)) announce(t('lobby.announce.guestJoined', { device: device.name, player: playerName(host) }));
+    });
+    return true;
+  };
   const takeOut = async (p: SetupPlayer) => {
     setLifted((l) => (l === p.id ? null : l));
     if (await commands.removePlayer(p)) announce(t('lobby.announce.playerLeft', { player: playerName(p) }));
@@ -198,6 +211,12 @@ export function Canvas(props: CanvasProps) {
     if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.altKey && !e.metaKey && stepOf(p)) {
       e.preventDefault();
       startResizing(p);
+      return;
+    }
+    if ((e.key === 'g' || e.key === 'G') && !e.ctrlKey && !e.altKey && !e.metaKey && hasGuestRoom(p)) {
+      e.preventDefault();
+      setLifted(null);
+      onWaitGuest(p, viaKey(e) === 'pad');
       return;
     }
     if (commonKeys(e)) return;
@@ -294,6 +313,7 @@ export function Canvas(props: CanvasProps) {
   };
 
   const draggingPlayer = dragging?.kind === 'player';
+  const draggedDevice = dragging?.kind === 'device' ? deviceById(snap, dragging.id) : undefined;
   const waiting = trayDevices(snap);
   const hidden = hiddenInputs(snap);
   const keyboardsSupported = snap.capabilities.keyboard || snap.capabilities.multipleKeyboardsAndMice;
@@ -306,7 +326,7 @@ export function Canvas(props: CanvasProps) {
           <h2 id="lobby-screens-title" className="type-h3">
             {t('lobby.canvas.title')}
           </h2>
-          <p className="mt-1 text-small text-ink-2">{t('lobby.canvas.description')}</p>
+          <p className="mt-1 text-small text-ink-2">{t(snap.capabilities.playersPerInstance > 1 ? 'lobby.canvas.descriptionGuests' : 'lobby.canvas.description')}</p>
         </div>
         <span className="shrink-0 text-15 font-semibold whitespace-nowrap text-ink-2" aria-live="polite">
           <T k="lobby.canvas.seats" values={{ seats, count: snap.capabilities.maxPlayers }} tags={{ b: (c) => <b className="font-[750] text-ink">{c}</b> }} />
@@ -411,6 +431,9 @@ export function Canvas(props: CanvasProps) {
                       monitor={screen.bounds}
                       others={players.filter((o) => o.id !== p.id).map((o) => relative(o.bounds, screen.bounds))}
                       resizeCorner={resizing?.playerId === p.id ? resizing.corner : null}
+                      guestRoom={hasGuestRoom(p)}
+                      waitingGuest={spot?.guestOf === p.id}
+                      guestDrop={target === key && Boolean(draggedDevice && dropMakesGuest(p, draggedDevice))}
                       onResize={(edge, steps) => void resizeBy(p, edge, steps)}
                       onBlur={() => {
                         if (resizing?.playerId === p.id) onResizing(null);
@@ -422,6 +445,7 @@ export function Canvas(props: CanvasProps) {
                       onDragLeave={leave(key)}
                       onDrop={drop((dragged, e) => {
                         if (dragged.kind === 'player' && dragged.id === p.id) return;
+                        if (dropAsGuest(dragged, p)) return;
                         if (slot !== undefined) dropOnSlot(dragged, screen, slot);
                         else if (manual) {
                           const r = (e.currentTarget.parentElement ?? e.currentTarget).getBoundingClientRect();
