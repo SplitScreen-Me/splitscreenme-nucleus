@@ -9,9 +9,11 @@ import type {
   SetExecutableRequest,
 } from '../generated/contract.ts';
 import type { MockContext } from '../transports/mock.ts';
+import { BridgeError } from '../errors.ts';
 import { conflict, invalidParams, notFound } from './failures.ts';
 import { HUB_HANDLERS, NUCLEUS_FOLDER, acceptsExecutable, coverUrlOf, executableNamesOf, newGame, screenshotUrlsOf } from './fixtures.ts';
 import { setupFixtureFor } from './fixtures-setup.ts';
+import { forcedContextMismatch } from './game-search.ts';
 import { profilesEnabled } from './profile-model.ts';
 import type { MockGame, MockHandler, MockState } from './state.ts';
 import { sleep } from './util.ts';
@@ -74,6 +76,8 @@ export function libraryChanged(context: MockContext, ...gameIds: string[]): void
 export function addGame(context: MockContext, state: MockState, { executablePath, handlerGameId }: AddGameRequest): AddGameResult {
   if (!/\.exe$/i.test(executablePath)) invalidParams('Pick the game executable (.exe).');
   const fileName = fileNameOf(executablePath);
+  const refused = forcedContextMismatch(fileName);
+  if (refused) throw new BridgeError('notFound', refused.message, refused.data);
   const matching = state.handlers.filter((handler) => acceptsExecutable(handler.info, fileName));
   if (!handlerGameId && matching.length > 1) {
     return { candidates: matching.map(({ info }) => ({ gameId: info.gameId, name: info.gameName })) };

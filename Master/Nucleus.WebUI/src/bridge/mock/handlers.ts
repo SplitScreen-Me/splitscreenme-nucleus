@@ -4,6 +4,7 @@ import type { MockContext } from '../transports/mock.ts';
 import { conflict, invalidParams } from './failures.ts';
 import { HUB_HANDLERS, findHubHandler, unknownHandler, type HandlerInfo } from './fixtures.ts';
 import { hubScreenshotUrls } from './fixtures-screenshots.ts';
+import { handlerErrors } from './game-search.ts';
 import { installHandler } from './handler-install.ts';
 import { findGame, findHandler, inLibrary, libraryChanged, refreshUpdateAvailable } from './library-model.ts';
 import type { MockState } from './state.ts';
@@ -73,5 +74,6 @@ export function createHandlersMock(context: MockContext, state: MockState): Brid
       await sleep(200);
       return hubScreenshotUrls(handlerId);
     },
+    listErrors: () => handlerErrors(state),
   };
 }

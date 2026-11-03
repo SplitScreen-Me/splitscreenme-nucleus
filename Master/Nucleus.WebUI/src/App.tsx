@@ -4,6 +4,7 @@ import { createHashRouter, Navigate } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import { BridgeProvider, type BridgeError, type BridgeMismatch } from '@/bridge';
 import { AddGameProvider } from '@/features/add-game';
+import { HandlerReloadToasts } from '@/features/handler-reload';
 import { I18nProvider, useT, type RichTags } from '@/i18n';
 import { AppShell } from '@/shell/AppShell';
 import { ConfirmProvider, Icon, Kbd, LogoMark, Spinner, ToastProvider } from '@/ui';
@@ -59,6 +60,7 @@ export function App() {
           <ToastProvider>
             <ConfirmProvider>
               <AddGameProvider>
+                <HandlerReloadToasts />
                 <RouterProvider router={router} />
               </AddGameProvider>
             </ConfirmProvider>

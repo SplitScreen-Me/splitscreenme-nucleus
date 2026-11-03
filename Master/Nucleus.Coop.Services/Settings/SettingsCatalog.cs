@@ -83,11 +83,21 @@ public static class SettingsCatalog
     /// <summary>Key of the app language setting, the first one of General (saved by <see cref="LanguageSettings"/>).</summary>
     public const string LanguageKey = "misc.appLanguage";
 
+    /// <summary>Section of the game folders (the folder list itself is <c>settings.getGameFolders</c>, edited by the UI under the section's fields).</summary>
+    public const string GameFoldersSection = "gameFolders";
+
+    /// <summary>
+    /// Key of <c>[Misc] AutoSearchGame</c> (Nucleus 2.5): search the game folders after a handler install. Its value is
+    /// empty while the user was never asked (the UI asks once), else "true" or "false".
+    /// </summary>
+    public const string AutoSearchKey = "misc.autoSearchGame";
+
     /// <summary>Sections, in order, in the language in use (built at each call: texts follow the language).</summary>
     public static IReadOnlyList<SettingSectionDefinition> Sections => new[]
     {
         new SettingSectionDefinition { Id = "general", Title = T("host.settings.sections.general.title"), Description = T("host.settings.sections.general.description") },
         new SettingSectionDefinition { Id = "players", Title = T("host.settings.sections.players.title"), Description = T("host.settings.sections.players.description") },
+        new SettingSectionDefinition { Id = GameFoldersSection, Title = T("host.settings.sections.gameFolders.title"), Description = T("host.settings.sections.gameFolders.description") },
         new SettingSectionDefinition { Id = "hotkeys", Title = T("host.settings.sections.hotkeys.title"), Description = T("host.settings.sections.hotkeys.description") },
         new SettingSectionDefinition { Id = "gamepad", Title = T("host.settings.sections.gamepad.title"), Description = T("host.settings.sections.gamepad.description") },
         new SettingSectionDefinition { Id = "audio", Title = T("host.settings.sections.audio.title"), Description = T("host.settings.sections.audio.description") },
@@ -232,6 +242,11 @@ public static class SettingsCatalog
         list.Add(Toggle("players", "players.assignGamepadsOnButtonPress", T("host.settings.fields.players.assignGamepadsOnButtonPress.label"),
             T("host.settings.fields.players.assignGamepadsOnButtonPress.description"), false,
             () => App_Misc.ProfileAssignGamepadByButonPress, v => App_Misc.ProfileAssignGamepadByButonPress = v));
+
+        // ---- Game folders (Nucleus 2.5 automatic search) ----
+        // Empty until the user answers (null in Settings.ini): saving "false" then still writes, so the question isn't asked again.
+        list.Add(Define(GameFoldersSection, AutoSearchKey, T("host.settings.fields.misc.autoSearchGame.label"), T("host.settings.fields.misc.autoSearchGame.description"),
+            SettingType.Toggle, "false", () => App_Misc.AutoSearchGame switch { true => "true", false => "false", null => "" }, v => App_Misc.AutoSearchGame = v == "true"));
 
         // ---- Keyboard shortcuts ----
         list.Add(Hotkey("hotkeys.closeApp", T("host.settings.fields.hotkeys.closeApp.label"), "Ctrl+Q", () => App_Hotkeys.CloseApp, v => App_Hotkeys.CloseApp = v));

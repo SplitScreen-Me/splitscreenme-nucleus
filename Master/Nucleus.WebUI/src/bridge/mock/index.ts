@@ -3,6 +3,7 @@
 import { createMockTransport, type MockContext, type MockTransport, type MockTransportOptions } from '../transports/mock.ts';
 import { createAppMock } from './app.ts';
 import { createDialogsMock } from './dialogs.ts';
+import { seedHandlerErrors } from './game-search.ts';
 import { createHandlersMock } from './handlers.ts';
 import { createI18nMock } from './i18n.ts';
 import { createLibraryMock } from './library.ts';
@@ -17,7 +18,8 @@ import { createWindowMock } from './window.ts';
 
 export interface MockBridgeOptions extends MockTransportOptions {
   /**
-   * Start with notices waiting (a handler script error, an unloaded profile), to see the notices dialog.
+   * Start with notices waiting (a handler script error, an unloaded profile), to see the notices dialog, and with
+   * handler scripts in error (Downloads).
    * Default: whether `localStorage['nucleus.mock.notices']` is '1'.
    */
   notices?: boolean;
@@ -27,7 +29,10 @@ export interface MockBridgeOptions extends MockTransportOptions {
 export function createMockBridgeTransport({ notices = readNoticesFlag(), ...options }: MockBridgeOptions = {}): MockTransport {
   const context: MockContext = { emit: (event, payload) => transport.emit(event, payload) };
   const state = createMockState();
-  if (notices) seedNotices(state);
+  if (notices) {
+    seedNotices(state);
+    seedHandlerErrors(state);
+  }
   const transport = createMockTransport(
     {
       app: createAppMock(context, state),
@@ -45,6 +50,8 @@ export function createMockBridgeTransport({ notices = readNoticesFlag(), ...opti
     },
     options,
   );
+  // Dev tools: push a host event by hand, for example `__mockEmit('handlers.changed', { gameIds: ['Valheim'], reloaded: [{ gameId: 'Valheim', gameName: 'Valheim', kind: 'updated' }] })`.
+  Object.assign(globalThis, { __mockEmit: context.emit });
   return transport;
 }
 

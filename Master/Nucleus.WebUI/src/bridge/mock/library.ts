@@ -13,6 +13,7 @@ import {
   removeGame,
   setExecutable,
 } from './library-model.ts';
+import { searchGames } from './game-search.ts';
 import { refreshSetupOf } from './setup-snapshot.ts';
 import type { MockState } from './state.ts';
 import { sleep } from './util.ts';
@@ -50,6 +51,7 @@ export function createLibraryMock(context: MockContext, state: MockState): Bridg
       await sleep(400);
       return findExecutable(state, request);
     },
+    searchGames: (request) => searchGames(context, state, request),
     downloadArtwork: ({ gameId }) => downloadArtwork(context, state, gameId),
     reload: async () => {
       await sleep(500);

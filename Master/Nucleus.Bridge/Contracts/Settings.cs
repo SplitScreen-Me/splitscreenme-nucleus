@@ -28,6 +28,48 @@ namespace Nucleus.Bridge.Contracts
 
         /// <summary>Waits for the user to press a gamepad button combination and returns it (for gamepad shortcut fields). Cancel to stop waiting.</summary>
         Task<string> CaptureGamepadCombo(CaptureComboRequest request, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// The game folders of the automatic game search (<c>library.searchGames</c>) and whether the search runs after a handler install.
+        /// The switch itself is the setting <c>misc.autoSearchGame</c> (section <c>gameFolders</c>).
+        /// </summary>
+        GameFolders GetGameFolders();
+
+        /// <summary>Adds a game folder. Throws <c>notFound</c> when the folder doesn't exist; a folder already saved is kept once.</summary>
+        GameFolders AddGameFolder(GameFolderRequest request);
+
+        /// <summary>Removes a game folder. Unknown folders are ignored.</summary>
+        GameFolders RemoveGameFolder(GameFolderRequest request);
+    }
+
+    /// <summary>The folders where the user keeps games, searched for the executables of installed handlers (Nucleus 2.5).</summary>
+    public sealed class GameFolders
+    {
+        /// <summary>
+        /// Settings.ini <c>[Misc] AutoSearchGame</c>: true, the game folders are searched after a handler install; false, they are not;
+        /// null, the user was never asked (the UI asks once, after a handler install).
+        /// </summary>
+        public bool? AutoSearch { get; set; }
+
+        /// <summary>Saved folders, sorted.</summary>
+        public List<GameFolder> Folders { get; set; } = new List<GameFolder>();
+    }
+
+    /// <summary>A saved game folder.</summary>
+    public sealed class GameFolder
+    {
+        /// <summary>Full path.</summary>
+        public string Path { get; set; } = "";
+
+        /// <summary>False when the folder can't be found right now (an unplugged drive): it is skipped by searches but stays saved.</summary>
+        public bool Exists { get; set; }
+    }
+
+    /// <summary>Parameters of <see cref="ISettingsService.AddGameFolder"/> and <see cref="ISettingsService.RemoveGameFolder"/>.</summary>
+    public sealed class GameFolderRequest
+    {
+        /// <summary>Full path of the folder (from <c>dialogs.pickFolder</c>).</summary>
+        public string Path { get; set; } = "";
     }
 
     /// <summary>Parameters of <see cref="ISettingsService.CaptureGamepadCombo"/>.</summary>
@@ -195,10 +237,10 @@ namespace Nucleus.Bridge.Contracts
     }
 
     /// <summary>Settings were saved.</summary>
-    [BridgeEvent("settings.changed", Invalidates = new[] { "settings.getValues", "settings.getPlayers" })]
+    [BridgeEvent("settings.changed", Invalidates = new[] { "settings.getValues", "settings.getPlayers", "settings.getGameFolders" })]
     public sealed class SettingsChanged
     {
-        /// <summary>Keys that changed.</summary>
+        /// <summary>Keys that changed (<c>players</c> for the player slots, <c>gameFolders</c> for the game folders).</summary>
         public List<string> Keys { get; set; } = new List<string>();
     }
 }

@@ -110,6 +110,17 @@ export const SETTINGS_SCHEMA: SettingsSchema = {
       ],
     },
     {
+      // The players section comes from the UI (no fields here); the game folders list is settings.getGameFolders.
+      id: 'gameFolders',
+      title: 'Game folders',
+      description: "Folders where your games are installed. Nucleus looks in them for the games of your installed handlers, so you don't have to pick each executable.",
+      fields: [
+        toggle('misc.autoSearchGame', 'Search these folders after a handler install', false, {
+          description: 'When you install a handler, Nucleus looks for its game in the folders below instead of asking you where the executable is.',
+        }),
+      ],
+    },
+    {
       id: 'hotkeys',
       title: 'Hotkeys',
       description: 'Keyboard shortcuts available during a session.',
@@ -211,6 +222,8 @@ export function createSettingsValues(): Record<string, string> {
     'misc.network': 'Ethernet',
     'misc.ignoreInputLockReminder': 'false',
     'misc.keepAccounts': 'true',
+    // Never asked yet: the first handler install asks whether to search the game folders.
+    'misc.autoSearchGame': '',
     'audio.instance1': AUDIO_OUTPUTS[1]?.value ?? 'Default',
     'audio.instance2': AUDIO_OUTPUTS[2]?.value ?? 'Default',
   };

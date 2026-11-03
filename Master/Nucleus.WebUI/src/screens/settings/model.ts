@@ -14,6 +14,7 @@ export function sectionIcon(id: string): IconName {
   const icons: Record<string, IconName> = {
     general: 'sliders',
     players: 'users',
+    gameFolders: 'folder',
     hotkeys: 'keyboard',
     gamepad: 'pad',
     audio: 'speaker',

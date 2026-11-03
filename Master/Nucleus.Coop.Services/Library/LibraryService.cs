@@ -83,7 +83,7 @@ public sealed class LibraryService : ILibraryService
         if (!string.IsNullOrEmpty(request!.HandlerGameId))
         {
             game = candidates.FirstOrDefault(c => string.Equals(c.GUID, request.HandlerGameId, StringComparison.OrdinalIgnoreCase))
-                ?? throw HandlerMismatch(request.HandlerGameId!, path);
+                ?? throw RefusedBy(request.HandlerGameId!, path, match);
         }
         else if (candidates.Count == 0)
         {
@@ -125,27 +125,56 @@ public sealed class LibraryService : ILibraryService
 
         if (match.Rejected.Count > 0)
         {
-            ContextMismatch first = match.Rejected[0];
-            var handlers = match.Rejected.Select(r => new
-            {
-                gameId = r.Game.GUID,
-                name = r.Game.GameName,
-                file = r.Game.JsFileName,
-                missing = r.Missing.ToList(),
-                excluded = r.Forbidden.ToList(),
-            }).ToList();
-
-            string message = first.Missing.Count > 0
-                ? I18n.T("host.library.errors.contextMissing", new { game = first.Game.GameName, files = string.Join(", ", first.Missing), executable = fileName })
-                : I18n.T("host.library.errors.contextExcluded", new { game = first.Game.GameName, files = string.Join(", ", first.Forbidden), executable = fileName });
-
-            return new BridgeException(BridgeErrorKind.NotFound, message,
-                new { reason = "contextMissing", executable = fileName, gameId = first.Game.GUID, missing = first.Missing.ToList(), excluded = first.Forbidden.ToList(), handlers });
+            return ContextRefusal(path, match.Rejected);
         }
 
         return new BridgeException(BridgeErrorKind.NotFound,
             I18n.T("host.library.errors.noHandler", new { executable = fileName }),
             new { reason = "noHandler", executable = fileName });
+    }
+
+    /// <summary>
+    /// The handler asked for (after an install, or the game being relinked) doesn't take this executable: when it knows
+    /// the file name but refuses the folder, the context report for that handler (reason <c>contextMissing</c>); else
+    /// <c>handlerMismatch</c>, with the names it expects.
+    /// </summary>
+    internal static BridgeException RefusedBy(string handlerGameId, string path, ExecutableMatch match)
+    {
+        List<ContextMismatch> rejected = match.Rejected.Where(r => string.Equals(r.Game.GUID, handlerGameId, StringComparison.OrdinalIgnoreCase)).ToList();
+        return rejected.Count > 0 ? ContextRefusal(path, rejected) : HandlerMismatch(handlerGameId, path);
+    }
+
+    /// <summary><c>notFound</c>, reason <c>contextMissing</c>: the message names the first handler, the data lists them all.</summary>
+    private static BridgeException ContextRefusal(string path, IReadOnlyList<ContextMismatch> rejected)
+    {
+        string fileName = Path.GetFileName(path);
+        ContextMismatch first = rejected[0];
+        string message = first.Missing.Count > 0
+            ? I18n.T("host.library.errors.contextMissing", new { game = first.Game.GameName, files = string.Join(", ", first.Missing), executable = fileName })
+            : I18n.T("host.library.errors.contextExcluded", new { game = first.Game.GameName, files = string.Join(", ", first.Forbidden), executable = fileName });
+
+        return new BridgeException(BridgeErrorKind.NotFound, message, ContextMismatchData(fileName, rejected));
+    }
+
+    /// <summary>The <see cref="ExecutableContextMismatch"/> error data: every refusing handler, the first one also at the top level.</summary>
+    internal static ExecutableContextMismatch ContextMismatchData(string fileName, IReadOnlyList<ContextMismatch> rejected)
+    {
+        ContextMismatch first = rejected[0];
+        return new ExecutableContextMismatch
+        {
+            Executable = fileName,
+            GameId = first.Game.GUID ?? "",
+            Missing = first.Missing.ToList(),
+            Excluded = first.Forbidden.ToList(),
+            Handlers = rejected.Select(r => new RejectedHandler
+            {
+                GameId = r.Game.GUID ?? "",
+                Name = r.Game.GameName ?? r.Game.GUID ?? "",
+                File = r.Game.JsFileName ?? "",
+                Missing = r.Missing.ToList(),
+                Excluded = r.Forbidden.ToList(),
+            }).ToList(),
+        };
     }
 
     /// <inheritdoc />
@@ -155,9 +184,10 @@ public sealed class LibraryService : ILibraryService
         string path = CheckExecutable(request!.ExecutablePath);
         GenericGameInfo game = entry.Game;
 
-        if (!Manager.GetGames(path).Any(c => string.Equals(c.GUID, game.GUID, StringComparison.OrdinalIgnoreCase)))
+        ExecutableMatch match = Manager.MatchExecutable(path);
+        if (!match.Matches.Any(c => string.Equals(c.GUID, game.GUID, StringComparison.OrdinalIgnoreCase)))
         {
-            throw HandlerMismatch(game.GUID, path);
+            throw RefusedBy(game.GUID, path, match);
         }
 
         UserGameInfo? other = Manager.User.Games.FirstOrDefault(g => g != entry && string.Equals(g.ExePath, path, StringComparison.OrdinalIgnoreCase));
@@ -205,6 +235,31 @@ public sealed class LibraryService : ILibraryService
         }
 
         return Task.Run(() => ExecutableFinder.Find(folder, name, CancellationToken.None));
+    }
+
+    /// <inheritdoc />
+    public async Task<FolderSearchResult> SearchGames(SearchGamesRequest request, CancellationToken cancellationToken)
+    {
+        string searchId = request?.SearchId?.Trim() ?? "";
+        if (searchId.Length == 0 || searchId.Length > FolderSearch.MaxSearchIdLength)
+        {
+            throw new BridgeException(BridgeErrorKind.InvalidParams, $"searchId is required ({FolderSearch.MaxSearchIdLength} characters at most).");
+        }
+
+        GenericGameInfo? single = null;
+        if (!string.IsNullOrEmpty(request!.GameId) && !Manager.Games.TryGetValue(request.GameId, out single))
+        {
+            throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.library.errors.handlerNotFound"), new { reason = "handlerNotFound", gameId = request.GameId });
+        }
+
+        // Snapshots taken on the UI thread: the search runs on a worker while hot reload may swap the handlers.
+        List<GenericGameInfo> handlers = single != null ? new List<GenericGameInfo> { single } : Manager.Games.Values.Where(g => g != null).ToList();
+        List<(string GameId, string ExePath)> library = Manager.User.Games.Where(g => g != null).Select(g => (g.GameGuid, g.ExePath)).ToList();
+        ServiceLog.Info($"game folder search {searchId}: {handlers.Count} handler(s), {core.AutoSearch.ExistingFolders.Count} folder(s)");
+
+        FolderSearchResult result = await FolderSearch.RunAsync(core.AutoSearch, core.Events, searchId, handlers, library, single, cancellationToken);
+        ServiceLog.Info($"game folder search {searchId}: {result.Candidates.Count} executable(s) found");
+        return result;
     }
 
     /// <inheritdoc />

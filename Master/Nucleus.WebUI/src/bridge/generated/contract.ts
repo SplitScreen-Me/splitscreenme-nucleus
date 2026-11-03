@@ -11,7 +11,7 @@ export const protocolVersion = 1;
 /**
  * Hash of the contract this file was generated from. `app.hello` returns the host's: the UI refuses to run when they differ.
  */
-export const contractHash = '5b75d2b1c4464387';
+export const contractHash = '028e2312d57f7e06';
 
 /** JSON-RPC error code of each kind of error the host returns. */
 export const bridgeErrorCodes = {
@@ -201,6 +201,21 @@ export const handlerInstallStageValues = [
   /** Failed (see `HandlerProgress.error`). */
   'failed',
 ] as const satisfies readonly HandlerInstallStage[];
+
+/** How a handler changed when its script file was reloaded. */
+export type HandlerReloadKind = 'added' | 'updated' | 'fixed' | 'removed';
+
+/** Every {@link HandlerReloadKind}, in declaration order. */
+export const handlerReloadKindValues = [
+  /** A new script was added to the handlers folder. */
+  'added',
+  /** The script was edited. */
+  'updated',
+  /** A broken script was fixed. */
+  'fixed',
+  /** The script was deleted; its game left the library. */
+  'removed',
+] as const satisfies readonly HandlerReloadKind[];
 
 /** Progress of one game instance. */
 export type InstanceStage = 'waiting' | 'starting' | 'ready' | 'exited';
@@ -584,6 +599,24 @@ export interface DownloadArtworkRequest {
   gameId?: string;
 }
 
+/**
+ * Data of the `notFound` error of `library.addGame` with reason `contextMissing`: handlers expect this executable's file name, but none accepts the folder it is in (`Game.ExecutableContext`: files or folders that must be next to the executable, and `!entries` that must not be there). Usually another copy of the executable (a launcher, a sub-folder) or another edition of the game.
+ */
+export interface ExecutableContextMismatch {
+  /** Always `contextMissing`. */
+  reason: string;
+  /** File name of the executable, for example "game.exe". */
+  executable: string;
+  /** Game id of the first refusing handler (`handlers[0]`). */
+  gameId: string;
+  /** What the first refusing handler misses next to the executable. */
+  missing: string[];
+  /** What the first refusing handler refuses to find next to the executable. */
+  excluded: string[];
+  /** Every handler that expects this file name and refused its folder, in the order they were checked. */
+  handlers: RejectedHandler[];
+}
+
 /** A file type filter, for example "Game executable" with extensions ["exe"]. */
 export interface FileFilter {
   /** Label shown in the picker. */
@@ -600,12 +633,48 @@ export interface FindExecutableRequest {
   executableName: string;
 }
 
+/** An executable an installed handler accepts, found in the game folders. */
+export interface FolderSearchCandidate {
+  /** Game id of the handler. */
+  gameId: string;
+  /** Game name the handler declares. */
+  gameName: string;
+  /** Handler script file name. */
+  handlerFile: string;
+  /** Full path of the executable, for `library.addGame`. */
+  executablePath: string;
+  /** Folder of the executable. */
+  installFolder: string;
+  /** This executable, or this game, is already in the library. */
+  inLibrary: boolean;
+}
+
+/** Progress of `library.searchGames`, sent a few times per second at most and once at the end. */
+export interface FolderSearchProgress {
+  /** Id of the search (`SearchGamesRequest.searchId`). */
+  searchId: string;
+  /** 0 to 100. */
+  percent: number;
+  /** Folder being searched, null at the end. */
+  currentFolder?: string;
+  /** Executables found so far. */
+  found: number;
+}
+
+/** Result of `library.searchGames`. */
+export interface FolderSearchResult {
+  /** Executables found, one per executable and handler, sorted by game name. */
+  candidates: FolderSearchCandidate[];
+  /** Game folders searched (saved folders that exist right now). */
+  foldersSearched: number;
+}
+
 /** Everything the game page shows. */
 export interface GameDetails {
   /** Summary fields. */
   summary: GameSummary;
   /**
-   * Handler notes, raw. Markup: `*text*` highlight, `*text|r,g,b*` coloured, `[label]{url}` link; plain URLs are links.
+   * Handler notes, raw. Markup: `*text*` or `*<text>*` highlight, `*text|r,g,b*` or `*<text|r,g,b>*` coloured, `[label]{url}` link; plain URLs are links.
    */
   notes?: string;
   /** Screenshot URLs, when downloaded. */
@@ -630,6 +699,30 @@ export interface GameDetails {
   hasOptions: boolean;
   /** Whether the notes should open by themselves (first launch, unless disabled in settings). */
   showNotesFirst: boolean;
+}
+
+/** A saved game folder. */
+export interface GameFolder {
+  /** Full path. */
+  path: string;
+  /** False when the folder can't be found right now (an unplugged drive): it is skipped by searches but stays saved. */
+  exists: boolean;
+}
+
+/** Parameters of `settings.addGameFolder` and `settings.removeGameFolder`. */
+export interface GameFolderRequest {
+  /** Full path of the folder (from `dialogs.pickFolder`). */
+  path: string;
+}
+
+/** The folders where the user keeps games, searched for the executables of installed handlers (Nucleus 2.5). */
+export interface GameFolders {
+  /**
+   * Settings.ini `[Misc] AutoSearchGame`: true, the game folders are searched after a handler install; false, they are not; null, the user was never asked (the UI asks once, after a handler install).
+   */
+  autoSearch?: boolean;
+  /** Saved folders, sorted. */
+  folders: GameFolder[];
 }
 
 /** Inputs a handler supports. */
@@ -742,6 +835,24 @@ export interface HandlerCandidate {
   name: string;
 }
 
+/** A handler script that can't be used as it is now. */
+export interface HandlerFileError {
+  /** Script file name, for example "Elden Ring.js". */
+  file: string;
+  /** Game name of the version in use, when an earlier version of the file loaded. */
+  gameName?: string;
+  /** Game id of the version in use, when an earlier version of the file loaded. */
+  gameId?: string;
+  /**
+   * The previous version of the script is still in use (it loaded before the file was broken), so its game keeps working until the file is fixed. False when the file never loaded.
+   */
+  previousVersionInUse: boolean;
+  /**
+   * What is wrong, as the script engine or Nucleus reports it (not translated when it comes from the script engine).
+   */
+  error: string;
+}
+
 /** Progress of an install or update. */
 export interface HandlerProgress {
   /** Hub handler id, or the file path for installs from a file. */
@@ -760,6 +871,10 @@ export interface HandlerProgress {
 export interface HandlersChanged {
   /** Game ids of the handlers that changed. */
   gameIds: string[];
+  /**
+   * Handlers picked up from the handlers folder by themselves (a script added, edited, fixed or deleted while Nucleus runs), for a short message. Absent for installs, updates and the library reload, which say so themselves, and for broken scripts, which are notices.
+   */
+  reloaded?: ReloadedHandler[];
 }
 
 /** Answer to `app.hello`. */
@@ -1148,6 +1263,30 @@ export interface Rect {
   height: number;
 }
 
+/** A handler that expects an executable's file name but refused the folder it is in. */
+export interface RejectedHandler {
+  /** Game id of the handler. */
+  gameId: string;
+  /** Game name. */
+  name: string;
+  /** Handler script file name. */
+  file: string;
+  /** Files or folders the handler needs next to the executable and that are not there, as the handler writes them. */
+  missing: string[];
+  /** Files or folders next to the executable that the handler refuses (its `!entry` items, written without the `!`). */
+  excluded: string[];
+}
+
+/** A handler reloaded from its script file. */
+export interface ReloadedHandler {
+  /** Game id. */
+  gameId: string;
+  /** Game name. */
+  gameName: string;
+  /** What happened. */
+  kind: HandlerReloadKind;
+}
+
 /** Parameters of `setup.resize`. */
 export interface ResizePlayerRequest {
   /** Player to resize. */
@@ -1166,6 +1305,16 @@ export interface RunMenuActionRequest {
   itemId: string;
   /** New value, for choice items. */
   value?: string;
+}
+
+/** Parameters of `library.searchGames`. */
+export interface SearchGamesRequest {
+  /** Id chosen by the UI, repeated in the `FolderSearchProgress` events of this search. */
+  searchId: string;
+  /**
+   * Only this installed handler, stopping at its first executable (after a handler install). Null: every installed handler.
+   */
+  gameId?: string;
 }
 
 /** Parameters of `setup.selectStepItem`. */
@@ -1464,7 +1613,7 @@ export interface SettingField {
 
 /** Settings were saved. */
 export interface SettingsChanged {
-  /** Keys that changed. */
+  /** Keys that changed (`players` for the player slots, `gameFolders` for the game folders). */
   keys: string[];
 }
 
@@ -1804,6 +1953,10 @@ export interface BridgeMethods {
    * Installs a handler from a .nc, .zip or .js file. Throws `conflict` (reason `alreadyInstalled`) when it exists and `InstallFromFileRequest.overwrite` is false.
    */
   'handlers.installFromFile': { params: InstallFromFileRequest; result: InstallResult };
+  /**
+   * Handler scripts of the handlers folder that can't be used as they are now (script error, no game name or GUID), by file name.
+   */
+  'handlers.listErrors': { params: void; result: HandlerFileError[] };
   /** Handlers installed on this PC. */
   'handlers.listInstalled': { params: void; result: InstalledHandler[] };
   /** Screenshot URLs (IGDB) of a hub handler's game, from the handler detail of the hub API. */
@@ -1821,7 +1974,7 @@ export interface BridgeMethods {
    */
   'i18n.setLanguage': { params: SetLanguageRequest; result: void };
   /**
-   * Adds a game from its executable. When several handlers match, returns them and adds nothing: call again with `AddGameRequest.handlerGameId`.
+   * Adds a game from its executable. When several handlers match, returns them and adds nothing: call again with `AddGameRequest.handlerGameId`. Throws `notFound` with reason `noHandler` when no installed handler expects that file name, and with reason `contextMissing` and `ExecutableContextMismatch` data when handlers expect it but none accepts the folder it is in (with `AddGameRequest.handlerGameId`, that handler only; `handlerMismatch` when it doesn't expect that file name).
    */
   'library.addGame': { params: AddGameRequest; result: AddGameResult };
   /**
@@ -1850,7 +2003,13 @@ export interface BridgeMethods {
    * Games installed through Steam and Epic on this PC. The UI matches them with the hub catalogue to offer ready-made handlers.
    */
   'library.scanInstalledGames': { params: void; result: InstalledGame[] };
-  /** Points a game at a new executable (when the game was moved). The executable must match the handler. */
+  /**
+   * Looks for the executables of the installed handlers in the game folders (`settings.getGameFolders`; the Nucleus 2.5 automatic search). Works offline: only installed handlers are used. Sub-folders are searched, links are not followed. Progress comes as `FolderSearchProgress` events carrying `SearchGamesRequest.searchId`; cancelling the call stops the search.
+   */
+  'library.searchGames': { params: SearchGamesRequest; result: FolderSearchResult };
+  /**
+   * Points a game at a new executable (when the game was moved). The executable must match the handler: `notFound` with reason `handlerMismatch` otherwise, or `contextMissing` with `ExecutableContextMismatch` data when the handler expects that file name but refuses its folder.
+   */
   'library.setExecutable': { params: SetExecutableRequest; result: void };
   /** Marks or unmarks a game as favourite. */
   'library.setFavorite': { params: SetFavoriteRequest; result: void };
@@ -1888,16 +2047,24 @@ export interface BridgeMethods {
    * Stops the session and closes every instance. Throws `conflict` while inputs are locked (unlock them first with the hotkey).
    */
   'session.stop': { params: void; result: SessionSnapshot };
+  /** Adds a game folder. Throws `notFound` when the folder doesn't exist; a folder already saved is kept once. */
+  'settings.addGameFolder': { params: GameFolderRequest; result: GameFolders };
   /**
    * Waits for the user to press a gamepad button combination and returns it (for gamepad shortcut fields). Cancel to stop waiting.
    */
   'settings.captureGamepadCombo': { params: CaptureComboRequest; result: string };
+  /**
+   * The game folders of the automatic game search (`library.searchGames`) and whether the search runs after a handler install. The switch itself is the setting `misc.autoSearchGame` (section `gameFolders`).
+   */
+  'settings.getGameFolders': { params: void; result: GameFolders };
   /** Global player nicknames and Steam IDs. */
   'settings.getPlayers': { params: void; result: PlayerIdentities };
   /** Sections and fields. */
   'settings.getSchema': { params: void; result: SettingsSchema };
   /** Current values, by field key. */
   'settings.getValues': { params: void; result: Record<string, string> };
+  /** Removes a game folder. Unknown folders are ignored. */
+  'settings.removeGameFolder': { params: GameFolderRequest; result: GameFolders };
   /**
    * Saves global player nicknames and Steam IDs. Returns the invalid fields; nothing is saved when the list is not empty.
    */
@@ -2022,6 +2189,10 @@ export interface BridgeHandlers {
      * Installs a handler from a .nc, .zip or .js file. Throws `conflict` (reason `alreadyInstalled`) when it exists and `InstallFromFileRequest.overwrite` is false.
      */
     installFromFile: (params: InstallFromFileRequest) => Awaitable<InstallResult>;
+    /**
+     * Handler scripts of the handlers folder that can't be used as they are now (script error, no game name or GUID), by file name.
+     */
+    listErrors: () => Awaitable<HandlerFileError[]>;
     /** Handlers installed on this PC. */
     listInstalled: () => Awaitable<InstalledHandler[]>;
     /** Screenshot URLs (IGDB) of a hub handler's game, from the handler detail of the hub API. */
@@ -2047,7 +2218,7 @@ export interface BridgeHandlers {
   /** The user's games: list, details, favourites, the per-game menu, adding and removing games, artwork. */
   library: {
     /**
-     * Adds a game from its executable. When several handlers match, returns them and adds nothing: call again with `AddGameRequest.handlerGameId`.
+     * Adds a game from its executable. When several handlers match, returns them and adds nothing: call again with `AddGameRequest.handlerGameId`. Throws `notFound` with reason `noHandler` when no installed handler expects that file name, and with reason `contextMissing` and `ExecutableContextMismatch` data when handlers expect it but none accepts the folder it is in (with `AddGameRequest.handlerGameId`, that handler only; `handlerMismatch` when it doesn't expect that file name).
      */
     addGame: (params: AddGameRequest) => Awaitable<AddGameResult>;
     /**
@@ -2076,7 +2247,13 @@ export interface BridgeHandlers {
      * Games installed through Steam and Epic on this PC. The UI matches them with the hub catalogue to offer ready-made handlers.
      */
     scanInstalledGames: () => Awaitable<InstalledGame[]>;
-    /** Points a game at a new executable (when the game was moved). The executable must match the handler. */
+    /**
+     * Looks for the executables of the installed handlers in the game folders (`settings.getGameFolders`; the Nucleus 2.5 automatic search). Works offline: only installed handlers are used. Sub-folders are searched, links are not followed. Progress comes as `FolderSearchProgress` events carrying `SearchGamesRequest.searchId`; cancelling the call stops the search.
+     */
+    searchGames: (params: SearchGamesRequest) => Awaitable<FolderSearchResult>;
+    /**
+     * Points a game at a new executable (when the game was moved). The executable must match the handler: `notFound` with reason `handlerMismatch` otherwise, or `contextMissing` with `ExecutableContextMismatch` data when the handler expects that file name but refuses its folder.
+     */
     setExecutable: (params: SetExecutableRequest) => Awaitable<void>;
     /** Marks or unmarks a game as favourite. */
     setFavorite: (params: SetFavoriteRequest) => Awaitable<void>;
@@ -2130,16 +2307,24 @@ export interface BridgeHandlers {
    * App settings, described by a schema so the UI renders them generically: adding a setting only takes C#. Values travel as strings (as stored in Settings.ini); the field type says how to edit and parse them.
    */
   settings: {
+    /** Adds a game folder. Throws `notFound` when the folder doesn't exist; a folder already saved is kept once. */
+    addGameFolder: (params: GameFolderRequest) => Awaitable<GameFolders>;
     /**
      * Waits for the user to press a gamepad button combination and returns it (for gamepad shortcut fields). Cancel to stop waiting.
      */
     captureGamepadCombo: (params: CaptureComboRequest) => Awaitable<string>;
+    /**
+     * The game folders of the automatic game search (`library.searchGames`) and whether the search runs after a handler install. The switch itself is the setting `misc.autoSearchGame` (section `gameFolders`).
+     */
+    getGameFolders: () => Awaitable<GameFolders>;
     /** Global player nicknames and Steam IDs. */
     getPlayers: () => Awaitable<PlayerIdentities>;
     /** Sections and fields. */
     getSchema: () => Awaitable<SettingsSchema>;
     /** Current values, by field key. */
     getValues: () => Awaitable<Record<string, string>>;
+    /** Removes a game folder. Unknown folders are ignored. */
+    removeGameFolder: (params: GameFolderRequest) => Awaitable<GameFolders>;
     /**
      * Saves global player nicknames and Steam IDs. Returns the invalid fields; nothing is saved when the list is not empty.
      */
@@ -2262,6 +2447,7 @@ export const bridgeServices = {
     checkUpdates: { params: false },
     install: { params: true },
     installFromFile: { params: true },
+    listErrors: { params: false },
     listInstalled: { params: false },
     screenshots: { params: true },
     update: { params: true },
@@ -2283,6 +2469,7 @@ export const bridgeServices = {
     remove: { params: true },
     runMenuAction: { params: true },
     scanInstalledGames: { params: false },
+    searchGames: { params: true },
     setExecutable: { params: true },
     setFavorite: { params: true },
     setPreferences: { params: true },
@@ -2307,10 +2494,13 @@ export const bridgeServices = {
     stop: { params: false },
   },
   settings: {
+    addGameFolder: { params: true },
     captureGamepadCombo: { params: true },
+    getGameFolders: { params: false },
     getPlayers: { params: false },
     getSchema: { params: false },
     getValues: { params: false },
+    removeGameFolder: { params: true },
     setPlayers: { params: true },
     setValues: { params: true },
   },
@@ -2371,6 +2561,8 @@ export interface BridgeEvents {
   'library.artworkProgress': ArtworkProgress;
   /** Games were added, removed, reloaded or changed (favourite, update found, play time, artwork). */
   'library.changed': LibraryChanged;
+  /** Progress of `library.searchGames`, sent a few times per second at most and once at the end. */
+  'library.searchProgress': FolderSearchProgress;
   /** A notice was added or dismissed. */
   'notices.changed': NoticesChanged;
   /** Profiles of the current game were added, deleted or renamed. */
@@ -2400,17 +2592,18 @@ export interface BridgeEvents {
 /** Methods each event makes stale: the client refetches their queries when the event arrives. */
 export const eventInvalidations: { readonly [E in keyof BridgeEvents]: readonly (keyof BridgeMethods)[] } = {
   'app.hubStatusChanged': ['app.getInfo'],
-  'handlers.changed': ['handlers.listInstalled', 'library.list', 'library.get'],
+  'handlers.changed': ['handlers.listInstalled', 'handlers.listErrors', 'library.list', 'library.get'],
   'handlers.progress': [],
   'i18n.languageChanged': ['i18n.getState', 'i18n.getStrings'],
   'library.artworkProgress': [],
   'library.changed': ['library.list', 'library.get', 'library.getMenu', 'handlers.listInstalled'],
+  'library.searchProgress': [],
   'notices.changed': ['notices.list'],
   'profiles.changed': ['profiles.list', 'profiles.getSettings', 'library.get'],
   'session.changed': [],
   'session.log': [],
   'session.notice': [],
-  'settings.changed': ['settings.getValues', 'settings.getPlayers'],
+  'settings.changed': ['settings.getValues', 'settings.getPlayers', 'settings.getGameFolders'],
   'setup.changed': [],
   'setup.deviceActivity': [],
   'setup.deviceLost': [],

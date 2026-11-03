@@ -23,10 +23,19 @@ namespace Nucleus.Bridge.Contracts
         /// <summary>Runs a menu item. Items with <see cref="GameMenuItem.Confirm"/> must be confirmed by the user first.</summary>
         Task RunMenuAction(RunMenuActionRequest request);
 
-        /// <summary>Adds a game from its executable. When several handlers match, returns them and adds nothing: call again with <see cref="AddGameRequest.HandlerGameId"/>.</summary>
+        /// <summary>
+        /// Adds a game from its executable. When several handlers match, returns them and adds nothing: call again with <see cref="AddGameRequest.HandlerGameId"/>.
+        /// Throws <c>notFound</c> with reason <c>noHandler</c> when no installed handler expects that file name, and with reason
+        /// <c>contextMissing</c> and <see cref="ExecutableContextMismatch"/> data when handlers expect it but none accepts the folder it is in
+        /// (with <see cref="AddGameRequest.HandlerGameId"/>, that handler only; <c>handlerMismatch</c> when it doesn't expect that file name).
+        /// </summary>
         Task<AddGameResult> AddGame(AddGameRequest request);
 
-        /// <summary>Points a game at a new executable (when the game was moved). The executable must match the handler.</summary>
+        /// <summary>
+        /// Points a game at a new executable (when the game was moved). The executable must match the handler: <c>notFound</c> with
+        /// reason <c>handlerMismatch</c> otherwise, or <c>contextMissing</c> with <see cref="ExecutableContextMismatch"/> data when the
+        /// handler expects that file name but refuses its folder.
+        /// </summary>
         void SetExecutable(SetExecutableRequest request);
 
         /// <summary>Removes a game from the library (the handler stays installed).</summary>
@@ -37,6 +46,14 @@ namespace Nucleus.Bridge.Contracts
 
         /// <summary>Looks for an executable by name under a folder (for example a Steam install folder). Returns null when not found.</summary>
         Task<string?> FindExecutable(FindExecutableRequest request);
+
+        /// <summary>
+        /// Looks for the executables of the installed handlers in the game folders (<c>settings.getGameFolders</c>; the Nucleus 2.5
+        /// automatic search). Works offline: only installed handlers are used. Sub-folders are searched, links are not followed.
+        /// Progress comes as <see cref="FolderSearchProgress"/> events carrying <see cref="SearchGamesRequest.SearchId"/>;
+        /// cancelling the call stops the search.
+        /// </summary>
+        Task<FolderSearchResult> SearchGames(SearchGamesRequest request, System.Threading.CancellationToken cancellationToken);
 
         /// <summary>Downloads cover and screenshots of one game, or of every game when <see cref="DownloadArtworkRequest.GameId"/> is null. Progress comes as <see cref="ArtworkProgress"/>.</summary>
         Task DownloadArtwork(DownloadArtworkRequest request, System.Threading.CancellationToken cancellationToken);
@@ -125,7 +142,10 @@ namespace Nucleus.Bridge.Contracts
         /// <summary>Summary fields.</summary>
         public GameSummary Summary { get; set; } = new GameSummary();
 
-        /// <summary>Handler notes, raw. Markup: <c>*text*</c> highlight, <c>*text|r,g,b*</c> coloured, <c>[label]{url}</c> link; plain URLs are links.</summary>
+        /// <summary>
+        /// Handler notes, raw. Markup: <c>*text*</c> or <c>*&lt;text&gt;*</c> highlight, <c>*text|r,g,b*</c> or <c>*&lt;text|r,g,b&gt;*</c> coloured,
+        /// <c>[label]{url}</c> link; plain URLs are links.
+        /// </summary>
         public string? Notes { get; set; }
 
         /// <summary>Screenshot URLs, when downloaded.</summary>
@@ -294,6 +314,53 @@ namespace Nucleus.Bridge.Contracts
         public List<HandlerCandidate> Candidates { get; set; } = new List<HandlerCandidate>();
     }
 
+    /// <summary>
+    /// Data of the <c>notFound</c> error of <see cref="ILibraryService.AddGame"/> with reason <c>contextMissing</c>: handlers expect
+    /// this executable's file name, but none accepts the folder it is in (<c>Game.ExecutableContext</c>: files or folders that must be
+    /// next to the executable, and <c>!entries</c> that must not be there). Usually another copy of the executable (a launcher, a
+    /// sub-folder) or another edition of the game.
+    /// </summary>
+    [BridgeErrorData]
+    public sealed class ExecutableContextMismatch
+    {
+        /// <summary>Always <c>contextMissing</c>.</summary>
+        public string Reason { get; set; } = "contextMissing";
+
+        /// <summary>File name of the executable, for example "game.exe".</summary>
+        public string Executable { get; set; } = "";
+
+        /// <summary>Game id of the first refusing handler (<c>handlers[0]</c>).</summary>
+        public string GameId { get; set; } = "";
+
+        /// <summary>What the first refusing handler misses next to the executable.</summary>
+        public List<string> Missing { get; set; } = new List<string>();
+
+        /// <summary>What the first refusing handler refuses to find next to the executable.</summary>
+        public List<string> Excluded { get; set; } = new List<string>();
+
+        /// <summary>Every handler that expects this file name and refused its folder, in the order they were checked.</summary>
+        public List<RejectedHandler> Handlers { get; set; } = new List<RejectedHandler>();
+    }
+
+    /// <summary>A handler that expects an executable's file name but refused the folder it is in.</summary>
+    public sealed class RejectedHandler
+    {
+        /// <summary>Game id of the handler.</summary>
+        public string GameId { get; set; } = "";
+
+        /// <summary>Game name.</summary>
+        public string Name { get; set; } = "";
+
+        /// <summary>Handler script file name.</summary>
+        public string File { get; set; } = "";
+
+        /// <summary>Files or folders the handler needs next to the executable and that are not there, as the handler writes them.</summary>
+        public List<string> Missing { get; set; } = new List<string>();
+
+        /// <summary>Files or folders next to the executable that the handler refuses (its <c>!entry</c> items, written without the <c>!</c>).</summary>
+        public List<string> Excluded { get; set; } = new List<string>();
+    }
+
     /// <summary>Parameters of <see cref="ILibraryService.SetExecutable"/>.</summary>
     public sealed class SetExecutableRequest
     {
@@ -337,6 +404,48 @@ namespace Nucleus.Bridge.Contracts
 
         /// <summary>File name, for example "eldenring.exe".</summary>
         public string ExecutableName { get; set; } = "";
+    }
+
+    /// <summary>Parameters of <see cref="ILibraryService.SearchGames"/>.</summary>
+    public sealed class SearchGamesRequest
+    {
+        /// <summary>Id chosen by the UI, repeated in the <see cref="FolderSearchProgress"/> events of this search.</summary>
+        public string SearchId { get; set; } = "";
+
+        /// <summary>Only this installed handler, stopping at its first executable (after a handler install). Null: every installed handler.</summary>
+        public string? GameId { get; set; }
+    }
+
+    /// <summary>Result of <see cref="ILibraryService.SearchGames"/>.</summary>
+    public sealed class FolderSearchResult
+    {
+        /// <summary>Executables found, one per executable and handler, sorted by game name.</summary>
+        public List<FolderSearchCandidate> Candidates { get; set; } = new List<FolderSearchCandidate>();
+
+        /// <summary>Game folders searched (saved folders that exist right now).</summary>
+        public int FoldersSearched { get; set; }
+    }
+
+    /// <summary>An executable an installed handler accepts, found in the game folders.</summary>
+    public sealed class FolderSearchCandidate
+    {
+        /// <summary>Game id of the handler.</summary>
+        public string GameId { get; set; } = "";
+
+        /// <summary>Game name the handler declares.</summary>
+        public string GameName { get; set; } = "";
+
+        /// <summary>Handler script file name.</summary>
+        public string HandlerFile { get; set; } = "";
+
+        /// <summary>Full path of the executable, for <see cref="ILibraryService.AddGame"/>.</summary>
+        public string ExecutablePath { get; set; } = "";
+
+        /// <summary>Folder of the executable.</summary>
+        public string InstallFolder { get; set; } = "";
+
+        /// <summary>This executable, or this game, is already in the library.</summary>
+        public bool InLibrary { get; set; }
     }
 
     /// <summary>Parameters of <see cref="ILibraryService.DownloadArtwork"/>.</summary>
@@ -386,6 +495,23 @@ namespace Nucleus.Bridge.Contracts
     {
         /// <summary>Changed games. Empty means "anything may have changed".</summary>
         public List<string> GameIds { get; set; } = new List<string>();
+    }
+
+    /// <summary>Progress of <see cref="ILibraryService.SearchGames"/>, sent a few times per second at most and once at the end.</summary>
+    [BridgeEvent("library.searchProgress")]
+    public sealed class FolderSearchProgress
+    {
+        /// <summary>Id of the search (<see cref="SearchGamesRequest.SearchId"/>).</summary>
+        public string SearchId { get; set; } = "";
+
+        /// <summary>0 to 100.</summary>
+        public int Percent { get; set; }
+
+        /// <summary>Folder being searched, null at the end.</summary>
+        public string? CurrentFolder { get; set; }
+
+        /// <summary>Executables found so far.</summary>
+        public int Found { get; set; }
     }
 
     /// <summary>Progress of <see cref="ILibraryService.DownloadArtwork"/>.</summary>

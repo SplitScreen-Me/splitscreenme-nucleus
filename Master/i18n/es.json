@@ -171,6 +171,7 @@
       "settings": {
         "general": "General: idiomas, red, apodos, registro de depuración",
         "players": "Jugadores: apodos e ID de Steam",
+        "gameFolders": "Carpetas de juegos",
         "hotkeys": "Atajos de teclado y tecla de bloqueo de entradas",
         "gamepad": "Atajos del mando y tipo de mando",
         "audio": "Audio: dispositivo de reproducción de cada instancia",
@@ -260,6 +261,40 @@
       "chooser": {
         "title": "¿Qué juego es?",
         "message": "Varios handlers instalados ejecutan <b>{file}</b>. Elige el juego al que pertenece este ejecutable."
+      },
+      "context": {
+        "title": "No se puede añadir este ejecutable",
+        "introOne": "El handler de {game} ejecuta <b>{file}</b>, pero no acepta la carpeta donde está esta copia:",
+        "introMany": "Varios handlers ejecutan <b>{file}</b>, pero ninguno acepta la carpeta donde está esta copia:",
+        "handlerFile": "Handler: {file}",
+        "missing": "Falta junto al ejecutable",
+        "excluded": "Está junto al ejecutable, pero este handler lo rechaza",
+        "excludedHint": "Suele indicar otra edición o versión del juego.",
+        "hintMissing": "Elige el ejecutable de la carpeta principal del juego: aquella junto a la que están estos archivos.",
+        "hintExcluded": "Elige el ejecutable de la edición para la que está hecho este handler.",
+        "pickAgain": "Elegir otro archivo"
+      },
+      "autoSearch": {
+        "ask": {
+          "title": "¿Buscar tus juegos automáticamente?",
+          "text": "Nucleus puede buscar {game} en las carpetas donde instalas juegos, en vez de preguntarte dónde está su ejecutable. Lo hará tras cada instalación de un handler, y funciona sin conexión.",
+          "hint": "Puedes cambiarlo cuando quieras en Ajustes, Carpetas de juegos.",
+          "noThanks": "No, gracias",
+          "turnOnSearch": "Activar y buscar",
+          "turnOnFolders": "Activar y elegir una carpeta"
+        },
+        "find": {
+          "title": "Buscando {game}",
+          "text": "Buscando en tus carpetas de juegos…",
+          "skip": "Elegirlo yo"
+        },
+        "found": {
+          "title": "{game} encontrado",
+          "text": "Esta copia de {game} está en tus carpetas de juegos:",
+          "add": "Añadir este juego",
+          "other": "Elegir otro archivo"
+        },
+        "notFound": "{game} no está en tus carpetas de juegos: elige su ejecutable."
       }
     },
     "fileDrop": {
@@ -280,6 +315,79 @@
     },
     "notices": {
       "position": "{current} de {total}"
+    },
+    "gameFolders": {
+      "pickTitle": "Elige una carpeta donde instalas juegos",
+      "added": "{folder} añadida a tus carpetas de juegos",
+      "already": "{folder} ya es una de tus carpetas de juegos"
+    },
+    "gameSearch": {
+      "title": "Buscar en mis carpetas de juegos",
+      "loading": "Leyendo tus carpetas de juegos…",
+      "noFolders": {
+        "title": "¿Dónde están tus juegos?",
+        "text": "Añade las carpetas donde instalas juegos, por ejemplo D:\\Juegos o una biblioteca de Steam. Nucleus busca en ellas los juegos de tus handlers instalados.",
+        "allMissing": "Ahora mismo no se encuentra ninguna de tus carpetas de juegos: vuelve a conectar la unidad o añade otra carpeta.",
+        "add": "Añadir una carpeta"
+      },
+      "editFolders": "Editar carpetas",
+      "searching": {
+        "title_one": "Buscando en {count} carpeta de juegos…",
+        "title_many": "Buscando en {count} carpetas de juegos…",
+        "title_other": "Buscando en {count} carpetas de juegos…",
+        "progressLabel": "Progreso de la búsqueda",
+        "found_one": "{percent} · {count} juego encontrado",
+        "found_many": "{percent} · {count} juegos encontrados",
+        "found_other": "{percent} · {count} juegos encontrados",
+        "stop": "Detener"
+      },
+      "stopped": "Búsqueda detenida. No se añadió nada.",
+      "searchAgain": "Buscar de nuevo",
+      "nothing": {
+        "title": "No se encontraron juegos nuevos",
+        "text": "Ningún juego de tus carpetas de juegos coincide con un handler instalado. Solo se pueden encontrar los juegos cuyo handler está instalado: consigue handlers en Obtener juegos y vuelve a buscar.",
+        "allInLibrary_one": "El juego encontrado ya está en tu biblioteca.",
+        "allInLibrary_many": "Los {count} juegos encontrados ya están en tu biblioteca.",
+        "allInLibrary_other": "Los {count} juegos encontrados ya están en tu biblioteca.",
+        "getGames": "Obtener juegos"
+      },
+      "results": {
+        "found_one": "{count} juego nuevo encontrado. Elige qué añadir a tu biblioteca.",
+        "found_many": "{count} juegos nuevos encontrados. Elige qué añadir a tu biblioteca.",
+        "found_other": "{count} juegos nuevos encontrados. Elige qué añadir a tu biblioteca.",
+        "finished": "Listo. Los juegos añadidos están en tu biblioteca.",
+        "selectAll": "Seleccionar todo",
+        "selectNone": "Quitar selección",
+        "addCount_one": "Añadir {count} juego",
+        "addCount_many": "Añadir {count} juegos",
+        "addCount_other": "Añadir {count} juegos",
+        "selectToAdd": "Selecciona juegos para añadir",
+        "adding": "Añadiendo juegos…",
+        "duplicates": "Algunos juegos se encontraron en varios sitios. Tu biblioteca guarda una sola copia de cada juego: elige la que usas."
+      },
+      "row": {
+        "addLabel": "Añadir {game} ({path})",
+        "inLibrary": "En tu biblioteca",
+        "adding": "Añadiendo…",
+        "added": "Añadido",
+        "failed": "No añadido",
+        "anotherCopy": "Varias copias"
+      },
+      "toasts": {
+        "added_one": "{count} juego añadido a tu biblioteca",
+        "added_many": "{count} juegos añadidos a tu biblioteca",
+        "added_other": "{count} juegos añadidos a tu biblioteca",
+        "noneAdded": "No se añadió ningún juego"
+      }
+    },
+    "handlerReload": {
+      "added": "Handler {game} añadido",
+      "updated": "Handler {game} recargado",
+      "fixed": "Handler {game} corregido y recargado",
+      "removed": "Handler {game} eliminado",
+      "several_one": "{count} handler recargado",
+      "several_many": "{count} handlers recargados",
+      "several_other": "{count} handlers recargados"
     }
   },
   "language": {
@@ -322,7 +430,8 @@
       "title": "Tu biblioteca está vacía",
       "text": "Añade los juegos que Nucleus encontró en este PC, elige un handler en el Hub o indícale a Nucleus un juego que tengas. Cada juego recibe una configuración de pantalla dividida lista para usar.",
       "getGames": "Obtener juegos",
-      "addGame": "Añadir un juego"
+      "addGame": "Añadir un juego",
+      "searchGames": "Buscar en mis carpetas de juegos"
     },
     "upToPlayers_one": "Hasta {count} jugador",
     "upToPlayers_many": "Hasta {count} jugadores",
@@ -428,6 +537,7 @@
       "sort": "Ordenar",
       "sortLabel": "Ordenar juegos",
       "addGame": "Añadir un juego",
+      "searchGames": "Buscar mis juegos",
       "filtersLabel": "Filtrar juegos",
       "favourites": "Favoritos",
       "needsAttention": "Requiere atención",
@@ -809,6 +919,13 @@
       "done": "Instalado",
       "failed": "Error",
       "cancelled": "Cancelado"
+    },
+    "errors": {
+      "title": "Handlers con errores",
+      "intro": "Estos archivos de handler no se pueden usar tal como están. Corrígelos o elimínalos en la carpeta de handlers: Nucleus detecta el cambio por sí solo.",
+      "openFolder": "Abrir la carpeta de handlers",
+      "previousInUse": "Se sigue usando la versión anterior de {game}",
+      "notLoaded": "No cargado"
     }
   },
   "hub": {
@@ -1654,6 +1771,20 @@
       "save": "Guardar jugadores",
       "saved": "Jugadores guardados"
     },
+    "gameFolders": {
+      "loading": "Cargando las carpetas de juegos…",
+      "error": "No se pueden leer las carpetas de juegos.",
+      "editorTitle": "Tus carpetas de juegos",
+      "editorHint": "También se buscan sus subcarpetas.",
+      "empty": "Aún no hay carpetas de juegos. Añade las carpetas donde instalas juegos, por ejemplo D:\\Juegos o una biblioteca de Steam.",
+      "missing": "No encontrada",
+      "missingHint": "Esta carpeta no se encuentra ahora mismo (¿una unidad desconectada?). Sigue en la lista y se volverá a buscar en ella cuando vuelva.",
+      "remove": "Quitar",
+      "removeLabel": "Quitar {folder} de tus carpetas de juegos",
+      "removed": "{folder} quitada de tus carpetas de juegos",
+      "add": "Añadir una carpeta",
+      "searchNow": "Buscar ahora"
+    },
     "about": {
       "title": "Acerca de",
       "tagline": "Pantalla dividida gratuita y de código abierto para juegos de PC. Hecho por jugadores, para sofás de todo el mundo.",
@@ -1744,6 +1875,10 @@
           "title": "Jugadores",
           "description": "Cómo se asignan los mandos a los jugadores. Los apodos y los ID de Steam se editan en la lista de jugadores."
         },
+        "gameFolders": {
+          "title": "Carpetas de juegos",
+          "description": "Carpetas donde instalas juegos. Nucleus busca en ellas los juegos de tus handlers instalados, así no tienes que elegir cada ejecutable. Funciona sin conexión."
+        },
         "hotkeys": {
           "title": "Atajos de teclado",
           "description": "Atajos disponibles durante una sesión de juego. Los cambios se aplican a partir de la siguiente sesión."
@@ -1817,6 +1952,10 @@
           "disableGameProfiles": {
             "label": "Desactivar perfiles de juego",
             "description": "Nucleus usa estos ajustes globales en lugar de perfiles por juego."
+          },
+          "autoSearchGame": {
+            "label": "Buscar en estas carpetas tras instalar un handler",
+            "description": "Cuando instalas un handler, Nucleus busca su juego en las carpetas de abajo antes de preguntarte dónde está el ejecutable."
           }
         },
         "players": {
