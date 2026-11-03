@@ -23,6 +23,8 @@ export function useSessionCommands(session: Pick<SessionSnapshot, 'lockInputsKey
     return {
       stop: () => run(() => bridge.session.stop(), { onError: onLocked }),
       runAction: (action: SessionAction) => run(() => bridge.session.runAction({ action }), { onError: onLocked }),
+      // Refusals (another copy restarting, a handler that can't…) toast the host's message, in the language in use.
+      restartInstance: (playerNumber: number) => run(() => bridge.session.restartInstance({ playerNumber }, { timeoutMs: 30_000 })),
     };
   }, [run, toast, lockKey]);
 }

@@ -140,7 +140,8 @@ export interface MockSetup {
   useApiIndex: boolean;
   saveProfileOnLaunch: boolean;
   /** The loaded profile: its number and its seats. */
-  profile: { id: number; seats: ProfileSeat[]; autoPlay: boolean } | null;
+  /** The loaded profile: its number and its seats; `optionsOutdated` when it was saved with other handler options. */
+  profile: { id: number; seats: ProfileSeat[]; autoPlay: boolean; optionsOutdated: boolean } | null;
   /** Settings of the profile saved at launch, once edited. */
   pendingSettings: StoredProfileSettings | null;
   /** Pre-launch checks whose fix is running. */
@@ -176,6 +177,8 @@ export interface MockSession {
   reachedRunning: boolean;
   /** Summary of the last session, kept until the next one starts. */
   lastSession?: SessionSummary;
+  /** A copy that quits once the session runs (`nucleus.mock.instance`), to see the restart states. */
+  quit?: { kind: 'crash' | 'close'; player: number; afterMs?: number };
   timers: TimerSet;
 }
 
@@ -209,9 +212,14 @@ export interface MockState {
   gameFolders: string[];
   /** Handler scripts that can't be used (`handlers.listErrors`). */
   handlerErrors: HandlerFileError[];
+  /**
+   * The hub as the mock host sees it: `online`, and `down` when a forced check (`handlers.checkHub`, the banner's
+   * "Retry now") still finds it offline. The browser's online/offline events stand for the host's own checks.
+   */
+  hub: { online: boolean; down: boolean };
 }
 
-/** Creates the startup state: a library of 13 games, profiles for two of them, default settings, no setup. */
+/** Creates the startup state: a library of 14 games, profiles for two of them, default settings, no setup. */
 export function createMockState(): MockState {
   const handlers = createInstalledHandlers();
   const language = initialMockLanguage();
@@ -247,5 +255,6 @@ export function createMockState(): MockState {
     noticeSeq: 0,
     gameFolders: [...GAME_FOLDERS],
     handlerErrors: [],
+    hub: { online: true, down: false },
   };
 }

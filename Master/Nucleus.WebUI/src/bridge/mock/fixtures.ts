@@ -81,6 +81,8 @@ export const HUB_HANDLERS: readonly HandlerInfo[] = [
   { gameId: 'Left 4 Dead 2', gameName: 'Left 4 Dead 2', handlerId: 'wFsXDjoAkHpL4XZm8', hubVersion: 17, maintainer: 'Talos91', maxPlayers: 6, inputs: PADS_KEYBOARDS, executableName: 'left4dead2.exe', ...steamGame('Left 4 Dead 2', 'left4dead2.exe'), steamAppId: 550, igdbCover: 'co1qrl', architecture: 'x86', notes: GENERIC_NOTES },
   { gameId: 'Valheim', gameName: 'Valheim', handlerId: '6hkBwKMXqpnjiWTdi', hubVersion: 27, maintainer: 'PoundlandBacon', maxPlayers: 10, inputs: PADS_KEYBOARDS, executableName: 'valheim.exe', ...steamGame('Valheim', 'valheim.exe'), steamAppId: 892970, igdbCover: 'co1xrc', architecture: 'x64', notes: GENERIC_NOTES },
   { gameId: 'DontStarveTogether', gameName: "Don't Starve Together", handlerId: 'HJtQAkDh9nyRd6z6J', hubVersion: 15, maintainer: 'Talos91', maxPlayers: 6, inputs: PADS_KEYBOARD, executableName: 'dontstarve_steam_x64.exe', ...steamGame("Don't Starve Together", 'bin64\\dontstarve_steam_x64.exe'), steamAppId: 322330, igdbCover: 'co1qt1', architecture: 'x64', notes: GENERIC_NOTES },
+  // An SDL handler (Hook.SDL2Enabled; SDL3 handlers look the same to the setup): its pads are SDL pads, see fixtures-setup.ts.
+  { gameId: 'Barony', gameName: 'Barony', handlerId: 'h5YgFoGhatcNu6NoN', hubVersion: 5, maintainer: 'Talos91', maxPlayers: 4, inputs: PADS_KEYBOARDS, executableName: 'barony.exe', ...steamGame('Barony', 'barony.exe'), steamAppId: 371970, architecture: 'x64', notes: GENERIC_NOTES },
   { gameId: 'Palworld', gameName: 'Palworld', handlerId: 'fDmTaAoYKJmiWi3s3', hubVersion: 6, maintainer: 'PoundlandBacon', maxPlayers: 4, inputs: PADS_KEYBOARD, executableName: 'Palworld-Win64-Shipping.exe', ...steamGame('Palworld', 'Pal\\Binaries\\Win64\\Palworld-Win64-Shipping.exe'), steamAppId: 1623730, igdbCover: 'co7n02', architecture: 'x64', notes: GENERIC_NOTES },
 ];
 
@@ -131,6 +133,7 @@ const LIBRARY: readonly LibrarySeed[] = [
   { gameId: 'HollowKnight' },
   { gameId: 'SonsOfTheForest', noArtwork: true },
   { gameId: 'Valheim', favorite: true, playtimeHours: 40.7, playedDaysAgo: 2 },
+  { gameId: 'Barony', playtimeHours: 3.5, playedDaysAgo: 30 },
 ];
 
 const DAY_MS = 86_400_000;

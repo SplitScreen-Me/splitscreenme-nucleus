@@ -20,6 +20,9 @@ namespace Nucleus.Gaming.Coop.Generic
             }
         }
 
+        /// <summary>Whether the hub was checked since the app started: until then <see cref="Connected"/> is false without meaning offline.</summary>
+        public static bool Checked { get; set; }
+
         public bool IsUpdateAvailable(bool fetch)
         {
             if (!connected)

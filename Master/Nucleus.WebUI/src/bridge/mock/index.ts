@@ -1,7 +1,7 @@
 // The mock host: every service of the contract, in the browser. Used outside WebView2 (`npm run dev`, review URL)
 // and by tests. One file per service; `BridgeHandlers` makes the compiler flag any missing method.
 import { createMockTransport, type MockContext, type MockTransport, type MockTransportOptions } from '../transports/mock.ts';
-import { createAppMock } from './app.ts';
+import { createAppMock, readMockHubMode, type MockHubMode } from './app.ts';
 import { createDialogsMock } from './dialogs.ts';
 import { seedHandlerErrors } from './game-search.ts';
 import { createHandlersMock } from './handlers.ts';
@@ -9,7 +9,7 @@ import { createI18nMock } from './i18n.ts';
 import { createLibraryMock } from './library.ts';
 import { createNoticesMock, seedNotices } from './notices.ts';
 import { createProfilesMock } from './profiles.ts';
-import { createSessionMock } from './session.ts';
+import { createSessionMock, parseInstanceQuit } from './session.ts';
 import { createSettingsMock } from './settings.ts';
 import { createSetupMock } from './setup.ts';
 import { createMockState } from './state.ts';
@@ -23,16 +23,28 @@ export interface MockBridgeOptions extends MockTransportOptions {
    * Default: whether `localStorage['nucleus.mock.notices']` is '1'.
    */
   notices?: boolean;
+  /**
+   * How the hub starts: `offline` (the banner's "Retry now" brings it back) or `down` (it stays offline).
+   * Default: `localStorage['nucleus.mock.hub']`, else online.
+   */
+  hub?: MockHubMode;
+  /**
+   * A copy that quits once the session runs, to see the restart states: `crash:<player>` (crashes, its automatic
+   * restart fails) or `close:<player>` (closed normally). Default: `localStorage['nucleus.mock.instance']`.
+   */
+  instance?: string;
 }
 
 /** Creates a mock transport serving the whole contract, with fresh state. */
-export function createMockBridgeTransport({ notices = readNoticesFlag(), ...options }: MockBridgeOptions = {}): MockTransport {
+export function createMockBridgeTransport({ notices = readNoticesFlag(), hub = readMockHubMode(), instance, ...options }: MockBridgeOptions = {}): MockTransport {
   const context: MockContext = { emit: (event, payload) => transport.emit(event, payload) };
   const state = createMockState();
   if (notices) {
     seedNotices(state);
     seedHandlerErrors(state);
   }
+  state.hub = { online: hub === 'online', down: hub === 'down' };
+  state.session.quit = parseInstanceQuit(instance ?? readStored('nucleus.mock.instance'));
   const transport = createMockTransport(
     {
       app: createAppMock(context, state),
@@ -56,9 +68,13 @@ export function createMockBridgeTransport({ notices = readNoticesFlag(), ...opti
 }
 
 function readNoticesFlag(): boolean {
+  return readStored('nucleus.mock.notices') === '1';
+}
+
+function readStored(key: string): string | undefined {
   try {
-    return globalThis.localStorage?.getItem('nucleus.mock.notices') === '1';
+    return globalThis.localStorage?.getItem(key) ?? undefined;
   } catch {
-    return false;
+    return undefined;
   }
 }

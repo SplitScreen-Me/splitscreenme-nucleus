@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import type { CheckState, SetupCheck, SetupPlayer, SetupSnapshot, SetupStep, SetupStepKind } from '@/bridge';
+import { bridge, type CheckState, type SetupCheck, type SetupPlayer, type SetupSnapshot, type SetupStep, type SetupStepKind } from '@/bridge';
 import { useT, type MessageKey, type TFunction } from '@/i18n';
+import { useRun } from '@/lib/bridge-ui';
 import { deviceIcon } from '@/lib/devices';
 import { Button, cn, Icon, MiniField, MiniInput, MiniSelect, Pane, PlayerTag, playerClass, Spinner, Switch, type IconName } from '@/ui';
 import type { LobbyCommands } from './commands';
@@ -291,7 +292,9 @@ const CHECK_WORD: Record<CheckState, MessageKey> = {
 
 function CheckRow({ check: c, busy, onAction }: { check: SetupCheck; busy: boolean; onAction: () => void }) {
   const t = useT();
+  const run = useRun();
   const state: CheckState = busy ? 'busy' : c.state;
+  const helpUrl = c.helpUrl;
   return (
     <li className="grid grid-cols-[22px_minmax(0,1fr)_auto] items-start gap-x-2.5 py-2">
       <span className={cn('grid size-[22px] place-items-center rounded-full', CHECK_TONE[state])}>
@@ -300,6 +303,19 @@ function CheckRow({ check: c, busy, onAction }: { check: SetupCheck; busy: boole
       <div className="min-w-0">
         <div className="text-14 leading-[1.35] font-semibold">{c.title}</div>
         {c.detail && <div className="text-12 leading-[1.4] [overflow-wrap:anywhere] text-ink-3">{c.detail}</div>}
+        {/* A fix the user makes by hand (OneDrive): the documentation page, in the browser. */}
+        {helpUrl && (
+          <button
+            type="button"
+            onClick={() => void run(() => bridge.app.openExternal({ url: helpUrl }))}
+            aria-label={t('setup.checks.howToFixLabel', { check: c.title })}
+            data-nav
+            className="mt-1 inline-flex items-center gap-1 rounded border-0 bg-transparent p-0 text-12 font-semibold text-ink-2 underline decoration-line-strong underline-offset-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+          >
+            {t('setup.checks.howToFix')}
+            <Icon name="external" className="size-3" />
+          </button>
+        )}
       </div>
       {c.actionLabel && state !== 'busy' && (
         <Button variant="ghost" onClick={onAction} className="min-h-[30px] px-[11px] text-12" data-nav>

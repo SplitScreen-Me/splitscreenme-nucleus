@@ -9,6 +9,7 @@ import {
   type SessionSnapshot,
   type SessionSummaryPlayer,
 } from '../generated/contract.ts';
+import { BridgeError } from '../errors.ts';
 import type { MockContext } from '../transports/mock.ts';
 import { conflict, invalidParams } from './failures.ts';
 import { MONITORS, setupFixtureFor } from './fixtures-setup.ts';
@@ -26,6 +27,10 @@ const WINDOW_READY_MS = 700;
 /** Keyboard sessions lock the inputs once running; the mock unlocks them after this delay (the host waits for the hotkey). */
 const INPUTS_LOCKED_MS = 5000;
 const NOTICE_MS = 4000;
+/** With `nucleus.mock.instance`, a copy quits this long after the session started running. */
+const QUIT_AFTER_MS = 2500;
+/** Time a restart takes until the new process is found. */
+const RESTART_MS = 1500;
 /** Most error lines a session summary keeps (as the host). */
 const MAX_SUMMARY_ERRORS = 20;
 
@@ -61,10 +66,28 @@ const actionsOf = (state: MockState): SessionActionInfo[] =>
     available: isAvailable(state, action),
   }));
 
+/** Messages of the host's refusals (host.session.restart.*, in English like every mock host text). */
+const RESTART_REFUSALS: Readonly<Record<string, string>> = {
+  noSession: 'No session is running: there is no copy to restart.',
+  notReady: 'The copies are still starting. Wait until every window is in place, then try again.',
+  busy: 'Another copy is being restarted. Wait for it to finish, then try again.',
+  notSupported: "This handler can't restart a copy of the game. Stop the session and play again.",
+};
+
+/** Why a copy can't be started again now (the host's refusal reasons, in its order), or undefined when it can. */
+function restartRefusal(state: MockState): string | undefined {
+  const { session } = state;
+  if (!session.phase || session.phase === 'ending') return 'noSession';
+  if (session.phase === 'launching') return 'notReady';
+  if (session.instances.some((instance) => instance.stage === 'restarting')) return 'busy';
+  return setupFixtureFor(session.gameId ?? '').cantRestartInstances ? 'notSupported' : undefined;
+}
+
 /** The session state: launching, running or ending; else `setup` when a setup is open, `idle` otherwise. */
 function sessionSnapshot(state: MockState): SessionSnapshot {
   const { session, setup } = state;
   const common = {
+    restartRefusal: restartRefusal(state),
     inputsLocked: session.inputsLocked,
     error: session.error,
     errorDetails: session.errorDetails,
@@ -136,6 +159,8 @@ function instancesOf(state: MockState, setup: MockSetup): { instance: SessionIns
         bounds: player.bounds,
         devices: devices.map((device) => device.kind),
         stage: 'waiting',
+        crashed: false,
+        restartFailed: false,
       },
       binding: devices.map((device) => device.name).join(' + '),
     };
@@ -228,6 +253,7 @@ function enterRunning(context: MockContext, state: MockState): void {
   if (keyboards) log(context, state, `Inputs locked: each keyboard and mouse goes to its window (${lockKey} to unlock)`);
   publishSession(context, state);
   notice(context, keyboards ? `${ready} Inputs are locked to the game windows: press ${lockKey} to unlock them.` : `${ready} Have fun!`);
+  scheduleQuit(context, state);
   if (!keyboards) return;
   schedule(session.timers, INPUTS_LOCKED_MS, () => {
     session.inputsLocked = false;
@@ -235,6 +261,72 @@ function enterRunning(context: MockContext, state: MockState): void {
     publishSession(context, state);
     notice(context, 'Inputs unlocked.');
   });
+}
+
+// Instance restarts (Nucleus 2.5) ------------------------------------------------------------------------
+
+/**
+ * A copy that quits after the session started: `nucleus.mock.instance` = `crash:<player>` or `close:<player>`, with an
+ * optional delay in ms (`crash:2@300`; 2.5 s by default).
+ */
+export function parseInstanceQuit(value: string | undefined): MockSession['quit'] {
+  const match = /^(crash|close):(\d+)(?:@(\d+))?$/.exec(value?.trim() ?? '');
+  if (!match) return undefined;
+  return { kind: match[1] === 'crash' ? 'crash' : 'close', player: Number(match[2]), afterMs: match[3] ? Number(match[3]) : undefined };
+}
+
+/** Once running, the copy of `session.quit` quits: closed, or crashed (its automatic restart then fails, as on a broken game). */
+function scheduleQuit(context: MockContext, state: MockState): void {
+  const { session } = state;
+  const instance = session.instances.find((candidate) => candidate.playerNumber === session.quit?.player);
+  if (!session.quit || !instance) return;
+  const crash = session.quit.kind === 'crash';
+  const number = instance.playerNumber;
+  schedule(session.timers, session.quit.afterMs ?? QUIT_AFTER_MS, () => {
+    Object.assign(instance, { stage: 'exited', crashed: crash, restartFailed: false } satisfies Partial<SessionInstance>);
+    if (crash) log(context, state, `Instance of player ${number} quit (pid ${instance.processId}, exit code -1073741819): Restart`, 'error', number);
+    else log(context, state, `Instance of player ${number} closed (pid ${instance.processId}, exit code 0): not restarted`, 'info', number);
+    publishSession(context, state);
+    // Every copy closed: the session ends, as with the host.
+    if (!crash && session.instances.every((candidate) => candidate.stage === 'exited')) return void schedule(session.timers, 300, () => endSession(context, state));
+    if (!crash || setupFixtureFor(session.gameId ?? '').cantRestartInstances) return;
+    schedule(session.timers, 500, () => {
+      instance.stage = 'restarting';
+      notice(context, 'Restarting the instance…', 1000);
+      publishSession(context, state);
+    });
+    schedule(session.timers, 500 + RESTART_MS, () => {
+      Object.assign(instance, { stage: 'exited', crashed: true, restartFailed: true } satisfies Partial<SessionInstance>);
+      log(context, state, `Error: restart of the instance of player ${number} failed, it is left closed.`, 'error', number);
+      notice(context, 'The instance could not be restarted');
+      publishSession(context, state);
+    });
+  });
+}
+
+/** `session.restartInstance`: the same refusals as the host, then the copy starts again (closed first if it runs). */
+function restartInstance(context: MockContext, state: MockState, playerNumber: number): SessionSnapshot {
+  const { session } = state;
+  const refusal = restartRefusal(state);
+  if (refusal === 'noSession' || refusal === 'notReady') conflict(refusal, RESTART_REFUSALS[refusal] ?? refusal);
+  const instance = session.instances.find((candidate) => candidate.playerNumber === playerNumber);
+  if (!instance) throw new BridgeError('notFound', 'This player has no copy of the game to restart.', { reason: 'unknownPlayer' });
+  if (refusal) conflict(refusal, RESTART_REFUSALS[refusal] ?? refusal);
+  Object.assign(instance, { stage: 'restarting', crashed: false, restartFailed: false } satisfies Partial<SessionInstance>);
+  log(context, state, `Restart requested for the instance of player ${playerNumber}`, 'info', playerNumber);
+  notice(context, 'Restarting the instance…', 1000);
+  schedule(session.timers, RESTART_MS, () => {
+    instance.stage = 'starting';
+    instance.processId = 9000 + playerNumber * 412 + Math.floor(Math.random() * 300);
+    log(context, state, `Relaunch started game (PID ${instance.processId})`, 'info', playerNumber);
+    publishSession(context, state);
+  });
+  schedule(session.timers, RESTART_MS + WINDOW_READY_MS, () => {
+    instance.stage = 'ready';
+    log(context, state, `Window ${playerNumber} placed again`, 'success', playerNumber);
+    publishSession(context, state);
+  });
+  return publishSession(context, state);
 }
 
 /** Window areas of a tiling on the monitor of the instances. */
@@ -375,5 +467,6 @@ export function createSessionMock(context: MockContext, state: MockState): Bridg
     stop: () => stopSession(context, state),
     runAction: ({ action }) => runAction(context, state, action),
     getLog: () => state.session.log,
+    restartInstance: ({ playerNumber }) => restartInstance(context, state, playerNumber),
   };
 }

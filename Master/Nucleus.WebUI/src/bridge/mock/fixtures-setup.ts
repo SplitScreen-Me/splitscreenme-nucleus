@@ -44,11 +44,22 @@ export function detectedDevice(template: DeviceTemplate, useApiIndex: boolean): 
   };
 }
 
-/** Devices detected for a handler: gamepads, then the shared keyboard or the raw keyboards and mice. */
-export function devicesFor(inputs: GameInputs, useApiIndex: boolean): MockDevice[] {
+/** Gamepads of an SDL handler (SDL2 or SDL3): SDL's names and player indexes. */
+const SDL_PADS: readonly DeviceTemplate[] = [
+  { id: 'sdl:0', kind: 'sdl', name: 'Xbox Series X Controller', apiIndex: 0 },
+  { id: 'sdl:1', kind: 'sdl', name: 'PS5 Controller', apiIndex: 1 },
+];
+
+/**
+ * Devices detected for a handler: gamepads (SDL pads for an SDL handler), then the shared keyboard or the raw
+ * keyboards and mice.
+ */
+export function devicesFor(inputs: GameInputs, useApiIndex: boolean, sdlPads = false): MockDevice[] {
+  const pads = inputs.xInput || inputs.dInput;
   const templates = [
-    ...(inputs.xInput || inputs.dInput ? XINPUT_PADS : []),
-    ...(inputs.dInput ? [DINPUT_PAD] : []),
+    ...(pads && sdlPads ? SDL_PADS : []),
+    ...(pads && !sdlPads ? XINPUT_PADS : []),
+    ...(inputs.dInput && !sdlPads ? [DINPUT_PAD] : []),
     ...(inputs.multipleKeyboards ? RAW_KEYBOARDS_AND_MICE : inputs.keyboard ? [SHARED_KEYBOARD] : []),
   ];
   return templates.map((template) => detectedDevice(template, useApiIndex));
@@ -71,6 +82,13 @@ export interface GameSetupFixture {
   mod?: { name: string; file: string };
   /** Steam must be closed so each instance signs in with its own emulated account. */
   closeSteam: boolean;
+  /**
+   * An SDL handler (`Game.Hook.SDL2Enabled`, or `SDL3Enabled` since Nucleus 2.5: the host maps both to the same
+   * devices): its gamepads are SDL pads (`sdl:<index>`, kind `sdl`), identified by a press like DirectInput ones.
+   */
+  sdlPads: boolean;
+  /** `Game.CantRestartInstances` (without `GameReLaunchByItself`): a copy that quits is never started again. */
+  cantRestartInstances: boolean;
 }
 
 const GAME_SETUPS: Readonly<Record<string, Partial<GameSetupFixture>>> = {
@@ -130,6 +148,7 @@ const GAME_SETUPS: Readonly<Record<string, Partial<GameSetupFixture>>> = {
   },
   'Borderlands 2': { savesInOneDrive: true },
   ResidentEvil5: { playersPerInstance: 2 },
+  Barony: { sdlPads: true },
 };
 
 /** A game's setup data, with fresh copies of its options and custom steps (none for most games). */
@@ -143,6 +162,8 @@ export function setupFixtureFor(gameId: string): GameSetupFixture {
     requiresAdmin: fixture.requiresAdmin ?? false,
     savesInOneDrive: fixture.savesInOneDrive ?? false,
     closeSteam: fixture.closeSteam ?? false,
+    sdlPads: fixture.sdlPads ?? false,
+    cantRestartInstances: fixture.cantRestartInstances ?? false,
   };
 }
 

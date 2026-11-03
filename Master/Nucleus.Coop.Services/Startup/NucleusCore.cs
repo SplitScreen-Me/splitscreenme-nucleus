@@ -131,6 +131,7 @@ public sealed class NucleusCore : IDisposable
     public void Dispose()
     {
         GameMetaInfo.Saved -= OnMetaInfoSaved;
+        HubStatus.Changed -= OnHubStatusChanged;
         HotReload?.Dispose();
         HubStatus.Dispose();
         Notifier.Dispose();
@@ -141,23 +142,41 @@ public sealed class NucleusCore : IDisposable
     // when it ends. Any thread.
     private void OnMetaInfoSaved(string gameId) => Notifier.GamesChanged(gameId);
 
-    private void StartBackgroundWork()
+    // The hub came back: the update flags were hidden while it was offline and may be stale, check them again (Nucleus
+    // 2.5 re-checked updates once the hub was back). Not during a session: the next status change, or the user, does it.
+    private void OnHubStatusChanged(bool online)
     {
-        //Nucleus 2.5: the hub status follows the connection by itself (not during a session).
-        HubStatus.StartMonitoring(() => SessionRunning || GenericGameHandler.IsRunning);
+        if (!online || SessionRunning || GenericGameHandler.IsRunning)
+        {
+            return;
+        }
 
         Task.Run(async () =>
         {
             try
             {
-                bool online = await HubStatus.ProbeAsync(CancellationToken.None).ConfigureAwait(false);
-                if (!online)
-                {
-                    return;
-                }
-
                 var targets = await Ui.InvokeAsync(() => HandlerUpdateChecker.LibraryTargets()).ConfigureAwait(false);
                 await Updates.CheckAsync(targets, throwWhenOffline: false, CancellationToken.None).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                ServiceLog.Warn("update check after the hub came back failed", e);
+            }
+        });
+    }
+
+    private void StartBackgroundWork()
+    {
+        //Nucleus 2.5: the hub status follows the connection by itself (not during a session).
+        HubStatus.Changed += OnHubStatusChanged;
+        HubStatus.StartMonitoring(() => SessionRunning || GenericGameHandler.IsRunning);
+
+        // Hub.Connected starts false: a hub that answers raises Changed(true), which checks the handler updates.
+        Task.Run(async () =>
+        {
+            try
+            {
+                await HubStatus.CheckNowAsync(force: true).ConfigureAwait(false);
             }
             catch (Exception e)
             {

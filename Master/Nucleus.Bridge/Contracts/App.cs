@@ -63,6 +63,12 @@ namespace Nucleus.Bridge.Contracts
         /// <summary>Whether the hub (<see cref="HubUrl"/>) is reachable (last check; see <see cref="HubStatusChanged"/>).</summary>
         public bool HubOnline { get; set; }
 
+        /// <summary>
+        /// Whether the hub was checked since the app started. Until then <see cref="HubOnline"/> is false without meaning
+        /// offline (the first check ends within seconds of the start and is always announced by <see cref="HubStatusChanged"/>).
+        /// </summary>
+        public bool HubChecked { get; set; }
+
         /// <summary>Version of the WebView2 runtime in use.</summary>
         public string WebViewVersion { get; set; } = "";
 
@@ -73,8 +79,12 @@ namespace Nucleus.Bridge.Contracts
         public string? StartupGameId { get; set; }
     }
 
-    /// <summary>The hub (<see cref="AppInfo.HubUrl"/>) became reachable or unreachable.</summary>
-    [BridgeEvent("app.hubStatusChanged", Invalidates = new[] { "app.getInfo" })]
+    /// <summary>
+    /// The hub (<see cref="AppInfo.HubUrl"/>) became reachable or unreachable. The host checks it by itself (every 30 s
+    /// while offline, every 5 min while online, never during a session) and on <see cref="IHandlersService.CheckHub"/>.
+    /// The library is refetched too: its handler update flags are hidden while the hub is offline.
+    /// </summary>
+    [BridgeEvent("app.hubStatusChanged", Invalidates = new[] { "app.getInfo", "library.list", "library.get" })]
     public sealed class HubStatusChanged
     {
         /// <summary>Whether the hub is reachable.</summary>

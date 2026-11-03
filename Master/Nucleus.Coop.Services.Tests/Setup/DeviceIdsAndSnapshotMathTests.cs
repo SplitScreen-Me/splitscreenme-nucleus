@@ -16,6 +16,7 @@ public class DeviceIdsTests
     [InlineData(InputType.XInput, DeviceKind.XInput)]
     [InlineData(InputType.DInput, DeviceKind.DInput)]
     [InlineData(InputType.SDL2, DeviceKind.Sdl)]
+    [InlineData(InputType.SDL3, DeviceKind.Sdl)]//Nucleus 2.5: SDL3 pads look like SDL pads in the lobby
     [InlineData(InputType.SingleKB, DeviceKind.Keyboard)]
     [InlineData(InputType.KB, DeviceKind.RawKeyboard)]
     [InlineData(InputType.Mouse, DeviceKind.RawMouse)]
@@ -63,6 +64,7 @@ public class DeviceIdsTests
         Assert.Equal("dinput:01234567-89ab-cdef-0123-456789abcdef", DeviceIds.FallbackKey(InputType.DInput, 0, guid, null));
         Assert.Equal("xinput:2", DeviceIds.FallbackKey(InputType.XInput, 2, Guid.Empty, null));
         Assert.Equal("sdl:1", DeviceIds.FallbackKey(InputType.SDL2, 1, Guid.Empty, null));
+        Assert.Equal("sdl:1", DeviceIds.FallbackKey(InputType.SDL3, 1, Guid.Empty, null));
         Assert.Equal("kb:single", DeviceIds.FallbackKey(InputType.SingleKB, 99, Guid.Empty, null));
         Assert.Equal("rawkb:\\\\?\\HID#VID_1", DeviceIds.FallbackKey(InputType.KB, 100, Guid.Empty, "\\\\?\\HID#VID_1"));
         Assert.Equal("virtual-mouse", DeviceIds.FallbackKey(InputType.Mouse, 101, Guid.Empty, "MouseHandleZero"));

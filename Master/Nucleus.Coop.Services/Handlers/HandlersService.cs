@@ -216,11 +216,15 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
         }
     }
 
+    /// <inheritdoc />
+    public Task<bool> CheckHub(CheckHubRequest request) => core.HubStatus.CheckNowAsync(request?.Force ?? false);
+
     // ---- IHandlerUpdater ----
 
     /// <inheritdoc />
+    /// <remarks>False while the hub is offline: the flag of the last check can't be acted on (nor checked again) then.</remarks>
     public bool IsUpdateAvailable(string gameId) =>
-        Manager.Games.TryGetValue(gameId, out GenericGameInfo game) && game.UpdateAvailable && game.MetaInfo.CheckUpdate;
+        core.HubStatus.IsOnline && Manager.Games.TryGetValue(gameId, out GenericGameInfo game) && game.UpdateAvailable && game.MetaInfo.CheckUpdate;
 
     /// <inheritdoc />
     public int? LatestVersion(string gameId) => core.Updates.LatestVersion(gameId);

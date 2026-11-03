@@ -12,6 +12,7 @@ import {
   libraryChanged,
   removeGame,
   setExecutable,
+  summaryOf,
 } from './library-model.ts';
 import { searchGames } from './game-search.ts';
 import { refreshSetupOf } from './setup-snapshot.ts';
@@ -19,12 +20,12 @@ import type { MockState } from './state.ts';
 import { sleep } from './util.ts';
 
 /**
- * Mock of the `library` service: 13 games with artwork, favourites, play time and one missing executable; the
+ * Mock of the `library` service: 14 games with artwork, favourites, play time and one missing executable; the
  * per-game menu; adding games (several handlers can match an executable, for example `javaw.exe`); store scans.
  */
 export function createLibraryMock(context: MockContext, state: MockState): BridgeHandlers['library'] {
   return {
-    list: () => state.games.map((game) => game.summary),
+    list: () => state.games.map((game) => summaryOf(state, game)),
     get: ({ gameId }) => gameDetails(state, findGame(state, gameId)),
     setFavorite: ({ gameId, favorite }) => {
       findGame(state, gameId).summary.favorite = favorite;

@@ -1,6 +1,7 @@
 import { BridgeError } from '../errors.ts';
 import type { BridgeHandlers } from '../generated/contract.ts';
 import type { MockContext } from '../transports/mock.ts';
+import { setMockHub } from './app.ts';
 import { conflict, invalidParams } from './failures.ts';
 import { HUB_HANDLERS, findHubHandler, unknownHandler, type HandlerInfo } from './fixtures.ts';
 import { hubScreenshotUrls } from './fixtures-screenshots.ts';
@@ -75,5 +76,14 @@ export function createHandlersMock(context: MockContext, state: MockState): Brid
       return hubScreenshotUrls(handlerId);
     },
     listErrors: () => handlerErrors(state),
+    // Forced (the banner's "Retry now"): the hub answers unless it is `down`. The UI's own requests (not forced) don't
+    // change the simulated hub: the mock reads the real site, which would contradict the simulation.
+    checkHub: async ({ force }) => {
+      if (!force) return state.hub.online;
+      await sleep(600);
+      // app.hubStatusChanged refetches the library: its update flags come back (the host checks them again).
+      setMockHub(context, state, !state.hub.down && (globalThis.navigator?.onLine ?? true));
+      return state.hub.online;
+    },
   };
 }

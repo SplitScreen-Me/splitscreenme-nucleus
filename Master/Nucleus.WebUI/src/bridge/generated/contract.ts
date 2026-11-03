@@ -11,7 +11,7 @@ export const protocolVersion = 1;
 /**
  * Hash of the contract this file was generated from. `app.hello` returns the host's: the UI refuses to run when they differ.
  */
-export const contractHash = '028e2312d57f7e06';
+export const contractHash = 'cde6fd3756542b16';
 
 /** JSON-RPC error code of each kind of error the host returns. */
 export const bridgeErrorCodes = {
@@ -218,7 +218,7 @@ export const handlerReloadKindValues = [
 ] as const satisfies readonly HandlerReloadKind[];
 
 /** Progress of one game instance. */
-export type InstanceStage = 'waiting' | 'starting' | 'ready' | 'exited';
+export type InstanceStage = 'waiting' | 'starting' | 'ready' | 'exited' | 'restarting';
 
 /** Every {@link InstanceStage}, in declaration order. */
 export const instanceStageValues = [
@@ -228,8 +228,10 @@ export const instanceStageValues = [
   'starting',
   /** Window found and placed, input bound. */
   'ready',
-  /** Process exited. */
+  /** Process exited: closed, or crashed (`SessionInstance.crashed`). */
   'exited',
+  /** Nucleus is starting this copy again (it crashed, or a restart was asked for): launch, hooks, window. */
+  'restarting',
 ] as const satisfies readonly InstanceStage[];
 
 /** How the game list is sorted. */
@@ -487,6 +489,10 @@ export interface AppInfo {
   hubUrl: string;
   /** Whether the hub (`AppInfo.hubUrl`) is reachable (last check; see `HubStatusChanged`). */
   hubOnline: boolean;
+  /**
+   * Whether the hub was checked since the app started. Until then `AppInfo.hubOnline` is false without meaning offline (the first check ends within seconds of the start and is always announced by `HubStatusChanged`).
+   */
+  hubChecked: boolean;
   /** Version of the WebView2 runtime in use. */
   webViewVersion: string;
   /** Whether the process runs elevated. */
@@ -553,6 +559,12 @@ export interface CaptureComboRequest {
 export interface CheckActionRequest {
   /** Check id. */
   checkId: string;
+}
+
+/** Parameters of `handlers.checkHub`. */
+export interface CheckHubRequest {
+  /** The user asked for it: check now, even when the last check is recent. */
+  force: boolean;
 }
 
 /**
@@ -895,7 +907,9 @@ export interface HubHandlerRequest {
   handlerId: string;
 }
 
-/** The hub (`AppInfo.hubUrl`) became reachable or unreachable. */
+/**
+ * The hub (`AppInfo.hubUrl`) became reachable or unreachable. The host checks it by itself (every 30 s while offline, every 5 min while online, never during a session) and on `handlers.checkHub`. The library is refetched too: its handler update flags are hidden while the hub is offline.
+ */
 export interface HubStatusChanged {
   /** Whether the hub is reachable. */
   online: boolean;
@@ -1123,6 +1137,10 @@ export interface ProfileMatch {
   ready: boolean;
   /** Whether the profile starts the session by itself once ready. */
   autoPlay: boolean;
+  /**
+   * The loaded profile was saved with other handler options than the handler has now: options that still exist keep their saved value, new ones got their default. The setup stops on the options step instead of playing by itself, so the user can check them.
+   */
+  optionsOutdated: boolean;
 }
 
 /** A player stored in a profile. */
@@ -1297,6 +1315,12 @@ export interface ResizePlayerRequest {
   steps: number;
 }
 
+/** Parameters of `session.restartInstance`. */
+export interface RestartInstanceRequest {
+  /** Player number of the copy, 1-based (`SessionInstance.playerNumber`). */
+  playerNumber: number;
+}
+
 /** Parameters of `library.runMenuAction`. */
 export interface RunMenuActionRequest {
   /** Game id. */
@@ -1367,6 +1391,14 @@ export interface SessionInstance {
   stage: InstanceStage;
   /** Process id, once started. */
   processId?: number;
+  /**
+   * The process ended with an error (its exit code is known and not 0) rather than being closed. Only meaningful while `SessionInstance.stage` is `"exited"`.
+   */
+  crashed: boolean;
+  /**
+   * Nucleus tried to start this copy again and failed (or gave up after 3 automatic restarts within 2 minutes): it stays closed until a restart is asked for (`session.restartInstance`).
+   */
+  restartFailed: boolean;
 }
 
 /** New session log lines. */
@@ -1411,6 +1443,10 @@ export interface SessionSnapshot {
   instances: SessionInstance[];
   /** Whether inputs are locked to the game windows (the stop button is refused until they are unlocked). */
   inputsLocked: boolean;
+  /**
+   * Why a copy can't be started again now, as the `reason``session.restartInstance` would refuse with: `noSession`, `notReady` (the copies are still being started and placed), `busy` (another copy is being started again) or `notSupported` (the handler can't restart its copies). Absent when a restart can be asked for.
+   */
+  restartRefusal?: string;
   /** Last error, for example why the launch failed. */
   error?: string;
   /** Crash report of the last failed launch (exception, hints, report file), shown with `SessionSnapshot.error`. */
@@ -1673,6 +1709,8 @@ export interface SetupCheck {
   detail?: string;
   /** Label of the fix button, when a fix exists (`setup.runCheckAction`). */
   actionLabel?: string;
+  /** Page of the documentation that explains the problem and how to fix it by hand, when there is one. */
+  helpUrl?: string;
 }
 
 /** A handler-defined step: pick one item. */
@@ -1943,6 +1981,10 @@ export interface BridgeMethods {
   'dialogs.pickFile': { params: PickFileRequest; result: string | null };
   /** Asks the user to pick a folder. Returns null when the user cancels. */
   'dialogs.pickFolder': { params: PickFolderRequest; result: string | null };
+  /**
+   * Checks whether the hub answers (`GET /api/v3/health`) and returns the state; a change also comes as `HubStatusChanged`. Forced (the offline banner's "Retry now"): checks at once, or waits for the check already running. Not forced (a hub request of the UI failed while the app is online, or worked while it is offline): checks only when the last check is older than 30 s and no game session runs, else returns the last known state, so failing pages never cause a storm of checks.
+   */
+  'handlers.checkHub': { params: CheckHubRequest; result: boolean };
   /** Checks the hub for handler updates of every library game. Results arrive through `library.changed`. */
   'handlers.checkUpdates': { params: void; result: void };
   /**
@@ -2039,6 +2081,10 @@ export interface BridgeMethods {
    * Starts the session with the current setup. Requires `SetupFlow.canPlay`; throws `conflict` otherwise or when a session is running.
    */
   'session.play': { params: void; result: SessionSnapshot };
+  /**
+   * Starts the copy of one player again (closing its game first if it still runs), like Nucleus does by itself for a copy that crashed. Throws `conflict` with a `reason`: `noSession` (no session runs), `notReady` (the copies are still being started and placed), `busy` (another copy is being started again), `notSupported` (the handler can't restart its copies); `notFound` (reason `unknownPlayer`) when the player has no copy. See `SessionSnapshot.restartRefusal`.
+   */
+  'session.restartInstance': { params: RestartInstanceRequest; result: SessionSnapshot };
   /**
    * Runs a session action, the same as its hotkey. Throws `conflict` when no session is running or the action doesn't apply (see `SessionSnapshot.actions`).
    */
@@ -2179,6 +2225,10 @@ export interface BridgeHandlers {
    * Installed handlers: install and update from the hub (package checked against the SHA-256 of the API v3), install from a file, screenshots. The catalogue, handler pages and comments are read by the UI directly from the public hub API v3.
    */
   handlers: {
+    /**
+     * Checks whether the hub answers (`GET /api/v3/health`) and returns the state; a change also comes as `HubStatusChanged`. Forced (the offline banner's "Retry now"): checks at once, or waits for the check already running. Not forced (a hub request of the UI failed while the app is online, or worked while it is offline): checks only when the last check is older than 30 s and no game session runs, else returns the last known state, so failing pages never cause a storm of checks.
+     */
+    checkHub: (params: CheckHubRequest) => Awaitable<boolean>;
     /** Checks the hub for handler updates of every library game. Results arrive through `library.changed`. */
     checkUpdates: () => Awaitable<void>;
     /**
@@ -2294,6 +2344,10 @@ export interface BridgeHandlers {
      * Starts the session with the current setup. Requires `SetupFlow.canPlay`; throws `conflict` otherwise or when a session is running.
      */
     play: () => Awaitable<SessionSnapshot>;
+    /**
+     * Starts the copy of one player again (closing its game first if it still runs), like Nucleus does by itself for a copy that crashed. Throws `conflict` with a `reason`: `noSession` (no session runs), `notReady` (the copies are still being started and placed), `busy` (another copy is being started again), `notSupported` (the handler can't restart its copies); `notFound` (reason `unknownPlayer`) when the player has no copy. See `SessionSnapshot.restartRefusal`.
+     */
+    restartInstance: (params: RestartInstanceRequest) => Awaitable<SessionSnapshot>;
     /**
      * Runs a session action, the same as its hotkey. Throws `conflict` when no session is running or the action doesn't apply (see `SessionSnapshot.actions`).
      */
@@ -2444,6 +2498,7 @@ export const bridgeServices = {
     pickFolder: { params: true },
   },
   handlers: {
+    checkHub: { params: true },
     checkUpdates: { params: false },
     install: { params: true },
     installFromFile: { params: true },
@@ -2490,6 +2545,7 @@ export const bridgeServices = {
     get: { params: false },
     getLog: { params: false },
     play: { params: false },
+    restartInstance: { params: true },
     runAction: { params: true },
     stop: { params: false },
   },
@@ -2547,7 +2603,9 @@ export const bridgeServices = {
 
 /** Every event, by name, with its payload. */
 export interface BridgeEvents {
-  /** The hub (`AppInfo.hubUrl`) became reachable or unreachable. */
+  /**
+   * The hub (`AppInfo.hubUrl`) became reachable or unreachable. The host checks it by itself (every 30 s while offline, every 5 min while online, never during a session) and on `handlers.checkHub`. The library is refetched too: its handler update flags are hidden while the hub is offline.
+   */
   'app.hubStatusChanged': HubStatusChanged;
   /** Installed handlers changed. */
   'handlers.changed': HandlersChanged;
@@ -2591,7 +2649,7 @@ export interface BridgeEvents {
 
 /** Methods each event makes stale: the client refetches their queries when the event arrives. */
 export const eventInvalidations: { readonly [E in keyof BridgeEvents]: readonly (keyof BridgeMethods)[] } = {
-  'app.hubStatusChanged': ['app.getInfo'],
+  'app.hubStatusChanged': ['app.getInfo', 'library.list', 'library.get'],
   'handlers.changed': ['handlers.listInstalled', 'handlers.listErrors', 'library.list', 'library.get'],
   'handlers.progress': [],
   'i18n.languageChanged': ['i18n.getState', 'i18n.getStrings'],

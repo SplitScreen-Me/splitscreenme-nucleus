@@ -942,6 +942,25 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
         private static readonly Dictionary<int, List<DateTime>> restartHistory = new Dictionary<int, List<DateTime>>();
         private static readonly HashSet<int> restartGaveUp = new HashSet<int>();
         private static readonly HashSet<int> quitLogged = new HashSet<int>();
+        private static int restartingPlayerId = -1;
+
+        /// <summary>
+        /// <c>PlayerID</c> of the instance being started again (automatic restart, re-hook or a requested restart), or -1.
+        /// For host UIs: <see cref="RestartThreadIsRunning"/> is also true while the session is being set up.
+        /// </summary>
+        public static int RestartingPlayerId => Volatile.Read(ref restartingPlayerId);
+
+        /// <summary>Whether a restart of the instance of <paramref name="playerId"/> failed (or the automatic restarts gave up): it stays closed until restarted on request.</summary>
+        public static bool RestartGaveUp(int playerId)
+        {
+            lock (restartLock)
+            {
+                return restartGaveUp.Contains(playerId);
+            }
+        }
+
+        /// <summary>Whether a process ended with an error: its exit code is known and not 0 (what triggers an automatic restart).</summary>
+        public static bool ExitedWithError(Process process) => ExitCodeOf(process) is int code && code != 0;
 
         /// <summary>
         /// Decides what to do with an instance that quit. <c>Game.GameReLaunchByItself</c>: re-hook the new process.
@@ -1191,6 +1210,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                     handlerInstance.Log("ERROR - Locking the inputs again after a restart failed: " + ex.Message);
                 }
 
+                Volatile.Write(ref restartingPlayerId, -1);
                 RestartThreadIsRunning = false;
             }
         }
@@ -1200,6 +1220,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
         private static void RunRestartInstanceThread(PlayerInfo p, List<PlayerInfo> players, Process quitproc, InstanceQuitAction action)
         {
             RestartThreadIsRunning = true;
+            Volatile.Write(ref restartingPlayerId, p.PlayerID);
 
             RestartThread = new Thread(delegate ()
             {
@@ -1265,6 +1286,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
             }
 
             RestartThreadIsRunning = true;
+            Volatile.Write(ref restartingPlayerId, p.PlayerID);
 
             try
             {

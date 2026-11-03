@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type DragEvent, type FocusEvent, type KeyboardEvent, type PointerEvent, type Ref } from 'react';
 import type { Edge, Rect, SetupDevice, SetupPlayer } from '@/bridge';
 import { useT } from '@/i18n';
-import { devicesIcon } from '@/lib/devices';
+import { deviceIcon, devicesIcon } from '@/lib/devices';
 import { cn, Icon, playerClass } from '@/ui';
+import { deviceChips } from './device-chips';
 import { playerHintsKey } from './hints';
 import { ART_VIEW, deviceKinds, devicesLabel, playerName, reduceMotion } from './model';
 import { dragSteps, movedFrac, pixelSize, type Corner, type Frac, type StepFrac } from './resize-core';
@@ -57,6 +58,10 @@ export interface PlayerRegionProps extends DropHandlers {
   waitingGuest?: boolean;
   /** A free controller dragged over it would join its copy as a guest (instead of swapping places). */
   guestDrop?: boolean;
+  /** One of its devices is being dragged on its own (a chip). */
+  draggingDeviceId?: string;
+  /** A device chip (keyboard and mouse players) starts a drag of that device alone. */
+  onDeviceDragStart?: (e: DragEvent<HTMLElement>, device: SetupDevice) => void;
 }
 
 const EDGES: readonly Edge[] = ['left', 'right', 'top', 'bottom'];
@@ -76,6 +81,7 @@ export function PlayerRegion(props: PlayerRegionProps) {
   const ring = useRef<HTMLDivElement>(null);
   const art = useRef<HTMLDivElement>(null);
   const name = playerName(p);
+  const chips = deviceChips(p, devices);
 
   // ---------- Resizing with the mouse: an edge handle follows the pointer by whole steps, released once ----------
   const [sizing, setSizing] = useState<{ edge: Edge; steps: number } | null>(null);
@@ -202,10 +208,40 @@ export function PlayerRegion(props: PlayerRegionProps) {
         )}
       >
         <strong className="truncate text-[clamp(12px,8.6cqi,30px)] leading-[1.02] font-[800] tracking-[-0.015em] stretch-wide">{name}</strong>
-        <span className="flex min-w-0 items-center gap-1.5 text-[clamp(10px,4.6cqi,13px)] whitespace-nowrap text-ink/80 [@container(max-height:70px)]:hidden">
-          <Icon name={devicesIcon(deviceKinds(devices))} className="size-[15px] shrink-0 text-pc" />
-          <span className="truncate">{devicesLabel(devices)}</span>
-        </span>
+        {chips.length > 0 ? (
+          // Each device of a keyboard and mouse player is grabbed on its own; the rest of the area moves the whole player.
+          <span className="relative z-[6] flex min-w-0 items-center gap-1 [@container(max-height:70px)]:hidden">
+            {chips.map((d) => (
+              <span
+                key={d.id}
+                draggable={!resizing}
+                data-device-chip={d.id}
+                title={t('lobby.region.deviceChip', { device: d.name })}
+                onDragStart={(e) => {
+                  e.stopPropagation();
+                  props.onDeviceDragStart?.(e, d);
+                }}
+                onDragEnd={(e) => {
+                  e.stopPropagation();
+                  props.onDragEnd();
+                }}
+                className={cn(
+                  'inline-flex min-w-0 cursor-grab items-center gap-1 rounded-tag bg-black/50 py-[3px] pr-2 pl-1.5 text-[clamp(10px,4.4cqi,13px)] whitespace-nowrap text-ink/85',
+                  'transition-[background-color,opacity] duration-(--dur-1) hover:bg-black/75 hover:text-ink active:cursor-grabbing',
+                  props.draggingDeviceId === d.id && 'opacity-40',
+                )}
+              >
+                <Icon name={deviceIcon(d.kind)} className="size-[14px] shrink-0 text-pc" />
+                <span className="truncate">{d.name}</span>
+              </span>
+            ))}
+          </span>
+        ) : (
+          <span className="flex min-w-0 items-center gap-1.5 text-[clamp(10px,4.6cqi,13px)] whitespace-nowrap text-ink/80 [@container(max-height:70px)]:hidden">
+            <Icon name={devicesIcon(deviceKinds(devices))} className="size-[15px] shrink-0 text-pc" />
+            <span className="truncate">{devicesLabel(devices)}</span>
+          </span>
+        )}
       </div>
       {/* Player ring, also the target of the ping flash. Lifted adds a white frame inside. */}
       <div

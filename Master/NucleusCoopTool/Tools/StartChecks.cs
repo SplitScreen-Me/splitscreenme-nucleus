@@ -257,7 +257,11 @@ namespace Nucleus.Coop
 
             if (Globals.IsOneDriveEnabled)
             {
-                MessageBox.Show(TPlain("engine.startChecks.oneDrive.message"), TPlain("engine.startChecks.oneDrive.title"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                //Nucleus 2.5: Yes opens the help page (the v3 documentation of the old FAQ entry).
+                if (MessageBox.Show(TPlain("engine.startChecks.oneDrive.messageHelp"), TPlain("engine.startChecks.oneDrive.title"), MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                {
+                    Host.ExternalLauncher.TryOpenUrl(HubSite.DocUrl(HubSite.OneDriveHelpPage));
+                }
             }
 
             if (problematic)

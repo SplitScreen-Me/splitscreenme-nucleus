@@ -41,7 +41,7 @@ export function createSetup(game: MockGame, customGrid: Grid): MockSetup {
       layoutLocked: false,
     })),
     customGrid,
-    devices: devicesFor(inputs, game.useApiIndex),
+    devices: devicesFor(inputs, game.useApiIndex, fixture.sdlPads),
     players: [],
     options: fixture.options,
     customSteps: fixture.customSteps,
@@ -179,13 +179,15 @@ function swapPlaces(a: MockPlayer, b: MockPlayer): void {
 }
 
 /**
- * Places a device on an area of a monitor: moves its player when it is the player's first device (swapping with
- * the player already there), joins a raw keyboard and a raw mouse into one player, or creates a player.
+ * Places a device on an area of a monitor, like the host (`BoundsFunctions.AssignToSlot`): a player's only device moves
+ * the player; one device of a keyboard and mouse pair moves on its own (a new player, or the partner of a lone
+ * complementary device: the lobby's movePlayer then brings the other one); on another player, the two players swap
+ * places, whole. A device from the tray joins a lone complementary raw keyboard or mouse, or creates a player.
  */
 function place(setup: MockSetup, device: MockDevice, screenIndex: number, area: GridArea): void {
   requireRevealed(device);
   const owner = ownerOf(setup, device.id);
-  const movesPlayer = owner !== undefined && playerIdOf(owner) === device.id;
+  const movesPlayer = owner !== undefined && owner.deviceIds.length === 1;
   const blocking = setup.players.filter((player) => player !== owner && player.screenIndex === screenIndex && overlaps(player.area, area));
   const [occupant, ...others] = blocking;
   if (occupant && others.length === 0 && completesPair(setup, occupant, device)) {
@@ -193,7 +195,7 @@ function place(setup: MockSetup, device: MockDevice, screenIndex: number, area: 
     occupant.deviceIds.push(device.id);
     return;
   }
-  if (occupant && others.length === 0 && movesPlayer) {
+  if (occupant && others.length === 0 && owner) {
     swapPlaces(owner, occupant);
     return;
   }
@@ -203,7 +205,8 @@ function place(setup: MockSetup, device: MockDevice, screenIndex: number, area: 
     return;
   }
   if (owner && owner.screenIndex === screenIndex && overlaps(owner.area, area)) return;
-  requireSeatFor(setup, device.id);
+  // A device split off its player may pass the maximum for a moment (the lobby moves a pair one device at a time).
+  if (!owner) requireSeatFor(setup, device.id);
   detach(setup, device.id);
   setup.players.push({ deviceIds: [device.id], guestDeviceIds: [], screenIndex, area, home: area });
 }
@@ -431,8 +434,10 @@ export function setUseApiIndex(setup: MockSetup, enabled: boolean): void {
 
 /** Rescans devices: finds the gamepad plugged in late, once. Returns the devices found. */
 export function rescanDevices(setup: MockSetup): MockDevice[] {
-  if (!setup.capabilities.gamepads || setup.devices.some((device) => device.id === LATE_GAMEPAD.id)) return [];
-  const device = detectedDevice(LATE_GAMEPAD, setup.useApiIndex);
+  // An SDL handler's own pads take the first SDL player indexes.
+  const late = setupFixtureFor(setup.gameId).sdlPads ? { ...LATE_GAMEPAD, id: 'sdl:2', apiIndex: 2 } : LATE_GAMEPAD;
+  if (!setup.capabilities.gamepads || setup.devices.some((device) => device.id === late.id)) return [];
+  const device = detectedDevice(late, setup.useApiIndex);
   setup.devices.push(device);
   return [device];
 }
@@ -488,7 +493,11 @@ export function applyProfile(setup: MockSetup, profile: MockProfile, id: number)
     const item = profile.stepItems[step.index];
     if (item !== undefined) Object.assign(step, { selectedIndex: item, autoSelected: true });
   }
-  setup.profile = { id, seats: structuredClone(profile.seats), autoPlay: profile.settings.autoPlay };
+  // As GameProfile.MergeProfileOptions: saved with other options than the handler has now (one added or removed).
+  const keys = setup.options.filter((option) => option.kind !== 'unsupported').map((option) => option.key);
+  const saved = Object.keys(profile.options);
+  const optionsOutdated = saved.length !== keys.length || keys.some((key) => !saved.includes(key));
+  setup.profile = { id, seats: structuredClone(profile.seats), autoPlay: profile.settings.autoPlay, optionsOutdated };
   setup.pendingSettings = null;
   setup.step = 0;
 }

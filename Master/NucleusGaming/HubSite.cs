@@ -35,6 +35,15 @@ namespace Nucleus.Gaming
         /// <summary>API root (trailing slash) of a site root returned by <see cref="Normalize"/>.</summary>
         public static string ApiUrl(string siteUrl) => siteUrl + ApiPath + "/";
 
+        /// <summary>Page of the site's documentation (<c>&lt;Url&gt;/doc/&lt;page&gt;</c>), for example <see cref="OneDriveHelpPage"/>.</summary>
+        public static string DocUrl(string page) => Url + "/doc/" + (page ?? "").TrimStart('/');
+
+        /// <summary>
+        /// The documentation of the OneDrive warning (Documents synced by OneDrive, and how to put it back), the page the
+        /// Nucleus 2.5 FAQ link pointed to.
+        /// </summary>
+        public const string OneDriveHelpPage = "troubleshooting/handler-does-not-work#documents-in-onedrive";
+
         /// <summary>
         /// The site root of a setting value: an absolute http or https URL, without query, fragment or trailing slash
         /// (a pasted <c>.../api/v3</c> is cut back to the site). Null when the value is empty or not such a URL.

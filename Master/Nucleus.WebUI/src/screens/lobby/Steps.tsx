@@ -17,6 +17,13 @@ export function OptionsStep({ snap, commands }: { snap: SetupSnapshot; commands:
       <p className="mt-2 max-w-[62ch] text-ink-2">
         {t(snap.profile.loaded ? 'setup.options.introFromProfile' : 'setup.options.intro', { game: snap.gameName })}
       </p>
+      {/* Why the profile stopped here instead of playing by itself: its options changed since it was saved. */}
+      {snap.profile.loaded && snap.profile.optionsOutdated && (
+        <p role="note" className="mt-4 flex max-w-[66ch] items-start gap-2.5 rounded-ctl bg-pane-2 px-3.5 py-3 text-15 text-ink">
+          <Icon name="info" className="mt-0.5 size-[18px] shrink-0 text-warn" />
+          <span>{t('setup.options.outdated')}</span>
+        </p>
+      )}
       {editable.length === 0 && <p className="mt-6 text-ink-3">{t('setup.options.empty')}</p>}
       <div className="mt-6 grid max-w-[880px] border-t border-line">
         {snap.options.map((o) => (

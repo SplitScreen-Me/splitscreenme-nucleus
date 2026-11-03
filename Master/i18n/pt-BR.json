@@ -126,7 +126,11 @@
     "skipToContent": "Ir para o conteúdo",
     "offlineBanner": {
       "title": "O Hub está offline.",
-      "message": "Seus jogos continuam funcionando; a instalação e a atualização de handlers aguardam até que ele volte."
+      "message": "Seus jogos continuam funcionando; a instalação e a atualização de handlers aguardam até que ele volte.",
+      "retry": "Tentar agora",
+      "checking": "Verificando…",
+      "stillOffline": "Ainda offline. O Nucleus tenta de novo sozinho a cada 30 segundos.",
+      "backOnline": "O Hub está online de novo."
     },
     "hintBar": {
       "label": "Comandos",
@@ -1159,7 +1163,8 @@
       "resizingBottomRight": "Redimensionando o jogador {number}, {name}: {width} por {height}. As setas movem o canto inferior direito, X alterna os cantos, Enter para concluir.",
       "resizingTopLeft": "Redimensionando o jogador {number}, {name}: {width} por {height}. As setas movem o canto superior esquerdo, X alterna os cantos, Enter para concluir.",
       "dropGuest": "Jogar nesta cópia",
-      "dropGuestNote": "Solte o controle para compartilhar a cópia deste jogador"
+      "dropGuestNote": "Solte o controle para compartilhar a cópia deste jogador",
+      "deviceChip": "{device}: arraste para movê-lo sozinho"
     },
     "tray": {
       "title": "Aguardando para entrar",
@@ -1191,7 +1196,8 @@
         "pressStart": "Pressione Start para entrar",
         "vibrateLabel": "Fazer {device} vibrar",
         "vibrateHint": "Vibrar, para descobrir qual é"
-      }
+      },
+      "dropDeviceToRemove": "Solte aqui para retirar {device}"
     },
     "players": {
       "title": "Jogadores",
@@ -1245,7 +1251,8 @@
       "joined": "{device} entrou: {player}, jogador {number}.",
       "controllerJoined": "Um controle entrou: {player}, jogador {number}.",
       "guestJoined": "{device} entrou na cópia de {player}.",
-      "controllerJoinedCopy": "Um controle entrou na cópia de {player}."
+      "controllerJoinedCopy": "Um controle entrou na cópia de {player}.",
+      "deviceLeft": "{device} voltou para a área de espera."
     },
     "deviceLost": {
       "namedPlayer": "{nickname} (jogador {number})",
@@ -1280,7 +1287,8 @@
       "introFromProfile": "O autor do handler oferece estas opções. Elas se aplicam a todas as cópias de {game} e vêm do perfil carregado.",
       "empty": "Este handler não tem nenhuma opção que você possa alterar aqui.",
       "choose": "Escolher…",
-      "unsupported": "Usa o valor padrão do handler"
+      "unsupported": "Usa o valor padrão do handler",
+      "outdated": "Este perfil foi salvo com outras opções do handler. As opções novas receberam o valor padrão; confira-as antes de jogar."
     },
     "customStep": {
       "required": "Escolha uma opção para continuar.",
@@ -1297,7 +1305,9 @@
         "blocking": "Bloqueante",
         "info": "Nota",
         "busy": "Em andamento"
-      }
+      },
+      "howToFix": "Como corrigir",
+      "howToFixLabel": "Como corrigir: {check}. Abre no seu navegador."
     },
     "flow": {
       "stepsLabel": "Etapas",
@@ -1545,7 +1555,8 @@
       "backToLibrary": "Voltar à biblioteca",
       "lockInputs": "Bloquear entradas",
       "unlockInputs": "Desbloquear entradas",
-      "stop": "Parar a sessão"
+      "stop": "Parar a sessão",
+      "restartInstance": "Reiniciar esta cópia"
     },
     "links": {
       "lobby": "Voltar ao lobby",
@@ -1649,8 +1660,16 @@
         "closed": "Fechado",
         "waiting": "Aguardando o início…",
         "starting": "Iniciando, posicionando a janela…",
-        "ready": "Pronto"
-      }
+        "ready": "Pronto",
+        "crashed": "Travou",
+        "restarting": "Reiniciando…",
+        "restartFailed": "Não foi possível reiniciar"
+      },
+      "restart": "Reiniciar",
+      "restartLabel": "Reiniciar a cópia do jogador {number}, {name}",
+      "restartHint": "Iniciar esta cópia do jogo de novo",
+      "restartBusy": "Outra cópia está sendo reiniciada.",
+      "restartUnsupported": "Este handler não consegue reiniciar uma cópia do jogo."
     },
     "log": {
       "title": "Registro de eventos",
@@ -2524,6 +2543,14 @@
         "stopLocked": "Não foi possível parar a sessão: as entradas estão bloqueadas.",
         "launchFailed": "A inicialização falhou.",
         "actionUnavailable": "{action} não está disponível agora."
+      },
+      "restart": {
+        "noSession": "Nenhuma sessão em execução: não há cópia para reiniciar.",
+        "notReady": "As cópias ainda estão iniciando. Aguarde até todas as janelas estarem no lugar e tente de novo.",
+        "busy": "Outra cópia está sendo reiniciada. Aguarde o fim e tente de novo.",
+        "notSupported": "Este handler não consegue reiniciar uma cópia do jogo. Pare a sessão e jogue de novo.",
+        "unknownPlayer": "Este jogador não tem cópia do jogo para reiniciar.",
+        "failed": "Não foi possível reiniciar a cópia."
       }
     },
     "notices": {
@@ -2581,7 +2608,7 @@
       },
       "oneDrive": {
         "title": "O OneDrive precisa ser desativado",
-        "message": "Usar o OneDrive como caminho padrão dos documentos vai quebrar muitos handlers, porque o Nucleus não consegue acessar o armazenamento dele. Para alterar o caminho dos seus documentos, saia do aplicativo OneDrive, clique com o botão direito na pasta Documentos no Explorador de Arquivos, abra as Propriedades, selecione a guia Local (ou Caminho) e restaure o local padrão do Windows."
+        "messageHelp": "Usar o OneDrive como caminho padrão dos documentos vai quebrar muitos handlers, porque o Nucleus não consegue acessar o armazenamento dele. Para alterar o caminho dos seus documentos, saia do aplicativo OneDrive, clique com o botão direito na pasta Documentos no Explorador de Arquivos, abra as Propriedades, selecione a guia Local (ou Caminho) e restaure o local padrão do Windows.\n\nAbrir a página de ajuda no navegador para ver os detalhes?"
       },
       "installFolder": {
         "message": "O Nucleus Co-op não deve ser instalado aqui.\n\nNÃO o instale em nenhuma destas pastas:\n- Uma pasta que contenha arquivos de jogos\n- {programFiles} ou {programFilesX86}\n- {users} (incluindo Documentos, Área de Trabalho ou Downloads)\n- Qualquer pasta com configurações de segurança, como {windows}\n\nUm bom local é {example}"

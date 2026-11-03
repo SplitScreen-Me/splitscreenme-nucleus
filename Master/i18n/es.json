@@ -126,7 +126,11 @@
     "skipToContent": "Saltar al contenido",
     "offlineBanner": {
       "title": "El Hub está desconectado.",
-      "message": "Tus juegos siguen funcionando; la instalación y actualización de handlers esperará hasta que vuelva."
+      "message": "Tus juegos siguen funcionando; la instalación y actualización de handlers esperará hasta que vuelva.",
+      "retry": "Reintentar ahora",
+      "checking": "Comprobando…",
+      "stillOffline": "Sigue desconectado. Nucleus vuelve a intentarlo solo cada 30 segundos.",
+      "backOnline": "El Hub vuelve a estar conectado."
     },
     "hintBar": {
       "label": "Controles",
@@ -1159,7 +1163,8 @@
       "resizingBottomRight": "Cambiando el tamaño del jugador {number}, {name}: {width} por {height}. Las flechas mueven la esquina inferior derecha, X cambia de esquina, Enter para terminar.",
       "resizingTopLeft": "Cambiando el tamaño del jugador {number}, {name}: {width} por {height}. Las flechas mueven la esquina superior izquierda, X cambia de esquina, Enter para terminar.",
       "dropGuest": "Jugar en esta copia",
-      "dropGuestNote": "Suelta el mando para compartir la copia de este jugador"
+      "dropGuestNote": "Suelta el mando para compartir la copia de este jugador",
+      "deviceChip": "{device}: arrástralo para moverlo por separado"
     },
     "tray": {
       "title": "Esperando para unirse",
@@ -1191,7 +1196,8 @@
         "pressStart": "Presiona Start para unirte",
         "vibrateLabel": "Hacer vibrar {device}",
         "vibrateHint": "Hacerlo vibrar para saber cuál es"
-      }
+      },
+      "dropDeviceToRemove": "Suelta aquí para quitar {device}"
     },
     "players": {
       "title": "Jugadores",
@@ -1245,7 +1251,8 @@
       "joined": "{device} se ha unido: {player}, jugador {number}.",
       "controllerJoined": "Se ha unido un mando: {player}, jugador {number}.",
       "guestJoined": "{device} se ha unido a la copia de {player}.",
-      "controllerJoinedCopy": "Se ha unido un mando a la copia de {player}."
+      "controllerJoinedCopy": "Se ha unido un mando a la copia de {player}.",
+      "deviceLeft": "{device} vuelve a la bandeja."
     },
     "deviceLost": {
       "namedPlayer": "{nickname} (jugador {number})",
@@ -1280,7 +1287,8 @@
       "introFromProfile": "El autor del handler ofrece estas opciones. Se aplican a todas las copias de {game} y provienen del perfil cargado.",
       "empty": "Este handler no tiene ninguna opción que puedas cambiar aquí.",
       "choose": "Elegir…",
-      "unsupported": "Usa el valor predeterminado del handler"
+      "unsupported": "Usa el valor predeterminado del handler",
+      "outdated": "Este perfil se guardó con otras opciones del handler. Las opciones nuevas tienen su valor predeterminado; revísalas antes de jugar."
     },
     "customStep": {
       "required": "Elige una opción para continuar.",
@@ -1297,7 +1305,9 @@
         "blocking": "Bloqueante",
         "info": "Nota",
         "busy": "En curso"
-      }
+      },
+      "howToFix": "Cómo solucionarlo",
+      "howToFixLabel": "Cómo solucionarlo: {check}. Se abre en tu navegador."
     },
     "flow": {
       "stepsLabel": "Pasos",
@@ -1545,7 +1555,8 @@
       "backToLibrary": "Volver a la biblioteca",
       "lockInputs": "Bloquear entradas",
       "unlockInputs": "Desbloquear entradas",
-      "stop": "Detener sesión"
+      "stop": "Detener sesión",
+      "restartInstance": "Reiniciar esta copia"
     },
     "links": {
       "lobby": "Volver a la sala",
@@ -1649,8 +1660,16 @@
         "closed": "Cerrado",
         "waiting": "Esperando para iniciar…",
         "starting": "Iniciando, colocando la ventana…",
-        "ready": "Listo"
-      }
+        "ready": "Listo",
+        "crashed": "Se bloqueó",
+        "restarting": "Reiniciando…",
+        "restartFailed": "No se pudo reiniciar"
+      },
+      "restart": "Reiniciar",
+      "restartLabel": "Reiniciar la copia del jugador {number}, {name}",
+      "restartHint": "Volver a iniciar esta copia del juego",
+      "restartBusy": "Ya se está reiniciando otra copia.",
+      "restartUnsupported": "Este handler no puede reiniciar una copia del juego."
     },
     "log": {
       "title": "Registro de eventos",
@@ -2524,6 +2543,14 @@
         "stopLocked": "No se pudo detener la sesión: las entradas están bloqueadas.",
         "launchFailed": "El inicio falló.",
         "actionUnavailable": "{action} no está disponible ahora."
+      },
+      "restart": {
+        "noSession": "No hay ninguna sesión en curso: no hay ninguna copia que reiniciar.",
+        "notReady": "Las copias aún se están iniciando. Espera a que todas las ventanas estén en su sitio y vuelve a intentarlo.",
+        "busy": "Ya se está reiniciando otra copia. Espera a que termine y vuelve a intentarlo.",
+        "notSupported": "Este handler no puede reiniciar una copia del juego. Detén la sesión y vuelve a jugar.",
+        "unknownPlayer": "Este jugador no tiene ninguna copia del juego que reiniciar.",
+        "failed": "No se pudo reiniciar la copia."
       }
     },
     "notices": {
@@ -2581,7 +2608,7 @@
       },
       "oneDrive": {
         "title": "Debes desactivar OneDrive",
-        "message": "Usar OneDrive como ruta predeterminada de los documentos hará que muchos handlers fallen, porque Nucleus no puede acceder a su almacenamiento. Para cambiar la ruta de tus documentos, cierra sesión en la aplicación de OneDrive, haz clic derecho en tu carpeta Documentos en el Explorador de archivos, ve a Propiedades, selecciona Ruta o Ubicación y restablece la ruta predeterminada de Windows."
+        "messageHelp": "Usar OneDrive como ruta predeterminada de los documentos hará que muchos handlers fallen, porque Nucleus no puede acceder a su almacenamiento. Para cambiar la ruta de tus documentos, cierra sesión en la aplicación de OneDrive, haz clic derecho en tu carpeta Documentos en el Explorador de archivos, ve a Propiedades, selecciona Ruta o Ubicación y restablece la ruta predeterminada de Windows.\n\n¿Quieres abrir la página de ayuda en tu navegador para ver los detalles?"
       },
       "installFolder": {
         "message": "Nucleus Co-op no debería estar instalado aquí.\n\nNO lo instales en ninguna de estas carpetas:\n- Una carpeta que contenga archivos de algún juego\n- {programFiles} o {programFilesX86}\n- {users} (incluidos Documentos, Escritorio o Descargas)\n- Cualquier carpeta con ajustes de seguridad como {windows}\n\nUn buen lugar es {example}"

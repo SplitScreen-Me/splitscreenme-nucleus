@@ -356,6 +356,7 @@ namespace Nucleus.Coop.Services.Setup
                 Assigned = loaded ? GameProfile.TotalAssignedPlayers : 0,
                 Total = GameProfile.TotalProfilePlayers,
                 AutoPlay = GameProfile.AutoPlay,
+                OptionsOutdated = loaded && GameProfile.OptionsOutdated,//same rule as FlowInput.ProfileOptionsOutdated
             };
 
             if (!loaded)
