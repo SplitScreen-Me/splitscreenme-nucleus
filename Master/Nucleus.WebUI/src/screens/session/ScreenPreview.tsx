@@ -2,8 +2,9 @@ import type { CSSProperties, ReactNode } from 'react';
 import type { Rect, SessionInstance, SetupScreen, SetupSnapshot } from '@/bridge';
 import { T, useT, type TFunction } from '@/i18n';
 import { deviceNoun, devicesIcon } from '@/lib/devices';
-import { cn, Icon, Pane, PlayerTag, playerClass, Spinner } from '@/ui';
-import { STEP_LABEL, STEPS, nicknameOf, stageLabel, stepOf, type SessionView } from './model';
+import { Button, cn, Icon, Pane, PlayerTag, playerClass, Spinner } from '@/ui';
+import { instanceStatus, isClosed, isFailure, restartNote, restartOffer, statusLabel, type RestartOffer } from './instance-status';
+import { STEP_LABEL, STEPS, nicknameOf, stepOf, type SessionView } from './model';
 import { useElementSize } from './useElementSize';
 
 /** Every copy renders its own view of the game: offset the art so the windows don't look cloned. */
@@ -29,7 +30,18 @@ function union(rects: readonly Rect[]): Rect | undefined {
  * The monitors, to scale and in their desktop arrangement, with one pane per game window. The session snapshot has no
  * monitors: they come from the setup snapshot taken at Play; without it the windows are drawn on their own.
  */
-export function ScreenPreview({ view, setup, art }: { view: SessionView; setup: SetupSnapshot | null | undefined; art?: string }) {
+export function ScreenPreview({
+  view,
+  setup,
+  art,
+  onRestart,
+}: {
+  view: SessionView;
+  setup: SetupSnapshot | null | undefined;
+  art?: string;
+  /** A closed copy's Restart was pressed (`session.restartInstance`). */
+  onRestart?: (playerNumber: number) => void;
+}) {
   const [wrapRef, size] = useElementSize<HTMLDivElement>();
   const t = useT();
   const { snapshot: s, ended } = view;
@@ -99,7 +111,16 @@ export function ScreenPreview({ view, setup, art }: { view: SessionView; setup: 
           ))}
         {size.width > 0 &&
           s.instances.map((inst) => (
-            <InstancePane key={inst.playerNumber} inst={inst} ended={ended} art={art} style={place(inst.bounds, 2)} />
+            <InstancePane
+              key={inst.playerNumber}
+              inst={inst}
+              ended={ended}
+              art={art}
+              style={place(inst.bounds, 2)}
+              restart={onRestart ? restartOffer(instanceStatus(inst, ended), s, ended) : 'none'}
+              note={restartNote(instanceStatus(inst, ended), s, ended)}
+              onRestart={() => onRestart?.(inst.playerNumber)}
+            />
           ))}
         {size.width > 0 && s.instances.length === 0 && (
           <div className="absolute inset-0 grid place-items-center text-small text-ink-2">
@@ -129,12 +150,27 @@ function ScreenCaption({ screen: sc, used }: { screen: SetupScreen; used: boolea
   );
 }
 
-function InstancePane({ inst, ended, art, style }: { inst: SessionInstance; ended: boolean; art?: string; style: CSSProperties }) {
+interface InstancePaneProps {
+  inst: SessionInstance;
+  ended: boolean;
+  art?: string;
+  style: CSSProperties;
+  /** Its Restart button: none, enabled, or disabled while another copy restarts. */
+  restart: RestartOffer;
+  /** Why it can't be restarted now, under its status. */
+  note?: string;
+  onRestart: () => void;
+}
+
+function InstancePane({ inst, ended, art, style, restart, note, onRestart }: InstancePaneProps) {
   const t = useT();
+  const status = instanceStatus(inst, ended);
   const step = ended ? -1 : stepOf(inst.stage);
-  const ready = !ended && inst.stage === 'ready';
-  const closed = ended || inst.stage === 'exited';
-  const label = stageLabel(inst.stage, ended, t);
+  const ready = status === 'ready';
+  const closed = isClosed(status);
+  // A copy that stopped, or is being started again, says so even on small cards (the launch steps need more room).
+  const prominent = closed || status === 'restarting';
+  const label = statusLabel(status);
   const name = nicknameOf(inst, t);
   const devices = inst.devices.map(deviceNoun);
 
@@ -166,22 +202,43 @@ function InstancePane({ inst, ended, art, style }: { inst: SessionInstance; ende
       <div className="relative flex items-center gap-2">
         <PlayerTag n={inst.playerNumber} />
         <b className="truncate text-15 font-bold @max-[150px]:hidden">{name}</b>
-        {inst.processId !== undefined && !closed && (
+        {inst.processId !== undefined && !prominent && (
           <span className="data ml-auto shrink-0 text-12 text-ink-3 @max-[220px]:hidden">
             {t('session.instance.pid', { pid: String(inst.processId) })}
           </span>
         )}
       </div>
 
+      {/* A closed or restarting copy keeps its status (and Restart) down to small cards. */}
       <div
         className={cn(
-          'relative flex items-center justify-center gap-2 text-center text-small font-semibold text-ink-2 [@container_(max-height:150px)]:hidden',
+          'relative grid justify-items-center gap-1.5 text-center',
+          prominent ? '[@container_(max-height:64px)]:hidden' : '[@container_(max-height:150px)]:hidden',
           ready && 'invisible',
         )}
       >
-        {!closed && inst.stage !== 'ready' && <Spinner />}
-        {closed && <Icon name="stop" className="size-4 text-ink-3" />}
-        <span>{label}</span>
+        <span className={cn('flex items-center gap-2 text-small font-semibold [@container_(max-height:104px)]:hidden', isFailure(status) ? 'text-ink' : 'text-ink-2')}>
+          {!closed && !ready && <Spinner />}
+          {status === 'closed' && <Icon name="stop" className="size-4 text-ink-3" />}
+          {isFailure(status) && <Icon name="warning" className="size-4 text-danger" />}
+          <span>{label}</span>
+        </span>
+        {note && <span className="max-w-[34ch] text-12 text-ink-3 [@container_(max-height:150px)]:hidden">{note}</span>}
+        {restart !== 'none' && (
+          <Button
+            size="sm"
+            variant={isFailure(status) ? 'primary' : 'default'}
+            onClick={onRestart}
+            disabled={restart === 'busy'}
+            title={restart === 'busy' ? t('session.instance.restartBusy') : t('session.instance.restartHint')}
+            aria-label={t('session.instance.restartLabel', { number: inst.playerNumber, name })}
+            data-nav
+            data-hints="instance-restart"
+          >
+            <Icon name="refresh" />
+            {t('session.instance.restart')}
+          </Button>
+        )}
       </div>
 
       <div className="relative grid gap-2">
@@ -192,7 +249,7 @@ function InstancePane({ inst, ended, art, style }: { inst: SessionInstance; ende
           </span>
           <span className="data ml-auto whitespace-nowrap text-ink-3 @max-[300px]:hidden">{res(inst.bounds, t)}</span>
         </div>
-        <ol className="m-0 grid list-none grid-cols-3 gap-[3px] p-0" aria-label={t('session.instance.progress')}>
+        <ol className={cn('m-0 grid list-none grid-cols-3 gap-[3px] p-0', closed && !ended && 'hidden')} aria-label={t('session.instance.progress')}>
           {STEPS.map((stepId, i) => {
             const done = i <= step;
             const current = i === step;

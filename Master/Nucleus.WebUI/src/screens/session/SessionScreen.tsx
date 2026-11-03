@@ -88,8 +88,11 @@ function SessionView({ view, log }: { view: SessionView; log: ReturnType<typeof 
     ? { button: 'B', label: t('session.hints.backToLibrary'), action: backToLibrary }
     : { key: 'Esc', label: t('session.hints.backToLibrary') };
   const crumb = s.gameName ? t('session.chrome.gameSession', { game: s.gameName }) : t('session.chrome.unknownGameSession');
+  const base: Hint[] = [...(view.ended ? [{ button: 'A' as const, label: t('common.select') }] : []), back, ...keyHints];
   useScreenChrome([{ label: t('session.chrome.library'), to: '/library' }, { label: crumb }], {
-    base: [...(view.ended ? [{ button: 'A' as const, label: t('common.select') }] : []), back, ...keyHints],
+    base,
+    // A closed copy's Restart (reached with the arrows or Tab: while copies run, the pads play and don't drive the app).
+    byFocus: { 'instance-restart': [{ key: 'Enter', label: t('session.hints.restartInstance') }, ...base] },
   });
   useBackKey(backToLibrary);
 
@@ -98,7 +101,12 @@ function SessionView({ view, log }: { view: SessionView; log: ReturnType<typeof 
       <SessionHeader view={view} cover={game?.coverUrl ?? game?.iconUrl} commands={commands} />
       <div className="flex min-h-0 min-w-0 flex-col gap-gutter">
         <div className="relative flex min-h-0 flex-1 flex-col">
-          <ScreenPreview view={view} setup={setup} art={game ? heroOf(game) : undefined} />
+          <ScreenPreview
+            view={view}
+            setup={setup}
+            art={game ? heroOf(game) : undefined}
+            onRestart={view.ended ? undefined : (playerNumber) => void commands.restartInstance(playerNumber)}
+          />
           {view.ended && <EndedOverlay view={view} />}
         </div>
         <EventLog entries={log} />

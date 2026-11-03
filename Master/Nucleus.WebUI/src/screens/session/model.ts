@@ -34,20 +34,8 @@ export const STEP_LABEL: Record<(typeof STEPS)[number], MessageKey> = {
 // A restart goes through the launch steps again: it starts back at the first one.
 const STEP_INDEX: Record<InstanceStage, number> = { waiting: 0, starting: 1, ready: 2, exited: -1, restarting: 0 };
 
-/** Index of the step a copy has reached (-1 once it exited). */
+/** Index of the step a copy has reached (-1 once it exited). Its words: instance-status.ts. */
 export const stepOf = (stage: InstanceStage) => STEP_INDEX[stage];
-
-const STAGE_LABEL: Record<Exclude<InstanceStage, 'exited'>, MessageKey> = {
-  waiting: 'session.instance.stage.waiting',
-  starting: 'session.instance.stage.starting',
-  ready: 'session.instance.stage.ready',
-  restarting: 'session.instance.stage.restarting',
-};
-
-/** Short words for the stage of a copy. */
-export function stageLabel(stage: InstanceStage, ended: boolean, t: TFunction): string {
-  return ended || stage === 'exited' ? t('session.instance.stage.closed') : t(STAGE_LABEL[stage]);
-}
 
 /** Nickname of a copy, or "Player N". */
 export const nicknameOf = (i: Pick<SessionInstance, 'nickname' | 'playerNumber'>, t: TFunction) =>
