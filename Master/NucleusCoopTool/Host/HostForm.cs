@@ -711,11 +711,15 @@ namespace Nucleus.Coop.Host
 
             try
             {
-                CoreWebView2EnvironmentOptions options = new CoreWebView2EnvironmentOptions();
+                // Media may start without a click: the supporters credits start their music when opened with a gamepad,
+                // and pad presses are not user gestures for the browser. The WebView only ever shows the app's own UI.
+                string arguments = "--autoplay-policy=no-user-gesture-required";
                 if (environment.RemoteDebuggingPort.HasValue)
                 {
-                    options.AdditionalBrowserArguments = "--remote-debugging-port=" + environment.RemoteDebuggingPort.Value.ToString(CultureInfo.InvariantCulture);
+                    arguments += " --remote-debugging-port=" + environment.RemoteDebuggingPort.Value.ToString(CultureInfo.InvariantCulture);
                 }
+
+                CoreWebView2EnvironmentOptions options = new CoreWebView2EnvironmentOptions { AdditionalBrowserArguments = arguments };
 
                 CoreWebView2Environment webViewEnvironment = await CoreWebView2Environment.CreateAsync(null, environment.UserDataFolder, options);
                 await target.EnsureCoreWebView2Async(webViewEnvironment);

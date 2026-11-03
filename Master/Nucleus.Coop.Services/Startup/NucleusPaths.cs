@@ -48,6 +48,18 @@ public static class NucleusPaths
     /// <summary><c>gui\gamepads\</c>: gamepad button images of the shortcuts reminder, one folder per gamepad type.</summary>
     public static string GamepadImages => Path.Combine(Gui, "gamepads");
 
+    /// <summary><c>gui\audio\patreon_credits.mp3</c>: music of the supporters credits, shipped with the app.</summary>
+    public static string CreditsMusic => Path.Combine(Gui, "audio", "patreon_credits.mp3");
+
+    /// <summary>
+    /// <c>content\</c>: data the app writes while it runs (logs, <c>userprofile.json</c>, game instances), which packages
+    /// leave out.
+    /// </summary>
+    public static string Content => Path.Combine(InstallRoot, "content");
+
+    /// <summary><c>content\patreon-supporters.txt</c>: the last downloaded supporters list, one name per line.</summary>
+    public static string SupportersCache => Path.Combine(Content, "patreon-supporters.txt");
+
     /// <summary>Tests only: makes every path relative to another folder.</summary>
     internal static void OverrideInstallRoot(string? root) => installRootOverride = root?.TrimEnd('\\');
 

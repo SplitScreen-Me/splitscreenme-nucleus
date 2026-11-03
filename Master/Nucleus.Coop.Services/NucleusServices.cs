@@ -21,6 +21,9 @@ namespace Nucleus.Coop.Services
             Nucleus.Gaming.Forms.UserPrompts.Handler = new Notices.WebUserPrompts(notices, () => shell.PageState, Nucleus.Gaming.Forms.UserPrompts.Native);
             bridge.Register<Bridge.Contracts.INoticesService>(notices);
 
+            // The supporters credits need neither the library nor the handlers.
+            bridge.Register<Bridge.Contracts.ISupportersService>(new Supporters.SupportersService());
+
             // Library, handlers, settings, setup, profiles and session all use GameManager (every handler + the
             // library). It loads in the background while the window and the page start; the services are created on
             // the UI thread once it is ready, and calls made meanwhile wait for them without blocking the UI thread.

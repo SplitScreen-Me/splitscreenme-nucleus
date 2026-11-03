@@ -5,4 +5,5 @@ export const LINKS = {
   website: 'https://www.splitscreen.me/',
   docs: 'https://www.splitscreen.me/docs/',
   faq: 'https://www.splitscreen.me/docs/faq',
+  patreon: 'https://www.patreon.com/nucleus_coop',
 } as const;

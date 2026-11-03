@@ -420,7 +420,7 @@ public sealed class HubClient : IDisposable
         return download ? I18n.T("host.hub.errors.downloadHttpStatus", status) : I18n.T("host.hub.errors.httpStatus", status);
     }
 
-    private static void EnsureTls12()
+    internal static void EnsureTls12()
     {
         // SystemDefault (0) lets Windows pick, which includes TLS 1.2 on supported systems; otherwise add TLS 1.2.
         SecurityProtocolType current = ServicePointManager.SecurityProtocol;
