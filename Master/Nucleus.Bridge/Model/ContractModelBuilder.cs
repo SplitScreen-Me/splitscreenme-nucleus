@@ -35,6 +35,17 @@ internal sealed class ContractModelBuilder
             .OrderBy(e => e.Name, StringComparer.Ordinal)
             .ToList();
 
+        foreach (var errorData in all.Where(t => t.GetCustomAttribute<BridgeErrorDataAttribute>(false) != null).OrderBy(t => t.FullName, StringComparer.Ordinal))
+        {
+            if (!TypeMapper.IsObjectType(errorData) || errorData.IsGenericTypeDefinition)
+            {
+                _errors.Add($"{errorData.Name}: [BridgeErrorData] goes on DTO classes.");
+                continue;
+            }
+
+            _types.Map(NullabilityNode.NotNull(errorData), errorData.Name);
+        }
+
         RequireUnique("service", services.Select(s => s.Name));
         RequireUnique("event", events.Select(e => e.Name));
         CheckInvalidations(events, services);

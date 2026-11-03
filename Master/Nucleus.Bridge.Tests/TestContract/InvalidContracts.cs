@@ -107,4 +107,31 @@ public static class InvalidContracts
     {
         Oblivious Get();
     }
+
+    [BridgeErrorData]
+    public sealed class GenericErrorData<T>
+    {
+        public T Value { get; set; } = default!;
+    }
+}
+
+/// <summary>Data of a refused shelf command: not returned by any method, in the contract through <see cref="BridgeErrorDataAttribute"/>.</summary>
+[BridgeErrorData]
+public sealed class ShelfRefusal
+{
+    /// <summary>Why.</summary>
+    public string Reason { get; set; } = "";
+
+    /// <summary>Items in the way.</summary>
+    public List<ShelfItem> Items { get; set; } = new();
+
+    /// <summary>A type only this DTO references.</summary>
+    public RefusalHint? Hint { get; set; }
+}
+
+/// <summary>Discovered through <see cref="ShelfRefusal"/>.</summary>
+public sealed class RefusalHint
+{
+    /// <summary>Text.</summary>
+    public string Text { get; set; } = "";
 }

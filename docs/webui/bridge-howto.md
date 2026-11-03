@@ -163,6 +163,25 @@ try {
 }
 ```
 
+#### Typed error data
+
+A `{ reason }` object needs no type. Richer data (a list the UI renders) gets a DTO in the contract: mark the class `[BridgeErrorData]` (no method returns it, so the model would not find it otherwise). The generator emits it in `contract.ts` with the types it references, it counts in the contract hash, and the throwing method's XML doc names the kind and the `reason` it comes with. The service throws an instance, serialized like any DTO (camelCase).
+
+```csharp
+/// <summary>Data of the <c>notFound</c> error of <see cref="ILibraryService.AddGame"/> with reason <c>contextMissing</c>.</summary>
+[BridgeErrorData]
+public sealed class ExecutableContextMismatch { public string Reason { get; set; } = "contextMissing"; public List<RejectedHandler> Handlers { get; set; } = new List<RejectedHandler>(); /* … */ }
+
+throw new BridgeException(BridgeErrorKind.NotFound, message, new ExecutableContextMismatch { … });
+```
+
+```ts
+const data = BridgeError.is(e, 'notFound') ? (e.data as Partial<ExecutableContextMismatch>) : undefined;
+if (data?.reason === 'contextMissing') showReport(data);
+```
+
+The data comes from the host as JSON: check the `reason` (and arrays) before trusting the shape, as `contextMismatchOf` does (`src/lib/game-search-core.ts`).
+
 ### Cancellation and timeouts
 
 - Every call has a timeout: 30 s by default, `{ timeoutMs }` per call (0 waits forever, for example for `settings.captureGamepadCombo`). On timeout the client rejects with `timeout` and tells the host to cancel.
