@@ -384,12 +384,18 @@ export interface MessageParamsMap {
   'engine.goldberg.steamApiMissing': undefined;
   /** Error with handler {file} */
   'engine.handlers.errorTitle': { file: ParamValue };
+  /** The handler doesn't set "Game.GameName". */
+  'engine.handlers.invalid.noGameName': undefined;
+  /** The handler doesn't set "Game.GUID". */
+  'engine.handlers.invalid.noGuid': undefined;
+  /** The handler file could not be read. */
+  'engine.handlers.invalid.unreadable': undefined;
   /** {file} has errors and could not be reloaded. */
   'engine.handlers.reloadFailed': { file: ParamValue };
   /** Error at line {line} {message} */
   'engine.handlers.scriptError.atLine': { line: ParamValue; message: ParamValue };
-  /** There is an error in the game handler {file}. The game this handler is for will not appear in the list. If ... */
-  'engine.handlers.scriptError.message': { details: ParamValue; file: ParamValue };
+  /** There is an error in the game handler {file}. The game this handler is for will not appear in the list unti... */
+  'engine.handlers.scriptError.messageReload': { details: ParamValue; file: ParamValue };
   /** Error in handler */
   'engine.handlers.scriptError.title': undefined;
   /** A fatal error occurred: {message} {stackTrace} */
@@ -426,6 +432,8 @@ export interface MessageParamsMap {
   'engine.launch.pickLauncher.message': undefined;
   /** Press OK after selecting the game launcher executable ({file}), and you're ready to continue. */
   'engine.launch.pickLauncher.messageNamed': { file: ParamValue };
+  /** Could not find the game process. */
+  'engine.launch.processNotFound': undefined;
   /** Press OK when game has launched. */
   'engine.launch.waitForOk.gameLaunched': undefined;
   /** {text} File path: {path} */
@@ -472,6 +480,14 @@ export interface MessageParamsMap {
   'engine.osd.inputsLocked': undefined;
   /** Inputs Unlocked */
   'engine.osd.inputsUnlocked': undefined;
+  /** Instance hooked again */
+  'engine.osd.instanceHookedAgain': undefined;
+  /** The instance could not be restarted */
+  'engine.osd.instanceRestartFailed': undefined;
+  /** Restarting the instance… */
+  'engine.osd.lostProcessRestarting': undefined;
+  /** Instance closed: waiting for the game to start again… */
+  'engine.osd.lostProcessSearching': undefined;
   /** Starting {game} instance for {nickname} as Player #{number} */
   'engine.osd.playerStarting': { game: ParamValue; nickname: ParamValue; number: ParamValue };
   /** Resetting game windows. Please wait... */
@@ -888,6 +904,8 @@ export interface MessageParamsMap {
   'host.handlers.package.notAHandler': undefined;
   /** The archive contains an unsafe path: {path} */
   'host.handlers.package.unsafePath': { path: ParamValue };
+  /** {file} was not reloaded: its latest changes have an error. The previous version stays in use until the file... */
+  'host.handlers.reload.keptPrevious': { details: ParamValue; file: ParamValue };
   /** The hub is busy (too many requests from this address), try again later. */
   'host.hub.errors.busy': undefined;
   /** The hub is busy (too many requests from this address), try again in {count} s. */
@@ -920,6 +938,8 @@ export interface MessageParamsMap {
   'host.library.errors.artworkFailed': { error: ParamValue };
   /** Some files of the content folder are locked by another program, and Nucleus could not delete them. Close th... */
   'host.library.errors.contentFilesLocked': undefined;
+  /** The {game} handler doesn't accept {executable} when {files} is next to it (another edition or version of th... */
+  'host.library.errors.contextExcluded': { executable: ParamValue; files: ParamValue; game: ParamValue };
   /** The {game} handler expects {files} next to {executable}. Pick the executable inside the game's install folder. */
   'host.library.errors.contextMissing': { executable: ParamValue; files: ParamValue; game: ParamValue };
   /** '{folder}' could not be deleted: {error} */

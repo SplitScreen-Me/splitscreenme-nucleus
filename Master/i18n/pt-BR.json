@@ -2115,7 +2115,8 @@
         "exFat": "“exFAT” não é um formato de unidade suportado: ele não suporta links simbólicos. Mova o jogo para uma unidade NTFS ou formate a unidade em NTFS.",
         "handlerNotFound": "Handler não encontrado.",
         "handlerMismatch": "{executable} não corresponde ao handler de {game} (ele espera {expected}, com os arquivos que o handler verifica ao lado dele).",
-        "artworkFailed": "Não foi possível baixar as imagens: {error}"
+        "artworkFailed": "Não foi possível baixar as imagens: {error}",
+        "contextExcluded": "O handler de {game} não aceita {executable} quando {files} está ao lado (outra edição ou versão do jogo). Escolha o executável da edição para a qual este handler foi feito."
       }
     },
     "handlers": {
@@ -2137,6 +2138,9 @@
         "noScript": "O pacote não tem handler.js: verifique se é um pacote de handler do Nucleus.",
         "notAHandler": "O script do pacote não declara Game.GameName nem Game.ExecutableName: não é um handler do Nucleus.",
         "noGameName": "O handler não tem um nome de jogo utilizável."
+      },
+      "reload": {
+        "keptPrevious": "{file} não foi recarregado: as últimas alterações têm um erro. A versão anterior continua em uso até o arquivo ser corrigido.\n\n{details}"
       }
     },
     "hub": {
@@ -2412,8 +2416,13 @@
       "reloadFailed": "{file} contém erros e não pôde ser recarregado.",
       "scriptError": {
         "title": "Erro no handler",
-        "message": "Há um erro no handler de jogo {file}.\n\nO jogo deste handler não aparecerá na lista. Se o problema tiver sido corrigido,\ntente adicionar o jogo novamente.\n\nErros comuns:\n- Um erro de sintaxe (como uma ',' ';' ou ']' faltando)\n- Outro handler tem este GUID (ele deve ser único!)\n- O código não está no lugar ou no formato correto\n(por exemplo: os métodos que usam Context devem ficar dentro da função Game.Play)\n\n{details}",
-        "atLine": "Erro na linha {line} {message}"
+        "atLine": "Erro na linha {line} {message}",
+        "messageReload": "Há um erro no handler de jogo {file}.\n\nO jogo deste handler não aparecerá na lista enquanto o erro não for corrigido. O Nucleus recarrega o handler assim que o arquivo é salvo: o jogo volta sozinho, sem reiniciar. Se o handler acabou de ser atualizado pelo hub, informe o problema ao autor.\n\nErros comuns:\n- Um erro de sintaxe (como uma ',' ';' ou ']' faltando)\n- Outro handler tem este GUID (ele deve ser único!)\n- O código não está no lugar ou no formato correto\n(por exemplo: os métodos que usam Context devem ficar dentro da função Game.Play)\n\n{details}"
+      },
+      "invalid": {
+        "unreadable": "Não foi possível ler o arquivo do handler.",
+        "noGameName": "O handler não define \"Game.GameName\".",
+        "noGuid": "O handler não define \"Game.GUID\"."
       }
     },
     "launch": {
@@ -2442,7 +2451,8 @@
         "changeWindowTitle": "ChangeWindowTitle: não foi possível encontrar o identificador da janela principal de {process} (pid:{pid})"
       },
       "invalidZip": "O arquivo zip não existe, está corrompido ou tem um formato não suportado.",
-      "errorReportFailed": "Falhamos tanto que falhamos até ao tentar registrar o motivo da falha inicial. Desculpe."
+      "errorReportFailed": "Falhamos tanto que falhamos até ao tentar registrar o motivo da falha inicial. Desculpe.",
+      "processNotFound": "Não foi possível encontrar o processo do jogo."
     },
     "crashReport": {
       "title": "Algo deu errado :(",
@@ -2572,7 +2582,11 @@
       "windowsReset": "Janelas do jogo redefinidas",
       "waitForReset": "Aguarde a redefinição das janelas do jogo",
       "windowsMinimized": "Janelas do jogo minimizadas",
-      "windowsRestored": "Janelas do jogo restauradas"
+      "windowsRestored": "Janelas do jogo restauradas",
+      "lostProcessSearching": "Instância fechada: aguardando o jogo iniciar novamente…",
+      "instanceHookedAgain": "Instância conectada novamente",
+      "lostProcessRestarting": "Reiniciando a instância…",
+      "instanceRestartFailed": "Não foi possível reiniciar a instância"
     },
     "overlay": {
       "device": {

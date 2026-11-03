@@ -46,6 +46,11 @@ namespace Nucleus.Gaming.Coop
         public string SID;
         public string Adapter;
         public string UserProfile;
+        /// <summary>Start arguments of this player's instance, kept by the launch to restart the instance (Nucleus 2.5).</summary>
+        public string StartArgs;
+        /// <summary>Executable this player's instance was started from, kept by the launch to restart the instance (Nucleus 2.5).</summary>
+        public string exepath;
+
         public List<PlayerInfo> InstanceGuests = new List<PlayerInfo>();
         public List<Guid> GuestsGuid = new List<Guid>();
 
@@ -131,6 +136,22 @@ namespace Nucleus.Gaming.Coop
                 if (value)
                 {
                     InputType = InputType.SDL2;
+                }
+            }
+        }
+
+        private bool isSDL3;
+        public bool IsSDL3
+        {
+            get => isSDL3;
+            set
+            {
+                isSDL3 = value;
+                IsController = value;
+
+                if (value)
+                {
+                    InputType = InputType.SDL3;
                 }
             }
         }

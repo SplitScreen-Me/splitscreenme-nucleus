@@ -29,7 +29,7 @@ public sealed class GameDtoFactory
         XInputEnabled = game.Hook?.XInputEnabled ?? false,
         XInputReroute = game.Hook?.XInputReroute ?? false,
         DInputEnabled = game.Hook?.DInputEnabled ?? false,
-        Sdl2Enabled = game.Hook?.SDL2Enabled ?? false,
+        Sdl2Enabled = (game.Hook?.SDL2Enabled ?? false) || (game.Hook?.SDL3Enabled ?? false),//SDL3 handlers: same devices
         ProtoXinputHook = game.ProtoInput?.XinputHook ?? false,
         ProtoDinputDeviceHook = game.ProtoInput?.DinputDeviceHook ?? false,
         SupportsKeyboard = game.SupportsKeyboard,

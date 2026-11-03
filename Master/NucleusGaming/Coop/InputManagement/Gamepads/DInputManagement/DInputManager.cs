@@ -182,7 +182,8 @@ public static class DInputManager
                     return;
                 }
 
-                Thread.Sleep(500);
+                //One pass a second is enough to see a pad plugged or unplugged (Nucleus 2.5: fewer wake-ups).
+                Thread.Sleep(1000);
             }
         }
         catch (Exception e)

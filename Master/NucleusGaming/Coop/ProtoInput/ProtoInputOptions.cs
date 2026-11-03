@@ -71,18 +71,22 @@ namespace Nucleus.Gaming.Coop.ProtoInput
         public bool XinputHook;
         public bool DinputDeviceHook;
         public SetWindowPosHook SetWindowPosHook;
-        
+
         public bool BlockRawInputHook;
         public bool FindWindowHook;
         public bool CreateSingleHIDHook;
         public bool SetWindowStyleHook;
         public bool GetCursorInfoHook;
         public bool SetWindowsHookHook;
+        public bool GetRawInputBufferHook;
         public MoveWindowHook MoveWindowHook;
         public bool AdjustWindowRectHook;
         public SetRemoveBorderHook SetRemoveBorderHook;
         public int ScaleFromX;
         public int ScaleFromY;
+
+        public bool RemoveBorders;
+        public bool SetPosition;
 
         public bool RawInputFilter;
         public bool MouseMoveFilter;
@@ -113,6 +117,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
         public bool FocusLoop_WM_MOUSEACTIVATE;
 
         public DrawFakeCursor DrawFakeCursor;
+        public bool SetCursorPosHookAlsoMessage;
         public bool AllowFakeCursorOutOfBounds;
         public bool ExtendFakeCursorBounds;
         public bool EnableToggleFakeCursorVisibilityShortcut;

@@ -80,10 +80,12 @@ Game.BackupFiles = ["file1.txt", "file2.txt"];          //Back up files from the
 Game.BackupFolders = ["folder1", "folder2"];            //Back up folders from the instances folders to Nucleus Co-op environment folder on handler stop, they will be restored on subsequent runs. Works per player/nickname. 
 Game.BinariesFolderPathFix = true;                      //Fixes binaries folder path not being correctly parsed if the binaries folder name exists multiple times in the binaries folder full path.
 Game.ExecutableNames = ["gameExe1.exe","gameExe2.exe","gameExe3.exe"];//Allows to choose among many game executables to a add a game to Nucleus. Game.ExecutableName should not be used with it.
+Game.ExecutableContext = ["data\\game.pak", "Engine"];  //Files or folders (relative to the game executable folder) that must exist for the game to be added with this handler. Lets several handlers share an executable name. When a game can not be added, Nucleus lists the missing entries.
+Game.ExecutableContext = ["!packs"];                    //Negation: an entry starting with "!" must NOT exist. If "packs" (file or folder) exists next to the executable, the game can not be added with this handler. Both kinds of entries can be mixed in the same array.
 
 #################### Nucleus Co-op Environment ####################
 
-Game.UseNucleusEnvironment = false;			//Use custom environment variables for games that use them, replaces some common paths (e.g. AppData) with C:\Users\<your username>\NucleusCoop.
+Game.UseNucleusEnvironment = false;			//Use custom environment variables for games that use them, replaces some common paths (e.g. AppData) with C:\Users\<your username>\NucleusCoop. TEMP and TMP point to C:\Users\<your username>\NucleusCoop\<player nickname>\AppData\Local\Temp (created when missing).
 Game.UserProfileConfigPath = "AppData\\Local\\Game\\Config"; //Relative path from user profile (e.g. C:\Users\ZeroFox) to game's config path | Used to provide some extra functionality (open/delete/copy over to Nucleus Environment).
 Game.UserProfileSavePath = "AppData\\Local\\Game\\Saves"; //Relative path from user profile (e.g. C:\Users\ZeroFox) to game's save path | Used to provide some extra functionality (open/delete/copy over to Nucleus Environment).
 Game.ForceUserProfileConfigCopy = false;		//Force the games config files in UserProfileConfigPath to copy over from system user profile to Nucleus environment.
@@ -174,8 +176,9 @@ Game.UseDInputBlocker = false;				//Setup wizark952's dinput blocker (block dinp
 Game.XInputPlusNoIni = false;				//Do not copy XInputPlus' ini when using Game.XInputPlusDll.
 Game.XInputPlusOldDll = false;				//When using Game.XInputPlusDll, you can specify to use the previous version instead of latest (needed for some games).
 Game.Hook.SDL2Enabled = true;                           //Enables SDL2 gamepads in the Nucleus setup screen and all the related runtime setup afterwards.
-Game.SDLPaths = ["x86","x64"];                          //An array of strings to specify the sdl2 dll(s) paths if the sdl2 dll is not placed besides the game executable (or whatever initializes sdl2 in the game).
-Game.UseDI8CoopLvlUnlock = true;                        //Can help splitting cursor in some games. 
+Game.Hook.SDL3Enabled = true;                           //Same as Game.Hook.SDL2Enabled for games using SDL3: Nucleus copies its custom utils\SDL3\<x86|x64>\SDL3.dll and writes SDL3.ini (the gamepad index of the instance) instead of the SDL2 ones.
+Game.SDLPaths = ["x86","x64"];                          //An array of strings to specify the sdl2/sdl3 dll(s) paths if the sdl dll is not placed besides the game executable (or whatever initializes sdl in the game).
+Game.UseDI8CoopLvlUnlocker = true;                        //Can help splitting cursor in some games. 
 Game.UseManualProtoControllersSetup = true              //Use this if the game requires an uncommon or specific ProtoInput controller setup (without it, Nucleus automatically assigns controller indexes).
 
 #################### Goldberg Emulator ####################
@@ -285,6 +288,8 @@ Game.PauseBetweenContextAndLaunch = 0;			//Number of seconds to wait after runni
 Game.ThirdPartyLaunch = false;				//Use if the game is launched outside of Nucleus | NOTE: You will not be able to use start up hooks or CMDLaunch with this option.
 Game.IgnoreThirdPartyPrompt = false;			//Ignore the prompt that appears when using Game.ThirdPartyLaunch;
 Game.ForceProcessPick = false;				//Manually select the process that will be used for process manipulation, such as resizing, repositioning and used for post-launch hooks.
+Game.CantRestartInstances = false;			//By default an instance that crashes during the session (exits with an error code) is launched again, searched, hooked again and put back in place, at most 3 times within 2 minutes; an instance closed normally stays closed. Set to true when the game can not be restarted that way: Nucleus then leaves the instance closed (the behaviour before v2.5).
+Game.GameReLaunchByItself = false;			//For games that close and start their process again by themselves (e.g. on each map load): Nucleus launches nothing, waits Game.PauseBetweenProcessGrab seconds, searches the new process (window title starting with Game.Hook.ForceFocusWindowName, else the process picker), injects the hooks again and puts the window back in place.
 Game.PromptBetweenInstances = true;			//Prompt the user with a messagebox to let the user decide when to open the next instance | default: false, PauseBetweenStarts STILL required.
 Game.PromptAfterFirstInstance = false;			//Show a prompt that user must click on ok to continue, after the first instance is setup.
 Game.GamePlayAfterLaunch;				//Call the Game.Play function after the call has launched.
@@ -349,7 +354,7 @@ Game.SaveCustomUserInstanceValues = false;
 Game.SaveAndEditCustomUserInstanceValues = false;
 Access the user input values via Context.CustomUser(General/Player/Instance)Values[index]
 
-"Your notes, [<colored text here|216,222,18>], more text...."//Highlight handler notes text in any rgb formatted color, use in Game.Description.
+"Your notes, *<colored text here|216,222,18>*, more text...."//Highlight handler notes text in any rgb formatted color, use in Game.Description.
 [FAQ]{https://www.splitscreen.me/docs/faq}                  //Setup shorten links in prompts (all customs prompt variants and RunAdditionalFile), handler options screen and handler notes (requires a space before and after, only one can be added in each).
 
 2. Support for multiple mice and keyboards (these are deprecated, see the new Proto Input guide: https://www.splitscreen.me/docs/proto):
@@ -388,6 +393,11 @@ Game.ProtoInput.SetRemoveBorderHook = true;         //Values: true: removes the 
 Game.ProtoInput.SendMouseDblClkMessages = true;     //Enables double click messages, mostly supported in RTS games.
 Game.ProtoInput.PutMouseInsideWindow = true;        //Values: true, Nucleus.PutMouseInsideWindow.IgnoreTopLeft, Nucleus.PutMouseInsideWindow.IgnoreBottomRight. Workaround fix for scrolling the window edge.
 Game.ProtoInput.DrawFakeCursor = true;              //Values: true, Nucleus.DrawFakeCursor.Fix: to apply the new draw logic.
+Game.ProtoInput.GetRawInputBufferHook = true;       //Hooks GetRawInputBuffer (raw input read in batches, as SDL3 does). Needs a ProtoInput build with this hook (see the note below).
+Game.ProtoInput.SetCursorPosHookAlsoMessage = true; //With Game.ProtoInput.SetCursorPosHook, also sends the game a mouse move message with the new position. Needs a ProtoInput build with it (see the note below).
+Game.ProtoInput.RemoveBorders = true;               //ProtoInput removes the borders of the game window from inside the game. Needs a ProtoInput build with it (see the note below).
+Game.ProtoInput.SetPosition = true;                 //ProtoInput sets the position and size of the game window from inside the game. Needs a ProtoInput build with it (see the note below).
+//Note: the four options above need ProtoInput exports (SetSetCursorPosHookMessages, SetWindowSetup and the GetRawInputBuffer hook) that the ProtoInput build shipped with Nucleus Co-op v3 does not have yet. There the options are ignored (logged once in the debug log) and the game starts without them.
 
 3. New methods to be used in game handlers:
 
@@ -535,6 +545,18 @@ Known Issues:
 --------------------------------------------------------------------------------------
 Changelog: 
 
+v2.5.0 - work in progress (handler related changes)
+
+-Game.ExecutableContext entries starting with "!" must not exist (Game.ExecutableContext = ["!packs"]: if that file or folder exists, the game can not be added with this handler).
+-The missing Game.ExecutableContext entries are listed when a game can not be added.
+-New Game.Hook.SDL3Enabled (SDL3 gamepads, with a custom SDL3 dll).
+-Game.UseNucleusEnvironment also sets the TEMP and TMP variables (AppData\Local\Temp of the player Nucleus environment).
+-Instances that crash during the session are restarted and hooked again; new Game.CantRestartInstances and Game.GameReLaunchByItself (Messenils).
+-New ProtoInput options Game.ProtoInput.GetRawInputBufferHook, Game.ProtoInput.SetCursorPosHookAlsoMessage, Game.ProtoInput.RemoveBorders and Game.ProtoInput.SetPosition (Messenils).
+-Handlers are refreshed automatically when their .js file is edited, added or deleted (not during a session); a handler with an error is added back once fixed.
+-A profile saved before the handler options changed no longer loads outdated options.
+-Game executables containing spaces are no longer cut in the command line.
+
 v2.4.0 - xxxx, 2025
 
 -New native SDL2 support.
@@ -568,7 +590,7 @@ v2.4.0 - xxxx, 2025
 -Added installation path in the error window and show if OneDrive is enabled.
 -Added installation path and Nucleus Co-op version at the top of the debug log.
 -Added Game.ExecutableNames = ["gameExe1.exe","gameExe2.exe","gameExe3.exe"] which allow to choose among many game executables to a add a game to Nucleus. Game.ExecutableName should not be used with it.
--Can now highlight handler notes text in any rgb formatted color. "Your notes, [<colored text here|216,222,18>], more text....".
+-Can now highlight handler notes text in any rgb formatted color. "Your notes, *<colored text here|216,222,18>*, more text....".
 -Fixed a handler update bug where the current version was downloaded in place of the latest.
 -New optional profile gamepad assignation method by button press, so gamepads can be assigned dynamically/manually when loading a profile, best to use with custom nicknames.
 -More QOL improvements on the setup screen and many bug fixes.

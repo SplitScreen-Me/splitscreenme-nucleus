@@ -153,6 +153,12 @@ The NucleusCoopTool parts of R12 and R13 (`Core_Interface.cs`) were deleted with
   - Otherwise a press runs `GamepadIdentity.Identify` with an SDL `PadHint`: path, then the only pressed device, then the USB ids (a pressed device with other ids is another pad), then the `IG_` views for Xbox pads; without a match, the SDL handlers (none needs the DirectInput identity) reveal the pad with the slot GUID of its SDL player index, which is what `SDL2.ini` gives the game.
   - An identified pad stays identified; each press returns true (flash, press-to-join).
   - Robustness: `SDL_GameControllerGetPlayerIndex` returns an `int` (it was declared `byte`: -1 became 255), `SDL2.GetString` accepts NULL (a controller without a path or name ended the process), the event loop handles only the events `SDL_PollEvent` returns (it re-handled the last one every 16 ms), joysticks without a controller mapping no longer mark the device list changed every tick.
+- **Nucleus 2.5 merge (2026-11).**
+  - A profile saved with other handler options than the handler has now (`GameProfile.OptionsOutdated`, from `GameProfile.MergeProfileOptions`: saved values for the options that still exist, defaults for new ones, removed ones dropped) doesn't auto play: once its players are matched the flow goes to the options step (`FlowInput.ProfileOptionsOutdated`).
+  - A profile saved with more screens than are active is refused at load ("Not enough active screens"); a loaded profile is updated at launch even when "save profile on launch" is off.
+  - When the open game's handler script is reloaded (hot reload, library reload, install), the setup starts again on the new parse with its option values (`LibraryHooks.HandlersReplaced`); it closes when the game left the library.
+  - SDL3 handlers (`Game.Hook.SDL3Enabled`) are treated like the SDL2 ones (devices, ids, refresh, rumble, profile templates `IsSDL3`).
+  - metaInfo values are shared by every parse of a game (`GameMetaInfo`): a stale `GenericGameInfo` (library entry, setup, play-time thread) no longer writes old values back, which lost the "keep instances folder" toggle (KeepSymLink) and deleted the content folder on the next game selection.
 - The Stop button of the WinForms UI no longer resets while inputs are locked (R13); toggling API indexes no longer leaves stale assignments (R4); the drag hover no longer duplicates keyboard/mouse entries (R7).
 
 ## 7. Known limitations

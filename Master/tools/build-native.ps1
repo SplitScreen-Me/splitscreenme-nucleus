@@ -10,7 +10,8 @@
      copy the outputs to NucleusCoopTool\bin\<Configuration>.
   5. Copies ProtoInput\src\ProtoInput\Release\*.dll and ProtoInputIJ*.exe there (what the Nucleus.Coop post-build also does).
   6. Checks the files listed in StartChecks.CheckFilesIntegrity: present, not empty, PE architecture matching the name.
-  7. Checks that the ProtoInput DLLs export every function ProtoInput.cs imports.
+  7. Checks that the ProtoInput DLLs export every function ProtoInput.cs imports (the optional Nucleus 2.5 ones,
+     SetSetCursorPosHookMessages and SetWindowSetup, only warn).
   See docs/webui/host.md, "Building native components".
 .PARAMETER NoReferenceBuild
   Do not build Nucleus.Gaming (referenced by Nucleus.Inject): use the one already built by Nucleus.Coop.csproj.
@@ -142,15 +143,24 @@ $protoCs = Get-Content -Raw (Join-Path $master 'NucleusGaming\Coop\ProtoInput\Pr
 $imports = [regex]::Matches($protoCs, 'DllImport\("(ProtoInput[^"]+)"[^\]]*\]\s*public\s+static\s+extern\s+\S+\s+(\w+)\s*\(') |
   ForEach-Object { [pscustomobject]@{ Dll = $_.Groups[1].Value; Name = $_.Groups[2].Value } }
 if (@($imports).Count -eq 0) { $problems++; Write-Warning 'No ProtoInput DllImport found in ProtoInput.cs: update the regex in build-native.ps1' }
+#    Optional imports (Nucleus 2.5, Messenils' ProtoInput): no ProtoInput build we know exports them. ProtoInput.cs checks
+#    them at run time (ProtoInput.LoaderHasExport) and skips the option when they are missing, so they only warn here.
+#    The GetRawInputBuffer hook (id 24) has no export: it is only installed when these exports exist.
+$optionalImports = @('SetSetCursorPosHookMessages', 'SetWindowSetup')
 foreach ($config in $Configuration) {
   foreach ($group in ($imports | Group-Object Dll)) {
     $file = Join-Path $master "NucleusCoopTool\bin\$config\$($group.Name)"
     if (-not (Test-Path $file)) { continue }  # already reported above
     $exports = & $dumpbin /exports $file | ForEach-Object { if ($_ -match '^\s+\d+\s+[0-9A-F]+\s+[0-9A-F]{8}\s+(\w+)') { $Matches[1] } }
-    $missing = @($group.Group.Name | Sort-Object -Unique | Where-Object { $_ -notin $exports })
+    $missingAll = @($group.Group.Name | Sort-Object -Unique | Where-Object { $_ -notin $exports })
+    $missing = @($missingAll | Where-Object { $_ -notin $optionalImports })
+    $missingOptional = @($missingAll | Where-Object { $_ -in $optionalImports })
     if ($missing.Count -gt 0) {
       $problems += $missing.Count
       Write-Warning "bin\$config\$($group.Name) does not export $($missing -join ', ') (ProtoInput submodule older than ProtoInput.cs?)"
+    }
+    if ($missingOptional.Count -gt 0) {
+      Write-Warning "bin\$config\$($group.Name) does not export the optional $($missingOptional -join ', ') (Nucleus 2.5 ProtoInput options, skipped at run time; GetRawInputBufferHook too when none is exported)"
     }
   }
 }

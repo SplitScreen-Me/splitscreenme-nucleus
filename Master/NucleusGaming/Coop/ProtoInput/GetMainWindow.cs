@@ -67,6 +67,11 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
         public static IntPtr NucleusGetMainWindowHandle(this Process p)
         {
+            if (p == null)
+            {
+                return IntPtr.Zero;
+            }
+
             //The search state is static and the launch thread, the update tick and fast launch's readiness checks call
             //this concurrently: one search at a time, or a caller can get another process's window.
             lock (searchLock)

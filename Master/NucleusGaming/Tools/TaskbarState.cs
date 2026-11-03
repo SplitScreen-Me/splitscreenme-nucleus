@@ -7,8 +7,6 @@ namespace Nucleus.Gaming.Tools
 {
     public static class TaskbarState
     {
-        private static GenericGameInfo genericGameInfo = GenericGameHandler.Instance?.CurrentGameInfo;
-
         private static bool userTaskbarAutoHide;
         private static ProtoInputOptions protoInputOpt;
         private static ProtoInput protoInput;
@@ -18,6 +16,8 @@ namespace Nucleus.Gaming.Tools
 
         private static void ToggleHide()
         {
+            GenericGameInfo genericGameInfo = GenericGameHandler.Instance?.CurrentGameInfo;
+
             if (genericGameInfo == null)
             {
                 return;
@@ -50,6 +50,8 @@ namespace Nucleus.Gaming.Tools
 
         private static void ToggleShow()
         {
+            GenericGameInfo genericGameInfo = GenericGameHandler.Instance?.CurrentGameInfo;
+
             if (genericGameInfo == null)
             {
                 return;
@@ -60,7 +62,7 @@ namespace Nucleus.Gaming.Tools
                 User32Util.ShowTaskBar();
             }
 
-            //protoInput.SetTaskbarAutohide(false) can't be called from here else the app get stuck for some reason.
+            //protoInput.SetTaskbarAutohide(false); can't be called from here else the app get stuck for some reason.
             //so it's called only once handler has ended.
         }
 

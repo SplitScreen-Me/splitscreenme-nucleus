@@ -200,7 +200,7 @@ namespace Nucleus.Gaming.Util
             startup.cb = Marshal.SizeOf(startup);
 
             bool success = ProcessUtil.CreateProcessWithLogonW($"nucleusplayer{i + 1}", Environment.UserDomainName, handlerInstance.nucleusUserAccountsPassword, ProcessUtil.LogonFlags.LOGON_WITH_PROFILE, "cmd.exe", null, ProcessUtil.ProcessCreationFlags.CREATE_UNICODE_ENVIRONMENT, 0, null, ref startup, out ProcessUtil.PROCESS_INFORMATION processInformation);
-            handlerInstance.Log("Launcing intermediary program (cmd)");
+            handlerInstance.Log("Launching intermediary program (cmd)");
 
             if (!success)
             {

@@ -2115,7 +2115,8 @@
         "exFat": "“exFAT” no es un formato de unidad compatible: no admite enlaces simbólicos. Mueve el juego a una unidad NTFS o formatea la unidad en NTFS.",
         "handlerNotFound": "Handler no encontrado.",
         "handlerMismatch": "{executable} no coincide con el handler de {game} (espera {expected}, con los archivos que el handler comprueba a su lado).",
-        "artworkFailed": "No se pudieron descargar las imágenes: {error}"
+        "artworkFailed": "No se pudieron descargar las imágenes: {error}",
+        "contextExcluded": "El handler de {game} no acepta {executable} cuando {files} está junto a él (otra edición o versión del juego). Elige el ejecutable de la edición para la que es este handler."
       }
     },
     "handlers": {
@@ -2137,6 +2138,9 @@
         "noScript": "El archivo comprimido no contiene handler.js: asegúrate de que sea un paquete de handler de Nucleus.",
         "notAHandler": "El script del archivo comprimido no declara Game.GameName ni Game.ExecutableName: no es un handler de Nucleus.",
         "noGameName": "El handler no tiene un nombre de juego utilizable."
+      },
+      "reload": {
+        "keptPrevious": "{file} no se recargó: sus últimos cambios tienen un error. La versión anterior se sigue usando hasta que se corrija el archivo.\n\n{details}"
       }
     },
     "hub": {
@@ -2412,8 +2416,13 @@
       "reloadFailed": "{file} tiene errores y no se pudo recargar.",
       "scriptError": {
         "title": "Error en el handler",
-        "message": "Hay un error en el handler del juego {file}.\n\nEl juego al que corresponde este handler no aparecerá en la lista. Si el problema ya se corrigió,\nprueba a añadir el juego de nuevo.\n\nErrores habituales:\n- Un error de sintaxis (por ejemplo, falta una ',' ';' o ']')\n- Otro handler tiene este GUID (¡debe ser único!)\n- El código no está en el lugar o con el formato correctos\n(por ejemplo: los métodos que usan Context deben estar dentro de la función Game.Play)\n\n{details}",
-        "atLine": "Error en la línea {line} {message}"
+        "atLine": "Error en la línea {line} {message}",
+        "messageReload": "Hay un error en el handler del juego {file}.\n\nEl juego al que corresponde este handler no aparecerá en la lista hasta que se corrija el error. Nucleus recarga el handler en cuanto se guarda el archivo: el juego vuelve entonces por sí solo, sin reiniciar. Si el handler se acaba de actualizar desde el hub, informa del problema a su autor.\n\nErrores habituales:\n- Un error de sintaxis (por ejemplo, falta una ',' ';' o ']')\n- Otro handler tiene este GUID (¡debe ser único!)\n- El código no está en el lugar o con el formato correctos\n(por ejemplo: los métodos que usan Context deben estar dentro de la función Game.Play)\n\n{details}"
+      },
+      "invalid": {
+        "unreadable": "No se pudo leer el archivo del handler.",
+        "noGameName": "El handler no define \"Game.GameName\".",
+        "noGuid": "El handler no define \"Game.GUID\"."
       }
     },
     "launch": {
@@ -2442,7 +2451,8 @@
         "changeWindowTitle": "ChangeWindowTitle: no se encontró el identificador de la ventana principal de {process} (pid:{pid})"
       },
       "invalidZip": "El archivo zip no existe, está dañado o tiene un formato no compatible.",
-      "errorReportFailed": "Fallamos tanto que hasta fallamos al intentar registrar el motivo del fallo inicial. Lo sentimos."
+      "errorReportFailed": "Fallamos tanto que hasta fallamos al intentar registrar el motivo del fallo inicial. Lo sentimos.",
+      "processNotFound": "No se pudo encontrar el proceso del juego."
     },
     "crashReport": {
       "title": "Algo salió mal :(",
@@ -2572,7 +2582,11 @@
       "windowsReset": "Ventanas del juego restablecidas",
       "waitForReset": "Espera a que se restablezcan las ventanas del juego",
       "windowsMinimized": "Ventanas del juego minimizadas",
-      "windowsRestored": "Ventanas del juego restauradas"
+      "windowsRestored": "Ventanas del juego restauradas",
+      "lostProcessSearching": "Instancia cerrada: esperando a que el juego se inicie de nuevo…",
+      "instanceHookedAgain": "Instancia enganchada de nuevo",
+      "lostProcessRestarting": "Reiniciando la instancia…",
+      "instanceRestartFailed": "No se pudo reiniciar la instancia"
     },
     "overlay": {
       "device": {

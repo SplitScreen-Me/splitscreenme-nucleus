@@ -11,6 +11,13 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
 {
     public static class XInputPlusDll
     {
+        /// <summary>
+        /// The xinput proxy XInputPlus loads instead of the system dll (Nucleus 2.5): <c>&lt;XInputPlus folder&gt;\proxy\x86|x64\xinput.dll</c>.
+        /// </summary>
+        public static string ProxyDllPath(string xinputPlusFolder, string arch)
+        {
+            return Path.Combine(xinputPlusFolder, "proxy", arch, "xinput.dll");
+        }
 
         public static void SetupXInputPlusDll(PlayerInfo player, int i, bool setupDll, bool block)
         {
@@ -66,7 +73,7 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                     {
                         handlerInstance.addedFiles.Add(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"));
                     }
-
+                
                     handlerInstance.Log("Copying XInputPlus.ini");
 
                     File.Copy(Path.Combine(utilFolder, "XInputPlus.ini"), Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), true);
@@ -74,7 +81,7 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                     handlerInstance.Log("Making changes to the lines in XInputPlus.ini; FileVersion and Controller values");
 
                     handlerInstance.CurrentGameInfo.XInputPlusDll = Array.ConvertAll(handlerInstance.CurrentGameInfo.XInputPlusDll, x => x.ToLower());
-
+                
                     if (handlerInstance.CurrentGameInfo.XInputPlusDll.ToList().Any(val => val.StartsWith("dinput") == true)) //(xinputDll.ToLower().StartsWith("dinput"))
                     {
                         handlerInstance.Log("A Dinput dll has been detected, also enabling X2Dinput in XInputPlus.ini");
@@ -123,7 +130,7 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                     {
                         if (block)
                             handlerInstance.Log("Skipping setting controller value for this instance, as this player is using TranslateXtoMKB");
-                        else 
+                        else
                             handlerInstance.Log("Skipping setting controller value for this instance, as this player is using keyboard");
                         handlerInstance.kbi = 0;
                     }
@@ -131,6 +138,25 @@ namespace Nucleus.Gaming.Tools.XInputPlusDll
                     handlerInstance.Context.ReplaceLinesInTextFile(Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini"), textChanges.ToArray());
                 }
             }
+
+            #region Add the proxy dll path to XInputPlus.ini
+            //Nucleus 2.5: XInputPlus loads this proxy instead of the system xinput dll (fix for the Windows 11 update that broke
+            //XInputPlus). utils\XInputPlus\proxy is not in every package: without it the ini keeps loading the system dll.
+            string proxyDllFullPath = ProxyDllPath(utilFolder, handlerInstance.garch);
+            string iniPath = Path.Combine(handlerInstance.instanceExeFolder, "XInputPlus.ini");
+
+            if (File.Exists(proxyDllFullPath) && File.Exists(iniPath))
+            {
+                string versionLine = handlerInstance.garch == "x86" ? "FileName=" : "FileNamex64=";
+
+                handlerInstance.Context.EditTextFile(iniPath, new string[] { versionLine }, new string[] { $"{versionLine}{proxyDllFullPath}" }, "UTF-8");
+                handlerInstance.Log($"XInput Plus will load the proxy {proxyDllFullPath}");
+            }
+            else if (!File.Exists(proxyDllFullPath))
+            {
+                handlerInstance.Log($"XInput Plus proxy not found ({proxyDllFullPath}): XInputPlus.ini keeps the system xinput dll");
+            }
+            #endregion
 
             handlerInstance.Log("XInput Plus setup complete");
         }

@@ -63,6 +63,7 @@ namespace Nucleus.Coop.Services.Setup
             GameProfile.CanPlayChanged += OnCanPlayChanged;
             GameProfile.OnReadyAutoPlayTrigger += OnAutoPlayTrigger;
             GameProfile.OnReset += OnProfileReset;
+            Library.LibraryHooks.HandlersReplaced += OnHandlersReplaced;
 
             nativeNotify = GameProfile.Notify;
             GameProfile.Notify = OnNotify;
@@ -253,6 +254,52 @@ namespace Nucleus.Coop.Services.Setup
             InitializeProfile(game, options);
             autoSelectedSteps.Clear();
             RequestRefresh();
+        }
+
+        /// <summary>
+        /// Handler scripts were reloaded (Nucleus 2.5 hot reload, library reload, install): when the open setup's handler is
+        /// one of them, the setup starts again on the new parse, as after a session (option values kept); when its game left
+        /// the library (script deleted), the setup closes. Never during a session.
+        /// </summary>
+        private void OnHandlersReplaced(IReadOnlyList<string> gameIds)
+        {
+            Post(() =>
+            {
+                UserGameInfo? game = Game;
+
+                if (!IsOpen || SessionActive || game == null)
+                {
+                    return;
+                }
+
+                if (gameIds.Count > 0 && !gameIds.Contains(game.GameGuid, StringComparer.OrdinalIgnoreCase))
+                {
+                    return;
+                }
+
+                UserGameInfo? entry = GameManager.Instance?.User?.Games?.FirstOrDefault(g => string.Equals(g.GameGuid, game.GameGuid, StringComparison.OrdinalIgnoreCase) && g.Game != null);
+
+                if (entry == null)
+                {
+                    ServiceLog.Info("setup: the game left the library (handler removed), closing its setup");
+                    Close();
+                    return;
+                }
+
+                if (ReferenceEquals(entry.Game, GameProfile.Game))
+                {
+                    return;//same parse (a reload of another game)
+                }
+
+                ServiceLog.Info("setup: handler reloaded, starting the setup again on the new version");
+                Dictionary<string, object> options = new Dictionary<string, object>(GameProfile.Instance?.Options ?? new Dictionary<string, object>());
+                Game = entry;
+                GameProfile.GameInfo = entry;
+                GameProfile.Game = entry.Game;
+                InitializeProfile(entry, options);
+                autoSelectedSteps.Clear();
+                RequestRefresh();
+            });
         }
 
         /// <summary>Unassigns everything and unloads the profile (GameProfile.Reset), keeping the option values when no profile was loaded.</summary>
@@ -464,6 +511,7 @@ namespace Nucleus.Coop.Services.Setup
             return new FlowInput
             {
                 PlayersValid = PlayersValid(),
+                ProfileOptionsOutdated = GameProfile.Loaded && GameProfile.OptionsOutdated,
                 HasVisibleOptions = gen.Options.Any(o => !o.Hidden && OptionsCodec.KindOf(o) != OptionKind.Unsupported),
                 CustomSteps = gen.CustomSteps.Select((step, i) => new CustomStepState(
                     step.Title,

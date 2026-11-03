@@ -302,7 +302,11 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
             player.HIDDeviceID = new string[] { HidIdOf(joystick.InterfacePath), "" };
         }
 
-        /// <summary>"\\?\hid#vid_..&pid_..#...#{guid}" → "HID\VID_..&PID_..\..." (the form the device reordering tools use).</summary>
+        /// <summary>
+        /// "\\?\hid#vid_..&pid_..#...#{guid}" → "HID\VID_..&PID_..\..." (the form the device reordering tools use). Paths of
+        /// emulated pads and of XInput (XUSB) interfaces start with "usb#" instead: "USB\VID_..&PID_..\..." (Nucleus 2.5).
+        /// Any other path is kept, upper case.
+        /// </summary>
         public static string HidIdOf(string interfacePath)
         {
             if (string.IsNullOrEmpty(interfacePath))
@@ -311,6 +315,12 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
             }
 
             int start = interfacePath.IndexOf("hid#", StringComparison.OrdinalIgnoreCase);
+
+            if (start < 0)
+            {
+                start = interfacePath.IndexOf("usb#", StringComparison.OrdinalIgnoreCase);
+            }
+
             int end = interfacePath.LastIndexOf("#{", StringComparison.Ordinal);
 
             if (start < 0 || end <= start)
@@ -319,6 +329,87 @@ namespace Nucleus.Gaming.Coop.InputManagement.Gamepads
             }
 
             return interfacePath.Substring(start, end - start).Replace('#', '\\').ToUpperInvariant();
+        }
+
+        /// <summary>
+        /// The DirectInput device of an XInput pad from the device path OpenXinput gives for its slot (custom
+        /// openxinput1_3.dll, Nucleus 2.5), or null when it isn't certain. That path names the XInput (XUSB) interface,
+        /// usually another device node than the HID view DirectInput lists ("IG_"). In order: the same path; the same device
+        /// instance; the only XInput view with the same USB ids that no other pad uses. Two identical pads are ambiguous
+        /// until one of them is identified another way (a press), then the other one is the only candidate left.
+        /// </summary>
+        public static D_Joystick FindByXInputPath(PlayerInfo player, IEnumerable<PlayerInfo> devices, IEnumerable<D_Joystick> joysticks, string xinputPath)
+        {
+            if (string.IsNullOrEmpty(xinputPath) || joysticks == null)
+            {
+                return null;
+            }
+
+            devices = devices ?? Enumerable.Empty<PlayerInfo>();
+            List<D_Joystick> list = joysticks.Where(j => j != null && !string.IsNullOrEmpty(j.InterfacePath)).ToList();
+
+            D_Joystick byPath = FindByPath(player, devices, list, xinputPath);
+
+            if (byPath != null)
+            {
+                return byPath;
+            }
+
+            string instance = HidIdOf(xinputPath);
+            List<D_Joystick> sameInstance = list.Where(j => string.Equals(HidIdOf(j.InterfacePath), instance, StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (sameInstance.Count == 1)
+            {
+                return IsTakenByAnother(player, devices, sameInstance[0]) ? null : sameInstance[0];
+            }
+
+            if (sameInstance.Count > 1 || !TryUsbIdsOfPath(xinputPath, out ushort vendorId, out ushort productId))
+            {
+                return null;
+            }
+
+            List<D_Joystick> sameIds = list
+                .Where(j => IsXInputHidPath(j.InterfacePath) && HasUsbIds(j, vendorId, productId) && !IsTakenByAnother(player, devices, j))
+                .ToList();
+
+            return sameIds.Count == 1 ? sameIds[0] : null;
+        }
+
+        /// <summary>USB vendor and product ids written in a device path or id ("VID_045E&amp;PID_028E", any case); false without them.</summary>
+        public static bool TryUsbIdsOfPath(string path, out ushort vendorId, out ushort productId)
+        {
+            vendorId = 0;
+            productId = 0;
+
+            if (string.IsNullOrEmpty(path))
+            {
+                return false;
+            }
+
+            return TryHexAfter(path, "VID_", out vendorId) && TryHexAfter(path, "PID_", out productId);
+        }
+
+        private static bool TryHexAfter(string text, string marker, out ushort value)
+        {
+            value = 0;
+            int at = text.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+
+            if (at < 0 || at + marker.Length + 4 > text.Length)
+            {
+                return false;
+            }
+
+            return ushort.TryParse(text.Substring(at + marker.Length, 4), System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out value);
+        }
+
+        private static bool HasUsbIds(D_Joystick joystick, ushort vendorId, ushort productId)
+        {
+            if (TryUsbIdsOf(joystick.ProductGuid, out ushort vid, out ushort pid) || TryUsbIdsOfPath(joystick.InterfacePath, out vid, out pid))
+            {
+                return vid == vendorId && pid == productId;
+            }
+
+            return false;
         }
 
         private static bool IsTakenByAnother(PlayerInfo player, IEnumerable<PlayerInfo> devices, D_Joystick joystick)

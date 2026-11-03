@@ -1,5 +1,6 @@
 ﻿using Nucleus.Coop.Forms;
 using Nucleus.Gaming.App.Settings;
+using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.InputManagement;
 using Nucleus.Gaming.Tools.GlobalWindowMethods;
 using Nucleus.Gaming.Windows.Interop;
@@ -70,6 +71,7 @@ namespace Nucleus.Gaming.Forms
 
         private void InitTimer()
         {
+            hotkeysCooldownTimer?.Dispose();
             hotkeysCooldownTimer = new System.Windows.Forms.Timer();
             hotkeysCooldownTimer.Tick += HotkeysCooldownTimerTick;
         }
@@ -244,13 +246,13 @@ namespace Nucleus.Gaming.Forms
             if (!hotkeysCooldown)
             {
                 hotkeysCooldownTimer.Stop();
-                hotkeysCooldownTimer.Interval = 700; //millisecond
+                hotkeysCooldownTimer.Interval = 1000; //millisecond
                 hotkeysCooldownTimer.Start();
                 hotkeysCooldown = true;
             }
         }
 
-        private void HotkeysCooldownTimerTick(object Object, EventArgs EventArgs)
+        private void HotkeysCooldownTimerTick(object state, EventArgs EventArgs)
         {
             hotkeysCooldown = false;
             hotkeysCooldownTimer.Stop();

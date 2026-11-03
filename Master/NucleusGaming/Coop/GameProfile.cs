@@ -275,6 +275,14 @@ namespace Nucleus.Gaming.Coop
 
         public static bool Ready;
 
+        private static bool optionsOutdated;
+        /// <summary>
+        /// The loaded profile was saved with other handler options than the current handler has (options added or removed
+        /// since). Its values are kept for the options that still exist, the others get the handler defaults, and the
+        /// profile does not auto play: the options must be checked first.
+        /// </summary>
+        public static bool OptionsOutdated => optionsOutdated;
+
         private static bool useXinputIndex;
         public static bool UseXinputIndex
         {
@@ -397,6 +405,7 @@ namespace Nucleus.Gaming.Coop
             AudioInstances.Clear();
 
             showError = false;
+            optionsOutdated = false;
             autoPlay = false;
             gotAllGuestsOnce = false;
 
@@ -439,7 +448,7 @@ namespace Nucleus.Gaming.Coop
                         player.Nickname = null;
                         player.InstanceGuests.Clear();
                         player.CurrentMaxGuests = 0;
-                        if(GameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress && (player.IsXInput || player.IsSDL2 ||player.IsDInput))
+                        if(GameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress && (player.IsXInput || player.IsSDL2 || player.IsSDL3 || player.IsDInput))
                         {
                             player.IsInputUsed = false;
                         }
@@ -533,7 +542,10 @@ namespace Nucleus.Gaming.Coop
 
             foreach(var output in App_Audio.Instances_AudioOutput)
             {
-                AudioInstances.Add(output);
+                if (!AudioInstances.Contains(output))
+                {
+                    AudioInstances.Add(output);
+                }
             }
         }
 
@@ -559,12 +571,9 @@ namespace Nucleus.Gaming.Coop
 
                 JToken Joptions = Jprofile["Options"] as JToken;
 
-                options = new Dictionary<string, object>();
-
-                foreach (JProperty Jopt in Joptions)
-                {
-                    options.Add((string)Jopt.Name, Jopt.Value.ToString());
-                }
+                //The handler options may have changed since the profile was saved: keep the saved values of the options that
+                //still exist, give the new ones their defaults (Reset filled them) and drop the removed ones.
+                options = MergeProfileOptions(options, Joptions?.OfType<JProperty>().Select(o => new KeyValuePair<string, string>(o.Name, o.Value.ToString())), out optionsOutdated);
 
                 if (hWndInterval == 0)
                 {
@@ -681,6 +690,7 @@ namespace Nucleus.Gaming.Coop
                     player.IsDInput = (bool)JplayersInfos[i]["IsDInput"];
                     player.IsXInput = (bool)JplayersInfos[i]["IsXInput"];
                     player.IsSDL2 = JplayersInfos[i]["IsSDL2"] == null ? false : (bool)JplayersInfos[i]["IsSDL2"];
+                    player.IsSDL3 = JplayersInfos[i]["IsSDL3"] == null ? false : (bool)JplayersInfos[i]["IsSDL3"];
 
                     player.IsKeyboardPlayer = (bool)JplayersInfos[i]["IsKeyboardPlayer"];
                     player.IsRawMouse = (bool)JplayersInfos[i]["IsRawMouse"];
@@ -700,7 +710,7 @@ namespace Nucleus.Gaming.Coop
                     player.Affinity = (string)JplayersInfos[i]["Processor"]["ProcessorAffinity"];
                     player.PriorityClass = (string)JplayersInfos[i]["Processor"]["ProcessorPriorityClass"];
 
-                    if (player.IsXInput || player.IsDInput || player.IsSDL2)
+                    if (player.IsXInput || player.IsDInput || player.IsSDL2 || player.IsSDL3)
                     {
                         gamepadCount++;
                     }
@@ -742,6 +752,14 @@ namespace Nucleus.Gaming.Coop
                     AllScreens.Add(new RectangleF((float)JAllscreens[s]["X"], (float)JAllscreens[s]["Y"], (float)JAllscreens[s]["Width"], (float)JAllscreens[s]["Height"]));
                 }
 
+                //Saved with more screens than are active now: the players can not be placed as saved.
+                if (AllScreens.Count > ScreensUtil.AllScreens().Length)
+                {
+                    Reset();
+                    Notify(NoticeKind.Info, null, T("engine.profiles.notEnoughScreens"), 2000);
+                    return false;
+                }
+
                 totalProfilePlayers = JplayersInfos.Count();
 
                 modeText = $"Profile n°{profileToSave}";
@@ -762,6 +780,42 @@ namespace Nucleus.Gaming.Coop
 
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Merges the option values saved in a profile onto the current handler options: saved values for the options that
+        /// still exist, the handler values for the options added since, nothing for the removed ones. <paramref name="outdated"/>
+        /// is true when the two sets of keys differ.
+        /// </summary>
+        public static Dictionary<string, object> MergeProfileOptions(IDictionary<string, object> handlerOptions, IEnumerable<KeyValuePair<string, string>> saved, out bool outdated)
+        {
+            Dictionary<string, object> result = handlerOptions != null ? new Dictionary<string, object>(handlerOptions) : new Dictionary<string, object>();
+            HashSet<string> savedKeys = new HashSet<string>();
+            outdated = false;
+
+            if (saved != null)
+            {
+                foreach (KeyValuePair<string, string> option in saved)
+                {
+                    savedKeys.Add(option.Key);
+
+                    if (result.ContainsKey(option.Key))
+                    {
+                        result[option.Key] = option.Value;
+                    }
+                    else
+                    {
+                        outdated = true;//removed from the handler
+                    }
+                }
+            }
+
+            if (result.Keys.Any(key => !savedKeys.Contains(key)))
+            {
+                outdated = true;//added to the handler
+            }
+
+            return result;
         }
 
         private static string GetGameProfilesPath()
@@ -831,7 +885,11 @@ namespace Nucleus.Gaming.Coop
                 return false;
             }
 
-            File.Delete(file);
+            //Nucleus 2.5: a deleted profile goes to the recycle bin (for good on a drive without one).
+            if (!FileUtil.SendToRecycleBin(file) && File.Exists(file))
+            {
+                File.Delete(file);
+            }
 
             List<FileInfo> profilesPath = new DirectoryInfo(path).EnumerateFiles()
                                           .Where(f => profileFileName.IsMatch(f.Name))
@@ -940,7 +998,7 @@ namespace Nucleus.Gaming.Coop
             {
                 PlayerInfo player = ProfilePlayersList[i];
 
-                if (player.IsXInput || player.IsDInput || player.IsSDL2)
+                if (player.IsXInput || player.IsDInput || player.IsSDL2 || player.IsSDL3)
                 {
                     gamepadCount++;
                 }
@@ -1008,6 +1066,7 @@ namespace Nucleus.Gaming.Coop
                                  new JProperty("IsDInput", player.IsDInput),
                                  new JProperty("IsXInput", player.IsXInput),
                                  new JProperty("IsSDL2", player.IsSDL2),
+                                 new JProperty("IsSDL3", player.IsSDL3),
                                  new JProperty("Guests", JInstanceGuests),
                                  new JProperty("Processor", JProcessor),
                                  new JProperty("IsKeyboardPlayer", player.IsKeyboardPlayer),
@@ -1087,7 +1146,8 @@ namespace Nucleus.Gaming.Coop
             string path;
             bool profileDisabled = App_Misc.DisableGameProfiles;
 
-            if (profileDisabled || GameInfo.Game.MetaInfo.DisableProfiles || !GameInfo.Game.MetaInfo.SaveProfile)
+            //A loaded profile is updated even when "save profile on launch" is off (Nucleus 2.5).
+            if (profileDisabled || GameInfo.Game.MetaInfo.DisableProfiles || (!GameInfo.Game.MetaInfo.SaveProfile && !Loaded))
             {
                 saved = true;
                 NotifySetupFinished("Setup Finished", T("engine.profiles.setupFinished"));
@@ -1192,7 +1252,7 @@ namespace Nucleus.Gaming.Coop
 
             for (int i = 0; i < players.Count(); i++)//build per players object
             {
-                if (players[i].IsXInput || players[i].IsDInput || players[i].IsSDL2)
+                if (players[i].IsXInput || players[i].IsDInput || players[i].IsSDL2 || players[i].IsSDL3)
                 {
                     gamepadCount++;
                 }
@@ -1257,6 +1317,7 @@ namespace Nucleus.Gaming.Coop
                                  new JProperty("IsDInput", players[i].IsDInput),
                                  new JProperty("IsXInput", players[i].IsXInput),
                                  new JProperty("IsSDL2", players[i].IsSDL2),
+                                 new JProperty("IsSDL3", players[i].IsSDL3),
                                  new JProperty("Guests", JInstanceGuests),
                                  new JProperty("Processor", JProcessor),
                                  new JProperty("IsKeyboardPlayer", players[i].IsKeyboardPlayer),
@@ -1435,7 +1496,7 @@ namespace Nucleus.Gaming.Coop
                 gotAllGuestsOnce = true;
             }
 
-            if (TotalAssignedPlayers == TotalProfilePlayers && Ready && AutoPlay && !Updating)
+            if (TotalAssignedPlayers == TotalProfilePlayers && Ready && AutoPlay && !Updating && !optionsOutdated)
             {
                 CanPlayChanged?.Invoke(true, true);
                 OnReadyAutoPlayTrigger?.Invoke();
@@ -1445,7 +1506,7 @@ namespace Nucleus.Gaming.Coop
 
             if (TotalAssignedPlayers == TotalProfilePlayers)
             {
-                if (Ready && (!AutoPlay || Updating))
+                if (Ready && (!AutoPlay || Updating || optionsOutdated))
                 {
                     CanPlayChanged?.Invoke(true, true);
                     return;
@@ -1488,7 +1549,7 @@ namespace Nucleus.Gaming.Coop
 
         private static bool FindPlayersInstanceGuests()
         {
-            List<PlayerInfo> gamepadsOnly = Instance.deviceList.Where(pl => pl.IsDInput || pl.IsXInput || pl.IsSDL2).ToList();
+            List<PlayerInfo> gamepadsOnly = Instance.deviceList.Where(pl => pl.IsDInput || pl.IsXInput || pl.IsSDL2 || pl.IsSDL3).ToList();
             List<PlayerInfo> foundGuests = new List<PlayerInfo>();
 
             if (!gotAllGuestsOnce)
@@ -1689,7 +1750,7 @@ namespace Nucleus.Gaming.Coop
             {
                 foreach (PlayerInfo pp in ProfilePlayersList)
                 {
-                    if (AssignedDevices.All(lp => lp.PlayerID != pp.PlayerID) && (pp.IsDInput || pp.IsXInput || pp.IsSDL2))
+                    if (AssignedDevices.All(lp => lp.PlayerID != pp.PlayerID) && (pp.IsDInput || pp.IsXInput || pp.IsSDL2 || pp.IsSDL3))
                     {
                         profilePlayer = pp;
                         skipGuid = true;
@@ -1699,13 +1760,13 @@ namespace Nucleus.Gaming.Coop
             }
 
             //DInput/XInput/SDL2 using GamepadGuid(do not follow gamepad api indexes)
-            if ((player.IsXInput || player.IsDInput || player.IsSDL2) && !skipGuid && !useXinputIndex)
+            if ((player.IsXInput || player.IsDInput || player.IsSDL2 || player.IsSDL3) && !skipGuid && !useXinputIndex)
             {
                 if(!GameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress)
                 {
-                    profilePlayer = ProfilePlayersList.Where(pl => (pl.IsDInput || pl.IsXInput || pl.IsSDL2) && (pl.GamepadGuid == player.GamepadGuid)).FirstOrDefault();
+                    profilePlayer = ProfilePlayersList.Where(pl => (pl.IsDInput || pl.IsXInput || pl.IsSDL2 || pl.IsSDL3) && (pl.GamepadGuid == player.GamepadGuid)).FirstOrDefault();
                 }
-                else if(player.IsInputUsed && (awaitedProfilePlayer.IsXInput || awaitedProfilePlayer.IsSDL2 || awaitedProfilePlayer.IsDInput))
+                else if(player.IsInputUsed && (awaitedProfilePlayer.IsXInput || awaitedProfilePlayer.IsSDL2 || awaitedProfilePlayer.IsSDL3 || awaitedProfilePlayer.IsDInput))
                 {
                     profilePlayer = awaitedProfilePlayer;
                     SetProfilePlayerScreenLayout();

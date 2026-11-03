@@ -2049,7 +2049,8 @@
         "exFat": "„exFAT“ ist kein unterstütztes Laufwerksformat, da es keine symbolischen Links unterstützt. Verschieb das Spiel auf ein NTFS-Laufwerk oder formatiere das Laufwerk mit NTFS.",
         "handlerNotFound": "Handler nicht gefunden.",
         "handlerMismatch": "{executable} passt nicht zum Handler für {game} (er erwartet {expected}, mit den Dateien, die der Handler daneben prüft).",
-        "artworkFailed": "Die Grafiken konnten nicht heruntergeladen werden: {error}"
+        "artworkFailed": "Die Grafiken konnten nicht heruntergeladen werden: {error}",
+        "contextExcluded": "Der Handler für {game} akzeptiert {executable} nicht, wenn {files} daneben liegt (eine andere Edition oder Version des Spiels). Wähl die ausführbare Datei der Edition, für die dieser Handler gedacht ist."
       }
     },
     "handlers": {
@@ -2071,6 +2072,9 @@
         "noScript": "Das Archiv enthält keine handler.js: Stell sicher, dass es ein Nucleus-Handler-Paket ist.",
         "notAHandler": "Das Skript im Archiv deklariert weder Game.GameName noch Game.ExecutableName: Es ist kein Nucleus-Handler.",
         "noGameName": "Der Handler hat keinen verwendbaren Spielnamen."
+      },
+      "reload": {
+        "keptPrevious": "{file} wurde nicht neu geladen: Die letzten Änderungen enthalten einen Fehler. Die vorherige Version bleibt in Gebrauch, bis die Datei korrigiert ist.\n\n{details}"
       }
     },
     "hub": {
@@ -2341,8 +2345,13 @@
       "reloadFailed": "{file} enthält Fehler und konnte nicht neu geladen werden.",
       "scriptError": {
         "title": "Fehler im Handler",
-        "message": "Im Spiel-Handler {file} ist ein Fehler.\n\nDas Spiel, für das dieser Handler gedacht ist, erscheint nicht in der Liste. Wenn das Problem behoben ist,\nversuch bitte, das Spiel erneut hinzuzufügen.\n\nHäufige Fehler:\n- Ein Syntaxfehler (zum Beispiel ein fehlendes ',' ';' oder ']')\n- Ein anderer Handler hat dieselbe GUID (sie muss eindeutig sein!)\n- Code steht nicht an der richtigen Stelle oder im richtigen Format\n(zum Beispiel: Methoden, die Context verwenden, müssen in der Funktion Game.Play stehen)\n\n{details}",
-        "atLine": "Fehler in Zeile {line} {message}"
+        "atLine": "Fehler in Zeile {line} {message}",
+        "messageReload": "Im Spiel-Handler {file} ist ein Fehler.\n\nDas Spiel, für das dieser Handler gedacht ist, erscheint nicht in der Liste, bis der Fehler behoben ist. Nucleus lädt den Handler neu, sobald die Datei gespeichert wird: Das Spiel kommt dann von selbst zurück, ohne Neustart. Wenn der Handler gerade aus dem Hub aktualisiert wurde, melde das Problem bitte seinem Autor.\n\nHäufige Fehler:\n- Ein Syntaxfehler (zum Beispiel ein fehlendes ',' ';' oder ']')\n- Ein anderer Handler hat dieselbe GUID (sie muss eindeutig sein!)\n- Code steht nicht an der richtigen Stelle oder im richtigen Format\n(zum Beispiel: Methoden, die Context verwenden, müssen in der Funktion Game.Play stehen)\n\n{details}"
+      },
+      "invalid": {
+        "unreadable": "Die Handler-Datei konnte nicht gelesen werden.",
+        "noGameName": "Der Handler setzt \"Game.GameName\" nicht.",
+        "noGuid": "Der Handler setzt \"Game.GUID\" nicht."
       }
     },
     "launch": {
@@ -2371,7 +2380,8 @@
         "changeWindowTitle": "ChangeWindowTitle: Handle des Hauptfensters für {process} (pid:{pid}) nicht gefunden"
       },
       "invalidZip": "Die Zip-Datei existiert nicht, ist beschädigt oder hat ein nicht unterstütztes Format.",
-      "errorReportFailed": "Wir sind so heftig gescheitert, dass wir sogar beim Festhalten des ursprünglichen Fehlergrunds gescheitert sind. Sorry."
+      "errorReportFailed": "Wir sind so heftig gescheitert, dass wir sogar beim Festhalten des ursprünglichen Fehlergrunds gescheitert sind. Sorry.",
+      "processNotFound": "Der Spielprozess wurde nicht gefunden."
     },
     "crashReport": {
       "title": "Etwas ist schiefgelaufen :(",
@@ -2498,7 +2508,11 @@
       "windowsReset": "Spielfenster zurückgesetzt",
       "waitForReset": "Warte, bis die Spielfenster zurückgesetzt sind",
       "windowsMinimized": "Spielfenster minimiert",
-      "windowsRestored": "Spielfenster wiederhergestellt"
+      "windowsRestored": "Spielfenster wiederhergestellt",
+      "lostProcessSearching": "Instanz geschlossen: Warten auf den Neustart des Spiels…",
+      "instanceHookedAgain": "Instanz wieder eingebunden",
+      "lostProcessRestarting": "Instanz wird neu gestartet…",
+      "instanceRestartFailed": "Die Instanz konnte nicht neu gestartet werden"
     },
     "overlay": {
       "device": {

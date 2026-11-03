@@ -134,7 +134,6 @@
     <Compile Include="Controls\SetupScreen\DevicesFunctions.cs" />
     <Compile Include="Coop\BasicTypes\IntVector2.cs" />
     <Compile Include="Coop\BasicTypes\RECT.cs" />
-    <Compile Include="Coop\Generic\async.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\DInputManagement\D_JoystickStatus.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\DInputManagement\DInputManager.cs" />
     <Compile Include="Coop\InputManagement\Gamepads\DInputManagement\D_Joystick.cs" />
@@ -316,6 +315,13 @@
     <Compile Include="Platform\Windows\Interop\User32\WindowShowStyle.cs" />
     <Compile Include="IO\Logging\LogManager.cs" />
     <Compile Include="Coop\GameManager.cs" />
+    <Compile Include="Coop\ExecutableContext.cs" />
+    <Compile Include="Coop\Generic\HandlerInfo.cs" />
+    <Compile Include="Coop\HandlerChanges.cs" />
+    <Compile Include="Coop\HandlerFileIndex.cs" />
+    <Compile Include="Coop\HandlersWatcher.cs" />
+    <Compile Include="Coop\Search\GameExecutableSearch.cs" />
+    <Compile Include="Coop\Search\GameSearchDirectories.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -335,6 +341,7 @@
     <Compile Include="Tools\EACBypass\EACBypass.cs" />
     <Compile Include="Tools\CleanGameContent\CleanGameContent.cs" />
     <Compile Include="Tools\NucleusUsers\NucleusUsers.cs" />
+    <Compile Include="Tools\NucleusUsers\NucleusEnvironmentPaths.cs" />
     <Compile Include="Tools\WindowFakeFocus\WindowFakeFocus.cs" />
     <Compile Include="Tools\FlawlessWidescreen\FlawlessWidescreen.cs" />
     <Compile Include="Tools\HexEdit\HexEdit.cs" />

@@ -524,12 +524,12 @@ namespace Nucleus.Coop.Services.Setup
             //Rescanning replaces device objects: assigned DirectInput pads come back unassigned, like a hot-plug.
             session.SuppressDeviceLost(TimeSpan.FromSeconds(3));
 
-            if (gen.Hook.DInputEnabled || gen.Hook.XInputReroute || gen.ProtoInput.DinputDeviceHook || gen.Hook.XInputEnabled || gen.Hook.SDL2Enabled)
+            if (gen.Hook.DInputEnabled || gen.Hook.XInputReroute || gen.ProtoInput.DinputDeviceHook || gen.Hook.XInputEnabled || gen.Hook.SDL2Enabled || gen.Hook.SDL3Enabled)
             {
                 DevicesFunctions.RefreshDInput(SynchronizationContext.Current ?? new SynchronizationContext());
             }
 
-            if (gen.Hook.SDL2Enabled)
+            if (gen.Hook.SDL2Enabled || gen.Hook.SDL3Enabled)
             {
                 DevicesFunctions.RequestSdlRefresh();//on the SDL helper thread: the 1 s pause doesn't block the UI
             }
@@ -580,6 +580,7 @@ namespace Nucleus.Coop.Services.Setup
                     }
 
                 case InputType.SDL2 when !device.IsFake:
+                case InputType.SDL3 when !device.IsFake:
                     //Not on a handle SDL freed in a refresh (unplugged pads disappear at the next device tick).
                     Gamepads.SDLManager.Rumble(device.SDL2Joystick, 65535, 65535, 300);
                     break;

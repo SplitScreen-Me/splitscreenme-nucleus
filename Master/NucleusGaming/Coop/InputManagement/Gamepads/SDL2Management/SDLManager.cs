@@ -102,6 +102,29 @@ namespace Gamepads
             }
         }
 
+        /// <summary>
+        /// Shuts SDL down (its event thread stops polling every 16 ms) when the open setup doesn't need it: only the SDL
+        /// handlers (Hook.SDL2Enabled, Hook.SDL3Enabled) use SDL pads (Nucleus 2.5: fewer background threads). Every controller
+        /// handle becomes invalid; the next <see cref="InitSDL"/> opens them again.
+        /// </summary>
+        public static void Quit()
+        {
+            lock (Sync)
+            {
+                if (!SDL_INITIALIZED)
+                {
+                    return;
+                }
+
+                SDL2DevicesList.Clear();
+                liveHandles.Clear();
+                loopGeneration++;//the running loop exits
+
+                SDL2.Quit();//closes and frees every controller
+                SDL_INITIALIZED = false;
+            }
+        }
+
         private static void InitGameControllers()
         {
             int deviceCount = SDL2.NumJoysticks();
@@ -386,7 +409,8 @@ namespace Gamepads
         /// </summary>
         public static bool Poll(PlayerInfo player, GenericGameInfo game, IEnumerable<PlayerInfo> devices)
         {
-            if (player.IsFake || !player.IsSDL2)
+            //SDL3 handlers (Hook.SDL3Enabled) get their pads through the same SDL2 API: only the DLL given to the game differs.
+            if (player.IsFake || !(player.IsSDL2 || player.IsSDL3))
             {
                 return false;
             }

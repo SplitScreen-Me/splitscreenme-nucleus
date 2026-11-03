@@ -104,7 +104,7 @@ namespace Nucleus.Coop.Services.Profiles
             return DeviceIds.TemplateKind(
                 (bool?)data["IsXInput"] == true,
                 (bool?)data["IsDInput"] == true,
-                (bool?)data["IsSDL2"] == true,
+                (bool?)data["IsSDL2"] == true || (bool?)data["IsSDL3"] == true,
                 Guid.TryParse((string?)data["GamepadGuid"], out Guid guid) && guid == SingleKeyboardGuid,
                 (bool?)data["IsRawMouse"] == true,
                 hidCount);

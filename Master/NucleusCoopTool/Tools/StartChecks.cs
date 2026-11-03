@@ -353,11 +353,12 @@ namespace Nucleus.Coop
             {
                 webViewVer = CoreWebView2Environment.GetAvailableBrowserVersionString(null);
             }
-            catch(WebView2RuntimeNotFoundException)
-            {         
+            catch(Exception)
+            {
+                //WebView2RuntimeNotFoundException, or a loader that fails: the runtime is not usable either way (Nucleus 2.5).
             }
 
-            if (webViewVer == null)
+            if (string.IsNullOrEmpty(webViewVer))
             {
                 DialogResult dialogResultX64 = MessageBox.Show(TPlain("engine.startChecks.webView2.message"), TPlain("engine.startChecks.webView2.title"), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
 

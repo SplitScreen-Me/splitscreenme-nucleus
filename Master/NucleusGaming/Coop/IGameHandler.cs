@@ -26,6 +26,7 @@ namespace Nucleus.Gaming.Coop
 
         bool HasEnded { get; }
         event Action Ended;
+        event Action InitializeEnd;
 
         Thread FakeFocus { get; }
     }

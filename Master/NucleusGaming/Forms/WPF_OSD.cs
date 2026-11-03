@@ -138,7 +138,7 @@ public class WPF_OSD : Window
 
                 if (GenericGameHandler.Instance != null)
                 {
-                    if (childs.Count == 0 && this.GetType() != typeof(WPF_OSD_Child) && !GenericGameHandler.Instance.hasEnded)//so it's the main osd
+                    if (childs.Count == 0 && this.GetType() != typeof(WPF_OSD_Child) && !GenericGameHandler.Instance.HasEnded)//so it's the main osd
                     {
                         CreateChilds(timing, text);
                     }
@@ -278,7 +278,7 @@ public class WPF_OSD : Window
                 if (GenericGameHandler.Instance != null)
                 {
                     //close all childs osd and re-enable the main one => hideMain = false;
-                    if (GenericGameHandler.Instance.hasEnded && this.GetType() != typeof(WPF_OSD_Child))//so it's the main osd
+                    if (GenericGameHandler.Instance.HasEnded && this.GetType() != typeof(WPF_OSD_Child))//so it's the main osd
                     {
                         foreach (WPF_OSD_Child child in childs)
                         {

@@ -12,16 +12,18 @@ using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Coop
 {
+    //need a lock or saveasync whaterver make it thread safe and avoid spamming
     public class GameMetaInfo
     {
-        private readonly string nucleusEnvironment = $@"{Globals.UserEnvironmentRoot}\NucleusCoop";
+        /// <summary>Folder of metaInfo.json, null for the default %USERPROFILE%\NucleusCoop (another folder: tests, or a host keeping user data elsewhere). Read when a GameMetaInfo is created.</summary>
+        public static string StorageFolder { get; set; }
+
+        private readonly string nucleusEnvironment = StorageFolder ?? $@"{Globals.UserEnvironmentRoot}\NucleusCoop";
 #if DEBUG
  private readonly string metaInfoJson = "metaInfo_DEBUG.json";
 #else
  private readonly string metaInfoJson = "metaInfo.json";
 #endif
-
-
         private ulong intervale = 20000;//milliseconds
         private bool stopped;
 
@@ -35,117 +37,143 @@ namespace Nucleus.Gaming.Coop
         private GenericGameInfo gen;
         private string gameGuid;
 
-        private string lastPlayedAt;
+        /// <summary>
+        /// The values of one game. Every GameMetaInfo of a game shares it: a handler is parsed again (play, update, hot
+        /// reload) while older GenericGameInfo objects of the same game are still in use (library entry, setup, session
+        /// play-time thread), and each save writes the whole entry. With separate copies a stale one wrote its old values
+        /// back over a newer change (KeepSymLink switched on, then lost and the instances folder deleted).
+        /// </summary>
+        private sealed class MetaState
+        {
+            public string lastPlayedAt;
+            public string totalPlayTime;
+            public string iconPath;
+            public bool saveProfile;
+            public bool disableProfiles;
+            public bool keepSymLink;
+            public bool favorite;
+            public bool firstLaunch;
+            public bool checkUpdate;
+            public bool useApiIndex;
+            public bool useApiIndexForGuests;
+            public bool profileAssignGamepadByButonPress;
+            public string steamLanguage;
+        }
+
+        /// <summary>Shared values per game GUID (guarded by metaInfoFileLock).</summary>
+        private static readonly Dictionary<string, MetaState> states = new Dictionary<string, MetaState>(StringComparer.OrdinalIgnoreCase);
+
+        private MetaState state = new MetaState();
+
+        /// <summary>Forgets the shared values (tests, or after metaInfo.json was replaced): the next load reads the file.</summary>
+        public static void ForgetLoadedValues()
+        {
+            lock (metaInfoFileLock)
+            {
+                states.Clear();
+            }
+        }
+
         public string LastPlayedAt => GetLastPlayed();
 
         public string LastPlayedAtFull => GetLastPlayedFull();
 
         /// <summary>Last session start as stored (DateTime.Now.ToString() of the culture at that time), or null.</summary>
-        public string LastPlayedAtRaw => lastPlayedAt;
+        public string LastPlayedAtRaw => state.lastPlayedAt;
 
-        private string totalPlayTime;
         public string TotalPlayTime => FormatPlayTime();
 
         /// <summary>Total play time in seconds as stored, or null when never played.</summary>
-        public string TotalPlayTimeRaw => totalPlayTime;
+        public string TotalPlayTimeRaw => state.totalPlayTime;
 
-        private string iconPath;
         public string IconPath
         {
-            get => iconPath;
+            get => state.iconPath;
             set
             {
-                iconPath = value;
+                state.iconPath = value;
                 SaveGameMetaInfo();
             }
         }
 
-        private bool saveProfile;
         public bool SaveProfile
         {
-            get => saveProfile;
+            get => state.saveProfile;
             set
             {
-                saveProfile = value;         
+                state.saveProfile = value;         
                 SaveGameMetaInfo();
             }
         }
 
-        private bool disableProfiles;
         public bool DisableProfiles
         {
-            get => disableProfiles;
+            get => state.disableProfiles;
             set
             {
-                disableProfiles = value;
+                state.disableProfiles = value;
                 SaveGameMetaInfo();
             }
         }
 
-        private bool keepSymLink;
         public bool KeepSymLink
         {
-            get => keepSymLink;
+            get => state.keepSymLink;
             set
             {
-                keepSymLink = value;
+                state.keepSymLink = value;
                 SaveGameMetaInfo();
             }
         }
 
-        private bool favorite = false;
         public bool Favorite
         {
-            get => favorite;
+            get => state.favorite;
             set
             {
-                favorite = value;
+                state.favorite = value;
                 SaveGameMetaInfo();
             }
         }
 
-        private bool firstLaunch;
         public bool FirstLaunch
         {
-            get => firstLaunch;
+            get => state.firstLaunch;
             set
             {
-                firstLaunch = value;
+                state.firstLaunch = value;
                 SaveGameMetaInfo();
             }
         }
 
-        private bool checkUpdate;
         public bool CheckUpdate
         {
-            get => checkUpdate;
+            get => state.checkUpdate;
             set
             {
-                checkUpdate = value;
+                state.checkUpdate = value;
                 SaveGameMetaInfo();
             }
         }
 
-        private bool useApiIndex;
         public bool UseApiIndex
         {
-            get => useApiIndex;
+            get => state.useApiIndex;
             set
             {
-                useApiIndex = value;
-                useApiIndexForGuests = value;
+                state.useApiIndex = value;
+                state.useApiIndexForGuests = value;
 
                 SaveGameMetaInfo();
             }
         }
 
-        private bool useApiIndexForGuests;
         public bool UseApiIndexForGuests
         {
-            get => useApiIndexForGuests;
+            get => state.useApiIndexForGuests;
             set
             {
-                useApiIndexForGuests = value;
+                state.useApiIndexForGuests = value;
                 if (gen.PlayersPerInstance > 0)
                 {
                     SaveGameMetaInfo();
@@ -153,24 +181,22 @@ namespace Nucleus.Gaming.Coop
             }
         }
 
-        private bool profileAssignGamepadByButonPress;
         public bool ProfileAssignGamepadByButonPress
         {
-            get => profileAssignGamepadByButonPress;
+            get => state.profileAssignGamepadByButonPress;
             set
             {
-                profileAssignGamepadByButonPress = value;
+                state.profileAssignGamepadByButonPress = value;
                 SaveGameMetaInfo();
             }
         }
 
-        private string steamLanguage;
         public string SteamLanguage
         {
-            get => steamLanguage;
+            get => state.steamLanguage;
             set
             {
-                steamLanguage = value;
+                state.steamLanguage = value;
                 SaveGameMetaInfo();
             }
         }
@@ -182,6 +208,21 @@ namespace Nucleus.Gaming.Coop
                 gen = genericGameInfo;
 
                 gameGuid = genericGameInfo.GUID;
+
+                //Another GenericGameInfo of this game already loaded the values: share them (see MetaState).
+                if (gameGuid != null)
+                {
+                    lock (metaInfoFileLock)
+                    {
+                        if (states.TryGetValue(gameGuid, out MetaState shared))
+                        {
+                            state = shared;
+                            return;
+                        }
+
+                        states[gameGuid] = state;
+                    }
+                }
 
                 string path = $"{nucleusEnvironment}\\{metaInfoJson}";
 
@@ -199,38 +240,38 @@ namespace Nucleus.Gaming.Coop
 
                     if (hasMetaInfo)
                     {
-                        totalPlayTime = (string)JMetaInfo[gameGuid]["TotalPlayTime"] ?? null;
-                        lastPlayedAt = (string)JMetaInfo[gameGuid]["LastPlayedAt"] ?? null;
-                        iconPath = (string)JMetaInfo[gameGuid]["IconPath"] ?? null;
-                        saveProfile = JMetaInfo[gameGuid]["SaveProfile"] == null || (bool)JMetaInfo[gameGuid]["SaveProfile"];
-                        disableProfiles = JMetaInfo[gameGuid]["DisableProfiles"] != null && (bool)JMetaInfo[gameGuid]["DisableProfiles"];
-                        keepSymLink = JMetaInfo[gameGuid]["KeepSymLink"] != null && (bool)JMetaInfo[gameGuid]["KeepSymLink"];
-                        favorite = JMetaInfo[gameGuid]["Favorite"] != null && (bool)JMetaInfo[gameGuid]["Favorite"];
-                        firstLaunch = JMetaInfo[gameGuid]["FirstLaunch"] == null || (bool)JMetaInfo[gameGuid]["FirstLaunch"];
-                        checkUpdate = JMetaInfo[gameGuid]["CheckUpdate"] == null || (bool)JMetaInfo[gameGuid]["CheckUpdate"];
-                        useApiIndex = JMetaInfo[gameGuid]["UseApiIndex"] == null ? App_Misc.UseXinputIndex : (bool)JMetaInfo[gameGuid]["UseApiIndex"];                       
-                        useApiIndexForGuests = JMetaInfo[gameGuid]["UseApiIndexForGuests"] == null ? useApiIndex : (bool)JMetaInfo[gameGuid]["UseApiIndexForGuests"];
-                        profileAssignGamepadByButonPress = JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"] == null ? App_Misc.ProfileAssignGamepadByButonPress : (bool)JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"];
-                        steamLanguage = (string)JMetaInfo[gameGuid]["SteamLanguage"] ?? "App Setting";
+                        state.totalPlayTime = (string)JMetaInfo[gameGuid]["TotalPlayTime"] ?? null;
+                        state.lastPlayedAt = (string)JMetaInfo[gameGuid]["LastPlayedAt"] ?? null;
+                        state.iconPath = (string)JMetaInfo[gameGuid]["IconPath"] ?? null;
+                        state.saveProfile = JMetaInfo[gameGuid]["SaveProfile"] == null || (bool)JMetaInfo[gameGuid]["SaveProfile"];
+                        state.disableProfiles = JMetaInfo[gameGuid]["DisableProfiles"] != null && (bool)JMetaInfo[gameGuid]["DisableProfiles"];
+                        state.keepSymLink = JMetaInfo[gameGuid]["KeepSymLink"] != null && (bool)JMetaInfo[gameGuid]["KeepSymLink"];
+                        state.favorite = JMetaInfo[gameGuid]["Favorite"] != null && (bool)JMetaInfo[gameGuid]["Favorite"];
+                        state.firstLaunch = JMetaInfo[gameGuid]["FirstLaunch"] == null || (bool)JMetaInfo[gameGuid]["FirstLaunch"];
+                        state.checkUpdate = JMetaInfo[gameGuid]["CheckUpdate"] == null || (bool)JMetaInfo[gameGuid]["CheckUpdate"];
+                        state.useApiIndex = JMetaInfo[gameGuid]["UseApiIndex"] == null ? App_Misc.UseXinputIndex : (bool)JMetaInfo[gameGuid]["UseApiIndex"];                       
+                        state.useApiIndexForGuests = JMetaInfo[gameGuid]["UseApiIndexForGuests"] == null ? state.useApiIndex : (bool)JMetaInfo[gameGuid]["UseApiIndexForGuests"];
+                        state.profileAssignGamepadByButonPress = JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"] == null ? App_Misc.ProfileAssignGamepadByButonPress : (bool)JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"];
+                        state.steamLanguage = (string)JMetaInfo[gameGuid]["SteamLanguage"] ?? "App Setting";
                         return;
                     }
                 }
 
                 // New game, or first run without metaInfo.json: start from the defaults (the first run used to
                 // save the C# field defaults, e.g. CheckUpdate=false, for the first handler loaded).
-                totalPlayTime = null;
-                lastPlayedAt = null;
-                iconPath = null;
-                saveProfile = true;
-                disableProfiles = false;
-                keepSymLink = false;
-                favorite = false;
-                firstLaunch = true;
-                checkUpdate = true;
-                useApiIndex = App_Misc.UseXinputIndex;
-                useApiIndexForGuests = useApiIndex;
-                profileAssignGamepadByButonPress = App_Misc.ProfileAssignGamepadByButonPress;
-                steamLanguage = "App Setting";
+                state.totalPlayTime = null;
+                state.lastPlayedAt = null;
+                state.iconPath = null;
+                state.saveProfile = true;
+                state.disableProfiles = false;
+                state.keepSymLink = false;
+                state.favorite = false;
+                state.firstLaunch = true;
+                state.checkUpdate = true;
+                state.useApiIndex = App_Misc.UseXinputIndex;
+                state.useApiIndexForGuests = state.useApiIndex;
+                state.profileAssignGamepadByButonPress = App_Misc.ProfileAssignGamepadByButonPress;
+                state.steamLanguage = "App Setting";
 
                 SaveGameMetaInfo();
             }
@@ -284,55 +325,55 @@ namespace Nucleus.Gaming.Coop
 
                     if (hasMetaInfo)
                     {
-                        JMetaInfo[gameGuid]["TotalPlayTime"] = totalPlayTime;
-                        JMetaInfo[gameGuid]["LastPlayedAt"] = lastPlayedAt;
-                        JMetaInfo[gameGuid]["IconPath"] = iconPath;
-                        JMetaInfo[gameGuid]["SaveProfile"] = saveProfile;
-                        JMetaInfo[gameGuid]["DisableProfiles"] = disableProfiles;
-                        JMetaInfo[gameGuid]["KeepSymLink"] = keepSymLink;
-                        JMetaInfo[gameGuid]["Favorite"] = favorite;
-                        JMetaInfo[gameGuid]["FirstLaunch"] = firstLaunch;
-                        JMetaInfo[gameGuid]["CheckUpdate"] = checkUpdate;
-                        JMetaInfo[gameGuid]["UseApiIndex"] = useApiIndex;
-                        JMetaInfo[gameGuid]["UseApiIndexForGuests"] = useApiIndexForGuests;
-                        JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"] = profileAssignGamepadByButonPress;
-                        JMetaInfo[gameGuid]["SteamLanguage"] = steamLanguage;
+                        JMetaInfo[gameGuid]["TotalPlayTime"] = state.totalPlayTime;
+                        JMetaInfo[gameGuid]["LastPlayedAt"] = state.lastPlayedAt;
+                        JMetaInfo[gameGuid]["IconPath"] = state.iconPath;
+                        JMetaInfo[gameGuid]["SaveProfile"] = state.saveProfile;
+                        JMetaInfo[gameGuid]["DisableProfiles"] = state.disableProfiles;
+                        JMetaInfo[gameGuid]["KeepSymLink"] = state.keepSymLink;
+                        JMetaInfo[gameGuid]["Favorite"] = state.favorite;
+                        JMetaInfo[gameGuid]["FirstLaunch"] = state.firstLaunch;
+                        JMetaInfo[gameGuid]["CheckUpdate"] = state.checkUpdate;
+                        JMetaInfo[gameGuid]["UseApiIndex"] = state.useApiIndex;
+                        JMetaInfo[gameGuid]["UseApiIndexForGuests"] = state.useApiIndexForGuests;
+                        JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"] = state.profileAssignGamepadByButonPress;
+                        JMetaInfo[gameGuid]["SteamLanguage"] = state.steamLanguage;
                     }
                     else
                     {
                         //new game metaInfo
-                        JProperty gameMeta = new JProperty(gameGuid, new JObject(new JProperty("TotalPlayTime", totalPlayTime),
-                                                            new JProperty("LastPlayedAt", lastPlayedAt),
-                                                            new JProperty("IconPath", iconPath),
-                                                            new JProperty("SaveProfile", saveProfile),
-                                                            new JProperty("DisableProfiles", disableProfiles),
-                                                            new JProperty("KeepSymLink", keepSymLink),
-                                                            new JProperty("Favorite", favorite),
-                                                            new JProperty("FirstLaunch", firstLaunch),
-                                                            new JProperty("CheckUpdate", checkUpdate),
-                                                            new JProperty("UseApiIndex", useApiIndex),
-                                                            new JProperty("UseApiIndexForGuests", useApiIndexForGuests),
-                                                            new JProperty("ProfileAssignGamepadByButonPress", profileAssignGamepadByButonPress),
-                                                            new JProperty("SteamLanguage", steamLanguage)
+                        JProperty gameMeta = new JProperty(gameGuid, new JObject(new JProperty("TotalPlayTime", state.totalPlayTime),
+                                                            new JProperty("LastPlayedAt", state.lastPlayedAt),
+                                                            new JProperty("IconPath", state.iconPath),
+                                                            new JProperty("SaveProfile", state.saveProfile),
+                                                            new JProperty("DisableProfiles", state.disableProfiles),
+                                                            new JProperty("KeepSymLink", state.keepSymLink),
+                                                            new JProperty("Favorite", state.favorite),
+                                                            new JProperty("FirstLaunch", state.firstLaunch),
+                                                            new JProperty("CheckUpdate", state.checkUpdate),
+                                                            new JProperty("UseApiIndex", state.useApiIndex),
+                                                            new JProperty("UseApiIndexForGuests", state.useApiIndexForGuests),
+                                                            new JProperty("ProfileAssignGamepadByButonPress", state.profileAssignGamepadByButonPress),
+                                                            new JProperty("SteamLanguage", state.steamLanguage)
                                                             ));
                         JMetaInfo.Add(gameMeta);
                     }
                 }
                 else
                 {
-                    JObject gameMeta = new JObject(new JProperty("TotalPlayTime", totalPlayTime),
-                                                   new JProperty("LastPlayedAt", lastPlayedAt),
-                                                   new JProperty("IconPath", iconPath),
-                                                   new JProperty("SaveProfile", saveProfile),
-                                                   new JProperty("DisableProfiles", disableProfiles),
-                                                   new JProperty("KeepSymLink", keepSymLink),
-                                                   new JProperty("Favorite", favorite),
-                                                   new JProperty("FirstLaunch", firstLaunch),
-                                                   new JProperty("CheckUpdate", checkUpdate),
-                                                   new JProperty("UseApiIndex", useApiIndex),
-                                                   new JProperty("UseApiIndexForGuests", useApiIndexForGuests),
-                                                   new JProperty("ProfileAssignGamepadByButonPress", profileAssignGamepadByButonPress),
-                                                   new JProperty("SteamLanguage", steamLanguage)
+                    JObject gameMeta = new JObject(new JProperty("TotalPlayTime", state.totalPlayTime),
+                                                   new JProperty("LastPlayedAt", state.lastPlayedAt),
+                                                   new JProperty("IconPath", state.iconPath),
+                                                   new JProperty("SaveProfile", state.saveProfile),
+                                                   new JProperty("DisableProfiles", state.disableProfiles),
+                                                   new JProperty("KeepSymLink", state.keepSymLink),
+                                                   new JProperty("Favorite", state.favorite),
+                                                   new JProperty("FirstLaunch", state.firstLaunch),
+                                                   new JProperty("CheckUpdate", state.checkUpdate),
+                                                   new JProperty("UseApiIndex", state.useApiIndex),
+                                                   new JProperty("UseApiIndexForGuests", state.useApiIndexForGuests),
+                                                   new JProperty("ProfileAssignGamepadByButonPress", state.profileAssignGamepadByButonPress),
+                                                   new JProperty("SteamLanguage", state.steamLanguage)
                                                    );
 
                     JMetaInfo = new JObject(new JProperty(gameGuid, gameMeta));
@@ -358,7 +399,7 @@ namespace Nucleus.Gaming.Coop
 
         private string FormatPlayTime()
         {
-            if (totalPlayTime == null || !ulong.TryParse(totalPlayTime, out ulong totalSeconds))
+            if (state.totalPlayTime == null || !ulong.TryParse(state.totalPlayTime, out ulong totalSeconds))
             {
                 return "...";// 00h:00m:00s";
             }
@@ -376,22 +417,22 @@ namespace Nucleus.Gaming.Coop
 
         private string GetLastPlayed()
         {
-            if (lastPlayedAt == null)
+            if (state.lastPlayedAt == null)
             {
                 return "...";
             }
 
-            return lastPlayedAt.Split(' ')[0];//display the date only
+            return state.lastPlayedAt.Split(' ')[0];//display the date only
         }
 
         private string GetLastPlayedFull()
         {
-            if (lastPlayedAt == null)
+            if (state.lastPlayedAt == null)
             {
                 return "...";
             }
 
-            return lastPlayedAt;//returns the full datetime
+            return state.lastPlayedAt;//returns the full datetime
         }
 
 
@@ -403,19 +444,19 @@ namespace Nucleus.Gaming.Coop
         public void SaveGameplayTime()
         {
             FirstLaunch = false;
-            lastPlayedAt = DateTime.Now.ToString();
+            state.lastPlayedAt = DateTime.Now.ToString();
 
             while (!stopped)
             {
                 Thread.Sleep((int)intervale);
 
-                if (totalPlayTime == null || !ulong.TryParse(totalPlayTime, out ulong previousSeconds))
+                if (state.totalPlayTime == null || !ulong.TryParse(state.totalPlayTime, out ulong previousSeconds))
                 {
-                    totalPlayTime = (intervale / 1000).ToString();//seconds
+                    state.totalPlayTime = (intervale / 1000).ToString();//seconds
                 }
                 else
                 {
-                    totalPlayTime = (intervale / 1000 + previousSeconds).ToString();//seconds
+                    state.totalPlayTime = (intervale / 1000 + previousSeconds).ToString();//seconds
                 }
 
                 SaveGameMetaInfo();
@@ -426,12 +467,14 @@ namespace Nucleus.Gaming.Coop
 
         public void StartGameplayTimerThread()
         {
+            //Ends with the session (it used to run a WPF dispatcher afterwards, which kept one thread per session alive).
             Thread gameplayTimerThread = new Thread(delegate ()
             {
                 SaveGameplayTime();
-                System.Windows.Threading.Dispatcher.Run();
             });
 
+            gameplayTimerThread.IsBackground = true;
+            gameplayTimerThread.Name = "Nucleus play time";
             gameplayTimerThread.SetApartmentState(ApartmentState.STA);
             gameplayTimerThread.Start();
         }

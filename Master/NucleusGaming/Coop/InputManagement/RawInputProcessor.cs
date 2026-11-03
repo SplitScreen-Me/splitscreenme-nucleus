@@ -438,7 +438,7 @@ namespace Nucleus.Gaming.Coop.InputManagement
 
                     if (!LockInputRuntime.IsLocked)
                     {
-                        if (CurrentGameInfo == null || GenericGameHandler.Instance.hasEnded)
+                        if (CurrentGameInfo == null || GenericGameHandler.Instance.HasEnded)
                         {
                             return;
                         }

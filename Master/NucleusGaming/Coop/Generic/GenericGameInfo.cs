@@ -126,6 +126,12 @@ namespace Nucleus.Gaming
         public Action OnFinishedSetup;
         public List<CustomStep> CustomSteps = new List<CustomStep>();
         public string JsFileName;
+        /// <summary>Name of the script file: same as <see cref="JsFileName"/> (the name used by Nucleus 2.5).</summary>
+        public string FileName => JsFileName;
+        /// <summary>Full path of the script file when it was loaded from a file (<see cref="Load"/>), else null.</summary>
+        public string FileFullPath;
+        /// <summary>Last write time (UTC) of the script file when it was loaded (<see cref="Load"/>).</summary>
+        public DateTime LastWriteTimeUtc;
         public bool LockMouse;
         public string Folder;
         public bool HookFocus;
@@ -351,6 +357,12 @@ namespace Nucleus.Gaming
         public bool UseDI8CoopLvlUnlocker;
         public bool UseManualProtoControllersSetup = false;
 
+        //What Nucleus does when an instance quits or crashes during the session (Nucleus 2.5). Default: restart it and hook it again.
+        /// <summary>The instance can't be restarted by Nucleus: wait for the user to start it again, then hook the new process.</summary>
+        public bool CantRestartInstances;
+        /// <summary>The game starts again by itself after it quits: wait for the new process and hook it.</summary>
+        public bool GameReLaunchByItself;
+
         // Proto Input
         public ProtoInputOptions ProtoInput = new ProtoInputOptions();
         public bool LockInputSuspendsExplorer = false;
@@ -386,10 +398,35 @@ namespace Nucleus.Gaming
                 details = ex.Message;
             }
 
-            return T("engine.handlers.scriptError.message", new { file = fileName, details });
+            return T("engine.handlers.scriptError.messageReload", new { file = fileName, details });
         }
 
-        public GenericGameInfo(string fileName, string folderPath, Stream str, bool[] checkUpdate)//checkUpdate [0]=initial update check [1]=update was available before reloading the handler  
+        /// <summary>
+        /// Parses a handler script file: the script folder is <c>&lt;handlers&gt;\&lt;script name&gt;</c>, and
+        /// <see cref="FileFullPath"/> / <see cref="LastWriteTimeUtc"/> are set from the file. With
+        /// <paramref name="reportScriptError"/> false a script error is only kept in <see cref="ScriptError"/> (the caller
+        /// reports it) instead of becoming a handler notice.
+        /// </summary>
+        public static GenericGameInfo Load(FileInfo file, bool[] checkUpdate, bool reportScriptError = true)
+        {
+            string folder = Path.Combine(file.Directory.FullName, Path.GetFileNameWithoutExtension(file.Name));
+            DateTime lastWrite = file.LastWriteTimeUtc;
+
+            using (Stream str = file.OpenRead())
+            {
+                GenericGameInfo info = new GenericGameInfo(file.Name, folder, str, checkUpdate, reportScriptError);
+                info.FileFullPath = file.FullName;
+                info.LastWriteTimeUtc = lastWrite;
+                return info;
+            }
+        }
+
+        public GenericGameInfo(string fileName, string folderPath, Stream str, bool[] checkUpdate)//checkUpdate [0]=initial update check [1]=update was available before reloading the handler
+            : this(fileName, folderPath, str, checkUpdate, true)
+        {
+        }
+
+        public GenericGameInfo(string fileName, string folderPath, Stream str, bool[] checkUpdate, bool reportScriptError)
         {
             JsFileName = fileName;
             Folder = folderPath;
@@ -432,10 +469,13 @@ namespace Nucleus.Gaming
                 ScriptError = DescribeScriptError(fileName, ex);
                 LogManager.Log($"Error in handler {fileName}: {ex.Message}");
 
-                //Not on the caller's thread: the native box would block the handlers loading.
-                string error = ScriptError;
-                string title = T("engine.handlers.scriptError.title");
-                System.Threading.Tasks.Task.Run(() => UserPrompts.Notice(title, error, false, PromptOrigin.Handler, PromptIcon.Error));
+                if (reportScriptError)
+                {
+                    //Not on the caller's thread: the native box would block the handlers loading.
+                    string error = ScriptError;
+                    string title = T("engine.handlers.scriptError.title");
+                    System.Threading.Tasks.Task.Run(() => UserPrompts.Notice(title, error, false, PromptOrigin.Handler, PromptIcon.Error));
+                }
 
                 return;
             }

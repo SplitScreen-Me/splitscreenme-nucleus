@@ -232,6 +232,7 @@ namespace Nucleus.Gaming.Coop
 
             if (internalInputUpdate)
             {
+                cursorInternalInputUpdateTimer?.Dispose();
                 cursorInternalInputUpdateTimer = new System.Threading.Timer(CursorInternalInputUpdate, null, 0, 7);
             }
         }

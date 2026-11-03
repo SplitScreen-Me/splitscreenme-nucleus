@@ -59,6 +59,12 @@ public sealed class NucleusCore : IDisposable
     /// <summary>Handler update checks.</summary>
     public HandlerUpdateChecker Updates { get; }
 
+    /// <summary>Handler scripts reloaded when their file changes (Nucleus 2.5), set once the core is created.</summary>
+    internal HandlerHotReload? HotReload { get; private set; }
+
+    /// <summary>Automatic search of game executables in the user's game folders (Nucleus 2.5).</summary>
+    public GameAutoSearch AutoSearch { get; } = new GameAutoSearch();
+
     /// <summary>Whether a game session is running (handlers must not be replaced meanwhile).</summary>
     public static bool SessionRunning
     {
@@ -113,6 +119,8 @@ public sealed class NucleusCore : IDisposable
                 var core = new NucleusCore(ui, events);
                 LibraryHooks.Attach(core.Notifier);
                 GameMetaInfo.Saved += core.OnMetaInfoSaved;
+                core.HotReload = new HandlerHotReload(core, GameManager.Instance);
+                core.HotReload.Start();
                 core.StartBackgroundWork();
                 return core;
             });
@@ -123,6 +131,8 @@ public sealed class NucleusCore : IDisposable
     public void Dispose()
     {
         GameMetaInfo.Saved -= OnMetaInfoSaved;
+        HotReload?.Dispose();
+        HubStatus.Dispose();
         Notifier.Dispose();
         Hub.Dispose();
     }
@@ -133,6 +143,9 @@ public sealed class NucleusCore : IDisposable
 
     private void StartBackgroundWork()
     {
+        //Nucleus 2.5: the hub status follows the connection by itself (not during a session).
+        HubStatus.StartMonitoring(() => SessionRunning || GenericGameHandler.IsRunning);
+
         Task.Run(async () =>
         {
             try

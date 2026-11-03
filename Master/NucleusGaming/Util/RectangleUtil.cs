@@ -89,14 +89,13 @@ namespace Nucleus.Gaming
             else
             {
                 width = pwidth;
-                height = pwidth * ratio;
+                height = pwidth / ratio;
             }
 
-            return new RectangleF(
-             ((float)parent.Width / 2.0f) - (width / 2.0f) + (float)parent.X,
-            ((float)parent.Height / 2.0f) - (height / 2.0f) + (float)parent.Y,
+            return new RectangleF((float)parent.X + ((float)parent.Width / 2.0f) - (width / 2.0f),
+            ((float)parent.Y + ((float)parent.Height / 2.0f)) - (height / 2.0f),
               width,
-             height);
+              height);
         }
 
         public static Rectangle ScaleAndCenter(Size srcSize, Rectangle parent)

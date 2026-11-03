@@ -17,12 +17,38 @@ namespace Nucleus.Gaming
         /// <summary>
         /// Kills the game's leftover processes, then deletes its content folder in the background. The task's result says
         /// whether the folder is gone. When files stay locked, <paramref name="reportLockedFiles"/> shows "Risk of crash!"
-        /// (<see cref="UserPrompts.Notice"/>, origin <see cref="PromptOrigin.Setup"/>).
+        /// (<see cref="UserPrompts.Notice"/>, origin <see cref="PromptOrigin.Setup"/>). With <paramref name="sendToRecycleBin"/>
+        /// (a deletion the user asked for, Nucleus 2.5) the folder goes to the recycle bin; it is deleted for good only when
+        /// its drive has no recycle bin. The automatic cleanups (setup opened, session ended) delete for good.
         /// </summary>
-        public static Task<bool> CleanContentFolderAsync(GenericGameInfo currentGameInfo, bool reportLockedFiles = true)
+        public static Task<bool> CleanContentFolderAsync(GenericGameInfo currentGameInfo, bool reportLockedFiles = true, bool sendToRecycleBin = false)
         {
             string path = currentGameInfo.Content_Folder;
-            return Directory.Exists(path) ? CleanContentFolder(currentGameInfo, path, reportLockedFiles) : Task.FromResult(true);
+            return Directory.Exists(path) ? CleanContentFolder(currentGameInfo, path, reportLockedFiles, sendToRecycleBin) : Task.FromResult(true);
+        }
+
+        /// <summary>
+        /// Removes a folder: to the recycle bin when asked and possible, else for good. Throws when the folder could not be
+        /// removed (locked files), so the caller can unlock them and try again.
+        /// </summary>
+        private static void RemoveFolder(string path, bool sendToRecycleBin)
+        {
+            if (sendToRecycleBin)
+            {
+                if (FileUtil.SendToRecycleBin(path) || !Directory.Exists(path))
+                {
+                    return;
+                }
+
+                if (FileUtil.HasRecycleBin(path))
+                {
+                    throw new IOException($"Could not move {path} to the recycle bin");
+                }
+
+                LogManager.Log($"No recycle bin for {path}: deleting it for good");
+            }
+
+            Directory.Delete(path, true);
         }
 
         /// <summary>Text of the "Risk of crash!" message.</summary>
@@ -31,14 +57,14 @@ namespace Nucleus.Gaming
             return T("engine.gameContent.lockedFiles.message", new { path });
         }
 
-        private static Task<bool> CleanContentFolder(GenericGameInfo currentGameInfo, string path, bool reportLockedFiles)
+        private static Task<bool> CleanContentFolder(GenericGameInfo currentGameInfo, string path, bool reportLockedFiles, bool sendToRecycleBin)
         {
             return Task.Run(() =>
             {
                 try
                 {
                     KillRemainingGameProcess(currentGameInfo);
-                    Directory.Delete(path, true);
+                    RemoveFolder(path, sendToRecycleBin);
                     return true;
                 }
                 catch
@@ -60,12 +86,19 @@ namespace Nucleus.Gaming
                                     File.SetAttributes(locked, FileAttributes.Normal);
                                 }
 
-                                Directory.Delete(instance, true);
-                                LogManager.Log("Game content cleaned.");
+                                if (!sendToRecycleBin)//one recycle bin entry for the whole folder, below
+                                {
+                                    Directory.Delete(instance, true);
+                                    LogManager.Log("Game content cleaned.");
+                                }
                             }
                         }
 
-                        Directory.Delete(path, true);
+                        if (Directory.Exists(path))
+                        {
+                            RemoveFolder(path, sendToRecycleBin);
+                        }
+
                         return true;
                     }
                     catch
@@ -148,7 +181,7 @@ namespace Nucleus.Gaming
                     {
                         if ((currentGameInfo.LauncherExe != null && !currentGameInfo.LauncherExe.Contains("NucleusDefined") && proc.ProcessName.ToLower() == Path.GetFileNameWithoutExtension(currentGameInfo.LauncherExe.ToLower())) ||
                             addtlProcsToKill.Contains(proc.ProcessName, StringComparer.OrdinalIgnoreCase) || 
-                            proc.ProcessName.ToLower() == Path.GetFileNameWithoutExtension(currentGameInfo.ExecutableName.ToLower()) || (currentGameInfo.Hook.ForceFocusWindowName != "" && proc.MainWindowTitle == currentGameInfo.Hook.ForceFocusWindowName))
+                            (currentGameInfo.ExecutableName != null && proc.ProcessName.ToLower() == Path.GetFileNameWithoutExtension(currentGameInfo.ExecutableName.ToLower())) || (currentGameInfo.Hook.ForceFocusWindowName != "" && proc.MainWindowTitle == currentGameInfo.Hook.ForceFocusWindowName))
                         {
                             LogManager.Log(string.Format("Killing process {0} (pid {1})", proc.ProcessName, proc.Id));
                             proc.Kill();

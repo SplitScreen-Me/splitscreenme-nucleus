@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using Nucleus.Gaming.Forms;
@@ -149,13 +151,13 @@ namespace Nucleus.Gaming
                     {
                         string destination_dir = linkFolder.TrimEnd('\\') + '\\' + utilPath;
 
-                        foreach (string dir in System.IO.Directory.GetDirectories(source_dir, "*", SearchOption.AllDirectories))
+                        foreach (string dir in System.IO.Directory.GetDirectories(source_dir, "*", System.IO.SearchOption.AllDirectories))
                         {
                             Directory.CreateDirectory(System.IO.Path.Combine(destination_dir, dir.Substring(source_dir.Length + 1)));
                         }
 
                         handlerInstance.Log("Copying user folder " + utilPath + " and all its contents to " + "Instance" + i + "\\" + utilPath);
-                        foreach (string file_name in System.IO.Directory.GetFiles(source_dir, "*", SearchOption.AllDirectories))
+                        foreach (string file_name in System.IO.Directory.GetFiles(source_dir, "*", System.IO.SearchOption.AllDirectories))
                         {
                             File.Copy(file_name, System.IO.Path.Combine(destination_dir, file_name.Substring(source_dir.Length + 1)));
                         }
@@ -326,5 +328,106 @@ namespace Nucleus.Gaming
             }
         }
 
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        private struct SHFILEOPSTRUCT
+        {
+            public IntPtr hwnd;
+            public uint wFunc;
+            [MarshalAs(UnmanagedType.LPWStr)] public string pFrom;
+            [MarshalAs(UnmanagedType.LPWStr)] public string pTo;
+            public ushort fFlags;
+            [MarshalAs(UnmanagedType.Bool)] public bool fAnyOperationsAborted;
+            public IntPtr hNameMappings;
+            [MarshalAs(UnmanagedType.LPWStr)] public string lpszProgressTitle;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct SHQUERYRBINFO
+        {
+            public int cbSize;
+            public long i64Size;
+            public long i64NumItems;
+        }
+
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+        private static extern int SHFileOperation(ref SHFILEOPSTRUCT lpFileOp);
+
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+        private static extern int SHQueryRecycleBin(string pszRootPath, ref SHQUERYRBINFO pSHQueryRBInfo);
+
+        private const uint FO_DELETE = 0x0003;
+        private const ushort FOF_SILENT = 0x0004;
+        private const ushort FOF_NOCONFIRMATION = 0x0010;
+        private const ushort FOF_ALLOWUNDO = 0x0040;
+        private const ushort FOF_NOERRORUI = 0x0400;
+        private const ushort FOF_WANTNUKEWARNING = 0x4000;
+
+        /// <summary>
+        /// Whether the drive of <paramref name="path"/> has a recycle bin (fixed drives usually do; network and some
+        /// removable drives don't: Windows would delete for good there).
+        /// </summary>
+        public static bool HasRecycleBin(string path)
+        {
+            try
+            {
+                string root = Path.GetPathRoot(Path.GetFullPath(path));
+                if (string.IsNullOrEmpty(root))
+                {
+                    return false;
+                }
+
+                SHQUERYRBINFO info = new SHQUERYRBINFO { cbSize = Marshal.SizeOf(typeof(SHQUERYRBINFO)) };
+                return SHQueryRecycleBin(root, ref info) == 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Moves a file or a folder to the recycle bin (Nucleus 2.5: user data is no longer deleted for good), without any
+        /// window except the Windows warning shown when an item can't be recycled (too big for the bin). Returns false when
+        /// nothing was moved: the path doesn't exist, its drive has no recycle bin, or the shell refused (locked files);
+        /// the item is then left in place and the caller decides what to do.
+        /// </summary>
+        public static bool SendToRecycleBin(string path)
+        {
+            if (string.IsNullOrEmpty(path) || (!Directory.Exists(path) && !File.Exists(path)))
+            {
+                return false;
+            }
+
+            if (!HasRecycleBin(path))
+            {
+                LogManager.Log($"Recycle bin: no recycle bin for {path}, left in place");
+                return false;
+            }
+
+            try
+            {
+                SHFILEOPSTRUCT op = new SHFILEOPSTRUCT
+                {
+                    wFunc = FO_DELETE,
+                    pFrom = Path.GetFullPath(path).TrimEnd('\\') + "\0\0",//double null terminated list
+                    fFlags = (ushort)(FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT | FOF_WANTNUKEWARNING)
+                };
+
+                int result = SHFileOperation(ref op);
+
+                if (result != 0 || op.fAnyOperationsAborted)
+                {
+                    LogManager.Log($"Recycle bin: could not move {path} (0x{result:X})");
+                    return false;
+                }
+
+                return !Directory.Exists(path) && !File.Exists(path);
+            }
+            catch (Exception ex)
+            {
+                LogManager.Log($"Recycle bin: could not move {path}: {ex.Message}");
+                return false;
+            }
+        }
     }
 }

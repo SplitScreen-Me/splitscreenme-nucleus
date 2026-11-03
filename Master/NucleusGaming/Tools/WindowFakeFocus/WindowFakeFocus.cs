@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace Nucleus.Gaming.Tools.WindowFakeFocus
 {
-    static class WindowFakeFocus
+    public static class WindowFakeFocus
     {
         public enum FocusMessages
         {

@@ -21,7 +21,8 @@ namespace Nucleus.Coop.Services.Setup
             {
                 case InputType.XInput: return DeviceKind.XInput;
                 case InputType.DInput: return DeviceKind.DInput;
-                case InputType.SDL2: return DeviceKind.Sdl;
+                case InputType.SDL2:
+                case InputType.SDL3: return DeviceKind.Sdl;
                 case InputType.SingleKB: return DeviceKind.Keyboard;
                 case InputType.Mouse: return DeviceKind.RawMouse;
                 case InputType.KBM: return DeviceKind.KeyboardMouse;
@@ -50,7 +51,8 @@ namespace Nucleus.Coop.Services.Setup
             {
                 case InputType.DInput: return "dinput:" + guid.ToString("D");
                 case InputType.XInput: return "xinput:" + apiIndex;
-                case InputType.SDL2: return "sdl:" + apiIndex;
+                case InputType.SDL2:
+                case InputType.SDL3: return "sdl:" + apiIndex;
                 case InputType.SingleKB: return "kb:single";
                 case InputType.Mouse: return hid == "MouseHandleZero" ? "virtual-mouse" : "rawmouse:" + hid;
                 default: return hid == "KeyboardHandleZero" ? "virtual-kb" : "rawkb:" + hid;
@@ -96,6 +98,7 @@ namespace Nucleus.Coop.Services.Setup
                 case InputType.XInput:
                     return I18n.T("host.setup.devices.xinput", new { number = apiIndex + 1 });
                 case InputType.SDL2:
+                case InputType.SDL3:
                     return apiIndex >= 0 ? I18n.T("host.setup.devices.controllerNumber", new { number = apiIndex + 1 }) : I18n.T("host.setup.devices.controller");
                 case InputType.DInput:
                     return I18n.T("host.setup.devices.dinput", new { number = apiIndex + 1 });

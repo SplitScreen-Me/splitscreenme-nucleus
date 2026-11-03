@@ -126,11 +126,12 @@ namespace Nucleus.Gaming.Coop.InputManagement
 
             // Logger.WriteLine($"Client connected to (write) pipe {pipeNameWrite}");
 
+            byte[] buffer = new byte[9];
+
             while (clientConnected)
             {
                 try
-                {
-                    byte[] buffer = new byte[9];
+                {         
                     pipeServerWrite.Read(buffer, 0, 9);
                     int msg = buffer[0];
 

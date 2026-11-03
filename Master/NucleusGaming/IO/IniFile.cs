@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Nucleus.Gaming
@@ -53,6 +55,78 @@ namespace Nucleus.Gaming
                                             255, path);
             return temp.ToString();
 
+        }
+
+        /// <summary>
+        /// Read Data Value From the Ini File
+        /// </summary>
+        /// <PARAM name="Section"></PARAM>
+        /// <PARAM name="Key"></PARAM>
+        /// <PARAM name="Path"></PARAM>
+        /// <returns></returns>
+        public void IniAddKeyValueToNewSection(Dictionary<string, string[]> newSectionValues)
+        {
+            if (File.Exists(path))
+            {
+                // string[] rawIniContent = File.ReadAllLines(filePath);
+
+                List<string> iniContent = new List<string>(File.ReadAllLines(path));
+
+                List<string> newContent = new List<string>();
+
+                foreach (KeyValuePair<string, string[]> kv in newSectionValues)
+                {
+                    string sectionHeader = "[" + kv.Key + "]";
+
+                    if (!iniContent.Contains(sectionHeader))
+                    {
+                        newContent.Add("[" + kv.Key + "]");
+                        foreach (string value in kv.Value)
+                        {
+                            newContent.Add(value);
+                        }
+                    }
+
+                }
+
+                iniContent.AddRange(newContent);
+                File.WriteAllLines(path, iniContent);
+            }
+
+        }
+
+        public void IniAddKeyValuesToSection(string section, string[] newValues)
+        {
+            if (File.Exists(path))
+            {
+                List<string> iniContent = new List<string>(File.ReadAllLines(path));
+
+                List<string> newContent = new List<string>();
+
+                for (int i = 0; i < iniContent.Count; i++)
+                {
+                    string lineCheck = iniContent[i];
+
+                    if (lineCheck == $"[{section}]")
+                    {
+                       
+                        for (int j = 0; j < newValues.Length; j++)
+                        {
+                            string value = newValues[j];
+
+                            var t = string.IsNullOrEmpty(IniReadValue(section, value));
+
+                            if (t)
+                            {
+                                iniContent.Insert(i + (j + 1), value);
+                            }
+                                
+                        }
+                    }
+                }
+
+                File.WriteAllLines(path, iniContent);
+            }
         }
     }
 }

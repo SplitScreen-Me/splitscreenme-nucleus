@@ -193,6 +193,8 @@ public static class HandlerFiles
 
         if (!string.Equals(Path.GetFullPath(scriptPath), Path.GetFullPath(target), StringComparison.OrdinalIgnoreCase))
         {
+            //Nucleus 2.5: a replaced script goes to the recycle bin.
+            Library.UserDataDeletion.Delete(target, Library.DeleteMode.RecycleBin);
             File.Copy(scriptPath, target, overwrite: true);
         }
 
@@ -200,19 +202,11 @@ public static class HandlerFiles
     }
 
     /// <summary>Deletes <c>&lt;title&gt;.js</c> and the <c>&lt;title&gt;\</c> folder of an installed handler.</summary>
+    /// <remarks>Nucleus 2.5: to the recycle bin (for good on a drive without one).</remarks>
     public static void DeleteHandlerFiles(string handlersFolder, string title)
     {
-        string folder = Path.Combine(handlersFolder, title);
-        if (Directory.Exists(folder))
-        {
-            Directory.Delete(folder, true);
-        }
-
-        string script = ScriptPathFor(handlersFolder, title);
-        if (File.Exists(script))
-        {
-            File.Delete(script);
-        }
+        Library.UserDataDeletion.Delete(Path.Combine(handlersFolder, title), Library.DeleteMode.RecycleBin);
+        Library.UserDataDeletion.Delete(ScriptPathFor(handlersFolder, title), Library.DeleteMode.RecycleBin);
     }
 
     /// <summary>Deletes a work folder, ignoring failures.</summary>

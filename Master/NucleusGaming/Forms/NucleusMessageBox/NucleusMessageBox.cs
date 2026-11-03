@@ -12,22 +12,27 @@ namespace Nucleus.Gaming.Forms
         {
             MessageBox?.Invoke((MethodInvoker)delegate ()
             {
-                MessageBox.Close();
+                MessageBox.Close();    
             });
 
             MessageBox = new CustomMessageBox(title, message, formating);
             MessageBox.FormClosed += MessageBox_Dispose;
             
-            MessageBox.ShowDialog();      
+            MessageBox.ShowDialog();
             MessageBox?.BringToFront();
         }
 
         private static void MessageBox_Dispose(object sender, EventArgs e)
         {
-            MessageBox?.Invoke((MethodInvoker)delegate ()
+            Form msgBox = (Form)sender;
+            if (msgBox.IsHandleCreated)
             {
-                MessageBox.Dispose();
-            });
+                MessageBox?.Invoke((MethodInvoker)delegate ()
+                {
+
+                    MessageBox.Dispose();
+                });
+            }
 
             MessageBox = null;
         }

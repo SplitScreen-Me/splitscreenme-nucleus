@@ -175,6 +175,19 @@ namespace Nucleus.Gaming.App.Settings
             }
         }
 
+        // [Misc] AutoSearchGame (Nucleus 2.5): look for a handler's executable in the user's game folders
+        // (userGameDirectories.json). Empty = the user was never asked, True / False = the user's choice.
+        private static bool? autoSearchGame;
+        public static bool? AutoSearchGame
+        {
+            get => autoSearchGame;
+            set
+            {
+                autoSearchGame = value;
+                Globals.ini.IniWriteValue("Misc", "AutoSearchGame", value.HasValue ? value.Value.ToString() : "");
+            }
+        }
+
         // Hidden [Misc] FastLaunchLevel: 1 = only Nucleus's own sleeps, 2 (default) = also the handler pauses and window setup cadence.
         private static int fastLaunchLevel = 2;
         public static int FastLaunchLevel => fastLaunchLevel;
@@ -276,6 +289,7 @@ namespace Nucleus.Gaming.App.Settings
             //Tolerant on purpose: Settings.ini files older than the key must keep loading (missing = on, the default).
             fastLaunch = Nucleus.Gaming.Coop.Generic.LaunchWait.ParseFastLaunch(Globals.ini.IniReadValue("Misc", "FastLaunch"));
             fastLaunchLevel = Nucleus.Gaming.Coop.Generic.LaunchWait.ParseLevel(Globals.ini.IniReadValue("Misc", "FastLaunchLevel"));
+            autoSearchGame = bool.TryParse(Globals.ini.IniReadValue("Misc", "AutoSearchGame"), out bool autoSearch) ? autoSearch : (bool?)null;
 
             showFavoriteOnly = bool.Parse(Globals.ini.IniReadValue("Dev", "ShowFavoriteOnly"));
             disablePathCheck = bool.Parse(Globals.ini.IniReadValue("Dev", "DisablePathCheck"));

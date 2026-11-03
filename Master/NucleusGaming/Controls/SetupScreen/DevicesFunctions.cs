@@ -73,10 +73,18 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             DInputManager.Init(_syncContext);
 
-            if (!SDLManager.SDL_INITIALIZED)
+            //SDL only runs for the handlers that use SDL pads: its event thread polls every 16 ms (Nucleus 2.5: fewer threads).
+            if (UsesSdl(userGameInfo?.Game))
             {
-                SynchronizationContext sdl = GetSdlContext();
-                sdl.Post(_ => SDLManager.InitSDL(sdl), null);
+                if (!SDLManager.SDL_INITIALIZED)
+                {
+                    SynchronizationContext sdl = GetSdlContext();
+                    sdl.Post(_ => SDLManager.InitSDL(sdl), null);
+                }
+            }
+            else if (SDLManager.SDL_INITIALIZED && sdlContext != null)
+            {
+                sdlContext.Post(_ => SDLManager.Quit(), null);
             }
 
             GamepadTimer = new System.Threading.Timer(GamepadTimer_Tick, null, 0, 300);
@@ -84,6 +92,12 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
             GameProfile.OnUseXinputIndexChanged -= UpdateUseGamepadApiIndex;
             GameProfile.OnUseXinputIndexChanged += UpdateUseGamepadApiIndex;
+        }
+
+        /// <summary>Whether a handler gets its pads through SDL (Hook.SDL2Enabled, or Hook.SDL3Enabled since Nucleus 2.5).</summary>
+        public static bool UsesSdl(GenericGameInfo game)
+        {
+            return game != null && (game.Hook.SDL2Enabled || game.Hook.SDL3Enabled);
         }
 
         /// <summary>A background STA thread with a message loop, where SDL is initialized and refreshed.</summary>
@@ -149,7 +163,8 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         /// <summary>Rescans SDL controllers on the SDL helper thread and returns at once.</summary>
         public static void RequestSdlRefresh()
         {
-            if (sdlContext != null)
+            //Not for a handler without SDL pads: SDL stays shut down (see Initialize).
+            if (sdlContext != null && SDLManager.SDL_INITIALIZED)
             {
                 SynchronizationContext sdl = sdlContext;
                 sdl.Post(_ => RefreshSDL(sdl), null);
@@ -196,7 +211,13 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                 bool changed = false;
 
-                GenericGameInfo g = userGameInfo.Game;
+                GenericGameInfo g = userGameInfo?.Game;
+
+                if (g == null)//the handler was unloaded (hot reload of a deleted or broken script)
+                {
+                    insideGamepadTick = false;
+                    return;
+                }
 
                 if (g.Hook.DInputEnabled || g.Hook.XInputReroute || g.ProtoInput.DinputDeviceHook)
                 {
@@ -296,14 +317,34 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                 player.GamepadGuid = GamepadIdentity.SlotGuid(player.GamepadId);
                                 player.IsInputUsed = true;
                             }
+                            else
+                            {
+                                IdentifyXInputByPath(player, data, DInputManager.D_JoysticksList);
+                            }
 
                             data.Add(player);
                             changed = true;
                         }
                     }
+
+                    //DirectInput lists its devices on its own thread, sometimes after XInput: retry when its list changed.
+                    if (!GameProfile.UseXinputIndex && OpenXinputController.DevicePathSupported)
+                    {
+                        List<D_Joystick> dinputDevices = DInputManager.D_JoysticksList;
+
+                        if (dinputDevices.Count != xinputPathRetryDInputCount)
+                        {
+                            xinputPathRetryDInputCount = dinputDevices.Count;
+
+                            foreach (PlayerInfo xinputPad in data.Where(d => d.IsXInput && !d.IsFake && !d.IsInputUsed && d.DInputJoystick == null).ToList())
+                            {
+                                changed |= IdentifyXInputByPath(xinputPad, data, dinputDevices);
+                            }
+                        }
+                    }
                 }
 
-                if (g.Hook.SDL2Enabled)
+                if (UsesSdl(g))
                 {
                     //Skip SDL while the helper thread refreshes it (the controller handles are being replaced).
                     if (Monitor.TryEnter(SDLManager.Sync))
@@ -351,7 +392,16 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                 player.GamepadId = SDL2.SDL_GameControllerGetPlayerIndex(player.SDL2Joystick);
                                 player.GamepadName = SDL2.GameControllerNameString(controller);
                                 player.DeviceKey = player.GamepadId >= 0 ? "sdl:" + player.GamepadId : "sdl:h" + ((IntPtr)controller).ToInt64().ToString("x");
-                                player.IsSDL2 = true;
+
+                                //Same detection for both: only the DLL given to the game differs (SDL2.ini or SDL3.ini indexes).
+                                if (g.Hook.SDL2Enabled)
+                                {
+                                    player.IsSDL2 = true;
+                                }
+                                else
+                                {
+                                    player.IsSDL3 = true;
+                                }
 
                                 if (GameProfile.UseXinputIndex)
                                 {
@@ -370,7 +420,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             //DirectInput lists its devices on its own thread, sometimes after SDL: retry the pads not identified yet.
                             if (!GameProfile.UseXinputIndex)
                             {
-                                foreach (PlayerInfo sdlPad in data.Where(d => d.IsSDL2 && !d.IsFake && !d.IsInputUsed && d.DInputJoystick == null).ToList())
+                                foreach (PlayerInfo sdlPad in data.Where(d => (d.IsSDL2 || d.IsSDL3) && !d.IsFake && !d.IsInputUsed && d.DInputJoystick == null).ToList())
                                 {
                                     changed |= IdentifySdlByPath(sdlPad, data, dinputDevices);
                                 }
@@ -448,6 +498,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             if (pressed) { held = XInputManager.ReadButtons(player); }
                             break;
                         case InputType.SDL2:
+                        case InputType.SDL3:
                             if (!sdlLocked)
                             {
                                 if (!Monitor.TryEnter(SDLManager.Sync))
@@ -519,6 +570,36 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             return true;
         }
 
+        //DirectInput device count when unidentified XInput pads last tried their device path.
+        private static int xinputPathRetryDInputCount = -1;
+
+        /// <summary>
+        /// Identifies an XInput pad by the device path the custom openxinput1_3.dll gives for its slot (Nucleus 2.5): it
+        /// gets the identity of its DirectInput device at detection, so no button press is needed and a saved profile can
+        /// match it by its GUID at once. Like a DirectInput pad, it is shown at once, or at its first press with "assign
+        /// gamepads on button press". Two identical pads can't be told apart this way: they still need a press.
+        /// </summary>
+        private static bool IdentifyXInputByPath(PlayerInfo player, List<PlayerInfo> devices, List<D_Joystick> dinputDevices)
+        {
+            if (!OpenXinputController.TryGetDevicePath(player.GamepadId, out string path))
+            {
+                return false;
+            }
+
+            D_Joystick joystick = GamepadIdentity.FindByXInputPath(player, devices, dinputDevices, path);
+
+            if (joystick == null)
+            {
+                return false;
+            }
+
+            GamepadIdentity.Bind(player, joystick);
+            player.IsInputUsed = !userGameInfo.Game.MetaInfo.ProfileAssignGamepadByButonPress;
+            player.IdentificationFailedUtc = DateTime.MinValue;
+            LogManager.Log($"Gamepad: XInput slot {player.GamepadId + 1} identified by its device path ({player.HIDDeviceID[0]}).");
+            return true;
+        }
+
         private static bool CheckConnectedGamepads()
         {
             bool changed = false;
@@ -579,6 +660,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                         break;
                     case InputType.SDL2:
+                    case InputType.SDL3:
 
                         if (!SDLManager.IsConnected(player.SDL2Joystick))
                         {
@@ -630,13 +712,14 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                     return true;
                 }
 
+                //Each API asks with its own device data (DirectInput: the instance GUID, XInput: the controller, SDL: the
+                //handle), and the list holds the pads of every API of the handler: compare only like with like. A DirectInput
+                //GUID parsed against an XInput pad, or an SDL cast of a GUID, threw and aborted the tick (Nucleus 2.5 fix).
                 switch (player.InputType)
                 {
                     case InputType.DInput:
 
-                        var instanceGuid = devicedata.ToString();
-
-                        if (player.GamepadGuid == Guid.Parse(instanceGuid))
+                        if (devicedata is Guid instanceGuid && instanceGuid != Guid.Empty && player.GamepadGuid == instanceGuid)
                         {
                             assigned = true;
                         }
@@ -644,9 +727,8 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         break;
                     case InputType.XInput:
 
-                        if (player.GamepadId == index)
+                        if (player.GamepadId == index && devicedata is OpenXinputController oxc)
                         {
-                            OpenXinputController oxc = devicedata as OpenXinputController;
                             var s = oxc.GetState();
 
                             int newmask = (int)s.Gamepad.Buttons;
@@ -661,6 +743,12 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                         break;
                     case InputType.SDL2:
+                    case InputType.SDL3:
+
+                        if (!(devicedata is SDL_GameController))
+                        {
+                            break;
+                        }
 
                         SDL_GameController controller = (SDL_GameController)devicedata;
                         if (player.SDL2Joystick == (IntPtr)controller)
@@ -733,7 +821,13 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 return;
             }
 
-            GenericGameInfo g = userGameInfo.Game;
+            GenericGameInfo g = userGameInfo?.Game;
+
+            if (g == null)//the handler was unloaded (hot reload of a deleted or broken script)
+            {
+                return;
+            }
+
             List<PlayerInfo> playerData = profile.DevicesList;
 
             bool canProceed;

@@ -70,12 +70,25 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
         public static bool ResetingWindows { get; set; }
         private static bool canSwitchLayout = true;
 
+        /// <summary>
+        /// True while an instance restart runs, and from the start of <c>GenericGameHandler.Play</c> until the setup is
+        /// finished: exited instances are not restarted meanwhile (Nucleus 2.5, "blocks restarting until setup finished").
+        /// </summary>
+        public static bool RestartThreadIsRunning = false;
+
         public static void ResetBools()
         {
             ResetingWindows = false;
             TopMostToggle = true;
             CutsceneOn = false;
             canSwitchLayout = true;
+
+            lock (restartLock)
+            {
+                restartHistory.Clear();
+                restartGaveUp.Clear();
+                quitLogged.Clear();
+            }
         }
 
         public static void ResetWindows(ProcessData processData, int x, int y, int w, int h, int i)
@@ -280,9 +293,9 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                         newHeight = (newWidth / handlerInstance.origRatio);
 
-                        if (newHeight > handlerInstance.playerBoundsWidth)
+                        if (newHeight > handlerInstance.playerBoundsHeight)
                         {
-                            newHeight = handlerInstance.playerBoundsWidth;
+                            newHeight = handlerInstance.playerBoundsHeight;
                         }
                     }
                 }
@@ -294,9 +307,9 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                         newWidth = (newHeight * handlerInstance.origRatio);
 
-                        if (newWidth > handlerInstance.playerBoundsHeight)
+                        if (newWidth > handlerInstance.playerBoundsWidth)
                         {
-                            newWidth = handlerInstance.playerBoundsHeight;
+                            newWidth = handlerInstance.playerBoundsWidth;
                         }
                     }
                 }
@@ -906,6 +919,373 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
         }
         #endregion
 
+        #region Instance restart (Nucleus 2.5)
+
+        /// <summary>What the update tick does with an instance whose process exited.</summary>
+        public enum InstanceQuitAction
+        {
+            /// <summary>Count it as closed (the session ends once every instance is closed): the behaviour before 2.5.</summary>
+            CountAsExited,
+            /// <summary>Start the instance again (launch, process search, hooks, mutexes, window setup).</summary>
+            Restart,
+            /// <summary>The game starts again by itself (<c>Game.GameReLaunchByItself</c>): find the new process and hook it.</summary>
+            Rehook,
+        }
+
+        /// <summary>At most this many automatic restarts or re-hooks of one instance within <see cref="AutoRestartWindow"/>.</summary>
+        public const int MaxAutoRestarts = 3;
+
+        /// <summary>Window of <see cref="MaxAutoRestarts"/>.</summary>
+        public static readonly TimeSpan AutoRestartWindow = TimeSpan.FromMinutes(2);
+
+        private static readonly object restartLock = new object();
+        private static readonly Dictionary<int, List<DateTime>> restartHistory = new Dictionary<int, List<DateTime>>();
+        private static readonly HashSet<int> restartGaveUp = new HashSet<int>();
+        private static readonly HashSet<int> quitLogged = new HashSet<int>();
+
+        /// <summary>
+        /// Decides what to do with an instance that quit. <c>Game.GameReLaunchByItself</c>: re-hook the new process.
+        /// <c>Game.CantRestartInstances</c>: count it as closed. Otherwise Nucleus restarts an instance that crashed (exit code
+        /// known and not 0) and counts an instance that closed normally (exit code 0, or unknown) as closed, so closing the
+        /// games still ends the session. Never more than <see cref="MaxAutoRestarts"/> times within <see cref="AutoRestartWindow"/>.
+        /// </summary>
+        public static InstanceQuitAction DecideQuitAction(bool cantRestartInstances, bool gameReLaunchByItself, int? exitCode, int recentRestarts)
+        {
+            if (recentRestarts >= MaxAutoRestarts)
+            {
+                return InstanceQuitAction.CountAsExited;
+            }
+
+            if (gameReLaunchByItself)
+            {
+                return InstanceQuitAction.Rehook;
+            }
+
+            if (cantRestartInstances || exitCode == null || exitCode.Value == 0)
+            {
+                return InstanceQuitAction.CountAsExited;
+            }
+
+            return InstanceQuitAction.Restart;
+        }
+
+        /// <summary>Restarts and re-hooks of the instance of <paramref name="playerId"/> since <paramref name="now"/> - <see cref="AutoRestartWindow"/>.</summary>
+        private static int RecentRestarts(int playerId, DateTime now)
+        {
+            lock (restartLock)
+            {
+                if (restartGaveUp.Contains(playerId))
+                {
+                    return int.MaxValue;
+                }
+
+                if (!restartHistory.TryGetValue(playerId, out List<DateTime> times))
+                {
+                    return 0;
+                }
+
+                times.RemoveAll(t => now - t > AutoRestartWindow);
+                return times.Count;
+            }
+        }
+
+        private static int? ExitCodeOf(Process process)
+        {
+            try
+            {
+                return process.HasExited ? process.ExitCode : (int?)null;
+            }
+            catch
+            {
+                //Process not opened before it exited, or another user's process: unknown.
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Update tick: the process of <paramref name="p"/> exited. Returns true when the instance counts as closed (the
+        /// session ends once all of them are), false while a restart is pending or running.
+        /// </summary>
+        private static bool OnInstanceExited(GenericGameHandler handlerInstance, PlayerInfo p, List<PlayerInfo> players, ProcessData data)
+        {
+            GenericGameInfo gen = handlerInstance.CurrentGameInfo;
+
+            //Closed as before 2.5: the session is ending, the handler can't restart (end changes, CantRestartInstances), or
+            //the setup is not finished (the launch failed or still runs; once it is finished, the next ticks decide again).
+            if (handlerInstance.processingExit || gen.ProcessChangesAtEnd || !GameProfile.Saved || (!gen.GameReLaunchByItself && gen.CantRestartInstances))
+            {
+                return true;
+            }
+
+            int? exitCode = ExitCodeOf(data.Process);
+            InstanceQuitAction action = DecideQuitAction(gen.CantRestartInstances, gen.GameReLaunchByItself, exitCode, RecentRestarts(p.PlayerID, DateTime.Now));
+
+            if (action == InstanceQuitAction.CountAsExited)
+            {
+                lock (restartLock)
+                {
+                    if (quitLogged.Add(data.Process.Id))
+                    {
+                        handlerInstance.Log($"(Update) Instance of player {p.PlayerID + 1} closed (pid {data.Process.Id}, exit code {(exitCode.HasValue ? exitCode.Value.ToString() : "unknown")}): not restarted");
+                    }
+                }
+
+                return true;
+            }
+
+            //The setup is not finished yet, or another instance is being restarted: try again on a later tick.
+            if (RestartThreadIsRunning)
+            {
+                return false;
+            }
+
+            lock (restartLock)
+            {
+                if (!restartHistory.TryGetValue(p.PlayerID, out List<DateTime> times))
+                {
+                    times = new List<DateTime>();
+                    restartHistory[p.PlayerID] = times;
+                }
+
+                times.Add(DateTime.Now);
+            }
+
+            handlerInstance.Log($"(Update) Instance of player {p.PlayerID + 1} quit (pid {data.Process.Id}, exit code {(exitCode.HasValue ? exitCode.Value.ToString() : "unknown")}): {action}");
+            RunRestartInstanceThread(p, players, data.Process, action);
+            return false;
+        }
+
+        private static void RestartInstanceThread(PlayerInfo p, List<PlayerInfo> players, Process quitproc, InstanceQuitAction action)
+        {
+            var handlerInstance = GenericGameHandler.Instance;
+            ProcessData data = p.ProcessData;
+            bool relock = false;
+            bool restarted = false;
+
+            try
+            {
+                if (handlerInstance.attached.Contains(quitproc))
+                {
+                    handlerInstance.attached.Remove(quitproc);
+                }
+
+                if (handlerInstance.attachedIds.Contains(quitproc.Id))
+                {
+                    handlerInstance.attachedIds.Remove(quitproc.Id);
+                }
+
+                //reset
+                data.HWnd = null;
+                data.Setted = false;
+                data.Status = 0;
+                data.Finished = false;
+
+                Thread.Sleep(1000);
+
+                relock = LockInputRuntime.IsLocked;
+
+                if (relock)
+                {
+                    LockInputRuntime.Unlock(handlerInstance.CurrentGameInfo?.ProtoInput.FreezeExternalInputWhenInputNotLocked ?? true, handlerInstance.CurrentGameInfo?.ProtoInput);
+                }
+
+                if (action == InstanceQuitAction.Rehook) //Battlefield 1942 and Vietnam restart their process on each map load
+                {
+                    handlerInstance.Log("(Update) Lost process, no launch, just search and rehook");
+                    Globals.MainOSD.Show(1000, T("engine.osd.lostProcessSearching"));
+
+                    Thread.Sleep(handlerInstance.CurrentGameInfo.PauseBetweenProcessGrab * 1000);
+                    Process found = handlerInstance.ReHookProcessSearch(p);
+
+                    if (found == null && !handlerInstance.processingExit)
+                    {
+                        found = ProcessPickerRuntime.LaunchProcessPick(p);
+                    }
+
+                    if (found != null && !handlerInstance.processingExit)
+                    {
+                        data.AssignProcess(found);
+                        handlerInstance.ReHook(p);
+
+                        Thread.Sleep(1000);
+
+                        ChangeGameWindow(data.Process, handlerInstance.profile.DevicesList, p.PlayerID);
+                        Globals.MainOSD.Show(1000, T("engine.osd.instanceHookedAgain"));
+                        restarted = true;
+                    }
+                }
+                else
+                {
+                    handlerInstance.Log("Process Lost... Attempting Restart");
+                    Globals.MainOSD.Show(1000, T("engine.osd.lostProcessRestarting"));
+
+                    if (p.PlayerID + 1 != players.Count && !handlerInstance.CurrentGameInfo.KillLastInstanceMutex) //lastinstance mutex may be blocking
+                    {
+                        handlerInstance.MutexKill();
+                        handlerInstance.Log("Relaunch killed mutex on previous instance");
+                        Thread.Sleep(1000);
+                    }
+
+                    if (!handlerInstance.processingExit)
+                    {
+                        handlerInstance.LaunchGame(p, p.PlayerID, true);
+                        handlerInstance.Log("Relaunch started game");
+
+                        Thread.Sleep(1000);
+
+                        handlerInstance.Log("Relaunch Process Search");
+                        Process found = handlerInstance.processsearch(p, p.PlayerID, true);
+
+                        if (found != null && !handlerInstance.processingExit)
+                        {
+                            data.AssignProcess(found);
+                            handlerInstance.processorpriority(p, p.PlayerID);
+                            handlerInstance.Log("Relaunch ProcessorPriority set");
+                            Thread.Sleep(1000);
+                            handlerInstance.hookinstance(p, p.PlayerID);
+                            handlerInstance.Log("Relaunch Hooked Instance");
+                            Thread.Sleep(1000);
+                            handlerInstance.MutexKill();
+                            handlerInstance.Log("Relaunch killed mutex");
+                            ChangeGameWindow(data.Process, handlerInstance.profile.DevicesList, p.PlayerID);
+                            restarted = true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                handlerInstance.Log("ERROR - Instance restart failed: " + ex);
+            }
+            finally
+            {
+                if (!restarted)
+                {
+                    //Back to "closed": the next tick counts it as exited and the session can end.
+                    handlerInstance.Log($"Error: restart of the instance of player {p.PlayerID + 1} failed, it is left closed.");
+
+                    lock (restartLock)
+                    {
+                        restartGaveUp.Add(p.PlayerID);
+                    }
+
+                    data.AssignProcess(quitproc);
+                    data.Setted = true;
+                    data.Finished = true;
+
+                    if (!handlerInstance.processingExit)
+                    {
+                        Globals.MainOSD.Show(4000, T("engine.osd.instanceRestartFailed"));
+                    }
+                }
+
+                try
+                {
+                    if (relock && !handlerInstance.processingExit)
+                    {
+                        LockInputRuntime.Lock(handlerInstance.CurrentGameInfo.LockInputSuspendsExplorer, handlerInstance.CurrentGameInfo.ProtoInput.FreezeExternalInputWhenInputNotLocked, handlerInstance.CurrentGameInfo?.ProtoInput);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    handlerInstance.Log("ERROR - Locking the inputs again after a restart failed: " + ex.Message);
+                }
+
+                RestartThreadIsRunning = false;
+            }
+        }
+
+        private static Thread RestartThread;
+
+        private static void RunRestartInstanceThread(PlayerInfo p, List<PlayerInfo> players, Process quitproc, InstanceQuitAction action)
+        {
+            RestartThreadIsRunning = true;
+
+            RestartThread = new Thread(delegate ()
+            {
+                RestartInstanceThread(p, players, quitproc, action);
+                //Like the play thread: windows and hooks set up from this thread keep a message loop (background thread).
+                System.Windows.Threading.Dispatcher.Run();
+            });
+
+            RestartThread.IsBackground = true;
+            RestartThread.SetApartmentState(ApartmentState.STA);
+            RestartThread.Start();
+        }
+
+        /// <summary>
+        /// Restarts the instance of a player on request (a "restart instance" action of a host UI): closes its game process
+        /// if it still runs, then restarts it like an instance that crashed (or waits for the game to start again and hooks
+        /// it with <c>Game.GameReLaunchByItself</c>). Not bounded by <see cref="MaxAutoRestarts"/>. Returns false, with the
+        /// reason ("noSession", "notReady", "busy", "unknownPlayer", "notSupported"), when it can't be done now.
+        /// </summary>
+        public static bool RequestInstanceRestart(int playerIndex, out string reason)
+        {
+            GenericGameHandler handlerInstance = GenericGameHandler.Instance;
+            reason = null;
+
+            if (handlerInstance == null || handlerInstance.HasEnded || handlerInstance.processingExit || handlerInstance.profile == null)
+            {
+                reason = "noSession";
+                return false;
+            }
+
+            if (!GameProfile.Saved)
+            {
+                reason = "notReady";
+                return false;
+            }
+
+            if (RestartThreadIsRunning)
+            {
+                reason = "busy";
+                return false;
+            }
+
+            GenericGameInfo gen = handlerInstance.CurrentGameInfo;
+            if (gen.ProcessChangesAtEnd || (gen.CantRestartInstances && !gen.GameReLaunchByItself))
+            {
+                reason = "notSupported";
+                return false;
+            }
+
+            List<PlayerInfo> players = handlerInstance.profile.DevicesList;
+            PlayerInfo p = players.FirstOrDefault(pl => pl.PlayerID == playerIndex);
+            Process process = p?.ProcessData?.Process;
+
+            if (process == null)
+            {
+                reason = "unknownPlayer";
+                return false;
+            }
+
+            lock (restartLock)
+            {
+                restartGaveUp.Remove(p.PlayerID);
+            }
+
+            RestartThreadIsRunning = true;
+
+            try
+            {
+                if (!process.HasExited)
+                {
+                    handlerInstance.Log($"Restart requested for the instance of player {p.PlayerID + 1}: closing pid {process.Id}");
+                    process.Kill();
+                    process.WaitForExit(10000);
+                }
+            }
+            catch (Exception ex)
+            {
+                handlerInstance.Log($"Restart requested for the instance of player {p.PlayerID + 1}: could not close pid {process.Id}: {ex.Message}");
+            }
+
+            RunRestartInstanceThread(p, players, process, gen.GameReLaunchByItself ? InstanceQuitAction.Rehook : InstanceQuitAction.Restart);
+            return true;
+        }
+
+        #endregion
+
         public static void UpdateAndRefreshGameWindows(double delayMS, bool refresh)
         {
             var handlerInstance = GenericGameHandler.Instance;
@@ -962,7 +1342,10 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 {
                     if (data.Process.HasExited)
                     {
-                        handlerInstance.exited++;
+                        if (OnInstanceExited(handlerInstance, p, players, data))
+                        {
+                            handlerInstance.exited++;
+                        }
                     }
                     else if (LaunchWait.FastAt(LaunchWait.Tier2))
                     {
@@ -1008,7 +1391,11 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                         {
                             if (data.Process.HasExited)
                             {
-                                handlerInstance.exited++;
+                                if (OnInstanceExited(handlerInstance, p, players, data))
+                                {
+                                    handlerInstance.exited++;
+                                }
+
                                 continue;
                             }
 
@@ -1282,6 +1669,11 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                         }
                         else
                         {
+                            if (data.Process == null)
+                            {
+                                continue;
+                            }
+
                             data.Process.Refresh();
 
                             if (data.Process.HasExited)
@@ -1380,6 +1772,21 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                                     else
                                     {
                                         data.Setted = true;
+                                    }
+
+                                    if (handlerInstance.CurrentGameInfo.IdInWindowTitle)
+                                    {
+                                        //IdInWindowTitle titles don't pass the Levenshtein check, even with HasDynamicWindowTitle.
+                                        string windowTitle = handlerInstance.CurrentGameInfo.Hook.ForceFocusWindowName + "(" + i + ")";
+                                        if (data.HWnd.Title.Equals(windowTitle))
+                                        {
+                                            data.Setted = true; //success
+                                            data.HWNDRetry = false;
+                                        }
+                                        else
+                                        {
+                                            data.HWNDRetry = true; //failure
+                                        }
                                     }
                                 }
                                 else

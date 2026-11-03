@@ -393,7 +393,8 @@ namespace Nucleus.Gaming
 
         public string DocumentsConfigPath
         {
-            get; set;
+            get; 
+            set;
         }
 
         public string DocumentsSavePath
@@ -1684,6 +1685,7 @@ namespace Nucleus.Gaming
             //}
 
             Log($"Patching {patchedFile}");
+
             //Format original hex pattern
             string formatedOrigPattern = origPattern.Replace(" ", "");
 
@@ -1710,13 +1712,13 @@ namespace Nucleus.Gaming
 
             for (int p = 0; p < fileContent.Length; p++)
             {
-
                 if (p + origBytePattern.Length > fileContent.Length)
                 {
                     continue;
                 }
 
                 bool toContinue = false;
+
                 for (int i = 0; i < origBytePattern.Length; i++)
                 {
                     if (origBytePattern[i] != fileContent[p + i])
@@ -1733,17 +1735,13 @@ namespace Nucleus.Gaming
 
                 for (int i = 0; i < origBytePattern.Length; i++)
                 {
-                    if (fileContent[p + i] == origBytePattern[i])
-                    {
-                        fileContent[p + i] = patchBytePattern[i];
-
-                        if (!patchall)
-                        {
-                            break;
-                        }
-                    }
+                    fileContent[p + i] = patchBytePattern[i];
                 }
 
+                if (!patchall)
+                {
+                    break;
+                }
             }
 
             // Save it to another location.

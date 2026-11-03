@@ -8,24 +8,46 @@ namespace Nucleus.Gaming.Tools.SDL2Dll
 {
     public static class SDL2Dll
     {
-        public static void SetupSDL2Dll(PlayerInfo player, int i, bool setupDll)
+        /// <summary>
+        /// The SDL dll Nucleus copies next to the instance executable for <c>Game.Hook.SDL2Enabled</c> or (Nucleus 2.5)
+        /// <c>Game.Hook.SDL3Enabled</c>: <c>utils\SDL2|SDL3\x86|x64\SDL2|SDL3.dll</c>, a custom SDL build that reads the
+        /// player's gamepad indexes from <c>SDL2.ini</c> / <c>SDL3.ini</c> in the same folder.
+        /// </summary>
+        public static string SourceDllPath(string installRoot, bool sdl2, string arch)
+        {
+            string version = sdl2 ? "SDL2" : "SDL3";
+            return Path.Combine(installRoot, "utils", version, arch, version + ".dll");
+        }
+
+        public static void SetupSDLDll(PlayerInfo player, int i, bool setupDll)
         {
             var handlerInstance = GenericGameHandler.Instance;
             string gameGUID = handlerInstance.CurrentGameInfo.GUID;
 
             string gameContentPath = Path.Combine(GameManager.Instance.GetAppContentPath(), gameGUID);//game content root
 
-            string dllsPath = Path.Combine(Globals.NucleusInstallRoot, "utils\\SDL2");
-            string dllName = "SDL2.dll";
+            string dllVersion;
 
-            handlerInstance.Log($"Setting up SDL2 for {player.Nickname} at index {i}...");
+            if(handlerInstance.CurrentGameInfo.Hook.SDL2Enabled)
+            {
+                dllVersion = "SDL2";
+            }
+            else
+            {
+                dllVersion = "SDL3";
+            }
+
+            string dllsPath = Path.Combine(Globals.NucleusInstallRoot, $"utils\\{dllVersion}");
+            string dllName = $"{dllVersion}.dll";
+
+            handlerInstance.Log($"Setting up {dllVersion} for {player.Nickname} at index {i}...");
 
             if (setupDll)
             {
                 //string controllerIndex;
                 StringBuilder gpIndexes = new StringBuilder();
 
-                if (player.IsSDL2)
+                if (player.IsSDL2 || player.IsSDL3)
                 {
                     gpIndexes.Append((player.GamepadId).ToString());
 
@@ -42,15 +64,23 @@ namespace Nucleus.Gaming.Tools.SDL2Dll
 
                 try
                 {
-                    File.WriteAllText(handlerInstance.instanceExeFolder + "\\SDL2.ini", gpIndexes.ToString());
+                    File.WriteAllText(handlerInstance.instanceExeFolder + $"\\{dllVersion}.ini", gpIndexes.ToString());
                 }  
                 catch (Exception ex)
                 {
-                    handlerInstance.Log($"ERROR - Failed to write SDL2.ini for {player.Nickname}(index {i}) at {handlerInstance.instanceExeFolder}" );
+                    handlerInstance.Log($"ERROR - Failed to write {dllVersion}.ini for {player.Nickname}(index {i}) at {handlerInstance.instanceExeFolder}" );
                     handlerInstance.Log("ERROR INFO - Message \n" + ex.Message);
                     return;
                 }
 
+                //utils\SDL3 is not shipped by every package (gitignored binaries): the game then keeps its own dll and every
+                //instance sees every gamepad. Say so in the launch log instead of failing on the copy.
+                string sourceDll = SourceDllPath(Globals.NucleusInstallRoot, dllVersion == "SDL2", handlerInstance.garch);
+                if (!File.Exists(sourceDll))
+                {
+                    handlerInstance.Log($"ERROR - {dllName} not found ({sourceDll}): {dllVersion} gamepads can't be split between the instances, the game keeps its own {dllName}.");
+                    return;
+                }
 
                 if (handlerInstance.CurrentGameInfo.SDLPaths?.Length > 0)
                 {

@@ -1,4 +1,5 @@
-﻿using Nucleus.Gaming.Coop;
+﻿using Microsoft.Win32;
+using Nucleus.Gaming.Coop;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -25,9 +26,14 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             profile = _profile;
             IsInitialized = true;
 
-            //Runs each time a setup is opened: never leak the previous watcher.
-            screensWatcherTimer?.Dispose();
-            screensWatcherTimer = new System.Threading.Timer(ScreensWatcher_Tick, null, 0, 3000);
+            //Monitor changes are signalled by Windows (Nucleus 2.5) instead of a check every 3 s. Subscribed once per process.
+            screensWatcherOn = true;
+
+            if (!displayEventsHooked)
+            {
+                SystemEvents.DisplaySettingsChanged += OnDisplaySettingsChanged;
+                displayEventsHooked = true;
+            }
 
             SetPlayerArea();
             RefreshScreens();
@@ -36,8 +42,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         /// <summary>Stops the screens watcher (setup closed).</summary>
         public static void StopScreensWatcher()
         {
-            screensWatcherTimer?.Dispose();
-            screensWatcherTimer = null;
+            screensWatcherOn = false;
         }
 
         /// <summary>True once the screens were initialized by <see cref="Initialize"/>.</summary>
@@ -46,7 +51,8 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         /// <summary>Size of the virtual setup surface the layout math runs on.</summary>
         public static Size SurfaceSize = new Size(1280, 720);
 
-        private static System.Threading.Timer screensWatcherTimer;
+        private static volatile bool screensWatcherOn;
+        private static bool displayEventsHooked;
         private static UserGameInfo userGameInfo;
         private static GameProfile profile;
 
@@ -60,6 +66,15 @@ namespace Nucleus.Gaming.Controls.SetupScreen
         private static Rectangle destMonitorBounds;
 
         private static int screensTickQueued;
+
+        //Raised by Windows on its own thread (SystemEvents) when a monitor is added, removed, moved or resized.
+        private static void OnDisplaySettingsChanged(object sender, EventArgs e)
+        {
+            if (screensWatcherOn)
+            {
+                ScreensWatcher_Tick(null);
+            }
+        }
 
         public static void ScreensWatcher_Tick(object state)
         {
@@ -79,7 +94,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 {
                     System.Threading.Interlocked.Exchange(ref screensTickQueued, 0);
 
-                    if (screensWatcherTimer != null && (GameProfile.I_GameHandler == null || GameProfile.I_GameHandler.HasEnded))
+                    if (screensWatcherOn && (GameProfile.I_GameHandler == null || GameProfile.I_GameHandler.HasEnded))
                     {
                         ScreensWatcherCheck();
                     }

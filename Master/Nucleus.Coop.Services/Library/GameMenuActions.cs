@@ -41,7 +41,7 @@ public sealed class GameMenuActions
     public static GameMenuContext CreateContext(UserGameInfo entry)
     {
         GenericGameInfo game = entry.Game;
-        MigrateDocumentsPaths(game);
+        SavePaths paths = ResolveSavePaths(game.UserProfileConfigPath, game.UserProfileSavePath, game.DocumentsConfigPath, game.DocumentsSavePath);
         GameMetaInfo meta = game.MetaInfo;
         string contentFolder = Path.Combine(GameManager.Instance.GetAppContentPath(), game.GUID);
 
@@ -52,10 +52,10 @@ public sealed class GameMenuActions
             HasNotes = !string.IsNullOrEmpty(game.Description),
             ContentFolder = contentFolder,
             ContentFolderExists = Directory.Exists(contentFolder),
-            UserConfigFolders = Folders(SafeList(() => game.Profiles_ConfigPath), game.UserProfileConfigPath, documents: false),
-            UserSaveFolders = Folders(SafeList(() => game.Profiles_SavePath), game.UserProfileSavePath, documents: false),
-            DocumentsConfigFolders = Folders(SafeList(() => game.Profiles_Documents_ConfigPath), game.DocumentsConfigPath, documents: true),
-            DocumentsSaveFolders = Folders(SafeList(() => game.Profiles_Documents_SavePath), game.DocumentsSavePath, documents: true),
+            UserConfigFolders = Folders(SafeList(() => game.Profiles_ConfigPath), paths.UserConfig, documents: false),
+            UserSaveFolders = Folders(SafeList(() => game.Profiles_SavePath), paths.UserSave, documents: false),
+            DocumentsConfigFolders = Folders(SafeList(() => game.Profiles_Documents_ConfigPath), paths.DocumentsConfig, documents: true),
+            DocumentsSaveFolders = Folders(SafeList(() => game.Profiles_Documents_SavePath), paths.DocumentsSave, documents: true),
             BackupNicknames = SafeList(() => game.Players_BackupPath).Select(p => Path.GetFileName(p.TrimEnd('\\'))).Where(n => n.Length > 0).ToList(),
             Inputs = GameDtoFactory.Flags(game),
             UseDevReorder = game.UseDevReorder,
@@ -120,7 +120,9 @@ public sealed class GameMenuActions
 
             case GameMenuBuilder.Ids.DeleteContentFolder:
                 RefuseDuringSession();
-                bool deleted = await CleanGameContent.CleanContentFolderAsync(game, reportLockedFiles: false);
+                //Nucleus 2.5: what the user deletes goes to the recycle bin.
+                bool deleted = await CleanGameContent.CleanContentFolderAsync(game, reportLockedFiles: false,
+                    sendToRecycleBin: UserDataDeletion.ForMenuItem(GameMenuBuilder.Ids.DeleteContentFolder) == DeleteMode.RecycleBin);
                 core.Notifier.GamesChanged(gameId);
                 if (!deleted)
                 {
@@ -227,27 +229,37 @@ public sealed class GameMenuActions
         }
     }
 
-    /// <summary>
-    /// Legacy migration done on each menu opening (and at launch): <c>UserProfile*Path</c> values that start with
-    /// <c>documents\</c> are moved to the <c>Documents*Path</c> fields, in memory.
-    /// </summary>
-    internal static void MigrateDocumentsPaths(GenericGameInfo game)
+    /// <summary>The save and config paths of a handler, with the legacy <c>documents\</c> forms resolved.</summary>
+    internal sealed class SavePaths
     {
-        if (game.UserProfileConfigPath?.Length > 0 && game.UserProfileConfigPath.StartsWith(@"documents\", StringComparison.OrdinalIgnoreCase))
+        public string? UserConfig { get; set; }
+        public string? UserSave { get; set; }
+        public string? DocumentsConfig { get; set; }
+        public string? DocumentsSave { get; set; }
+    }
+
+    /// <summary>
+    /// Legacy rule: a <c>Game.UserProfile*Path</c> starting with <c>documents\</c> is a Documents path. The menu used to
+    /// apply it by changing the handler (<c>UserProfile*Path</c> set to null, Nucleus 2.5 fix), which broke the launch of
+    /// the same handler object; it is now computed without touching the handler. The launch converts these paths itself.
+    /// </summary>
+    internal static SavePaths ResolveSavePaths(string? userConfig, string? userSave, string? documentsConfig, string? documentsSave)
+    {
+        var paths = new SavePaths { UserConfig = userConfig, UserSave = userSave, DocumentsConfig = documentsConfig, DocumentsSave = documentsSave };
+
+        if (userConfig?.Length > 0 && userConfig.StartsWith(@"documents\", StringComparison.OrdinalIgnoreCase))
         {
-            game.DocumentsConfigPath = game.UserProfileConfigPath.Substring(10);
-            game.UserProfileConfigPath = null;
-            game.DocumentsConfigPathNoCopy = game.UserProfileConfigPathNoCopy;
-            game.ForceDocumentsConfigCopy = game.ForceUserProfileConfigCopy;
+            paths.DocumentsConfig = userConfig.Substring(10);
+            paths.UserConfig = null;
         }
 
-        if (game.UserProfileSavePath?.Length > 0 && game.UserProfileSavePath.StartsWith(@"documents\", StringComparison.OrdinalIgnoreCase))
+        if (userSave?.Length > 0 && userSave.StartsWith(@"documents\", StringComparison.OrdinalIgnoreCase))
         {
-            game.DocumentsSavePath = game.UserProfileSavePath.Substring(10);
-            game.UserProfileSavePath = null;
-            game.DocumentsSavePathNoCopy = game.UserProfileSavePathNoCopy;
-            game.ForceDocumentsSaveCopy = game.ForceUserProfileSaveCopy;
+            paths.DocumentsSave = userSave.Substring(10);
+            paths.UserSave = null;
         }
+
+        return paths;
     }
 
     /// <summary>Opens a file in the configured text editor (<c>[Dev] TextEditorPath</c>), else Notepad++, else Notepad (<c>OpenHandler.OpenRawHandler</c>).</summary>
@@ -307,17 +319,12 @@ public sealed class GameMenuActions
         }
     }
 
+    // User data deleted from the menu: to the recycle bin (Nucleus 2.5).
     private static async Task DeleteFolderAsync(string folder)
     {
         try
         {
-            await Task.Run(() =>
-            {
-                if (Directory.Exists(folder))
-                {
-                    Directory.Delete(folder, true);
-                }
-            });
+            await UserDataDeletion.DeleteAsync(folder, DeleteMode.RecycleBin);
         }
         catch (Exception e) when (e is IOException || e is UnauthorizedAccessException)
         {

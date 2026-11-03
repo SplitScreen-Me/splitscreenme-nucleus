@@ -121,7 +121,7 @@ namespace Nucleus.Coop.Services.Setup
                 Capabilities = new SetupCapabilities
                 {
                     MaxPlayers = gen.MaxPlayers,
-                    Gamepads = gen.Hook.DInputEnabled || gen.Hook.XInputEnabled || gen.Hook.XInputReroute || gen.Hook.SDL2Enabled ||
+                    Gamepads = gen.Hook.DInputEnabled || gen.Hook.XInputEnabled || gen.Hook.XInputReroute || gen.Hook.SDL2Enabled || gen.Hook.SDL3Enabled ||
                                gen.ProtoInput.XinputHook || gen.ProtoInput.DinputDeviceHook,
                     Keyboard = gen.SupportsKeyboard,
                     MultipleKeyboardsAndMice = gen.SupportsMultipleKeyboardsAndMice,
@@ -387,7 +387,7 @@ namespace Nucleus.Coop.Services.Setup
         /// <summary>Kind of device a profile player expects.</summary>
         private static DeviceKind TemplateKind(PlayerInfo template)
         {
-            return DeviceIds.TemplateKind(template.IsXInput, template.IsDInput, template.IsSDL2, template.GamepadGuid == SingleKeyboardGuid,
+            return DeviceIds.TemplateKind(template.IsXInput, template.IsDInput, template.IsSDL2 || template.IsSDL3, template.GamepadGuid == SingleKeyboardGuid,
                 template.IsRawMouse, template.HIDDeviceID?.Count(h => !string.IsNullOrEmpty(h)) ?? 0);
         }
 

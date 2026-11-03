@@ -60,6 +60,12 @@ namespace Nucleus.Coop.Services.Setup
 
         /// <summary>Custom steps, in handler order.</summary>
         public IReadOnlyList<CustomStepState> CustomSteps { get; set; } = new List<CustomStepState>();
+
+        /// <summary>
+        /// The loaded profile was saved with other handler options than the handler has now (GameProfile.OptionsOutdated):
+        /// the options step is shown before playing.
+        /// </summary>
+        public bool ProfileOptionsOutdated { get; set; }
     }
 
     /// <summary>
@@ -208,11 +214,17 @@ namespace Nucleus.Coop.Services.Setup
 
         /// <summary>
         /// Where to go once a loaded profile has matched every player: the first required custom step without a selection,
-        /// else the last shown step (the options step is skipped when custom steps exist, as in the WinForms UI).
+        /// else the last shown step (the options step is skipped when custom steps exist, as in the WinForms UI). When the
+        /// handler options changed since the profile was saved, the options step comes first (Nucleus 2.5).
         /// </summary>
         public static StepId AfterProfileMatched(FlowInput input)
         {
             List<StepId> steps = VisibleSteps(input);
+
+            if (input.ProfileOptionsOutdated && steps.Any(s => s.Kind == SetupStepKind.Options))
+            {
+                return StepId.Options;
+            }
 
             foreach (StepId step in steps)
             {

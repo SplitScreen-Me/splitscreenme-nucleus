@@ -11,6 +11,103 @@ namespace Nucleus.Gaming.Coop.ProtoInput
     {
         public static readonly ProtoInput protoInput = new ProtoInput();
 
+        #region Optional exports (newer ProtoInput builds)
+
+        // Nucleus 2.5 (Messenils) added SetSetCursorPosHookMessages, SetWindowSetup and the GetRawInputBuffer hook (id 24).
+        // No ProtoInput build we know exports them (SplitScreen-Me master and Test-Update, e18e06b shipped with Nucleus,
+        // and the public forks): calling a missing export throws EntryPointNotFoundException, and an unknown hook id could
+        // enable another hook in a fork that numbered its hooks differently. So the C# options stay, but they are only
+        // used when the loaded ProtoInputLoader exports them, and the hook id only when the loader comes from a build
+        // that has those 2.5 exports. Otherwise the option is skipped and logged once.
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern IntPtr GetModuleHandle(string moduleName);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern IntPtr LoadLibrary(string fileName);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Ansi, ExactSpelling = true, SetLastError = true)]
+        private static extern IntPtr GetProcAddress(IntPtr module, string procName);
+
+        private static readonly object exportsLock = new object();
+        private static readonly System.Collections.Generic.Dictionary<string, bool> exportsCache = new System.Collections.Generic.Dictionary<string, bool>();
+        private static readonly System.Collections.Generic.HashSet<string> skippedLogged = new System.Collections.Generic.HashSet<string>();
+
+        /// <summary>The loader DLL the P/Invoke declarations of this process use.</summary>
+        public static string LoaderDllName => IntPtr.Size == 4 ? "ProtoInputLoader32.dll" : "ProtoInputLoader64.dll";
+
+        /// <summary>
+        /// Whether the ProtoInputLoader of this process exports <paramref name="exportName"/> (it is loaded the way the
+        /// P/Invoke declarations load it: the application folder first). False when the loader can't be loaded.
+        /// </summary>
+        public static bool LoaderHasExport(string exportName)
+        {
+            lock (exportsLock)
+            {
+                if (exportsCache.TryGetValue(exportName, out bool known))
+                {
+                    return known;
+                }
+
+                bool found = false;
+
+                try
+                {
+                    IntPtr module = GetModuleHandle(LoaderDllName);
+
+                    if (module == IntPtr.Zero)
+                    {
+                        module = LoadLibrary(LoaderDllName);
+                    }
+
+                    found = module != IntPtr.Zero && GetProcAddress(module, exportName) != IntPtr.Zero;
+                }
+                catch (Exception)
+                {
+                    found = false;
+                }
+
+                exportsCache[exportName] = found;
+                return found;
+            }
+        }
+
+        /// <summary>The loaded ProtoInput has the SetCursorPos hook messages option (<c>Game.ProtoInput.SetCursorPosHookAlsoMessage</c>).</summary>
+        public static bool SupportsSetCursorPosHookMessages => LoaderHasExport("SetSetCursorPosHookMessages");
+
+        /// <summary>The loaded ProtoInput has the window setup option (<c>Game.ProtoInput.RemoveBorders</c> / <c>SetPosition</c>).</summary>
+        public static bool SupportsWindowSetup => LoaderHasExport("SetWindowSetup");
+
+        /// <summary>
+        /// The loaded ProtoInput has the GetRawInputBuffer hook (<c>Game.ProtoInput.GetRawInputBufferHook</c>, id 24). There is
+        /// no export for a hook: it is assumed present when the loader has the other Nucleus 2.5 exports, which came after it.
+        /// </summary>
+        public static bool SupportsGetRawInputBufferHook => SupportsSetCursorPosHookMessages || SupportsWindowSetup;
+
+        private static void LogSkippedOnce(string option, string reason)
+        {
+            lock (exportsLock)
+            {
+                if (!skippedLogged.Add(option))
+                {
+                    return;
+                }
+            }
+
+            string message = $"ProtoInput: {option} is not supported by the loaded {LoaderDllName} ({reason}); the option is ignored.";
+
+            if (GenericGameHandler.Instance != null)
+            {
+                GenericGameHandler.Instance.Log(message);
+            }
+            else
+            {
+                LogManager.Log(message);
+            }
+        }
+
+        #endregion
+
         // These are for convenience in the scripts
         public class ExposedValues
         {
@@ -38,6 +135,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             public uint RemoveBorderHookID = (uint)ProtoHookIDs.RemoveBorderHookID;
             public uint GetCursorInfoID = (uint)ProtoHookIDs.RemoveBorderHookID;
             public uint SetWindowsHookHookID = (uint)ProtoHookIDs.SetWindowsHookHookID;
+            public uint GetRawInputBufferHookID = (uint)ProtoHookIDs.GetRawInputBufferHookID;
 
             public uint RawInputFilterID = (uint)ProtoMessageFilterIDs.RawInputFilterID;
             public uint MouseMoveFilterID = (uint)ProtoMessageFilterIDs.MouseMoveFilterID;
@@ -76,7 +174,8 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             AdjustWindowRectHookID,
             RemoveBorderHookID,
             GetCursorInfoID,
-            SetWindowsHookHookID
+            SetWindowsHookHookID,
+            GetRawInputBufferHookID
         };
 
         public enum ProtoMessageFilterIDs : uint
@@ -165,6 +264,9 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             public static extern void SetDrawFakeCursorFix(uint instanceHandle, bool enable);
 
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetSetCursorPosHookMessages(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetExternalFreezeFakeInput(uint instanceHandle, bool enableFreeze);
 
 
@@ -196,6 +298,9 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             // This MUST be called before calling InstallHook on the RemoveBorderhook
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetDontWaitWindowBorder(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetWindowSetup(uint instanceHandle, bool borders, bool position);
 
             // Both of these functions require RenameHandlesHookHookID hook
             [DllImport("ProtoInputLoader32.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
@@ -363,6 +468,9 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             public static extern void SetDrawFakeCursorFix(uint instanceHandle, bool enable);
 
             [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetSetCursorPosHookMessages(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetExternalFreezeFakeInput(uint instanceHandle, bool enableFreeze);
 
 
@@ -448,6 +556,9 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             // This MUST be called before calling InstallHook on the RemoveBorderhook
             [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern void SetDontWaitWindowBorder(uint instanceHandle, bool enable);
+
+            [DllImport("ProtoInputLoader64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
+            public static extern void SetWindowSetup(uint instanceHandle, bool borders, bool position);
 
             [DllImport("ProtoInputUtilDynamic64.dll", CharSet = CharSet.Unicode, CallingConvention = CallingConvention.Cdecl)]
             public static extern uint LockInput(bool lockInput);
@@ -636,6 +747,12 @@ namespace Nucleus.Gaming.Coop.ProtoInput
         }
         public void InstallHook(uint instanceHandle, ProtoHookIDs hookID)
         {
+            if (hookID == ProtoHookIDs.GetRawInputBufferHookID && !SupportsGetRawInputBufferHook)
+            {
+                LogSkippedOnce("GetRawInputBufferHook", "the hook is not in this build");
+                return;
+            }
+
             if (IntPtr.Size == 4)
             {
                 ProtoInput32.InstallHook(instanceHandle, hookID);
@@ -819,6 +936,32 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             }
         }
 
+        /// <summary>Optional export (Nucleus 2.5): skipped, and logged once, when the loaded ProtoInput doesn't have it.</summary>
+        public void SetSetCursorPosHookMessages(uint instanceHandle, bool enable)
+        {
+            if (!SupportsSetCursorPosHookMessages)
+            {
+                LogSkippedOnce("SetCursorPosHookAlsoMessage", "no SetSetCursorPosHookMessages export");
+                return;
+            }
+
+            try
+            {
+                if (IntPtr.Size == 4)
+                {
+                    ProtoInput32.SetSetCursorPosHookMessages(instanceHandle, enable);
+                }
+                else
+                {
+                    ProtoInput64.SetSetCursorPosHookMessages(instanceHandle, enable);
+                }
+            }
+            catch (EntryPointNotFoundException)
+            {
+                LogSkippedOnce("SetCursorPosHookAlsoMessage", "no SetSetCursorPosHookMessages export");
+            }
+        }
+
         public void SetExternalFreezeFakeInput(uint instanceHandle, bool enableFreeze)
         {
             if (IntPtr.Size == 4)
@@ -943,6 +1086,32 @@ namespace Nucleus.Gaming.Coop.ProtoInput
             else
             {
                 ProtoInput64.SetDontWaitWindowBorder(instanceHandle, enable);
+            }
+        }
+
+        /// <summary>Optional export (Nucleus 2.5): skipped, and logged once, when the loaded ProtoInput doesn't have it.</summary>
+        public void SetWindowSetup(uint instanceHandle, bool borders, bool position)
+        {
+            if (!SupportsWindowSetup)
+            {
+                LogSkippedOnce("RemoveBorders/SetPosition", "no SetWindowSetup export");
+                return;
+            }
+
+            try
+            {
+                if (IntPtr.Size == 4)
+                {
+                    ProtoInput32.SetWindowSetup(instanceHandle, borders, position);
+                }
+                else
+                {
+                    ProtoInput64.SetWindowSetup(instanceHandle, borders, position);
+                }
+            }
+            catch (EntryPointNotFoundException)
+            {
+                LogSkippedOnce("RemoveBorders/SetPosition", "no SetWindowSetup export");
             }
         }
 

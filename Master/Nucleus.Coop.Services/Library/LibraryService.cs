@@ -74,8 +74,10 @@ public sealed class LibraryService : ILibraryService
     {
         string path = CheckExecutable(request?.ExecutablePath);
 
-        // Handlers whose Game.ExecutableNames / ExecutableName match the file name and whose ExecutableContext files exist.
-        List<GenericGameInfo> candidates = Manager.GetGames(path).GroupBy(g => g.GUID).Select(g => g.First()).ToList();
+        // Handlers whose Game.ExecutableNames / ExecutableName match the file name and whose ExecutableContext matches
+        // (required entries present, negated "!entries" absent).
+        ExecutableMatch match = Manager.MatchExecutable(path);
+        List<GenericGameInfo> candidates = match.Matches.GroupBy(g => g.GUID).Select(g => g.First()).ToList();
         GenericGameInfo game;
 
         if (!string.IsNullOrEmpty(request!.HandlerGameId))
@@ -85,7 +87,7 @@ public sealed class LibraryService : ILibraryService
         }
         else if (candidates.Count == 0)
         {
-            throw NoHandler(path);
+            throw NoHandler(path, match);
         }
         else if (candidates.Count > 1)
         {
@@ -111,26 +113,34 @@ public sealed class LibraryService : ILibraryService
     }
 
     /// <summary>
-    /// Explains why no handler accepts an executable: either no handler expects that file name, or one does but the
-    /// files it expects next to the executable (Game.ExecutableContext) are missing, which usually means a wrong copy of the exe.
+    /// Explains why no handler accepts an executable: either no handler expects that file name, or some do but their
+    /// Game.ExecutableContext does not match the executable's folder (files they expect are missing, or a negated
+    /// "!entry" is present: usually another edition or a wrong copy of the exe). <c>data.handlers</c> lists every such
+    /// handler with its missing and present-but-excluded entries (Nucleus 2.5 reports them when adding a game);
+    /// <c>data.gameId</c> / <c>data.missing</c> describe the first one.
     /// </summary>
-    private static BridgeException NoHandler(string path)
+    internal static BridgeException NoHandler(string path, ExecutableMatch match)
     {
         string fileName = Path.GetFileName(path);
-        string folder = Path.GetDirectoryName(path) ?? "";
-        bool NameMatches(GenericGameInfo g) =>
-            (g.ExecutableNames?.Any(n => string.Equals(n, fileName, StringComparison.OrdinalIgnoreCase)) ?? false)
-            || string.Equals(g.ExecutableName, fileName, StringComparison.OrdinalIgnoreCase);
 
-        GenericGameInfo? byName = Manager.Games.Values.FirstOrDefault(NameMatches);
-        if (byName != null)
+        if (match.Rejected.Count > 0)
         {
-            List<string> missing = (byName.ExecutableContext ?? new string[0])
-                .Where(c => !File.Exists(Path.Combine(folder, c)) && !Directory.Exists(Path.Combine(folder, c)))
-                .ToList();
-            return new BridgeException(BridgeErrorKind.NotFound,
-                I18n.T("host.library.errors.contextMissing", new { game = byName.GameName, files = string.Join(", ", missing), executable = fileName }),
-                new { reason = "contextMissing", executable = fileName, gameId = byName.GUID, missing });
+            ContextMismatch first = match.Rejected[0];
+            var handlers = match.Rejected.Select(r => new
+            {
+                gameId = r.Game.GUID,
+                name = r.Game.GameName,
+                file = r.Game.JsFileName,
+                missing = r.Missing.ToList(),
+                excluded = r.Forbidden.ToList(),
+            }).ToList();
+
+            string message = first.Missing.Count > 0
+                ? I18n.T("host.library.errors.contextMissing", new { game = first.Game.GameName, files = string.Join(", ", first.Missing), executable = fileName })
+                : I18n.T("host.library.errors.contextExcluded", new { game = first.Game.GameName, files = string.Join(", ", first.Forbidden), executable = fileName });
+
+            return new BridgeException(BridgeErrorKind.NotFound, message,
+                new { reason = "contextMissing", executable = fileName, gameId = first.Game.GUID, missing = first.Missing.ToList(), excluded = first.Forbidden.ToList(), handlers });
         }
 
         return new BridgeException(BridgeErrorKind.NotFound,
@@ -263,40 +273,14 @@ public sealed class LibraryService : ILibraryService
     /// </summary>
     internal static async Task ReloadHandlersAsync(NucleusCore core)
     {
-        string folder = Manager.GetJsScriptsPath();
-        List<GenericGameInfo> parsed = await Task.Run(() => ParseHandlers(folder));
-
         GameManager manager = Manager;
-        manager.Games.Clear();
-        manager.GameInfos.Clear();
-        foreach (GenericGameInfo info in parsed)
-        {
-            manager.Games[info.GUID] = info; // a duplicate GUID replaces the earlier one, as in GameManager.Initialize
-            manager.GameInfos[info.GUID] = info;
-        }
+        HandlerScan scan = await Task.Run(() => manager.ScanHandlerFiles(all: true));
 
-        // UserGameInfo caches its GenericGameInfo: give every entry a fresh object (same id and path).
-        var rebuilt = new List<UserGameInfo>();
-        var dropped = new List<string>();
-        foreach (UserGameInfo old in manager.User.Games)
-        {
-            if (!manager.Games.TryGetValue(old.GameGuid, out GenericGameInfo game))
-            {
-                dropped.Add(old.GameGuid);
-                continue;
-            }
-
-            if (game.ExecutableNames != null && !string.IsNullOrEmpty(old.ExePath))
-            {
-                game.ExecutableName = Path.GetFileName(old.ExePath);
-            }
-
-            rebuilt.Add(new UserGameInfo { GameGuid = old.GameGuid, ExePath = old.ExePath });
-        }
-
-        manager.User.Games = rebuilt;
+        // Swaps the new parses in, rebinds the library entries and raises GameManager.HandlersChanged, whose handler
+        // (HandlerHotReload) reports broken scripts, removes the games whose script is gone and notifies the UI.
+        HandlerChanges changes = manager.ApplyHandlerScan(scan);
         await core.UserProfile.SaveAsync();
-        ServiceLog.Info($"reloaded {parsed.Count} handler(s); removed from the library (handler missing): {(dropped.Count == 0 ? "none" : string.Join(", ", dropped))}");
+        ServiceLog.Info($"reloaded {scan.Parsed.Count} handler(s): {changes.Added.Count + changes.Updated.Count + changes.Fixed.Count} in use, {changes.Invalid.Count} with errors, {changes.Removed.Count} removed");
 
         core.Notifier.Everything();
         core.Events.Emit(new HandlersChanged { GameIds = manager.Games.Keys.ToList() });
@@ -317,36 +301,6 @@ public sealed class LibraryService : ILibraryService
                 ServiceLog.Warn("update check after reload failed", e);
             }
         });
-    }
-
-    private static List<GenericGameInfo> ParseHandlers(string folder)
-    {
-        var result = new List<GenericGameInfo>();
-        if (!Directory.Exists(folder))
-        {
-            return result;
-        }
-
-        foreach (FileInfo file in new DirectoryInfo(folder).GetFiles("*.js"))
-        {
-            try
-            {
-                using Stream stream = file.OpenRead();
-                string assets = Path.Combine(file.Directory!.FullName, Path.GetFileNameWithoutExtension(file.Name));
-                var info = new GenericGameInfo(file.Name, assets, stream, new[] { false, false });
-                if (!string.IsNullOrEmpty(info.GUID))
-                {
-                    result.Add(info);
-                }
-            }
-            catch (Exception e)
-            {
-                // Script errors are reported by GenericGameInfo (a notice in the web UI).
-                ServiceLog.Warn($"handler {file.Name} could not be loaded", e);
-            }
-        }
-
-        return result;
     }
 
     private static IEnumerable<UserGameInfo> LibraryEntries() =>
@@ -439,10 +393,22 @@ public sealed class LibraryService : ILibraryService
             throw new BridgeException(BridgeErrorKind.Conflict, I18n.T("host.library.errors.sessionRunning"), new { reason = "sessionRunning" });
         }
 
+        if (!RemoveFromLibrary(core, gameId))
+        {
+            throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.errors.gameNotFound"), new { gameId });
+        }
+    }
+
+    /// <summary>
+    /// Removes every entry of a game from the library with its cover, screenshots and cached icon (handler, metaInfo,
+    /// profiles and backups stay). UI thread. False when the game was not in the library.
+    /// </summary>
+    internal static bool RemoveFromLibrary(NucleusCore core, string gameId)
+    {
         int removed = Manager.User.Games.RemoveAll(g => string.Equals(g.GameGuid, gameId, StringComparison.OrdinalIgnoreCase));
         if (removed == 0)
         {
-            throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.errors.gameNotFound"), new { gameId });
+            return false;
         }
 
         _ = core.UserProfile.SaveAsync();
@@ -450,6 +416,7 @@ public sealed class LibraryService : ILibraryService
         core.Icons.Delete(gameId);
         ServiceLog.Info($"removed {gameId} from the library");
         core.Notifier.GamesChanged(gameId);
+        return true;
     }
 
     private static List<(string GameId, string HandlerId)> ArtworkTargets() =>

@@ -3,6 +3,7 @@ using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.Generic;
 using Nucleus.Gaming.Forms;
+using Nucleus.Gaming.Tools.NucleusUsers;
 using Nucleus.Gaming.Util;
 using System;
 using System.Collections.Generic;
@@ -374,10 +375,10 @@ namespace Nucleus.Gaming.Tools.Steam
                                     handlerInstance.Log("Found steam_interfaces.txt in original game folder, copying this file");
                                     File.Copy(Path.Combine(steamDllrootFolder, "steam_interfaces.txt"), Path.Combine(instanceSteamDllFolder, "steam_interfaces.txt"), true);
                                 }
-                                else if (File.Exists(nucleusRootFolder.TrimEnd('\\') + "\\handlers\\" + handlerInstance.CurrentGameInfo.JsFileName.Substring(0, handlerInstance.CurrentGameInfo.JsFileName.Length - 3) + "\\steam_interfaces.txt"))
+                                else if (File.Exists(nucleusRootFolder.TrimEnd('\\') + "\\handlers\\" + handlerInstance.CurrentGameInfo.FileName.Substring(0, handlerInstance.CurrentGameInfo.FileName.Length - 3) + "\\steam_interfaces.txt"))
                                 {
                                     handlerInstance.Log("Found steam_interfaces.txt in Nucleus game folder");
-                                    File.Copy(nucleusRootFolder.TrimEnd('\\') + "\\handlers\\" + handlerInstance.CurrentGameInfo.JsFileName.Substring(0, handlerInstance.CurrentGameInfo.JsFileName.Length - 3) + "\\steam_interfaces.txt", Path.Combine(instanceSteamDllFolder, "steam_interfaces.txt"), true);
+                                    File.Copy(nucleusRootFolder.TrimEnd('\\') + "\\handlers\\" + handlerInstance.CurrentGameInfo.FileName.Substring(0, handlerInstance.CurrentGameInfo.FileName.Length - 3) + "\\steam_interfaces.txt", Path.Combine(instanceSteamDllFolder, "steam_interfaces.txt"), true);
                                 }
                                 else
                                 {
@@ -540,7 +541,6 @@ namespace Nucleus.Gaming.Tools.Steam
                     }
 
                     Directory.CreateDirectory(instanceSteamSettingsFolder);
-                    //Directory.CreateDirectory(instanceSteam_SettingsFolder);
 
                     if (setupDll)
                     {
@@ -703,10 +703,10 @@ namespace Nucleus.Gaming.Tools.Steam
                                 handlerInstance.Log("Found steam_interfaces.txt in original game folder, copying this file");
                                 File.Copy(Path.Combine(steamDllrootFolder, "steam_interfaces.txt"), Path.Combine(instanceSteamDllFolder, "steam_interfaces.txt"), true);
                             }
-                            else if (File.Exists(nucleusRootFolder.TrimEnd('\\') + "\\handlers\\" + handlerInstance.CurrentGameInfo.JsFileName.Substring(0, handlerInstance.CurrentGameInfo.JsFileName.Length - 3) + "\\steam_interfaces.txt"))
+                            else if (File.Exists(nucleusRootFolder.TrimEnd('\\') + "\\handlers\\" + handlerInstance.CurrentGameInfo.FileName.Substring(0, handlerInstance.CurrentGameInfo.FileName.Length - 3) + "\\steam_interfaces.txt"))
                             {
                                 handlerInstance.Log("Found steam_interfaces.txt in Nucleus game folder");
-                                File.Copy(nucleusRootFolder.TrimEnd('\\') + "\\handlers\\" + handlerInstance.CurrentGameInfo.JsFileName.Substring(0, handlerInstance.CurrentGameInfo.JsFileName.Length - 3) + "\\steam_interfaces.txt", Path.Combine(instanceSteamDllFolder, "steam_interfaces.txt"), true);
+                                File.Copy(nucleusRootFolder.TrimEnd('\\') + "\\handlers\\" + handlerInstance.CurrentGameInfo.FileName.Substring(0, handlerInstance.CurrentGameInfo.FileName.Length - 3) + "\\steam_interfaces.txt", Path.Combine(instanceSteamDllFolder, "steam_interfaces.txt"), true);
                             }
                             else if (handlerInstance.CurrentGameInfo.OrigSteamDllPath?.Length > 0 && File.Exists(handlerInstance.CurrentGameInfo.OrigSteamDllPath))
                             {
@@ -1015,6 +1015,7 @@ namespace Nucleus.Gaming.Tools.Steam
                     envVars["HOMEPATH"] = $@"\Users\{username}\NucleusCoop\{player.Nickname}";
                     envVars["APPDATA"] = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Roaming";
                     envVars["LOCALAPPDATA"] = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Local";
+                    NucleusEnvironmentPaths.SetTemp(envVars, NucleusEnvironmentPaths.PlayerTemp(Globals.UserEnvironmentRoot, player.Nickname));
 
                     //Some games will crash if the directories don't exist
                     Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop");
@@ -1022,6 +1023,7 @@ namespace Nucleus.Gaming.Tools.Steam
                     Directory.CreateDirectory(Path.Combine(envVars["USERPROFILE"].ToString(), "Documents"));
                     Directory.CreateDirectory(envVars["APPDATA"].ToString());
                     Directory.CreateDirectory(envVars["LOCALAPPDATA"].ToString());
+                    Directory.CreateDirectory(envVars["TEMP"].ToString());
                     Directory.CreateDirectory(Path.GetDirectoryName(Globals.UserDocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents");
 
                     if (handlerInstance.CurrentGameInfo.DocumentsConfigPath?.Length > 0 || handlerInstance.CurrentGameInfo.DocumentsSavePath?.Length > 0)
@@ -1087,6 +1089,7 @@ namespace Nucleus.Gaming.Tools.Steam
                         envVars["HOMEPATH"] = $@"\Users\{username}\NucleusCoop\{player.Nickname}";
                         envVars["APPDATA"] = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Roaming";
                         envVars["LOCALAPPDATA"] = $@"{Globals.UserEnvironmentRoot}\NucleusCoop\{player.Nickname}\AppData\Local";
+                        NucleusEnvironmentPaths.SetTemp(envVars, NucleusEnvironmentPaths.PlayerTemp(Globals.UserEnvironmentRoot, player.Nickname));
 
                         //Some games will crash if the directories don't exist
                         Directory.CreateDirectory($@"{Globals.UserEnvironmentRoot}\NucleusCoop");
@@ -1094,6 +1097,7 @@ namespace Nucleus.Gaming.Tools.Steam
                         Directory.CreateDirectory(Path.Combine(envVars["USERPROFILE"].ToString(), "Documents"));
                         Directory.CreateDirectory(envVars["APPDATA"].ToString());
                         Directory.CreateDirectory(envVars["LOCALAPPDATA"].ToString());
+                        Directory.CreateDirectory(envVars["TEMP"].ToString());
                         Directory.CreateDirectory(Path.GetDirectoryName(Globals.UserDocumentsRoot) + $@"\NucleusCoop\{player.Nickname}\Documents");
 
                         if (handlerInstance.CurrentGameInfo.DocumentsConfigPath?.Length > 0 || handlerInstance.CurrentGameInfo.DocumentsSavePath?.Length > 0)
@@ -1187,9 +1191,8 @@ namespace Nucleus.Gaming.Tools.Steam
             try
             {
                 string steamlessExePath = Path.Combine($@"{Directory.GetCurrentDirectory()}\utils\Steamless\Steamless.CLI.exe");
-                string steamlessArgs = $@"{args} {linkBinFolder}\{executableName}";
                 var batch = Path.Combine(linkBinFolder, "steamless.bat");
-                string content = $"{steamlessExePath} {steamlessArgs} \"{executableName}\"";
+                string content = $"\"{steamlessExePath}\" {args} \"{linkBinFolder}\\{executableName}\"";
 
                 File.WriteAllText(batch, content);
 
@@ -1243,7 +1246,7 @@ namespace Nucleus.Gaming.Tools.Steam
             {
                 string steamlessExePath = Path.Combine($@"{Directory.GetCurrentDirectory()}\utils\Steamless\Steamless.CLI.exe");
 
-                string steamlessArgs = $@"{args} {linkBinFolder}\{executableName}";
+                string steamlessArgs = $"{args} \"{linkBinFolder}\\{executableName}\"";
 
                 ProcessStartInfo sl = new ProcessStartInfo(steamlessExePath);
                 sl.WorkingDirectory = linkBinFolder;
@@ -1307,6 +1310,39 @@ namespace Nucleus.Gaming.Tools.Steam
             Console.WriteLine("Steam Client Initialized");
         }
 
+        /// <summary>
+        /// Install folder of a Steam game (the Steam uninstall registry key of <c>Game.SteamID</c>), with
+        /// <c>Game.BinariesFolder</c> appended. Null when the game has no Steam ID or is not installed with Steam.
+        /// </summary>
+        public static string TryGetSteamGameInstallPath(GenericGameInfo game)
+        {
+            if (string.IsNullOrEmpty(game?.SteamID))
+            {
+                return null;
+            }
+
+            string value64 = null;
+
+            try
+            {
+                using (RegistryKey baseKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64))
+                using (RegistryKey localKey = baseKey.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App " + game.SteamID))
+                {
+                    value64 = localKey?.GetValue("InstallLocation")?.ToString();
+                }
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            if (string.IsNullOrEmpty(value64))
+            {
+                return null;
+            }
+
+            return !string.IsNullOrEmpty(game.BinariesFolder) ? value64 + $@"\{game.BinariesFolder}" : value64;
+        }
 
     }
 }

@@ -2115,7 +2115,8 @@
         "exFat": "« exFAT » n’est pas un format de disque pris en charge : il ne gère pas les liens symboliques. Déplacez le jeu sur un disque NTFS ou formatez le disque en NTFS.",
         "handlerNotFound": "Handler introuvable.",
         "handlerMismatch": "{executable} ne correspond pas au handler de {game} (il attend {expected}, accompagné des fichiers que le handler vérifie).",
-        "artworkFailed": "Impossible de télécharger les illustrations : {error}"
+        "artworkFailed": "Impossible de télécharger les illustrations : {error}",
+        "contextExcluded": "Le handler de {game} n’accepte pas {executable} quand {files} se trouve à côté (une autre édition ou version du jeu). Choisissez l’exécutable de l’édition prévue par ce handler."
       }
     },
     "handlers": {
@@ -2137,6 +2138,9 @@
         "noScript": "L’archive ne contient pas de handler.js : vérifiez qu’il s’agit bien d’un paquet de handler Nucleus.",
         "notAHandler": "Le script de l’archive ne déclare ni Game.GameName ni Game.ExecutableName : ce n’est pas un handler Nucleus.",
         "noGameName": "Le handler n’a pas de nom de jeu utilisable."
+      },
+      "reload": {
+        "keptPrevious": "{file} n’a pas été rechargé : ses dernières modifications contiennent une erreur. La version précédente reste utilisée jusqu’à ce que le fichier soit corrigé.\n\n{details}"
       }
     },
     "hub": {
@@ -2412,8 +2416,13 @@
       "reloadFailed": "{file} contient des erreurs et n’a pas pu être rechargé.",
       "scriptError": {
         "title": "Erreur dans le handler",
-        "message": "Le handler de jeu {file} contient une erreur.\n\nLe jeu concerné par ce handler n’apparaîtra pas dans la liste. Si le problème a été corrigé,\nessayez d’ajouter à nouveau le jeu.\n\nErreurs courantes :\n- Une erreur de syntaxe (par exemple une « , », un « ; » ou un « ] » manquant)\n- Un autre handler a le même GUID (il doit être unique !)\n- Du code mal placé ou mal formé\n(par exemple : les méthodes qui utilisent Context doivent se trouver dans la fonction Game.Play)\n\n{details}",
-        "atLine": "Erreur à la ligne {line} {message}"
+        "atLine": "Erreur à la ligne {line} {message}",
+        "messageReload": "Le handler de jeu {file} contient une erreur.\n\nLe jeu concerné par ce handler n’apparaîtra pas dans la liste tant que l’erreur n’est pas corrigée. Nucleus recharge le handler dès que le fichier est enregistré : le jeu revient alors tout seul, sans redémarrage. Si le handler vient d’être mis à jour depuis le hub, signalez le problème à son auteur.\n\nErreurs courantes :\n- Une erreur de syntaxe (par exemple une « , », un « ; » ou un « ] » manquant)\n- Un autre handler a le même GUID (il doit être unique !)\n- Du code mal placé ou mal formé\n(par exemple : les méthodes qui utilisent Context doivent se trouver dans la fonction Game.Play)\n\n{details}"
+      },
+      "invalid": {
+        "unreadable": "Le fichier du handler n’a pas pu être lu.",
+        "noGameName": "Le handler ne définit pas « Game.GameName ».",
+        "noGuid": "Le handler ne définit pas « Game.GUID »."
       }
     },
     "launch": {
@@ -2442,7 +2451,8 @@
         "changeWindowTitle": "ChangeWindowTitle : impossible de trouver le handle de la fenêtre principale de {process} (pid:{pid})"
       },
       "invalidZip": "Le fichier zip n’existe pas, est corrompu ou est dans un format non pris en charge.",
-      "errorReportFailed": "Nous avons tellement échoué que nous avons échoué en essayant d’enregistrer la raison de l’échec initial. Désolés."
+      "errorReportFailed": "Nous avons tellement échoué que nous avons échoué en essayant d’enregistrer la raison de l’échec initial. Désolés.",
+      "processNotFound": "Impossible de trouver le processus du jeu."
     },
     "crashReport": {
       "title": "Un problème est survenu :(",
@@ -2572,7 +2582,11 @@
       "windowsReset": "Fenêtres du jeu réinitialisées",
       "waitForReset": "Attendez la réinitialisation des fenêtres du jeu",
       "windowsMinimized": "Fenêtres du jeu réduites",
-      "windowsRestored": "Fenêtres du jeu restaurées"
+      "windowsRestored": "Fenêtres du jeu restaurées",
+      "lostProcessSearching": "Instance fermée : en attente du redémarrage du jeu…",
+      "instanceHookedAgain": "Instance de nouveau prise en charge",
+      "lostProcessRestarting": "Redémarrage de l’instance…",
+      "instanceRestartFailed": "L’instance n’a pas pu être redémarrée"
     },
     "overlay": {
       "device": {
