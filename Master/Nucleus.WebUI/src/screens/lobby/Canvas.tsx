@@ -4,6 +4,7 @@ import { T, useT, type MessageKey } from '@/i18n';
 import { deviceIcon, isGamepadKind, isKeyboardKind } from '@/lib/devices';
 import { Button, cn, Icon, MenuButton, Pane, useConfirm } from '@/ui';
 import type { LobbyCommands } from './commands';
+import { deviceDropAction, trayTakes } from './device-chips';
 import { dragKind, readDrop, startDrag, type Dragged } from './dnd';
 import { dropMakesGuest, hasGuestRoom, sameSpot, type WaitingSpot } from './join-rules';
 import {
@@ -181,6 +182,12 @@ export function Canvas(props: CanvasProps) {
     setLifted((l) => (l === p.id ? null : l));
     if (await commands.removePlayer(p)) announce(t('lobby.announce.playerLeft', { player: playerName(p) }));
   };
+  /** One device chip dropped on the tray: only that device leaves its player. */
+  const takeOutDevice = async (deviceId: string) => {
+    const device = deviceById(snap, deviceId);
+    if (!device || deviceDropAction(device, { kind: 'tray' }) !== 'unassign') return;
+    if (await commands.unassign(device.id)) announce(t('lobby.announce.deviceLeft', { device: device.name }));
+  };
 
   // ---------- Keyboard: pick up, place, take out, move focus ----------
   const moveFocus = (from: HTMLElement, step: number) => {
@@ -311,9 +318,16 @@ export function Canvas(props: CanvasProps) {
     startDrag(e, { kind: 'player', id: p.id });
     requestAnimationFrame(() => setDragging({ kind: 'player', id: p.id }));
   };
+  // A chip of a keyboard and mouse player: that device alone (dimmed once the browser took its drag image).
+  const deviceDragStart = (e: DragEvent<HTMLElement>, device: SetupDevice) => {
+    startDrag(e, { kind: 'device', id: device.id });
+    requestAnimationFrame(() => setDragging({ kind: 'device', id: device.id }));
+  };
 
   const draggingPlayer = dragging?.kind === 'player';
   const draggedDevice = dragging?.kind === 'device' ? deviceById(snap, dragging.id) : undefined;
+  // The tray takes a player, or a device dragged off its player (a chip).
+  const draggingToTray = trayTakes(dragging?.kind ?? null, draggedDevice);
   const waiting = trayDevices(snap);
   const hidden = hiddenInputs(snap);
   const keyboardsSupported = snap.capabilities.keyboard || snap.capabilities.multipleKeyboardsAndMice;
@@ -434,6 +448,8 @@ export function Canvas(props: CanvasProps) {
                       guestRoom={hasGuestRoom(p)}
                       waitingGuest={spot?.guestOf === p.id}
                       guestDrop={target === key && Boolean(draggedDevice && dropMakesGuest(p, draggedDevice))}
+                      draggingDeviceId={dragging?.kind === 'device' ? dragging.id : undefined}
+                      onDeviceDragStart={deviceDragStart}
                       onResize={(edge, steps) => void resizeBy(p, edge, steps)}
                       onBlur={() => {
                         if (resizing?.playerId === p.id) onResizing(null);
@@ -445,6 +461,9 @@ export function Canvas(props: CanvasProps) {
                       onDragLeave={leave(key)}
                       onDrop={drop((dragged, e) => {
                         if (dragged.kind === 'player' && dragged.id === p.id) return;
+                        // A chip back on its own player changes nothing.
+                        const device = dragged.kind === 'device' ? deviceById(snap, dragged.id) : undefined;
+                        if (device && deviceDropAction(device, { kind: 'player', playerId: p.id }) === 'none') return;
                         if (dropAsGuest(dragged, p)) return;
                         if (slot !== undefined) dropOnSlot(dragged, screen, slot);
                         else if (manual) {
@@ -482,19 +501,20 @@ export function Canvas(props: CanvasProps) {
 
       <div
         onDragOver={(e) => {
-          if (dragKind(e) !== 'player') return;
+          if (!trayTakes(dragKind(e), draggedDevice)) return;
           e.preventDefault();
           e.dataTransfer.dropEffect = 'move';
           if (target !== 'tray') setTarget('tray');
         }}
         onDragLeave={leave('tray')}
         onDrop={drop((dragged) => {
-          const p = dragged.kind === 'player' ? playerById(snap, dragged.id) : undefined;
+          if (dragged.kind === 'device') return void takeOutDevice(dragged.id);
+          const p = playerById(snap, dragged.id);
           if (p) void takeOut(p);
         })}
         className={cn(
           'grid gap-2.5 rounded-[2px] border-t border-line pt-3.5 outline-[1.5px] outline-offset-[6px] transition-[outline-color] duration-(--dur-1)',
-          draggingPlayer ? (target === 'tray' ? 'outline-dashed outline-ink' : 'outline-dashed outline-ink-3') : 'outline-transparent',
+          draggingToTray ? (target === 'tray' ? 'outline-dashed outline-ink' : 'outline-dashed outline-ink-3') : 'outline-transparent',
         )}
       >
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
@@ -502,6 +522,8 @@ export function Canvas(props: CanvasProps) {
           <p className="min-w-0 flex-1 truncate text-13 text-ink-3">
             {draggingPlayer ? (
               <b className="font-[650] text-ink">{t('lobby.tray.dropToRemove')}</b>
+            ) : draggingToTray && draggedDevice ? (
+              <b className="font-[650] text-ink">{t('lobby.tray.dropDeviceToRemove', { device: draggedDevice.name })}</b>
             ) : waiting.length > 0 ? (
               t(joinSentence(waiting))
             ) : keyboardsSupported && hidden.length > 0 ? (
@@ -547,7 +569,7 @@ export function Canvas(props: CanvasProps) {
             </Button>
           </div>
         </div>
-        <div className={cn('scroll-quiet -m-1.5 flex min-h-[64px] items-center gap-2 overflow-x-auto p-1.5', draggingPlayer && 'opacity-35')}>
+        <div className={cn('scroll-quiet -m-1.5 flex min-h-[64px] items-center gap-2 overflow-x-auto p-1.5', draggingToTray && 'opacity-35')}>
           {waiting.map((d) => (
             <WaitingDevice
               key={d.id}
