@@ -45,7 +45,7 @@ public sealed class GameMenuActions
         GameMetaInfo meta = game.MetaInfo;
         string contentFolder = Path.Combine(GameManager.Instance.GetAppContentPath(), game.GUID);
 
-        return new GameMenuContext
+        GameMenuContext context = new GameMenuContext
         {
             GameId = game.GUID,
             GameName = game.GameName ?? game.GUID,
@@ -77,6 +77,61 @@ public sealed class GameMenuActions
             CoverExists = File.Exists(GameAssetFiles.CoverPath(game.GUID)),
             ScreenshotsExist = Directory.Exists(GameAssetFiles.ScreenshotsFolder(game.GUID)),
         };
+
+        // Where each deletion goes, for the confirmation texts (only for the items the menu shows).
+        RecycleBins bins = new RecycleBins();
+        if (context.ContentFolderExists)
+        {
+            context.ContentFolderRecycleBin = bins.Has(contentFolder);
+        }
+
+        foreach (MenuFolderTarget folder in context.UserConfigFolders.Concat(context.UserSaveFolders).Concat(context.DocumentsConfigFolders).Concat(context.DocumentsSaveFolders))
+        {
+            folder.RecycleBin = bins.Has(folder.Path);
+        }
+
+        if (context.BackupNicknames.Count > 0)
+        {
+            context.BackupsRecycleBin = bins.Has(BackupRoot(game.GUID));
+        }
+
+        return context;
+    }
+
+    /// <summary>
+    /// <see cref="FileUtil.HasRecycleBin"/> asked once per drive (it queries the shell): whether a deletion there goes
+    /// to the recycle bin (<see cref="UserDataDeletion"/>) or is permanent.
+    /// </summary>
+    internal sealed class RecycleBins
+    {
+        private readonly Func<string, bool> query;
+        private readonly Dictionary<string, bool> byRoot = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+
+        public RecycleBins(Func<string, bool>? query = null)
+        {
+            this.query = query ?? FileUtil.HasRecycleBin;
+        }
+
+        public bool Has(string path)
+        {
+            string root;
+            try
+            {
+                root = Path.GetPathRoot(Path.GetFullPath(path)) ?? "";
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            if (!byRoot.TryGetValue(root, out bool has))
+            {
+                has = root.Length > 0 && query(root);
+                byRoot[root] = has;
+            }
+
+            return has;
+        }
     }
 
     /// <summary>Runs a menu item. Call on the UI thread.</summary>

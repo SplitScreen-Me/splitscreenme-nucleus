@@ -267,6 +267,7 @@
         "title": "Substituir o handler instalado?",
         "message": "{game} já tem um handler. Substituí-lo por {file}? Seus perfis e configurações serão mantidos.",
         "messageUnknownGame": "Já existe um handler instalado para este jogo. Substituí-lo por {file}? Seus perfis e configurações serão mantidos.",
+        "oldToRecycleBin": "A versão instalada irá para a Lixeira.",
         "confirm": "Substituir"
       },
       "installed": "Handler de {game} instalado",
@@ -1266,10 +1267,10 @@
     },
     "delete": {
       "title": "Excluir {profile}?",
-      "message": "{profile} será excluído permanentemente.",
-      "messageRenumbered": "{profile} será excluído permanentemente. Os perfis seguintes serão renumerados.",
-      "messageReset": "{profile} será excluído permanentemente. A configuração recomeça: todos os jogadores voltam para a área de espera.",
-      "messageRenumberedReset": "{profile} será excluído permanentemente. Os perfis seguintes serão renumerados. A configuração recomeça: todos os jogadores voltam para a área de espera.",
+      "toRecycleBin": "{profile} irá para a Lixeira.",
+      "permanent": "{profile} será excluído permanentemente: a unidade onde ele está não tem Lixeira.",
+      "renumbered": "Os perfis seguintes serão renumerados.",
+      "reset": "A configuração recomeça: todos os jogadores voltam para a área de espera.",
       "done": "{profile} excluído"
     },
     "settings": {
@@ -2063,7 +2064,8 @@
         "deleteContentFolder": {
           "label": "Excluir a pasta de conteúdo do jogo",
           "description": "Fecha os processos restantes do jogo e exclui as instâncias do jogo.",
-          "confirm": "Tem certeza de que deseja excluir '{folder}' e todo o seu conteúdo? Os processos de {game} em execução serão fechados antes."
+          "confirmRecycle": "Excluir '{folder}' e todo o seu conteúdo? A pasta irá para a Lixeira. Os processos de {game} em execução serão fechados antes.",
+          "confirmPermanent": "Excluir permanentemente '{folder}' e todo o seu conteúdo? Esta unidade não tem Lixeira. Os processos de {game} em execução serão fechados antes."
         },
         "openUserConfig": {
           "label": "Abrir a pasta de configuração (UserProfile)"
@@ -2089,7 +2091,10 @@
         "deleteDocumentsSave": {
           "label": "Excluir a pasta de dados salvos (Documentos)"
         },
-        "deleteFolderConfirm": "Tem certeza de que deseja excluir '{folder}' e todo o seu conteúdo?",
+        "deleteFolder": {
+          "confirmRecycle": "Excluir '{folder}' e todo o seu conteúdo? A pasta irá para a Lixeira.",
+          "confirmPermanent": "Excluir permanentemente '{folder}' e todo o seu conteúdo? Esta unidade não tem Lixeira."
+        },
         "nucleusFolder": "Nucleus: {name}",
         "openBackup": {
           "label": "Abrir a pasta de backup",
@@ -2097,7 +2102,8 @@
         },
         "deleteBackup": {
           "label": "Excluir a pasta de backup",
-          "confirm": "Deseja realmente excluir a pasta de backup de {nickname} para {game}?"
+          "confirmRecycle": "Excluir a pasta de backup de {nickname} para {game}? Ela irá para a Lixeira.",
+          "confirmPermanent": "Excluir permanentemente a pasta de backup de {nickname} para {game}? Esta unidade não tem Lixeira."
         },
         "useApiIndex": {
           "label": "Atribuir controles por índice",

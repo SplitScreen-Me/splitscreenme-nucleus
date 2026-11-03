@@ -267,6 +267,7 @@
         "title": "Replace the installed handler?",
         "message": "{game} already has a handler. Replace it with {file}? Your profiles and settings stay.",
         "messageUnknownGame": "A handler for this game is already installed. Replace it with {file}? Your profiles and settings stay.",
+        "oldToRecycleBin": "The installed version goes to the Recycle Bin.",
         "confirm": "Replace"
       },
       "installed": "{game} handler installed",
@@ -1221,10 +1222,10 @@
     },
     "delete": {
       "title": "Delete {profile}?",
-      "message": "{profile} is deleted for good.",
-      "messageRenumbered": "{profile} is deleted for good. The profiles after it are renumbered.",
-      "messageReset": "{profile} is deleted for good. The setup starts over: every player goes back to the tray.",
-      "messageRenumberedReset": "{profile} is deleted for good. The profiles after it are renumbered. The setup starts over: every player goes back to the tray.",
+      "toRecycleBin": "{profile} goes to the Recycle Bin.",
+      "permanent": "{profile} is deleted for good: its drive has no Recycle Bin.",
+      "renumbered": "The profiles after it are renumbered.",
+      "reset": "The setup starts over: every player goes back to the tray.",
       "done": "{profile} deleted"
     },
     "settings": {
@@ -2004,7 +2005,8 @@
         "deleteContentFolder": {
           "label": "Delete Game Content Folder",
           "description": "Closes leftover game processes and deletes the game instances.",
-          "confirm": "Are you sure you want to delete '{folder}' and all its contents? Running {game} processes are closed first."
+          "confirmRecycle": "Delete '{folder}' and all its contents? The folder goes to the Recycle Bin. Running {game} processes are closed first.",
+          "confirmPermanent": "Delete '{folder}' and all its contents for good? This drive has no Recycle Bin. Running {game} processes are closed first."
         },
         "openUserConfig": {
           "label": "Open UserProfile Config Path"
@@ -2030,7 +2032,10 @@
         "deleteDocumentsSave": {
           "label": "Delete Document Save Path"
         },
-        "deleteFolderConfirm": "Are you sure you want to delete '{folder}' and all its contents?",
+        "deleteFolder": {
+          "confirmRecycle": "Delete '{folder}' and all its contents? The folder goes to the Recycle Bin.",
+          "confirmPermanent": "Delete '{folder}' and all its contents for good? This drive has no Recycle Bin."
+        },
         "nucleusFolder": "Nucleus: {name}",
         "openBackup": {
           "label": "Open Backup Folder",
@@ -2038,7 +2043,8 @@
         },
         "deleteBackup": {
           "label": "Delete Backup Folder",
-          "confirm": "Do you really want to delete {nickname}'s backup folder of {game}?"
+          "confirmRecycle": "Delete {nickname}'s backup folder of {game}? It goes to the Recycle Bin.",
+          "confirmPermanent": "Delete {nickname}'s backup folder of {game} for good? This drive has no Recycle Bin."
         },
         "useApiIndex": {
           "label": "Assign Gamepads By Index",

@@ -267,6 +267,7 @@
         "title": "¿Reemplazar el handler instalado?",
         "message": "{game} ya tiene un handler. ¿Reemplazarlo por {file}? Tus perfiles y ajustes se conservan.",
         "messageUnknownGame": "Ya hay un handler instalado para este juego. ¿Reemplazarlo por {file}? Tus perfiles y ajustes se conservan.",
+        "oldToRecycleBin": "La versión instalada irá a la Papelera de reciclaje.",
         "confirm": "Reemplazar"
       },
       "installed": "Handler de {game} instalado",
@@ -1266,10 +1267,10 @@
     },
     "delete": {
       "title": "¿Eliminar {profile}?",
-      "message": "{profile} se eliminará definitivamente.",
-      "messageRenumbered": "{profile} se eliminará definitivamente. Los perfiles posteriores se volverán a numerar.",
-      "messageReset": "{profile} se eliminará definitivamente. La configuración empieza de cero: todos los jugadores vuelven a la bandeja.",
-      "messageRenumberedReset": "{profile} se eliminará definitivamente. Los perfiles posteriores se volverán a numerar. La configuración empieza de cero: todos los jugadores vuelven a la bandeja.",
+      "toRecycleBin": "{profile} irá a la Papelera de reciclaje.",
+      "permanent": "{profile} se eliminará definitivamente: su unidad no tiene Papelera de reciclaje.",
+      "renumbered": "Los perfiles posteriores se volverán a numerar.",
+      "reset": "La configuración empieza de cero: todos los jugadores vuelven a la bandeja.",
       "done": "{profile} eliminado"
     },
     "settings": {
@@ -2063,7 +2064,8 @@
         "deleteContentFolder": {
           "label": "Eliminar carpeta de contenido del juego",
           "description": "Cierra los procesos del juego que queden abiertos y elimina las instancias del juego.",
-          "confirm": "¿Seguro que quieres eliminar “{folder}” y todo su contenido? Primero se cierran los procesos de {game} en ejecución."
+          "confirmRecycle": "¿Eliminar “{folder}” y todo su contenido? La carpeta irá a la Papelera de reciclaje. Primero se cierran los procesos de {game} en ejecución.",
+          "confirmPermanent": "¿Eliminar definitivamente “{folder}” y todo su contenido? Esta unidad no tiene Papelera de reciclaje. Primero se cierran los procesos de {game} en ejecución."
         },
         "openUserConfig": {
           "label": "Abrir ruta de configuración en UserProfile"
@@ -2089,7 +2091,10 @@
         "deleteDocumentsSave": {
           "label": "Eliminar ruta de guardado en Documentos"
         },
-        "deleteFolderConfirm": "¿Seguro que quieres eliminar “{folder}” y todo su contenido?",
+        "deleteFolder": {
+          "confirmRecycle": "¿Eliminar “{folder}” y todo su contenido? La carpeta irá a la Papelera de reciclaje.",
+          "confirmPermanent": "¿Eliminar definitivamente “{folder}” y todo su contenido? Esta unidad no tiene Papelera de reciclaje."
+        },
         "nucleusFolder": "Nucleus: {name}",
         "openBackup": {
           "label": "Abrir carpeta de copias de seguridad",
@@ -2097,7 +2102,8 @@
         },
         "deleteBackup": {
           "label": "Eliminar carpeta de copias de seguridad",
-          "confirm": "¿Seguro que quieres eliminar la carpeta de copias de seguridad de {nickname} para {game}?"
+          "confirmRecycle": "¿Eliminar la carpeta de copias de seguridad de {nickname} para {game}? Irá a la Papelera de reciclaje.",
+          "confirmPermanent": "¿Eliminar definitivamente la carpeta de copias de seguridad de {nickname} para {game}? Esta unidad no tiene Papelera de reciclaje."
         },
         "useApiIndex": {
           "label": "Asignar mandos por índice",

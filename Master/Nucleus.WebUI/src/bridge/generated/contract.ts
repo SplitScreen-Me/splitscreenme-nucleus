@@ -11,7 +11,7 @@ export const protocolVersion = 1;
 /**
  * Hash of the contract this file was generated from. `app.hello` returns the host's: the UI refuses to run when they differ.
  */
-export const contractHash = '5446025e0a41502c';
+export const contractHash = '5b75d2b1c4464387';
 
 /** JSON-RPC error code of each kind of error the host returns. */
 export const bridgeErrorCodes = {
@@ -1124,6 +1124,10 @@ export interface ProfileSummary {
   autoPlay: boolean;
   /** Players, in order. */
   playerList: ProfilePlayer[];
+  /**
+   * Deleting the profile moves its file to the Recycle Bin. False when its drive has none: the deletion is permanent.
+   */
+  recycleBin: boolean;
 }
 
 /** Profiles of the current game were added, deleted or renamed. */

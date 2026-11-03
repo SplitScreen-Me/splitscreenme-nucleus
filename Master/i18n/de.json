@@ -261,6 +261,7 @@
         "title": "Installierten Handler ersetzen?",
         "message": "{game} hat bereits einen Handler. Durch {file} ersetzen? Deine Profile und Einstellungen bleiben erhalten.",
         "messageUnknownGame": "Für dieses Spiel ist bereits ein Handler installiert. Durch {file} ersetzen? Deine Profile und Einstellungen bleiben erhalten.",
+        "oldToRecycleBin": "Die installierte Version wird in den Papierkorb verschoben.",
         "confirm": "Ersetzen"
       },
       "installed": "Handler für {game} installiert",
@@ -1213,10 +1214,10 @@
     },
     "delete": {
       "title": "{profile} löschen?",
-      "message": "{profile} wird endgültig gelöscht.",
-      "messageRenumbered": "{profile} wird endgültig gelöscht. Die nachfolgenden Profile werden neu nummeriert.",
-      "messageReset": "{profile} wird endgültig gelöscht. Das Setup beginnt von vorn: Alle Spieler kommen zurück in den Wartebereich.",
-      "messageRenumberedReset": "{profile} wird endgültig gelöscht. Die nachfolgenden Profile werden neu nummeriert. Das Setup beginnt von vorn: Alle Spieler kommen zurück in den Wartebereich.",
+      "toRecycleBin": "{profile} wird in den Papierkorb verschoben.",
+      "permanent": "{profile} wird endgültig gelöscht: Sein Laufwerk hat keinen Papierkorb.",
+      "renumbered": "Die nachfolgenden Profile werden neu nummeriert.",
+      "reset": "Das Setup beginnt von vorn: Alle Spieler kommen zurück in den Wartebereich.",
       "done": "{profile} gelöscht"
     },
     "settings": {
@@ -1995,7 +1996,8 @@
         "deleteContentFolder": {
           "label": "Spiel-Inhaltsordner löschen",
           "description": "Schließt übrig gebliebene Spielprozesse und löscht die Spielinstanzen.",
-          "confirm": "Willst du „{folder}“ und seinen gesamten Inhalt wirklich löschen? Laufende Prozesse von {game} werden vorher geschlossen."
+          "confirmRecycle": "„{folder}“ und seinen gesamten Inhalt löschen? Der Ordner wird in den Papierkorb verschoben. Laufende Prozesse von {game} werden vorher geschlossen.",
+          "confirmPermanent": "„{folder}“ und seinen gesamten Inhalt endgültig löschen? Dieses Laufwerk hat keinen Papierkorb. Laufende Prozesse von {game} werden vorher geschlossen."
         },
         "openUserConfig": {
           "label": "UserProfile-Konfigurationspfad öffnen"
@@ -2021,7 +2023,10 @@
         "deleteDocumentsSave": {
           "label": "Dokumente-Speicherpfad löschen"
         },
-        "deleteFolderConfirm": "Willst du „{folder}“ und seinen gesamten Inhalt wirklich löschen?",
+        "deleteFolder": {
+          "confirmRecycle": "„{folder}“ und seinen gesamten Inhalt löschen? Der Ordner wird in den Papierkorb verschoben.",
+          "confirmPermanent": "„{folder}“ und seinen gesamten Inhalt endgültig löschen? Dieses Laufwerk hat keinen Papierkorb."
+        },
         "nucleusFolder": "Nucleus: {name}",
         "openBackup": {
           "label": "Sicherungsordner öffnen",
@@ -2029,7 +2034,8 @@
         },
         "deleteBackup": {
           "label": "Sicherungsordner löschen",
-          "confirm": "Willst du den Sicherungsordner von {nickname} für {game} wirklich löschen?"
+          "confirmRecycle": "Den Sicherungsordner von {nickname} für {game} löschen? Er wird in den Papierkorb verschoben.",
+          "confirmPermanent": "Den Sicherungsordner von {nickname} für {game} endgültig löschen? Dieses Laufwerk hat keinen Papierkorb."
         },
         "useApiIndex": {
           "label": "Gamepads nach Index zuweisen",

@@ -656,6 +656,8 @@ export interface MessageParamsMap {
   'features.fileDrop.replace.message': { file: ParamValue; game: ParamValue };
   /** A handler for this game is already installed. Replace it with {file}? Your profiles and settings stay. */
   'features.fileDrop.replace.messageUnknownGame': { file: ParamValue };
+  /** The installed version goes to the Recycle Bin. */
+  'features.fileDrop.replace.oldToRecycleBin': undefined;
   /** Replace the installed handler? */
   'features.fileDrop.replace.title': undefined;
   /** Drop a handler file: .nc, .zip or .js. */
@@ -984,12 +986,16 @@ export interface MessageParamsMap {
   'host.library.gameMenu.changeIcon.filters.imagesAndExecutables': undefined;
   /** Change Game Icon */
   'host.library.gameMenu.changeIcon.label': undefined;
-  /** Do you really want to delete {nickname}'s backup folder of {game}? */
-  'host.library.gameMenu.deleteBackup.confirm': { game: ParamValue; nickname: ParamValue };
+  /** Delete {nickname}'s backup folder of {game} for good? This drive has no Recycle Bin. */
+  'host.library.gameMenu.deleteBackup.confirmPermanent': { game: ParamValue; nickname: ParamValue };
+  /** Delete {nickname}'s backup folder of {game}? It goes to the Recycle Bin. */
+  'host.library.gameMenu.deleteBackup.confirmRecycle': { game: ParamValue; nickname: ParamValue };
   /** Delete Backup Folder */
   'host.library.gameMenu.deleteBackup.label': undefined;
-  /** Are you sure you want to delete '{folder}' and all its contents? Running {game} processes are closed first. */
-  'host.library.gameMenu.deleteContentFolder.confirm': { folder: ParamValue; game: ParamValue };
+  /** Delete '{folder}' and all its contents for good? This drive has no Recycle Bin. Running {game} processes ar... */
+  'host.library.gameMenu.deleteContentFolder.confirmPermanent': { folder: ParamValue; game: ParamValue };
+  /** Delete '{folder}' and all its contents? The folder goes to the Recycle Bin. Running {game} processes are cl... */
+  'host.library.gameMenu.deleteContentFolder.confirmRecycle': { folder: ParamValue; game: ParamValue };
   /** Closes leftover game processes and deletes the game instances. */
   'host.library.gameMenu.deleteContentFolder.description': undefined;
   /** Delete Game Content Folder */
@@ -998,8 +1004,10 @@ export interface MessageParamsMap {
   'host.library.gameMenu.deleteDocumentsConfig.label': undefined;
   /** Delete Document Save Path */
   'host.library.gameMenu.deleteDocumentsSave.label': undefined;
-  /** Are you sure you want to delete '{folder}' and all its contents? */
-  'host.library.gameMenu.deleteFolderConfirm': { folder: ParamValue };
+  /** Delete '{folder}' and all its contents for good? This drive has no Recycle Bin. */
+  'host.library.gameMenu.deleteFolder.confirmPermanent': { folder: ParamValue };
+  /** Delete '{folder}' and all its contents? The folder goes to the Recycle Bin. */
+  'host.library.gameMenu.deleteFolder.confirmRecycle': { folder: ParamValue };
   /** Delete UserProfile Config Path */
   'host.library.gameMenu.deleteUserConfig.label': undefined;
   /** Delete UserProfile Save Path */
@@ -2420,16 +2428,16 @@ export interface MessageParamsMap {
   'profiles.defaultTitle': { number: ParamValue };
   /** {profile} deleted */
   'profiles.delete.done': { profile: ParamValue };
-  /** {profile} is deleted for good. */
-  'profiles.delete.message': { profile: ParamValue };
-  /** {profile} is deleted for good. The profiles after it are renumbered. */
-  'profiles.delete.messageRenumbered': { profile: ParamValue };
-  /** {profile} is deleted for good. The profiles after it are renumbered. The setup starts over: every player go... */
-  'profiles.delete.messageRenumberedReset': { profile: ParamValue };
-  /** {profile} is deleted for good. The setup starts over: every player goes back to the tray. */
-  'profiles.delete.messageReset': { profile: ParamValue };
+  /** {profile} is deleted for good: its drive has no Recycle Bin. */
+  'profiles.delete.permanent': { profile: ParamValue };
+  /** The profiles after it are renumbered. */
+  'profiles.delete.renumbered': undefined;
+  /** The setup starts over: every player goes back to the tray. */
+  'profiles.delete.reset': undefined;
   /** Delete {profile}? */
   'profiles.delete.title': { profile: ParamValue };
+  /** {profile} goes to the Recycle Bin. */
+  'profiles.delete.toRecycleBin': { profile: ParamValue };
   /** Starts by itself */
   'profiles.manager.autoPlay': undefined;
   /** Delete {profile} */

@@ -267,6 +267,7 @@
         "title": "Remplacer le handler installé ?",
         "message": "{game} a déjà un handler. Le remplacer par {file} ? Vos profils et vos paramètres sont conservés.",
         "messageUnknownGame": "Un handler est déjà installé pour ce jeu. Le remplacer par {file} ? Vos profils et vos paramètres sont conservés.",
+        "oldToRecycleBin": "La version installée ira dans la Corbeille.",
         "confirm": "Remplacer"
       },
       "installed": "Handler de {game} installé",
@@ -1266,10 +1267,10 @@
     },
     "delete": {
       "title": "Supprimer {profile} ?",
-      "message": "{profile} sera définitivement supprimé.",
-      "messageRenumbered": "{profile} sera définitivement supprimé. Les profils suivants seront renumérotés.",
-      "messageReset": "{profile} sera définitivement supprimé. La configuration repart de zéro : tous les joueurs retournent dans la zone d’attente.",
-      "messageRenumberedReset": "{profile} sera définitivement supprimé. Les profils suivants seront renumérotés. La configuration repart de zéro : tous les joueurs retournent dans la zone d’attente.",
+      "toRecycleBin": "{profile} ira dans la Corbeille.",
+      "permanent": "{profile} sera définitivement supprimé : son lecteur n’a pas de Corbeille.",
+      "renumbered": "Les profils suivants seront renumérotés.",
+      "reset": "La configuration repart de zéro : tous les joueurs retournent dans la zone d’attente.",
       "done": "{profile} supprimé"
     },
     "settings": {
@@ -2063,7 +2064,8 @@
         "deleteContentFolder": {
           "label": "Supprimer le dossier de contenu du jeu",
           "description": "Ferme les processus du jeu restants et supprime les instances du jeu.",
-          "confirm": "Voulez-vous vraiment supprimer « {folder} » et tout son contenu ? Les processus de {game} en cours d’exécution seront d’abord fermés."
+          "confirmRecycle": "Supprimer « {folder} » et tout son contenu ? Le dossier ira dans la Corbeille. Les processus de {game} en cours d’exécution seront d’abord fermés.",
+          "confirmPermanent": "Supprimer définitivement « {folder} » et tout son contenu ? Ce lecteur n’a pas de Corbeille. Les processus de {game} en cours d’exécution seront d’abord fermés."
         },
         "openUserConfig": {
           "label": "Ouvrir le dossier de configuration (UserProfile)"
@@ -2089,7 +2091,10 @@
         "deleteDocumentsSave": {
           "label": "Supprimer le dossier de sauvegarde (Documents)"
         },
-        "deleteFolderConfirm": "Voulez-vous vraiment supprimer « {folder} » et tout son contenu ?",
+        "deleteFolder": {
+          "confirmRecycle": "Supprimer « {folder} » et tout son contenu ? Le dossier ira dans la Corbeille.",
+          "confirmPermanent": "Supprimer définitivement « {folder} » et tout son contenu ? Ce lecteur n’a pas de Corbeille."
+        },
         "nucleusFolder": "Nucleus : {name}",
         "openBackup": {
           "label": "Ouvrir le dossier des copies de secours",
@@ -2097,7 +2102,8 @@
         },
         "deleteBackup": {
           "label": "Supprimer le dossier des copies de secours",
-          "confirm": "Voulez-vous vraiment supprimer le dossier des copies de secours de {nickname} pour {game} ?"
+          "confirmRecycle": "Supprimer le dossier des copies de secours de {nickname} pour {game} ? Il ira dans la Corbeille.",
+          "confirmPermanent": "Supprimer définitivement le dossier des copies de secours de {nickname} pour {game} ? Ce lecteur n’a pas de Corbeille."
         },
         "useApiIndex": {
           "label": "Attribuer les manettes par index",

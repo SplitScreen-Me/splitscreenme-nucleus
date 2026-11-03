@@ -356,7 +356,9 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
         if (!overwrite && (titleExists || sameGameTitle != null))
         {
             string name = sameGame?.GameName ?? title;
-            throw new BridgeException(BridgeErrorKind.Conflict, I18n.T("host.handlers.errors.alreadyInstalled", new { game = name }), new { reason = "alreadyInstalled", gameId = sameGame?.GUID, gameName = name });
+            // recycleBin: replacing it moves the old script and its folder to the recycle bin (HandlerFiles, Nucleus 2.5).
+            throw new BridgeException(BridgeErrorKind.Conflict, I18n.T("host.handlers.errors.alreadyInstalled", new { game = name }),
+                new { reason = "alreadyInstalled", gameId = sameGame?.GUID, gameName = name, recycleBin = FileUtil.HasRecycleBin(handlers) });
         }
 
         return sameGameTitle != null && !string.Equals(sameGameTitle, title, StringComparison.OrdinalIgnoreCase) ? sameGameTitle : null;

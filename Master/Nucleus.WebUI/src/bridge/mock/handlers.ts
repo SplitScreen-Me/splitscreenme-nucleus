@@ -1,3 +1,4 @@
+import { BridgeError } from '../errors.ts';
 import type { BridgeHandlers } from '../generated/contract.ts';
 import type { MockContext } from '../transports/mock.ts';
 import { conflict, invalidParams } from './failures.ts';
@@ -48,7 +49,13 @@ export function createHandlersMock(context: MockContext, state: MockState): Brid
       if (!/\.(nc|zip|js)$/i.test(path)) invalidParams('Pick a handler file: .nc, .zip or .js.');
       const info = handlerInFile(path);
       if (!overwrite && findHandler(state, info.gameId)) {
-        conflict('alreadyInstalled', `A handler for ${info.gameName} is already installed.`);
+        // Like the host: the game, and whether the replaced files go to the Recycle Bin.
+        throw new BridgeError('conflict', `A handler for ${info.gameName} is already installed.`, {
+          reason: 'alreadyInstalled',
+          gameId: info.gameId,
+          gameName: info.gameName,
+          recycleBin: true,
+        });
       }
       return installHandler(context, state, path, info, { download: false });
     },

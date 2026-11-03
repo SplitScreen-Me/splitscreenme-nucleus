@@ -2,6 +2,7 @@
 import type { FileFilter, GameMenuItem, RunMenuActionRequest } from '../generated/contract.ts';
 import type { MockContext } from '../transports/mock.ts';
 import { invalidParams, notFound } from './failures.ts';
+import { NUCLEUS_FOLDER } from './fixtures.ts';
 import { STEAM_LANGUAGES } from './fixtures-settings.ts';
 import {
   downloadArtwork,
@@ -57,7 +58,7 @@ export function menuItems(state: MockState, game: MockGame): GameMenuItem[] {
           action('openContentFolder', 'Open content folder', { description: 'Folder holding the game instances.' }),
           action('deleteContentFolder', 'Delete content folder', {
             danger: true,
-            confirm: `Delete the content folder of ${summary.name}? The instances are rebuilt at the next launch.`,
+            confirm: `Delete '${NUCLEUS_FOLDER}\\content\\${summary.id}' and all its contents? The folder goes to the Recycle Bin. Running ${summary.name} processes are closed first.`,
           }),
         ]
       : []),
@@ -69,7 +70,8 @@ export function menuItems(state: MockState, game: MockGame): GameMenuItem[] {
               separator('backupsSeparator'),
               action('deleteBackups', 'Delete every backup', {
                 danger: true,
-                confirm: `Delete every save backup of ${summary.name}? This cannot be undone.`,
+                // As if the backups were on a drive without a Recycle Bin (a network share): the other wording.
+                confirm: `Delete every save backup of ${summary.name} for good? This drive has no Recycle Bin.`,
               }),
             ],
           }),
