@@ -130,7 +130,7 @@ namespace Nucleus.Gaming.Coop
             {
                 bool updateAvailable = previous?.GenericGameInfo?.UpdateAvailable ?? false;
                 GenericGameInfo info = GenericGameInfo.Load(file, new bool[] { false, updateAvailable }, reportScriptError: false);
-                return new HandlerInfo(file.FullName, file.Name, lastWrite, info, HandlerInfo.Describe(info));
+                return new HandlerInfo(file.FullName, file.Name, lastWrite, info, HandlerInfo.Describe(info), info?.ScriptErrorDetails);
             }
             catch (IOException e)
             {
@@ -202,7 +202,7 @@ namespace Nucleus.Gaming.Coop
 
                     //Broken: keep the version in use, report the error once.
                     bool sameError = previous != null && !previous.IsValid && previous.Error == parsed.Error;
-                    handlerFiles[parsed.FileFullPath] = new HandlerInfo(parsed.FileFullPath, parsed.FileName, parsed.LastWriteTimeUtc, previous?.GenericGameInfo, parsed.Error);
+                    handlerFiles[parsed.FileFullPath] = new HandlerInfo(parsed.FileFullPath, parsed.FileName, parsed.LastWriteTimeUtc, previous?.GenericGameInfo, parsed.Error, parsed.ErrorDetails);
 
                     if (!sameError)
                     {

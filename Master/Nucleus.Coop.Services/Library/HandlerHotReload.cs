@@ -198,7 +198,7 @@ internal sealed class HandlerHotReload : IDisposable
     {
         string title = I18n.T("engine.handlers.scriptError.title");
         string message = invalid.GenericGameInfo != null
-            ? I18n.T("host.handlers.reload.keptPrevious", new { file = invalid.FileName, details = invalid.Error })
+            ? I18n.T("host.handlers.reload.keptPrevious", new { file = invalid.FileName, details = invalid.ErrorDetails })
             : invalid.Error ?? I18n.T("engine.handlers.invalid.unreadable");
 
         //Not on the UI thread: the native fallback would block it.

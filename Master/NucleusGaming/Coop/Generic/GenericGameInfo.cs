@@ -379,7 +379,10 @@ namespace Nucleus.Gaming
         /// <summary>Why the script failed to run (the text of the "Error in handler" message), or null.</summary>
         public string ScriptError { get; private set; }
 
-        private static string DescribeScriptError(string fileName, Exception ex)
+        /// <summary>What is wrong in the script ("Error at line 12 ..."), without the explanation of <see cref="ScriptError"/>, or null.</summary>
+        public string ScriptErrorDetails { get; private set; }
+
+        private static string DescribeScriptError(Exception ex)
         {
             string details = ex.Message;
 
@@ -398,7 +401,7 @@ namespace Nucleus.Gaming
                 details = ex.Message;
             }
 
-            return T("engine.handlers.scriptError.messageReload", new { file = fileName, details });
+            return details;
         }
 
         /// <summary>
@@ -466,7 +469,8 @@ namespace Nucleus.Gaming
             }
             catch (Exception ex)
             {
-                ScriptError = DescribeScriptError(fileName, ex);
+                ScriptErrorDetails = DescribeScriptError(ex);
+                ScriptError = T("engine.handlers.scriptError.messageReload", new { file = fileName, details = ScriptErrorDetails });
                 LogManager.Log($"Error in handler {fileName}: {ex.Message}");
 
                 if (reportScriptError)

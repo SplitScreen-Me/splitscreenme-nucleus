@@ -63,7 +63,8 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
                 GameName = string.IsNullOrEmpty(i.GameName) ? null : i.GameName,
                 GameId = string.IsNullOrEmpty(i.GUID) ? null : i.GUID,
                 PreviousVersionInUse = i.GenericGameInfo != null && i.Error != null,
-                Error = i.Error ?? HandlerInfoError(i),
+                //With the previous version in use, only what is wrong: the full message says the game leaves the list.
+                Error = (i.GenericGameInfo != null && i.Error != null ? i.ErrorDetails : i.Error) ?? HandlerInfoError(i),
             })
             .ToList();
 

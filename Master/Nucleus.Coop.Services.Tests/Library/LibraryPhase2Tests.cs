@@ -247,6 +247,8 @@ public sealed class LibraryPhase2Tests : IDisposable
         Assert.True(error.PreviousVersionInUse);
         Assert.Equal(alpha, error.GameId);
         Assert.False(string.IsNullOrEmpty(error.Error));
+        // Only what is wrong: the full message says the game leaves the list, which is not true while the previous version runs.
+        Assert.DoesNotContain("will not appear in the list", error.Error);
 
         EngineTestHandlers.WriteScript(alphaJs, EngineTestHandlers.Script(alpha, "Alpha 3", "alpha.exe"), secondsLater: 15);
         Assert.Equal(HandlerReloadKind.Fixed, Assert.Single(HandlerHotReload.Describe(Refresh(), _ => true)).Kind);
@@ -271,6 +273,7 @@ public sealed class LibraryPhase2Tests : IDisposable
         Assert.Equal("Never.js", error.File);
         Assert.False(error.PreviousVersionInUse);
         Assert.Null(error.GameId);
+        Assert.Contains("will not appear in the list", error.Error);
     }
 
     private sealed class FakeEvents : IBridgeEvents

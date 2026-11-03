@@ -15,6 +15,7 @@ namespace Nucleus.Gaming.Coop.Generic
         private readonly string fileFullPath;
         private readonly DateTime lastWriteTimeUtc;
         private readonly string error;
+        private readonly string errorDetails;
 
         /// <summary>
         /// The parsed handler in use for this file, or null when the file never parsed. After an edit that broke the script
@@ -36,6 +37,12 @@ namespace Nucleus.Gaming.Coop.Generic
         /// <summary>Why the file as it is now can't be used (script error, no GUID or game name), or null.</summary>
         public string Error => error;
 
+        /// <summary>
+        /// The short form of <see cref="Error"/> for a script error ("Error at line 12 ..."), to show when the previous version
+        /// stays in use; otherwise the same text as <see cref="Error"/>.
+        /// </summary>
+        public string ErrorDetails => errorDetails ?? error;
+
         /// <summary>The file parsed without error and declares a game name and a GUID.</summary>
         public bool IsValid => error == null && genericGameInfo != null && !string.IsNullOrEmpty(genericGameInfo.GameName) && !string.IsNullOrEmpty(genericGameInfo.GUID);
 
@@ -47,13 +54,14 @@ namespace Nucleus.Gaming.Coop.Generic
         {
         }
 
-        public HandlerInfo(string fileFullPath, string fileName, DateTime lastWriteTimeUtc, GenericGameInfo genericGameInfo, string error)
+        public HandlerInfo(string fileFullPath, string fileName, DateTime lastWriteTimeUtc, GenericGameInfo genericGameInfo, string error, string errorDetails = null)
         {
             this.fileFullPath = fileFullPath;
             this.fileName = fileName;
             this.lastWriteTimeUtc = lastWriteTimeUtc;
             this.genericGameInfo = genericGameInfo;
             this.error = error;
+            this.errorDetails = errorDetails;
         }
 
         /// <summary>Why a parsed handler can't be used (script error, missing GUID or game name), or null.</summary>
