@@ -5,7 +5,7 @@ import { useT } from '@/i18n';
 import { useRun } from '@/lib/bridge-ui';
 import { LINKS } from '@/lib/links';
 import { useAppInfo } from '@/lib/live';
-import { Button, cn, Icon, Pane, Spinner, useConfirm, type IconName } from '@/ui';
+import { Button, ButtonLink, cn, Icon, Pane, Spinner, useConfirm, type IconName } from '@/ui';
 
 /** Versions, folders, maintenance actions and community links. */
 export function About() {
@@ -21,6 +21,7 @@ export function About() {
     { label: t('settings.about.links.faq'), url: LINKS.faq, icon: 'info' },
     { label: 'Discord', url: LINKS.discord, icon: 'discord' }, // i18n-ignore: brand name
     { label: t('settings.about.links.hub'), url: hubCatalogueUrl(info?.hubUrl || DEFAULT_HUB_URL), icon: 'compass' },
+    { label: 'Patreon', url: LINKS.patreon, icon: 'heart' }, // i18n-ignore: brand name
   ];
 
   const once = async (what: 'updates' | 'reload', call: () => Promise<unknown>, success: string) => {
@@ -90,6 +91,12 @@ export function About() {
           </Button>
         </ActionRow>
         <ArtworkRow disabled={info?.hubOnline === false} />
+        <ActionRow label={t('settings.about.supporters.label')} description={t('settings.about.supporters.description')}>
+          <ButtonLink to="/settings/supporters" variant="ghost" size="sm" data-nav>
+            <Icon name="heart" />
+            {t('settings.about.supporters.button')}
+          </ButtonLink>
+        </ActionRow>
         {info && !info.isAdmin && (
           <ActionRow label={t('settings.about.admin.label')} description={t('settings.about.admin.description')}>
             <Button variant="ghost" size="sm" onClick={() => void restartAsAdmin()} data-nav>

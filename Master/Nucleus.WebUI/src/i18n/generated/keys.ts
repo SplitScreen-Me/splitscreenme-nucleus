@@ -1618,6 +1618,8 @@ export interface MessageParamsMap {
   'host.setup.steps.options': undefined;
   /** Position players */
   'host.setup.steps.players': undefined;
+  /** The supporters list can't be downloaded right now. Check your internet connection and try again. */
+  'host.supporters.errors.unavailable': undefined;
   /** {downloads} downloads */
   'hub.downloadCount': { count: number; downloads: ParamValue };
   /** The Hub is busy right now. Try again in a moment. */
@@ -2960,6 +2962,12 @@ export interface MessageParamsMap {
   'settings.about.reload.done': undefined;
   /** Reload handlers */
   'settings.about.reload.label': undefined;
+  /** Roll the credits */
+  'settings.about.supporters.button': undefined;
+  /** Nucleus Co-op stays free thanks to the people who support it on Patreon. */
+  'settings.about.supporters.description': undefined;
+  /** Patreon supporters */
+  'settings.about.supporters.label': undefined;
   /** Free, open-source split-screen for PC games. Made by players, for couches everywhere. */
   'settings.about.tagline': undefined;
   /** About */
@@ -3038,6 +3046,42 @@ export interface MessageParamsMap {
   'settings.players.title': undefined;
   /** Undo changes */
   'settings.players.undo': undefined;
+  /** {count} supporters */
+  'settings.supporters.count': { count: number };
+  /** Supporters */
+  'settings.supporters.crumb': undefined;
+  /** The supporters list is not available */
+  'settings.supporters.errorTitle': undefined;
+  /** Nucleus Co-op is free and open source. These people help keep it that way. */
+  'settings.supporters.intro': undefined;
+  /** Keyboard: <b>{pause}</b> pauses, <b>{mute}</b> mutes, <b>{back}</b> goes back */
+  'settings.supporters.keys': { back: ParamValue; mute: ParamValue; pause: ParamValue };
+  /** Keyboard: <b>{mute}</b> mutes, <b>{back}</b> goes back */
+  'settings.supporters.keysStill': { back: ParamValue; mute: ParamValue };
+  /** Loading the supporters… */
+  'settings.supporters.loading': undefined;
+  /** Music: {link} */
+  'settings.supporters.musicCredit': { link: ParamValue };
+  /** Mute the music */
+  'settings.supporters.mute': undefined;
+  /** Mute */
+  'settings.supporters.muteShort': undefined;
+  /** Support Nucleus Co-op on Patreon */
+  'settings.supporters.patreon': undefined;
+  /** Paused */
+  'settings.supporters.paused': undefined;
+  /** Roll again */
+  'settings.supporters.replay': undefined;
+  /** Offline: list saved on {date} */
+  'settings.supporters.savedCopy': { date: ParamValue };
+  /** ♥♥ THANK YOU ♥♥ */
+  'settings.supporters.thanks': undefined;
+  /** Patreon Supporters */
+  'settings.supporters.title': undefined;
+  /** Play the music */
+  'settings.supporters.unmute': undefined;
+  /** Music */
+  'settings.supporters.unmuteShort': undefined;
   /** Settings */
   'settings.title': undefined;
   /** Blocking */
@@ -3148,6 +3192,20 @@ export interface MessageParamsMap {
   'shell.hintBar.label': undefined;
   /** Nucleus Co-op {version} */
   'shell.hintBar.version': { version: ParamValue };
+  /** News from SplitScreen.Me: {messages} */
+  'shell.news.announcement': { messages: ParamValue };
+  /** Hide these {count} messages until something new is posted */
+  'shell.news.dismiss': { count: number };
+  /** News from SplitScreen.Me */
+  'shell.news.label': undefined;
+  /** Learn more: {message} */
+  'shell.news.learnMoreLabel': { message: ParamValue };
+  /** {index}/{count} */
+  'shell.news.position': { count: ParamValue; index: ParamValue };
+  /** Important */
+  'shell.news.severity.critical': undefined;
+  /** Warning */
+  'shell.news.severity.warning': undefined;
   /** Back to library */
   'shell.notFound.backToLibrary': undefined;
   /** Not found */
@@ -3210,6 +3268,8 @@ export interface MessageParamsMap {
   'shell.palette.settings.layout': undefined;
   /** Players: nicknames and Steam IDs */
   'shell.palette.settings.players': undefined;
+  /** Patreon supporters: the credits */
+  'shell.palette.settings.supporters': undefined;
   /** Downloads */
   'shell.rail.downloads': undefined;
   /** Get games */
@@ -3337,4 +3397,4 @@ export interface MessageParamsMap {
 }
 
 /** Strings with tags (`<kbd>`, `<b>`...): render them with `<T>` to keep their markup; `t()` drops it. */
-export type RichMessageKey = 'catalog.offlineCopy' | 'downloads.row.statusWhen' | 'features.addGame.chooser.message' | 'handler.action.reportProblem' | 'handler.comments.title' | 'handler.steps.seatTip' | 'lobby.canvas.seats' | 'lobby.keys.help' | 'lobby.keys.helpGuests' | 'lobby.keys.waiting' | 'profiles.manager.nextProfileSaveOff' | 'profiles.manager.nextProfileSaveOn' | 'session.idle.lastLaunchFailed' | 'session.instance.stepDone' | 'session.instance.stepPending' | 'session.preview.caption' | 'session.preview.captionPrimary';
+export type RichMessageKey = 'catalog.offlineCopy' | 'downloads.row.statusWhen' | 'features.addGame.chooser.message' | 'handler.action.reportProblem' | 'handler.comments.title' | 'handler.steps.seatTip' | 'lobby.canvas.seats' | 'lobby.keys.help' | 'lobby.keys.helpGuests' | 'lobby.keys.waiting' | 'profiles.manager.nextProfileSaveOff' | 'profiles.manager.nextProfileSaveOn' | 'session.idle.lastLaunchFailed' | 'session.instance.stepDone' | 'session.instance.stepPending' | 'session.preview.caption' | 'session.preview.captionPrimary' | 'settings.supporters.keys' | 'settings.supporters.keysStill';

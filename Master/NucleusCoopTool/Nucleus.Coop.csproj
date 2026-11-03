@@ -329,6 +329,10 @@
     <Content Include="gui\icons\default.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <!-- Music of the Patreon supporters credits (Settings > About), played by the web UI from the assets virtual host. -->
+    <Content Include="gui\audio\patreon_credits.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="gui\gamepads\Playstation\b1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

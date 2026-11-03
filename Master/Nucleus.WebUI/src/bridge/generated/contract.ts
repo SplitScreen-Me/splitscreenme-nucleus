@@ -11,7 +11,7 @@ export const protocolVersion = 1;
 /**
  * Hash of the contract this file was generated from. `app.hello` returns the host's: the UI refuses to run when they differ.
  */
-export const contractHash = '47e9bef529eae88d';
+export const contractHash = '5446025e0a41502c';
 
 /** JSON-RPC error code of each kind of error the host returns. */
 export const bridgeErrorCodes = {
@@ -1724,6 +1724,20 @@ export interface SetupStep {
   title: string;
 }
 
+/** Answer to `supporters.get`. */
+export interface SupportersList {
+  /** Names, plain text, in the order of the published list. Never translated: they are data. */
+  names: string[];
+  /** True when the download failed and the names come from the copy saved by an earlier download. */
+  fromCache: boolean;
+  /** When that copy was saved (UTC); set when `SupportersList.fromCache` is true. */
+  savedAt?: IsoDateString;
+  /**
+   * URL of the credits music on the assets virtual host (`gui\audio\patreon_credits.mp3`), or null when the file is missing.
+   */
+  musicUrl?: string;
+}
+
 /** One invalid field returned by a save operation. */
 export interface ValidationError {
   /**
@@ -1952,6 +1966,10 @@ export interface BridgeMethods {
   'setup.toggleExpand': { params: PlayerRequest; result: SetupSnapshot };
   /** Removes a device from its player and sends it back to the tray. */
   'setup.unassign': { params: DeviceRequest; result: SetupSnapshot };
+  /**
+   * The supporters' names: downloaded (and saved for later), else the last saved copy. `unavailable` when the list can't be downloaded and no copy was saved yet.
+   */
+  'supporters.get': { params: void; result: SupportersList };
   /** Closes the window and quits the app (a running session is stopped first). */
   'window.close': { params: void; result: void };
   /** Current state of the window. */
@@ -2197,6 +2215,15 @@ export interface BridgeHandlers {
     unassign: (params: DeviceRequest) => Awaitable<SetupSnapshot>;
   };
   /**
+   * The Patreon supporters credits (Settings > About > Supporters). The host downloads the list, because the UI's Content-Security-Policy only lets it reach the hub, and keeps a copy for offline starts.
+   */
+  supporters: {
+    /**
+     * The supporters' names: downloaded (and saved for later), else the last saved copy. `unavailable` when the list can't be downloaded and no copy was saved yet.
+     */
+    get: () => Awaitable<SupportersList>;
+  };
+  /**
    * The frameless host window. Dragging is done in CSS with `app-region: drag`. The native title stays "Nucleus Co-op" (other code finds the window by that title).
    */
   window: {
@@ -2310,6 +2337,9 @@ export const bridgeServices = {
     setUseApiIndex: { params: true },
     toggleExpand: { params: true },
     unassign: { params: true },
+  },
+  supporters: {
+    get: { params: false },
   },
   window: {
     close: { params: false },

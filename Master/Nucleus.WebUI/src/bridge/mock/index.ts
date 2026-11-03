@@ -12,6 +12,7 @@ import { createSessionMock } from './session.ts';
 import { createSettingsMock } from './settings.ts';
 import { createSetupMock } from './setup.ts';
 import { createMockState } from './state.ts';
+import { createSupportersMock } from './supporters.ts';
 import { createWindowMock } from './window.ts';
 
 export interface MockBridgeOptions extends MockTransportOptions {
@@ -39,6 +40,7 @@ export function createMockBridgeTransport({ notices = readNoticesFlag(), ...opti
       session: createSessionMock(context, state),
       settings: createSettingsMock(context, state),
       setup: createSetupMock(context, state),
+      supporters: createSupportersMock(),
       window: createWindowMock(context),
     },
     options,

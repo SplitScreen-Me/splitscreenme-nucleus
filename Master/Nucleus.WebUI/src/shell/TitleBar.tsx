@@ -6,6 +6,7 @@ import { isSessionLive, useSessionSnapshot, useSetupSnapshot, useWindowState } f
 import { useI18n, useT } from '@/i18n';
 import { cn, Icon, Kbd, Logo, playerClass } from '@/ui';
 import { useChromeState } from './chrome';
+import { NewsAnnouncer, NewsTicker, useNewsTicker } from './NewsTicker';
 
 /** Frameless title bar: the drag region of the window. Controls opt out with app-no-drag. */
 export function TitleBar({ onOpenPalette }: { onOpenPalette: () => void }) {
@@ -18,13 +19,23 @@ export function TitleBar({ onOpenPalette }: { onOpenPalette: () => void }) {
     document.title = last ? t('shell.titleBar.documentTitle', { screen: last }) : 'Nucleus Co-op';
   }, [last, t]);
 
+  // The site's news sit between the breadcrumb and the search box: the title bar keeps its height, so news arriving
+  // in the middle of a pad move shift nothing on the stage.
+  const news = useNewsTicker();
+  const showNews = news.items.length > 0;
+
   // Out of pad reach (data-nav="off"): window buttons (Close!), chips and links that Y, LB / RB and B already cover.
+  // The news buttons are the exception: up from the rail reaches them.
   return (
-    <header data-nav="off" className="app-drag flex min-w-0 items-center gap-4 pl-3.5 select-none [grid-area:title]">
-      <Link to="/library" className="app-no-drag shrink-0 rounded-ctl no-underline" aria-label={t('shell.titleBar.home')}>
+    <header className="app-drag flex min-w-0 items-center gap-4 pl-3.5 select-none [grid-area:title]">
+      <Link to="/library" data-nav="off" className="app-no-drag shrink-0 rounded-ctl no-underline" aria-label={t('shell.titleBar.home')}>
         <Logo />
       </Link>
-      <nav aria-label={t('shell.titleBar.breadcrumb')} className="flex max-w-[34%] min-w-0 shrink-0 items-center gap-1.5 text-small text-ink-3">
+      <nav
+        data-nav="off"
+        aria-label={t('shell.titleBar.breadcrumb')}
+        className={cn('flex min-w-0 shrink-0 items-center gap-1.5 text-small text-ink-3', showNews ? 'max-w-[26%]' : 'max-w-[34%]')}
+      >
         {crumbs.map((c, i) => (
           <Fragment key={`${c.label}-${i}`}>
             <Icon name="chev-r" className="size-3.5" />
@@ -40,18 +51,27 @@ export function TitleBar({ onOpenPalette }: { onOpenPalette: () => void }) {
           </Fragment>
         ))}
       </nav>
+      <NewsAnnouncer items={news.items} />
+      {showNews && <NewsTicker news={news} className="max-w-[640px] min-w-[220px] flex-[1_1_0]" />}
       <button
         type="button"
+        data-nav="off"
         data-command-palette
         onClick={onOpenPalette}
-        className="app-no-drag mx-auto flex h-8 w-[min(420px,34vw)] min-w-[150px] shrink items-center gap-2.5 rounded-ctl border-0 bg-pane pr-2.5 pl-3 text-small text-ink-3 hover:bg-pane-2 hover:text-ink-2"
+        className={cn(
+          'app-no-drag flex h-8 min-w-[150px] shrink items-center gap-2.5 rounded-ctl border-0 bg-pane pr-2.5 pl-3 text-small text-ink-3 hover:bg-pane-2 hover:text-ink-2',
+          // With news in a narrow window the search box keeps its icon and shortcut; its label stays for screen readers.
+          showNews ? 'ml-auto w-[min(300px,22vw)] max-[1280px]:w-auto max-[1280px]:min-w-0' : 'mx-auto w-[min(420px,34vw)]',
+        )}
       >
         <Icon name="search" className="size-4" />
-        <span className="truncate">{t('shell.titleBar.search')}</span>
+        <span className={cn('truncate', showNews && 'max-[1280px]:sr-only')}>{t('shell.titleBar.search')}</span>
         <Kbd className="ml-auto h-5 text-11">Ctrl K</Kbd>
       </button>
-      <DeviceTray />
-      <WindowControls />
+      <div data-nav="off" className="contents">
+        <DeviceTray />
+        <WindowControls />
+      </div>
     </header>
   );
 }

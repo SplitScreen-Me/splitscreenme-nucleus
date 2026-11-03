@@ -42,6 +42,7 @@ WinForms detail: after a restore from maximized, WinForms re-applies its stashed
 |---|---|
 | SDK | Microsoft.Web.WebView2 1.0.4191.47 (Nucleus.Coop packages.config and Nucleus.Bridge PackageReference use the same version) |
 | User data folder | `webview\ui` (the removed legacy hub view used `webview\cache` with browser extensions, and older installs may still have it; two environments with different options cannot share a folder) |
+| Browser arguments | `--autoplay-policy=no-user-gesture-required` (the supporters credits start their music when opened with a gamepad, and pad presses are not user gestures), plus `--remote-debugging-port` in Debug (below) |
 | UI | `https://ui.nucleus.example/` → `webui\` (access: same origin only) |
 | Assets | `https://assets.nucleus.example/` → `gui\` (covers, screenshots, icons; CORS allowed so canvas can read pixels) |
 | Handler images | `https://handlers.nucleus.example/` → `handlers\` (images in `<img>`; CORS reads denied) |

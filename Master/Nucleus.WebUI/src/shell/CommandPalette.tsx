@@ -51,6 +51,7 @@ const SETTINGS: FixedEntry[] = [
   { id: 'set-audio', label: 'shell.palette.settings.audio', icon: 'speaker', to: '/settings#audio' },
   { id: 'set-layout', label: 'shell.palette.settings.layout', icon: 'layers', to: '/settings#layout' },
   { id: 'set-about', label: 'shell.palette.settings.about', icon: 'info', to: '/settings#about' },
+  { id: 'set-supporters', label: 'shell.palette.settings.supporters', icon: 'heart', to: '/settings/supporters' },
 ];
 
 /** Ctrl K: jump to a screen, a game in the library, a handler on the Hub or a setting. */

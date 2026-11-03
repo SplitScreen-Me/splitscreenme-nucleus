@@ -16,6 +16,7 @@ const CatalogScreen = lazy(() => import('@/screens/catalog/CatalogScreen'));
 const HandlerScreen = lazy(() => import('@/screens/catalog/HandlerScreen'));
 const DownloadsScreen = lazy(() => import('@/screens/downloads/DownloadsScreen'));
 const SettingsScreen = lazy(() => import('@/screens/settings/SettingsScreen'));
+const SupportersScreen = lazy(() => import('@/screens/settings/SupportersScreen'));
 
 // Host data is pushed: events refetch what they make stale (see eventInvalidations). Host errors are not
 // transient, so bridge queries are not retried. Bridge calls never leave the PC, so they run whatever
@@ -41,6 +42,7 @@ const router = createHashRouter([
       { path: 'games/:handlerId', element: <HandlerScreen /> },
       { path: 'downloads', element: <DownloadsScreen /> },
       { path: 'settings', element: <SettingsScreen /> },
+      { path: 'settings/supporters', element: <SupportersScreen /> },
       { path: '*', element: <NotFound /> },
     ],
   },

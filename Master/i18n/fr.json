@@ -175,7 +175,8 @@
         "gamepad": "Raccourcis manette et type de manette",
         "audio": "Audio : périphérique de lecture de chaque instance",
         "layout": "Disposition : grille personnalisée, arrière-plan, fusion des fenêtres",
-        "about": "À propos, dossier des handlers, mises à jour"
+        "about": "À propos, dossier des handlers, mises à jour",
+        "supporters": "Soutiens Patreon : le générique"
       }
     },
     "notFound": {
@@ -189,6 +190,19 @@
       "message": "Nucleus Co-op fonctionne toujours. Revenez à la bibliothèque et réessayez ; si le problème se reproduit, copiez les détails ci-dessous dans un rapport de bug.",
       "unknownError": "Erreur inconnue",
       "backToLibrary": "Retour à la bibliothèque"
+    },
+    "news": {
+      "label": "Actualités de SplitScreen.Me",
+      "announcement": "Actualités de SplitScreen.Me : {messages}",
+      "severity": {
+        "warning": "Avertissement",
+        "critical": "Important"
+      },
+      "position": "{index}/{count}",
+      "learnMoreLabel": "En savoir plus : {message}",
+      "dismiss_one": "Masquer ce message jusqu’à la prochaine nouveauté",
+      "dismiss_many": "Masquer ces {count} messages jusqu’à la prochaine nouveauté",
+      "dismiss_other": "Masquer ces {count} messages jusqu’à la prochaine nouveauté"
     }
   },
   "ui": {
@@ -1688,7 +1702,34 @@
         "docs": "Documentation",
         "faq": "FAQ",
         "hub": "Le Hub"
+      },
+      "supporters": {
+        "label": "Soutiens Patreon",
+        "description": "Nucleus Co-op reste gratuit grâce aux personnes qui le soutiennent sur Patreon.",
+        "button": "Lancer le générique"
       }
+    },
+    "supporters": {
+      "crumb": "Soutiens",
+      "title": "Soutiens Patreon",
+      "intro": "Nucleus Co-op est libre et gratuit. Ces personnes l’aident à le rester.",
+      "count_one": "{count} soutien",
+      "count_many": "{count} soutiens",
+      "count_other": "{count} soutiens",
+      "thanks": "♥♥ MERCI ♥♥",
+      "patreon": "Soutenir Nucleus Co-op sur Patreon",
+      "musicCredit": "Musique : {link}",
+      "replay": "Relancer le générique",
+      "mute": "Couper la musique",
+      "unmute": "Lancer la musique",
+      "muteShort": "Couper le son",
+      "unmuteShort": "Musique",
+      "paused": "En pause",
+      "savedCopy": "Hors ligne : liste enregistrée le {date}",
+      "loading": "Chargement des soutiens…",
+      "errorTitle": "La liste des soutiens n’est pas disponible",
+      "keys": "Clavier : <b>{pause}</b> pour mettre en pause, <b>{mute}</b> pour couper le son, <b>{back}</b> pour revenir",
+      "keysStill": "Clavier : <b>{mute}</b> pour couper le son, <b>{back}</b> pour revenir"
     }
   },
   "host": {
@@ -2364,6 +2405,11 @@
         "selectFile": "Sélectionner un fichier",
         "selectFolder": "Sélectionner un dossier",
         "allFiles": "Tous les fichiers"
+      }
+    },
+    "supporters": {
+      "errors": {
+        "unavailable": "Impossible de télécharger la liste des soutiens pour le moment. Vérifiez votre connexion Internet et réessayez."
       }
     }
   },
