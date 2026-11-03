@@ -78,7 +78,7 @@ const GAME_SETUPS: Readonly<Record<string, Partial<GameSetupFixture>>> = {
     options: [
       { key: 'password', name: 'Seamless Co-op password', description: 'Every instance uses it to find the host.', kind: 'text', choices: [], text: 'tarnished' },
       { key: 'language', name: 'Game language', description: 'Applied to every instance.', kind: 'choice', choices: choices(['English', 'Français', 'Deutsch', 'Español', 'Italiano', '日本語']), selectedIndex: 0 },
-      { key: 'modLoader', name: 'Mod Loader', description: "Loads mods from the game's mods folder.", kind: 'choice', choices: choices(['Disabled', 'Enabled']), selectedIndex: 1 },
+      { key: 'modLoader', name: 'Mod Loader', description: "Loads mods from the game's mods folder. Get it on [Nexus Mods]{https://www.nexusmods.com/eldenring/mods/117}.", kind: 'choice', choices: choices(['Disabled', 'Enabled']), selectedIndex: 1 },
       { key: 'erscSettings', name: 'Seamless Co-op settings', description: 'Edited in ersc_settings.ini: the handler default is used.', kind: 'unsupported', choices: [] },
     ],
     mod: { name: 'Seamless Co-op', file: 'ersc.dll' },

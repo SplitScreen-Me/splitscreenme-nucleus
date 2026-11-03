@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { LinkifiedText } from '@/components/HandlerNotes';
 import type { OptionChoice, SetupCustomStep, SetupOption, SetupSnapshot } from '@/bridge';
 import { useT } from '@/i18n';
 import { cn, Field, Icon, Pane, Segmented, Select } from '@/ui';
@@ -41,7 +42,11 @@ function OptionRow({ option: o, commands }: { option: SetupOption; commands: Lob
         <label htmlFor={o.kind === 'unsupported' ? undefined : id} id={`${id}-label`} className="block text-16 font-[650]">
           {o.name}
         </label>
-        {o.description && <p className="mt-0.5 text-13 leading-[1.45] text-ink-3">{o.description}</p>}
+        {o.description && (
+          <p className="mt-0.5 text-13 leading-[1.45] text-ink-3">
+            <LinkifiedText>{o.description}</LinkifiedText>
+          </p>
+        )}
       </div>
       <div className="min-w-0 justify-self-stretch">
         {o.kind === 'choice' &&
