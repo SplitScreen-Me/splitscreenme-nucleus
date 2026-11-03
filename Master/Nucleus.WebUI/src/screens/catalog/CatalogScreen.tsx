@@ -217,7 +217,7 @@ export default function CatalogScreen() {
                     )}
                   >
                     <span>{genreLabel(genre)}</span>
-                    <span className="data text-small text-ink-3">{format.number(countWith(index, state, { genre }, 'genre'))}</span>
+                    <span className="data text-small text-ink-3">{format.number(countWith(index, state, { genre }))}</span>
                   </button>
                 </li>
               ))}
