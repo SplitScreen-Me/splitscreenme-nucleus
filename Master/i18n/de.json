@@ -124,7 +124,11 @@
     "skipToContent": "Zum Inhalt springen",
     "offlineBanner": {
       "title": "Der Hub ist offline.",
-      "message": "Deine Spiele funktionieren weiter; Handler kannst du erst wieder installieren und aktualisieren, wenn er wieder online ist."
+      "message": "Deine Spiele funktionieren weiter; Handler kannst du erst wieder installieren und aktualisieren, wenn er wieder online ist.",
+      "retry": "Jetzt erneut versuchen",
+      "checking": "Wird geprüft…",
+      "stillOffline": "Immer noch offline. Nucleus versucht es alle 30 Sekunden von selbst.",
+      "backOnline": "Der Hub ist wieder online."
     },
     "hintBar": {
       "label": "Steuerung",
@@ -997,7 +1001,8 @@
       "resizingBottomRight": "Größe von Spieler {number}, {name} wird geändert: {width} × {height}. Pfeiltasten verschieben die Ecke unten rechts, X wechselt die Ecke, Enter zum Abschließen.",
       "resizingTopLeft": "Größe von Spieler {number}, {name} wird geändert: {width} × {height}. Pfeiltasten verschieben die Ecke oben links, X wechselt die Ecke, Enter zum Abschließen.",
       "dropGuest": "In dieser Kopie mitspielen",
-      "dropGuestNote": "Lass den Controller los, um die Kopie dieses Spielers zu teilen"
+      "dropGuestNote": "Lass den Controller los, um die Kopie dieses Spielers zu teilen",
+      "deviceChip": "{device}: ziehen, um nur dieses Gerät zu verschieben"
     },
     "tray": {
       "title": "Warten auf Beitritt",
@@ -1029,7 +1034,8 @@
         "pressStart": "Drück Start zum Beitreten",
         "vibrateLabel": "{device} vibrieren lassen",
         "vibrateHint": "Vibrieren lassen, um es zu erkennen"
-      }
+      },
+      "dropDeviceToRemove": "Hier ablegen, um {device} rauszunehmen"
     },
     "players": {
       "title": "Spieler",
@@ -1079,7 +1085,8 @@
       "joined": "{device} beigetreten: {player}, Spieler {number}.",
       "controllerJoined": "Ein Controller ist beigetreten: {player}, Spieler {number}.",
       "guestJoined": "{device} spielt jetzt in der Kopie von {player} mit.",
-      "controllerJoinedCopy": "Ein Controller spielt jetzt in der Kopie von {player} mit."
+      "controllerJoinedCopy": "Ein Controller spielt jetzt in der Kopie von {player} mit.",
+      "deviceLeft": "{device} ist zurück im Wartebereich."
     },
     "deviceLost": {
       "namedPlayer": "{nickname} (Spieler {number})",
@@ -1114,7 +1121,8 @@
       "introFromProfile": "Der Handler-Autor bietet diese Auswahl an. Sie gilt für jede Kopie von {game} und stammt aus dem geladenen Profil.",
       "empty": "Dieser Handler hat keine Option, die du hier ändern kannst.",
       "choose": "Auswählen…",
-      "unsupported": "Verwendet den Standardwert des Handlers"
+      "unsupported": "Verwendet den Standardwert des Handlers",
+      "outdated": "Dieses Profil wurde mit anderen Handler-Optionen gespeichert. Neue Optionen haben ihren Standardwert bekommen; prüf sie vor dem Spielen."
     },
     "customStep": {
       "required": "Wähl eine Option, um fortzufahren.",
@@ -1131,7 +1139,9 @@
         "blocking": "Blockiert",
         "info": "Hinweis",
         "busy": "Läuft"
-      }
+      },
+      "howToFix": "So behebst du es",
+      "howToFixLabel": "So behebst du es: {check}. Öffnet sich im Browser."
     },
     "flow": {
       "stepsLabel": "Schritte",
@@ -1374,7 +1384,8 @@
       "backToLibrary": "Zurück zur Bibliothek",
       "lockInputs": "Eingaben sperren",
       "unlockInputs": "Eingaben entsperren",
-      "stop": "Sitzung beenden"
+      "stop": "Sitzung beenden",
+      "restartInstance": "Diese Kopie neu starten"
     },
     "links": {
       "lobby": "Zurück zur Lobby",
@@ -1472,8 +1483,16 @@
         "closed": "Geschlossen",
         "waiting": "Wartet auf Start…",
         "starting": "Startet, Fenster wird platziert…",
-        "ready": "Bereit"
-      }
+        "ready": "Bereit",
+        "crashed": "Abgestürzt",
+        "restarting": "Wird neu gestartet…",
+        "restartFailed": "Neustart fehlgeschlagen"
+      },
+      "restart": "Neu starten",
+      "restartLabel": "Kopie von Spieler {number}, {name}, neu starten",
+      "restartHint": "Diese Kopie des Spiels erneut starten",
+      "restartBusy": "Eine andere Kopie wird gerade neu gestartet.",
+      "restartUnsupported": "Dieser Handler kann keine Kopie des Spiels neu starten."
     },
     "log": {
       "title": "Ereignisprotokoll",
@@ -2306,6 +2325,14 @@
         "stopLocked": "Die Sitzung konnte nicht beendet werden: Die Eingaben sind gesperrt.",
         "launchFailed": "Der Start ist fehlgeschlagen.",
         "actionUnavailable": "{action} ist gerade nicht verfügbar."
+      },
+      "restart": {
+        "noSession": "Es läuft keine Sitzung: Es gibt keine Kopie zum Neustarten.",
+        "notReady": "Die Kopien starten noch. Warte, bis alle Fenster an ihrem Platz sind, und versuch es dann erneut.",
+        "busy": "Eine andere Kopie wird gerade neu gestartet. Warte, bis das fertig ist, und versuch es dann erneut.",
+        "notSupported": "Dieser Handler kann keine Kopie des Spiels neu starten. Beende die Sitzung und starte das Spiel neu.",
+        "unknownPlayer": "Dieser Spieler hat keine Kopie des Spiels zum Neustarten.",
+        "failed": "Die Kopie konnte nicht neu gestartet werden."
       }
     },
     "notices": {
@@ -2363,7 +2390,7 @@
       },
       "oneDrive": {
         "title": "OneDrive muss deaktiviert sein",
-        "message": "Wenn OneDrive als Standardpfad für Dokumente dient, funktionieren viele Handler nicht, weil Nucleus nicht auf dessen Speicher zugreifen kann. Um den Dokumente-Pfad zu ändern, melde dich in der OneDrive-App ab, klick im Datei-Explorer mit der rechten Maustaste auf deinen Dokumente-Ordner, öffne die Eigenschaften, wähl Pfad bzw. Speicherort und setz ihn auf den Windows-Standard zurück."
+        "messageHelp": "Wenn OneDrive als Standardpfad für Dokumente dient, funktionieren viele Handler nicht, weil Nucleus nicht auf dessen Speicher zugreifen kann. Um den Dokumente-Pfad zu ändern, melde dich in der OneDrive-App ab, klick im Datei-Explorer mit der rechten Maustaste auf deinen Dokumente-Ordner, öffne die Eigenschaften, wähl Pfad bzw. Speicherort und setz ihn auf den Windows-Standard zurück.\n\nHilfeseite im Browser öffnen, um mehr zu erfahren?"
       },
       "installFolder": {
         "message": "Nucleus Co-op sollte nicht hier installiert werden.\n\nInstalliere es NICHT in einem dieser Ordner:\n- Ein Ordner mit Spieldateien\n- {programFiles} oder {programFilesX86}\n- {users} (auch Dokumente, Desktop oder Downloads)\n- Ein Ordner mit Sicherheitseinstellungen wie {windows}\n\nEin guter Ort ist {example}"

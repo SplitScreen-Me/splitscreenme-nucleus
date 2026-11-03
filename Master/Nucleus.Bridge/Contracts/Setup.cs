@@ -179,6 +179,9 @@ namespace Nucleus.Bridge.Contracts
 
         /// <summary>Label of the fix button, when a fix exists (<see cref="ISetupService.RunCheckAction"/>).</summary>
         public string? ActionLabel { get; set; }
+
+        /// <summary>Page of the documentation that explains the problem and how to fix it by hand, when there is one.</summary>
+        public string? HelpUrl { get; set; }
     }
 
     /// <summary>Parameters of <see cref="ISetupService.RunCheckAction"/>.</summary>
@@ -536,6 +539,13 @@ namespace Nucleus.Bridge.Contracts
 
         /// <summary>Whether the profile starts the session by itself once ready.</summary>
         public bool AutoPlay { get; set; }
+
+        /// <summary>
+        /// The loaded profile was saved with other handler options than the handler has now: options that still exist
+        /// keep their saved value, new ones got their default. The setup stops on the options step instead of playing
+        /// by itself, so the user can check them.
+        /// </summary>
+        public bool OptionsOutdated { get; set; }
     }
 
     /// <summary>What the handler supports.</summary>

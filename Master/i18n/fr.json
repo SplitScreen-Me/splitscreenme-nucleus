@@ -126,7 +126,11 @@
     "skipToContent": "Aller au contenu",
     "offlineBanner": {
       "title": "Le Hub est hors ligne.",
-      "message": "Vos jeux fonctionnent toujours ; l’installation et la mise à jour des handlers reprendront à son retour."
+      "message": "Vos jeux fonctionnent toujours ; l’installation et la mise à jour des handlers reprendront à son retour.",
+      "retry": "Réessayer maintenant",
+      "checking": "Vérification…",
+      "stillOffline": "Toujours hors ligne. Nucleus réessaie tout seul toutes les 30 secondes.",
+      "backOnline": "Le Hub est de nouveau en ligne."
     },
     "hintBar": {
       "label": "Commandes",
@@ -1041,7 +1045,8 @@
       "resizingBottomRight": "Redimensionnement du joueur {number}, {name} : {width} par {height}. Les flèches déplacent le coin inférieur droit, X change de coin, Enter pour terminer.",
       "resizingTopLeft": "Redimensionnement du joueur {number}, {name} : {width} par {height}. Les flèches déplacent le coin supérieur gauche, X change de coin, Enter pour terminer.",
       "dropGuest": "Jouer dans cette copie",
-      "dropGuestNote": "Déposez la manette pour partager la copie de ce joueur"
+      "dropGuestNote": "Déposez la manette pour partager la copie de ce joueur",
+      "deviceChip": "{device} : faites-le glisser pour le déplacer seul"
     },
     "tray": {
       "title": "En attente",
@@ -1073,7 +1078,8 @@
         "pressStart": "Appuyez sur Start pour rejoindre",
         "vibrateLabel": "Faire vibrer {device}",
         "vibrateHint": "Faire vibrer pour l’identifier"
-      }
+      },
+      "dropDeviceToRemove": "Déposez ici pour retirer {device}"
     },
     "players": {
       "title": "Joueurs",
@@ -1127,7 +1133,8 @@
       "joined": "{device} a rejoint la partie : {player}, joueur {number}.",
       "controllerJoined": "Une manette a rejoint la partie : {player}, joueur {number}.",
       "guestJoined": "{device} a rejoint la copie de {player}.",
-      "controllerJoinedCopy": "Une manette a rejoint la copie de {player}."
+      "controllerJoinedCopy": "Une manette a rejoint la copie de {player}.",
+      "deviceLeft": "{device} est de retour dans la zone d’attente."
     },
     "deviceLost": {
       "namedPlayer": "{nickname} (joueur {number})",
@@ -1162,7 +1169,8 @@
       "introFromProfile": "L’auteur du handler propose ces choix. Ils s’appliquent à toutes les copies de {game} et proviennent du profil chargé.",
       "empty": "Ce handler n’a aucune option modifiable ici.",
       "choose": "Choisir…",
-      "unsupported": "Utilise la valeur par défaut du handler"
+      "unsupported": "Utilise la valeur par défaut du handler",
+      "outdated": "Ce profil a été enregistré avec d’autres options du handler. Les nouvelles options ont pris leur valeur par défaut ; vérifiez-les avant de jouer."
     },
     "customStep": {
       "required": "Faites un choix pour continuer.",
@@ -1179,7 +1187,9 @@
         "blocking": "Bloquant",
         "info": "Remarque",
         "busy": "En cours"
-      }
+      },
+      "howToFix": "Comment corriger",
+      "howToFixLabel": "Comment corriger : {check}. S’ouvre dans votre navigateur."
     },
     "flow": {
       "stepsLabel": "Étapes",
@@ -1427,7 +1437,8 @@
       "backToLibrary": "Retour à la bibliothèque",
       "lockInputs": "Verrouiller les entrées",
       "unlockInputs": "Déverrouiller les entrées",
-      "stop": "Arrêter la session"
+      "stop": "Arrêter la session",
+      "restartInstance": "Redémarrer cette copie"
     },
     "links": {
       "lobby": "Retour à la configuration",
@@ -1531,8 +1542,16 @@
         "closed": "Fermé",
         "waiting": "En attente du démarrage…",
         "starting": "Démarrage, placement de la fenêtre…",
-        "ready": "Prêt"
-      }
+        "ready": "Prêt",
+        "crashed": "Planté",
+        "restarting": "Redémarrage…",
+        "restartFailed": "Échec du redémarrage"
+      },
+      "restart": "Redémarrer",
+      "restartLabel": "Redémarrer la copie du joueur {number}, {name}",
+      "restartHint": "Relancer cette copie du jeu",
+      "restartBusy": "Une autre copie est en cours de redémarrage.",
+      "restartUnsupported": "Ce handler ne peut pas redémarrer une copie du jeu."
     },
     "log": {
       "title": "Journal",
@@ -2379,6 +2398,14 @@
         "stopLocked": "La session n’a pas pu s’arrêter : les entrées sont verrouillées.",
         "launchFailed": "Le lancement a échoué.",
         "actionUnavailable": "{action} n’est pas disponible pour le moment."
+      },
+      "restart": {
+        "noSession": "Aucune session n’est en cours : il n’y a pas de copie à redémarrer.",
+        "notReady": "Les copies sont encore en train de démarrer. Attendez que toutes les fenêtres soient en place, puis réessayez.",
+        "busy": "Une autre copie est en cours de redémarrage. Attendez la fin, puis réessayez.",
+        "notSupported": "Ce handler ne peut pas redémarrer une copie du jeu. Arrêtez la session et relancez la partie.",
+        "unknownPlayer": "Ce joueur n’a pas de copie du jeu à redémarrer.",
+        "failed": "La copie n’a pas pu être redémarrée."
       }
     },
     "notices": {
@@ -2436,7 +2463,7 @@
       },
       "oneDrive": {
         "title": "OneDrive doit être désactivé",
-        "message": "Utiliser OneDrive comme emplacement par défaut des documents empêche de nombreux handlers de fonctionner, car Nucleus ne peut pas accéder à son stockage. Pour changer l’emplacement de vos documents, déconnectez-vous de l’application OneDrive, faites un clic droit sur votre dossier Documents dans l’Explorateur de fichiers, ouvrez Propriétés, sélectionnez l’onglet Emplacement et rétablissez l’emplacement par défaut de Windows."
+        "messageHelp": "Utiliser OneDrive comme emplacement par défaut des documents empêche de nombreux handlers de fonctionner, car Nucleus ne peut pas accéder à son stockage. Pour changer l’emplacement de vos documents, déconnectez-vous de l’application OneDrive, faites un clic droit sur votre dossier Documents dans l’Explorateur de fichiers, ouvrez Propriétés, sélectionnez l’onglet Emplacement et rétablissez l’emplacement par défaut de Windows.\n\nOuvrir la page d’aide dans votre navigateur pour plus de détails ?"
       },
       "installFolder": {
         "message": "Nucleus Co-op ne doit pas être installé ici.\n\nNe l’installez PAS dans l’un de ces dossiers :\n- Un dossier contenant des fichiers de jeu\n- {programFiles} ou {programFilesX86}\n- {users} (y compris Documents, Bureau ou Téléchargements)\n- Tout dossier doté de paramètres de sécurité, comme {windows}\n\nUn bon emplacement : {example}"

@@ -60,6 +60,7 @@ namespace Nucleus.Coop.Host.Services
                 HandlersPath = environment.HandlersFolder,
                 HubUrl = HubSite.Url,
                 HubOnline = Nucleus.Gaming.Coop.Generic.Hub.Connected, // live: kept current by the services (app.hubStatusChanged)
+                HubChecked = Nucleus.Gaming.Coop.Generic.Hub.Checked,
                 WebViewVersion = webViewVersion() ?? "",
                 IsAdmin = isAdmin.Value,
                 StartupGameId = HostStartup.GameId,

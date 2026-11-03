@@ -601,7 +601,7 @@ export interface MessageParamsMap {
   /** Missing file */
   'engine.startChecks.missingFile.title': undefined;
   /** Using OneDrive as default documents path will break many handlers because Nucleus can't access its storage.... */
-  'engine.startChecks.oneDrive.message': undefined;
+  'engine.startChecks.oneDrive.messageHelp': undefined;
   /** OneDrive must be disabled */
   'engine.startChecks.oneDrive.title': undefined;
   /** Downloading Microsoft Visual C++ 2015 - 2022 Redistributable {architecture} version */
@@ -1126,6 +1126,18 @@ export interface MessageParamsMap {
   'host.session.errors.startFailed': { error: ParamValue };
   /** The session couldn't stop: inputs are locked. */
   'host.session.errors.stopLocked': undefined;
+  /** Another copy is being restarted. Wait for it to finish, then try again. */
+  'host.session.restart.busy': undefined;
+  /** The copy couldn't be restarted. */
+  'host.session.restart.failed': undefined;
+  /** No session is running: there is no copy to restart. */
+  'host.session.restart.noSession': undefined;
+  /** The copies are still starting. Wait until every window is in place, then try again. */
+  'host.session.restart.notReady': undefined;
+  /** This handler can't restart a copy of the game. Stop the session and play again. */
+  'host.session.restart.notSupported': undefined;
+  /** This player has no copy of the game to restart. */
+  'host.session.restart.unknownPlayer': undefined;
   /** Black */
   'host.settings.colors.black': undefined;
   /** Blue */
@@ -2046,6 +2058,8 @@ export interface MessageParamsMap {
   'lobby.announce.controllerJoined': { number: ParamValue; player: ParamValue };
   /** A controller joined {player}'s copy. */
   'lobby.announce.controllerJoinedCopy': { player: ParamValue };
+  /** {device} is back in the tray. */
+  'lobby.announce.deviceLeft': { device: ParamValue };
   /** {device} joined {player}'s copy. */
   'lobby.announce.guestJoined': { device: ParamValue; player: ParamValue };
   /** {device} joined: {player}, player {number}. */
@@ -2280,6 +2294,8 @@ export interface MessageParamsMap {
   'lobby.players.moreCanJoinFree': { count: number };
   /** Players */
   'lobby.players.title': undefined;
+  /** {device}: drag it to move it on its own */
+  'lobby.region.deviceChip': { device: ParamValue };
   /** Play in this copy */
   'lobby.region.dropGuest': undefined;
   /** Drop the controller to share this player's copy */
@@ -2390,6 +2406,8 @@ export interface MessageParamsMap {
   'lobby.tray.device.vibrateHint': undefined;
   /** Make {device} vibrate */
   'lobby.tray.device.vibrateLabel': { device: ParamValue };
+  /** Drop here to take {device} out */
+  'lobby.tray.dropDeviceToRemove': { device: ParamValue };
   /** Drop here to take this player out */
   'lobby.tray.dropToRemove': undefined;
   /** Keyboards and mice appear here once you use them. */
@@ -2748,6 +2766,8 @@ export interface MessageParamsMap {
   'session.hints.backToLibrary': undefined;
   /** Lock inputs */
   'session.hints.lockInputs': undefined;
+  /** Restart this copy */
+  'session.hints.restartInstance': undefined;
   /** Stop session */
   'session.hints.stop': undefined;
   /** Unlock inputs */
@@ -2766,10 +2786,26 @@ export interface MessageParamsMap {
   'session.instance.pid': { pid: ParamValue };
   /** Launch progress */
   'session.instance.progress': undefined;
+  /** Restart */
+  'session.instance.restart': undefined;
+  /** Another copy is being restarted. */
+  'session.instance.restartBusy': undefined;
+  /** Start this copy of the game again */
+  'session.instance.restartHint': undefined;
+  /** Restart the copy of player {number}, {name} */
+  'session.instance.restartLabel': { name: ParamValue; number: ParamValue };
+  /** This handler can't restart a copy of the game. */
+  'session.instance.restartUnsupported': undefined;
   /** Closed */
   'session.instance.stage.closed': undefined;
+  /** Crashed */
+  'session.instance.stage.crashed': undefined;
   /** Ready */
   'session.instance.stage.ready': undefined;
+  /** Couldn't restart */
+  'session.instance.stage.restartFailed': undefined;
+  /** Restarting… */
+  'session.instance.stage.restarting': undefined;
   /** Starting, placing the window… */
   'session.instance.stage.starting': undefined;
   /** Waiting to start… */
@@ -3084,6 +3120,10 @@ export interface MessageParamsMap {
   'settings.supporters.unmuteShort': undefined;
   /** Settings */
   'settings.title': undefined;
+  /** How to fix */
+  'setup.checks.howToFix': undefined;
+  /** How to fix: {check}. Opens in your browser. */
+  'setup.checks.howToFixLabel': { check: ParamValue };
   /** Blocking */
   'setup.checks.state.blocking': undefined;
   /** In progress */
@@ -3174,6 +3214,8 @@ export interface MessageParamsMap {
   'setup.options.intro': { game: ParamValue };
   /** The handler author offers these choices. They apply to every copy of {game} and come from the loaded profile. */
   'setup.options.introFromProfile': { game: ParamValue };
+  /** This profile was saved with other handler options. New options got their default value; check them before p... */
+  'setup.options.outdated': undefined;
   /** Handler options */
   'setup.options.title': undefined;
   /** Uses the handler's default value */
@@ -3214,8 +3256,16 @@ export interface MessageParamsMap {
   'shell.notFound.message': undefined;
   /** This screen does not exist */
   'shell.notFound.title': undefined;
+  /** The Hub is back online. */
+  'shell.offlineBanner.backOnline': undefined;
+  /** Checking… */
+  'shell.offlineBanner.checking': undefined;
   /** Your games still work; installing and updating handlers waits until it is back. */
   'shell.offlineBanner.message': undefined;
+  /** Retry now */
+  'shell.offlineBanner.retry': undefined;
+  /** Still offline. Nucleus tries again by itself every 30 seconds. */
+  'shell.offlineBanner.stillOffline': undefined;
   /** The Hub is offline. */
   'shell.offlineBanner.title': undefined;
   /** Set up a session, up to {count} players */

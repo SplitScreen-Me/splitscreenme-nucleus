@@ -31,9 +31,14 @@ export const findHandler = (state: MockState, gameId: string): MockHandler | und
 /** Whether a game id is in the library. */
 export const inLibrary = (state: MockState, gameId: string) => state.games.some((game) => game.summary.id === gameId);
 
+/** The list row of a game as the host sends it: no update flag while the hub is offline (it can't be checked then). */
+export function summaryOf(state: MockState, game: MockGame): GameSummary {
+  return state.hub.online || !game.summary.updateAvailable ? game.summary : { ...game.summary, updateAvailable: false };
+}
+
 /** Everything the game page shows. */
 export function gameDetails(state: MockState, game: MockGame): GameDetails {
-  const { summary } = game;
+  const summary = summaryOf(state, game);
   const info = findHandler(state, summary.id)?.info;
   const setup = setupFixtureFor(summary.id);
   return {

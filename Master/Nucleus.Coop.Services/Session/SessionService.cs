@@ -329,6 +329,61 @@ namespace Nucleus.Coop.Services.Session
             return Build();
         }
 
+        // ---------------------------------------------------------------- instance restart (Nucleus 2.5)
+
+        public async Task<SessionSnapshot> RestartInstance(RestartInstanceRequest request)
+        {
+            if (active == null || active == SessionState.Ending || !(handler is GenericGameHandler generic) || generic.HasEnded)
+            {
+                throw InstanceRestart.Refusal("noSession");
+            }
+
+            List<PlayerInfo>? players = generic.profile?.DevicesList;
+            int index = (request?.PlayerNumber ?? 0) - 1;
+
+            if (players == null || index < 0 || index >= players.Count)
+            {
+                throw InstanceRestart.Refusal("unknownPlayer");
+            }
+
+            int playerId = players[index].PlayerID;
+
+            //A game that still runs is closed first, which waits for it (up to 10 s): off the UI thread.
+            (bool started, string? reason) = await Task.Run(() =>
+            {
+                bool ok = GlobalWindowMethods.RequestInstanceRestart(playerId, out string refusal);
+                return (ok, refusal);
+            });
+
+            if (!started)
+            {
+                ServiceLog.Info($"session: restart of player {index + 1} refused ({reason})");
+                throw InstanceRestart.Refusal(reason);
+            }
+
+            ServiceLog.Info($"session: restart of player {index + 1} requested");
+            EmitIfChanged(force: true);
+            return Build();
+        }
+
+        private static string? RestartRefusal(SessionState? state, GenericGameHandler? generic)
+        {
+            GenericGameInfo? gen = generic?.CurrentGameInfo;
+
+            if (gen == null || generic!.HasEnded)
+            {
+                return "noSession";
+            }
+
+            return InstanceRestart.RefusalNow(
+                state == SessionState.Running || state == SessionState.Launching,
+                GameProfile.Saved,
+                GlobalWindowMethods.RestartThreadIsRunning,
+                gen.ProcessChangesAtEnd,
+                gen.CantRestartInstances,
+                gen.GameReLaunchByItself);
+        }
+
         /// <summary>The function each hotkey calls (HotkeyListener.WndProc).</summary>
         private static Action HotkeyFunction(SessionAction action)
         {
@@ -416,6 +471,7 @@ namespace Nucleus.Coop.Services.Session
             if (active != null && handler is GenericGameHandler generic)
             {
                 snapshot.Instances = Instances(generic);
+                snapshot.RestartRefusal = RestartRefusal(active, generic);
             }
 
             return snapshot;
@@ -424,12 +480,14 @@ namespace Nucleus.Coop.Services.Session
         /// <summary>
         /// The launch players (the cloned profile's list), with a stage derived from their runtime fields: Waiting before
         /// a process exists, Starting until the window is placed (ProcessData.Setted), Ready after, Exited when the process
-        /// ended. Approximate: the launch doesn't report its progress per instance.
+        /// ended (Crashed when with an error), Restarting while Nucleus starts it again. Approximate: the launch doesn't
+        /// report its progress per instance.
         /// </summary>
         private static List<SessionInstance> Instances(GenericGameHandler generic)
         {
             List<SessionInstance> instances = new List<SessionInstance>();
             List<PlayerInfo>? players = generic.profile?.DevicesList;
+            int restartingId = GlobalWindowMethods.RestartingPlayerId;
 
             for (int i = 0; players != null && i < players.Count; i++)
             {
@@ -444,14 +502,19 @@ namespace Nucleus.Coop.Services.Session
                     break;//the launch thread changed the list
                 }
 
+                bool restarting = restartingId >= 0 && player.PlayerID == restartingId;
+                InstanceStage stage = InstanceRestart.Stage(StageOf(player, out int? processId, out bool exitedWithError), restarting);
+
                 SessionInstance instance = new SessionInstance
                 {
                     PlayerNumber = i + 1,
                     Nickname = string.IsNullOrEmpty(player.Nickname) ? null : player.Nickname,
                     ScreenIndex = player.ScreenIndex,
                     Bounds = SnapshotMath.ToRect(player.MonitorBounds),
-                    Stage = StageOf(player, out int? processId),
+                    Stage = stage,
                     ProcessId = processId,
+                    Crashed = InstanceRestart.Crashed(stage, exitedWithError),
+                    RestartFailed = !restarting && player.PlayerID >= 0 && GlobalWindowMethods.RestartGaveUp(player.PlayerID),
                 };
 
                 instance.Devices.Add(DeviceIds.KindOf(player.InputType));//KBM after CleanClone: KeyboardMouse
@@ -467,9 +530,10 @@ namespace Nucleus.Coop.Services.Session
             return instances;
         }
 
-        private static InstanceStage StageOf(PlayerInfo player, out int? processId)
+        private static InstanceStage StageOf(PlayerInfo player, out int? processId, out bool exitedWithError)
         {
             processId = null;
+            exitedWithError = false;
             ProcessData? data = player.ProcessData;
             Process? process = data?.Process;
 
@@ -481,6 +545,7 @@ namespace Nucleus.Coop.Services.Session
 
                     if (process.HasExited)
                     {
+                        exitedWithError = GlobalWindowMethods.ExitedWithError(process);
                         return InstanceStage.Exited;
                     }
                 }

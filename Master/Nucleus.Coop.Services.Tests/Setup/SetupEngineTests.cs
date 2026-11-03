@@ -22,6 +22,7 @@ public class SetupEngineTests
         yield return new object[] { new Action<PlayerInfo>(p => p.IsXInput = true), InputType.XInput, true };
         yield return new object[] { new Action<PlayerInfo>(p => p.IsDInput = true), InputType.DInput, true };
         yield return new object[] { new Action<PlayerInfo>(p => p.IsSDL2 = true), InputType.SDL2, true };
+        yield return new object[] { new Action<PlayerInfo>(p => p.IsSDL3 = true), InputType.SDL3, true };
         yield return new object[] { new Action<PlayerInfo>(p => p.IsKeyboardPlayer = true), InputType.SingleKB, false };
         yield return new object[] { new Action<PlayerInfo>(p => p.IsRawKeyboard = true), InputType.KB, false };
         yield return new object[] { new Action<PlayerInfo>(p => p.IsRawMouse = true), InputType.Mouse, false };

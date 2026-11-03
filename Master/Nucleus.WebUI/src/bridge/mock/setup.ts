@@ -79,9 +79,21 @@ function setPlayerAudio(state: MockState, setup: MockSetup, { playerId, audioDev
  * matches the devices used to its waiting players. Every command returns the new snapshot and emits `setup.changed`.
  */
 export function createSetupMock(context: MockContext, state: MockState): BridgeHandlers['setup'] {
+  /**
+   * Once every profile player is matched, a profile saved with other handler options stops on the options step instead
+   * of playing (the host: FlowInput.ProfileOptionsOutdated), whatever matched them (a press, a join, a drop).
+   */
+  const stopOnOutdatedOptions = (setup: MockSetup, wasReady: boolean): boolean => {
+    if (wasReady || !setup.profile?.optionsOutdated || !profileMatchOf(setup).ready) return false;
+    setup.step = 1;
+    return true;
+  };
+
   const update = (change: (setup: MockSetup) => void): SetupSnapshot => {
     const setup = requireEditable(state);
+    const wasReady = Boolean(setup.profile) && profileMatchOf(setup).ready;
     change(setup);
+    stopOnOutdatedOptions(setup, wasReady);
     return publishSetup(context, state, setup);
   };
 
@@ -98,9 +110,11 @@ export function createSetupMock(context: MockContext, state: MockState): BridgeH
     const buttons: GamepadButton[] | undefined = isGamepad(device.kind) ? [revealed || count % 3 === 1 ? 'start' : 'a'] : undefined;
     context.emit('setup.deviceActivity', { deviceId: device.id, active: true, buttons });
     schedule(setup.timers, ACTIVITY_LENGTH_MS, () => context.emit('setup.deviceActivity', { deviceId: device.id, active: false }));
+    const wasReady = Boolean(setup.profile) && profileMatchOf(setup).ready;
     const matched = state.session.phase === null && matchDevice(setup, device);
+    const stopped = matched && stopOnOutdatedOptions(setup, wasReady);
     if (revealed || matched) publishSetup(context, state, setup);
-    if (matched && setup.profile?.autoPlay && profileMatchOf(setup).ready && flowOf(state, setup).canPlay) startSession(context, state);
+    if (matched && !stopped && setup.profile?.autoPlay && profileMatchOf(setup).ready && flowOf(state, setup).canPlay) startSession(context, state);
   };
 
   const scheduleReveal = (setup: MockSetup, device: MockDevice, delay: number) =>

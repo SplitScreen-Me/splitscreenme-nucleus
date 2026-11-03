@@ -31,8 +31,8 @@ const KIND_NAMES: Readonly<Record<DeviceKind, string>> = {
 
 /** State of the loaded profile while devices are matched to its players. */
 export function profileMatchOf(setup: MockSetup): ProfileMatch {
-  if (!setup.profile) return { loaded: false, assigned: 0, total: 0, ready: false, autoPlay: false };
-  const { id, seats, autoPlay } = setup.profile;
+  if (!setup.profile) return { loaded: false, assigned: 0, total: 0, ready: false, autoPlay: false, optionsOutdated: false };
+  const { id, seats, autoPlay, optionsOutdated } = setup.profile;
   const waiting = nextSeat(setup);
   return {
     loaded: true,
@@ -43,13 +43,17 @@ export function profileMatchOf(setup: MockSetup): ProfileMatch {
     awaitingKind: waiting?.device,
     ready: waiting === undefined,
     autoPlay,
+    optionsOutdated,
   };
 }
 
-/** Steps shown: players, options (skipped with a profile), then the custom steps a profile did not answer. */
+/**
+ * Steps shown: players, options (skipped with a profile, unless it was saved with other options), then the custom steps
+ * a profile did not answer.
+ */
 function stepsOf(setup: MockSetup): SetupStep[] {
   const steps: SetupStep[] = [{ kind: 'players', title: 'Players' }];
-  if (!setup.profile && setup.options.length > 0) steps.push({ kind: 'options', title: 'Options' });
+  if ((!setup.profile || setup.profile.optionsOutdated) && setup.options.length > 0) steps.push({ kind: 'options', title: 'Options' });
   for (const step of setup.customSteps) {
     if (!step.autoSelected) steps.push({ kind: 'custom', customStepIndex: step.index, title: step.title });
   }

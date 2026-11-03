@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Nucleus.Bridge.Contracts
 {
@@ -21,6 +22,22 @@ namespace Nucleus.Bridge.Contracts
 
         /// <summary>Log lines of the current or last session.</summary>
         List<SessionLogEntry> GetLog();
+
+        /// <summary>
+        /// Starts the copy of one player again (closing its game first if it still runs), like Nucleus does by itself for
+        /// a copy that crashed. Throws <c>conflict</c> with a <c>reason</c>: <c>noSession</c> (no session runs),
+        /// <c>notReady</c> (the copies are still being started and placed), <c>busy</c> (another copy is being started
+        /// again), <c>notSupported</c> (the handler can't restart its copies); <c>notFound</c> (reason
+        /// <c>unknownPlayer</c>) when the player has no copy. See <see cref="SessionSnapshot.RestartRefusal"/>.
+        /// </summary>
+        Task<SessionSnapshot> RestartInstance(RestartInstanceRequest request);
+    }
+
+    /// <summary>Parameters of <see cref="ISessionService.RestartInstance"/>.</summary>
+    public sealed class RestartInstanceRequest
+    {
+        /// <summary>Player number of the copy, 1-based (<see cref="SessionInstance.PlayerNumber"/>).</summary>
+        public int PlayerNumber { get; set; }
     }
 
     /// <summary>An action available during a session, also bound to a hotkey.</summary>
@@ -129,8 +146,10 @@ namespace Nucleus.Bridge.Contracts
         Starting,
         /// <summary>Window found and placed, input bound.</summary>
         Ready,
-        /// <summary>Process exited.</summary>
+        /// <summary>Process exited: closed, or crashed (<see cref="SessionInstance.Crashed"/>).</summary>
         Exited,
+        /// <summary>Nucleus is starting this copy again (it crashed, or a restart was asked for): launch, hooks, window.</summary>
+        Restarting,
     }
 
     /// <summary>One game instance in the session.</summary>
@@ -156,6 +175,18 @@ namespace Nucleus.Bridge.Contracts
 
         /// <summary>Process id, once started.</summary>
         public int? ProcessId { get; set; }
+
+        /// <summary>
+        /// The process ended with an error (its exit code is known and not 0) rather than being closed. Only meaningful
+        /// while <see cref="Stage"/> is <see cref="InstanceStage.Exited"/>.
+        /// </summary>
+        public bool Crashed { get; set; }
+
+        /// <summary>
+        /// Nucleus tried to start this copy again and failed (or gave up after 3 automatic restarts within 2 minutes): it
+        /// stays closed until a restart is asked for (<see cref="ISessionService.RestartInstance"/>).
+        /// </summary>
+        public bool RestartFailed { get; set; }
     }
 
     /// <summary>Everything the session screen shows.</summary>
@@ -178,6 +209,14 @@ namespace Nucleus.Bridge.Contracts
 
         /// <summary>Whether inputs are locked to the game windows (the stop button is refused until they are unlocked).</summary>
         public bool InputsLocked { get; set; }
+
+        /// <summary>
+        /// Why a copy can't be started again now, as the <c>reason</c> <see cref="ISessionService.RestartInstance"/> would
+        /// refuse with: <c>noSession</c>, <c>notReady</c> (the copies are still being started and placed), <c>busy</c>
+        /// (another copy is being started again) or <c>notSupported</c> (the handler can't restart its copies). Absent when
+        /// a restart can be asked for.
+        /// </summary>
+        public string? RestartRefusal { get; set; }
 
         /// <summary>Last error, for example why the launch failed.</summary>
         public string? Error { get; set; }

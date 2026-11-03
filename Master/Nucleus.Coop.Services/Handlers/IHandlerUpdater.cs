@@ -11,7 +11,10 @@ namespace Nucleus.Coop.Services.Handlers;
 /// </summary>
 public interface IHandlerUpdater
 {
-    /// <summary>Last known state: a newer version was found on the hub (and update checks are on for this game). No network.</summary>
+    /// <summary>
+    /// Last known state: a newer version was found on the hub (and update checks are on for this game). False while the
+    /// hub is offline. No network.
+    /// </summary>
     bool IsUpdateAvailable(string gameId);
 
     /// <summary>Hub version found by the last check, or null.</summary>

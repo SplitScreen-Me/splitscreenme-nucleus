@@ -31,6 +31,22 @@ namespace Nucleus.Bridge.Contracts
 
         /// <summary>Screenshot URLs (IGDB) of a hub handler's game, from the handler detail of the hub API.</summary>
         Task<List<string>> Screenshots(HubHandlerRequest request);
+
+        /// <summary>
+        /// Checks whether the hub answers (<c>GET /api/v3/health</c>) and returns the state; a change also comes as
+        /// <see cref="HubStatusChanged"/>. Forced (the offline banner's "Retry now"): checks at once, or waits for the check
+        /// already running. Not forced (a hub request of the UI failed while the app is online, or worked while it is
+        /// offline): checks only when the last check is older than 30 s and no game session runs, else returns the last
+        /// known state, so failing pages never cause a storm of checks.
+        /// </summary>
+        Task<bool> CheckHub(CheckHubRequest request);
+    }
+
+    /// <summary>Parameters of <see cref="IHandlersService.CheckHub"/>.</summary>
+    public sealed class CheckHubRequest
+    {
+        /// <summary>The user asked for it: check now, even when the last check is recent.</summary>
+        public bool Force { get; set; }
     }
 
     /// <summary>Identifies a handler on the hub.</summary>

@@ -127,7 +127,11 @@
     "skipToContent": "Skip to content",
     "offlineBanner": {
       "title": "The Hub is offline.",
-      "message": "Your games still work; installing and updating handlers waits until it is back."
+      "message": "Your games still work; installing and updating handlers waits until it is back.",
+      "retry": "Retry now",
+      "checking": "Checking…",
+      "stillOffline": "Still offline. Nucleus tries again by itself every 30 seconds.",
+      "backOnline": "The Hub is back online."
     },
     "hintBar": {
       "label": "Controls",
@@ -1005,7 +1009,8 @@
       "resizingBottomRight": "Resizing player {number}, {name}: {width} by {height}. Arrows move the bottom right corner, X switches corners, Enter when done.",
       "resizingTopLeft": "Resizing player {number}, {name}: {width} by {height}. Arrows move the top left corner, X switches corners, Enter when done.",
       "dropGuest": "Play in this copy",
-      "dropGuestNote": "Drop the controller to share this player's copy"
+      "dropGuestNote": "Drop the controller to share this player's copy",
+      "deviceChip": "{device}: drag it to move it on its own"
     },
     "tray": {
       "title": "Waiting to join",
@@ -1037,7 +1042,8 @@
         "pressStart": "Press Start to join",
         "vibrateLabel": "Make {device} vibrate",
         "vibrateHint": "Vibrate, to find which one it is"
-      }
+      },
+      "dropDeviceToRemove": "Drop here to take {device} out"
     },
     "players": {
       "title": "Players",
@@ -1087,7 +1093,8 @@
       "joined": "{device} joined: {player}, player {number}.",
       "controllerJoined": "A controller joined: {player}, player {number}.",
       "guestJoined": "{device} joined {player}'s copy.",
-      "controllerJoinedCopy": "A controller joined {player}'s copy."
+      "controllerJoinedCopy": "A controller joined {player}'s copy.",
+      "deviceLeft": "{device} is back in the tray."
     },
     "deviceLost": {
       "namedPlayer": "{nickname} (player {number})",
@@ -1122,7 +1129,8 @@
       "introFromProfile": "The handler author offers these choices. They apply to every copy of {game} and come from the loaded profile.",
       "empty": "This handler has no option you can change here.",
       "choose": "Choose…",
-      "unsupported": "Uses the handler's default value"
+      "unsupported": "Uses the handler's default value",
+      "outdated": "This profile was saved with other handler options. New options got their default value; check them before playing."
     },
     "customStep": {
       "required": "Pick one to continue.",
@@ -1139,7 +1147,9 @@
         "blocking": "Blocking",
         "info": "Note",
         "busy": "In progress"
-      }
+      },
+      "howToFix": "How to fix",
+      "howToFixLabel": "How to fix: {check}. Opens in your browser."
     },
     "flow": {
       "stepsLabel": "Steps",
@@ -1382,7 +1392,8 @@
       "backToLibrary": "Back to library",
       "lockInputs": "Lock inputs",
       "unlockInputs": "Unlock inputs",
-      "stop": "Stop session"
+      "stop": "Stop session",
+      "restartInstance": "Restart this copy"
     },
     "links": {
       "lobby": "Back to the lobby",
@@ -1481,8 +1492,16 @@
         "closed": "Closed",
         "waiting": "Waiting to start…",
         "starting": "Starting, placing the window…",
-        "ready": "Ready"
-      }
+        "ready": "Ready",
+        "crashed": "Crashed",
+        "restarting": "Restarting…",
+        "restartFailed": "Couldn't restart"
+      },
+      "restart": "Restart",
+      "restartLabel": "Restart the copy of player {number}, {name}",
+      "restartHint": "Start this copy of the game again",
+      "restartBusy": "Another copy is being restarted.",
+      "restartUnsupported": "This handler can't restart a copy of the game."
     },
     "log": {
       "title": "Event log",
@@ -2315,6 +2334,14 @@
         "stopLocked": "The session couldn't stop: inputs are locked.",
         "launchFailed": "The launch failed.",
         "actionUnavailable": "{action} isn't available now."
+      },
+      "restart": {
+        "noSession": "No session is running: there is no copy to restart.",
+        "notReady": "The copies are still starting. Wait until every window is in place, then try again.",
+        "busy": "Another copy is being restarted. Wait for it to finish, then try again.",
+        "notSupported": "This handler can't restart a copy of the game. Stop the session and play again.",
+        "unknownPlayer": "This player has no copy of the game to restart.",
+        "failed": "The copy couldn't be restarted."
       }
     },
     "notices": {
@@ -2372,7 +2399,7 @@
       },
       "oneDrive": {
         "title": "OneDrive must be disabled",
-        "message": "Using OneDrive as default documents path will break many handlers because Nucleus can't access its storage. To change your documents path log out from the OneDrive app and right click your Documents folder in file explorer, go to properties, select path or location and set it to the default Windows one."
+        "messageHelp": "Using OneDrive as default documents path will break many handlers because Nucleus can't access its storage. To change your documents path log out from the OneDrive app and right click your Documents folder in file explorer, go to properties, select path or location and set it to the default Windows one.\n\nOpen the help page in your browser for the details?"
       },
       "installFolder": {
         "message": "Nucleus Co-op should not be installed here.\n\nDo NOT install it in any of these folders:\n- A folder containing any game files\n- {programFiles} or {programFilesX86}\n- {users} (including Documents, Desktop, or Downloads)\n- Any folder with security settings like {windows}\n\nA good place is {example}"

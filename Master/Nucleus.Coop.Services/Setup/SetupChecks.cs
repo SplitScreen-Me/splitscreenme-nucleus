@@ -95,7 +95,9 @@ namespace Nucleus.Coop.Services.Setup
 
             if (Globals.IsOneDriveEnabled && gen.UseNucleusEnvironment && documents)
             {
-                checks.Add(Check(OneDrive, CheckState.Blocking, I18n.T("host.setup.checks.oneDrive.title"), I18n.T("host.setup.checks.oneDrive.detail", new { folder = Globals.UserDocumentsRoot })));
+                SetupCheck oneDrive = Check(OneDrive, CheckState.Blocking, I18n.T("host.setup.checks.oneDrive.title"), I18n.T("host.setup.checks.oneDrive.detail", new { folder = Globals.UserDocumentsRoot }));
+                oneDrive.HelpUrl = HubSite.DocUrl(HubSite.OneDriveHelpPage);//the page the 2.5 startup warning links to
+                checks.Add(oneDrive);
             }
 
             bool otherUsers = gen.LaunchAsDifferentUsers || gen.LaunchAsDifferentUsersAlt;

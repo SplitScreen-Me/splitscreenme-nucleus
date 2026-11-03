@@ -15,13 +15,22 @@ public sealed class GameDtoFactory
 {
     private readonly GameIconCache icons;
     private readonly Func<string, int?> latestVersion;
+    private readonly Func<bool> hubOnline;
 
-    /// <summary>Creates the factory. <paramref name="latestVersion"/> gives the hub version found by update checks.</summary>
-    public GameDtoFactory(GameIconCache icons, Func<string, int?> latestVersion)
+    /// <summary>
+    /// Creates the factory. <paramref name="latestVersion"/> gives the hub version found by update checks;
+    /// <paramref name="hubOnline"/> whether the hub answers (<c>Hub.Connected</c> by default): update flags are hidden
+    /// while it is offline (Nucleus 2.5 hid the update button then), and come back with the check made once it is online.
+    /// </summary>
+    public GameDtoFactory(GameIconCache icons, Func<string, int?> latestVersion, Func<bool>? hubOnline = null)
     {
         this.icons = icons;
         this.latestVersion = latestVersion;
+        this.hubOnline = hubOnline ?? (() => Nucleus.Gaming.Coop.Generic.Hub.Connected);
     }
+
+    /// <summary>The update flag a library row shows (pure): a newer handler found, update checks on, and the hub reachable.</summary>
+    internal static bool ShowsUpdate(bool updateAvailable, bool checkUpdate, bool hubOnline) => updateAvailable && checkUpdate && hubOnline;
 
     /// <summary>Input hooks of a handler.</summary>
     public static HandlerInputFlags Flags(GenericGameInfo game) => new HandlerInputFlags
@@ -53,7 +62,7 @@ public sealed class GameDtoFactory
             MaxPlayers = game.MaxPlayers,
             Inputs = GameInputRules.ToInputs(Flags(game)),
             Favorite = meta.Favorite,
-            UpdateAvailable = game.UpdateAvailable && meta.CheckUpdate,
+            UpdateAvailable = ShowsUpdate(game.UpdateAvailable, meta.CheckUpdate, hubOnline()),
             LatestHandlerVersion = latestVersion(game.GUID),
             HeroUrl = hero == null ? null : NucleusPaths.AssetUrl(hero),
             IconUrl = icons.GetUrl(game.GUID, entry.ExePath, meta.IconPath),

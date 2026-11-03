@@ -3,7 +3,8 @@ import type { CheckState, SetupCheck } from '../generated/contract.ts';
 import type { MockContext } from '../transports/mock.ts';
 import { setupFixtureFor } from './fixtures-setup.ts';
 import { installHandler } from './handler-install.ts';
-import { findHandler, libraryChanged, refreshUpdateAvailable } from './library-model.ts';
+import { MOCK_HUB_URL } from './app.ts';
+import { findHandler, libraryChanged, refreshUpdateAvailable, summaryOf } from './library-model.ts';
 import type { MockGame, MockHandler, MockSetup, MockState } from './state.ts';
 import { sleep } from './util.ts';
 
@@ -24,12 +25,12 @@ function gameCheck(game: MockGame | undefined): SetupCheck {
     : check('gameFound', 'blocking', 'Game not found', `Nucleus cannot find ${game?.executablePath ?? 'the executable'}.`, 'Locate');
 }
 
-function handlerCheck(game: MockGame | undefined, handler: MockHandler | undefined): SetupCheck {
+function handlerCheck(state: MockState, game: MockGame | undefined, handler: MockHandler | undefined): SetupCheck {
   const installed = handler?.version;
   const latest = game?.summary.latestHandlerVersion;
   if (!handler?.info.handlerId) return check('handlerUpToDate', 'ok', 'Handler installed from a file', 'It is not updated from the hub.');
   if (latest === undefined) return check('handlerUpToDate', 'info', 'Handler not checked for updates', `Version ${installed}`, 'Check now');
-  if (game?.summary.updateAvailable) {
+  if (game && summaryOf(state, game).updateAvailable) {
     const detail = `Version ${installed} installed, version ${latest} on the hub.`;
     return check('handlerUpToDate', 'warning', 'Handler update available', detail, 'Update');
   }
@@ -78,7 +79,8 @@ function handlerSpecificChecks(state: MockState, setup: MockSetup): SetupCheck[]
   }
   if (savesInOneDrive) {
     const detail = "The game saves in Documents: OneDrive may mix up the instances' saves.";
-    checks.push(check('oneDrive', 'warning', 'Documents are synced by OneDrive', detail));
+    // The host links the page of the 2.5 OneDrive warning (HubSite.OneDriveHelpPage).
+    checks.push({ ...check('oneDrive', 'warning', 'Documents are synced by OneDrive', detail), helpUrl: `${MOCK_HUB_URL}/doc/troubleshooting/handler-does-not-work#documents-in-onedrive` });
   }
   return checks;
 }
@@ -88,7 +90,7 @@ export function checksOf(state: MockState, setup: MockSetup): SetupCheck[] {
   const game = state.games.find((candidate) => candidate.summary.id === setup.gameId);
   const checks = [
     gameCheck(game),
-    handlerCheck(game, findHandler(state, setup.gameId)),
+    handlerCheck(state, game, findHandler(state, setup.gameId)),
     ...handlerSpecificChecks(state, setup),
     devicesCheck(state, setup),
     ...inputLockCheck(state),

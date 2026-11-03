@@ -45,6 +45,8 @@ export function createProfiles(settings: Record<string, string>, players: Player
         { title: '', notes: 'Two on the desk monitor, one on the TV.' },
         ['dualHorizontal', 'fullScreen'],
         [seat(1, 'xInput', 0, 0), seat(2, 'dInput', 0, 1), seat(3, 'rawKeyboard', 1, 0)],
+        // Saved before the handler had its Mod Loader option: the setup stops on the options step.
+        { options: { password: 'tarnished', language: 2 }, stepItems: {} },
       ),
     ],
     Minecraft: [
