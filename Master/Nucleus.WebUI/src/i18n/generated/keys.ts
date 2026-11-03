@@ -232,6 +232,16 @@ export interface MessageParamsMap {
   'downloads.checkUpdates': undefined;
   /** Clear finished */
   'downloads.clearFinished': undefined;
+  /** These handler files can't be used as they are. Fix or delete them in the handlers folder: Nucleus picks the... */
+  'downloads.errors.intro': undefined;
+  /** Not loaded */
+  'downloads.errors.notLoaded': undefined;
+  /** Open the handlers folder */
+  'downloads.errors.openFolder': undefined;
+  /** The previous version of {game} is still used */
+  'downloads.errors.previousInUse': { game: ParamValue };
+  /** Handlers with errors */
+  'downloads.errors.title': undefined;
   /** Update all */
   'downloads.hints.updateAll': undefined;
   /** The Hub is offline */
@@ -624,10 +634,58 @@ export interface MessageParamsMap {
   'engine.titles.warning': undefined;
   /** {game} is in your library */
   'features.addGame.added': { game: ParamValue };
+  /** You can change this at any time in Settings, Game folders. */
+  'features.addGame.autoSearch.ask.hint': undefined;
+  /** No thanks */
+  'features.addGame.autoSearch.ask.noThanks': undefined;
+  /** Nucleus can look for {game} in the folders where you install games, instead of asking you where its executa... */
+  'features.addGame.autoSearch.ask.text': { game: ParamValue };
+  /** Look for your games automatically? */
+  'features.addGame.autoSearch.ask.title': undefined;
+  /** Turn on and choose a folder */
+  'features.addGame.autoSearch.ask.turnOnFolders': undefined;
+  /** Turn on and search */
+  'features.addGame.autoSearch.ask.turnOnSearch': undefined;
+  /** Pick it myself */
+  'features.addGame.autoSearch.find.skip': undefined;
+  /** Searching your game folders… */
+  'features.addGame.autoSearch.find.text': undefined;
+  /** Looking for {game} */
+  'features.addGame.autoSearch.find.title': { game: ParamValue };
+  /** Add this game */
+  'features.addGame.autoSearch.found.add': undefined;
+  /** Choose another file */
+  'features.addGame.autoSearch.found.other': undefined;
+  /** This copy of {game} is in your game folders: */
+  'features.addGame.autoSearch.found.text': { game: ParamValue };
+  /** {game} found */
+  'features.addGame.autoSearch.found.title': { game: ParamValue };
+  /** {game} isn't in your game folders: pick its executable. */
+  'features.addGame.autoSearch.notFound': { game: ParamValue };
   /** Several installed handlers run <b>{file}</b>. Pick the game this executable belongs to. */
   'features.addGame.chooser.message': { file: ParamValue };
   /** Which game is it? */
   'features.addGame.chooser.title': undefined;
+  /** Next to the executable, but refused by this handler */
+  'features.addGame.context.excluded': undefined;
+  /** Usually a sign of another edition or version of the game. */
+  'features.addGame.context.excludedHint': undefined;
+  /** Handler: {file} */
+  'features.addGame.context.handlerFile': { file: ParamValue };
+  /** Pick the executable of the edition this handler is made for. */
+  'features.addGame.context.hintExcluded': undefined;
+  /** Pick the executable in the game's main folder: the one these files are next to. */
+  'features.addGame.context.hintMissing': undefined;
+  /** Several handlers run <b>{file}</b>, but none accepts the folder this copy is in: */
+  'features.addGame.context.introMany': { file: ParamValue };
+  /** The {game} handler runs <b>{file}</b>, but it doesn't accept the folder this copy is in: */
+  'features.addGame.context.introOne': { file: ParamValue; game: ParamValue };
+  /** Missing next to the executable */
+  'features.addGame.context.missing': undefined;
+  /** Pick another file */
+  'features.addGame.context.pickAgain': undefined;
+  /** This executable can't be added */
+  'features.addGame.context.title': undefined;
   /** {game} found. Ready to play. */
   'features.addGame.located': { game: ParamValue };
   /** Game executable */
@@ -656,10 +714,94 @@ export interface MessageParamsMap {
   'features.fileDrop.replace.message': { file: ParamValue; game: ParamValue };
   /** A handler for this game is already installed. Replace it with {file}? Your profiles and settings stay. */
   'features.fileDrop.replace.messageUnknownGame': { file: ParamValue };
+  /** The installed version goes to the Recycle Bin. */
+  'features.fileDrop.replace.oldToRecycleBin': undefined;
   /** Replace the installed handler? */
   'features.fileDrop.replace.title': undefined;
   /** Drop a handler file: .nc, .zip or .js. */
   'features.fileDrop.wrongType': undefined;
+  /** {folder} added to your game folders */
+  'features.gameFolders.added': { folder: ParamValue };
+  /** {folder} is already one of your game folders */
+  'features.gameFolders.already': { folder: ParamValue };
+  /** Choose a folder where you install games */
+  'features.gameFolders.pickTitle': undefined;
+  /** Edit folders */
+  'features.gameSearch.editFolders': undefined;
+  /** Reading your game folders… */
+  'features.gameSearch.loading': undefined;
+  /** Add a folder */
+  'features.gameSearch.noFolders.add': undefined;
+  /** None of your game folders can be found right now: plug the drive back in, or add another folder. */
+  'features.gameSearch.noFolders.allMissing': undefined;
+  /** Add the folders where you install games, for example D:\Games or a Steam library. Nucleus looks in them for... */
+  'features.gameSearch.noFolders.text': undefined;
+  /** Where are your games? */
+  'features.gameSearch.noFolders.title': undefined;
+  /** The {count} games found are already in your library. */
+  'features.gameSearch.nothing.allInLibrary': { count: number };
+  /** Get games */
+  'features.gameSearch.nothing.getGames': undefined;
+  /** No game in your game folders matches a handler you installed. Only games whose handler is installed can be ... */
+  'features.gameSearch.nothing.text': undefined;
+  /** No new games found */
+  'features.gameSearch.nothing.title': undefined;
+  /** Add {count} games */
+  'features.gameSearch.results.addCount': { count: number };
+  /** Adding games… */
+  'features.gameSearch.results.adding': undefined;
+  /** Some games were found in several places. Your library keeps one copy of each game: pick the one you play. */
+  'features.gameSearch.results.duplicates': undefined;
+  /** Done. The games added are in your library. */
+  'features.gameSearch.results.finished': undefined;
+  /** {count} new games found. Pick what to add to your library. */
+  'features.gameSearch.results.found': { count: number };
+  /** Select all */
+  'features.gameSearch.results.selectAll': undefined;
+  /** Select none */
+  'features.gameSearch.results.selectNone': undefined;
+  /** Select games to add */
+  'features.gameSearch.results.selectToAdd': undefined;
+  /** Add {game} ({path}) */
+  'features.gameSearch.row.addLabel': { game: ParamValue; path: ParamValue };
+  /** Added */
+  'features.gameSearch.row.added': undefined;
+  /** Adding… */
+  'features.gameSearch.row.adding': undefined;
+  /** Several copies */
+  'features.gameSearch.row.anotherCopy': undefined;
+  /** Not added */
+  'features.gameSearch.row.failed': undefined;
+  /** In your library */
+  'features.gameSearch.row.inLibrary': undefined;
+  /** Search again */
+  'features.gameSearch.searchAgain': undefined;
+  /** {percent} · {count} games found */
+  'features.gameSearch.searching.found': { count: number; percent: ParamValue };
+  /** Search progress */
+  'features.gameSearch.searching.progressLabel': undefined;
+  /** Stop */
+  'features.gameSearch.searching.stop': undefined;
+  /** Searching {count} game folders… */
+  'features.gameSearch.searching.title': { count: number };
+  /** Search stopped. Nothing was added. */
+  'features.gameSearch.stopped': undefined;
+  /** Search my game folders */
+  'features.gameSearch.title': undefined;
+  /** {count} games added to your library */
+  'features.gameSearch.toasts.added': { count: number };
+  /** No game was added */
+  'features.gameSearch.toasts.noneAdded': undefined;
+  /** Handler {game} added */
+  'features.handlerReload.added': { game: ParamValue };
+  /** Handler {game} fixed and loaded again */
+  'features.handlerReload.fixed': { game: ParamValue };
+  /** Handler {game} deleted */
+  'features.handlerReload.removed': { game: ParamValue };
+  /** {count} handlers reloaded */
+  'features.handlerReload.several': { count: number };
+  /** Handler {game} reloaded */
+  'features.handlerReload.updated': { game: ParamValue };
   /** {current} of {total} */
   'features.notices.position': { current: ParamValue; total: ParamValue };
   /** Add the game */
@@ -984,12 +1126,16 @@ export interface MessageParamsMap {
   'host.library.gameMenu.changeIcon.filters.imagesAndExecutables': undefined;
   /** Change Game Icon */
   'host.library.gameMenu.changeIcon.label': undefined;
-  /** Do you really want to delete {nickname}'s backup folder of {game}? */
-  'host.library.gameMenu.deleteBackup.confirm': { game: ParamValue; nickname: ParamValue };
+  /** Delete {nickname}'s backup folder of {game} for good? This drive has no Recycle Bin. */
+  'host.library.gameMenu.deleteBackup.confirmPermanent': { game: ParamValue; nickname: ParamValue };
+  /** Delete {nickname}'s backup folder of {game}? It goes to the Recycle Bin. */
+  'host.library.gameMenu.deleteBackup.confirmRecycle': { game: ParamValue; nickname: ParamValue };
   /** Delete Backup Folder */
   'host.library.gameMenu.deleteBackup.label': undefined;
-  /** Are you sure you want to delete '{folder}' and all its contents? Running {game} processes are closed first. */
-  'host.library.gameMenu.deleteContentFolder.confirm': { folder: ParamValue; game: ParamValue };
+  /** Delete '{folder}' and all its contents for good? This drive has no Recycle Bin. Running {game} processes ar... */
+  'host.library.gameMenu.deleteContentFolder.confirmPermanent': { folder: ParamValue; game: ParamValue };
+  /** Delete '{folder}' and all its contents? The folder goes to the Recycle Bin. Running {game} processes are cl... */
+  'host.library.gameMenu.deleteContentFolder.confirmRecycle': { folder: ParamValue; game: ParamValue };
   /** Closes leftover game processes and deletes the game instances. */
   'host.library.gameMenu.deleteContentFolder.description': undefined;
   /** Delete Game Content Folder */
@@ -998,8 +1144,10 @@ export interface MessageParamsMap {
   'host.library.gameMenu.deleteDocumentsConfig.label': undefined;
   /** Delete Document Save Path */
   'host.library.gameMenu.deleteDocumentsSave.label': undefined;
-  /** Are you sure you want to delete '{folder}' and all its contents? */
-  'host.library.gameMenu.deleteFolderConfirm': { folder: ParamValue };
+  /** Delete '{folder}' and all its contents for good? This drive has no Recycle Bin. */
+  'host.library.gameMenu.deleteFolder.confirmPermanent': { folder: ParamValue };
+  /** Delete '{folder}' and all its contents? The folder goes to the Recycle Bin. */
+  'host.library.gameMenu.deleteFolder.confirmRecycle': { folder: ParamValue };
   /** Delete UserProfile Config Path */
   'host.library.gameMenu.deleteUserConfig.label': undefined;
   /** Delete UserProfile Save Path */
@@ -1292,6 +1440,10 @@ export interface MessageParamsMap {
   'host.settings.fields.misc.autoDesktopScaling.description': undefined;
   /** Set desktop scale to 100% during sessions */
   'host.settings.fields.misc.autoDesktopScaling.label': undefined;
+  /** When you install a handler, Nucleus looks for its game in the folders below before asking you where the exe... */
+  'host.settings.fields.misc.autoSearchGame.description': undefined;
+  /** Search these folders after a handler install */
+  'host.settings.fields.misc.autoSearchGame.label': undefined;
   /** Writes debug-log.txt in the Nucleus folder. Turned off automatically when the log grows past 150 KB. */
   'host.settings.fields.misc.debugLog.description': undefined;
   /** Enable debug log */
@@ -1414,6 +1566,10 @@ export interface MessageParamsMap {
   'host.settings.sections.audio.descriptionWithDefault': { device: ParamValue };
   /** Audio */
   'host.settings.sections.audio.title': undefined;
+  /** Folders where you install games. Nucleus looks in them for the games of your installed handlers, so you don... */
+  'host.settings.sections.gameFolders.description': undefined;
+  /** Game folders */
+  'host.settings.sections.gameFolders.title': undefined;
   /** Button combinations available during a game session (XInput gamepads). Steam Input may interfere with them.... */
   'host.settings.sections.gamepad.description': undefined;
   /** Gamepad shortcuts */
@@ -1804,6 +1960,8 @@ export interface MessageParamsMap {
   'library.empty.addGame': undefined;
   /** Get games */
   'library.empty.getGames': undefined;
+  /** Search my game folders */
+  'library.empty.searchGames': undefined;
   /** Add the games Nucleus found on this PC, pick a handler on the Hub, or point Nucleus at a game you have. Eac... */
   'library.empty.text': undefined;
   /** Your library is empty */
@@ -1940,6 +2098,8 @@ export interface MessageParamsMap {
   'library.games.needsAttention': undefined;
   /** No game in your library matches these filters. */
   'library.games.noMatch': undefined;
+  /** Search my games */
+  'library.games.searchGames': undefined;
   /** Show every game */
   'library.games.showAll': undefined;
   /** Sort */
@@ -2420,16 +2580,16 @@ export interface MessageParamsMap {
   'profiles.defaultTitle': { number: ParamValue };
   /** {profile} deleted */
   'profiles.delete.done': { profile: ParamValue };
-  /** {profile} is deleted for good. */
-  'profiles.delete.message': { profile: ParamValue };
-  /** {profile} is deleted for good. The profiles after it are renumbered. */
-  'profiles.delete.messageRenumbered': { profile: ParamValue };
-  /** {profile} is deleted for good. The profiles after it are renumbered. The setup starts over: every player go... */
-  'profiles.delete.messageRenumberedReset': { profile: ParamValue };
-  /** {profile} is deleted for good. The setup starts over: every player goes back to the tray. */
-  'profiles.delete.messageReset': { profile: ParamValue };
+  /** {profile} is deleted for good: its drive has no Recycle Bin. */
+  'profiles.delete.permanent': { profile: ParamValue };
+  /** The profiles after it are renumbered. */
+  'profiles.delete.renumbered': undefined;
+  /** The setup starts over: every player goes back to the tray. */
+  'profiles.delete.reset': undefined;
   /** Delete {profile}? */
   'profiles.delete.title': { profile: ParamValue };
+  /** {profile} goes to the Recycle Bin. */
+  'profiles.delete.toRecycleBin': { profile: ParamValue };
   /** Starts by itself */
   'profiles.manager.autoPlay': undefined;
   /** Delete {profile} */
@@ -3010,6 +3170,30 @@ export interface MessageParamsMap {
   'settings.fields.restartBadge': undefined;
   /** Show the password */
   'settings.fields.showPassword': undefined;
+  /** Add a folder */
+  'settings.gameFolders.add': undefined;
+  /** Their sub-folders are searched too. */
+  'settings.gameFolders.editorHint': undefined;
+  /** Your game folders */
+  'settings.gameFolders.editorTitle': undefined;
+  /** No game folders yet. Add the folders where you install games, for example D:\Games or a Steam library. */
+  'settings.gameFolders.empty': undefined;
+  /** The game folders can't be read. */
+  'settings.gameFolders.error': undefined;
+  /** Loading game folders… */
+  'settings.gameFolders.loading': undefined;
+  /** Not found */
+  'settings.gameFolders.missing': undefined;
+  /** This folder can't be found right now (an unplugged drive?). It stays in the list and is searched again once... */
+  'settings.gameFolders.missingHint': undefined;
+  /** Remove */
+  'settings.gameFolders.remove': undefined;
+  /** Remove {folder} from your game folders */
+  'settings.gameFolders.removeLabel': { folder: ParamValue };
+  /** {folder} removed from your game folders */
+  'settings.gameFolders.removed': { folder: ParamValue };
+  /** Search now */
+  'settings.gameFolders.searchNow': undefined;
   /** Loading settings */
   'settings.loading': undefined;
   /** Settings sections */
@@ -3258,6 +3442,8 @@ export interface MessageParamsMap {
   'shell.palette.settings.about': undefined;
   /** Audio: playback device of each instance */
   'shell.palette.settings.audio': undefined;
+  /** Game folders */
+  'shell.palette.settings.gameFolders': undefined;
   /** Gamepad shortcuts and controller type */
   'shell.palette.settings.gamepad': undefined;
   /** General: languages, network, nicknames, debug log */
@@ -3397,4 +3583,4 @@ export interface MessageParamsMap {
 }
 
 /** Strings with tags (`<kbd>`, `<b>`...): render them with `<T>` to keep their markup; `t()` drops it. */
-export type RichMessageKey = 'catalog.offlineCopy' | 'downloads.row.statusWhen' | 'features.addGame.chooser.message' | 'handler.action.reportProblem' | 'handler.comments.title' | 'handler.steps.seatTip' | 'lobby.canvas.seats' | 'lobby.keys.help' | 'lobby.keys.helpGuests' | 'lobby.keys.waiting' | 'profiles.manager.nextProfileSaveOff' | 'profiles.manager.nextProfileSaveOn' | 'session.idle.lastLaunchFailed' | 'session.instance.stepDone' | 'session.instance.stepPending' | 'session.preview.caption' | 'session.preview.captionPrimary' | 'settings.supporters.keys' | 'settings.supporters.keysStill';
+export type RichMessageKey = 'catalog.offlineCopy' | 'downloads.row.statusWhen' | 'features.addGame.chooser.message' | 'features.addGame.context.introMany' | 'features.addGame.context.introOne' | 'handler.action.reportProblem' | 'handler.comments.title' | 'handler.steps.seatTip' | 'lobby.canvas.seats' | 'lobby.keys.help' | 'lobby.keys.helpGuests' | 'lobby.keys.waiting' | 'profiles.manager.nextProfileSaveOff' | 'profiles.manager.nextProfileSaveOn' | 'session.idle.lastLaunchFailed' | 'session.instance.stepDone' | 'session.instance.stepPending' | 'session.preview.caption' | 'session.preview.captionPrimary' | 'settings.supporters.keys' | 'settings.supporters.keysStill';

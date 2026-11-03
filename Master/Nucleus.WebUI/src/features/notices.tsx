@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { bridge, bridgeQueryKey, useBridgeQuery, type NoticeLevel } from '@/bridge';
+import { LinkifiedText } from '@/components/HandlerNotes';
 import { useI18n } from '@/i18n';
 import { isSessionLive, useSessionSnapshot } from '@/lib/live';
 import { Button, Dialog, type IconName } from '@/ui';
@@ -46,7 +47,9 @@ export function NoticeDialog() {
     >
       {notice && (
         <div className="grid gap-6">
-          <p className="max-h-[50vh] overflow-auto text-15 leading-[1.55] whitespace-pre-line text-ink-2 wrap-anywhere">{notice.message}</p>
+          <p className="max-h-[50vh] overflow-auto text-15 leading-[1.55] whitespace-pre-line text-ink-2 wrap-anywhere">
+            <LinkifiedText>{notice.message}</LinkifiedText>
+          </p>
           <div className="flex justify-end">
             <Button variant="primary" onClick={() => dismiss(notice.id)} data-nav autoFocus>
               {t('common.ok')}

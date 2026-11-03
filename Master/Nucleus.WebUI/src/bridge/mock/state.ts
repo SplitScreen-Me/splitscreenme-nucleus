@@ -2,6 +2,7 @@
 // profiles and session, settings). Each transport gets its own: tests create several.
 import type {
   AppNotice,
+  HandlerFileError,
   DeviceKind,
   GameSummary,
   LibraryPreferences,
@@ -22,6 +23,7 @@ import type {
 import { createInstalledHandlers, createLibrary, type HandlerInfo } from './fixtures.ts';
 import { createProfiles } from './fixtures-profiles.ts';
 import { createPlayers, createSettingsValues } from './fixtures-settings.ts';
+import { GAME_FOLDERS } from './game-search.ts';
 import { initialMockLanguage } from './i18n.ts';
 import type { TimerSet } from './timers.ts';
 
@@ -203,6 +205,10 @@ export interface MockState {
   noticeSeq: number;
   /** Language of the app, and whether the user has chosen it (`i18n`, the language setting). */
   language: { locale: string; chosen: boolean };
+  /** Game folders of the automatic game search, as saved (`settings.getGameFolders`). */
+  gameFolders: string[];
+  /** Handler scripts that can't be used (`handlers.listErrors`). */
+  handlerErrors: HandlerFileError[];
 }
 
 /** Creates the startup state: a library of 13 games, profiles for two of them, default settings, no setup. */
@@ -239,5 +245,7 @@ export function createMockState(): MockState {
     elevated: false,
     notices: [],
     noticeSeq: 0,
+    gameFolders: [...GAME_FOLDERS],
+    handlerErrors: [],
   };
 }

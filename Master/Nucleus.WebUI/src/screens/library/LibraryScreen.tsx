@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { bridge, useBridgeQuery, type GameSummary } from '@/bridge';
 import { useAddGame } from '@/features/add-game';
+import { GameSearchDialog } from '@/features/game-search';
 import { useAllHandlers } from '@/hub';
 import { useI18n, useT } from '@/i18n';
 import { useRun, errorMessage, isCancelled } from '@/lib/bridge-ui';
@@ -29,6 +30,14 @@ export default function LibraryScreen() {
   const [notesFor, setNotesFor] = useState<string | null>(null);
   const [detailsFor, setDetailsFor] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [searching, setSearching] = useState(false);
+  // The first game "Search my games" added gets the focus once its dialog closes.
+  const searchAdded = useRef<string | undefined>(undefined);
+  const closeSearch = useCallback(() => {
+    setSearching(false);
+    if (searchAdded.current) focusGame(searchAdded.current);
+    searchAdded.current = undefined;
+  }, []);
   const toast = useToast();
   const run = useRun();
   const { addGame, locateGame } = useAddGame();
@@ -156,7 +165,7 @@ export default function LibraryScreen() {
           onUpdate={() => void runUpdate(featured)}
         />
       ) : (
-        <EmptyLibrary adding={adding} onAddGame={() => void runAdd()} />
+        <EmptyLibrary adding={adding} onAddGame={() => void runAdd()} onSearchGames={() => setSearching(true)} />
       )}
       <FoundOnPc library={games} onAdded={focusGame} />
       {games.length > 0 && (
@@ -167,6 +176,7 @@ export default function LibraryScreen() {
           attentionOnly={attentionOnly}
           onAttentionOnly={setAttentionOnly}
           onAddGame={() => void runAdd()}
+          onSearchGames={() => setSearching(true)}
           adding={adding}
           onLocate={(g) => void runLocate(g)}
           onUpdate={(g) => void runUpdate(g)}
@@ -185,6 +195,7 @@ export default function LibraryScreen() {
       />
       <NotesDialog gameId={notesFor} onClose={() => setNotesFor(null)} />
       <DetailsDialog gameId={detailsFor} onClose={() => setDetailsFor(null)} />
+      <GameSearchDialog open={searching} onClose={closeSearch} onAdded={(ids) => (searchAdded.current = ids[0])} />
       <AttentionSummary games={games} />
     </div>
   );
@@ -205,7 +216,7 @@ function AttentionSummary({ games }: { games: GameSummary[] }) {
   return <p className="sr-only">{text}</p>;
 }
 
-function EmptyLibrary({ adding, onAddGame }: { adding: boolean; onAddGame: () => void }) {
+function EmptyLibrary({ adding, onAddGame, onSearchGames }: { adding: boolean; onAddGame: () => void; onSearchGames: () => void }) {
   const t = useT();
   return (
     <Pane as="section" aria-labelledby="empty-title" className="flex min-h-[372px] flex-col justify-end gap-4 px-9 pt-8 pb-[30px]">
@@ -225,6 +236,10 @@ function EmptyLibrary({ adding, onAddGame }: { adding: boolean; onAddGame: () =>
         <Button variant="ghost" size="lg" data-nav data-hints="add" onClick={onAddGame} disabled={adding}>
           {adding ? <Spinner /> : <Icon name="plus" />}
           {t('library.empty.addGame')}
+        </Button>
+        <Button variant="ghost" size="lg" data-nav data-hints="add" onClick={onSearchGames}>
+          <Icon name="search" />
+          {t('library.empty.searchGames')}
         </Button>
       </div>
     </Pane>

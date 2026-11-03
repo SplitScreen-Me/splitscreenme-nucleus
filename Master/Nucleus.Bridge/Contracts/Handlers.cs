@@ -31,6 +31,57 @@ namespace Nucleus.Bridge.Contracts
 
         /// <summary>Screenshot URLs (IGDB) of a hub handler's game, from the handler detail of the hub API.</summary>
         Task<List<string>> Screenshots(HubHandlerRequest request);
+
+        /// <summary>Handler scripts of the handlers folder that can't be used as they are now (script error, no game name or GUID), by file name.</summary>
+        List<HandlerFileError> ListErrors();
+    }
+
+    /// <summary>A handler script that can't be used as it is now.</summary>
+    public sealed class HandlerFileError
+    {
+        /// <summary>Script file name, for example "Elden Ring.js".</summary>
+        public string File { get; set; } = "";
+
+        /// <summary>Game name of the version in use, when an earlier version of the file loaded.</summary>
+        public string? GameName { get; set; }
+
+        /// <summary>Game id of the version in use, when an earlier version of the file loaded.</summary>
+        public string? GameId { get; set; }
+
+        /// <summary>
+        /// The previous version of the script is still in use (it loaded before the file was broken), so its game keeps working
+        /// until the file is fixed. False when the file never loaded.
+        /// </summary>
+        public bool PreviousVersionInUse { get; set; }
+
+        /// <summary>What is wrong, as the script engine or Nucleus reports it (not translated when it comes from the script engine).</summary>
+        public string Error { get; set; } = "";
+    }
+
+    /// <summary>How a handler changed when its script file was reloaded.</summary>
+    public enum HandlerReloadKind
+    {
+        /// <summary>A new script was added to the handlers folder.</summary>
+        Added,
+        /// <summary>The script was edited.</summary>
+        Updated,
+        /// <summary>A broken script was fixed.</summary>
+        Fixed,
+        /// <summary>The script was deleted; its game left the library.</summary>
+        Removed,
+    }
+
+    /// <summary>A handler reloaded from its script file.</summary>
+    public sealed class ReloadedHandler
+    {
+        /// <summary>Game id.</summary>
+        public string GameId { get; set; } = "";
+
+        /// <summary>Game name.</summary>
+        public string GameName { get; set; } = "";
+
+        /// <summary>What happened.</summary>
+        public HandlerReloadKind Kind { get; set; }
     }
 
     /// <summary>Identifies a handler on the hub.</summary>
@@ -132,10 +183,17 @@ namespace Nucleus.Bridge.Contracts
     }
 
     /// <summary>Installed handlers changed.</summary>
-    [BridgeEvent("handlers.changed", Invalidates = new[] { "handlers.listInstalled", "library.list", "library.get" })]
+    [BridgeEvent("handlers.changed", Invalidates = new[] { "handlers.listInstalled", "handlers.listErrors", "library.list", "library.get" })]
     public sealed class HandlersChanged
     {
         /// <summary>Game ids of the handlers that changed.</summary>
         public List<string> GameIds { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Handlers picked up from the handlers folder by themselves (a script added, edited, fixed or deleted while Nucleus runs), for a
+        /// short message. Absent for installs, updates and the library reload, which say so themselves, and for broken scripts, which
+        /// are notices.
+        /// </summary>
+        public List<ReloadedHandler>? Reloaded { get; set; }
     }
 }

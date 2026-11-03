@@ -14,6 +14,9 @@ public sealed class MenuFolderTarget
 
     /// <summary>Full path of the folder the item opens or deletes.</summary>
     public string Path { get; set; } = "";
+
+    /// <summary>Its drive has a recycle bin: deleting it moves it there (else the deletion is permanent).</summary>
+    public bool RecycleBin { get; set; } = true;
 }
 
 /// <summary>Everything the per-game menu depends on, captured from the handler, metaInfo, settings and disk.</summary>
@@ -34,6 +37,9 @@ public sealed class GameMenuContext
     /// <summary><c>content\&lt;GUID&gt;</c>.</summary>
     public string ContentFolder { get; set; } = "";
 
+    /// <summary>The drive of <see cref="ContentFolder"/> has a recycle bin: deleting the folder moves it there (else the deletion is permanent).</summary>
+    public bool ContentFolderRecycleBin { get; set; } = true;
+
     /// <summary>Existing <c>&lt;profile root&gt;\&lt;UserProfileConfigPath&gt;</c> folders.</summary>
     public List<MenuFolderTarget> UserConfigFolders { get; set; } = new List<MenuFolderTarget>();
 
@@ -48,6 +54,9 @@ public sealed class GameMenuContext
 
     /// <summary>Nicknames that have a backup folder (<c>_Game Files Backup_\&lt;GUID&gt;\&lt;nickname&gt;</c>).</summary>
     public List<string> BackupNicknames { get; set; } = new List<string>();
+
+    /// <summary>The drive of the backups has a recycle bin: a deleted backup goes there (else the deletion is permanent).</summary>
+    public bool BackupsRecycleBin { get; set; } = true;
 
     /// <summary>Input hooks of the handler.</summary>
     public HandlerInputFlags Inputs { get; set; } = new HandlerInputFlags();
@@ -217,7 +226,11 @@ public static class GameMenuBuilder
             files.Add(Action(Ids.OpenContentFolder, T("host.library.gameMenu.openContentFolder.label"), T("host.library.gameMenu.openContentFolder.description")));
             GameMenuItem delete = Action(Ids.DeleteContentFolder, T("host.library.gameMenu.deleteContentFolder.label"), T("host.library.gameMenu.deleteContentFolder.description"));
             delete.Danger = true;
-            delete.Confirm = T("host.library.gameMenu.deleteContentFolder.confirm", new { folder = c.ContentFolder, game = c.GameName });
+            // Nucleus 2.5: what the user deletes goes to the recycle bin, for good on a drive without one.
+            var contentArgs = new { folder = c.ContentFolder, game = c.GameName };
+            delete.Confirm = c.ContentFolderRecycleBin
+                ? T("host.library.gameMenu.deleteContentFolder.confirmRecycle", contentArgs)
+                : T("host.library.gameMenu.deleteContentFolder.confirmPermanent", contentArgs);
             files.Add(delete);
         }
 
@@ -238,7 +251,9 @@ public static class GameMenuBuilder
                 open.Children.Add(Action(Ids.OpenBackup + ":" + nickname, nickname, null));
                 GameMenuItem child = Action(Ids.DeleteBackup + ":" + nickname, nickname, null);
                 child.Danger = true;
-                child.Confirm = T("host.library.gameMenu.deleteBackup.confirm", new { nickname, game = c.GameName });
+                child.Confirm = c.BackupsRecycleBin
+                    ? T("host.library.gameMenu.deleteBackup.confirmRecycle", new { nickname, game = c.GameName })
+                    : T("host.library.gameMenu.deleteBackup.confirmPermanent", new { nickname, game = c.GameName });
                 delete.Children.Add(child);
             }
 
@@ -370,7 +385,9 @@ public static class GameMenuBuilder
             open.Children.Add(Action(openId + ":" + folder.Path, folder.Label, folder.Path));
             GameMenuItem child = Action(deleteId + ":" + folder.Path, folder.Label, folder.Path);
             child.Danger = true;
-            child.Confirm = T("host.library.gameMenu.deleteFolderConfirm", new { folder = folder.Path });
+            child.Confirm = folder.RecycleBin
+                ? T("host.library.gameMenu.deleteFolder.confirmRecycle", new { folder = folder.Path })
+                : T("host.library.gameMenu.deleteFolder.confirmPermanent", new { folder = folder.Path });
             delete.Children.Add(child);
         }
 

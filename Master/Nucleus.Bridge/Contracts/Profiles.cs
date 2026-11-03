@@ -58,6 +58,9 @@ namespace Nucleus.Bridge.Contracts
 
         /// <summary>Players, in order.</summary>
         public List<ProfilePlayer> PlayerList { get; set; } = new List<ProfilePlayer>();
+
+        /// <summary>Deleting the profile moves its file to the Recycle Bin. False when its drive has none: the deletion is permanent.</summary>
+        public bool RecycleBin { get; set; }
     }
 
     /// <summary>A player stored in a profile.</summary>

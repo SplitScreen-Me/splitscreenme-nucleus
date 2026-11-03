@@ -2,6 +2,7 @@ import type { BridgeHandlers, PlayerIdentities, SettingField, ValidationError } 
 import type { MockContext } from '../transports/mock.ts';
 import { invalidParams } from './failures.ts';
 import { GAMEPAD_BUTTONS, PLAYER_SLOTS, SETTINGS_SCHEMA, SETTING_FIELDS } from './fixtures-settings.ts';
+import { addGameFolder, gameFolders, removeGameFolder } from './game-search.ts';
 import { setMockLanguage } from './i18n.ts';
 import { INPUT_LOCK_REMINDER_OFF } from './setup-checks.ts';
 import { publishSetup } from './setup-snapshot.ts';
@@ -127,5 +128,8 @@ export function createSettingsMock(context: MockContext, state: MockState): Brid
       await sleep(CAPTURE_MS);
       return combo;
     },
+    getGameFolders: () => gameFolders(state),
+    addGameFolder: ({ path }) => addGameFolder(context, state, path),
+    removeGameFolder: ({ path }) => removeGameFolder(context, state, path),
   };
 }

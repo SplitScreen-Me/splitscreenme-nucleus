@@ -7,6 +7,7 @@ import { useScreenChrome } from '@/shell/chrome';
 import { cn, Icon, Pane, Spinner } from '@/ui';
 import { About } from './About';
 import { SettingRow } from './fields';
+import { GameFoldersEditor } from './GameFoldersEditor';
 import { holds, sectionIcon, useSettingsSaver } from './model';
 import { PlayersEditor } from './PlayersEditor';
 
@@ -144,6 +145,7 @@ export default function SettingsScreen() {
                 />
               ))}
               {entry.id === 'players' && <PlayersEditor />}
+              {entry.id === 'gameFolders' && <GameFoldersEditor />}
             </Section>
           );
         })}

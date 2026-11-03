@@ -241,6 +241,72 @@ public sealed class SettingsService : ISettingsService
         return errors;
     }
 
+    /// <summary>Key sent in <see cref="SettingsChanged"/> when the game folders change.</summary>
+    public const string GameFoldersKey = "gameFolders";
+
+    /// <inheritdoc />
+    public GameFolders GetGameFolders() => GameFoldersOf(core.AutoSearch.Enabled, core.AutoSearch.Folders);
+
+    /// <inheritdoc />
+    public GameFolders AddGameFolder(GameFolderRequest request)
+    {
+        string path = GameFolderPath(request);
+        if (!Directory.Exists(path))
+        {
+            throw new BridgeException(BridgeErrorKind.NotFound, I18n.T("host.errors.folderNotFound"), new { reason = "folderNotFound", path });
+        }
+
+        if (core.AutoSearch.AddFolder(path))
+        {
+            ServiceLog.Info("game folder added: " + path);
+            core.Events.Emit(new SettingsChanged { Keys = new List<string> { GameFoldersKey } });
+        }
+
+        return GetGameFolders();
+    }
+
+    /// <inheritdoc />
+    public GameFolders RemoveGameFolder(GameFolderRequest request)
+    {
+        if (core.AutoSearch.RemoveFolder(GameFolderPath(request)))
+        {
+            ServiceLog.Info("game folder removed: " + request.Path);
+            core.Events.Emit(new SettingsChanged { Keys = new List<string> { GameFoldersKey } });
+        }
+
+        return GetGameFolders();
+    }
+
+    /// <summary>The folders and the choice as the contract describes them.</summary>
+    internal static GameFolders GameFoldersOf(bool? autoSearch, IReadOnlyList<string> folders) => new GameFolders
+    {
+        AutoSearch = autoSearch,
+        Folders = folders.Select(f => new GameFolder { Path = f, Exists = Directory.Exists(f) }).ToList(),
+    };
+
+    private static string GameFolderPath(GameFolderRequest? request)
+    {
+        string path = request?.Path?.Trim().Trim('"') ?? "";
+        if (path.Length == 0)
+        {
+            throw new BridgeException(BridgeErrorKind.InvalidParams, "path is required.");
+        }
+
+        try
+        {
+            if (!Path.IsPathRooted(path) || path.StartsWith(@"\", StringComparison.Ordinal) && !path.StartsWith(@"\\", StringComparison.Ordinal))
+            {
+                throw new ArgumentException("not a full path", nameof(request));
+            }
+
+            return Path.GetFullPath(path);
+        }
+        catch (Exception)
+        {
+            throw new BridgeException(BridgeErrorKind.InvalidParams, "path is not a valid folder path.");
+        }
+    }
+
     /// <inheritdoc />
     public async Task<string> CaptureGamepadCombo(CaptureComboRequest request, CancellationToken cancellationToken)
     {

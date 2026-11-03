@@ -150,7 +150,7 @@ public sealed class ExecutableContextTests : IDisposable
         BridgeException error = LibraryService.NoHandler(exe, ExecutableMatch.Evaluate(new[] { noPacks, needsData }, exe));
 
         Assert.Equal(BridgeErrorKind.NotFound, error.Kind);
-        JObject data = JObject.FromObject(error.ErrorData!);
+        JObject data = JObject.FromObject(error.ErrorData!, Newtonsoft.Json.JsonSerializer.Create(BridgeJson.Settings)); // as sent to the UI
         Assert.Equal("contextMissing", (string?)data["reason"]);
         List<JToken> handlers = data["handlers"]!.ToList();
         Assert.Equal(2, handlers.Count);

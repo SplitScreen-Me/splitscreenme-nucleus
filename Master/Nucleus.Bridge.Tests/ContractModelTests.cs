@@ -168,6 +168,26 @@ public class ContractModelTests
     }
 
     [Fact]
+    public void Error_data_dtos_join_the_contract_with_the_types_they_reference()
+    {
+        var model = ContractModel.Build(ShelfContract.Types.Append(typeof(ShelfRefusal)));
+
+        var refusal = (ObjectTypeModel)model.Types.Single(t => t.Name == "ShelfRefusal");
+        Assert.Equal(new[] { "reason", "items", "hint" }, refusal.Properties.Select(p => p.Name));
+        Assert.Equal("list<ShelfItem>", refusal.Properties.Single(p => p.Name == "items").Type.ToString());
+        Assert.Contains(model.Types, t => t.Name == "RefusalHint");
+        Assert.NotEqual(_model.Hash, model.Hash);
+    }
+
+    [Fact]
+    public void Error_data_must_be_a_dto_class()
+    {
+        var error = Assert.Throws<ContractModelException>(() => ContractModel.Build(new[] { typeof(InvalidContracts.GenericErrorData<>) }));
+
+        Assert.Contains(error.Errors, e => e.Contains("[BridgeErrorData] goes on DTO classes"));
+    }
+
+    [Fact]
     public void Reports_every_error_at_once()
     {
         var error = Assert.Throws<ContractModelException>(() => ContractModel.Build(new[] { typeof(InvalidContracts.IUnsupportedTypes) }));

@@ -171,6 +171,7 @@
       "settings": {
         "general": "Général : langues, réseau, pseudos, journal de débogage",
         "players": "Joueurs : pseudos et ID Steam",
+        "gameFolders": "Dossiers de jeux",
         "hotkeys": "Raccourcis clavier et touche de verrouillage des entrées",
         "gamepad": "Raccourcis manette et type de manette",
         "audio": "Audio : périphérique de lecture de chaque instance",
@@ -260,6 +261,40 @@
       "chooser": {
         "title": "De quel jeu s’agit-il ?",
         "message": "Plusieurs handlers installés lancent <b>{file}</b>. Choisissez le jeu auquel appartient cet exécutable."
+      },
+      "context": {
+        "title": "Impossible d’ajouter cet exécutable",
+        "introOne": "Le handler de {game} lance <b>{file}</b>, mais il n’accepte pas le dossier où se trouve cette copie :",
+        "introMany": "Plusieurs handlers lancent <b>{file}</b>, mais aucun n’accepte le dossier où se trouve cette copie :",
+        "handlerFile": "Handler : {file}",
+        "missing": "Manquant à côté de l’exécutable",
+        "excluded": "Présent à côté de l’exécutable, mais refusé par ce handler",
+        "excludedHint": "C’est souvent le signe d’une autre édition ou version du jeu.",
+        "hintMissing": "Choisissez l’exécutable situé dans le dossier principal du jeu, celui à côté duquel se trouvent ces fichiers.",
+        "hintExcluded": "Choisissez l’exécutable de l’édition prévue pour ce handler.",
+        "pickAgain": "Choisir un autre fichier"
+      },
+      "autoSearch": {
+        "ask": {
+          "title": "Chercher vos jeux automatiquement ?",
+          "text": "Nucleus peut chercher {game} dans les dossiers où vous installez vos jeux, au lieu de vous demander où se trouve son exécutable. Il fera de même après chaque installation de handler, et cela fonctionne hors ligne.",
+          "hint": "Vous pourrez changer cela à tout moment dans Paramètres, Dossiers de jeux.",
+          "noThanks": "Non merci",
+          "turnOnSearch": "Activer et chercher",
+          "turnOnFolders": "Activer et choisir un dossier"
+        },
+        "find": {
+          "title": "Recherche de {game}",
+          "text": "Recherche dans vos dossiers de jeux…",
+          "skip": "Le choisir moi-même"
+        },
+        "found": {
+          "title": "{game} trouvé",
+          "text": "Cette copie de {game} se trouve dans vos dossiers de jeux :",
+          "add": "Ajouter ce jeu",
+          "other": "Choisir un autre fichier"
+        },
+        "notFound": "{game} n’est pas dans vos dossiers de jeux : choisissez son exécutable."
       }
     },
     "fileDrop": {
@@ -267,6 +302,7 @@
         "title": "Remplacer le handler installé ?",
         "message": "{game} a déjà un handler. Le remplacer par {file} ? Vos profils et vos paramètres sont conservés.",
         "messageUnknownGame": "Un handler est déjà installé pour ce jeu. Le remplacer par {file} ? Vos profils et vos paramètres sont conservés.",
+        "oldToRecycleBin": "La version installée ira dans la Corbeille.",
         "confirm": "Remplacer"
       },
       "installed": "Handler de {game} installé",
@@ -279,6 +315,79 @@
     },
     "notices": {
       "position": "{current} sur {total}"
+    },
+    "gameFolders": {
+      "pickTitle": "Choisissez un dossier où vous installez des jeux",
+      "added": "{folder} ajouté à vos dossiers de jeux",
+      "already": "{folder} fait déjà partie de vos dossiers de jeux"
+    },
+    "gameSearch": {
+      "title": "Chercher dans mes dossiers de jeux",
+      "loading": "Lecture de vos dossiers de jeux…",
+      "noFolders": {
+        "title": "Où sont vos jeux ?",
+        "text": "Ajoutez les dossiers où vous installez vos jeux, par exemple D:\\Jeux ou une bibliothèque Steam. Nucleus y cherche les jeux de vos handlers installés.",
+        "allMissing": "Aucun de vos dossiers de jeux n’est accessible pour le moment : rebranchez le disque ou ajoutez un autre dossier.",
+        "add": "Ajouter un dossier"
+      },
+      "editFolders": "Modifier les dossiers",
+      "searching": {
+        "title_one": "Recherche dans {count} dossier de jeux…",
+        "title_many": "Recherche dans {count} dossiers de jeux…",
+        "title_other": "Recherche dans {count} dossiers de jeux…",
+        "progressLabel": "Progression de la recherche",
+        "found_one": "{percent} · {count} jeu trouvé",
+        "found_many": "{percent} · {count} jeux trouvés",
+        "found_other": "{percent} · {count} jeux trouvés",
+        "stop": "Arrêter"
+      },
+      "stopped": "Recherche arrêtée. Rien n’a été ajouté.",
+      "searchAgain": "Chercher à nouveau",
+      "nothing": {
+        "title": "Aucun nouveau jeu trouvé",
+        "text": "Aucun jeu de vos dossiers de jeux ne correspond à un handler installé. Seuls les jeux dont le handler est installé peuvent être trouvés : récupérez des handlers dans le Catalogue, puis relancez la recherche.",
+        "allInLibrary_one": "Le jeu trouvé est déjà dans votre bibliothèque.",
+        "allInLibrary_many": "Les {count} jeux trouvés sont déjà dans votre bibliothèque.",
+        "allInLibrary_other": "Les {count} jeux trouvés sont déjà dans votre bibliothèque.",
+        "getGames": "Catalogue"
+      },
+      "results": {
+        "found_one": "{count} nouveau jeu trouvé. Choisissez ce que vous ajoutez à votre bibliothèque.",
+        "found_many": "{count} nouveaux jeux trouvés. Choisissez ce que vous ajoutez à votre bibliothèque.",
+        "found_other": "{count} nouveaux jeux trouvés. Choisissez ce que vous ajoutez à votre bibliothèque.",
+        "finished": "Terminé. Les jeux ajoutés sont dans votre bibliothèque.",
+        "selectAll": "Tout sélectionner",
+        "selectNone": "Tout désélectionner",
+        "addCount_one": "Ajouter {count} jeu",
+        "addCount_many": "Ajouter {count} jeux",
+        "addCount_other": "Ajouter {count} jeux",
+        "selectToAdd": "Sélectionnez des jeux à ajouter",
+        "adding": "Ajout des jeux…",
+        "duplicates": "Certains jeux ont été trouvés à plusieurs endroits. Votre bibliothèque garde un seul exemplaire de chaque jeu : choisissez celui auquel vous jouez."
+      },
+      "row": {
+        "addLabel": "Ajouter {game} ({path})",
+        "inLibrary": "Dans votre bibliothèque",
+        "adding": "Ajout…",
+        "added": "Ajouté",
+        "failed": "Non ajouté",
+        "anotherCopy": "Plusieurs exemplaires"
+      },
+      "toasts": {
+        "added_one": "{count} jeu ajouté à votre bibliothèque",
+        "added_many": "{count} jeux ajoutés à votre bibliothèque",
+        "added_other": "{count} jeux ajoutés à votre bibliothèque",
+        "noneAdded": "Aucun jeu n’a été ajouté"
+      }
+    },
+    "handlerReload": {
+      "added": "Handler {game} ajouté",
+      "updated": "Handler {game} rechargé",
+      "fixed": "Handler {game} corrigé et rechargé",
+      "removed": "Handler {game} supprimé",
+      "several_one": "{count} handler rechargé",
+      "several_many": "{count} handlers rechargés",
+      "several_other": "{count} handlers rechargés"
     }
   },
   "language": {
@@ -321,7 +430,8 @@
       "title": "Votre bibliothèque est vide",
       "text": "Ajoutez les jeux que Nucleus a trouvés sur ce PC, choisissez un handler sur le Hub ou indiquez à Nucleus un jeu que vous possédez. Chaque jeu reçoit une configuration en écran partagé prête à l’emploi.",
       "getGames": "Voir le catalogue",
-      "addGame": "Ajouter un jeu"
+      "addGame": "Ajouter un jeu",
+      "searchGames": "Chercher dans mes dossiers de jeux"
     },
     "upToPlayers_one": "Jusqu’à {count} joueur",
     "upToPlayers_many": "Jusqu’à {count} joueurs",
@@ -427,6 +537,7 @@
       "sort": "Trier",
       "sortLabel": "Trier les jeux",
       "addGame": "Ajouter un jeu",
+      "searchGames": "Chercher mes jeux",
       "filtersLabel": "Filtrer les jeux",
       "favourites": "Favoris",
       "needsAttention": "À vérifier",
@@ -808,6 +919,13 @@
       "done": "Installé",
       "failed": "Échec",
       "cancelled": "Annulé"
+    },
+    "errors": {
+      "title": "Handlers en erreur",
+      "intro": "Ces fichiers de handler ne peuvent pas être utilisés en l’état. Corrigez-les ou supprimez-les dans le dossier des handlers : Nucleus prend le changement en compte tout seul.",
+      "openFolder": "Ouvrir le dossier des handlers",
+      "previousInUse": "La version précédente de {game} reste utilisée",
+      "notLoaded": "Non chargé"
     }
   },
   "hub": {
@@ -1266,10 +1384,10 @@
     },
     "delete": {
       "title": "Supprimer {profile} ?",
-      "message": "{profile} sera définitivement supprimé.",
-      "messageRenumbered": "{profile} sera définitivement supprimé. Les profils suivants seront renumérotés.",
-      "messageReset": "{profile} sera définitivement supprimé. La configuration repart de zéro : tous les joueurs retournent dans la zone d’attente.",
-      "messageRenumberedReset": "{profile} sera définitivement supprimé. Les profils suivants seront renumérotés. La configuration repart de zéro : tous les joueurs retournent dans la zone d’attente.",
+      "toRecycleBin": "{profile} ira dans la Corbeille.",
+      "permanent": "{profile} sera définitivement supprimé : son lecteur n’a pas de Corbeille.",
+      "renumbered": "Les profils suivants seront renumérotés.",
+      "reset": "La configuration repart de zéro : tous les joueurs retournent dans la zone d’attente.",
       "done": "{profile} supprimé"
     },
     "settings": {
@@ -1653,6 +1771,20 @@
       "save": "Enregistrer les joueurs",
       "saved": "Joueurs enregistrés"
     },
+    "gameFolders": {
+      "loading": "Chargement des dossiers de jeux…",
+      "error": "Impossible de lire les dossiers de jeux.",
+      "editorTitle": "Vos dossiers de jeux",
+      "editorHint": "Leurs sous-dossiers sont aussi parcourus.",
+      "empty": "Aucun dossier de jeux pour l’instant. Ajoutez les dossiers où vous installez vos jeux, par exemple D:\\Jeux ou une bibliothèque Steam.",
+      "missing": "Introuvable",
+      "missingHint": "Ce dossier est introuvable pour le moment (un disque débranché ?). Il reste dans la liste et sera de nouveau parcouru quand il reviendra.",
+      "remove": "Retirer",
+      "removeLabel": "Retirer {folder} de vos dossiers de jeux",
+      "removed": "{folder} retiré de vos dossiers de jeux",
+      "add": "Ajouter un dossier",
+      "searchNow": "Chercher maintenant"
+    },
     "about": {
       "title": "À propos",
       "tagline": "L’écran partagé libre et open source pour les jeux PC. Créé par des joueurs, pour tous les canapés du monde.",
@@ -1743,6 +1875,10 @@
           "title": "Joueurs",
           "description": "Attribution des manettes aux joueurs. Les pseudos et les ID Steam se modifient dans la liste des joueurs."
         },
+        "gameFolders": {
+          "title": "Dossiers de jeux",
+          "description": "Les dossiers où vous installez vos jeux. Nucleus y cherche les jeux de vos handlers installés, pour vous éviter de choisir chaque exécutable. Cela fonctionne hors ligne."
+        },
         "hotkeys": {
           "title": "Raccourcis clavier",
           "description": "Raccourcis disponibles pendant une session de jeu. Les modifications s’appliquent à partir de la session suivante."
@@ -1816,6 +1952,10 @@
           "disableGameProfiles": {
             "label": "Désactiver les profils de jeu",
             "description": "Nucleus utilise ces paramètres globaux au lieu des profils propres à chaque jeu."
+          },
+          "autoSearchGame": {
+            "label": "Chercher dans ces dossiers après l’installation d’un handler",
+            "description": "Quand vous installez un handler, Nucleus cherche son jeu dans les dossiers ci-dessous avant de vous demander où se trouve l’exécutable."
           }
         },
         "players": {
@@ -2063,7 +2203,8 @@
         "deleteContentFolder": {
           "label": "Supprimer le dossier de contenu du jeu",
           "description": "Ferme les processus du jeu restants et supprime les instances du jeu.",
-          "confirm": "Voulez-vous vraiment supprimer « {folder} » et tout son contenu ? Les processus de {game} en cours d’exécution seront d’abord fermés."
+          "confirmRecycle": "Supprimer « {folder} » et tout son contenu ? Le dossier ira dans la Corbeille. Les processus de {game} en cours d’exécution seront d’abord fermés.",
+          "confirmPermanent": "Supprimer définitivement « {folder} » et tout son contenu ? Ce lecteur n’a pas de Corbeille. Les processus de {game} en cours d’exécution seront d’abord fermés."
         },
         "openUserConfig": {
           "label": "Ouvrir le dossier de configuration (UserProfile)"
@@ -2089,7 +2230,10 @@
         "deleteDocumentsSave": {
           "label": "Supprimer le dossier de sauvegarde (Documents)"
         },
-        "deleteFolderConfirm": "Voulez-vous vraiment supprimer « {folder} » et tout son contenu ?",
+        "deleteFolder": {
+          "confirmRecycle": "Supprimer « {folder} » et tout son contenu ? Le dossier ira dans la Corbeille.",
+          "confirmPermanent": "Supprimer définitivement « {folder} » et tout son contenu ? Ce lecteur n’a pas de Corbeille."
+        },
         "nucleusFolder": "Nucleus : {name}",
         "openBackup": {
           "label": "Ouvrir le dossier des copies de secours",
@@ -2097,7 +2241,8 @@
         },
         "deleteBackup": {
           "label": "Supprimer le dossier des copies de secours",
-          "confirm": "Voulez-vous vraiment supprimer le dossier des copies de secours de {nickname} pour {game} ?"
+          "confirmRecycle": "Supprimer le dossier des copies de secours de {nickname} pour {game} ? Il ira dans la Corbeille.",
+          "confirmPermanent": "Supprimer définitivement le dossier des copies de secours de {nickname} pour {game} ? Ce lecteur n’a pas de Corbeille."
         },
         "useApiIndex": {
           "label": "Attribuer les manettes par index",

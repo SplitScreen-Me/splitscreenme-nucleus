@@ -196,6 +196,7 @@ public class SettingsCatalogTests
         Assert.Equal(12, counts["general"]);
         Assert.Equal(SettingsCatalog.LanguageKey, Catalog.First(d => d.Section == "general").Field.Key);
         Assert.Equal(2, counts["players"]);
+        Assert.Equal(SettingsCatalog.AutoSearchKey, Catalog.Single(d => d.Section == SettingsCatalog.GameFoldersSection).Field.Key);
         Assert.Equal(10, counts["hotkeys"]);
         Assert.Equal(10, counts["gamepad"]);
         Assert.Equal(9, counts["audio"]);

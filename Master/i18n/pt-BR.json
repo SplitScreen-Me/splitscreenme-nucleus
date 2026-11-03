@@ -171,6 +171,7 @@
       "settings": {
         "general": "Geral: idiomas, rede, apelidos, log de depuração",
         "players": "Jogadores: apelidos e Steam IDs",
+        "gameFolders": "Pastas de jogos",
         "hotkeys": "Atalhos de teclado e tecla de bloqueio das entradas",
         "gamepad": "Atalhos do controle e tipo de controle",
         "audio": "Áudio: dispositivo de reprodução de cada instância",
@@ -260,6 +261,40 @@
       "chooser": {
         "title": "Qual é o jogo?",
         "message": "Vários handlers instalados executam <b>{file}</b>. Escolha o jogo ao qual este executável pertence."
+      },
+      "context": {
+        "title": "Não é possível adicionar este executável",
+        "introOne": "O handler de {game} executa <b>{file}</b>, mas não aceita a pasta onde esta cópia está:",
+        "introMany": "Vários handlers executam <b>{file}</b>, mas nenhum aceita a pasta onde esta cópia está:",
+        "handlerFile": "Handler: {file}",
+        "missing": "Falta ao lado do executável",
+        "excluded": "Está ao lado do executável, mas este handler o recusa",
+        "excludedHint": "Geralmente indica outra edição ou versão do jogo.",
+        "hintMissing": "Escolha o executável na pasta principal do jogo: aquela ao lado da qual estão esses arquivos.",
+        "hintExcluded": "Escolha o executável da edição para a qual este handler foi feito.",
+        "pickAgain": "Escolher outro arquivo"
+      },
+      "autoSearch": {
+        "ask": {
+          "title": "Procurar seus jogos automaticamente?",
+          "text": "O Nucleus pode procurar {game} nas pastas onde você instala jogos, em vez de perguntar onde está o executável. Ele fará o mesmo após cada instalação de handler, e funciona offline.",
+          "hint": "Você pode mudar isso quando quiser em Configurações, Pastas de jogos.",
+          "noThanks": "Não, obrigado",
+          "turnOnSearch": "Ativar e procurar",
+          "turnOnFolders": "Ativar e escolher uma pasta"
+        },
+        "find": {
+          "title": "Procurando {game}",
+          "text": "Procurando nas suas pastas de jogos…",
+          "skip": "Escolher eu mesmo"
+        },
+        "found": {
+          "title": "{game} encontrado",
+          "text": "Esta cópia de {game} está nas suas pastas de jogos:",
+          "add": "Adicionar este jogo",
+          "other": "Escolher outro arquivo"
+        },
+        "notFound": "{game} não está nas suas pastas de jogos: escolha o executável."
       }
     },
     "fileDrop": {
@@ -267,6 +302,7 @@
         "title": "Substituir o handler instalado?",
         "message": "{game} já tem um handler. Substituí-lo por {file}? Seus perfis e configurações serão mantidos.",
         "messageUnknownGame": "Já existe um handler instalado para este jogo. Substituí-lo por {file}? Seus perfis e configurações serão mantidos.",
+        "oldToRecycleBin": "A versão instalada irá para a Lixeira.",
         "confirm": "Substituir"
       },
       "installed": "Handler de {game} instalado",
@@ -279,6 +315,79 @@
     },
     "notices": {
       "position": "{current} de {total}"
+    },
+    "gameFolders": {
+      "pickTitle": "Escolha uma pasta onde você instala jogos",
+      "added": "{folder} adicionada às suas pastas de jogos",
+      "already": "{folder} já é uma das suas pastas de jogos"
+    },
+    "gameSearch": {
+      "title": "Procurar nas minhas pastas de jogos",
+      "loading": "Lendo suas pastas de jogos…",
+      "noFolders": {
+        "title": "Onde estão seus jogos?",
+        "text": "Adicione as pastas onde você instala jogos, por exemplo D:\\Jogos ou uma biblioteca da Steam. O Nucleus procura nelas os jogos dos seus handlers instalados.",
+        "allMissing": "Nenhuma das suas pastas de jogos está acessível agora: reconecte a unidade ou adicione outra pasta.",
+        "add": "Adicionar uma pasta"
+      },
+      "editFolders": "Editar pastas",
+      "searching": {
+        "title_one": "Procurando em {count} pasta de jogos…",
+        "title_many": "Procurando em {count} pastas de jogos…",
+        "title_other": "Procurando em {count} pastas de jogos…",
+        "progressLabel": "Progresso da busca",
+        "found_one": "{percent} · {count} jogo encontrado",
+        "found_many": "{percent} · {count} jogos encontrados",
+        "found_other": "{percent} · {count} jogos encontrados",
+        "stop": "Parar"
+      },
+      "stopped": "Busca interrompida. Nada foi adicionado.",
+      "searchAgain": "Procurar de novo",
+      "nothing": {
+        "title": "Nenhum jogo novo encontrado",
+        "text": "Nenhum jogo das suas pastas de jogos corresponde a um handler instalado. Só é possível encontrar jogos cujo handler está instalado: obtenha handlers em Obter jogos e procure de novo.",
+        "allInLibrary_one": "O jogo encontrado já está na sua biblioteca.",
+        "allInLibrary_many": "Os {count} jogos encontrados já estão na sua biblioteca.",
+        "allInLibrary_other": "Os {count} jogos encontrados já estão na sua biblioteca.",
+        "getGames": "Obter jogos"
+      },
+      "results": {
+        "found_one": "{count} jogo novo encontrado. Escolha o que adicionar à sua biblioteca.",
+        "found_many": "{count} jogos novos encontrados. Escolha o que adicionar à sua biblioteca.",
+        "found_other": "{count} jogos novos encontrados. Escolha o que adicionar à sua biblioteca.",
+        "finished": "Pronto. Os jogos adicionados estão na sua biblioteca.",
+        "selectAll": "Selecionar todos",
+        "selectNone": "Desmarcar todos",
+        "addCount_one": "Adicionar {count} jogo",
+        "addCount_many": "Adicionar {count} jogos",
+        "addCount_other": "Adicionar {count} jogos",
+        "selectToAdd": "Selecione jogos para adicionar",
+        "adding": "Adicionando jogos…",
+        "duplicates": "Alguns jogos foram encontrados em vários lugares. Sua biblioteca guarda uma única cópia de cada jogo: escolha a que você usa."
+      },
+      "row": {
+        "addLabel": "Adicionar {game} ({path})",
+        "inLibrary": "Na sua biblioteca",
+        "adding": "Adicionando…",
+        "added": "Adicionado",
+        "failed": "Não adicionado",
+        "anotherCopy": "Várias cópias"
+      },
+      "toasts": {
+        "added_one": "{count} jogo adicionado à sua biblioteca",
+        "added_many": "{count} jogos adicionados à sua biblioteca",
+        "added_other": "{count} jogos adicionados à sua biblioteca",
+        "noneAdded": "Nenhum jogo foi adicionado"
+      }
+    },
+    "handlerReload": {
+      "added": "Handler {game} adicionado",
+      "updated": "Handler {game} recarregado",
+      "fixed": "Handler {game} corrigido e recarregado",
+      "removed": "Handler {game} excluído",
+      "several_one": "{count} handler recarregado",
+      "several_many": "{count} handlers recarregados",
+      "several_other": "{count} handlers recarregados"
     }
   },
   "language": {
@@ -321,7 +430,8 @@
       "title": "Sua biblioteca está vazia",
       "text": "Adicione os jogos que o Nucleus encontrou neste PC, escolha um handler no Hub ou indique ao Nucleus um jogo que você tem. Cada jogo recebe uma configuração de tela dividida pronta para usar.",
       "getGames": "Obter jogos",
-      "addGame": "Adicionar um jogo"
+      "addGame": "Adicionar um jogo",
+      "searchGames": "Procurar nas minhas pastas de jogos"
     },
     "upToPlayers_one": "Até {count} jogador",
     "upToPlayers_many": "Até {count} jogadores",
@@ -427,6 +537,7 @@
       "sort": "Ordenar",
       "sortLabel": "Ordenar jogos",
       "addGame": "Adicionar um jogo",
+      "searchGames": "Procurar meus jogos",
       "filtersLabel": "Filtrar jogos",
       "favourites": "Favoritos",
       "needsAttention": "Requer atenção",
@@ -808,6 +919,13 @@
       "done": "Instalado",
       "failed": "Falhou",
       "cancelled": "Cancelado"
+    },
+    "errors": {
+      "title": "Handlers com erros",
+      "intro": "Estes arquivos de handler não podem ser usados como estão. Corrija ou exclua-os na pasta de handlers: o Nucleus percebe a mudança sozinho.",
+      "openFolder": "Abrir a pasta de handlers",
+      "previousInUse": "A versão anterior de {game} continua em uso",
+      "notLoaded": "Não carregado"
     }
   },
   "hub": {
@@ -1266,10 +1384,10 @@
     },
     "delete": {
       "title": "Excluir {profile}?",
-      "message": "{profile} será excluído permanentemente.",
-      "messageRenumbered": "{profile} será excluído permanentemente. Os perfis seguintes serão renumerados.",
-      "messageReset": "{profile} será excluído permanentemente. A configuração recomeça: todos os jogadores voltam para a área de espera.",
-      "messageRenumberedReset": "{profile} será excluído permanentemente. Os perfis seguintes serão renumerados. A configuração recomeça: todos os jogadores voltam para a área de espera.",
+      "toRecycleBin": "{profile} irá para a Lixeira.",
+      "permanent": "{profile} será excluído permanentemente: a unidade onde ele está não tem Lixeira.",
+      "renumbered": "Os perfis seguintes serão renumerados.",
+      "reset": "A configuração recomeça: todos os jogadores voltam para a área de espera.",
       "done": "{profile} excluído"
     },
     "settings": {
@@ -1653,6 +1771,20 @@
       "save": "Salvar jogadores",
       "saved": "Jogadores salvos"
     },
+    "gameFolders": {
+      "loading": "Carregando as pastas de jogos…",
+      "error": "Não é possível ler as pastas de jogos.",
+      "editorTitle": "Suas pastas de jogos",
+      "editorHint": "As subpastas também são vasculhadas.",
+      "empty": "Nenhuma pasta de jogos ainda. Adicione as pastas onde você instala jogos, por exemplo D:\\Jogos ou uma biblioteca da Steam.",
+      "missing": "Não encontrada",
+      "missingHint": "Esta pasta não está acessível agora (uma unidade desconectada?). Ela continua na lista e volta a ser vasculhada quando voltar.",
+      "remove": "Remover",
+      "removeLabel": "Remover {folder} das suas pastas de jogos",
+      "removed": "{folder} removida das suas pastas de jogos",
+      "add": "Adicionar uma pasta",
+      "searchNow": "Procurar agora"
+    },
     "about": {
       "title": "Sobre",
       "tagline": "Tela dividida gratuita e de código aberto para jogos de PC. Feita por jogadores, para sofás do mundo todo.",
@@ -1743,6 +1875,10 @@
           "title": "Jogadores",
           "description": "Como os controles são atribuídos aos jogadores. Apelidos e Steam IDs são editados na lista de jogadores."
         },
+        "gameFolders": {
+          "title": "Pastas de jogos",
+          "description": "Pastas onde você instala jogos. O Nucleus procura nelas os jogos dos seus handlers instalados, assim você não precisa escolher cada executável. Funciona offline."
+        },
         "hotkeys": {
           "title": "Atalhos de teclado",
           "description": "Atalhos disponíveis durante uma sessão de jogo. As alterações valem a partir da próxima sessão."
@@ -1816,6 +1952,10 @@
           "disableGameProfiles": {
             "label": "Desativar perfis de jogo",
             "description": "O Nucleus usa estas configurações globais em vez de perfis por jogo."
+          },
+          "autoSearchGame": {
+            "label": "Procurar nestas pastas após instalar um handler",
+            "description": "Quando você instala um handler, o Nucleus procura o jogo dele nas pastas abaixo antes de perguntar onde está o executável."
           }
         },
         "players": {
@@ -2063,7 +2203,8 @@
         "deleteContentFolder": {
           "label": "Excluir a pasta de conteúdo do jogo",
           "description": "Fecha os processos restantes do jogo e exclui as instâncias do jogo.",
-          "confirm": "Tem certeza de que deseja excluir '{folder}' e todo o seu conteúdo? Os processos de {game} em execução serão fechados antes."
+          "confirmRecycle": "Excluir '{folder}' e todo o seu conteúdo? A pasta irá para a Lixeira. Os processos de {game} em execução serão fechados antes.",
+          "confirmPermanent": "Excluir permanentemente '{folder}' e todo o seu conteúdo? Esta unidade não tem Lixeira. Os processos de {game} em execução serão fechados antes."
         },
         "openUserConfig": {
           "label": "Abrir a pasta de configuração (UserProfile)"
@@ -2089,7 +2230,10 @@
         "deleteDocumentsSave": {
           "label": "Excluir a pasta de dados salvos (Documentos)"
         },
-        "deleteFolderConfirm": "Tem certeza de que deseja excluir '{folder}' e todo o seu conteúdo?",
+        "deleteFolder": {
+          "confirmRecycle": "Excluir '{folder}' e todo o seu conteúdo? A pasta irá para a Lixeira.",
+          "confirmPermanent": "Excluir permanentemente '{folder}' e todo o seu conteúdo? Esta unidade não tem Lixeira."
+        },
         "nucleusFolder": "Nucleus: {name}",
         "openBackup": {
           "label": "Abrir a pasta de backup",
@@ -2097,7 +2241,8 @@
         },
         "deleteBackup": {
           "label": "Excluir a pasta de backup",
-          "confirm": "Deseja realmente excluir a pasta de backup de {nickname} para {game}?"
+          "confirmRecycle": "Excluir a pasta de backup de {nickname} para {game}? Ela irá para a Lixeira.",
+          "confirmPermanent": "Excluir permanentemente a pasta de backup de {nickname} para {game}? Esta unidade não tem Lixeira."
         },
         "useApiIndex": {
           "label": "Atribuir controles por índice",

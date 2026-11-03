@@ -6,7 +6,7 @@ import type { MockState } from './state.ts';
 
 type NewNotice = Omit<AppNotice, 'id' | 'at'>;
 
-/** Notices `seedNotices` adds: a handler that does not compile, and a profile that could not be applied. */
+/** Notices `seedNotices` adds: a handler that does not compile, a profile that could not be applied, a handler message with links. */
 const SAMPLE_NOTICES: readonly NewNotice[] = [
   {
     level: 'error',
@@ -31,6 +31,13 @@ const SAMPLE_NOTICES: readonly NewNotice[] = [
     source: 'setup',
     title: 'Profile unloaded',
     message: 'The profile has been unloaded: its devices are no longer connected.\nPlug them in and load the profile again.',
+  },
+  {
+    level: 'info',
+    source: 'handler',
+    title: 'Elden Ring',
+    message:
+      'Seamless Co-op 1.8 or newer is needed. Download it from [Nexus Mods]{https://www.nexusmods.com/eldenring/mods/510}, then start the game again.\nMore help: https://www.splitscreen.me/docs/faq',
   },
 ];
 

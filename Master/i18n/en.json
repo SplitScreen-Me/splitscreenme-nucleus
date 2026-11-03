@@ -170,6 +170,7 @@
       "settings": {
         "general": "General: languages, network, nicknames, debug log",
         "players": "Players: nicknames and Steam IDs",
+        "gameFolders": "Game folders",
         "hotkeys": "Keyboard shortcuts and input lock key",
         "gamepad": "Gamepad shortcuts and controller type",
         "audio": "Audio: playback device of each instance",
@@ -260,6 +261,40 @@
       "chooser": {
         "title": "Which game is it?",
         "message": "Several installed handlers run <b>{file}</b>. Pick the game this executable belongs to."
+      },
+      "context": {
+        "title": "This executable can't be added",
+        "introOne": "The {game} handler runs <b>{file}</b>, but it doesn't accept the folder this copy is in:",
+        "introMany": "Several handlers run <b>{file}</b>, but none accepts the folder this copy is in:",
+        "handlerFile": "Handler: {file}",
+        "missing": "Missing next to the executable",
+        "excluded": "Next to the executable, but refused by this handler",
+        "excludedHint": "Usually a sign of another edition or version of the game.",
+        "hintMissing": "Pick the executable in the game's main folder: the one these files are next to.",
+        "hintExcluded": "Pick the executable of the edition this handler is made for.",
+        "pickAgain": "Pick another file"
+      },
+      "autoSearch": {
+        "ask": {
+          "title": "Look for your games automatically?",
+          "text": "Nucleus can look for {game} in the folders where you install games, instead of asking you where its executable is. It does the same after every handler install, and it works offline.",
+          "hint": "You can change this at any time in Settings, Game folders.",
+          "noThanks": "No thanks",
+          "turnOnSearch": "Turn on and search",
+          "turnOnFolders": "Turn on and choose a folder"
+        },
+        "find": {
+          "title": "Looking for {game}",
+          "text": "Searching your game folders…",
+          "skip": "Pick it myself"
+        },
+        "found": {
+          "title": "{game} found",
+          "text": "This copy of {game} is in your game folders:",
+          "add": "Add this game",
+          "other": "Choose another file"
+        },
+        "notFound": "{game} isn't in your game folders: pick its executable."
       }
     },
     "fileDrop": {
@@ -267,6 +302,7 @@
         "title": "Replace the installed handler?",
         "message": "{game} already has a handler. Replace it with {file}? Your profiles and settings stay.",
         "messageUnknownGame": "A handler for this game is already installed. Replace it with {file}? Your profiles and settings stay.",
+        "oldToRecycleBin": "The installed version goes to the Recycle Bin.",
         "confirm": "Replace"
       },
       "installed": "{game} handler installed",
@@ -279,6 +315,71 @@
     },
     "notices": {
       "position": "{current} of {total}"
+    },
+    "gameFolders": {
+      "pickTitle": "Choose a folder where you install games",
+      "added": "{folder} added to your game folders",
+      "already": "{folder} is already one of your game folders"
+    },
+    "gameSearch": {
+      "title": "Search my game folders",
+      "loading": "Reading your game folders…",
+      "noFolders": {
+        "title": "Where are your games?",
+        "text": "Add the folders where you install games, for example D:\\Games or a Steam library. Nucleus looks in them for the games of your installed handlers.",
+        "allMissing": "None of your game folders can be found right now: plug the drive back in, or add another folder.",
+        "add": "Add a folder"
+      },
+      "editFolders": "Edit folders",
+      "searching": {
+        "title_one": "Searching {count} game folder…",
+        "title_other": "Searching {count} game folders…",
+        "progressLabel": "Search progress",
+        "found_one": "{percent} · {count} game found",
+        "found_other": "{percent} · {count} games found",
+        "stop": "Stop"
+      },
+      "stopped": "Search stopped. Nothing was added.",
+      "searchAgain": "Search again",
+      "nothing": {
+        "title": "No new games found",
+        "text": "No game in your game folders matches a handler you installed. Only games whose handler is installed can be found: get handlers from Get games, then search again.",
+        "allInLibrary_one": "The game found is already in your library.",
+        "allInLibrary_other": "The {count} games found are already in your library.",
+        "getGames": "Get games"
+      },
+      "results": {
+        "found_one": "{count} new game found. Pick what to add to your library.",
+        "found_other": "{count} new games found. Pick what to add to your library.",
+        "finished": "Done. The games added are in your library.",
+        "selectAll": "Select all",
+        "selectNone": "Select none",
+        "addCount_one": "Add {count} game",
+        "addCount_other": "Add {count} games",
+        "selectToAdd": "Select games to add",
+        "adding": "Adding games…",
+        "duplicates": "Some games were found in several places. Your library keeps one copy of each game: pick the one you play."
+      },
+      "row": {
+        "addLabel": "Add {game} ({path})",
+        "inLibrary": "In your library",
+        "adding": "Adding…",
+        "added": "Added",
+        "failed": "Not added",
+        "anotherCopy": "Several copies"
+      },
+      "toasts": {
+        "added_one": "{count} game added to your library",
+        "added_other": "{count} games added to your library",
+        "noneAdded": "No game was added"
+      }
+    },
+    "handlerReload": {
+      "added": "Handler {game} added",
+      "updated": "Handler {game} reloaded",
+      "fixed": "Handler {game} fixed and loaded again",
+      "removed": "Handler {game} deleted",
+      "several_other": "{count} handlers reloaded"
     }
   },
   "language": {
@@ -320,7 +421,8 @@
       "title": "Your library is empty",
       "text": "Add the games Nucleus found on this PC, pick a handler on the Hub, or point Nucleus at a game you have. Each game gets a ready-made split-screen setup.",
       "getGames": "Get games",
-      "addGame": "Add a game"
+      "addGame": "Add a game",
+      "searchGames": "Search my game folders"
     },
     "upToPlayers_one": "Up to {count} player",
     "upToPlayers_other": "Up to {count} players",
@@ -418,6 +520,7 @@
       "sort": "Sort",
       "sortLabel": "Sort games",
       "addGame": "Add a game",
+      "searchGames": "Search my games",
       "filtersLabel": "Filter games",
       "favourites": "Favourites",
       "needsAttention": "Needs attention",
@@ -774,6 +877,13 @@
       "done": "Installed",
       "failed": "Failed",
       "cancelled": "Cancelled"
+    },
+    "errors": {
+      "title": "Handlers with errors",
+      "intro": "These handler files can't be used as they are. Fix or delete them in the handlers folder: Nucleus picks the change up by itself.",
+      "openFolder": "Open the handlers folder",
+      "previousInUse": "The previous version of {game} is still used",
+      "notLoaded": "Not loaded"
     }
   },
   "hub": {
@@ -1221,10 +1331,10 @@
     },
     "delete": {
       "title": "Delete {profile}?",
-      "message": "{profile} is deleted for good.",
-      "messageRenumbered": "{profile} is deleted for good. The profiles after it are renumbered.",
-      "messageReset": "{profile} is deleted for good. The setup starts over: every player goes back to the tray.",
-      "messageRenumberedReset": "{profile} is deleted for good. The profiles after it are renumbered. The setup starts over: every player goes back to the tray.",
+      "toRecycleBin": "{profile} goes to the Recycle Bin.",
+      "permanent": "{profile} is deleted for good: its drive has no Recycle Bin.",
+      "renumbered": "The profiles after it are renumbered.",
+      "reset": "The setup starts over: every player goes back to the tray.",
       "done": "{profile} deleted"
     },
     "settings": {
@@ -1597,6 +1707,20 @@
       "save": "Save players",
       "saved": "Players saved"
     },
+    "gameFolders": {
+      "loading": "Loading game folders…",
+      "error": "The game folders can't be read.",
+      "editorTitle": "Your game folders",
+      "editorHint": "Their sub-folders are searched too.",
+      "empty": "No game folders yet. Add the folders where you install games, for example D:\\Games or a Steam library.",
+      "missing": "Not found",
+      "missingHint": "This folder can't be found right now (an unplugged drive?). It stays in the list and is searched again once it is back.",
+      "remove": "Remove",
+      "removeLabel": "Remove {folder} from your game folders",
+      "removed": "{folder} removed from your game folders",
+      "add": "Add a folder",
+      "searchNow": "Search now"
+    },
     "about": {
       "title": "About",
       "tagline": "Free, open-source split-screen for PC games. Made by players, for couches everywhere.",
@@ -1685,6 +1809,10 @@
           "title": "Players",
           "description": "How gamepads are assigned to players. Nicknames and Steam IDs are edited with the player list."
         },
+        "gameFolders": {
+          "title": "Game folders",
+          "description": "Folders where you install games. Nucleus looks in them for the games of your installed handlers, so you don't have to pick each executable. It works offline."
+        },
         "hotkeys": {
           "title": "Keyboard shortcuts",
           "description": "Shortcuts available during a game session. Changes apply from the next session."
@@ -1758,6 +1886,10 @@
           "disableGameProfiles": {
             "label": "Disable game profiles",
             "description": "Nucleus uses these global settings instead of per-game profiles."
+          },
+          "autoSearchGame": {
+            "label": "Search these folders after a handler install",
+            "description": "When you install a handler, Nucleus looks for its game in the folders below before asking you where the executable is."
           }
         },
         "players": {
@@ -2004,7 +2136,8 @@
         "deleteContentFolder": {
           "label": "Delete Game Content Folder",
           "description": "Closes leftover game processes and deletes the game instances.",
-          "confirm": "Are you sure you want to delete '{folder}' and all its contents? Running {game} processes are closed first."
+          "confirmRecycle": "Delete '{folder}' and all its contents? The folder goes to the Recycle Bin. Running {game} processes are closed first.",
+          "confirmPermanent": "Delete '{folder}' and all its contents for good? This drive has no Recycle Bin. Running {game} processes are closed first."
         },
         "openUserConfig": {
           "label": "Open UserProfile Config Path"
@@ -2030,7 +2163,10 @@
         "deleteDocumentsSave": {
           "label": "Delete Document Save Path"
         },
-        "deleteFolderConfirm": "Are you sure you want to delete '{folder}' and all its contents?",
+        "deleteFolder": {
+          "confirmRecycle": "Delete '{folder}' and all its contents? The folder goes to the Recycle Bin.",
+          "confirmPermanent": "Delete '{folder}' and all its contents for good? This drive has no Recycle Bin."
+        },
         "nucleusFolder": "Nucleus: {name}",
         "openBackup": {
           "label": "Open Backup Folder",
@@ -2038,7 +2174,8 @@
         },
         "deleteBackup": {
           "label": "Delete Backup Folder",
-          "confirm": "Do you really want to delete {nickname}'s backup folder of {game}?"
+          "confirmRecycle": "Delete {nickname}'s backup folder of {game}? It goes to the Recycle Bin.",
+          "confirmPermanent": "Delete {nickname}'s backup folder of {game} for good? This drive has no Recycle Bin."
         },
         "useApiIndex": {
           "label": "Assign Gamepads By Index",

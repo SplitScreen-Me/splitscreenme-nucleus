@@ -34,10 +34,10 @@ public sealed class AutoSearchCandidate
 
 /// <summary>
 /// Nucleus 2.5 automatic game executable search, headless: the user's game folders (<c>userGameDirectories.json</c>),
-/// the <c>[Misc] AutoSearchGame</c> choice, and a cancellable search with progress. Not on the bridge yet: phase 2 wires
-/// it into the web UI (a settings section for the choice and the folders, a "search my games" action of the library,
-/// and the start folder of the executable picker after a handler install, in place of the Steam-only
-/// <c>suggestedFolder</c>). Thread-safe; searches run on a worker.
+/// the <c>[Misc] AutoSearchGame</c> choice, and a cancellable search with progress. On the bridge as
+/// <c>library.searchGames</c> (<see cref="FolderSearch"/>), <c>settings.getGameFolders</c> / <c>addGameFolder</c> /
+/// <c>removeGameFolder</c> and the setting <c>misc.autoSearchGame</c>; the UI searches after a handler install, and from
+/// "Search my games" in the library. Thread-safe; searches run on a worker.
 /// </summary>
 public sealed class GameAutoSearch
 {
@@ -58,6 +58,9 @@ public sealed class GameAutoSearch
 
     /// <summary>Saved game folders, sorted. Folders missing right now are listed too (an unplugged drive).</summary>
     public IReadOnlyList<string> Folders => folders.All;
+
+    /// <summary>Saved game folders that exist right now: what a search walks.</summary>
+    public IReadOnlyList<string> ExistingFolders => folders.Existing;
 
     /// <summary>Adds a game folder (must exist). False when it was already saved.</summary>
     public bool AddFolder(string folder)

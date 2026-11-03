@@ -50,6 +50,28 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
     }
 
     /// <inheritdoc />
+    public List<HandlerFileError> ListErrors() => FileErrors(Manager.HandlerInfos);
+
+    /// <summary>The scripts that can't be used, by file name (Nucleus 2.5 <c>HandlerInfos</c> with an error).</summary>
+    internal static List<HandlerFileError> FileErrors(IEnumerable<Nucleus.Gaming.Coop.Generic.HandlerInfo> infos) =>
+        infos
+            .Where(i => i != null && !i.IsValid && !HandlerFileIndex.IsIgnoredScript(i.FileName ?? ""))
+            .OrderBy(i => i.FileName, StringComparer.CurrentCultureIgnoreCase)
+            .Select(i => new HandlerFileError
+            {
+                File = i.FileName ?? "",
+                GameName = string.IsNullOrEmpty(i.GameName) ? null : i.GameName,
+                GameId = string.IsNullOrEmpty(i.GUID) ? null : i.GUID,
+                PreviousVersionInUse = i.GenericGameInfo != null && i.Error != null,
+                Error = i.Error ?? HandlerInfoError(i),
+            })
+            .ToList();
+
+    // A file without an error but not valid: a parse without a game name or a GUID (HandlerInfo.Describe words it).
+    private static string HandlerInfoError(Nucleus.Gaming.Coop.Generic.HandlerInfo info) =>
+        Nucleus.Gaming.Coop.Generic.HandlerInfo.Describe(info.GenericGameInfo) ?? I18n.T("engine.handlers.invalid.unreadable");
+
+    /// <inheritdoc />
     public Task<InstallResult> Install(InstallHandlerRequest request, CancellationToken cancellationToken)
     {
         string handlerId = request?.HandlerId?.Trim() ?? "";
@@ -356,7 +378,9 @@ public sealed class HandlersService : IHandlersService, IHandlerUpdater
         if (!overwrite && (titleExists || sameGameTitle != null))
         {
             string name = sameGame?.GameName ?? title;
-            throw new BridgeException(BridgeErrorKind.Conflict, I18n.T("host.handlers.errors.alreadyInstalled", new { game = name }), new { reason = "alreadyInstalled", gameId = sameGame?.GUID, gameName = name });
+            // recycleBin: replacing it moves the old script and its folder to the recycle bin (HandlerFiles, Nucleus 2.5).
+            throw new BridgeException(BridgeErrorKind.Conflict, I18n.T("host.handlers.errors.alreadyInstalled", new { game = name }),
+                new { reason = "alreadyInstalled", gameId = sameGame?.GUID, gameName = name, recycleBin = FileUtil.HasRecycleBin(handlers) });
         }
 
         return sameGameTitle != null && !string.Equals(sameGameTitle, title, StringComparison.OrdinalIgnoreCase) ? sameGameTitle : null;

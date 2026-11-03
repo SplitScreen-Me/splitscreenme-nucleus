@@ -167,6 +167,7 @@
       "settings": {
         "general": "Allgemein: Sprachen, Netzwerk, Nicknames, Debug-Log",
         "players": "Spieler: Nicknames und Steam-IDs",
+        "gameFolders": "Spieleordner",
         "hotkeys": "Tastenkürzel und Sperrtaste für Eingaben",
         "gamepad": "Gamepad-Kürzel und Controller-Typ",
         "audio": "Audio: Wiedergabegerät jeder Instanz",
@@ -254,6 +255,40 @@
       "chooser": {
         "title": "Welches Spiel ist es?",
         "message": "Mehrere installierte Handler starten <b>{file}</b>. Wähl das Spiel, zu dem diese ausführbare Datei gehört."
+      },
+      "context": {
+        "title": "Diese ausführbare Datei kann nicht hinzugefügt werden",
+        "introOne": "Der Handler für {game} startet <b>{file}</b>, akzeptiert aber nicht den Ordner, in dem diese Kopie liegt:",
+        "introMany": "Mehrere Handler starten <b>{file}</b>, aber keiner akzeptiert den Ordner, in dem diese Kopie liegt:",
+        "handlerFile": "Handler: {file}",
+        "missing": "Fehlt neben der ausführbaren Datei",
+        "excluded": "Liegt neben der ausführbaren Datei, wird von diesem Handler aber abgelehnt",
+        "excludedHint": "Meist ein Zeichen für eine andere Edition oder Version des Spiels.",
+        "hintMissing": "Wähl die ausführbare Datei im Hauptordner des Spiels, also die, neben der diese Dateien liegen.",
+        "hintExcluded": "Wähl die ausführbare Datei der Edition, für die dieser Handler gedacht ist.",
+        "pickAgain": "Andere Datei wählen"
+      },
+      "autoSearch": {
+        "ask": {
+          "title": "Spiele automatisch suchen?",
+          "text": "Nucleus kann {game} in den Ordnern suchen, in denen du Spiele installierst, statt dich nach der ausführbaren Datei zu fragen. Das passiert dann nach jeder Handler-Installation, und es funktioniert auch offline.",
+          "hint": "Du kannst das jederzeit unter Einstellungen, Spieleordner ändern.",
+          "noThanks": "Nein, danke",
+          "turnOnSearch": "Einschalten und suchen",
+          "turnOnFolders": "Einschalten und Ordner wählen"
+        },
+        "find": {
+          "title": "Suche nach {game}",
+          "text": "Deine Spieleordner werden durchsucht…",
+          "skip": "Selbst auswählen"
+        },
+        "found": {
+          "title": "{game} gefunden",
+          "text": "Diese Kopie von {game} liegt in deinen Spieleordnern:",
+          "add": "Dieses Spiel hinzufügen",
+          "other": "Andere Datei wählen"
+        },
+        "notFound": "{game} ist nicht in deinen Spieleordnern: Wähl die ausführbare Datei aus."
       }
     },
     "fileDrop": {
@@ -261,6 +296,7 @@
         "title": "Installierten Handler ersetzen?",
         "message": "{game} hat bereits einen Handler. Durch {file} ersetzen? Deine Profile und Einstellungen bleiben erhalten.",
         "messageUnknownGame": "Für dieses Spiel ist bereits ein Handler installiert. Durch {file} ersetzen? Deine Profile und Einstellungen bleiben erhalten.",
+        "oldToRecycleBin": "Die installierte Version wird in den Papierkorb verschoben.",
         "confirm": "Ersetzen"
       },
       "installed": "Handler für {game} installiert",
@@ -273,6 +309,72 @@
     },
     "notices": {
       "position": "{current} von {total}"
+    },
+    "gameFolders": {
+      "pickTitle": "Wähl einen Ordner, in dem du Spiele installierst",
+      "added": "{folder} zu deinen Spieleordnern hinzugefügt",
+      "already": "{folder} ist bereits einer deiner Spieleordner"
+    },
+    "gameSearch": {
+      "title": "Meine Spieleordner durchsuchen",
+      "loading": "Spieleordner werden gelesen…",
+      "noFolders": {
+        "title": "Wo sind deine Spiele?",
+        "text": "Füg die Ordner hinzu, in denen du Spiele installierst, zum Beispiel D:\\Spiele oder eine Steam-Bibliothek. Nucleus sucht darin nach den Spielen deiner installierten Handler.",
+        "allMissing": "Keiner deiner Spieleordner ist gerade erreichbar: Schließ das Laufwerk wieder an oder füg einen anderen Ordner hinzu.",
+        "add": "Ordner hinzufügen"
+      },
+      "editFolders": "Ordner bearbeiten",
+      "searching": {
+        "title_one": "{count} Spieleordner wird durchsucht…",
+        "title_other": "{count} Spieleordner werden durchsucht…",
+        "progressLabel": "Suchfortschritt",
+        "found_one": "{percent} · {count} Spiel gefunden",
+        "found_other": "{percent} · {count} Spiele gefunden",
+        "stop": "Anhalten"
+      },
+      "stopped": "Suche angehalten. Es wurde nichts hinzugefügt.",
+      "searchAgain": "Erneut suchen",
+      "nothing": {
+        "title": "Keine neuen Spiele gefunden",
+        "text": "Kein Spiel in deinen Spieleordnern passt zu einem installierten Handler. Nur Spiele mit installiertem Handler können gefunden werden: Hol dir Handler unter „Spiele holen“ und such dann erneut.",
+        "allInLibrary_one": "Das gefundene Spiel ist bereits in deiner Bibliothek.",
+        "allInLibrary_other": "Die {count} gefundenen Spiele sind bereits in deiner Bibliothek.",
+        "getGames": "Spiele holen"
+      },
+      "results": {
+        "found_one": "{count} neues Spiel gefunden. Wähl aus, was du zu deiner Bibliothek hinzufügen möchtest.",
+        "found_other": "{count} neue Spiele gefunden. Wähl aus, was du zu deiner Bibliothek hinzufügen möchtest.",
+        "finished": "Fertig. Die hinzugefügten Spiele sind in deiner Bibliothek.",
+        "selectAll": "Alle auswählen",
+        "selectNone": "Keine auswählen",
+        "addCount_one": "{count} Spiel hinzufügen",
+        "addCount_other": "{count} Spiele hinzufügen",
+        "selectToAdd": "Spiele zum Hinzufügen auswählen",
+        "adding": "Spiele werden hinzugefügt…",
+        "duplicates": "Manche Spiele wurden an mehreren Orten gefunden. Deine Bibliothek behält nur eine Kopie jedes Spiels: Wähl die, mit der du spielst."
+      },
+      "row": {
+        "addLabel": "{game} hinzufügen ({path})",
+        "inLibrary": "In deiner Bibliothek",
+        "adding": "Wird hinzugefügt…",
+        "added": "Hinzugefügt",
+        "failed": "Nicht hinzugefügt",
+        "anotherCopy": "Mehrere Kopien"
+      },
+      "toasts": {
+        "added_one": "{count} Spiel zu deiner Bibliothek hinzugefügt",
+        "added_other": "{count} Spiele zu deiner Bibliothek hinzugefügt",
+        "noneAdded": "Es wurde kein Spiel hinzugefügt"
+      }
+    },
+    "handlerReload": {
+      "added": "Handler {game} hinzugefügt",
+      "updated": "Handler {game} neu geladen",
+      "fixed": "Handler {game} repariert und neu geladen",
+      "removed": "Handler {game} gelöscht",
+      "several_one": "{count} Handler neu geladen",
+      "several_other": "{count} Handler neu geladen"
     }
   },
   "language": {
@@ -313,7 +415,8 @@
       "title": "Deine Bibliothek ist leer",
       "text": "Füg die Spiele hinzu, die Nucleus auf diesem PC gefunden hat, wähl einen Handler im Hub oder zeig Nucleus ein Spiel, das du hast. Jedes Spiel bekommt ein fertiges Splitscreen-Setup.",
       "getGames": "Spiele holen",
-      "addGame": "Spiel hinzufügen"
+      "addGame": "Spiel hinzufügen",
+      "searchGames": "Meine Spieleordner durchsuchen"
     },
     "upToPlayers_one": "Bis zu {count} Spieler",
     "upToPlayers_other": "Bis zu {count} Spieler",
@@ -413,6 +516,7 @@
       "sort": "Sortieren",
       "sortLabel": "Spiele sortieren",
       "addGame": "Spiel hinzufügen",
+      "searchGames": "Meine Spiele suchen",
       "filtersLabel": "Spiele filtern",
       "favourites": "Favoriten",
       "needsAttention": "Handlungsbedarf",
@@ -769,6 +873,13 @@
       "done": "Installiert",
       "failed": "Fehlgeschlagen",
       "cancelled": "Abgebrochen"
+    },
+    "errors": {
+      "title": "Handler mit Fehlern",
+      "intro": "Diese Handler-Dateien können so nicht verwendet werden. Korrigier oder lösch sie im Handler-Ordner: Nucleus übernimmt die Änderung von selbst.",
+      "openFolder": "Handler-Ordner öffnen",
+      "previousInUse": "Die vorherige Version von {game} wird weiter verwendet",
+      "notLoaded": "Nicht geladen"
     }
   },
   "hub": {
@@ -1213,10 +1324,10 @@
     },
     "delete": {
       "title": "{profile} löschen?",
-      "message": "{profile} wird endgültig gelöscht.",
-      "messageRenumbered": "{profile} wird endgültig gelöscht. Die nachfolgenden Profile werden neu nummeriert.",
-      "messageReset": "{profile} wird endgültig gelöscht. Das Setup beginnt von vorn: Alle Spieler kommen zurück in den Wartebereich.",
-      "messageRenumberedReset": "{profile} wird endgültig gelöscht. Die nachfolgenden Profile werden neu nummeriert. Das Setup beginnt von vorn: Alle Spieler kommen zurück in den Wartebereich.",
+      "toRecycleBin": "{profile} wird in den Papierkorb verschoben.",
+      "permanent": "{profile} wird endgültig gelöscht: Sein Laufwerk hat keinen Papierkorb.",
+      "renumbered": "Die nachfolgenden Profile werden neu nummeriert.",
+      "reset": "Das Setup beginnt von vorn: Alle Spieler kommen zurück in den Wartebereich.",
       "done": "{profile} gelöscht"
     },
     "settings": {
@@ -1588,6 +1699,20 @@
       "save": "Spieler speichern",
       "saved": "Spieler gespeichert"
     },
+    "gameFolders": {
+      "loading": "Spieleordner werden geladen…",
+      "error": "Die Spieleordner können nicht gelesen werden.",
+      "editorTitle": "Deine Spieleordner",
+      "editorHint": "Ihre Unterordner werden auch durchsucht.",
+      "empty": "Noch keine Spieleordner. Füg die Ordner hinzu, in denen du Spiele installierst, zum Beispiel D:\\Spiele oder eine Steam-Bibliothek.",
+      "missing": "Nicht gefunden",
+      "missingHint": "Dieser Ordner ist gerade nicht erreichbar (ein abgestecktes Laufwerk?). Er bleibt in der Liste und wird wieder durchsucht, sobald er zurück ist.",
+      "remove": "Entfernen",
+      "removeLabel": "{folder} aus deinen Spieleordnern entfernen",
+      "removed": "{folder} aus deinen Spieleordnern entfernt",
+      "add": "Ordner hinzufügen",
+      "searchNow": "Jetzt suchen"
+    },
     "about": {
       "title": "Info",
       "tagline": "Kostenloser Open-Source-Splitscreen für PC-Spiele. Von Spielern gemacht – für jede Couch.",
@@ -1676,6 +1801,10 @@
           "title": "Spieler",
           "description": "Wie Gamepads den Spielern zugewiesen werden. Nicknames und Steam-IDs bearbeitest du in der Spielerliste."
         },
+        "gameFolders": {
+          "title": "Spieleordner",
+          "description": "Ordner, in denen du Spiele installierst. Nucleus sucht darin nach den Spielen deiner installierten Handler, damit du nicht jede ausführbare Datei auswählen musst. Das funktioniert auch offline."
+        },
         "hotkeys": {
           "title": "Tastenkürzel",
           "description": "Kürzel, die während einer Spielsitzung verfügbar sind. Änderungen gelten ab der nächsten Sitzung."
@@ -1749,6 +1878,10 @@
           "disableGameProfiles": {
             "label": "Spielprofile deaktivieren",
             "description": "Nucleus verwendet diese globalen Einstellungen statt Profilen pro Spiel."
+          },
+          "autoSearchGame": {
+            "label": "Diese Ordner nach einer Handler-Installation durchsuchen",
+            "description": "Wenn du einen Handler installierst, sucht Nucleus sein Spiel in den Ordnern unten, bevor es dich nach der ausführbaren Datei fragt."
           }
         },
         "players": {
@@ -1995,7 +2128,8 @@
         "deleteContentFolder": {
           "label": "Spiel-Inhaltsordner löschen",
           "description": "Schließt übrig gebliebene Spielprozesse und löscht die Spielinstanzen.",
-          "confirm": "Willst du „{folder}“ und seinen gesamten Inhalt wirklich löschen? Laufende Prozesse von {game} werden vorher geschlossen."
+          "confirmRecycle": "„{folder}“ und seinen gesamten Inhalt löschen? Der Ordner wird in den Papierkorb verschoben. Laufende Prozesse von {game} werden vorher geschlossen.",
+          "confirmPermanent": "„{folder}“ und seinen gesamten Inhalt endgültig löschen? Dieses Laufwerk hat keinen Papierkorb. Laufende Prozesse von {game} werden vorher geschlossen."
         },
         "openUserConfig": {
           "label": "UserProfile-Konfigurationspfad öffnen"
@@ -2021,7 +2155,10 @@
         "deleteDocumentsSave": {
           "label": "Dokumente-Speicherpfad löschen"
         },
-        "deleteFolderConfirm": "Willst du „{folder}“ und seinen gesamten Inhalt wirklich löschen?",
+        "deleteFolder": {
+          "confirmRecycle": "„{folder}“ und seinen gesamten Inhalt löschen? Der Ordner wird in den Papierkorb verschoben.",
+          "confirmPermanent": "„{folder}“ und seinen gesamten Inhalt endgültig löschen? Dieses Laufwerk hat keinen Papierkorb."
+        },
         "nucleusFolder": "Nucleus: {name}",
         "openBackup": {
           "label": "Sicherungsordner öffnen",
@@ -2029,7 +2166,8 @@
         },
         "deleteBackup": {
           "label": "Sicherungsordner löschen",
-          "confirm": "Willst du den Sicherungsordner von {nickname} für {game} wirklich löschen?"
+          "confirmRecycle": "Den Sicherungsordner von {nickname} für {game} löschen? Er wird in den Papierkorb verschoben.",
+          "confirmPermanent": "Den Sicherungsordner von {nickname} für {game} endgültig löschen? Dieses Laufwerk hat keinen Papierkorb."
         },
         "useApiIndex": {
           "label": "Gamepads nach Index zuweisen",

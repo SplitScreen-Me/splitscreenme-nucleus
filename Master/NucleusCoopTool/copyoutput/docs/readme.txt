@@ -354,8 +354,10 @@ Game.SaveCustomUserInstanceValues = false;
 Game.SaveAndEditCustomUserInstanceValues = false;
 Access the user input values via Context.CustomUser(General/Player/Instance)Values[index]
 
-"Your notes, *<colored text here|216,222,18>*, more text...."//Highlight handler notes text in any rgb formatted color, use in Game.Description.
-[FAQ]{https://www.splitscreen.me/docs/faq}                  //Setup shorten links in prompts (all customs prompt variants and RunAdditionalFile), handler options screen and handler notes (requires a space before and after, only one can be added in each).
+"Your notes, *<colored text here|216,222,18>*, more text...."//Highlight handler notes text in any rgb formatted color (r,g,b from 0 to 255), use in Game.Description.
+"Your notes, *<highlighted text here>*, more text...."        //Highlight handler notes text in the default highlight color, use in Game.Description.
+"Your notes, *bold text here*, more text...."                 //Nucleus 3: bold text (no space right after the first * or before the last one); *text|216,222,18* also colors it.
+[FAQ]{https://www.splitscreen.me/docs/faq}                  //Setup shorten links in handler notes, handler option descriptions and Nucleus messages (http and https links only, several per text). Plain https://... addresses are links too.
 
 2. Support for multiple mice and keyboards (these are deprecated, see the new Proto Input guide: https://www.splitscreen.me/docs/proto):
 

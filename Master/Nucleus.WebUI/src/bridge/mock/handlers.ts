@@ -1,8 +1,10 @@
+import { BridgeError } from '../errors.ts';
 import type { BridgeHandlers } from '../generated/contract.ts';
 import type { MockContext } from '../transports/mock.ts';
 import { conflict, invalidParams } from './failures.ts';
 import { HUB_HANDLERS, findHubHandler, unknownHandler, type HandlerInfo } from './fixtures.ts';
 import { hubScreenshotUrls } from './fixtures-screenshots.ts';
+import { handlerErrors } from './game-search.ts';
 import { installHandler } from './handler-install.ts';
 import { findGame, findHandler, inLibrary, libraryChanged, refreshUpdateAvailable } from './library-model.ts';
 import type { MockState } from './state.ts';
@@ -48,7 +50,13 @@ export function createHandlersMock(context: MockContext, state: MockState): Brid
       if (!/\.(nc|zip|js)$/i.test(path)) invalidParams('Pick a handler file: .nc, .zip or .js.');
       const info = handlerInFile(path);
       if (!overwrite && findHandler(state, info.gameId)) {
-        conflict('alreadyInstalled', `A handler for ${info.gameName} is already installed.`);
+        // Like the host: the game, and whether the replaced files go to the Recycle Bin.
+        throw new BridgeError('conflict', `A handler for ${info.gameName} is already installed.`, {
+          reason: 'alreadyInstalled',
+          gameId: info.gameId,
+          gameName: info.gameName,
+          recycleBin: true,
+        });
       }
       return installHandler(context, state, path, info, { download: false });
     },
@@ -66,5 +74,6 @@ export function createHandlersMock(context: MockContext, state: MockState): Brid
       await sleep(200);
       return hubScreenshotUrls(handlerId);
     },
+    listErrors: () => handlerErrors(state),
   };
 }

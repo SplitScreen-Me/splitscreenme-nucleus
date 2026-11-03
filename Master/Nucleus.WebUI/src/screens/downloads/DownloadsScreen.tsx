@@ -1,9 +1,9 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
-import { bridge, type GameSummary } from '@/bridge';
+import { bridge, useBridgeQuery, type GameSummary, type HandlerFileError } from '@/bridge';
 import { useAddGame } from '@/features/add-game';
 import { useAllHandlers, type HubHandler } from '@/hub';
-import { T, useI18n, type TFunction } from '@/i18n';
+import { T, useI18n, useT, type TFunction } from '@/i18n';
 import { igdbImage } from '@/lib/art';
 import { useRun } from '@/lib/bridge-ui';
 import {
@@ -163,7 +163,65 @@ export default function DownloadsScreen() {
           </ul>
         )}
       </Pane>
+
+      <HandlerErrors />
     </div>
+  );
+}
+
+/**
+ * Handler scripts of the handlers folder that can't be used as they are now (Nucleus 2.5 hot reload). Fixing or deleting
+ * a file is picked up by itself, so the list refreshes through `handlers.changed`. Hidden when there are none.
+ */
+function HandlerErrors() {
+  const { data: errors = [] } = useBridgeQuery('handlers.listErrors');
+  const { data: info } = useAppInfo();
+  const run = useRun();
+  const t = useT();
+  if (errors.length === 0) return null;
+  return (
+    <Pane as="section" aria-labelledby="handler-errors-title" className="px-6 pt-6 pb-4">
+      <div className="mb-1.5 flex flex-wrap items-center gap-3">
+        <h2 id="handler-errors-title" className="type-h3">
+          {t('downloads.errors.title')}
+        </h2>
+        <span className="data text-15 text-ink-3">{errors.length}</span>
+        {info?.handlersPath && (
+          <Button size="sm" variant="ghost" className="ml-auto" onClick={() => void run(() => bridge.app.openPath({ path: info.handlersPath }))} data-nav>
+            <Icon name="folder" />
+            {t('downloads.errors.openFolder')}
+          </Button>
+        )}
+      </div>
+      <p className="mb-3 max-w-[70ch] text-13 text-ink-3">{t('downloads.errors.intro')}</p>
+      <ul className="m-0 list-none p-0">
+        {errors.map((e) => (
+          <HandlerErrorRow key={e.file} error={e} />
+        ))}
+      </ul>
+    </Pane>
+  );
+}
+
+function HandlerErrorRow({ error: e }: { error: HandlerFileError }) {
+  const t = useT();
+  return (
+    <li className="grid grid-cols-[20px_minmax(0,1fr)] items-start gap-3 border-t border-line py-3 first:border-t-0">
+      <Icon name="warning" className="mt-0.5 size-4 text-danger" />
+      <div className="grid min-w-0 gap-1">
+        <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-0.5">
+          <b className="data truncate text-15 font-[650]">{e.file}</b>
+          <span className={cn('text-13', e.previousVersionInUse ? 'text-ink-2' : 'text-ink-3')}>
+            {e.previousVersionInUse && e.gameName
+              ? t('downloads.errors.previousInUse', { game: e.gameName })
+              : t('downloads.errors.notLoaded')}
+          </span>
+        </div>
+        <p className="data line-clamp-3 text-13 leading-[1.45] text-ink-2 [overflow-wrap:anywhere]" title={e.error}>
+          {e.error}
+        </p>
+      </div>
+    </li>
   );
 }
 

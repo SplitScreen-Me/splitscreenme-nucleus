@@ -115,6 +115,8 @@ export function profileSummary(profile: MockProfile, index: number): ProfileSumm
     keyboardMice: seats.filter((seat) => !isGamepad(seat.device)).length,
     autoPlay: settings.autoPlay,
     playerList: seats.map(({ slotIndex: _slotIndex, ...player }) => player),
+    // The mock install is on a fixed drive: deleted profiles go to the Recycle Bin.
+    recycleBin: true,
   };
 }
 

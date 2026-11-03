@@ -33,6 +33,7 @@ internal sealed class HandlerHotReload : IDisposable
     private readonly Timer retry;
     private HandlersWatcher? watcher;
     private bool disposed;
+    private bool applyingFolderChanges; // UI thread only
 
     public HandlerHotReload(NucleusCore core, GameManager manager)
     {
@@ -92,7 +93,16 @@ internal sealed class HandlerHotReload : IDisposable
                     return;
                 }
 
-                manager.ApplyHandlerScan(scan);
+                // HandlersChanged is raised inside ApplyHandlerScan, on this thread: the UI is told these changes came from the folder.
+                applyingFolderChanges = true;
+                try
+                {
+                    manager.ApplyHandlerScan(scan);
+                }
+                finally
+                {
+                    applyingFolderChanges = false;
+                }
             }).ConfigureAwait(false);
         }
         catch (Exception e)
@@ -133,14 +143,55 @@ internal sealed class HandlerHotReload : IDisposable
 
         if (changes.GameIds.Count == 0)
         {
+            // A script that broke, or a broken one deleted, changes no game but the list of handlers with errors.
+            if (changes.Any)
+            {
+                core.Events.Emit(new HandlersChanged());
+            }
+
             return;
         }
 
-        core.Events.Emit(new HandlersChanged { GameIds = changes.GameIds.ToList() });
+        List<ReloadedHandler> reloaded = applyingFolderChanges ? Describe(changes, id => manager.Games.ContainsKey(id)) : new List<ReloadedHandler>();
+        core.Events.Emit(new HandlersChanged { GameIds = changes.GameIds.ToList(), Reloaded = reloaded.Count > 0 ? reloaded : null });
         core.Notifier.GamesChanged(changes.GameIds);
         LibraryHooks.RaiseHandlersReplaced(changes.GameIds.ToList());
 
         CheckUpdatesInBackground(changes.Added.Concat(changes.Updated).Concat(changes.Fixed).Select(h => h.GUID).Where(id => !string.IsNullOrEmpty(id)).ToList());
+    }
+
+    /// <summary>
+    /// The handlers the UI names in a short message: added, edited and fixed scripts, and deleted ones whose game is gone
+    /// (<paramref name="stillLoaded"/>: another file may declare the same GUID). Broken scripts are notices instead.
+    /// </summary>
+    internal static List<ReloadedHandler> Describe(HandlerChanges changes, Func<string, bool> stillLoaded)
+    {
+        var reloaded = new List<ReloadedHandler>();
+
+        void Add(IEnumerable<HandlerInfo> infos, HandlerReloadKind kind)
+        {
+            foreach (HandlerInfo info in infos)
+            {
+                string? id = info.GUID;
+                if (string.IsNullOrEmpty(id) || reloaded.Any(r => string.Equals(r.GameId, id, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+
+                if (kind == HandlerReloadKind.Removed && stillLoaded(id!))
+                {
+                    continue;
+                }
+
+                reloaded.Add(new ReloadedHandler { GameId = id!, GameName = info.GameName ?? info.FileName ?? id!, Kind = kind });
+            }
+        }
+
+        Add(changes.Fixed, HandlerReloadKind.Fixed);
+        Add(changes.Updated, HandlerReloadKind.Updated);
+        Add(changes.Added, HandlerReloadKind.Added);
+        Add(changes.Removed, HandlerReloadKind.Removed);
+        return reloaded;
     }
 
     private static void ReportInvalid(HandlerInfo invalid)

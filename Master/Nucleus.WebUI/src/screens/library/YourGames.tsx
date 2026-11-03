@@ -14,6 +14,8 @@ export interface YourGamesProps {
   attentionOnly: boolean;
   onAttentionOnly: (on: boolean) => void;
   onAddGame: () => void;
+  /** Opens "Search my games" (the game folders). */
+  onSearchGames: () => void;
   adding: boolean;
   onLocate: (g: GameSummary) => void;
   onUpdate: (g: GameSummary) => void;
@@ -21,7 +23,7 @@ export interface YourGamesProps {
 }
 
 /** Every game of the library, sorted and filtered as the user saved it. */
-export function YourGames({ games, prefs, onPrefs, attentionOnly, onAttentionOnly, onAddGame, adding, onLocate, onUpdate, onFavorite }: YourGamesProps) {
+export function YourGames({ games, prefs, onPrefs, attentionOnly, onAttentionOnly, onAddGame, onSearchGames, adding, onLocate, onUpdate, onFavorite }: YourGamesProps) {
   const t = useT();
   const attention = games.filter(needsAttention).length;
   const favorites = games.filter((g) => g.favorite).length;
@@ -54,6 +56,10 @@ export function YourGames({ games, prefs, onPrefs, attentionOnly, onAttentionOnl
               ))}
             </Select>
           </label>
+          <Button variant="ghost" size="sm" onClick={onSearchGames} data-nav data-hints="add">
+            <Icon name="search" />
+            {t('library.games.searchGames')}
+          </Button>
           <Button variant="ghost" size="sm" onClick={onAddGame} disabled={adding} data-nav data-hints="add">
             {adding ? <Spinner /> : <Icon name="plus" />}
             {t('library.games.addGame')}

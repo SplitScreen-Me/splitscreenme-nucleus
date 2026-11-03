@@ -38,18 +38,17 @@ export function ProfilesManager({ snap, profiles, open, onClose, onLoad, onUnloa
 
   const remove = async (p: ProfileSummary) => {
     const name = profileTitle(p);
-    const later = profiles.some((other) => other.id > p.id);
-    const placed = snap.players.length > 0;
-    const message = later
-      ? placed
-        ? 'profiles.delete.messageRenumberedReset'
-        : 'profiles.delete.messageRenumbered'
-      : placed
-        ? 'profiles.delete.messageReset'
-        : 'profiles.delete.message';
+    // Where the file goes (Recycle Bin, or for good on a drive without one), then what else changes: whole sentences.
+    const message = [
+      t(p.recycleBin ? 'profiles.delete.toRecycleBin' : 'profiles.delete.permanent', { profile: name }),
+      profiles.some((other) => other.id > p.id) && t('profiles.delete.renumbered'),
+      snap.players.length > 0 && t('profiles.delete.reset'),
+    ]
+      .filter(Boolean)
+      .join(' ');
     const ok = await confirm({
       title: t('profiles.delete.title', { profile: name }),
-      message: t(message, { profile: name }),
+      message,
       confirmLabel: t('common.delete'),
       danger: true,
       icon: 'trash',

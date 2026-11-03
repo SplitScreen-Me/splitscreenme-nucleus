@@ -50,7 +50,7 @@ To use Mod Loader simply enable the launch option in Nucleus, as long as your mo
 
 Handler by [PoundlandBacon]{https://v3.splitscreen.me/hub/authors/PoundlandBacon} and [Talos91]{https://v3.splitscreen.me/hub/authors/Talos91}, special thanks to LukeYui, TechieW and Mr Goldberg.`;
 
-const MINECRAFT_NOTES = `Requires *Java 21|255,140,60* and an offline-capable launcher profile per instance.
+const MINECRAFT_NOTES = `Requires *<Java 21|255,140,60>* and an offline-capable launcher profile per instance. *<Back up your worlds>* before the first session.
 
 Pick the game version in the next step; every instance uses the same one. Worlds are shared through LAN: the first player opens the world to LAN, the others join from *Multiplayer*.
 

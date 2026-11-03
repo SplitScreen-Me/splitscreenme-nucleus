@@ -34,12 +34,14 @@ export function FileDrop() {
           result = await installHandlerFile(path);
         } catch (error) {
           if (refusalReason(error) !== 'alreadyInstalled') throw error;
-          const game = (error as { data?: { gameName?: string } }).data?.gameName;
+          const { gameName: game, recycleBin } = (error as { data?: { gameName?: string; recycleBin?: boolean } }).data ?? {};
+          const question = game
+            ? translate('features.fileDrop.replace.message', { game, file })
+            : translate('features.fileDrop.replace.messageUnknownGame', { file });
           const replace = await ask({
             title: translate('features.fileDrop.replace.title'),
-            message: game
-              ? translate('features.fileDrop.replace.message', { game, file })
-              : translate('features.fileDrop.replace.messageUnknownGame', { file }),
+            // The replaced script and its folder go to the Recycle Bin (for good on a drive without one: nothing said).
+            message: recycleBin ? `${question} ${translate('features.fileDrop.replace.oldToRecycleBin')}` : question,
             confirmLabel: translate('features.fileDrop.replace.confirm'),
             icon: 'update',
           });

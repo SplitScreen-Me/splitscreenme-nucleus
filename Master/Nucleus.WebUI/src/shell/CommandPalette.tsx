@@ -46,6 +46,7 @@ const SCREENS: FixedEntry[] = [
 const SETTINGS: FixedEntry[] = [
   { id: 'set-general', label: 'shell.palette.settings.general', icon: 'sliders', to: '/settings#general' },
   { id: 'set-players', label: 'shell.palette.settings.players', icon: 'users', to: '/settings#players' },
+  { id: 'set-gameFolders', label: 'shell.palette.settings.gameFolders', icon: 'folder', to: '/settings#gameFolders' },
   { id: 'set-hotkeys', label: 'shell.palette.settings.hotkeys', icon: 'keyboard', to: '/settings#hotkeys' },
   { id: 'set-gamepad', label: 'shell.palette.settings.gamepad', icon: 'pad', to: '/settings#gamepad' },
   { id: 'set-audio', label: 'shell.palette.settings.audio', icon: 'speaker', to: '/settings#audio' },

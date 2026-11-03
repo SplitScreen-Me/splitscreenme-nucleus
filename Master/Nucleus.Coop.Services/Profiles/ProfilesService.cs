@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using Nucleus.Bridge;
 using Nucleus.Bridge.Contracts;
 using Nucleus.Coop.Services.Setup;
+using Nucleus.Gaming;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Localization;
 using Nucleus.Gaming.Coop;
@@ -44,7 +45,16 @@ namespace Nucleus.Coop.Services.Profiles
                 return new List<ProfileSummary>();
             }
 
-            return GameProfile.ReadProfiles().Select(p => Summary(p.Key, p.Value)).ToList();
+            List<ProfileSummary> profiles = GameProfile.ReadProfiles().Select(p => Summary(p.Key, p.Value)).ToList();
+
+            //Nucleus 2.5: GameProfile.DeleteProfile moves the file to the recycle bin, for good on a drive without one.
+            if (profiles.Count > 0)
+            {
+                bool recycleBin = FileUtil.HasRecycleBin(Globals.GameProfilesFolder);
+                profiles.ForEach(p => p.RecycleBin = recycleBin);
+            }
+
+            return profiles;
         }
 
         /// <summary>A profile file as listed (what ProfilesList and its preview showed).</summary>
