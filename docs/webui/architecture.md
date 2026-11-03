@@ -152,9 +152,9 @@ const setup = useBridgeSnapshot('setup.get', 'setup.changed');    // query + liv
 | `app` | handshake, info, open URL/path, log, restart as admin | stateless |
 | `window` | minimize, maximize, close, title; `window.stateChanged` | events |
 | `dialogs` | native file and folder pickers | stateless |
-| `library` | games, details, favourites, per-game menu (descriptors + actions), add/remove, artwork, list preferences; `library.changed` | queries + invalidation |
-| `handlers` | install/update from hub (SHA-256 checked), install from file, update checks, screenshots; `handlers.progress`, `handlers.changed` | queries + invalidation |
-| `settings` | schema-driven settings (values as strings), player identities, gamepad combo capture; `settings.changed` | queries + invalidation |
+| `library` | games, details, favourites, per-game menu (descriptors + actions), add/remove (typed context report), game folder search, artwork, list preferences; `library.changed`, `library.searchProgress` | queries + invalidation |
+| `handlers` | install/update from hub (SHA-256 checked), install from file, update checks, screenshots, scripts with errors; `handlers.progress`, `handlers.changed` (with the scripts reloaded from the folder) | queries + invalidation |
+| `settings` | schema-driven settings (values as strings), player identities, game folders of the automatic search, gamepad combo capture; `settings.changed` | queries + invalidation |
 | `setup` | the lobby: devices, screens, layouts, placement, options, custom steps; `setup.changed`, `setup.deviceActivity`, `setup.deviceLost` | host-owned snapshot |
 | `profiles` | saved setups of the open game, profile settings; `profiles.changed` | queries + invalidation |
 | `session` | play, stop, live state; `session.changed`, `session.notice` | host-owned snapshot |
@@ -169,6 +169,16 @@ Settings > About > "Patreon supporters" opens `/settings/supporters` (`Supporter
 - **List**: `supporters.get` (`Nucleus.Coop.Services/Supporters`). The host downloads `tiers.txt` from the `SplitScreen-Me/splitscreenme-patreon` repository on GitHub (the UI's CSP only reaches the hub), 10 s timeout, certificate validation per request. `SupporterNames.Parse` strips the tags, decodes the entities, collapses spaces, drops invisible and bidi characters and lines with nothing readable (`? ?`), and keeps the order and the duplicates. Each good download is saved to `content\patreon-supporters.txt` (runtime data, never packaged); a failed download answers with that copy (`fromCache`, `savedAt`); neither throws `unavailable`.
 - **Music**: `gui\audio\patreon_credits.mp3` (same file as upstream, copied by `Nucleus.Coop.csproj`), played from the assets virtual host (`musicUrl`, null when the file is missing); the CSP has `media-src 'self' https://assets.nucleus.example`. It starts with the screen unless the user muted it last time (`localStorage['nucleus.supporters.muted']`); the host starts WebView2 with `--autoplay-policy=no-user-gesture-required`, since a gamepad press is not a user gesture.
 - **Controls**: hovering the names (a real pointer move), focusing a link at the end or Space pauses; the wheel, the right stick, the d-pad and the arrow keys scrub, then the roll goes on from there; X / M mutes; B / Esc goes back. Reduced motion shows a still, scrollable list. `npm run dev` serves the music from `NucleusCoopTool\gui` (`/__gui/…`, vite.config.ts); `localStorage['nucleus.mock.supporters']` = `cache`, `error` or `slow` shows the other states.
+
+### Adding games (Nucleus 2.5)
+
+Every add and relink goes through `useAddGame()` (`src/features/add-game.tsx`, mounted above the router), so the rules hold wherever a game is added (library, Get games, Downloads, file drops, Found on this PC, Search my games, the lobby's "Game found" check):
+
+- **After a handler install** (`afterInstall`): the automatic search is asked once (`settings.getGameFolders().autoSearch` null; the answer is the setting `misc.autoSearchGame`), then, when on, `library.searchGames({ gameId })` looks for that game in the game folders and offers the copy found before the file picker (whose start folder otherwise stays the Steam `suggestedFolder`).
+- **A refused executable** (`library.addGame` / `setExecutable`, reason `contextMissing`) opens the context report (`add-game-dialogs.tsx`, data `ExecutableContextMismatch`) with "Pick another file" in the same folder.
+- **"Search my games"** (`src/features/game-search.tsx`) searches every installed handler in the game folders and adds the games picked one by one through `addGameAt`. Searches belong to their dialog: closing it cancels the call (`$/cancel`); progress events are matched by `searchId` (`src/lib/game-search.ts`).
+
+Services side and the 2.5 sources: [library-services.md](library-services.md), sections 2, 5 and 9.
 
 ### Engine prompts
 
