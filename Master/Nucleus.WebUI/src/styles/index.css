@@ -132,6 +132,13 @@
   --color-pc: var(--pc, var(--color-ink-3));
 }
 
+/* News ticker (src/shell/NewsTicker.tsx): a long message slides left by its width plus the gap (--news-shift), so its
+   copy lands where it started. Not used in reduced motion: the message stays still. */
+@keyframes news-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(var(--news-shift)); }
+}
+
 /* Durations live outside @theme so reduced motion can zero them in one place. */
 :root {
   --dur-1: 120ms;
