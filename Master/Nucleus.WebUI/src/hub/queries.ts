@@ -2,6 +2,7 @@
 import { useEffect, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { isMockBridge } from '@/bridge';
+import { reportHubRequest } from '@/lib/hub-status';
 import { fetchCatalogue, fetchComments, fetchHandler } from './api';
 import { fetchNews, newsQueryOptions, normalizeNews, type NewsItem } from './news';
 import { threadComments } from './normalize';
@@ -19,6 +20,21 @@ export const hubKeys = {
 /** The catalogue changes slowly (the API caches it 5 minutes); refresh it at most every 15 minutes while the app runs. */
 const CATALOGUE_STALE_MS = 15 * 60_000;
 
+/**
+ * Runs a hub request (the site already resolved: a CSP refusal says nothing of the hub) and tells the host's hub status what it saw (src/lib/hub-status.ts: only when it disagrees, at most
+ * every 30 s), so the offline banner follows what the WebView sees too.
+ */
+async function watched<T>(request: () => Promise<T>): Promise<T> {
+  try {
+    const result = await request();
+    reportHubRequest(null);
+    return result;
+  } catch (error) {
+    reportHubRequest(error);
+    throw error;
+  }
+}
+
 // Read once at startup: the app opens with the last known catalogue, even offline.
 const persisted = loadCatalogue();
 
@@ -28,7 +44,8 @@ export function useAllHandlers() {
     networkMode: 'online',
     queryKey: hubKeys.all,
     queryFn: async ({ signal }) => {
-      const handlers = await fetchCatalogue(await hubSite(), signal);
+      const site = await hubSite();
+      const handlers = await watched(() => fetchCatalogue(site, signal));
       saveCatalogue(handlers);
       return handlers;
     },
@@ -47,7 +64,10 @@ export function useHubHandler(id: string | undefined) {
   return useQuery({
     networkMode: 'online',
     queryKey: hubKeys.handler(id ?? ''),
-    queryFn: async ({ signal }) => fetchHandler(await hubSite(), id!, signal),
+    queryFn: async ({ signal }) => {
+      const site = await hubSite();
+      return watched(() => fetchHandler(site, id!, signal));
+    },
     enabled: Boolean(id),
     staleTime: 5 * 60_000,
     placeholderData: () => qc.getQueryData<HubHandler[]>(hubKeys.all)?.find((h) => h.id === id),
@@ -60,7 +80,10 @@ export function useHubComments(id: string | undefined) {
   return useQuery({
     networkMode: 'online',
     queryKey: hubKeys.comments(id ?? ''),
-    queryFn: async ({ signal }) => fetchComments(await hubSite(), id!, signal),
+    queryFn: async ({ signal }) => {
+      const site = await hubSite();
+      return watched(() => fetchComments(site, id!, signal));
+    },
     enabled: Boolean(id),
     staleTime: 2 * 60_000,
     select: threadComments,

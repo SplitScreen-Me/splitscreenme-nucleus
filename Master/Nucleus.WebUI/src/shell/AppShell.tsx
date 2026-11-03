@@ -4,9 +4,10 @@ import { FileDrop } from '@/features/file-drop';
 import { FirstRunLanguageDialog } from '@/features/language';
 import { NoticeDialog } from '@/features/notices';
 import { useT } from '@/i18n';
+import { offlineBannerState, useHubRetry, useHubStatusSync, type HubKnown } from '@/lib/hub-status';
 import { setupPath } from '@/lib/library';
 import { useAppInfo, useSessionSnapshot, useSettingsValues } from '@/lib/live';
-import { GlyphStyleProvider, Icon, Spinner } from '@/ui';
+import { Button, GlyphStyleProvider, Icon, Spinner } from '@/ui';
 import { ChromeProvider } from './chrome';
 import { CommandPalette } from './CommandPalette';
 import { CouchNavProvider } from './couch-nav';
@@ -34,6 +35,8 @@ function ShellBody() {
   // Keeps the session state live for the whole app (palette, rail, lobby redirects).
   useSessionSnapshot();
   useStartupGame();
+  // The hub status for the whole app: hub data fetched again when it comes back.
+  const hub = useHubStatusSync();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -62,7 +65,7 @@ function ShellBody() {
           </a>
           <TitleBar onOpenPalette={() => setPalette(true)} />
           <Rail />
-          <OfflineBanner />
+          <OfflineBanner known={hub} />
           <main id="stage" tabIndex={-1} className="relative min-h-0 min-w-0 overflow-auto rounded-pane outline-none [grid-area:stage]">
             <Suspense fallback={<StageLoading />}>
               <Outlet />
@@ -91,19 +94,27 @@ function useStartupGame() {
   }, [info, navigate]);
 }
 
-/** The hub is out of reach: say what still works. Collapses to nothing when online. */
-function OfflineBanner() {
-  const { data: info } = useAppInfo();
+/**
+ * The hub is out of reach: say what still works, and offer a check now. Follows the host's status both ways (it
+ * checks by itself), collapses to nothing when online or before the first check.
+ */
+function OfflineBanner({ known }: { known: HubKnown }) {
   const t = useT();
-  if (!info || info.hubOnline) return null;
+  const { retry, check } = useHubRetry();
+  const state = offlineBannerState(known, retry);
+  if (state === 'hidden') return null;
+  const checking = state === 'checking';
   return (
-    <div
-      role="status"
-      className="mb-gutter flex items-center gap-2.5 rounded-pane bg-pane px-4 py-2 text-13 text-ink-2 [grid-area:banner]"
-    >
-      <Icon name="offline" className="size-4 text-warn" />
-      <b className="font-[650] text-ink">{t('shell.offlineBanner.title')}</b>
-      <span className="truncate">{t('shell.offlineBanner.message')}</span>
+    <div className="mb-gutter flex items-center gap-2.5 rounded-pane bg-pane py-1.5 pr-2 pl-4 text-13 text-ink-2 [grid-area:banner]">
+      <Icon name="offline" className="size-4 shrink-0 text-warn" />
+      <p role="status" className="flex min-w-0 flex-1 items-baseline gap-2.5">
+        <b className="shrink-0 font-[650] text-ink">{t('shell.offlineBanner.title')}</b>
+        <span className="truncate">{t(state === 'stillOffline' ? 'shell.offlineBanner.stillOffline' : 'shell.offlineBanner.message')}</span>
+      </p>
+      <Button variant="quiet" size="sm" className="min-h-[30px] shrink-0 px-2.5 text-13 [&_svg]:size-4" onClick={() => void check()} disabled={checking} data-nav>
+        {checking ? <Spinner /> : <Icon name="refresh" />}
+        {checking ? t('shell.offlineBanner.checking') : t('shell.offlineBanner.retry')}
+      </Button>
     </div>
   );
 }

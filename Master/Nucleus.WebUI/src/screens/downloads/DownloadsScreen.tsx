@@ -17,6 +17,7 @@ import {
   useDownloads,
   type DownloadItem,
 } from '@/lib/downloads';
+import { hubKnown } from '@/lib/hub-status-core';
 import { setupPath, useLibrary } from '@/lib/library';
 import { useAppInfo } from '@/lib/live';
 import { useScreenChrome } from '@/shell/chrome';
@@ -55,7 +56,7 @@ export default function DownloadsScreen() {
   const { t } = useI18n();
   const [updatingAll, setUpdatingAll] = useState(false);
   const [checking, setChecking] = useState(false);
-  const offline = info?.hubOnline === false;
+  const offline = hubKnown(info) === 'offline';
 
   const outdated = useMemo(() => library.filter((g) => g.updateAvailable).sort((a, b) => a.name.localeCompare(b.name, 'en')), [library]);
   const newestFirst = useMemo(() => [...items].reverse(), [items]);
@@ -99,6 +100,13 @@ export default function DownloadsScreen() {
         <div className="grid gap-2">
           <h1 className="type-h1">{t('downloads.title')}</h1>
           <p className="max-w-[60ch] text-ink-2">{t('downloads.intro')}</p>
+          {/* Offline, the host hides the update flags (it can't check them): say why none shows. */}
+          {offline && (
+            <p className="flex items-center gap-2 text-13 text-ink-2">
+              <Icon name="offline" className="size-4 text-warn" />
+              {t('downloads.updates.offline')}
+            </p>
+          )}
         </div>
         <div className="ml-auto flex flex-wrap gap-2">
           <Button variant="ghost" onClick={() => void checkUpdates()} disabled={checking || offline} data-nav title={offline ? t('downloads.hubOffline') : undefined}>
@@ -126,12 +134,6 @@ export default function DownloadsScreen() {
               {updatingAll ? t('downloads.updates.updating') : t('downloads.updates.updateAll')}
             </Button>
           </div>
-          {offline && (
-            <p className="mb-2 flex items-center gap-2 text-13 text-ink-2">
-              <Icon name="offline" className="size-4 text-warn" />
-              {t('downloads.updates.offline')}
-            </p>
-          )}
           <ul className="m-0 list-none p-0">
             {outdated.map((g) => (
               <UpdateRow key={g.id} game={g} disabled={offline} onUpdate={() => void update(g)} />
