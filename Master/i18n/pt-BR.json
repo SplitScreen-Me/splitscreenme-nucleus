@@ -175,7 +175,8 @@
         "gamepad": "Atalhos do controle e tipo de controle",
         "audio": "Áudio: dispositivo de reprodução de cada instância",
         "layout": "Layout: grade personalizada, plano de fundo, mesclagem de janelas",
-        "about": "Sobre, pasta de handlers, atualizações"
+        "about": "Sobre, pasta de handlers, atualizações",
+        "supporters": "Apoiadores do Patreon: os créditos"
       }
     },
     "notFound": {
@@ -189,6 +190,19 @@
       "message": "O Nucleus Co-op continua em execução. Volte à biblioteca e tente novamente; se acontecer de novo, copie os detalhes abaixo em um relatório de bug.",
       "unknownError": "Erro desconhecido",
       "backToLibrary": "Voltar à biblioteca"
+    },
+    "news": {
+      "label": "Novidades do SplitScreen.Me",
+      "announcement": "Novidades do SplitScreen.Me: {messages}",
+      "severity": {
+        "warning": "Aviso",
+        "critical": "Importante"
+      },
+      "position": "{index}/{count}",
+      "learnMoreLabel": "Saiba mais: {message}",
+      "dismiss_one": "Ocultar esta mensagem até que haja algo novo",
+      "dismiss_many": "Ocultar estas {count} mensagens até que haja algo novo",
+      "dismiss_other": "Ocultar estas {count} mensagens até que haja algo novo"
     }
   },
   "ui": {
@@ -1671,7 +1685,34 @@
         "docs": "Documentação",
         "faq": "FAQ",
         "hub": "O Hub"
+      },
+      "supporters": {
+        "label": "Apoiadores do Patreon",
+        "description": "O Nucleus Co-op continua gratuito graças às pessoas que o apoiam no Patreon.",
+        "button": "Ver os créditos"
       }
+    },
+    "supporters": {
+      "crumb": "Apoiadores",
+      "title": "Apoiadores do Patreon",
+      "intro": "O Nucleus Co-op é gratuito e de código aberto. Estas pessoas ajudam a mantê-lo assim.",
+      "count_one": "{count} apoiador",
+      "count_many": "{count} apoiadores",
+      "count_other": "{count} apoiadores",
+      "thanks": "♥♥ OBRIGADO ♥♥",
+      "patreon": "Apoie o Nucleus Co-op no Patreon",
+      "musicCredit": "Música: {link}",
+      "replay": "Ver de novo",
+      "mute": "Silenciar a música",
+      "unmute": "Tocar a música",
+      "muteShort": "Silenciar",
+      "unmuteShort": "Música",
+      "paused": "Pausado",
+      "savedCopy": "Offline: lista salva em {date}",
+      "loading": "Carregando os apoiadores…",
+      "errorTitle": "A lista de apoiadores não está disponível",
+      "keys": "Teclado: <b>{pause}</b> pausa, <b>{mute}</b> silencia, <b>{back}</b> volta",
+      "keysStill": "Teclado: <b>{mute}</b> silencia, <b>{back}</b> volta"
     }
   },
   "host": {
@@ -2343,6 +2384,11 @@
         "selectFile": "Selecionar um arquivo",
         "selectFolder": "Selecionar uma pasta",
         "allFiles": "Todos os arquivos"
+      }
+    },
+    "supporters": {
+      "errors": {
+        "unavailable": "Não é possível baixar a lista de apoiadores agora. Verifique sua conexão com a internet e tente novamente."
       }
     }
   },

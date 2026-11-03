@@ -175,7 +175,8 @@
         "gamepad": "Atajos del mando y tipo de mando",
         "audio": "Audio: dispositivo de reproducción de cada instancia",
         "layout": "Disposición: cuadrícula personalizada, fondo, fusión de ventanas",
-        "about": "Acerca de, carpeta de handlers, actualizaciones"
+        "about": "Acerca de, carpeta de handlers, actualizaciones",
+        "supporters": "Mecenas de Patreon: los créditos"
       }
     },
     "notFound": {
@@ -189,6 +190,19 @@
       "message": "Nucleus Co-op sigue en ejecución. Vuelve a la biblioteca e inténtalo de nuevo; si vuelve a ocurrir, copia los detalles de abajo en un informe de errores.",
       "unknownError": "Error desconocido",
       "backToLibrary": "Volver a la biblioteca"
+    },
+    "news": {
+      "label": "Novedades de SplitScreen.Me",
+      "announcement": "Novedades de SplitScreen.Me: {messages}",
+      "severity": {
+        "warning": "Aviso",
+        "critical": "Importante"
+      },
+      "position": "{index}/{count}",
+      "learnMoreLabel": "Más información: {message}",
+      "dismiss_one": "Ocultar este mensaje hasta que haya algo nuevo",
+      "dismiss_many": "Ocultar estos {count} mensajes hasta que haya algo nuevo",
+      "dismiss_other": "Ocultar estos {count} mensajes hasta que haya algo nuevo"
     }
   },
   "ui": {
@@ -1671,7 +1685,34 @@
         "docs": "Documentación",
         "faq": "Preguntas frecuentes",
         "hub": "El Hub"
+      },
+      "supporters": {
+        "label": "Mecenas de Patreon",
+        "description": "Nucleus Co-op sigue siendo gratis gracias a las personas que lo apoyan en Patreon.",
+        "button": "Ver los créditos"
       }
+    },
+    "supporters": {
+      "crumb": "Mecenas",
+      "title": "Mecenas de Patreon",
+      "intro": "Nucleus Co-op es gratuito y de código abierto. Estas personas ayudan a que siga así.",
+      "count_one": "{count} mecenas",
+      "count_many": "{count} mecenas",
+      "count_other": "{count} mecenas",
+      "thanks": "♥♥ ¡GRACIAS! ♥♥",
+      "patreon": "Apoya a Nucleus Co-op en Patreon",
+      "musicCredit": "Música: {link}",
+      "replay": "Ver de nuevo",
+      "mute": "Silenciar la música",
+      "unmute": "Reproducir la música",
+      "muteShort": "Silenciar",
+      "unmuteShort": "Música",
+      "paused": "En pausa",
+      "savedCopy": "Sin conexión: lista guardada el {date}",
+      "loading": "Cargando los mecenas…",
+      "errorTitle": "La lista de mecenas no está disponible",
+      "keys": "Teclado: <b>{pause}</b> pausa, <b>{mute}</b> silencia, <b>{back}</b> vuelve",
+      "keysStill": "Teclado: <b>{mute}</b> silencia, <b>{back}</b> vuelve"
     }
   },
   "host": {
@@ -2343,6 +2384,11 @@
         "selectFile": "Selecciona un archivo",
         "selectFolder": "Selecciona una carpeta",
         "allFiles": "Todos los archivos"
+      }
+    },
+    "supporters": {
+      "errors": {
+        "unavailable": "No se puede descargar la lista de mecenas en este momento. Comprueba tu conexión a internet y vuelve a intentarlo."
       }
     }
   },

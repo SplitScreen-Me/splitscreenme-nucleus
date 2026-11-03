@@ -171,7 +171,8 @@
         "gamepad": "Gamepad-Kürzel und Controller-Typ",
         "audio": "Audio: Wiedergabegerät jeder Instanz",
         "layout": "Layout: eigenes Raster, Hintergrund, Fensterzusammenführung",
-        "about": "Info, Handler-Ordner, Updates"
+        "about": "Info, Handler-Ordner, Updates",
+        "supporters": "Patreon-Unterstützer: der Abspann"
       }
     },
     "notFound": {
@@ -185,6 +186,18 @@
       "message": "Nucleus Co-op läuft weiter. Geh zurück zur Bibliothek und versuch es noch mal; passiert es wieder, kopier die Details unten in einen Fehlerbericht.",
       "unknownError": "Unbekannter Fehler",
       "backToLibrary": "Zurück zur Bibliothek"
+    },
+    "news": {
+      "label": "Neuigkeiten von SplitScreen.Me",
+      "announcement": "Neuigkeiten von SplitScreen.Me: {messages}",
+      "severity": {
+        "warning": "Warnung",
+        "critical": "Wichtig"
+      },
+      "position": "{index}/{count}",
+      "learnMoreLabel": "Mehr erfahren: {message}",
+      "dismiss_one": "Diese Meldung ausblenden, bis es etwas Neues gibt",
+      "dismiss_other": "Diese {count} Meldungen ausblenden, bis es etwas Neues gibt"
     }
   },
   "ui": {
@@ -1606,7 +1619,33 @@
         "docs": "Dokumentation",
         "faq": "FAQ",
         "hub": "Der Hub"
+      },
+      "supporters": {
+        "label": "Patreon-Unterstützer",
+        "description": "Nucleus Co-op bleibt kostenlos dank der Menschen, die es auf Patreon unterstützen.",
+        "button": "Abspann ansehen"
       }
+    },
+    "supporters": {
+      "crumb": "Unterstützer",
+      "title": "Patreon-Unterstützer",
+      "intro": "Nucleus Co-op ist kostenlos und Open Source. Diese Menschen sorgen dafür, dass es so bleibt.",
+      "count_one": "{count} Unterstützer",
+      "count_other": "{count} Unterstützer",
+      "thanks": "♥♥ DANKE ♥♥",
+      "patreon": "Nucleus Co-op auf Patreon unterstützen",
+      "musicCredit": "Musik: {link}",
+      "replay": "Noch einmal abspielen",
+      "mute": "Musik stummschalten",
+      "unmute": "Musik abspielen",
+      "muteShort": "Stumm",
+      "unmuteShort": "Musik",
+      "paused": "Pausiert",
+      "savedCopy": "Offline: Liste vom {date}",
+      "loading": "Unterstützer werden geladen…",
+      "errorTitle": "Die Unterstützerliste ist nicht verfügbar",
+      "keys": "Tastatur: <b>{pause}</b> pausiert, <b>{mute}</b> schaltet stumm, <b>{back}</b> geht zurück",
+      "keysStill": "Tastatur: <b>{mute}</b> schaltet stumm, <b>{back}</b> geht zurück"
     }
   },
   "host": {
@@ -2272,6 +2311,11 @@
         "selectFile": "Datei auswählen",
         "selectFolder": "Ordner auswählen",
         "allFiles": "Alle Dateien"
+      }
+    },
+    "supporters": {
+      "errors": {
+        "unavailable": "Die Unterstützerliste kann gerade nicht heruntergeladen werden. Prüfe deine Internetverbindung und versuche es erneut."
       }
     }
   },

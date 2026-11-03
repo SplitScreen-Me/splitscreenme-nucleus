@@ -174,7 +174,8 @@
         "gamepad": "Gamepad shortcuts and controller type",
         "audio": "Audio: playback device of each instance",
         "layout": "Layout: custom grid, background, windows merger",
-        "about": "About, handlers folder, updates"
+        "about": "About, handlers folder, updates",
+        "supporters": "Patreon supporters: the credits"
       }
     },
     "notFound": {
@@ -188,6 +189,18 @@
       "message": "Nucleus Co-op is still running. Go back to the library and try again; if it happens again, copy the details below into a bug report.",
       "unknownError": "Unknown error",
       "backToLibrary": "Back to library"
+    },
+    "news": {
+      "label": "News from SplitScreen.Me",
+      "announcement": "News from SplitScreen.Me: {messages}",
+      "severity": {
+        "warning": "Warning",
+        "critical": "Important"
+      },
+      "position": "{index}/{count}",
+      "learnMoreLabel": "Learn more: {message}",
+      "dismiss_one": "Hide this message until something new is posted",
+      "dismiss_other": "Hide these {count} messages until something new is posted"
     }
   },
   "ui": {
@@ -1615,7 +1628,33 @@
         "docs": "Documentation",
         "faq": "FAQ",
         "hub": "The Hub"
+      },
+      "supporters": {
+        "label": "Patreon supporters",
+        "description": "Nucleus Co-op stays free thanks to the people who support it on Patreon.",
+        "button": "Roll the credits"
       }
+    },
+    "supporters": {
+      "crumb": "Supporters",
+      "title": "Patreon Supporters",
+      "intro": "Nucleus Co-op is free and open source. These people help keep it that way.",
+      "count_one": "{count} supporter",
+      "count_other": "{count} supporters",
+      "thanks": "♥♥ THANK YOU ♥♥",
+      "patreon": "Support Nucleus Co-op on Patreon",
+      "musicCredit": "Music: {link}",
+      "replay": "Roll again",
+      "mute": "Mute the music",
+      "unmute": "Play the music",
+      "muteShort": "Mute",
+      "unmuteShort": "Music",
+      "paused": "Paused",
+      "savedCopy": "Offline: list saved on {date}",
+      "loading": "Loading the supporters…",
+      "errorTitle": "The supporters list is not available",
+      "keys": "Keyboard: <b>{pause}</b> pauses, <b>{mute}</b> mutes, <b>{back}</b> goes back",
+      "keysStill": "Keyboard: <b>{mute}</b> mutes, <b>{back}</b> goes back"
     }
   },
   "host": {
@@ -2281,6 +2320,11 @@
         "selectFile": "Select a file",
         "selectFolder": "Select a folder",
         "allFiles": "All files"
+      }
+    },
+    "supporters": {
+      "errors": {
+        "unavailable": "The supporters list can't be downloaded right now. Check your internet connection and try again."
       }
     }
   },
