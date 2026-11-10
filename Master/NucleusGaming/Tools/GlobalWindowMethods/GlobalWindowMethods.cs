@@ -16,6 +16,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Media;
+using System.Windows.Threading;
 using WindowScrape.Constants;
 using WindowScrape.Static;
 using WindowScrape.Types;
@@ -78,7 +79,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
         }
 
         public static bool RestartThreadIsRunning = false;
-        
+
         public static void ResetWindows(ProcessData processData, int x, int y, int w, int h, int i)
         {
             var handlerInstance = GenericGameHandler.Instance;
@@ -1144,6 +1145,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
             }
 
             //reset
+            p.ProcessData.KilledMutexes = false;
             p.ProcessData.HWnd = null;
             p.ProcessData.Setted = false;
             p.ProcessData.Status = 0;
@@ -1180,7 +1182,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                     LockInputRuntime.Lock(handlerInstance.CurrentGameInfo.LockInputSuspendsExplorer, handlerInstance.CurrentGameInfo.ProtoInput.FreezeExternalInputWhenInputNotLocked, handlerInstance.CurrentGameInfo?.ProtoInput);
                 Globals.MainOSD.Show(1000, "Instance hooked again");
             }
-            else if (!handlerInstance.CurrentGameInfo.CantRestartInstances)
+            else if ((handlerInstance.CurrentGameInfo.CanRestartInstances || handlerInstance.CurrentGameInfo.MetaInfo.TryRestartOnGameCrash) || handlerInstance.CurrentGameInfo.MetaInfo.TryRestartOnGameCrash)
             {
                 handlerInstance.Log("Process Lost... Attempting Restart");
                 Thread.Sleep(1000);
@@ -1196,29 +1198,50 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
 
                 if (p.PlayerID + 1 != players.Count && !handlerInstance.CurrentGameInfo.KillLastInstanceMutex) //lastinstance mutex may be blocking
                 {
-                    handlerInstance.MutexKill();
+                    if (!handlerInstance.MutexKill())
+                    {
+                        handlerInstance.Log("Relaunch aborted before mutexkill");
+                        handlerInstance.exited++;
+                        return; //exit
+                    }
+
                     handlerInstance.Log("Relaunch killed mutex on previous instance");
                     Thread.Sleep(1000);
                 }
 
-                handlerInstance.LaunchGame(p, p.PlayerID, true);
+                if (!handlerInstance.LaunchGame(p, p.PlayerID, true))
+                {
+                    handlerInstance.Log("Relaunch aborted before launch");
+                    handlerInstance.exited++;
+                    return; //exit
+                }
+
                 handlerInstance.Log("Relaunch started game");
 
                 Thread.Sleep(1000);
 
                 handlerInstance.Log("Relaunch Process Search");
                 p.ProcessData.AssignProcess(handlerInstance.processsearch(p, p.PlayerID, true));
-
+                
                 if (p.ProcessData != null)
                 {
                     handlerInstance.processorpriority(p, p.PlayerID);
                     handlerInstance.Log("Relaunch ProcessorPriority set");
                     Thread.Sleep(1000);
-                    handlerInstance.hookinstance(p, p.PlayerID);
+
+                    if (!handlerInstance.hookinstance(p, p.PlayerID))
+                    {
+                        handlerInstance.Log("Relaunch aborted before hooking");
+                        handlerInstance.exited++;
+                        return; //exit
+                    }
+
                     handlerInstance.Log("Relaunch Hooked Instance");
                     Thread.Sleep(1000);
+
                     handlerInstance.MutexKill();
                     handlerInstance.Log("Relaunch killed mutex");
+
                     ChangeGameWindow(p.ProcessData.Process, handlerInstance.profile.DevicesList, p.PlayerID);
                 }
                 else
@@ -1229,20 +1252,23 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 }
 
                 if (relock)
+                {
                     LockInputRuntime.Lock(handlerInstance.CurrentGameInfo.LockInputSuspendsExplorer, handlerInstance.CurrentGameInfo.ProtoInput.FreezeExternalInputWhenInputNotLocked, handlerInstance.CurrentGameInfo?.ProtoInput);
-
+                }
+                    
             }
 
-            RestartThreadIsRunning = false;
-
-            return;
+            Dispatcher.CurrentDispatcher?.BeginInvokeShutdown(DispatcherPriority.Background);
         }
 
         private static Thread RestartThread;
 
         private static void RunRestartInstanceThread(PlayerInfo p, List<PlayerInfo> players, Process quitproc)
         {
-            RestartThreadIsRunning = true;
+            if(RestartThreadIsRunning)
+            {
+                return;
+            }
 
             RestartThread = new Thread(delegate ()
             {
@@ -1253,6 +1279,8 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
             RestartThread.IsBackground = true;
             RestartThread.SetApartmentState(ApartmentState.STA);
             RestartThread.Start();
+
+            RestartThreadIsRunning = true;
         }
 
         public static void UpdateAndRefreshGameWindows(double delayMS, bool refresh)
@@ -1262,6 +1290,15 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
             if (handlerInstance.profile == null)
             {
                 return;
+            }
+
+            if(RestartThread != null)
+            {
+                if(!RestartThread.IsAlive)
+                {
+                    RestartThreadIsRunning = false;
+                    RestartThread = null;
+                }
             }
 
             handlerInstance.exited = 0;
@@ -1303,7 +1340,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                 {
                     if (data.Process.HasExited)
                     {
-                        if (!handlerInstance.CurrentGameInfo.CantRestartInstances || handlerInstance.CurrentGameInfo.GameReLaunchByItself)
+                        if ((handlerInstance.CurrentGameInfo.CanRestartInstances || handlerInstance.CurrentGameInfo.MetaInfo.TryRestartOnGameCrash)  || handlerInstance.CurrentGameInfo.GameReLaunchByItself)
                         {
                             if (!RestartThreadIsRunning && !handlerInstance.processingExit)
                             {
@@ -1352,7 +1389,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                         {
                             if (data.Process.HasExited)
                             {
-                                if (!handlerInstance.CurrentGameInfo.CantRestartInstances || handlerInstance.CurrentGameInfo.GameReLaunchByItself)
+                                if ((handlerInstance.CurrentGameInfo.CanRestartInstances || handlerInstance.CurrentGameInfo.MetaInfo.TryRestartOnGameCrash) || handlerInstance.CurrentGameInfo.GameReLaunchByItself)
                                 {
                                     if (!RestartThreadIsRunning && !handlerInstance.processingExit)
                                     {
@@ -1629,7 +1666,7 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                         }
                         else
                         {
-                            if(data.Process == null)
+                            if (data.Process == null)
                             {
                                 continue;
                             }

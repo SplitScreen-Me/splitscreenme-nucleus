@@ -107,6 +107,7 @@ namespace Nucleus.Coop
             this.PatreonMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.PatreonRedirect = new System.Windows.Forms.ToolStripMenuItem();
             this.SupportersList = new System.Windows.Forms.ToolStripMenuItem();
+            this.tryRestartMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.HomeScreen = new DoubleBufferPanel();
             this.SetupPanel = new DoubleBufferPanel();
             this.GameListContainer = new DoubleBufferPanel();
@@ -117,12 +118,10 @@ namespace Nucleus.Coop
             this.btn_Play = new System.Windows.Forms.Button();
             this.btn_Prev = new System.Windows.Forms.Button();
             this.btn_Next = new System.Windows.Forms.Button();
-            this.PlayTimePanel = new Nucleus.Coop.Controls.PlaytimePanel();
             this.ProfileButtonsPanel = new DoubleBufferPanel();
             this.ProfileButtonPanelLockPb = new System.Windows.Forms.Label();
             this.ProfileSettings_btn = new System.Windows.Forms.Button();
             this.ProfilesList_btn = new System.Windows.Forms.Button();
-            this.SaveProfileSwitch = new Nucleus.Coop.Controls.CustomSwitch();
             this.Icons_Container = new BufferedFlowLayoutPanel();
             this.HandlerNotesContainer = new DoubleBufferPanel();
             this.ExpandHandlerNotes_btn = new System.Windows.Forms.PictureBox();
@@ -141,6 +140,8 @@ namespace Nucleus.Coop
             this.BigLogo = new System.Windows.Forms.PictureBox();
             this.txt_version = new System.Windows.Forms.Label();
             this.logo = new System.Windows.Forms.PictureBox();
+            this.PlayTimePanel = new Nucleus.Coop.Controls.PlaytimePanel();
+            this.SaveProfileSwitch = new Nucleus.Coop.Controls.CustomSwitch();
             this.GameOptionMenu.SuspendLayout();
             this.socialLinksMenu.SuspendLayout();
             this.ManageGamesMenu.SuspendLayout();
@@ -190,6 +191,7 @@ namespace Nucleus.Coop
             this.useGamepadButtonPressMenuItem,
             this.useGamepadAPIIndexForGuestsMenuItem,
             this.toolStripSeparator5,
+            this.tryRestartMenuItem,
             this.keepInstancesFolderMenuItem,
             this.disableProfilesMenuItem,
             this.disableHandlerUpdateMenuItem,
@@ -201,7 +203,7 @@ namespace Nucleus.Coop
             this.removeGameMenuItem});
             this.GameOptionMenu.Name = "gameContextMenuStrip";
             this.GameOptionMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-            this.GameOptionMenu.Size = new System.Drawing.Size(305, 640);
+            this.GameOptionMenu.Size = new System.Drawing.Size(305, 684);
             // 
             // gameNameMenuItem
             // 
@@ -496,47 +498,47 @@ namespace Nucleus.Coop
             // fAQMenuItem
             // 
             this.fAQMenuItem.Name = "fAQMenuItem";
-            this.fAQMenuItem.Size = new System.Drawing.Size(223, 22);
+            this.fAQMenuItem.Size = new System.Drawing.Size(189, 22);
             this.fAQMenuItem.Text = "FAQ";
             // 
             // discordMenuItem
             // 
             this.discordMenuItem.Name = "discordMenuItem";
-            this.discordMenuItem.Size = new System.Drawing.Size(223, 22);
+            this.discordMenuItem.Size = new System.Drawing.Size(189, 22);
             this.discordMenuItem.Text = "Discord";
             // 
             // redditMenuItem
             // 
             this.redditMenuItem.Name = "redditMenuItem";
-            this.redditMenuItem.Size = new System.Drawing.Size(223, 22);
+            this.redditMenuItem.Size = new System.Drawing.Size(189, 22);
             this.redditMenuItem.Text = "Reddit";
             // 
             // toolStripSeparator12
             // 
             this.toolStripSeparator12.Name = "toolStripSeparator12";
-            this.toolStripSeparator12.Size = new System.Drawing.Size(220, 6);
+            this.toolStripSeparator12.Size = new System.Drawing.Size(186, 6);
             // 
             // howToSetupMenuItem
             // 
             this.howToSetupMenuItem.Name = "howToSetupMenuItem";
-            this.howToSetupMenuItem.Size = new System.Drawing.Size(223, 22);
+            this.howToSetupMenuItem.Size = new System.Drawing.Size(189, 22);
             this.howToSetupMenuItem.Text = "How To Setup";
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(220, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(186, 6);
             // 
             // splitCalculatorMenuItem
             // 
             this.splitCalculatorMenuItem.Name = "splitCalculatorMenuItem";
-            this.splitCalculatorMenuItem.Size = new System.Drawing.Size(223, 22);
+            this.splitCalculatorMenuItem.Size = new System.Drawing.Size(189, 22);
             this.splitCalculatorMenuItem.Text = "SplitCalculator";
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(220, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(186, 6);
             // 
             // thirdPartyToolsToolStripMenuItem
             // 
@@ -546,7 +548,7 @@ namespace Nucleus.Coop
             this.hidHideToolStripMenuItem,
             this.scpToolkitToolStripMenuItem});
             this.thirdPartyToolsToolStripMenuItem.Name = "thirdPartyToolsToolStripMenuItem";
-            this.thirdPartyToolsToolStripMenuItem.Size = new System.Drawing.Size(223, 22);
+            this.thirdPartyToolsToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
             this.thirdPartyToolsToolStripMenuItem.Text = "Third Party Tools";
             // 
             // xOutputToolStripMenuItem
@@ -576,18 +578,18 @@ namespace Nucleus.Coop
             // toolStripSeparator6
             // 
             this.toolStripSeparator6.Name = "toolStripSeparator6";
-            this.toolStripSeparator6.Size = new System.Drawing.Size(220, 6);
+            this.toolStripSeparator6.Size = new System.Drawing.Size(186, 6);
             // 
             // openDebugLog
             // 
             this.openDebugLog.Name = "openDebugLog";
-            this.openDebugLog.Size = new System.Drawing.Size(223, 22);
+            this.openDebugLog.Size = new System.Drawing.Size(189, 22);
             this.openDebugLog.Text = "Open debug log";
             // 
             // openNucleusDirectory
             // 
             this.openNucleusDirectory.Name = "openNucleusDirectory";
-            this.openNucleusDirectory.Size = new System.Drawing.Size(223, 22);
+            this.openNucleusDirectory.Size = new System.Drawing.Size(189, 22);
             this.openNucleusDirectory.Text = "Open NC Directory";
             // 
             // openNcEnvDir
@@ -675,6 +677,12 @@ namespace Nucleus.Coop
             this.SupportersList.Name = "SupportersList";
             this.SupportersList.Size = new System.Drawing.Size(217, 22);
             this.SupportersList.Text = "Supporters list";
+            // 
+            // tryRestartMenuItem
+            // 
+            this.tryRestartMenuItem.Name = "tryRestartMenuItem";
+            this.tryRestartMenuItem.Size = new System.Drawing.Size(304, 22);
+            this.tryRestartMenuItem.Text = "Try To Restart Game On Crash";
             // 
             // HomeScreen
             // 
@@ -840,17 +848,6 @@ namespace Nucleus.Coop
             this.btn_Next.TabIndex = 11;
             this.btn_Next.UseVisualStyleBackColor = false;
             // 
-            // PlayTimePanel
-            // 
-            this.PlayTimePanel.AutoSize = true;
-            this.PlayTimePanel.LastPlayed = null;
-            this.PlayTimePanel.Location = new System.Drawing.Point(4, 41);
-            this.PlayTimePanel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.PlayTimePanel.Name = "PlayTimePanel";
-            this.PlayTimePanel.Playtime = null;
-            this.PlayTimePanel.Size = new System.Drawing.Size(81, 28);
-            this.PlayTimePanel.TabIndex = 104;
-            // 
             // ProfileButtonsPanel
             // 
             this.ProfileButtonsPanel.Controls.Add(this.ProfileButtonPanelLockPb);
@@ -905,22 +902,6 @@ namespace Nucleus.Coop
             this.ProfilesList_btn.Size = new System.Drawing.Size(21, 21);
             this.ProfilesList_btn.TabIndex = 3;
             this.ProfilesList_btn.UseVisualStyleBackColor = false;
-            // 
-            // SaveProfileSwitch
-            // 
-            this.SaveProfileSwitch.AutoSize = true;
-            this.SaveProfileSwitch.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.SaveProfileSwitch.BackColor = System.Drawing.Color.Transparent;
-            this.SaveProfileSwitch.Location = new System.Drawing.Point(51, 4);
-            this.SaveProfileSwitch.Margin = new System.Windows.Forms.Padding(1);
-            this.SaveProfileSwitch.Name = "SaveProfileSwitch";
-            this.SaveProfileSwitch.RadioBackColor = System.Drawing.Color.Transparent;
-            this.SaveProfileSwitch.RadioChecked = true;
-            this.SaveProfileSwitch.RadioText = "Save Profile";
-            this.SaveProfileSwitch.RadioTooltipText = " If turned off the current setup will not be saved to a new profile.";
-            this.SaveProfileSwitch.Size = new System.Drawing.Size(109, 16);
-            this.SaveProfileSwitch.TabIndex = 105;
-            this.SaveProfileSwitch.TextColor = System.Drawing.Color.White;
             // 
             // Icons_Container
             // 
@@ -1186,6 +1167,33 @@ namespace Nucleus.Coop
             this.logo.TabIndex = 24;
             this.logo.TabStop = false;
             // 
+            // PlayTimePanel
+            // 
+            this.PlayTimePanel.AutoSize = true;
+            this.PlayTimePanel.LastPlayed = null;
+            this.PlayTimePanel.Location = new System.Drawing.Point(4, 41);
+            this.PlayTimePanel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            this.PlayTimePanel.Name = "PlayTimePanel";
+            this.PlayTimePanel.Playtime = null;
+            this.PlayTimePanel.Size = new System.Drawing.Size(81, 28);
+            this.PlayTimePanel.TabIndex = 104;
+            // 
+            // SaveProfileSwitch
+            // 
+            this.SaveProfileSwitch.AutoSize = true;
+            this.SaveProfileSwitch.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.SaveProfileSwitch.BackColor = System.Drawing.Color.Transparent;
+            this.SaveProfileSwitch.Location = new System.Drawing.Point(51, 4);
+            this.SaveProfileSwitch.Margin = new System.Windows.Forms.Padding(1);
+            this.SaveProfileSwitch.Name = "SaveProfileSwitch";
+            this.SaveProfileSwitch.RadioBackColor = System.Drawing.Color.Transparent;
+            this.SaveProfileSwitch.RadioChecked = true;
+            this.SaveProfileSwitch.RadioText = "Save Profile";
+            this.SaveProfileSwitch.RadioTooltipText = " If turned off the current setup will not be saved to a new profile.";
+            this.SaveProfileSwitch.Size = new System.Drawing.Size(109, 16);
+            this.SaveProfileSwitch.TabIndex = 105;
+            this.SaveProfileSwitch.TextColor = System.Drawing.Color.White;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
@@ -1335,5 +1343,6 @@ namespace Nucleus.Coop
         private ToolStripSeparator toolStripSeparator6;
         private ToolStripMenuItem openNucleusDirectory;
         private ToolStripMenuItem openNcEnvDir;
+        private ToolStripMenuItem tryRestartMenuItem;
     }
 }

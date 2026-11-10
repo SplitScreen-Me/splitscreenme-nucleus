@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nucleus.Gaming.App.Settings;
+using Nucleus.Gaming.Coop.InputManagement.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,347 +13,400 @@ using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Coop
 {
-    //need a lock or saveasync whaterver make it thread safe and avoid spamming
     public class GameMetaInfo
     {
         private readonly string nucleusEnvironment = $@"{Globals.UserEnvironmentRoot}\NucleusCoop";
 #if DEBUG
- private readonly string metaInfoJson = "metaInfo_DEBUG.json";
+        private readonly string metaInfoJson = "metaInfo_DEBUG.json";
 #else
- private readonly string metaInfoJson = "metaInfo.json";
+        private readonly string metaInfoJson = "metaInfo.json";
 #endif
-        private ulong intervale = 20000;//milliseconds
-        private bool stopped;
+
+        private const int SaveDebounceMilliseconds = 400;
+        private static readonly object FileLock = new object();
+
+        private readonly object sync = new object();
+        private readonly System.Threading.Timer saveTimer;
+
+        private readonly ulong intervale = 20000;
+        private volatile bool stopped;
 
         private GenericGameInfo gen;
         private string gameGuid;
 
         private string lastPlayedAt;
-        public string LastPlayedAt => GetLastPlayed();
-
-        public string LastPlayedAtFull => GetLastPlayedFull();
-
         private string totalPlayTime;
+        private string iconPath;
+        private bool saveProfile;
+        private bool disableProfiles;
+        private bool keepSymLink;
+        private bool favorite;
+        private bool firstLaunch;
+        private bool checkUpdate;
+        private bool useApiIndex;
+        private bool useApiIndexForGuests;
+        private bool profileAssignGamepadByButonPress;
+        private string steamLanguage;
+        private bool tryRestartOnGameCrash;
+
+        public GameMetaInfo()
+        {
+            saveTimer = new System.Threading.Timer(
+                _ => SaveGameMetaInfoNow(),
+                null,
+                Timeout.Infinite,
+                Timeout.Infinite);
+        }
+
+        public string LastPlayedAt => GetLastPlayed();
+        public string LastPlayedAtFull => GetLastPlayedFull();
         public string TotalPlayTime => FormatPlayTime();
 
-        private string iconPath;
         public string IconPath
         {
-            get => iconPath;
-            set
-            {
-                iconPath = value;
-                SaveGameMetaInfo();
-            }
+            get { lock (sync) return iconPath; }
+            set { lock (sync) iconPath = value; SaveGameMetaInfo(); }
         }
 
-        private bool saveProfile;
         public bool SaveProfile
         {
-            get => saveProfile;
-            set
-            {
-                saveProfile = value;         
-                SaveGameMetaInfo();
-            }
+            get { lock (sync) return saveProfile; }
+            set { lock (sync) saveProfile = value; SaveGameMetaInfo(); }
         }
 
-        private bool disableProfiles;
         public bool DisableProfiles
         {
-            get => disableProfiles;
-            set
-            {
-                disableProfiles = value;
-                SaveGameMetaInfo();
-            }
+            get { lock (sync) return disableProfiles; }
+            set { lock (sync) disableProfiles = value; SaveGameMetaInfo(); }
         }
 
-        private bool keepSymLink;
         public bool KeepSymLink
         {
-            get => keepSymLink;
-            set
-            {
-                keepSymLink = value;
-                SaveGameMetaInfo();
-            }
+            get { lock (sync) return keepSymLink; }
+            set { lock (sync) keepSymLink = value; SaveGameMetaInfo(); }
         }
 
-        private bool favorite = false;
         public bool Favorite
         {
-            get => favorite;
-            set
-            {
-                favorite = value;
-                SaveGameMetaInfo();
-            }
+            get { lock (sync) return favorite; }
+            set { lock (sync) favorite = value; SaveGameMetaInfo(); }
         }
 
-        private bool firstLaunch;
         public bool FirstLaunch
         {
-            get => firstLaunch;
-            set
-            {
-                firstLaunch = value;
-                SaveGameMetaInfo();
-            }
+            get { lock (sync) return firstLaunch; }
+            set { lock (sync) firstLaunch = value; SaveGameMetaInfo(); }
         }
 
-        private bool checkUpdate;
         public bool CheckUpdate
         {
-            get => checkUpdate;
-            set
-            {
-                checkUpdate = value;
-                SaveGameMetaInfo();
-            }
+            get { lock (sync) return checkUpdate; }
+            set { lock (sync) checkUpdate = value; SaveGameMetaInfo(); }
         }
 
-        private bool useApiIndex;
         public bool UseApiIndex
         {
-            get => useApiIndex;
+            get { lock (sync) return useApiIndex; }
             set
             {
-                useApiIndex = value;
-                useApiIndexForGuests = value;
-
+                lock (sync)
+                {
+                    useApiIndex = value;
+                    useApiIndexForGuests = value;
+                }
                 SaveGameMetaInfo();
             }
         }
 
-        private bool useApiIndexForGuests;
         public bool UseApiIndexForGuests
         {
-            get => useApiIndexForGuests;
+            get { lock (sync) return useApiIndexForGuests; }
             set
             {
-                useApiIndexForGuests = value;
-                if (gen.PlayersPerInstance > 0)
+                bool shouldSave;
+                lock (sync)
                 {
-                    SaveGameMetaInfo();
+                    useApiIndexForGuests = value;
+                    shouldSave = gen != null && gen.PlayersPerInstance > 0;
                 }
+
+                if (shouldSave)
+                    SaveGameMetaInfo();
             }
         }
 
-        private bool profileAssignGamepadByButonPress;
+        public bool TryRestartOnGameCrash
+        {
+            get { lock (sync) return tryRestartOnGameCrash; }
+            set { lock (sync) tryRestartOnGameCrash = value; SaveGameMetaInfo(); }
+        }
+
         public bool ProfileAssignGamepadByButonPress
         {
-            get => profileAssignGamepadByButonPress;
-            set
-            {
-                profileAssignGamepadByButonPress = value;
-                SaveGameMetaInfo();
-            }
+            get { lock (sync) return profileAssignGamepadByButonPress; }
+            set { lock (sync) profileAssignGamepadByButonPress = value; SaveGameMetaInfo(); }
         }
 
-        private string steamLanguage;
         public string SteamLanguage
         {
-            get => steamLanguage;
-            set
-            {
-                steamLanguage = value;
-                SaveGameMetaInfo();
-            }
+            get { lock (sync) return steamLanguage; }
+            set { lock (sync) steamLanguage = value; SaveGameMetaInfo(); }
         }
 
         public void LoadGameMetaInfo(GenericGameInfo genericGameInfo)
         {
+            if (genericGameInfo == null)
+                throw new ArgumentNullException(nameof(genericGameInfo));
+
+            bool needsInitialSave = false;
+            string path = GetMetaInfoPath();
+
             try
             {
-                gen = genericGameInfo;
-
-                gameGuid = genericGameInfo.GUID;
-
-                string path = $"{nucleusEnvironment}\\{metaInfoJson}";
-
-                if (File.Exists(path))
+                lock (sync)
                 {
-                    string jsonString = File.ReadAllText(path);
+                    gen = genericGameInfo;
+                    gameGuid = genericGameInfo.GUID;
 
-                    JObject JMetaInfo = (JObject)JsonConvert.DeserializeObject(jsonString);
+                    JObject root = null;
 
-                    bool hasMetaInfo = JMetaInfo[gameGuid] != null;
-
-                    if (hasMetaInfo)
+                    lock (FileLock)
                     {
-                        totalPlayTime = (string)JMetaInfo[gameGuid]["TotalPlayTime"] ?? null;
-                        lastPlayedAt = (string)JMetaInfo[gameGuid]["LastPlayedAt"] ?? null;
-                        iconPath = (string)JMetaInfo[gameGuid]["IconPath"] ?? null;
-                        saveProfile = JMetaInfo[gameGuid]["SaveProfile"] == null || (bool)JMetaInfo[gameGuid]["SaveProfile"];
-                        disableProfiles = JMetaInfo[gameGuid]["DisableProfiles"] != null && (bool)JMetaInfo[gameGuid]["DisableProfiles"];
-                        keepSymLink = JMetaInfo[gameGuid]["KeepSymLink"] != null && (bool)JMetaInfo[gameGuid]["KeepSymLink"];
-                        favorite = JMetaInfo[gameGuid]["Favorite"] != null && (bool)JMetaInfo[gameGuid]["Favorite"];
-                        firstLaunch = JMetaInfo[gameGuid]["FirstLaunch"] == null || (bool)JMetaInfo[gameGuid]["FirstLaunch"];
-                        checkUpdate = JMetaInfo[gameGuid]["CheckUpdate"] == null || (bool)JMetaInfo[gameGuid]["CheckUpdate"];
-                        useApiIndex = JMetaInfo[gameGuid]["UseApiIndex"] == null ? App_Misc.UseXinputIndex : (bool)JMetaInfo[gameGuid]["UseApiIndex"];                       
-                        useApiIndexForGuests = JMetaInfo[gameGuid]["UseApiIndexForGuests"] == null ? useApiIndex : (bool)JMetaInfo[gameGuid]["UseApiIndexForGuests"];
-                        profileAssignGamepadByButonPress = JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"] == null ? App_Misc.ProfileAssignGamepadByButonPress : (bool)JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"];
-                        steamLanguage = (string)JMetaInfo[gameGuid]["SteamLanguage"] ?? "App Setting";
-                        return;
+                        if (File.Exists(path))
+                        {
+                            string json = File.ReadAllText(path);
+                            root = JObject.Parse(json);
+                        }
                     }
 
-                    totalPlayTime = null;
-                    lastPlayedAt = null;
-                    iconPath = null;
-                    saveProfile = true;
-                    disableProfiles = false;
-                    keepSymLink = false;
-                    favorite = false;
-                    firstLaunch = true;
-                    checkUpdate = true;
-                    useApiIndex = App_Misc.UseXinputIndex;
-                    useApiIndexForGuests = useApiIndex;
-                    profileAssignGamepadByButonPress = App_Misc.ProfileAssignGamepadByButonPress;
-                    steamLanguage = "App Setting";
+                    JObject entry = root?[gameGuid] as JObject;
+                    if (entry != null)
+                    {
+                        totalPlayTime = (string)entry["TotalPlayTime"];
+                        lastPlayedAt = (string)entry["LastPlayedAt"];
+                        iconPath = (string)entry["IconPath"];
+                        saveProfile = entry["SaveProfile"] == null || (bool)entry["SaveProfile"];
+                        disableProfiles = entry["DisableProfiles"] != null && (bool)entry["DisableProfiles"];
+                        keepSymLink = entry["KeepSymLink"] != null && (bool)entry["KeepSymLink"];
+                        favorite = entry["Favorite"] != null && (bool)entry["Favorite"];
+                        firstLaunch = entry["FirstLaunch"] == null || (bool)entry["FirstLaunch"];
+                        checkUpdate = entry["CheckUpdate"] == null || (bool)entry["CheckUpdate"];
+                        useApiIndex = entry["UseApiIndex"] == null
+                            ? App_Misc.UseXinputIndex
+                            : (bool)entry["UseApiIndex"];
+                        useApiIndexForGuests = entry["UseApiIndexForGuests"] == null
+                            ? useApiIndex
+                            : (bool)entry["UseApiIndexForGuests"];
+                        profileAssignGamepadByButonPress = entry["ProfileAssignGamepadByButonPress"] == null
+                            ? App_Misc.ProfileAssignGamepadByButonPress
+                            : (bool)entry["ProfileAssignGamepadByButonPress"];
+                        steamLanguage = (string)entry["SteamLanguage"] ?? "App Setting";
+                        tryRestartOnGameCrash = entry["TryRestartOnGameCrash"] != null &&
+                        (bool)entry["TryRestartOnGameCrash"];
+                    }
+                    else
+                    {
+                        SetDefaults();
+                        needsInitialSave = true;
+                    }
                 }
 
-                SaveGameMetaInfo();
+                if (needsInitialSave)
+                    SaveGameMetaInfo();
             }
-            catch 
+            catch (Exception ex)
             {
-
+                Logger.WriteLine($"Failed to load game metadata: {ex}");
             }
         }
 
         public void SaveGameMetaInfo()
         {
+            lock (sync)
+            {
+                if (string.IsNullOrEmpty(gameGuid))
+                    return;
+
+                saveTimer.Change(SaveDebounceMilliseconds, Timeout.Infinite);
+            }
+        }
+
+        public void FlushGameMetaInfo()
+        {
+            saveTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            SaveGameMetaInfoNow();
+        }
+
+        private void SaveGameMetaInfoNow()
+        {
+            string path = GetMetaInfoPath();
+
             try
             {
-                string path = $"{nucleusEnvironment}\\{metaInfoJson}";
-
-                if (!Directory.Exists(nucleusEnvironment))
+                lock (sync)
                 {
-                    Directory.CreateDirectory(nucleusEnvironment);
-                }
+                    if (string.IsNullOrEmpty(gameGuid))
+                        return;
 
-                JObject JMetaInfo;
+                    Directory.CreateDirectory(nucleusEnvironment);
+
+                    lock (FileLock)
+                    {
+                        JObject root;
+
+                        if (File.Exists(path))
+                        {
+                            try
+                            {
+                                root = JObject.Parse(File.ReadAllText(path));
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.WriteLine($"Metadata JSON is invalid: {ex}");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            root = new JObject();
+                        }
+
+                        root[gameGuid] = CreateGameEntry();
+
+                        WriteJsonAtomically(path, JsonConvert.SerializeObject(root, Formatting.Indented));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteLine($"Failed to save game metadata: {ex}");
+            }
+        }
+
+        private JObject CreateGameEntry()
+        {
+            return new JObject
+            {
+                ["TotalPlayTime"] = totalPlayTime == null ? JValue.CreateNull() : new JValue(totalPlayTime),
+                ["LastPlayedAt"] = lastPlayedAt == null ? JValue.CreateNull() : new JValue(lastPlayedAt),
+                ["IconPath"] = iconPath == null ? JValue.CreateNull() : new JValue(iconPath),
+                ["SaveProfile"] = saveProfile,
+                ["DisableProfiles"] = disableProfiles,
+                ["KeepSymLink"] = keepSymLink,
+                ["Favorite"] = favorite,
+                ["FirstLaunch"] = firstLaunch,
+                ["CheckUpdate"] = checkUpdate,
+                ["UseApiIndex"] = useApiIndex,
+                ["UseApiIndexForGuests"] = useApiIndexForGuests,
+                ["ProfileAssignGamepadByButonPress"] = profileAssignGamepadByButonPress,
+                ["SteamLanguage"] = steamLanguage == null ? JValue.CreateNull() : new JValue(steamLanguage),
+                ["TryRestartOnGameCrash"] = tryRestartOnGameCrash,
+            };
+        }
+
+        private void WriteJsonAtomically(string path, string json)
+        {
+            string tempPath = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+
+            try
+            {
+                byte[] bytes = System.Text.Encoding.UTF8.GetBytes(json);
+
+                using (var stream = new FileStream(
+                    tempPath,
+                    FileMode.CreateNew,
+                    FileAccess.Write,
+                    FileShare.None,
+                    4096,
+                    FileOptions.WriteThrough))
+                {
+                    stream.Write(bytes, 0, bytes.Length);
+                    stream.Flush(true);
+                }
 
                 if (File.Exists(path))
                 {
-                    string jsonString = File.ReadAllText(path);
-
-                    JMetaInfo = (JObject)JsonConvert.DeserializeObject(jsonString);
-
-                    bool hasMetaInfo = JMetaInfo[gameGuid] != null;
-
-                    if (hasMetaInfo)
-                    {
-                        JMetaInfo[gameGuid]["TotalPlayTime"] = totalPlayTime;
-                        JMetaInfo[gameGuid]["LastPlayedAt"] = lastPlayedAt;
-                        JMetaInfo[gameGuid]["IconPath"] = iconPath;
-                        JMetaInfo[gameGuid]["SaveProfile"] = saveProfile;
-                        JMetaInfo[gameGuid]["DisableProfiles"] = disableProfiles;
-                        JMetaInfo[gameGuid]["KeepSymLink"] = keepSymLink;
-                        JMetaInfo[gameGuid]["Favorite"] = favorite;
-                        JMetaInfo[gameGuid]["FirstLaunch"] = firstLaunch;
-                        JMetaInfo[gameGuid]["CheckUpdate"] = checkUpdate;
-                        JMetaInfo[gameGuid]["UseApiIndex"] = useApiIndex;
-                        JMetaInfo[gameGuid]["UseApiIndexForGuests"] = useApiIndexForGuests;
-                        JMetaInfo[gameGuid]["ProfileAssignGamepadByButonPress"] = profileAssignGamepadByButonPress;
-                        JMetaInfo[gameGuid]["SteamLanguage"] = steamLanguage;
-                    }
-                    else
-                    {
-                        //new game metaInfo
-                        JProperty gameMeta = new JProperty(gameGuid, new JObject(new JProperty("TotalPlayTime", totalPlayTime),
-                                                            new JProperty("LastPlayedAt", lastPlayedAt),
-                                                            new JProperty("IconPath", iconPath),
-                                                            new JProperty("SaveProfile", saveProfile),
-                                                            new JProperty("DisableProfiles", disableProfiles),
-                                                            new JProperty("KeepSymLink", keepSymLink),
-                                                            new JProperty("Favorite", favorite),
-                                                            new JProperty("FirstLaunch", firstLaunch),
-                                                            new JProperty("CheckUpdate", checkUpdate),
-                                                            new JProperty("UseApiIndex", useApiIndex),
-                                                            new JProperty("UseApiIndexForGuests", useApiIndexForGuests),
-                                                            new JProperty("ProfileAssignGamepadByButonPress", profileAssignGamepadByButonPress),
-                                                            new JProperty("SteamLanguage", steamLanguage)
-                                                            ));
-                        JMetaInfo.Add(gameMeta);
-                    }
+                    File.Replace(tempPath, path, null);
                 }
                 else
                 {
-                    JObject gameMeta = new JObject(new JProperty("TotalPlayTime", totalPlayTime),
-                                                   new JProperty("LastPlayedAt", lastPlayedAt),
-                                                   new JProperty("IconPath", iconPath),
-                                                   new JProperty("SaveProfile", saveProfile),
-                                                   new JProperty("DisableProfiles", disableProfiles),
-                                                   new JProperty("KeepSymLink", keepSymLink),
-                                                   new JProperty("Favorite", favorite),
-                                                   new JProperty("FirstLaunch", firstLaunch),
-                                                   new JProperty("CheckUpdate", checkUpdate),
-                                                   new JProperty("UseApiIndex", useApiIndex),
-                                                   new JProperty("UseApiIndexForGuests", useApiIndexForGuests),
-                                                   new JProperty("ProfileAssignGamepadByButonPress", profileAssignGamepadByButonPress),
-                                                   new JProperty("SteamLanguage", steamLanguage)
-                                                   );
-
-                    JMetaInfo = new JObject(new JProperty(gameGuid, gameMeta));
-                }
-
-                using (FileStream stream = new FileStream(path, FileMode.Create))
-                {
-                    using (StreamWriter writer = new StreamWriter(stream))
-                    {
-                        string json = JsonConvert.SerializeObject(JMetaInfo, Formatting.Indented);
-                        writer.Write(json);
-                        stream.Flush();
-                    }
+                    File.Move(tempPath, path);
                 }
             }
-            catch
+            finally
             {
-
+                if (File.Exists(tempPath))
+                {
+                    try
+                    {
+                        File.Delete(tempPath);
+                    }
+                    catch
+                    { }
+                }
             }
+        }
+
+        private string GetMetaInfoPath()
+        {
+            return Path.Combine(nucleusEnvironment, metaInfoJson);
+        }
+
+        private void SetDefaults()
+        {
+            totalPlayTime = null;
+            lastPlayedAt = null;
+            iconPath = null;
+            saveProfile = true;
+            disableProfiles = false;
+            keepSymLink = false;
+            favorite = false;
+            firstLaunch = true;
+            checkUpdate = true;
+            useApiIndex = App_Misc.UseXinputIndex;
+            useApiIndexForGuests = useApiIndex;
+            profileAssignGamepadByButonPress = App_Misc.ProfileAssignGamepadByButonPress;
+            steamLanguage = "App Setting";
+            tryRestartOnGameCrash = false;
         }
 
         private string FormatPlayTime()
         {
-            if (totalPlayTime == null)
+            lock (sync)
             {
-                return "...";// 00h:00m:00s";
+                if (totalPlayTime == null)
+                    return "...";
+
+                if (!ulong.TryParse(totalPlayTime, out ulong totalSeconds))
+                    return "...";
+
+                ulong seconds = totalSeconds % 60;
+                ulong minutes = (totalSeconds / 60) % 60;
+                ulong hours = totalSeconds / 3600;
+
+                string formatHours = hours >= 10 ? "" : "0";
+                string formatMinutes = minutes >= 10 ? "" : "0";
+                string formatSeconds = seconds >= 10 ? "" : "0";
+
+                return $"{formatHours}{hours}h:{formatMinutes}{minutes}m:{formatSeconds}{seconds}s";
             }
-
-            ulong totalSeconds = ulong.Parse(totalPlayTime);
-
-            ulong seconds = totalSeconds % 60;
-            ulong minutes = (totalSeconds / 60) % 60;
-            ulong hours = totalSeconds / 3600;
-
-            string formatHours = hours >= 10 ? "" : "0";
-            string formatMinutes = minutes >= 10 ? "" : "0";
-            string formatSecondes = seconds >= 10 ? "" : "0";
-
-            return $"{formatHours}{hours}h:{formatMinutes}{minutes}m:{formatSecondes}{seconds}s";
         }
 
         private string GetLastPlayed()
         {
-            if (lastPlayedAt == null)
+            lock (sync)
             {
-                return "...";
+                return lastPlayedAt == null ? "..." : lastPlayedAt.Split(' ')[0];
             }
-
-            return lastPlayedAt.Split(' ')[0];//display the date only
         }
 
         private string GetLastPlayedFull()
         {
-            if (lastPlayedAt == null)
+            lock (sync)
             {
-                return "...";
+                return lastPlayedAt ?? "...";
             }
-
-            return lastPlayedAt;//returns the full datetime
         }
-
 
         public void StopGameplayTimerThread()
         {
@@ -361,35 +415,48 @@ namespace Nucleus.Gaming.Coop
 
         public void SaveGameplayTime()
         {
-            FirstLaunch = false;
-            lastPlayedAt = DateTime.Now.ToString();
+            lock (sync)
+            {
+                firstLaunch = false;
+                lastPlayedAt = DateTime.Now.ToString();
+            }
+            SaveGameMetaInfo();
 
             while (!stopped)
             {
                 Thread.Sleep((int)intervale);
 
-                if (totalPlayTime == null)
+                if (stopped)
+                    break;
+
+                lock (sync)
                 {
-                    totalPlayTime = (intervale / 1000).ToString();//seconds
-                }
-                else
-                {
-                    totalPlayTime = (intervale / 1000 + ulong.Parse(totalPlayTime)).ToString();//seconds
+                    ulong currentSeconds = 0;
+                    if (totalPlayTime != null)
+                        ulong.TryParse(totalPlayTime, out currentSeconds);
+
+                    totalPlayTime = (currentSeconds + intervale / 1000).ToString();
                 }
 
                 SaveGameMetaInfo();
             }
 
             stopped = false;
+            FlushGameMetaInfo();
         }
 
         public void StartGameplayTimerThread()
         {
+            stopped = false;
+
             Thread gameplayTimerThread = new Thread(delegate ()
             {
                 SaveGameplayTime();
                 System.Windows.Threading.Dispatcher.Run();
-            });
+            })
+            {
+                IsBackground = true
+            };
 
             gameplayTimerThread.SetApartmentState(ApartmentState.STA);
             gameplayTimerThread.Start();

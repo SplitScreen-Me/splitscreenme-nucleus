@@ -606,10 +606,10 @@ namespace Nucleus.Coop.UI
             if (modalControls[0] != null && modalControls[1] != null)
             {
                 modalControls[0].Controls.Remove(modalControls[1]);
-                modalControls[1].Dispose();
+                modalControls[1].Dispose();             
             }
 
-            modalControls[0].Invalidate();
+            modalControls[0]?.Invalidate();
             UI_Interface.BigLogo.Refresh();
             modalControls[0] = null;
             modalControls[1] = null;

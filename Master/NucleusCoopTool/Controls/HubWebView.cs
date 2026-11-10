@@ -30,6 +30,7 @@ namespace Nucleus.Coop.Forms
         private readonly string cacheDirectory= Path.Combine(Application.StartupPath, $"webview\\cache");
         private string downloadPath = Path.Combine(Application.StartupPath, "handlers\\handler.nc");
         private string scriptFolder = GameManager.Instance.GetJsScriptsPath();
+        private string modal_no_DefText;
         private readonly string hubUri = "https://hub.splitscreen.me/?fromWebview=true";
         private readonly string theme = Globals.ThemeFolder;
 
@@ -53,6 +54,9 @@ namespace Nucleus.Coop.Forms
 
         private Stopwatch timeoutWatch;
 
+        private Point modal_no_DefLoc;
+        
+
         public HubWebView()
         {
             OnHubConnectionChange += OnHubConnection_Lost;
@@ -67,9 +71,11 @@ namespace Nucleus.Coop.Forms
             modal_yes.FlatAppearance.MouseOverBackColor = Color.FromArgb(255, 0, 98, 190);
             modal_yes.Cursor = Theme_Settings.Hand_Cursor;
             modal_no.FlatAppearance.MouseOverBackColor = Color.FromArgb(255, 0, 98, 190);
-            modal_no.Cursor = Theme_Settings.Hand_Cursor;
 
+            modal_no.Cursor = Theme_Settings.Hand_Cursor;
             modal_text.BackColor = Color.FromArgb(255, 24, 26, 27);
+            modal_no_DefLoc = modal_no.Location;
+            modal_no_DefText = modal_no.Text;
 
             home.BackgroundImage = ImageCache.GetImage(theme + "home.png");
             home.FlatAppearance.MouseOverBackColor = Color.FromArgb(255, 0, 98, 190);
@@ -115,7 +121,7 @@ namespace Nucleus.Coop.Forms
             }
 
             Load += OnLoad;
-            Disposed += DisposeContent;
+            Disposed += Dispose;
             webView.CoreWebView2InitializationCompleted += WebView_CoreWebView2InitializationCompleted;
 
             foreach (Control c in Controls)
@@ -458,99 +464,122 @@ namespace Nucleus.Coop.Forms
 
         private void ExtractHandler()
         {
-            zip = new ZipFile(downloadPath);
-
-            zip.ExtractProgress += ExtractProgress;
-            numEntries = zip.Entries.Count;
-
-            List<string> handlerFolders = new List<string>();
-
-            string scriptTempFolder = scriptFolder + "\\temp";
-
-            if (!Directory.Exists(scriptTempFolder))
+            try
             {
-                Directory.CreateDirectory(scriptTempFolder);
-            }
+                zip = new ZipFile(downloadPath);
 
-            foreach (ZipEntry ze in zip)
-            {
-                if (ze.IsDirectory)
+                zip.ExtractProgress += ExtractProgress;
+                numEntries = zip.Entries.Count;
+
+                List<string> handlerFolders = new List<string>();
+
+                string scriptTempFolder = scriptFolder + "\\temp";
+
+                if (!Directory.Exists(scriptTempFolder))
                 {
-                    int count = 0;
-                    foreach (char c in ze.FileName)
+                    Directory.CreateDirectory(scriptTempFolder);
+                }
+
+                foreach (ZipEntry ze in zip)
+                {
+                    if (ze.IsDirectory)
                     {
-                        if (c == '/')
+                        int count = 0;
+                        foreach (char c in ze.FileName)
                         {
-                            count++;
+                            if (c == '/')
+                            {
+                                count++;
+                            }
                         }
-                    }
 
-                    if (count == 1)
+                        if (count == 1)
+                        {
+                            handlerFolders.Add(ze.FileName.TrimEnd('/'));
+                        }
+
+                        ze.Extract(scriptTempFolder, ExtractExistingFileAction.OverwriteSilently);
+                    }
+                    else
                     {
-                        handlerFolders.Add(ze.FileName.TrimEnd('/'));
+                        ze.Extract(scriptTempFolder, ExtractExistingFileAction.OverwriteSilently);
+                    }
+                }
+
+                Regex pattern = new Regex("[\\/:*?\"<>|]");
+                string frmHandleTitle = pattern.Replace(downloadPath, "");
+                string exeName = null;
+                int found = 0;
+
+                string extractedJsFilePath = Path.Combine(scriptTempFolder, "handler.js");
+
+                foreach (string line in System.IO.File.ReadAllLines(extractedJsFilePath))
+                {
+                    if (line.ToLower().StartsWith("game.executablename"))
+                    {
+                        int start = line.IndexOf("\"");
+                        int end = line.LastIndexOf("\"");
+                        exeName = line.Substring(start + 1, (end - start) - 1);
+                        found++;
+                    }
+                    else if (line.ToLower().StartsWith("game.gamename"))
+                    {
+                        int start = line.IndexOf("\"");
+                        int end = line.LastIndexOf("\"");
+                        frmHandleTitle = pattern.Replace(line.Substring(start + 1, (end - start) - 1), "");
+                        found++;
                     }
 
-                    ze.Extract(scriptTempFolder, ExtractExistingFileAction.OverwriteSilently);
+                    if (found == 2)
+                    {
+                        break;
+                    }
                 }
-                else
+
+                if (File.Exists(Path.Combine(scriptFolder, frmHandleTitle + ".js")))
                 {
-                    ze.Extract(scriptTempFolder, ExtractExistingFileAction.OverwriteSilently);
+                    modal_text.Text = "A handler with the name " + frmHandleTitle + ".js already exists.\nDo you wish to overwrite it?";
+
+                    modal_yes.Visible = true;
+                    Modal_Yes_Button_Event = (sender, e) => ModalAddHandler(zip, scriptTempFolder, frmHandleTitle, handlerFolders, exeName);
+                    modal_yes.Click += Modal_Yes_Button_Event;
+
+                    modal_no.Visible = true;
+                    Modal_No_Button_Event = (sender, e) => Abort();
+                    modal_no.Click += Modal_No_Button_Event;
+
+                    modal.Visible = true;
+                    modal.BringToFront();
+                    return;
                 }
+
+                ModalAddHandler(zip, scriptTempFolder, frmHandleTitle, handlerFolders, exeName);
             }
-
-            Regex pattern = new Regex("[\\/:*?\"<>|]");
-            string frmHandleTitle = pattern.Replace(downloadPath, "");
-            string exeName = null;
-            int found = 0;
-
-            foreach (string line in System.IO.File.ReadAllLines(Path.Combine(scriptTempFolder, "handler.js")))
+            catch(Exception ex)
             {
-                if (line.ToLower().StartsWith("game.executablename"))
-                {
-                    int start = line.IndexOf("\"");
-                    int end = line.LastIndexOf("\"");
-                    exeName = line.Substring(start + 1, (end - start) - 1);
-                    found++;
-                }
-                else if (line.ToLower().StartsWith("game.gamename"))
-                {
-                    int start = line.IndexOf("\"");
-                    int end = line.LastIndexOf("\"");
-                    frmHandleTitle = pattern.Replace(line.Substring(start + 1, (end - start) - 1), "");
-                    found++;
-                }
+                modal_text.Text = $"Handler extraction failed!\n{ex.Message}";
 
-                if (found == 2)
-                {
-                    break;
-                }
-            }
+                modal_yes.Visible = false;
+                Modal_Yes_Button_Event = null;
 
-            if (File.Exists(Path.Combine(scriptFolder, frmHandleTitle + ".js")))
-            {
-                modal_text.Text = "A handler with the name " + frmHandleTitle + ".js already exists.\nDo you wish to overwrite it?";
-
-                modal_yes.Visible = true;
-                Modal_Yes_Button_Event = (sender, e) => ModalAddHandler(zip, scriptTempFolder, frmHandleTitle, handlerFolders, exeName);
-                modal_yes.Click += Modal_Yes_Button_Event;
-
+                modal_no.Text = "Close";
+                modal_no.Location = new Point((modal_text.Left + modal_text.Width / 2) - (modal_no.Width / 2), modal_no.Location.Y);
                 modal_no.Visible = true;
-                Modal_No_Button_Event = (sender, e) => Abort(zip, scriptTempFolder, frmHandleTitle, handlerFolders, exeName);
+                Modal_No_Button_Event = (sender, e) => Abort();
                 modal_no.Click += Modal_No_Button_Event;
 
                 modal.Visible = true;
                 modal.BringToFront();
-                return;
             }
-
-            ModalAddHandler(zip, scriptTempFolder, frmHandleTitle, handlerFolders, exeName);
         }
 
-        private void Abort(ZipFile zip, string scriptTempFolder, string frmHandleTitle, List<string> handlerFolders, string exeName)
+        private void Abort()
         {
-            zip.Dispose();
-            Directory.Delete(scriptTempFolder, true);
-            File.Delete(downloadPath);
+            DisposeContent();
+
+            modal_no.Text = modal_no_DefText;
+            modal_no.Location = new Point (modal_no_DefLoc.X,  modal_yes.Top);
+
             HideModal();
         }
 
@@ -606,16 +635,7 @@ namespace Nucleus.Coop.Forms
                 }
             }
 
-            Directory.Delete(scriptTempFolder, true);
-
-            while (!zipExtractFinished)
-            {
-                Application.DoEvents();
-            }
-
-            zip.Dispose();
-
-            File.Delete(downloadPath);
+            DisposeContent();
 
             bool update = GameManager.Instance.AddNewGenericGameInfo(frmHandleTitle, true);
 
@@ -674,22 +694,17 @@ namespace Nucleus.Coop.Forms
 
         private void Back_Click(object sender, EventArgs e)
         {
-            if (webView.CoreWebView2 != null)
-                webView.CoreWebView2.GoBack();
+            webView.CoreWebView2?.GoBack();
         }
 
         private void Next_Click(object sender, EventArgs e)
         {
-            if (webView.CoreWebView2 != null)
-                webView.CoreWebView2.GoForward();
+            webView.CoreWebView2?.GoForward();
         }
 
         private void Home_Click(object sender, EventArgs e)
         {
-            if (webView.CoreWebView2 != null)
-            {
-                webView.CoreWebView2.Navigate(hubUri);
-            }
+            webView.CoreWebView2?.Navigate(hubUri);
         }
 
         public void CloseBtn_Click(object sender, EventArgs e)
@@ -699,19 +714,27 @@ namespace Nucleus.Coop.Forms
             Dispose();
         }
 
-        private void DisposeContent(object sender, EventArgs e)
+        private void Dispose(object sender, EventArgs e)
         {
             OnHubConnectionChange -= OnHubConnection_Lost;
+            DisposeContent();
+            webView?.Dispose();
+        }
 
+        private void DisposeContent()
+        {
             zip?.Dispose();
+
+            if (Directory.Exists(scriptFolder + "\\temp"))
+            {
+                Directory.Delete(scriptFolder + "\\temp");
+            }
 
             if (File.Exists(downloadPath))
             {
                 File.Delete(downloadPath);
             }
-    
-            webView?.Dispose();
-        }   
+        }
 
         private void OnHubConnection_Lost(HubResponse resp)
         {

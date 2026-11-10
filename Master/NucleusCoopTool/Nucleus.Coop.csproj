@@ -78,15 +78,6 @@
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestDebug|AnyCPU'">
-    <OutputPath>bin\TestDebug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;TEST</DefineConstants>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
   <PropertyGroup>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
@@ -101,9 +92,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestDebug|Win32'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
@@ -430,7 +418,6 @@
     <Compile Include="UI\UI_Graphics.cs" />
     <Compile Include="UI\UI_Interface.cs" />
     <Compile Include="UI\GameOptionMenuFunc.cs" />
-    <Compile Include="UI\UI_Nav_V2\UI_Nav_Supervisor.cs" />
     <EmbeddedResource Include="Controls\DragAndDropModal.resx">
       <DependentUpon>DragAndDropModal.cs</DependentUpon>
     </EmbeddedResource>
@@ -552,7 +539,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="copyoutput\openxinput1_4.dll" />
     <Content Include="copyoutput\SDL2.dll" />
     <None Include="Resources\icon-white-small.png" />
     <Content Include="gui\audio\patreon_credits.mp3">
