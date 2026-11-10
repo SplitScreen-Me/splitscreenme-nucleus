@@ -1,4 +1,4 @@
-﻿using Ionic.Zip;
+using Ionic.Zip;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 using Newtonsoft.Json;
@@ -56,6 +56,7 @@ namespace Nucleus.Coop.Forms
 
         private Point modal_no_DefLoc;
         
+
         public HubWebView()
         {
             OnHubConnectionChange += OnHubConnection_Lost;
@@ -722,8 +723,6 @@ namespace Nucleus.Coop.Forms
 
         private void DisposeContent()
         {
-            OnHubConnectionChange -= OnHubConnection_Lost;
-
             zip?.Dispose();
 
             if (Directory.Exists(scriptFolder + "\\temp"))

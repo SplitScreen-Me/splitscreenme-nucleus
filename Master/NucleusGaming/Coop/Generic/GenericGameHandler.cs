@@ -1,4 +1,4 @@
-﻿using Jint.Native;
+using Jint.Native;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using Nucleus.Coop.Forms;
@@ -325,6 +325,7 @@ namespace Nucleus.Gaming
                 {
                     return null;
                 }
+            }
 
             return process1;
         }
@@ -532,13 +533,10 @@ namespace Nucleus.Gaming
 
                         if (proc != null)
                         {
-                            proc = Process.GetProcessById((int)sguOutPID);
+                            break;
                         }
-                        catch (Exception)
-                        {
-                            proc = null;
-                            Log("Process By ID failed, setting process to null and continuing, will try and catch it later");
-                        }
+                    }
+                }
 
                 if (proc == null || gen.ForceProcessPick)
                 {
@@ -1229,6 +1227,7 @@ namespace Nucleus.Gaming
                     }
                 }
             }
+
             if (gen.LauncherExe?.Length > 0)
             {
                 //Force process to be null as we don't want launcher process
@@ -1266,6 +1265,7 @@ namespace Nucleus.Gaming
                         }
                     }
                 }
+
                 if ((int)proc.NucleusGetMainWindowHandle() > 0)
                 {
                     string windowTitle = proc.MainWindowTitle + "(" + i + ")";
@@ -1486,11 +1486,13 @@ namespace Nucleus.Gaming
                                     }
                                 }
                             }
+
                             if (mProc == null)
                             {
                                 Log("Could not find restarted process to kill mutexes");
                                 break;
                             }
+
                             if (StartGameUtil.MutexExists(mProc, gen.KillMutexTypeProcess, gen.PartialMutexSearchProcess, gen.KillMutexProcess))
                             {
                                 // mutexes still exist, must kill
@@ -1502,9 +1504,6 @@ namespace Nucleus.Gaming
                                 // mutexes dont exist anymore
                                 break;
                             }
-
-                            foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
-                                Platform.Windows.Interop.Kernel32Interop.CreateSymbolicLink(newPath.Replace(sourcePath, destinationPath), newPath, Platform.Windows.Interop.SymbolicLink.File);
                         }
                     }
                 }
@@ -1521,6 +1520,7 @@ namespace Nucleus.Gaming
             {
                 profilePlayer = GameProfile.ProfilePlayersList[i];
             }
+
             if (profilePlayer?.PriorityClass != "Normal" && profilePlayer?.PriorityClass != null)
             {
                 player.PriorityClass = profilePlayer.PriorityClass;
@@ -3520,7 +3520,7 @@ namespace Nucleus.Gaming
                     setupDll = false;
                 }
 
-                if (gen.XInputPlusDll?.Length > 0 )
+                if (gen.XInputPlusDll?.Length > 0)
                 {
                     //last bool is block Xinput. used to block real Xinput if translating
                     if (gen.ProtoInput.TranslateMKBtoXinput && (player.IsRawMouse || player.IsRawKeyboard))
