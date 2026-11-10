@@ -539,6 +539,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="copyoutput\openxinput1_4.dll" />
     <Content Include="copyoutput\SDL2.dll" />
     <None Include="Resources\icon-white-small.png" />
     <Content Include="gui\audio\patreon_credits.mp3">

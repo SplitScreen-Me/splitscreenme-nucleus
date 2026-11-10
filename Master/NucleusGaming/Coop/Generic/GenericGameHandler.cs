@@ -325,7 +325,6 @@ namespace Nucleus.Gaming
                 {
                     return null;
                 }
-            }
 
             return process1;
         }
@@ -533,10 +532,13 @@ namespace Nucleus.Gaming
 
                         if (proc != null)
                         {
-                            break;
+                            proc = Process.GetProcessById((int)sguOutPID);
                         }
-                    }
-                }
+                        catch (Exception)
+                        {
+                            proc = null;
+                            Log("Process By ID failed, setting process to null and continuing, will try and catch it later");
+                        }
 
                 if (proc == null || gen.ForceProcessPick)
                 {
@@ -1500,6 +1502,9 @@ namespace Nucleus.Gaming
                                 // mutexes dont exist anymore
                                 break;
                             }
+
+                            foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
+                                Platform.Windows.Interop.Kernel32Interop.CreateSymbolicLink(newPath.Replace(sourcePath, destinationPath), newPath, Platform.Windows.Interop.SymbolicLink.File);
                         }
                     }
                 }
@@ -3515,7 +3520,7 @@ namespace Nucleus.Gaming
                     setupDll = false;
                 }
 
-                if (gen.XInputPlusDll?.Length > 0)
+                if (gen.XInputPlusDll?.Length > 0 )
                 {
                     //last bool is block Xinput. used to block real Xinput if translating
                     if (gen.ProtoInput.TranslateMKBtoXinput && (player.IsRawMouse || player.IsRawKeyboard))

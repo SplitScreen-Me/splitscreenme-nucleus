@@ -56,7 +56,6 @@ namespace Nucleus.Coop.Forms
 
         private Point modal_no_DefLoc;
         
-
         public HubWebView()
         {
             OnHubConnectionChange += OnHubConnection_Lost;
@@ -723,6 +722,8 @@ namespace Nucleus.Coop.Forms
 
         private void DisposeContent()
         {
+            OnHubConnectionChange -= OnHubConnection_Lost;
+
             zip?.Dispose();
 
             if (Directory.Exists(scriptFolder + "\\temp"))
