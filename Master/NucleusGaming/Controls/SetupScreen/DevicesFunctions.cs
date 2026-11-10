@@ -176,6 +176,12 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 if ((g.Hook.XInputEnabled && !g.Hook.XInputReroute && !g.ProtoInput.DinputDeviceHook) || g.ProtoInput.XinputHook)
                 {
                     changed = CheckConnectedGamepads();
+                    List<D_Joystick> dInputSnapshot = null;
+
+                    if (!GameProfile.UseXinputIndex && !DInputManager.RefreshInProgress)
+                    {
+                        dInputSnapshot = DInputManager.D_JoysticksList;
+                    }
 
                     int numControllers = g.ProtoInput.UseOpenXinput ? 32 : 4;//TODO: Big bug here!!if g.ProtoInput.UseOpenXinput is true the ui gamepads won't appears until screen is refreshed (why?)
                     for (int i = 0; i < numControllers; i++)
@@ -208,118 +214,33 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                             if (!GameProfile.UseXinputIndex)
                             {
-                                StringBuilder path = new StringBuilder(1024);
-
-                                uint result = OpenXinputController.OpenXInputGetDevicePath((uint)i, path, (uint)path.Capacity);
-
-                                if (result == 0) // ERROR_SUCCESS
+                                // Avoid matching during DInput refresh transitions (hot-plug window).
+                                if (dInputSnapshot == null || dInputSnapshot.Count == 0)
                                 {
-                                    string x_devicePath = path.ToString();
-                                    int start = x_devicePath.IndexOf("hid#");
-
-                                    if (start == -1)
-                                    {
-                                        start = x_devicePath.IndexOf("usb#");//common to all emulated gamepads?
-                                    }
-
-                                    int end = x_devicePath.LastIndexOf("#{");
-
-                                    if (start == -1 || end == -1)
-                                    {
-                                        continue;
-                                    }
-
-                                    x_devicePath = x_devicePath.Substring(start, end - start).Replace('#', '\\').ToUpper();
-
-                                    string d_devicePath = string.Empty;
-                                    D_Joystick match = null;
-
-                                    for (int j = 0; j < DInputManager.D_JoysticksList.Count; j++)
-                                    {
-                                        D_Joystick dj = DInputManager.D_JoysticksList[j];
-
-                                        start = dj.InterfacePath.IndexOf("hid#");
-
-                                        if (start == -1)
-                                        {
-                                            start = dj.InterfacePath.IndexOf("usb#");//common to all emulated gamepads?
-                                        }
-
-                                        end = dj.InterfacePath.LastIndexOf("#{");
-
-                                        if (start == -1 || end == -1)
-                                        {
-                                            continue;
-                                        }
-
-                                        string _d_devicePath = dj.InterfacePath.Substring(start, end - start).Replace('#', '\\').ToUpper();
-
-                                        if (x_devicePath == _d_devicePath)
-                                        {
-                                            match = dj;
-                                            d_devicePath = _d_devicePath;
-                                            break;
-                                        }
-                                        else
-                                        {
-                                            //manage other emulated devices cases (uncommon device path?)
-                                            start = dj.InterfacePath.ToUpper().IndexOf("VID");
-                                            end = dj.InterfacePath.ToUpper().IndexOf("&IG_");
-
-                                            if (end == -1)
-                                            {
-                                                end = dj.InterfacePath.ToUpper().LastIndexOf("&");
-                                            }
-
-                                            if (start == -1 || end == -1)
-                                            {
-                                                continue;
-                                            }
-
-                                            _d_devicePath = dj.InterfacePath.Substring(start, end - start).ToUpper();
-
-                                            string _x_devicePath = string.Empty;
-
-                                            start = x_devicePath.IndexOf("VID");
-                                            end = x_devicePath.LastIndexOf("\\");
-
-                                            if (start == -1 || end == -1)
-                                            {
-                                                continue;
-                                            }
-
-                                            _x_devicePath = x_devicePath.Substring(start, end - start).ToUpper();
-
-
-                                            if (_x_devicePath == _d_devicePath)
-                                            {
-                                                match = dj;
-                                                d_devicePath = _d_devicePath;
-                                                break;
-                                            }
-                                        }
-                                    }
-
-                                    if (string.IsNullOrEmpty(d_devicePath) || match == null)
-                                    {
-                                        continue;
-                                    }
-
-                                    player.GamepadId = i;
-                                    player.DInputJoystick = match;
-                                    player.GamepadGuid = player.DInputJoystick.InstanceGuid;
-                                    player.GamepadProductGuid = player.DInputJoystick.ProductGuid;
-                                    player.GamepadName = player.DInputJoystick.InstanceName;
-                                    player.RawHID = player.DInputJoystick.InterfacePath;
-
-                                    player.HIDDeviceID = new string[] { x_devicePath, "" };
-                                    player.IsInputUsed = !userGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.ProfileAssignGamepadByButonPress;
+                                    continue;
                                 }
-                                else
+
+                                if (!TryGetNormalizedXInputDevicePath((uint)i, out string xDevicePath))
                                 {
-                                    //fallback to the press button method if no device hid path is available
-                                    ;
+                                    continue;
                                 }
+
+                                D_Joystick match = FindDInputExactMatchByHidPath(xDevicePath, dInputSnapshot);
+
+                                // Accuracy first: if no exact HID match exists right now, wait next tick.
+                                if (match == null)
+                                {
+                                    continue;
+                                }
+
+                                player.GamepadId = i;
+                                player.DInputJoystick = match;
+                                player.GamepadGuid = player.DInputJoystick.InstanceGuid;
+                                player.GamepadProductGuid = player.DInputJoystick.ProductGuid;
+                                player.GamepadName = player.DInputJoystick.InstanceName;
+                                player.RawHID = player.DInputJoystick.InterfacePath;
+                                player.HIDDeviceID = new string[] { xDevicePath, "" };
+                                player.IsInputUsed = !userGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.ProfileAssignGamepadByButonPress;
                             }
                             else
                             {
@@ -332,6 +253,12 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                             player.XInputJoystick = c;
                             player.IsXInput = true;
+
+                            if (!ShouldAddController(player))
+                            {
+                                continue;
+                            }
+
                             data.Add(player);
                             changed = true;
                         }
@@ -418,8 +345,13 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                                     if (s_devicePath == _d_devicePath)
                                     {
+                                        if (IsGuidTakenByDifferentDevice(dj.InstanceGuid, s_devicePath, i))
+                                        {
+                                            continue;
+                                        }
+
                                         match = dj;
-                                        s_devicePath = _d_devicePath;
+                                        d_devicePath = _d_devicePath;
                                         break;
                                     }
                                     else
@@ -454,6 +386,11 @@ namespace Nucleus.Gaming.Controls.SetupScreen
 
                                         if (_s_devicePath == _d_devicePath)
                                         {
+                                            if (IsGuidTakenByDifferentDevice(dj.InstanceGuid, s_devicePath, i))
+                                            {
+                                                continue;
+                                            }
+
                                             match = dj;
                                             d_devicePath = _d_devicePath;
                                             break;
@@ -472,7 +409,7 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                                 player.GamepadProductGuid = player.DInputJoystick.ProductGuid;
                                 player.GamepadName = player.DInputJoystick.InstanceName;
                                 player.RawHID = player.DInputJoystick.InterfacePath;
-                                player.HIDDeviceID = new string[] { d_devicePath, "" };
+                                player.HIDDeviceID = new string[] { s_devicePath, "" };
                                 player.IsInputUsed = !userGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.ProfileAssignGamepadByButonPress;
                             }
                             else
@@ -498,6 +435,11 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                         else
                         {
                             player.IsSDL3 = true;
+                        }
+
+                        if (!ShouldAddController(player))
+                        {
+                            continue;
                         }
 
                         data.Add(player);
@@ -625,6 +567,17 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                             DeletePlayer(player);
                             changed = true;
                         }
+                        else if (!GameProfile.UseXinputIndex && HasTrackedHidPath(player))
+                        {
+                            if (TryGetNormalizedXInputDevicePath((uint)player.GamepadId, out string xDevicePath) &&
+                                !string.Equals(player.HIDDeviceID[0], xDevicePath, StringComparison.OrdinalIgnoreCase))
+                            {
+                                // Hot-plug can remap XInput user indexes. If identity changed on this index,
+                                // remove stale mapping so it can be rebuilt correctly on next scan.
+                                DeletePlayer(player);
+                                changed = true;
+                            }
+                        }
 
                         break;
                     case InputType.SDL2:
@@ -683,6 +636,16 @@ namespace Nucleus.Gaming.Controls.SetupScreen
                 {
                     if (player.GamepadId == index)
                     {
+                        if (!GameProfile.UseXinputIndex && HasTrackedHidPath(player))
+                        {
+                            if (TryGetNormalizedXInputDevicePath((uint)index, out string xDevicePath) &&
+                                !string.Equals(player.HIDDeviceID[0], xDevicePath, StringComparison.OrdinalIgnoreCase))
+                            {
+                                // Same XInput slot but different physical device; do not treat as assigned.
+                                continue;
+                            }
+                        }
+
                         OpenXinputController oxc = devicedata as OpenXinputController;
 
                         if (oxc == null)
@@ -715,6 +678,155 @@ namespace Nucleus.Gaming.Controls.SetupScreen
             }
 
             return assigned;
+        }
+
+        private static bool TryGetNormalizedXInputDevicePath(uint index, out string normalizedPath)
+        {
+            normalizedPath = string.Empty;
+
+            StringBuilder path = new StringBuilder(1024);
+            uint result = OpenXinputController.OpenXInputGetDevicePath(index, path, (uint)path.Capacity);
+
+            if (result != 0)
+            {
+                return false;
+            }
+
+            return TryNormalizeDevicePath(path.ToString(), out normalizedPath);
+        }
+
+        private static D_Joystick FindDInputExactMatchByHidPath(string xDevicePath, List<D_Joystick> dInputSnapshot)
+        {
+            if (string.IsNullOrEmpty(xDevicePath) || dInputSnapshot == null || dInputSnapshot.Count == 0)
+            {
+                return null;
+            }
+
+            for (int i = 0; i < dInputSnapshot.Count; i++)
+            {
+                D_Joystick dj = dInputSnapshot[i];
+
+                if (dj == null || string.IsNullOrEmpty(dj.InterfacePath))
+                {
+                    continue;
+                }
+
+                if (!TryNormalizeDevicePath(dj.InterfacePath, out string dInputPath))
+                {
+                    continue;
+                }
+
+                if (!string.Equals(xDevicePath, dInputPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                return dj;
+            }
+
+            return null;
+        }
+
+        private static bool TryNormalizeDevicePath(string devicePath, out string normalizedPath)
+        {
+            normalizedPath = string.Empty;
+
+            if (string.IsNullOrEmpty(devicePath))
+            {
+                return false;
+            }
+
+            int start = devicePath.IndexOf("hid#", StringComparison.OrdinalIgnoreCase);
+
+            if (start == -1)
+            {
+                start = devicePath.IndexOf("usb#", StringComparison.OrdinalIgnoreCase);//common to all emulated gamepads?
+            }
+
+            int end = devicePath.LastIndexOf("#{", StringComparison.OrdinalIgnoreCase);
+
+            if (start == -1 || end == -1 || end <= start)
+            {
+                return false;
+            }
+
+            normalizedPath = devicePath.Substring(start, end - start).Replace('#', '\\').ToUpper();
+            return !string.IsNullOrEmpty(normalizedPath);
+        }
+
+        private static bool HasTrackedHidPath(PlayerInfo player)
+        {
+            return player?.HIDDeviceID != null
+                && player.HIDDeviceID.Length > 0
+                && !string.IsNullOrEmpty(player.HIDDeviceID[0])
+                && !string.Equals(player.HIDDeviceID[0], "Not required", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool ShouldAddController(PlayerInfo player)
+        {
+            if (player == null || player.GamepadGuid == Guid.Empty)
+            {
+                return true;
+            }
+
+            PlayerInfo existing = profile?.DevicesList
+                .FirstOrDefault(p => p.IsController && p.GamepadGuid == player.GamepadGuid);
+
+            if (existing == null)
+            {
+                return true;
+            }
+
+            bool sameHid = HasTrackedHidPath(existing)
+                && HasTrackedHidPath(player)
+                && string.Equals(existing.HIDDeviceID[0], player.HIDDeviceID[0], StringComparison.OrdinalIgnoreCase);
+
+            // If it's effectively the same mapping, do not add a duplicate.
+            if (existing.GamepadId == player.GamepadId && sameHid)
+            {
+                return false;
+            }
+
+            // Stale mapping (same GUID reused on another slot/path): replace old entry.
+            DeletePlayer(existing);
+            return true;
+        }
+
+        private static bool IsGuidTakenByDifferentDevice(Guid guid, string normalizedHidPath, int currentIndex)
+        {
+            if (guid == Guid.Empty)
+            {
+                return false;
+            }
+
+            var existing = profile?.DevicesList.Where(p => p.IsController && p.GamepadGuid == guid).ToList();
+
+            if (existing == null || existing.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (PlayerInfo player in existing)
+            {
+                bool sameHid = HasTrackedHidPath(player)
+                    && !string.IsNullOrEmpty(normalizedHidPath)
+                    && string.Equals(player.HIDDeviceID[0], normalizedHidPath, StringComparison.OrdinalIgnoreCase);
+
+                if (sameHid)
+                {
+                    return false;
+                }
+
+                if (player.GamepadId == currentIndex)
+                {
+                    // Same slot but unknown HID on existing player: allow rebind/update.
+                    continue;
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
         private static void DeletePlayer(PlayerInfo player)

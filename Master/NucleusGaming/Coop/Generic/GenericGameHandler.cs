@@ -1,5 +1,6 @@
 ﻿using Jint.Native;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using Nucleus.Coop.Forms;
 using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Coop;
@@ -324,7 +325,6 @@ namespace Nucleus.Gaming
                 {
                     return null;
                 }
-            }
 
             return process1;
         }
@@ -359,6 +359,7 @@ namespace Nucleus.Gaming
 
                 int counter = 0;
                 bool found = false;
+
                 if (gen.GameName == "Ghost Recon Wildlands" && i > 0)
                 {
                     Log("Launching exe again " + origExePath);
@@ -368,9 +369,10 @@ namespace Nucleus.Gaming
 
                     Log("Waiting to find process by window title");
 
-                    while (!found)
+                    while (!found && counter <= 20)
                     {
                         Process[] processes = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(gen.ExecutableName));
+
                         foreach (var process in processes)
                         {
                             if ((int)process.NucleusGetMainWindowHandle() > 0 && (attachedIds.Count == 0 || (attachedIds.Count > 0 && !attachedIds.Contains(process.Id))))
@@ -388,7 +390,11 @@ namespace Nucleus.Gaming
                                 }
                             }
                         }
+
+                        Log($"Find process by window title attempt {counter}");
+
                         counter++;
+             
                         Thread.Sleep(1000);
 
                         if (processingExit)
@@ -403,9 +409,10 @@ namespace Nucleus.Gaming
                 {
                     Log("Waiting to find process by window title");
 
-                    while (!found)
+                    while (!found && counter <= 20)
                     {
                         Process[] processes = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(gen.ExecutableName));
+
                         foreach (var process in processes)
                         {
                             if ((int)process.NucleusGetMainWindowHandle() > 0 && (attachedIds.Count == 0 || (attachedIds.Count > 0 && !attachedIds.Contains(process.Id))))
@@ -424,7 +431,10 @@ namespace Nucleus.Gaming
                             }
                         }
 
+                        Log($"Find process by window title attempt {counter}");
+
                         counter++;
+
                         Thread.Sleep(1000);
 
                         if (processingExit)
@@ -432,6 +442,15 @@ namespace Nucleus.Gaming
                             return null;
                         }
                     }
+                }
+
+                if(!found)
+                {
+                    //Is it worth to force process picker instead?
+                    Log($"Unable to find process by window title after {counter} attempts, stopping handler setup.");
+                    Globals.MainOSD.Show(1200, $"*@{OSDHighlightColors.Info}|{$"Unable to find process by window title after {counter} attempts"}@*");
+                    Thread.Sleep(1250);
+                    End(false); 
                 }
 
                 Thread.Sleep(10000);
@@ -513,10 +532,13 @@ namespace Nucleus.Gaming
 
                         if (proc != null)
                         {
-                            break;
+                            proc = Process.GetProcessById((int)sguOutPID);
                         }
-                    }
-                }
+                        catch (Exception)
+                        {
+                            proc = null;
+                            Log("Process By ID failed, setting process to null and continuing, will try and catch it later");
+                        }
 
                 if (proc == null || gen.ForceProcessPick)
                 {
@@ -601,7 +623,7 @@ namespace Nucleus.Gaming
             return proc;
         }
 
-        public void LaunchGame(PlayerInfo player, int i, bool remote)
+        public bool LaunchGame(PlayerInfo player, int i, bool remote)
         {
             if (remote)
             {
@@ -622,6 +644,10 @@ namespace Nucleus.Gaming
                 SteamFunctions.SmartSteamEmu(player, i, linkFolder, player.StartArgs, setupDll);
                 proc = null;//leave this here just in case for now
                 Thread.Sleep(5000);
+                if (processingExit)
+                {
+                    return false;
+                }
             }
             else
             {
@@ -720,6 +746,10 @@ namespace Nucleus.Gaming
                         {
                             //create users OR reset their password if they exists.
                             Thread.Sleep(1000);
+                            if (processingExit)
+                            {
+                                return false;
+                            }
 
                             Process cmd = new Process();
                             cmd.StartInfo.UseShellExecute = false;
@@ -922,7 +952,7 @@ namespace Nucleus.Gaming
                                     scriptContent.AppendLine($"set NUCLEUS_INST_FOLDR={linkFolder}");
                                     scriptContent.AppendLine($"set NUCLEUS_FOLDER={NucleusFolderPath}");
                                     scriptContent.AppendLine($"set NUCLEUS_ORIG_EXE_FOLDER={exeFolder}");
-                                    scriptContent.AppendLine($"set NUCLEUS_ORIG_FOLDER={exeFolder.Substring(0, (exeFolder.Length - gen.BinariesFolder.Length))}");
+                                    scriptContent.AppendLine($"set NUCLEUS_ORIG_FOLDER={exeFolder.Substring(0, (exeFolder.Length - gen.BinariesFolder?.Length ?? 0))}");
                                 }
 
                                 if (gen.CMDBatchBefore?.Length > 0)
@@ -962,6 +992,11 @@ namespace Nucleus.Gaming
                                     Log($"Pausing for {gen.PauseCMDBatchBefore} seconds");
                                     scriptContent.AppendLine($" timeout / t {gen.PauseCMDBatchBefore} / nobreak > nul");
                                     Thread.Sleep(TimeSpan.FromSeconds(gen.PauseCMDBatchBefore));
+                                    
+                                    if (processingExit)
+                                    {
+                                        return false;
+                                    }
                                 }
 
                                 Log("Launching game via command prompt with the following line: " + cmdLine);
@@ -993,6 +1028,11 @@ namespace Nucleus.Gaming
                                     Log($"Pausing for {gen.PauseCMDBatchAfter} seconds");
                                     scriptContent.AppendLine($" timeout / t {gen.PauseCMDBatchAfter} / nobreak > nul");
                                     Thread.Sleep(TimeSpan.FromSeconds(gen.PauseCMDBatchAfter));
+
+                                    if (processingExit)
+                                    {
+                                        return false;
+                                    }
                                 }
                             }
                             else
@@ -1041,7 +1081,7 @@ namespace Nucleus.Gaming
                                         scriptContent.AppendLine($@"set NUCLEUS_INST_FOLDER=" + linkFolder);
                                         scriptContent.AppendLine($@"set NUCLEUS_FOLDER=" + NucleusFolderPath);
                                         scriptContent.AppendLine($@"set NUCLEUS_ORIG_EXE_FOLDER=" + exeFolder);
-                                        scriptContent.AppendLine($@"set NUCLEUS_ORIG_FOLDER=" + exeFolder.Substring(0, (exeFolder.Length - gen.BinariesFolder.Length)));
+                                        scriptContent.AppendLine($@"set NUCLEUS_ORIG_FOLDER=" + exeFolder.Substring(0, (exeFolder.Length - gen.BinariesFolder?.Length ?? 0)));
                                     }
                                 }
 
@@ -1070,6 +1110,10 @@ namespace Nucleus.Gaming
                                 {
                                     Log($"Pausing for {gen.PauseCMDBatchBefore} seconds");
                                     Thread.Sleep(TimeSpan.FromSeconds(gen.PauseCMDBatchBefore));
+                                    if (processingExit)
+                                    {
+                                        return false;
+                                    }
                                 }
 
                                 string iParam = gen.ForceBindIPDelay ? "-i " : "";
@@ -1108,6 +1152,11 @@ namespace Nucleus.Gaming
                             File.WriteAllText(scriptPath, scriptContent.ToString(), new UTF8Encoding(true));
                             Thread.Sleep(100);
 
+                            if (processingExit)
+                            {
+                                return false;
+                            }
+
                             Process cmd = new Process();
                             cmd.StartInfo.FileName = "cmd.exe";
                             cmd.StartInfo.Arguments = $"/c \"{scriptPath}\"";
@@ -1129,6 +1178,11 @@ namespace Nucleus.Gaming
                             {
                                 Log($"Pausing for {gen.PauseCMDBatchAfter} seconds");
                                 Thread.Sleep(TimeSpan.FromSeconds(gen.PauseCMDBatchAfter));
+                                
+                                if (processingExit)
+                                {
+                                    return false;
+                                }
                             }
 
                         }
@@ -1193,9 +1247,11 @@ namespace Nucleus.Gaming
                 Log("Process " + proc.Id + " is no longer running. Will search for process");
                 proc = null;
             }
+
+            return true;
         }
 
-        public void hookinstance(PlayerInfo player, int i)
+        public bool hookinstance(PlayerInfo player, int i)
         {
             if (gen.IdInWindowTitle || !string.IsNullOrEmpty(gen.FlawlessWidescreen))
             {
@@ -1227,6 +1283,11 @@ namespace Nucleus.Gaming
                 }
             }
 
+            if (processingExit || player.ProcessData.Process.HasExited)
+            {
+                return false;
+            }
+
             if (!gen.ProtoInput.InjectStartup &&
                 (gen.ProtoInput.InjectRuntime_EasyHookMethod ||
                  gen.ProtoInput.InjectRuntime_EasyHookStealthMethod ||
@@ -1251,7 +1312,8 @@ namespace Nucleus.Gaming
                     (gen.ProtoInput.MultipleProtoControllers ? player.ProtoController4 : 0)
                 );
             }
-            return;
+
+            return true;
         }
 
         public bool MutexKill() //only used on instance restart
@@ -1260,12 +1322,17 @@ namespace Nucleus.Gaming
             {
                 for (; ; )
                 {
-                    if (exited > 0)
+                    if (processingExit)
                     {
                         return false;
                     }
 
                     Thread.Sleep(1000);
+
+                    if (processingExit)
+                    {
+                        return false;
+                    }
 
                     if (gen.KillMutexLauncher != null)
                     {
@@ -1278,6 +1345,7 @@ namespace Nucleus.Gaming
 
                             Process[] currentProcs = Process.GetProcesses();
                             Process launcher = null;
+
                             foreach (Process currentProc in currentProcs)
                             {
                                 if (currentProc.ProcessName.ToLower() == Path.GetFileNameWithoutExtension(gen.LauncherExe).ToLower()) //Executablename
@@ -1326,7 +1394,7 @@ namespace Nucleus.Gaming
             {
                 for (; ; )
                 {
-                    if (exited > 0)
+                    if (processingExit)
                     {
                         return false;
                     }
@@ -1336,13 +1404,18 @@ namespace Nucleus.Gaming
                     Thread.Sleep((gen.KillMutexDelay * 1000));
                     Process process = null;
 
+                    if (processingExit)
+                    {
+                        return false;
+                    }
+
                     if (gen.KillMutex.Length > 0)
                     {
                         foreach (PlayerInfo playerInfo in profile.DevicesList)
                         {
                             ProcessData playerProcessData = playerInfo.ProcessData;
 
-                            if(playerProcessData.Process == null)
+                            if (playerProcessData.Process == null)
                             {
                                 continue;
                             }
@@ -1374,14 +1447,20 @@ namespace Nucleus.Gaming
             if (gen.KillMutexProcess?.Length > 0)
             {
                 Log("A process has been provided for Nucleus to kill mutexes in");
+
                 for (; ; )
                 {
-                    if (exited > 0)
+                    if (processingExit)
                     {
                         return false;
                     }
 
                     Thread.Sleep(1000);
+
+                    if (processingExit)
+                    {
+                        return false;
+                    }
 
                     if (gen.KillMutexProcess != null)
                     {
@@ -1423,6 +1502,9 @@ namespace Nucleus.Gaming
                                 // mutexes dont exist anymore
                                 break;
                             }
+
+                            foreach (string newPath in Directory.GetFiles(sourcePath, "*.*", SearchOption.AllDirectories))
+                                Platform.Windows.Interop.Kernel32Interop.CreateSymbolicLink(newPath.Replace(sourcePath, destinationPath), newPath, Platform.Windows.Interop.SymbolicLink.File);
                         }
                     }
                 }
@@ -1504,8 +1586,9 @@ namespace Nucleus.Gaming
         public string Play()
         {
             IsRunning = true;
-            GlobalWindowMethods.RestartThreadIsRunning = true; //block remote calls
 
+            GlobalWindowMethods.RestartThreadIsRunning = true; //block remote calls
+            
             if (!App_Misc.IgnoreInputLockReminder)
             {
                 MessageBox.Show("Some handlers will require you to press the End key to lock input. Remember to unlock input by pressing End again when you finish playing. You can disable this message in the Settings. ", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly, false);
@@ -1553,7 +1636,7 @@ namespace Nucleus.Gaming
                 }
 
                 MachineSpecs.GetPCspecs();
-                Log(string.Format("-Game: {0}, Arch: {1}, Executable: {2}, Launcher: {3}, SteamID: {4}, Handler: {5}, Content Folder: {6}", gen.GameName, garch, gen.ExecutableName, gen.LauncherExe, gen.SteamID, gen.FileName, gen.GUID));
+                Log(string.Format("-Game: {0}, Arch: {1}, Executable: {2}, Launcher: {3}, SteamID: {4}, Handler: {5}, Content Folder: {6}", gen.GameName, garch, gen.ExecutableName, gen.LauncherExe, gen.SteamID, JsFilename, gen.GUID));
                 Log(string.Format("-Number of players: {0}", profile.DevicesList.Count) + "\n");
                 Log("--------------------- START ---------------------");
             }
@@ -1644,6 +1727,7 @@ namespace Nucleus.Gaming
             }
 
             Log("Trying to unlock original game files." + "\n");
+
             if (!StartGameUtil.UnlockGameFiles(rootFolder))
             {
                 End(false);
@@ -1662,7 +1746,8 @@ namespace Nucleus.Gaming
                 Log("########## START OF HANDLER ##########" + "\n");
                 string line;
 
-                StreamReader file = new StreamReader(Path.Combine(GameManager.Instance.GetJsScriptsPath(), gen.FileName));
+                StreamReader file = new StreamReader(Path.Combine(GameManager.Instance.GetJsScriptsPath(), JsFilename));
+                
                 while ((line = file.ReadLine()) != null)
                 {
                     Log(line);
@@ -1681,6 +1766,7 @@ namespace Nucleus.Gaming
             for (int i = 0; i < players.Count; i++)
             {
                 proc = null; //just to be sure
+
                 if (processingExit)
                 {
                     return string.Empty;
@@ -1987,11 +2073,11 @@ namespace Nucleus.Gaming
                         linkBinFolder = Path.Combine(linkFolder, gen.BinariesFolder);
                     }
 
-                    exePath = Path.Combine(linkBinFolder, userGame.HandlerInfo.GenericGameInfo.ExecutableName);
+                    exePath = Path.Combine(linkBinFolder, Instance.CurrentGameInfo.ExecutableName);
 
                     SetExeDpiAwareness(exePath);
 
-                    origExePath = Path.Combine(linkBinFolder, userGame.HandlerInfo.GenericGameInfo.ExecutableName);
+                    origExePath = Path.Combine(linkBinFolder, Instance.CurrentGameInfo.ExecutableName);
 
                     if ((i == 0 && (gen.SymlinkGame || gen.HardlinkGame)) || gen.HardcopyGame)
                     {
@@ -2043,696 +2129,20 @@ namespace Nucleus.Gaming
                         if (ofdPath != null && !string.IsNullOrEmpty(ofdPath))
                         {
                             Log("User selected " + ofdPath + " as the launcher exe, updating handler file");
-                            string text = File.ReadAllText(Path.Combine(GameManager.Instance.GetJsScriptsPath(), gen.FileName));
-                            //text = text.Replace("Game.LauncherExe = \"NucleusDefined\"", "Game.LauncherExe = \"" + ofdPath + "\"");
-                            text = Regex.Replace(text, @"Game.LauncherExe = (.*)", $"Game.LauncherExe = \"{ofdPath}\";");
-                            File.WriteAllText(Path.Combine(GameManager.Instance.GetJsScriptsPath(), gen.FileName), text);
 
-                            Thread.Sleep(3000);
-                        }
-                        if (StartGameUtil.MutexExists(exe, gen.KillMutexType, gen.PartialMutexSearch, gen.KillMutex))
-                        {
-                            // mutexes still exist, must kill
-                            StartGameUtil.KillMutex(exe, gen.KillMutexType, gen.PartialMutexSearch, gen.KillMutex);
-                            break;
-                        }
-                    }
-                }
-            }
-            if (gen.KillMutexProcess?.Length > 0)
-            {
-                Log("A process has been provided for Nucleus to kill mutexes in");
-                for (; ; )
-                {
-                    if (exited > 0)
-                    {
-                        return false;
-                    }
+                            string jsFilename = Path.Combine(
+                                GameManager.Instance.GetJsScriptsPath(),
+                                JsFilename);
 
-                    Thread.Sleep(1000);
+                            string text = File.ReadAllText(jsFilename);
+                            string cleanPath = JsonConvert.SerializeObject(ofdPath);
 
-                    if (gen.KillMutexProcess != null)
-                    {
-                        if (gen.KillMutexProcess.Length > 0)
-                        {
-                            if (gen.KillMutexDelayProcess > 0)
-                            {
-                                Thread.Sleep((gen.KillMutexDelayProcess * 1000));
-                            }
+                            text = Regex.Replace(
+                                text,
+                                @"Game\.LauncherExe = .*",
+                                m => $"Game.LauncherExe = {cleanPath};");
 
-                            Process[] currentProcs = Process.GetProcesses();
-                            Process mProc = null;
-                            foreach (Process currentProc in currentProcs)
-                            {
-                                if (currentProc.ProcessName.ToLower() == Path.GetFileNameWithoutExtension(gen.MutexProcessExe).ToLower())
-                                {
-                                    if (!mutexProcs.Contains(currentProc.Id))
-                                    {
-                                        Log($"Found process {currentProc} (pid {currentProc.Id}) to kill mutexes");
-                                        mProc = currentProc;
-                                        mutexProcs.Add(currentProc.Id);
-
-                                    }
-                                }
-                            }
-                            if (mProc == null)
-                            {
-                                Log("Could not find restarted process to kill mutexes");
-                                break;
-                            }
-                            if (StartGameUtil.MutexExists(mProc, gen.KillMutexTypeProcess, gen.PartialMutexSearchProcess, gen.KillMutexProcess))
-                            {
-                                // mutexes still exist, must kill
-                                StartGameUtil.KillMutex(mProc, gen.KillMutexTypeProcess, gen.PartialMutexSearchProcess, gen.KillMutexProcess);
-                                break;
-                            }
-                            else
-                            {
-                                // mutexes dont exist anymore
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            return true;
-        }
-       public void processorpriority(PlayerInfo player, int i)
-       { 
-            PlayerInfo profilePlayer = null;
-            //Using static GameProfile 
-            if (GameProfile.ProfilePlayersList.Count > 0)
-            {
-                profilePlayer = GameProfile.ProfilePlayersList[i];
-            }
-            if (profilePlayer?.PriorityClass != "Normal" && profilePlayer?.PriorityClass != null)
-            {
-                player.PriorityClass = profilePlayer.PriorityClass;
-                gen.ProcessorPriorityClass = profilePlayer.PriorityClass;
-                ProcessUtil.SetProcessorPriorityClass(gen, proc);
-            }
-            else if (gen.ProcessorPriorityClass?.Length > 0)
-            {
-                ProcessUtil.SetProcessorPriorityClass(gen, proc);
-            }
-
-            if (profilePlayer?.IdealProcessor != "*" && profilePlayer?.IdealProcessor != null)
-            {
-                gen.IdealProcessor = int.Parse(profilePlayer.IdealProcessor) - 1;
-                ProcessUtil.SetIdealProcessor(gen, proc);
-            }
-            else if (gen.IdealProcessor > 0)
-            {
-                ProcessUtil.SetIdealProcessor(gen, proc);
-            }
-
-            if (profilePlayer?.Affinity != "" && profilePlayer?.Affinity != null)
-            {
-                player.Affinity = profilePlayer.Affinity;
-                gen.UseProcessor = profilePlayer.Affinity;
-                ProcessUtil.SetProcessorProcessorAffinity(gen, proc);
-            }
-            else if ((gen.UseProcessor != null ? (gen.UseProcessor.Length > 0 ? 1 : 0) : 0) != 0)
-            {
-                ProcessUtil.SetProcessorProcessorAffinity(gen, proc);
-            }
-            else
-            {
-                ProcessUtil.SetProcessorAffinityPerInstance(gen, proc, i);
-            }
-        }
-        private void StartPlay(object handler)
-        {
-            try
-            {
-                error = ((IGameHandler)handler).Play();
-            }
-            catch (Exception ex)
-            {
-                error = ex.Message;
-                TaskbarState.Show.Invoke();
-
-                try
-                {
-                    RegistryUtil.RestoreRegistry("Error Restore from GenericGameHandler");
-                    // try to save the exception
-                    LogManager.Instance.LogExceptionFile(ex);
-                }
-                catch
-                {
-                    error = "We failed so hard we failed while trying to record the reason we failed initially. Sorry.";
-                    return;
-                }
-            }
-        }
-
-        public string Play()
-        {
-            GlobalWindowMethods.RestartThreadIsRunning = true; //block remote calls
-            if (!App_Misc.IgnoreInputLockReminder)
-            {
-                MessageBox.Show("Some handlers will require you to press the End key to lock input. Remember to unlock input by pressing End again when you finish playing. You can disable this message in the Settings. ", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1, MessageBoxOptions.DefaultDesktopOnly, false);
-            }
-
-            if (GameProfile.Stop_UINav) { GamepadNavigation.StopUINavigation(); }
-
-            if (gen.NeedSteamClient)
-            {
-                SteamFunctions.StartSteamClient();
-            }
-
-            TaskbarState.Hide.Invoke();
-
-            garch = "x86";
-
-            if (MachineSpecs.GetMachineArch(userGame.ExePath) == true)
-            {
-                gameIs64 = true;
-                garch = "x64";
-            }
-
-            if (gen.ForceGameArch?.Length > 0)
-            {
-                if (gen.ForceGameArch == "x86")
-                {
-                    gameIs64 = false;
-                    garch = "x86";
-                }
-                else if (gen.ForceGameArch == "x64")
-                {
-                    gameIs64 = true;
-                    garch = "x64";
-                }
-            }
-
-            if (isDebug)
-            {
-                Log($"-Nucleus Version: {Globals.Version}");
-                Log($"-Nucleus install location: {Globals.NucleusInstallRoot}");
-                Log($"-Original game executable location: {userGame.ExePath}");
-                if (Globals.IsOneDriveEnabled)
-                {
-                    Log($@"/!\  USER DOCUMENTS PATH IS IN ONEDRIVE  /!\  -> {Globals.UserDocumentsRoot} ");
-                }
-
-                MachineSpecs.GetPCspecs();
-                Log(string.Format("-Game: {0}, Arch: {1}, Executable: {2}, Launcher: {3}, SteamID: {4}, Handler: {5}, Content Folder: {6}", gen.GameName, garch, gen.ExecutableName, gen.LauncherExe, gen.SteamID, gen.JsFileName, gen.GUID));
-                Log(string.Format("-Number of players: {0}", profile.DevicesList.Count) + "\n");
-                Log("--------------------- START ---------------------");
-            }
-
-            ProcessUtil.KillRemainingProcess();
-
-            List<PlayerInfo> players = profile.DevicesList;
-
-            Log("Determining which monitors will be used by Nucleus");
-
-            foreach (Display dp in ScreensUtil.AllScreensParams())
-            {
-                if (players.Any(p => p.Owner.DisplayIndex == dp.DisplayIndex))
-                {
-                    screensInUse.Add(dp);
-                }
-            }
-
-            if (GameProfile.AutoDesktopScaling == true)
-            {
-                MonitorsDpiScaling.SetupMonitors();
-            }
-            else
-            {
-                Log("The Windows deskop scale will not be set to 100% because this option has been disabled in settings and/or game profile");
-            }
-
-            bool hasMerger = false;
-
-            if (GameProfile.EnableWindowsMerger && !gen.MetaInfo.DisableProfiles && !App_Misc.DisableGameProfiles)
-            {
-                string[] mergerRes = GameProfile.MergerResolution.Split('X');
-                WindowsMergerThread.StartWindowsMerger(new System.Windows.Size(int.Parse(mergerRes[0]), int.Parse(mergerRes[1])));
-                hasMerger = true;
-            }
-            else if (App_Layouts.WindowsMerger && (gen.MetaInfo.DisableProfiles || App_Misc.DisableGameProfiles))
-            {
-                string[] mergerRes = App_Layouts.WindowsMergerRes.Split('X');
-                WindowsMergerThread.StartWindowsMerger(new System.Windows.Size(int.Parse(mergerRes[0]), int.Parse(mergerRes[1])));
-                hasMerger = true;
-            }
-
-            foreach (Display dp in screensInUse)
-            {
-                if (screensInUse.Contains(dp))
-                {
-                    if (!hasMerger)
-                    {
-                        if ((GameProfile.UseSplitDiv && gen.SplitDivCompatibility) || gen.HideDesktop)
-                        {
-                            WPFDivFormThread.StartBackgroundForm(gen, dp);
-                        }
-                    }
-
-                    ReminderFormThread.StartReminderForms(dp.Bounds);
-                }
-            }
-
-            gen.SetPlayerList(players);
-
-            gen.SetProtoInputValues();
-
-            UserScreen[] all = profile.Screens.ToArray();
-
-            Log(string.Format("Display - DPIHandling: {0}, DPI Scale: {1}", gen.DPIHandling, DPIManager.Scale +"\n"));
-            for (int x = 0; x < all.Length; x++)
-            {
-                Log(string.Format("Monitor {0} - Resolution: {1}", x, all[x].MonitorBounds.Width + "x" + all[x].MonitorBounds.Height));
-            }
-
-            tempDir = GameManager.Instance.GempTempFolder(gen);
-            exeFolder = Path.GetDirectoryName(userGame.ExePath).ToLower();
-            rootFolder = exeFolder;
-            workingFolder = exeFolder;
-
-            if (!string.IsNullOrEmpty(gen.BinariesFolder) && !gen.BinariesFolderPathFix)
-            {
-                rootFolder = StringUtil.ReplaceCaseInsensitive(exeFolder, gen.BinariesFolder.ToLower(), "");
-            }
-            else if (!string.IsNullOrEmpty(gen.BinariesFolder) && gen.BinariesFolderPathFix)
-            {
-                rootFolder = StringUtil.GetRootFromBinariesFolder(exeFolder, gen.BinariesFolder);
-            }
-
-            if (!string.IsNullOrEmpty(gen.WorkingFolder))
-            {
-                workingFolder = Path.Combine(exeFolder, gen.WorkingFolder.ToLower());
-            }
-
-            Log("Trying to unlock original game files." + "\n");
-            if (!StartGameUtil.UnlockGameFiles(rootFolder))
-            {
-                End(false);
-                return string.Empty;
-            }
-
-            gen.LockInputToggleKey = App_Hotkeys.LockKeyValue;
-
-            RawInputManager.windows.Clear();
-            Window nextWindowToInject = null;
-
-            numPlayers = players.Count;
-
-            if (isDebug)
-            {
-                Log("########## START OF HANDLER ##########" + "\n");
-                string line;
-
-                StreamReader file = new StreamReader(Path.Combine(GameManager.Instance.GetJsScriptsPath(), gen.JsFileName));
-                while ((line = file.ReadLine()) != null)
-                {
-                    Log(line);
-                }
-
-                file.Close();
-
-                Log("########## END OF HANDLER ##########" + "\n");
-            }
-
-            if (App_Misc.NucleusAccountPassword != "12345" && App_Misc.NucleusAccountPassword != "")
-            {
-                nucleusUserAccountsPassword = App_Misc.NucleusAccountPassword;
-            }
-
-            for (int i = 0; i < players.Count; i++)
-            {
-                proc = null; //just to be sure
-                if (processingExit)
-                {
-                    return string.Empty;
-                }
-
-                IsRunning = true;
-                Log($"********** Setting up player {i + 1} **********" + "\n");
-
-                PlayerInfo player = players[i];
-
-                player.PlayerID = i;
-
-                plyrIndex = i;
-
-                if (!GameProfile.UseNicknames)
-                {
-                    player.Nickname = $"Player{i + 1}";
-                }
-
-                ProcessData procData = player.ProcessData;
-                bool hasSetted = procData != null && procData.Setted;
-
-                if (gen.PauseBeforeMutexKilling > 0)
-                {
-                    Log(string.Format("Pausing for {0} seconds", gen.PauseBeforeMutexKilling));
-                    Thread.Sleep(TimeSpan.FromSeconds(gen.PauseBeforeMutexKilling));
-                }
-
-                if (i > 0 && (gen.KillMutexLauncher?.Length > 0))
-                {
-                    for (; ; )
-                    {
-                        if (exited > 0)
-                        {
-                            return "";
-                        }
-
-                        Thread.Sleep(1000);
-
-                        if (gen.KillMutexLauncher != null)
-                        {
-                            if (gen.KillMutexLauncher.Length > 0)
-                            {
-                                if (gen.KillMutexDelayLauncher > 0)
-                                {
-                                    Thread.Sleep((gen.KillMutexDelayLauncher * 1000));
-                                }
-
-                                Process[] currentProcs = Process.GetProcesses();
-                                Process launcher = null;
-                                foreach (Process currentProc in currentProcs)
-                                {
-                                    if (currentProc.ProcessName.ToLower() == Path.GetFileNameWithoutExtension(gen.LauncherExe).ToLower())
-                                    {
-                                        if (!attachedIdsLaunchers.Contains(currentProc.Id))
-                                        {
-                                            launcher = currentProc;
-                                            attachedIdsLaunchers.Add(currentProc.Id);
-                                            attachedLaunchers.Add(currentProc);
-                                        }
-                                    }
-                                }
-
-                                if (launcher == null)
-                                {
-                                    Log("Could not find launcher process to kill mutexes");
-                                    break;
-                                }
-
-                                if (StartGameUtil.MutexExists(launcher, gen.KillMutexTypeLauncher, gen.PartialMutexSearchLauncher, gen.KillMutexLauncher))
-                                {
-                                    // mutexes still exist, must kill
-                                    StartGameUtil.KillMutex(launcher, gen.KillMutexTypeLauncher, gen.PartialMutexSearchLauncher, gen.KillMutexLauncher);
-                                    break;
-                                }
-                                else
-                                {
-                                    // mutexes dont exist anymore
-                                    break;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            break;
-                        }
-
-                        if (processingExit)
-                        {
-                            break;
-                        }
-                    }
-                }
-
-                if (!gen.KillMutexAtEnd)
-                {
-                    if (!gen.RenameNotKillMutex && i > 0 && (gen.KillMutex?.Length > 0 || !hasSetted))
-                    {
-                        PlayerInfo before = players[i - 1];
-
-                        for (; ; )
-                        {
-                            if (exited > 0)
-                            {
-                                return "";
-                            }
-
-                            Thread.Sleep(1000);
-
-                            if (gen.KillMutex != null)
-                            {
-                                if (gen.KillMutex.Length > 0 && !before.ProcessData.KilledMutexes)
-                                {
-                                    // check for the existence of the mutexes
-                                    // before invoking our StartGame app to kill them
-                                    ProcessData pdata = before.ProcessData;
-
-                                    if (gen.KillMutexDelay > 0)
-                                    {
-                                        Thread.Sleep((gen.KillMutexDelay * 1000));
-                                    }
-
-                                    if (StartGameUtil.MutexExists(pdata.Process, gen.KillMutexType, gen.PartialMutexSearch, gen.KillMutex))
-                                    {
-                                        // mutexes still exist, must kill
-                                        StartGameUtil.KillMutex(pdata.Process, gen.KillMutexType, gen.PartialMutexSearch, gen.KillMutex);
-                                        pdata.KilledMutexes = true;
-                                        break;
-                                    }
-                                    else
-                                    {
-                                        // mutexes dont exist anymore
-                                        break;
-                                    }
-                                }
-
-                            }
-                            else
-                            {
-                                break;
-                            }
-
-                            if (processingExit)
-                            {
-                                return string.Empty;
-                            }
-                        }
-                    }
-                }
-
-                if (i > 0 && (gen.KillMutexProcess?.Length > 0))
-                {
-                    Log("A process has been provided for Nucleus to kill mutexes in");
-
-                    for (; ; )
-                    {
-                        if (exited > 0)
-                        {
-                            return "";
-                        }
-
-                        Thread.Sleep(1000);
-
-                        if (gen.KillMutexProcess != null)
-                        {
-                            if (gen.KillMutexProcess.Length > 0)
-                            {
-                                if (gen.KillMutexDelayProcess > 0)
-                                {
-                                    Thread.Sleep((gen.KillMutexDelayProcess * 1000));
-                                }
-
-                                Process[] currentProcs = Process.GetProcesses();
-                                Process mProc = null;
-                                foreach (Process currentProc in currentProcs)
-                                {
-                                    if (currentProc.ProcessName.ToLower() == Path.GetFileNameWithoutExtension(gen.MutexProcessExe).ToLower())
-                                    {
-                                        if (!mutexProcs.Contains(currentProc.Id))
-                                        {
-                                            Log($"Found process {currentProc} (pid {currentProc.Id}) to kill mutexes");
-                                            mProc = currentProc;
-                                            mutexProcs.Add(currentProc.Id);
-
-                                        }
-                                    }
-                                }
-
-                                if (mProc == null)
-                                {
-                                    Log("Could not find process to kill mutexes");
-                                    break;
-                                }
-
-                                if (StartGameUtil.MutexExists(mProc, gen.KillMutexTypeProcess, gen.PartialMutexSearchProcess, gen.KillMutexProcess))
-                                {
-                                    // mutexes still exist, must kill
-                                    StartGameUtil.KillMutex(mProc, gen.KillMutexTypeProcess, gen.PartialMutexSearchProcess, gen.KillMutexProcess);
-                                    break;
-                                }
-                                else
-                                {
-                                    // mutexes dont exist anymore
-                                    break;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            break;
-                        }
-
-                        if (processingExit)
-                        {
-                            break;
-
-                        }
-                    }
-                }
-
-                if (i > 0 && !gen.ProcessChangesAtEnd && (gen.HookFocus || gen.SetWindowHook || gen.HideCursor || gen.PreventWindowDeactivation || gen.SupportsMultipleKeyboardsAndMice))
-                {
-                    if (gen.PreventWindowDeactivation && !isPrevent)
-                    {
-                        Log("PreventWindowDeactivation detected, setting flag");
-                        isPrevent = true;
-                    }
-
-                    if (isPrevent)
-                    {
-                        if (players[i - 1].IsKeyboardPlayer && gen.KeyboardPlayerSkipPreventWindowDeactivate)
-                        {
-                            Log("Ignoring PreventWindowDeactivation for keyboard player");
-                            gen.PreventWindowDeactivation = false;
-                        }
-                        else
-                        {
-                            Log("Keeping PreventWindowDeactivation on");
-                            gen.PreventWindowDeactivation = true;
-                        }
-                    }
-
-                    if (gen.PostHookInstances?.Length > 0)
-                    {
-                        string[] instancesToHook = gen.PostHookInstances.Split(',');
-                        foreach (string instanceToHook in instancesToHook)
-                        {
-                            if (int.Parse(instanceToHook) == i)
-                            {
-                                Log("Injecting hook DLL for previous instance");
-                                PlayerInfo before = players[i - 1];
-                                Thread.Sleep(1000);
-                                ProcessData pdata = before.ProcessData;
-                                User32Interop.SetForegroundWindow(pdata.Process.NucleusGetMainWindowHandle());
-                                DllsInjector.InjectDLLs(pdata.Process, nextWindowToInject, before);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        Log("Injecting hook DLL for previous instance");
-                        PlayerInfo before = players[i - 1];
-                        Thread.Sleep(1000);
-                        ProcessData pdata = before.ProcessData;
-                        User32Interop.SetForegroundWindow(pdata.Process.NucleusGetMainWindowHandle());
-                        DllsInjector.InjectDLLs(pdata.Process, nextWindowToInject, before);
-                    }
-                } 
-
-                Rectangle playerBounds = player.MonitorBounds;
-                owner = player.Owner;
-
-                int width = playerBounds.Width;
-                int height = playerBounds.Height;
-                Log($"Player monitor's resolution: {owner.MonitorBounds.Width} x {owner.MonitorBounds.Height}");
-                bool isFullscreen = owner.Type == UserScreenType.FullScreen;
-
-                linkFolder = "";
-                linkBinFolder = "";
-                origRootFolder = "";
-
-                if (gen.SymlinkGame || gen.HardcopyGame || gen.HardlinkGame)
-                {
-                    List<string> dirExclusions = new List<string>();
-                    List<string> fileExclusions = new List<string>();
-                    List<string> fileCopies = new List<string>();
-
-                    // symlink the game folder (and not the bin folder, if we have one)
-                    linkFolder = Path.Combine(tempDir, $"Instance{i}");
-
-                    Log("Commencing file operations");
-
-                    if ((i == 0 && (gen.SymlinkGame || gen.HardlinkGame)) || gen.HardcopyGame)
-                    {
-                        for (int f = 0; f < players.Count; f++)
-                        {
-                            string insFolder = Path.Combine(tempDir, "Instance" + f);
-                            Log(string.Format("Creating instance folder {0}", insFolder.Substring(insFolder.IndexOf("content\\"))));
-                            Directory.CreateDirectory(insFolder);
-                        }
-                    }
-
-                    linkBinFolder = linkFolder;
-
-                    if (!string.IsNullOrEmpty(gen.BinariesFolder))
-                    {
-                        linkBinFolder = Path.Combine(linkFolder, gen.BinariesFolder);
-                    }
-
-                    exePath = Path.Combine(linkBinFolder, userGame.Game.ExecutableName);
-
-                    SetExeDpiAwareness(exePath);
-
-                    origExePath = Path.Combine(linkBinFolder, userGame.Game.ExecutableName);
-
-                    if ((i == 0 && (gen.SymlinkGame || gen.HardlinkGame)) || gen.HardcopyGame)
-                    {
-                        if (gen.CopyFiles != null)
-                        {
-                            Log($"Copying {gen.CopyFiles.Length} files in Game.CopyFiles");
-                            string[] filesToCopy = gen.CopyFiles;
-                            for (int c = 0; c < filesToCopy.Length; c++)
-                            {
-                                string s = filesToCopy[c].ToLower();
-                                File.Copy(Path.Combine(rootFolder, s), Path.Combine(linkFolder, s), true);
-                            }
-                        }
-                    }
-
-                    origRootFolder = rootFolder;
-                    instanceExeFolder = linkBinFolder;
-
-                    if (!string.IsNullOrEmpty(gen.WorkingFolder))
-                    {
-                        linkBinFolder = Path.Combine(linkFolder, gen.WorkingFolder);
-                        dirExclusions.Add(gen.WorkingFolder);
-                    }
-
-                    // some games have save files inside their game folder, so we need to access them inside the loop
-                    jsData[Folder.InstancedGameFolder.ToString()] = linkFolder;
-
-                    Thread.Sleep(1000);
-                    if (i == 0 && (gen.LauncherExe?.Length > 0 && gen.LauncherExe.EndsWith("NucleusDefined")))
-                    {
-                        string exeName = null;
-                        if (gen.LauncherExe.Contains('|'))
-                        {
-                            exeName = gen.LauncherExe.Split('|')[0];
-                            Log($"User needs to select launcher exe ({exeName})");
-                            Forms.Prompt prompt = new Forms.Prompt($"Press OK after selecting the game launcher executable ({exeName}), and you're ready to continue.", true, exeName);
-                            prompt.ShowDialog();
-                        }
-                        else
-                        {
-                            Log($"User needs to select launcher exe");
-                            Forms.Prompt prompt = new Forms.Prompt("Press OK after selecting the game launcher executable, and you're ready to continue.", true, exeName);
-                            prompt.ShowDialog();
-                        }
-
-                        Thread.Sleep(1000);
-                        gen.LauncherExe = ofdPath;
-
-                        if (ofdPath != null && !string.IsNullOrEmpty(ofdPath))
-                        {
-                            Log("User selected " + ofdPath + " as the launcher exe, updating handler file");
-                            string text = File.ReadAllText(Path.Combine(GameManager.Instance.GetJsScriptsPath(), gen.JsFileName));
-                            //text = text.Replace("Game.LauncherExe = \"NucleusDefined\"", "Game.LauncherExe = \"" + ofdPath + "\"");
-                            text = Regex.Replace(text, @"Game.LauncherExe = (.*)", $"Game.LauncherExe = \"{ofdPath}\";");
-                            File.WriteAllText(Path.Combine(GameManager.Instance.GetJsScriptsPath(), gen.JsFileName), text);
+                            File.WriteAllText(jsFilename, text);
 
                             Thread.Sleep(3000);
                         }
@@ -4326,8 +3736,8 @@ namespace Nucleus.Gaming
             }
 
             WindowsMerger.Instance?.InsertGameWindows();
-            
-            gen.OnFinishedSetup?.Invoke();            
+
+            gen.OnFinishedSetup?.Invoke();
         }
 
         struct UpdateTickThread

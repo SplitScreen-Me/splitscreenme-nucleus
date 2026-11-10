@@ -334,7 +334,7 @@ namespace Nucleus.Gaming
         public bool UseManualProtoControllersSetup = false;
 
         //processquitbehavior
-        public bool CantRestartInstances;
+        public bool CanRestartInstances = false;
         public bool GameReLaunchByItself;
 
         // Proto Input
@@ -396,31 +396,28 @@ namespace Nucleus.Gaming
                 {
                     System.Threading.Tasks.Task.Run(() =>
                     {
-                        string[] lineSplit = ex.Message.Split(':');
-                        string splited = lineSplit?[0];
-                        string[] getNum = splited.Split(' ');
-
-                        bool lineIsNum = int.TryParse(getNum?[1], out int numLine);
-
-                        string details = ex.Message;
-
-                        if (lineIsNum)
+                        try
                         {
-                            int num = int.Parse(getNum?[1]);
-                            details = $"Error at line {num / 2} {lineSplit?[1]}";
+                            string[] lineSplit = ex.Message.Split(':');
+                            string splited = lineSplit?[0];
+                            string[] getNum = splited.Split(' ');
+
+                            bool lineIsNum = int.TryParse(getNum != null && getNum.Length > 1 ? getNum[1] : null, out int numLine);
+
+                            string details = ex.Message;
+
+                            if (lineIsNum)
+                            {
+                                int num = int.Parse(getNum?[1]);
+                                details = $"Error at line {num / 2} {lineSplit?[1]}";
+                            }
+
+                            ShowErrorMessageBox(jsFileInfo.Name, details);
                         }
-
-                        string error = $"There is an error in the game handler {jsFileInfo.Name}.\n" +
-                        $"\nThe game this handler is made for will not appear in your game list.\n\n" +
-                        $"If you see this error:\n" +
-                        $"-On Nucleus startup, once the issue fixed, it will be automatically re-added to the game list.\n" +
-                        $"-After modifying the handler or replacing the .js file, fix the error and it will be automatically refreshed.\n" +
-                        $"-After updating the handler from the hub please report the issue to the handler author.\n\n" +
-                         $"Common errors include:\n- A syntax error (such as a \',\' \';\' or \']\' missing)\n" +
-                        $"- Another handler has this GUID (must be unique!)\n- Code is not in the right place or format\n(for example: methods using Context must be within the Game.Play function)" +
-                        $"\n\n{details}";
-
-                        NucleusMessageBox.Show("Error in handler", error, false);
+                        catch
+                        {
+                            ShowErrorMessageBox(jsFileInfo.Name, ex.Message);
+                        }
                     });
 
                     return;
@@ -436,6 +433,19 @@ namespace Nucleus.Gaming
             MetaInfo.LoadGameMetaInfo(this);
 
             engine.SetValue("Game", (object)null);
+        }
+
+        private void ShowErrorMessageBox(string jsFileName,string details)
+        {
+            string error = $"There is an error in the game handler {jsFileName}.\n" +
+                            $"\nThe game this handler is made for will not appear in your game list.\n\n" +
+                            $"If you see this error:\n" +
+                            $"-On Nucleus startup, once the issue fixed, it will be automatically re-added to the game list.\n" +
+                            $"-After modifying the handler or replacing the .js file, fix the error and it will be automatically refreshed.\n" +
+                            $"-After updating the handler from the hub please report the issue to the handler author.\n\n" +
+                             $"Common errors include:\n- A syntax error (such as a \',\' \';\' or \']\' missing)\n" +
+                            $"- Another handler has this GUID (must be unique!)\n- Code is not in the right place or format\n(for example: methods using Context must be within the Game.Play function)" +
+                            $"\n\n{details}";
         }
 
         public bool LoadCustomAssemblies(Engine _engine,string configPath)

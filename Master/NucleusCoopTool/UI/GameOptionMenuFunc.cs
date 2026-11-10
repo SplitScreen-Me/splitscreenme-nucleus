@@ -583,7 +583,31 @@ namespace Nucleus.Coop.UI
                             gameOptionMenu.Items["notesMenuItem"].Visible = (!isButton && Core_Interface.Current_UserGameInfo != menuCurrentGameInfo) || !UI_Interface.SetupPanel.Visible;
                             gameOptionMenu.Items["menuSeparator1"].Visible = (!isButton && Core_Interface.Current_UserGameInfo != menuCurrentGameInfo) || !UI_Interface.SetupPanel.Visible;  
                         }
-                            #endregion
+
+                        if (i == gameOptionMenu.Items.IndexOf(gameOptionMenu.Items["tryRestartMenuItem"]))
+                        {
+                            if(menuCurrentGameInfo.HandlerInfo.GenericGameInfo.CanRestartInstances)
+                            {
+                                gameOptionMenu.Items["tryRestartMenuItem"].Visible = false;
+                                continue;
+                            }
+
+                            if (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.TryRestartOnGameCrash)
+                            {
+                                gameOptionMenu.Items["tryRestartMenuItem"].Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
+                                gameOptionMenu.Items[i].ForeColor = Color.GreenYellow;
+                            }
+                            else
+                            {
+                                gameOptionMenu.Items["tryRestartMenuItem"].Image = ImageCache.GetImage(Globals.ThemeFolder + "unlocked.png");
+                                gameOptionMenu.Items[i].ForeColor = Theme_Settings.GameOptionMenuForeColor;
+
+                            }
+
+                            gameOptionMenu.Items[i].Click -= TryRestartMenuItem_Click;
+                            gameOptionMenu.Items[i].Click += TryRestartMenuItem_Click;
+                        }
+                        #endregion
                     }
 
                     foreach (ToolStripMenuItem menuItem in gameOptionMenu.Items.OfType<ToolStripMenuItem>())
@@ -896,6 +920,25 @@ namespace Nucleus.Coop.UI
             else
             {
                 menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.KeepSymLink = true;
+                instancesFolderMenuItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
+                instancesFolderMenuItem.ForeColor = Color.GreenYellow;
+            }
+        }
+
+
+        public static void TryRestartMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem instancesFolderMenuItem = sender as ToolStripMenuItem;
+
+            if (menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.TryRestartOnGameCrash)
+            {
+                menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.TryRestartOnGameCrash = false;
+                instancesFolderMenuItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "unlocked.png");
+                instancesFolderMenuItem.ForeColor = Theme_Settings.GameOptionMenuForeColor;
+            }
+            else
+            {
+                menuCurrentGameInfo.HandlerInfo.GenericGameInfo.MetaInfo.TryRestartOnGameCrash = true;
                 instancesFolderMenuItem.Image = ImageCache.GetImage(Globals.ThemeFolder + "locked.png");
                 instancesFolderMenuItem.ForeColor = Color.GreenYellow;
             }

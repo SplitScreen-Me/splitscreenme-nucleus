@@ -4,22 +4,11 @@ using Nucleus.Coop.Tools;
 using Nucleus.Gaming;
 using Nucleus.Gaming.Controls;
 using Nucleus.Gaming.Controls.SetupScreen;
-using Nucleus.Gaming.Coop;
-using Nucleus.Gaming.Coop.Generic;
 using Nucleus.Gaming.UI;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
 using Nucleus.Coop.UI;
-using System.IO;
-using Newtonsoft.Json.Linq;
-using Nucleus.Gaming.Http_Client;
-using Nucleus.Gaming.Forms;
-using Nucleus.Gaming.Windows;
-using System.Runtime.InteropServices;
-using Nucleus.Coop.UI.UI_Nav_V2;
 using Gamepads;
 
 namespace Nucleus.Coop
@@ -114,8 +103,6 @@ namespace Nucleus.Coop
 
             UI_Interface.NewsFeed = new NewsFeed();
             WindowPanel.Controls.Add(UI_Interface.NewsFeed);
-            //UI_Interface.NewsFeed.Width = 478;
-
             UI_Interface.NewsFeed.Location = new Point(0, 5);
             UI_Interface.NewsFeed.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             UI_Interface.NewsFeed.Size = new Size(WindowPanel.Width / 2, 20);
@@ -285,8 +272,7 @@ namespace Nucleus.Coop
        
             base.WndProc(ref m);
         }
-
-        
+ 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
             UI_Graphics.MainFormPaintBackground(e);

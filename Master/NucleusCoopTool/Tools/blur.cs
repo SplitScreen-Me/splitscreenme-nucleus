@@ -23,32 +23,30 @@ namespace Nucleus.Coop
 
         public GaussianBlur(Bitmap bmp)
         {
-            Bitmap image = new Bitmap(bmp, new Size(1280,720));
-
-            var rct = new Rectangle(0, 0, image.Width, image.Height);
-            var source = new int[rct.Width * rct.Height];
-            var bits = image.LockBits(rct, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
-            Marshal.Copy(bits.Scan0, source, 0, source.Length);
-            image.UnlockBits(bits);
-
-            _width = image.Width;
-            _height = image.Height;
-
-            _alpha = new int[_width * _height];
-            _red = new int[_width * _height];
-            _green = new int[_width * _height];
-            _blue = new int[_width * _height];
-
-            // Process top and bottom colors
-            //ProcessColors(source);
-
-            Parallel.For(0, source.Length, _pOptions, i =>
+            using (var image = new Bitmap(bmp, new Size(1280, 720)))
             {
-                _alpha[i] = (int)((source[i] & 0xff000000) >> 24);
-                _red[i] = (source[i] & 0xff0000) >> 16;
-                _green[i] = (source[i] & 0x00ff00) >> 8;
-                _blue[i] = (source[i] & 0x0000ff);
-            });
+                var rct = new Rectangle(0, 0, image.Width, image.Height);
+                var source = new int[rct.Width * rct.Height];
+                var bits = image.LockBits(rct, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+                Marshal.Copy(bits.Scan0, source, 0, source.Length);
+                image.UnlockBits(bits);
+
+                _width = image.Width;
+                _height = image.Height;
+
+                _alpha = new int[_width * _height];
+                _red = new int[_width * _height];
+                _green = new int[_width * _height];
+                _blue = new int[_width * _height];
+
+                Parallel.For(0, source.Length, _pOptions, i =>
+                {
+                    _alpha[i] = (int)((source[i] & 0xff000000) >> 24);
+                    _red[i] = (source[i] & 0xff0000) >> 16;
+                    _green[i] = (source[i] & 0x00ff00) >> 8;
+                    _blue[i] = (source[i] & 0x0000ff);
+                });
+            }
         }
 
         private void ProcessColors(int[] source)

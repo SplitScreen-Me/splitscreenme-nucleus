@@ -301,17 +301,31 @@ namespace Nucleus.Coop
                 bool validVCRx86;
                 bool validVCRx64;
 
-                using (var ndpKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).OpenSubKey(subkeyX86))
+                try
                 {
-                    validVCRx86 = (int)ndpKey.GetValue("Bld") >= 31103;
+                    using (var ndpKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).OpenSubKey(subkeyX86))
+                    {
+                        validVCRx86 = (int)ndpKey.GetValue("Bld") >= 31103;
+                    }
+                }
+                catch
+                {
+                    validVCRx86 = false;
                 }
 
-                using (var ndpKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).OpenSubKey(subkeyX64))
+                try
                 {
-                    validVCRx64 = (int)ndpKey.GetValue("Bld") >= 31103;
+                    using (var ndpKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).OpenSubKey(subkeyX64))
+                    {
+                        validVCRx64 = (int)ndpKey.GetValue("Bld") >= 31103;
+                    }
+                }
+                catch
+                {
+                    validVCRx64 = false;
                 }
 
-                if (!validVCRx86)//!validVCRx86
+                if (!validVCRx86)
                 {
                     DialogResult dialogResultX86 = MessageBox.Show("Please install Microsoft Visual C++ 2015 - 2022 Redistributable X86\n\n" +
                                    "Do you want to download and install Microsoft Visual C++ 2015 - 2022 Redistributable x86 version now?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -327,7 +341,7 @@ namespace Nucleus.Coop
                     }
                 }
 
-                if (!validVCRx64)//!validVCRx64
+                if (!validVCRx64)
                 {
                     DialogResult dialogResultX64 = MessageBox.Show("Please install Microsoft Visual C++ 2015 - 2022 Redistributable x64\n\n" +
                                     "Do you want to download and install Microsoft Visual C++ 2015 - 2022 Redistributable x64 version now?", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -345,41 +359,42 @@ namespace Nucleus.Coop
             }
             catch
             {
+                MessageBox.Show("An error occured while checking Microsoft Visual C++ 2015 - 2022 Redistributable x86/x64 version.");
             }
         }
         
         public static void CheckWebView2Runtime()
-        {
-            //https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp#detect-if-a-webview2-runtime-is-already-installed
-            //https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/webview2-idl?view=webview2-1.0.3240.44#getavailablecorewebview2browserversionstring
-            string directDownloadLinkX64 = "https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/6e1e9052-dcb3-41e3-9aec-a7880afb75b2/MicrosoftEdgeWebView2RuntimeInstallerX64.exe";
-            string x64FileName = "MicrosoftEdgeWebView2RuntimeInstallerX64.exe";
-
+        {  
             try
             {
                string webViewVer = CoreWebView2Environment.GetAvailableBrowserVersionString(null);
 
                 if(string.IsNullOrEmpty(webViewVer))
                 {
-                    DialogResult dialogResultX64 = MessageBox.Show("Do you want to download and install Microsoft WebView2 Runtime now?\n\nWithout it you will be unable to download handlers from the application.", "Microsoft WebView2 Runtime is not installed.", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                    if (dialogResultX64 == DialogResult.Yes)
-                    {
-                        DependenciesDownloader dldp = new DependenciesDownloader(directDownloadLinkX64, "Downloading Microsoft WebView2 Runtime", x64FileName, "MicrosoftEdgeWebView2RuntimeInstallerX64");
-                        dldp.ShowDialog();
-                    }
+                    ShowWebView2DownloadPrompt();
                 }
             }
             catch
             {
-                DialogResult dialogResultX64 = MessageBox.Show("Do you want to download and install Microsoft WebView2 Runtime now?\n\nWithout it you will be unable to download handlers from the application.", "Microsoft WebView2 Runtime is not installed.", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-
-                if (dialogResultX64 == DialogResult.Yes)
-                {
-                    DependenciesDownloader dldp = new DependenciesDownloader(directDownloadLinkX64, "Downloading Microsoft WebView2 Runtime", x64FileName, "MicrosoftEdgeWebView2RuntimeInstallerX64");
-                    dldp.ShowDialog();
-                }
+                ShowWebView2DownloadPrompt();
             }     
+        }
+
+        private static void ShowWebView2DownloadPrompt()
+        { 
+            //https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/distribution?tabs=dotnetcsharp#detect-if-a-webview2-runtime-is-already-installed
+            //https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/webview2-idl?view=webview2-1.0.3240.44#getavailablecorewebview2browserversionstring
+
+            string directDownloadLinkX64 = "https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/6e1e9052-dcb3-41e3-9aec-a7880afb75b2/MicrosoftEdgeWebView2RuntimeInstallerX64.exe";
+            string x64FileName = "MicrosoftEdgeWebView2RuntimeInstallerX64.exe";
+
+            DialogResult dialogResultX64 = MessageBox.Show("Do you want to download and install Microsoft WebView2 Runtime now?\n\nWithout it you will be unable to download handlers from the application.", "Microsoft WebView2 Runtime is not installed.", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+            if (dialogResultX64 == DialogResult.Yes)
+            {
+                DependenciesDownloader dldp = new DependenciesDownloader(directDownloadLinkX64, "Downloading Microsoft WebView2 Runtime", x64FileName, "MicrosoftEdgeWebView2RuntimeInstallerX64");
+                dldp.ShowDialog();
+            }
         }
 
         public static void CheckAppUpdate()
@@ -445,44 +460,37 @@ namespace Nucleus.Coop
                     return;
                 }
 
-                IEnumerable<string> logs = Directory.EnumerateFiles(logsDirectory).Where(l => Path.GetExtension(l) == ".log");
+                DateTime cutoffUtc = DateTime.UtcNow.AddDays(-7);
 
-                foreach (string log in logs)
+                foreach (string log in Directory.EnumerateFiles(logsDirectory))
                 {
-                    if (File.Exists(log))
+                    if (!string.Equals(
+                        Path.GetExtension(log),
+                        ".log",
+                        StringComparison.OrdinalIgnoreCase))
                     {
-                        DateTime now = DateTime.Now;
-                        DateTime creation = File.GetLastWriteTime(log);
+                        continue;
+                    }
 
-                        if (now.Month == creation.Month)
-                        {
-                            if (now.Day >= creation.Day + 7)
-                            {
-                                File.Delete(log);
-                                continue;
-                            }
-                        }
+                    try
+                    {
+                        DateTime lastWriteUtc = File.GetLastWriteTimeUtc(log);
 
-                        if (now.Month > creation.Month)
+                        if (lastWriteUtc <= cutoffUtc)
                         {
                             File.Delete(log);
-                            continue;
-                        }
-
-                        if (now.Month < creation.Month)//new year since last update
-                        {
-                            if ((now.Day >= 7 && now.Month == 1) || now.Month > 1)
-                            {
-                                File.Delete(log);
-                                continue;
-                            }
                         }
                     }
+                    catch 
+                    {
+                    }
+
                 }
             }
-            catch
-            { 
+            catch 
+            {
             }
+
         }
     }
 }

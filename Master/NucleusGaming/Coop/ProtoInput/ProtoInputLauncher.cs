@@ -7,6 +7,7 @@ using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Coop.ProtoInput
 {
+
     public static class ProtoInputLauncher
     {
         private static List<uint> trackedInstanceHandles = new List<uint>();

@@ -100,7 +100,7 @@ namespace StartGame
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         static extern bool CreateProcess(
             string lpApplicationName,
-            string lpCommandLine,
+           string lpCommandLine,
             //ref SECURITY_ATTRIBUTES lpProcessAttributes,
             //ref SECURITY_ATTRIBUTES lpThreadAttributes,
             IntPtr lpProcessAttributes,
@@ -339,8 +339,6 @@ namespace StartGame
                 STARTUPINFO startup = new STARTUPINFO();
                 startup.cb = Marshal.SizeOf(startup);
 
-                Thread.Sleep(1000);
-
                 if (useStartupHooks && (isHook || renameMutex || setWindow || blockRaw || createSingle))
                 {
                     Log("Starting game and injecting start up hooks via Nucleus.Inject");
@@ -465,8 +463,6 @@ namespace StartGame
                         //{
                         //    ResumeThread(procInfo.hThread);
                         //}
-
-                        Thread.Sleep(1000);
                     }
 
                 }
@@ -474,8 +470,7 @@ namespace StartGame
                 {
                     Log("Starting game via regular process start method (no start up hooks enabled)");
 
-
-                    bool success = CreateProcess(null, path + " " + args, IntPtr.Zero, IntPtr.Zero, false, (uint)ProcessCreationFlags.CREATE_UNICODE_ENVIRONMENT, envPtr, Path.GetDirectoryName(path), ref startup, out PROCESS_INFORMATION processInformation);
+                    bool success = CreateProcess(null, "\"" + path + "\" " + args, IntPtr.Zero, IntPtr.Zero, false, (uint)ProcessCreationFlags.CREATE_UNICODE_ENVIRONMENT, envPtr, Path.GetDirectoryName(path), ref startup, out PROCESS_INFORMATION processInformation);
                     if (!success)
                     {
                         Log(string.Format("ERROR - CreateProcess failed - startGamePath: {0}, startArgs: {1}, dirpath: {2}", path, args, Path.GetDirectoryName(path)));
@@ -483,18 +478,26 @@ namespace StartGame
                     }
 
                     pOutPID = (uint)processInformation.dwProcessId;
+                    
                     proc = Process.GetProcessById((int)pOutPID);
                 }
 
-                Thread.Sleep(1000);
+                int attempts = 0;
 
-                while (pOutPID == 0)
+                while (pOutPID == 0 && attempts <= 600)//30 seconds
                 {
+                    attempts++;
                     Thread.Sleep(50);
                 }
 
+                if(attempts >= 600)
+                {
+                    throw new Exception($"ERROR - Process id not found after 30 seconds. Aborting.");
+                }
+                
                 bool isRunning = Process.GetProcesses().Any(x => x.Id == (int)pOutPID);
                 bool foundProc = false;
+
                 if (!isRunning || (isRunning && Process.GetProcessById((int)pOutPID).ProcessName.ToLower() != Path.GetFileNameWithoutExtension(path).ToLower()))
                 {
                     if (isRunning)
@@ -640,7 +643,11 @@ namespace StartGame
             //Thread.Sleep(100);
             Log("Received output: " + e.Data);
             Console.WriteLine($"Redirected output: {e.Data}");
-            uint.TryParse(e.Data, out pOutPID);
+
+            if (uint.TryParse(e.Data, out uint parsed) && parsed != 0)
+            {
+                pOutPID = parsed;
+            }
         }
 
         static void Main(string[] args)

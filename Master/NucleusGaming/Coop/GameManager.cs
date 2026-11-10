@@ -195,6 +195,11 @@ namespace Nucleus.Gaming
             {
                 return;
             }
+            else
+            {
+                Console.WriteLine("Json object already contains: " + path);
+            }
+        }
 
             RefreshHandlersData();
         }
@@ -401,6 +406,11 @@ namespace Nucleus.Gaming
         /// <returns></returns>
         public UserGameInfo TryAddGame(string exePath, HandlerInfo handlerInfo)
         {
+            if(Instance.User.Games.Any(g => g.GameGuid == handlerInfo.GUID))
+            {
+                return null;
+            }
+            
             LogManager.Log("Found game: {0}, full path: {1}", handlerInfo.GameName, exePath);
             UserGameInfo uinfo = new UserGameInfo();
 
@@ -604,6 +614,7 @@ namespace Nucleus.Gaming
 
                                     if (handlerInfo == null || !File.Exists(userGameInfo.ExePath))
                                     {
+                                        i--;
                                         user.Games.Remove(userGameInfo);
                                         continue;
                                     }
@@ -622,7 +633,7 @@ namespace Nucleus.Gaming
                             user.Games = user.Games.OrderBy(g => g.HandlerInfo?.GameName).ToList();
                         }
 
-                        SaveUser(userProfile);
+                        SaveUser(userProfile);                     
                     }
                 }
                 catch
@@ -649,7 +660,7 @@ namespace Nucleus.Gaming
             {
                 Directory.CreateDirectory(split);
             }
-
+          
             SaveUser(userProfile);
         }
 
@@ -874,6 +885,13 @@ namespace Nucleus.Gaming
 
                         continue;
                     }
+                    else//an exception has been returned
+                    {
+                        //the file is invalid so we add it to the blacklist and show an error only once
+                        if (!BlackListedFiles.Any(blf => blf == fileInfo.FullName))
+                        {
+                            BlackListedFiles.Add(fileInfo.FullName);
+                            UserGameInfo existingUserGameInfo = user.Games.Find(ug => ug?.HandlerInfo?.FileName == fileInfo.Name);
 
                     //check if the file is of an added game
                     UserGameInfo userGameInfo = user.Games.Find(ugi => ugi.FileFullPath == fileInfo.FullName);

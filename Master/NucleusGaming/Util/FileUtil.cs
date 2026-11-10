@@ -203,12 +203,14 @@ namespace Nucleus.Gaming
             {
                 string[] deleteSplit = deleteLine.Split('|');
                 int indexOffset = 1;
+
                 if (deleteSplit.Length == 2)
                 {
                     if (int.Parse(deleteSplit[0]) != (i + 1))
                     {
                         continue;
                     }
+
                     indexOffset = 0;
                 }
 
@@ -218,13 +220,20 @@ namespace Nucleus.Gaming
                 {
                     if (!handlerInstance.CurrentGameInfo.IgnoreDeleteFilesPrompt)
                     {
-                        DialogResult dialogResult = MessageBox.Show("Are you sure you want to delete '" + fullFilePath + "'?", "Nucleus - Delete Files In Config Path", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                        DialogResult dialogResult = MessageBox.Show(
+                            "Are you sure you want to delete '" + fullFilePath + "'?",
+                            "Nucleus - Delete Files In Config Path",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Warning);
+
                         if (dialogResult != DialogResult.Yes)
                         {
                             continue;
                         }
                     }
-                    handlerInstance.Log(string.Format("Deleting file {0}", Path.GetFileName(fullFilePath), Path.Combine(linkFolder, deleteSplit[2 - indexOffset])));
+
+                    handlerInstance.Log(string.Format("Deleting file {0}", Path.GetFileName(fullFilePath)));
+
                     File.Delete(fullFilePath);
                 }
                 else
