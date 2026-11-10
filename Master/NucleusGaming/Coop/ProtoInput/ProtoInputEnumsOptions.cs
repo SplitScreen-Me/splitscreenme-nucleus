@@ -1,4 +1,4 @@
-﻿namespace Nucleus.Gaming
+namespace Nucleus.Gaming
 {
     public enum SetWindowPosHook
     {

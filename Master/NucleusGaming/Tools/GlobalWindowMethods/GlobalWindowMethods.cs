@@ -1,4 +1,4 @@
-﻿using Nucleus.Gaming.App.Settings;
+using Nucleus.Gaming.App.Settings;
 using Nucleus.Gaming.Coop;
 using Nucleus.Gaming.Coop.InputManagement;
 using Nucleus.Gaming.Coop.ProtoInput;
