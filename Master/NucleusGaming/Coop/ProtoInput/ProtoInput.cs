@@ -1,4 +1,4 @@
-﻿using Nucleus.Gaming.Coop.ProtoInput;
+using Nucleus.Gaming.Coop.ProtoInput;
 using System;
 using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Metadata;

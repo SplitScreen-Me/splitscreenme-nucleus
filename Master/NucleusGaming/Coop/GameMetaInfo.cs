@@ -13,6 +13,7 @@ using System.Windows.Forms;
 
 namespace Nucleus.Gaming.Coop
 {
+    //need a lock or saveasync whaterver make it thread safe and avoid spamming
     public class GameMetaInfo
     {
         private readonly string nucleusEnvironment = $@"{Globals.UserEnvironmentRoot}\NucleusCoop";

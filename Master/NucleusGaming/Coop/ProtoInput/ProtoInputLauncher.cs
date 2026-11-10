@@ -1,4 +1,4 @@
-﻿using Nucleus.Gaming.Coop.InputManagement;
+using Nucleus.Gaming.Coop.InputManagement;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -150,6 +150,7 @@ namespace Nucleus.Gaming.Coop.ProtoInput
                 player.ProtoController4 = 0;
             }
         }
+
 
         private static void SetupInstance(uint instanceHandle, int instanceIndex, GenericGameInfo gen, PlayerInfo player, int mouseHandle, int keyboardHandle, int controllerIndex, int controllerIndex2, int controllerIndex3, int controllerIndex4)
         {
@@ -517,13 +518,14 @@ namespace Nucleus.Gaming.Coop.ProtoInput
 
             trackedInstanceHandles.Add(instanceHandle);
 
+
             if (gen.ProtoInput.FreezeExternalInputWhenInputNotLocked)
             {
                 NotifyInputLockChange();
 
             }
         }
-
+        
         public static void NotifyInputLockChange()
         {
             bool freezeExternal = !LockInputRuntime.IsLocked;

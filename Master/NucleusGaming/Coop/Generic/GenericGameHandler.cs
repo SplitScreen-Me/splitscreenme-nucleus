@@ -1,4 +1,4 @@
-﻿using Jint.Native;
+using Jint.Native;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using Nucleus.Coop.Forms;
