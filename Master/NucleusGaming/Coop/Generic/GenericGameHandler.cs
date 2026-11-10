@@ -1227,6 +1227,7 @@ namespace Nucleus.Gaming
                     }
                 }
             }
+
             if (gen.LauncherExe?.Length > 0)
             {
                 //Force process to be null as we don't want launcher process
@@ -1264,6 +1265,7 @@ namespace Nucleus.Gaming
                         }
                     }
                 }
+
                 if ((int)proc.NucleusGetMainWindowHandle() > 0)
                 {
                     string windowTitle = proc.MainWindowTitle + "(" + i + ")";
@@ -1484,11 +1486,13 @@ namespace Nucleus.Gaming
                                     }
                                 }
                             }
+
                             if (mProc == null)
                             {
                                 Log("Could not find restarted process to kill mutexes");
                                 break;
                             }
+
                             if (StartGameUtil.MutexExists(mProc, gen.KillMutexTypeProcess, gen.PartialMutexSearchProcess, gen.KillMutexProcess))
                             {
                                 // mutexes still exist, must kill
@@ -1516,6 +1520,7 @@ namespace Nucleus.Gaming
             {
                 profilePlayer = GameProfile.ProfilePlayersList[i];
             }
+
             if (profilePlayer?.PriorityClass != "Normal" && profilePlayer?.PriorityClass != null)
             {
                 player.PriorityClass = profilePlayer.PriorityClass;
