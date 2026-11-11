@@ -1461,7 +1461,14 @@ namespace Nucleus.Gaming.Tools.GlobalWindowMethods
                                 {
                                     if (p.GotGame)
                                     {
-                                        handlerInstance.exited++;
+                                        if ((handlerInstance.CurrentGameInfo.CanRestartInstances || handlerInstance.CurrentGameInfo.MetaInfo.TryRestartOnGameCrash) || handlerInstance.CurrentGameInfo.GameReLaunchByItself)
+                                        {
+                                            if (!RestartThreadIsRunning && !handlerInstance.processingExit)
+                                            {
+                                                RunRestartInstanceThread(p, players, data.Process);
+                                            }
+                                        }
+                                        else handlerInstance.exited++;
                                     }
                                     else
                                     {
